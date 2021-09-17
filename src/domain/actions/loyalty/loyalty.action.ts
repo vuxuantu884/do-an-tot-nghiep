@@ -28,8 +28,8 @@ const getLoyaltyRate = (setData: (data: LoyaltyRateResponse) => void) => {
   return BaseAction(LoyaltyRateType.GET_LOYALTY_RATE_REQUEST, { setData });
 }
 
-const createLoyaltyRate = (addingRate: number, usageRate: number, enablePointUsage: boolean, setData: (data: LoyaltyRateResponse) => void) => {
-  return BaseAction(LoyaltyRateType.CREATE_LOYALTY_RATE_REQUEST, { addingRate, usageRate, enablePointUsage, setData });
+const createLoyaltyRate = (addingRate: number | null, usageRate: number | null, enableUsingPoint: boolean, setData: (data: LoyaltyRateResponse) => void) => {
+  return BaseAction(LoyaltyRateType.CREATE_LOYALTY_RATE_REQUEST, { addingRate, usageRate, enableUsingPoint, setData });
 }
 
 const getLoyaltyUsage = (setData: (data: Array<LoyaltyUsageResponse>) => void) => {

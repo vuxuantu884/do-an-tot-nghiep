@@ -350,9 +350,9 @@ function* loyaltyRateSaga(action: YodyAction) {
 }
 
 function* createLoyaltyRateSaga(action: YodyAction) {
-  const { addingRate, usageRate, enablePointUsage, setData } = action.payload;
+  const { addingRate, usageRate, enableUsingPoint, setData } = action.payload;
   try {
-    let response: BaseResponse<LoyaltyRateResponse> = yield call(createLoyaltyRate, addingRate, usageRate, enablePointUsage);
+    let response: BaseResponse<LoyaltyRateResponse> = yield call(createLoyaltyRate, addingRate, usageRate, enableUsingPoint);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

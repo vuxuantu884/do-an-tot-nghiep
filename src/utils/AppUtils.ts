@@ -9,6 +9,7 @@ import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
+  ProductResponse,
   VariantImage,
   VariantPriceRequest,
   VariantPricesResponse,
@@ -521,7 +522,7 @@ export const Products = {
     };
     return variantUpdateView;
   },
-  converVariantResponseToRequest: (variant: VariantResponse) => {
+  convertVariantResponseToRequest: (variant: VariantResponse) => {
     let variantUpadteRequest: VariantUpdateRequest = {
       id: variant.id,
       composite: variant.composite,
@@ -547,6 +548,19 @@ export const Products = {
     };
     return variantUpadteRequest;
   },
+  findAvatarProduct: (product: ProductResponse|null) => {
+    let avatar = null;
+    if(product) {
+      product.variants.forEach((variant) => {
+        variant.variant_images.forEach((variantImage) => {
+          if(variantImage.product_avatar) {
+            avatar = variantImage.url;
+          }
+        })
+      }, [])
+    }
+    return avatar;
+  }
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {

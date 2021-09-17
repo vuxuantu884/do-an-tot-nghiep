@@ -628,7 +628,7 @@ const OrderDetail = (props: PropType) => {
                   title={
                     <Space>
                       <div className="d-flex">
-                        <span className="title-card">THANH TOÁN</span>
+                        <span className="title-card">THANH TOÁN 2</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
                         <Tag className="orders-tag orders-tag-default">
@@ -787,56 +787,57 @@ const OrderDetail = (props: PropType) => {
                 </div>
               }
             >
-              <Row className="" gutter={5}>
-                <Col span={9}>Cửa hàng:</Col>
-                <Col span={15}>
-                  <span
-                    style={{ fontWeight: 500, color: "#2A2A86" }}
-                    className="text-focus"
-                  >
-                    {OrderDetail?.store}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Điện thoại:</Col>
-                <Col span={15}>
-                  <span style={{ fontWeight: 500, color: "#222222" }}>
-                    {OrderDetail?.customer_phone_number}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Địa chỉ:</Col>
-                <Col span={15}>
-                  <span style={{ fontWeight: 500, color: "#222222" }}>
-                    {OrderDetail?.shipping_address?.full_address}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>NVBH:</Col>
-                <Col span={15}>
-                  <span
-                    style={{ fontWeight: 500, color: "#222222" }}
-                    className="text-focus"
-                  >
-                    {OrderDetail?.assignee}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Người tạo:</Col>
-                <Col span={15}>
-                  <span
-                    style={{ fontWeight: 500, color: "#222222" }}
-                    className="text-focus"
-                  >
-                    {OrderDetail?.account}
-                  </span>
-                </Col>
-              </Row>
-              {/* <Row className="margin-top-10" gutter={5}>
+              <div className="padding-24">
+                <Row className="" gutter={5}>
+                  <Col span={9}>Cửa hàng:</Col>
+                  <Col span={15}>
+                    <span
+                      style={{ fontWeight: 500, color: "#2A2A86" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.store}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>Điện thoại:</Col>
+                  <Col span={15}>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.customer_phone_number}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>Địa chỉ:</Col>
+                  <Col span={15}>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.shipping_address?.full_address}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>NVBH:</Col>
+                  <Col span={15}>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.assignee}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>Người tạo:</Col>
+                  <Col span={15}>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.account}
+                    </span>
+                  </Col>
+                </Row>
+                {/* <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
                     <span style={{ fontWeight: 500, color: "#222222" }}>
@@ -846,16 +847,17 @@ const OrderDetail = (props: PropType) => {
                     </span>
                   </Col>
                 </Row> */}
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Đường dẫn:</Col>
-                <Col span={15} style={{ wordWrap: "break-word" }}>
-                  {OrderDetail?.url ? (
-                    <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
-                  ) : (
-                    <span className="text-focus">Không</span>
-                  )}
-                </Col>
-              </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>Đường dẫn:</Col>
+                  <Col span={15} style={{ wordWrap: "break-word" }}>
+                    {OrderDetail?.url ? (
+                      <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
+                    ) : (
+                      <span className="text-focus">Không</span>
+                    )}
+                  </Col>
+                </Row>
+              </div>
             </Card>
             <SubStatusOrder
               subStatusId={OrderDetail?.sub_status_id}

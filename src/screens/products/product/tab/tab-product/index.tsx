@@ -137,7 +137,7 @@ const TabProduct: React.FC = () => {
       title: "Mã sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => (
-        <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
+        <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>{value}</Link>
       ),
       visible: true,
     },
@@ -224,11 +224,11 @@ const TabProduct: React.FC = () => {
       setUploadVisible(false);
       if (variantResponse !== null) {
         dispatch(showLoading());
-        let variantRequet: VariantUpdateRequest =
-          Products.converVariantResponseToRequest(variantResponse);
-        variantRequet.variant_images = variant_images;
+        let variantRequest: VariantUpdateRequest =
+          Products.convertVariantResponseToRequest(variantResponse);
+        variantRequest.variant_images = variant_images;
         dispatch(
-          variantUpdateAction(variantResponse.id, variantRequet, (result) => {
+          variantUpdateAction(variantResponse.id, variantRequest, (result) => {
             dispatch(hideLoading());
           })
         );

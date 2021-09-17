@@ -92,7 +92,7 @@ export interface OrderLineItemResponse {
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
-  maxQuantity?: number;
+  maxQuantity: number;
 }
 
 export interface FulFillmentResponse {

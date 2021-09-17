@@ -9,7 +9,6 @@ import {
   Divider,
   Dropdown,
   Form,
-  FormInstance,
   Input,
   Menu,
   Row,
@@ -30,29 +29,23 @@ import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import {
-  OrderItemDiscountModel,
-  OrderSettingsModel,
-} from "model/other/order/order-model";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
 } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, {
   createRef,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import DiscountGroup from "screens/order-online/component/discount-group";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
 import {
@@ -65,32 +58,15 @@ import {
   getTotalAmountAfferDiscount,
   getTotalDiscount,
   getTotalQuantity,
-  haveAccess,
   replaceFormatString,
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import DiscountGroup from "../../discount-group";
 
 type CardProductProps = {
-  storeId: number | null;
-  selectStore: (item: number) => void;
-  shippingFeeCustomer: number | null;
-  setItemGift: (item: []) => void;
-  changeInfo: (
-    items: Array<OrderLineItemRequest>,
-    amount: number,
-    discount_rate: number,
-    discount_value: number
-  ) => void;
-  orderSettings?: OrderSettingsModel;
-  formRef: React.RefObject<FormInstance<any>>;
-  onChangeProduct: (value: string) => void;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
-  isCloneOrder?: boolean;
-  discountRateParent?: number;
-  discountValueParent?: number;
+  shippingFeeCustomer: number | null;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -98,20 +74,13 @@ const initQueryVariant: VariantSearchQuery = {
   page: 1,
 };
 
-const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const {
-    orderSettings,
-    formRef,
-    items,
-    handleCardItems,
-    // isCloneOrder,
-    discountRateParent,
-    discountValueParent,
-  } = props;
+const CardExchangeProducts: React.FC<CardProductProps> = (
+  props: CardProductProps
+) => {
+  const { items, handleCardItems } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
-  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
   const [keySearchVariant, setKeySearchVariant] = useState("");
   const [resultSearchVariant, setResultSearchVariant] = useState<
     PageResponse<VariantResponse>
@@ -129,18 +98,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   console.log("amount", amount);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
-  const [discountValue, setDiscountValue] = useState<number>(
-    discountValueParent || 0
-  );
-  const [discountRate, setDiscountRate] = useState<number>(
-    discountRateParent || 0
-  );
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [discountRate, setDiscountRate] = useState<number>(0);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
-  const [isShowProductSearch, setIsShowProductSearch] = useState(false);
-  const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
-    useState(false);
-
   //Function
 
   const totalAmount = useCallback(
@@ -186,7 +147,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         }
         _itemGifts = [..._itemGifts, ...items[i].gifts];
       }
-      props.setItemGift(_itemGifts);
+      setItemGift(_itemGifts);
     }
   }, [items]);
 
@@ -251,7 +212,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   // render
 
   const renderSearchVariant = (item: VariantResponse) => {
-    console.log("item", item);
     let avatar = findAvatar(item.variant_images);
     return (
       <div
@@ -710,7 +670,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
       handleCardItems(_items.reverse());
       autoCompleteRef.current?.blur();
-      setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
     },
     [resultSearchVariant, items, splitLine]
@@ -718,21 +677,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   );
 
   const onChangeProductSearch = (value: string) => {
-    if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
-      if (value) {
-        formRef.current?.validateFields(["store_id"]);
-      }
-    }
     setKeySearchVariant(value);
     initQueryVariant.info = value;
     dispatch(
       searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
     );
   };
-
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
 
   const ShowDiscountModal = useCallback(() => {
     setVisiblePickDiscount(true);
@@ -763,6 +713,17 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     }
   };
 
+  const changeInfo = (
+    _items: Array<OrderLineItemRequest>,
+    amount: number,
+    discount_rate: number,
+    discount_value: number
+  ) => {
+    handleCardItems(_items);
+    setDiscountRate(discount_rate);
+    setDiscountValue(discount_value);
+  };
+
   const calculateChangeMoney = (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -770,21 +731,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _discountValue: number
   ) => {
     setChangeMoney(_amount - _discountValue);
-    props.changeInfo(_items, _amount, _discountRate, _discountValue);
+    changeInfo(_items, _amount, _discountRate, _discountValue);
   };
-
-  const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
-      newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
-    }
-    return newData;
-  }, [listStores, userReducer.account]);
 
   const onUpdateData = useCallback(
     (items: Array<OrderLineItemRequest>) => {
@@ -811,24 +759,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _items[indexItem].gifts = itemGifts;
     handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
-
-  useLayoutEffect(() => {
-    dispatch(StoreGetListAction(setListStores));
-  }, [dispatch]);
-
-  const onInputSearchProductFocus = () => {
-    setIsInputSearchProductFocus(true);
-  };
-
-  const onInputSearchProductBlur = () => {
-    setIsInputSearchProductFocus(false);
-  };
-
-  useEffect(() => {
-    if (items && items.length > 0) {
-      setIsShowProductSearch(true);
-    }
-  }, []);
 
   return (
     <Card
@@ -860,53 +790,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Space>
       }
     >
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div style={{ padding: "24px 24px 0 24px" }}>
         <Row gutter={24}>
-          <Col md={8}>
-            <Form.Item
-              label="Cửa hàng"
-              name="store_id"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn cửa hàng 3",
-                },
-              ]}
-            >
-              <Select
-                className="select-with-search"
-                showSearch
-                // allowClear
-                style={{ width: "100%" }}
-                placeholder="Chọn cửa hàng"
-                notFoundContent="Không tìm thấy kết quả"
-                onChange={(value?: number) => {
-                  if (value) {
-                    props.selectStore(value);
-                    setIsShowProductSearch(true);
-                  } else {
-                    setIsShowProductSearch(false);
-                  }
-                }}
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-              >
-                {dataCanAccess.map((item, index) => (
-                  <Select.Option key={index.toString()} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
           <Col md={16}>
             <Form.Item label="Sản phẩm">
               <AutoComplete
@@ -925,9 +810,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
                 maxLength={255}
-                open={isShowProductSearch && isInputSearchProductFocus}
-                onFocus={onInputSearchProductFocus}
-                onBlur={onInputSearchProductBlur}
                 dropdownRender={(menu) => (
                   <div>
                     <div
@@ -999,7 +881,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         rowKey={(record) => record.id}
         columns={columns}
         dataSource={items}
-        className="sale-product-box-table w-100"
+        className="sale-product-box-table2 w-100"
         tableLayout="fixed"
         pagination={false}
         scroll={{ y: 300 }}
@@ -1167,7 +1049,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </Space>
               <div className="font-weight-500 ">-</div>
             </Row>
-
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
@@ -1178,7 +1059,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả:</strong>
+              <strong className="font-size-text">Tổng tiền hàng mua:</strong>
               <strong className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(
@@ -1208,4 +1089,4 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   );
 };
 
-export default CardProduct;
+export default CardExchangeProducts;

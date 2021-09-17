@@ -222,6 +222,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'delivery_provider_ids':
           onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
+        case 'shipper_ids':
+          onFilter && onFilter({...params, shipper_ids: []});
+          break;  
         // trạng thái in
         case 'print_status':
           onFilter && onFilter({...params, print_status: []});
@@ -369,6 +372,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       status: Array.isArray(params.status) ? params.status : [params.status],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
+      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
       print_status: Array.isArray(params.print_status) ? params.print_status : [params.print_status],
@@ -563,6 +567,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
+    if (initialValues.shipper_ids.length) {
+      let textAccount = ""
+      initialValues.shipper_ids.forEach(i => {
+        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+      })
+      list.push({
+        key: 'shipper_ids',
+        name: 'Đối tác giao hàng',
+        value: textAccount
+      })
+    }
     if (initialValues.delivery_provider_ids.length) {
       let textService = ""
       initialValues.delivery_provider_ids.forEach(i => {
@@ -571,7 +587,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
       list.push({
         key: 'delivery_provider_ids',
-        name: 'Đối tác giao hàng',
+        name: 'Đơn vị vận chuyển',
         value: textService
       })
     }
@@ -672,7 +688,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, deliveryService, printStatus, accounts, optionsVariant, serviceType]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, deliveryService, printStatus, accounts, optionsVariant, serviceType]
   );
 
   useEffect(() => {
@@ -980,18 +996,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.shipper_ids.length ? ["1"]: []}>
                   <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
-                    <Item name="delivery_provider_ids">
+                    <Item name="shipper_ids">
                     <Select
                       mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
                       notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                       optionFilterProp="children"
                       getPopupContainer={trigger => trigger.parentNode}
                     >
-                      {deliveryService?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
+                      {accounts.filter(account => account.is_shipper === true)?.map((account) => (
+                        <Option key={account.id} value={account.id}>
+                          {account.full_name} - {account.code}
                         </Option>
                       ))}
                     </Select>
@@ -1098,6 +1114,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           </Option>
                         ))}
                       </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
+                  <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
+                    <Item name="delivery_provider_ids">
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
+                      {deliveryService?.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
                     </Item>
                   </Panel>
                 </Collapse>

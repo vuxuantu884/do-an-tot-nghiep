@@ -1,16 +1,11 @@
-import {
-  Button,
-  Card,
-  Col,
-  Row,
-  Switch,
-  Image,
-  Tabs,
-} from "antd";
+import { Button, Card, Col, Row, Switch, Image, Tabs, Spin } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
+import {
+  productGetDetail,
+  productUpdateAction,
+} from "domain/actions/product/products.action";
 import { ProductResponse } from "model/product/product.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,6 +16,9 @@ import variantdefault from "assets/icon/variantdefault.jpg";
 import Slider from "react-slick";
 import VariantList from "../component/VariantList";
 import { showSuccess } from "utils/ToastUtils";
+import { Products } from "utils/AppUtils";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { useQuery } from "utils/useQuery";
 
 export interface ProductParams {
   id: string;
@@ -28,10 +26,14 @@ export interface ProductParams {
 
 const ProductDetailScreen: React.FC = () => {
   const history = useHistory();
+  const query = useQuery();
+  let variant_id = query.get('variant_id');
   const dispatch = useDispatch();
   const { id } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
+  const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
@@ -54,6 +56,7 @@ const ProductDetailScreen: React.FC = () => {
     }
     return null;
   }, [active, data]);
+
   const renderSize = useMemo(() => {
     if (currentVariant) {
       if (
@@ -67,40 +70,78 @@ const ProductDetailScreen: React.FC = () => {
     return "";
   }, [currentVariant]);
 
-  const onResultUpdate = useCallback((data: ProductResponse|false) => {
-    if(!data) {
-
+  const onResultUpdate = useCallback((data: ProductResponse | false) => {
+    setLoadingVariant(false);
+    if (!data) {
     } else {
       setData(data);
       showSuccess("Cập nhật thông tin thành công");
     }
   }, []);
 
-  const update = useCallback((product: ProductResponse) => {
-    dispatch(productUpdateAction(idNumber, product, onResultUpdate))
-  }, [dispatch, idNumber, onResultUpdate]);
+  const update = useCallback(
+    (product: ProductResponse) => {
+      setLoadingVariant(true);
+      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+    },
+    [dispatch, idNumber, onResultUpdate]
+  );
 
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
-    if(data !== null) {
-      data?.variants.forEach((item) => {
-        if(listSelected.includes(item.id)) {
-          item.saleable = true;
-        }
-      });
-      update(data);
+  const productAvatar = useMemo(() => {
+    let avatar = Products.findAvatarProduct(data);
+    if (avatar == null) {
+      return variantdefault;
     }
-  }, [data, update])
+    return avatar;
+  }, [data]);
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    if(data !== null) {
-      data?.variants.forEach((item) => {
-        if(listSelected.includes(item.id)) {
-          item.saleable = false;
-        }
-      });
-      update(data);
+  const onAllowSale = useCallback(
+    (listSelected: Array<number>) => {
+      if (data !== null) {
+        data?.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.saleable = true;
+          }
+        });
+        update(data);
+      }
+    },
+    [data, update]
+  );
+
+  const onStopSale = useCallback(
+    (listSelected: Array<number>) => {
+      if (data !== null) {
+        data?.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.saleable = false;
+          }
+        });
+        update(data);
+      }
+    },
+    [data, update]
+  );
+
+  const onUpdateSaleable = useCallback(() => {
+    setLoadingVariantUpdate(false);
+    if (!data) {
+    } else {
+      setData(data);
+      showSuccess("Cập nhật thông tin thành công");
     }
-  }, [data, update])
+  }, [data]);
+
+  const onChangeChecked = useCallback(
+    (e) => {
+      if (data !== null) {
+        setLoadingVariantUpdate(true);
+        data.variants[active].saleable = e;
+        dispatch(productUpdateAction(idNumber, data, onUpdateSaleable));
+      }
+    },
+    [active, data, dispatch, idNumber, onUpdateSaleable]
+  );
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -108,9 +149,18 @@ const ProductDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   useEffect(() => {
-    // dispatch(inventoryGetDetailAction({}, onResult));
-  }, []);
-
+    if(data && data?.variants.length > 0) {
+      // dispatch(inventoryGetDetailAction({varr}, onResultHistory));
+    }
+  }, [data, dispatch, onResult]);
+  useEffect(() => {
+    if(variant_id && data) {
+      let index  = data.variants.findIndex((item) => item.id.toString() === variant_id);
+      if(index !== -1) {
+        setActive(index);
+      }
+    }
+  }, [data, variant_id])
   return (
     <StyledComponent>
       <ContentContainer
@@ -182,7 +232,10 @@ const ProductDetailScreen: React.FC = () => {
               </Col>
               <Col span={24} md={6}>
                 <Card title="Ảnh" className="card">
-                  <div className="padding-20"></div>
+                  <div className="padding-20 card-image">
+                    {console.log(productAvatar)}
+                    <Image src={productAvatar} />
+                  </div>
                 </Card>
                 <Card title="Phòng win" className="card">
                   <div className="padding-20">
@@ -203,6 +256,7 @@ const ProductDetailScreen: React.FC = () => {
                         value={data.variants}
                         active={active}
                         setActive={(active) => setActive(active)}
+                        loading={loadingVariant}
                       />
                     </Col>
                     <Col className="right" span={24} md={18}>
@@ -214,6 +268,7 @@ const ProductDetailScreen: React.FC = () => {
                             </div>
                             <div className="header-view-right">
                               <Switch
+                                onChange={onChangeChecked}
                                 className="ant-switch-success"
                                 checked={currentVariant.saleable}
                               />
@@ -291,8 +346,12 @@ const ProductDetailScreen: React.FC = () => {
                                             className="image-slider"
                                           >
                                             {currentVariant.variant_images.map(
-                                              (item) => (
-                                                <Image src={item.url} alt="" />
+                                              (item, index) => (
+                                                <Image
+                                                  key={index}
+                                                  src={item.url}
+                                                  alt=""
+                                                />
                                               )
                                             )}
                                           </Slider>
@@ -307,8 +366,12 @@ const ProductDetailScreen: React.FC = () => {
                                             className="image-thumbnail"
                                           >
                                             {currentVariant.variant_images.map(
-                                              (item) => (
-                                                <img src={item.url} alt="" />
+                                              (item, index) => (
+                                                <img
+                                                  key={index}
+                                                  src={item.url}
+                                                  alt=""
+                                                />
                                               )
                                             )}
                                           </Slider>
@@ -319,6 +382,18 @@ const ProductDetailScreen: React.FC = () => {
                                 </div>
                               </Col>
                             </Row>
+                            {loadingVariantUpdate && (
+                              <div className="loading-view">
+                                <Spin
+                                  indicator={
+                                    <Loading3QuartersOutlined
+                                      style={{ fontSize: 28 }}
+                                      spin
+                                    />
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
                         </React.Fragment>
                       )}

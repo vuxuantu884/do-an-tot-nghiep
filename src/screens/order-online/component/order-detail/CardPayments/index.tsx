@@ -1,4 +1,3 @@
-// @ts-ignore
 import {
   Button,
   Card,
@@ -20,7 +19,6 @@ import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 import Calculate from "assets/icon/caculate.svg";
 
-// @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useMemo, useState } from "react";
@@ -39,7 +37,7 @@ import {
 import { OrderPaymentRequest } from "model/request/order.request";
 const { Panel } = Collapse;
 
-type PaymentCardProps = {
+type CardPaymentsProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
   payments: OrderPaymentRequest[];
   setPayments: (value: Array<OrderPaymentRequest>) => void;
@@ -49,18 +47,15 @@ type PaymentCardProps = {
   isCloneOrder: boolean;
 };
 
-const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
-  const { paymentMethod, payments, isCloneOrder } = props;
-  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
-    []
-  );
+function CardPayments(props: CardPaymentsProps) {
+  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod } =
+    props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
-      handlePickPaymentMethod(PaymentMethodCode.CASH);
+      handlePickPaymentMethod(value);
     } else {
-      setPaymentData([]);
-      props.setPayments([]);
+      setPayments([]);
     }
   };
 
@@ -76,29 +71,35 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   }, [listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {
-    paymentData[index].point = point;
-    paymentData[index].amount = point * PointConfig.VALUE;
-    paymentData[index].paid_amount = point * PointConfig.VALUE;
-    setPaymentData([...paymentData]);
+    payments[index].point = point;
+    payments[index].amount = point * PointConfig.VALUE;
+    payments[index].paid_amount = point * PointConfig.VALUE;
+    setPayments([...payments]);
     // props.setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
     let total = 0;
-    paymentData.forEach((p) => (total = total + p.amount));
+    payments.forEach((p) => (total = total + p.amount));
     return total;
-  }, [paymentData]);
+  }, [payments]);
 
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
 
-  const handlePickPaymentMethod = (code?: string) => {
-    let paymentMaster = ListPaymentMethods.find((p) => code === p.code);
+  const handlePickPaymentMethod = (payment_method_id?: number) => {
+    let paymentMaster = ListPaymentMethods.find(
+      (p) => payment_method_id === p.id
+    );
+    console.log("payment_method_id", payment_method_id);
+    console.log("paymentMaster", paymentMaster);
     if (!paymentMaster) return;
-    let indexPayment = paymentData.findIndex((p) => p.code === code);
+    let indexPayment = payments.findIndex(
+      (p) => p.payment_method_id === payment_method_id
+    );
     if (indexPayment === -1) {
-      paymentData.push({
+      payments.push({
         payment_method_id: paymentMaster.id,
         amount: 0,
         paid_amount: 0,
@@ -114,79 +115,51 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
         type: "",
       });
     } else {
-      paymentData.splice(indexPayment, 1);
+      payments.splice(indexPayment, 1);
     }
-    setPaymentData([...paymentData]);
+    setPayments([...payments]);
   };
 
   const handleInputMoney = (index: number, amount: number) => {
-    if (paymentData[index].code === PaymentMethodCode.POINT) {
-      paymentData[index].point = amount;
-      paymentData[index].amount = amount * PointConfig.VALUE;
-      paymentData[index].paid_amount = amount * PointConfig.VALUE;
+    if (payments[index].code === PaymentMethodCode.POINT) {
+      payments[index].point = amount;
+      payments[index].amount = amount * PointConfig.VALUE;
+      payments[index].paid_amount = amount * PointConfig.VALUE;
     } else {
-      paymentData[index].amount = amount;
-      paymentData[index].paid_amount = amount;
+      payments[index].amount = amount;
+      payments[index].paid_amount = amount;
     }
-    setPaymentData([...paymentData]);
-    props.setPayments([...paymentData]);
+    setPayments([...payments]);
   };
 
   const calculateMax = (totalAmount: number, index: number) => {
     let total = totalAmount;
     for (let i = 0; i < index; i++) {
-      if (paymentData[i].code === PaymentMethodCode.POINT) {
-        total = total - paymentData[i].point! * 1000;
+      if (payments[i].code === PaymentMethodCode.POINT) {
+        total = total - payments[i].point! * 1000;
       } else {
-        total = total - paymentData[i].amount;
+        total = total - payments[i].amount;
       }
     }
     return total;
   };
 
   const handleTransferReference = (index: number, value: string) => {
-    const _paymentData = [...paymentData];
+    const _paymentData = [...payments];
     _paymentData[index].reference = value;
-    setPaymentData(_paymentData);
+    setPayments(_paymentData);
   };
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (isCloneOrder && paymentMethod === 2) {
-      handlePickPaymentMethod(PaymentMethodCode.CASH);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentMethod]);
-
-  useEffect(() => {
-    if (isCloneOrder && payments && payments.length > 0) {
-      const paymentsFormatted: OrderPaymentRequest[] = payments.map(
-        (single) => {
-          return {
-            amount: single.amount,
-            code: single.payment_method.toLowerCase(),
-            customer_id: single.customer_id,
-            name: single.payment_method,
-            note: single.note,
-            paid_amount: single.paid_amount,
-            payment_method: single.payment_method,
-            payment_method_id: single.payment_method_id,
-            reference: single.reference,
-            return_amount: single.return_amount,
-            source: single.source,
-            status: single.status,
-            type: single.type,
-          };
-        }
-      );
-      console.log("payments", payments);
-      console.log("paymentsFormatted", paymentsFormatted);
-      setPaymentData(paymentsFormatted);
-    }
-  }, [isCloneOrder, payments]);
+  // useEffect(() => {
+  //   if (isCloneOrder && paymentMethod === 2) {
+  //     handlePickPaymentMethod(paymentMethod);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [paymentMethod]);
 
   return (
     <Card
@@ -203,7 +176,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
         // required
         >
           <Radio.Group
-            value={props.paymentMethod}
+            value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
             style={{ margin: "18px 0" }}
           >
@@ -217,8 +190,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </Radio>
             </Space>
           </Radio.Group>
-          {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
+          {paymentMethod === PaymentMethodOption.COD &&
+            shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -226,8 +199,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 </span>
               </div>
             )}
-          {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
+          {paymentMethod === PaymentMethodOption.COD &&
+            shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -235,8 +208,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 </span>
               </div>
             )}
-          {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
+          {paymentMethod === PaymentMethodOption.COD &&
+            shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <div className="order-cod-payment-footer" style={{ height: 83 }}>
                 <div>
                   <div>
@@ -254,7 +227,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
         <Row
           gutter={24}
-          hidden={props.paymentMethod !== PaymentMethodOption.PREPAYMENT}
+          hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
         >
           <div style={{ padding: "0 24px", maxWidth: "100%" }}>
             <Collapse
@@ -312,17 +285,14 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           switch (method.code) {
                             case PaymentMethodCode.CASH:
                               icon = (
-                                <Cash
-                                  paymentData={paymentData}
-                                  method={method}
-                                />
+                                <Cash paymentData={payments} method={method} />
                               );
                               break;
                             case PaymentMethodCode.CARD:
                             case PaymentMethodCode.BANK_TRANSFER:
                               icon = (
                                 <CreditCardOutlined
-                                  paymentData={paymentData}
+                                  paymentData={payments}
                                   method={method}
                                 />
                               );
@@ -330,7 +300,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             case PaymentMethodCode.QR_CODE:
                               icon = (
                                 <QrcodeOutlined
-                                  paymentData={paymentData}
+                                  paymentData={payments}
                                   method={method}
                                 />
                               );
@@ -338,7 +308,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             case PaymentMethodCode.POINT:
                               icon = (
                                 <YdCoin
-                                  paymentData={paymentData}
+                                  paymentData={payments}
                                   method={method}
                                 />
                               );
@@ -355,11 +325,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               <Button
                                 style={{ display: "flex", padding: 10 }}
                                 type={
-                                  paymentData.some(
+                                  payments.some(
                                     (p) =>
                                       p.code === method.code ||
                                       p.payment_method.toLowerCase() ===
-                                        method.code.toLowerCase()
+                                        method.code.toLowerCase() ||
+                                      p.payment_method_id === method.id
                                   )
                                     ? "primary"
                                     : "default"
@@ -367,7 +338,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                 value={method.id}
                                 icon={icon}
                                 onClick={() => {
-                                  handlePickPaymentMethod(method.code);
+                                  handlePickPaymentMethod(method.id);
                                 }}
                                 className=""
                               >
@@ -408,7 +379,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           </span>
                         </Col>
                       </Row>
-                      {paymentData.map((method, index) => {
+                      {payments.map((method, index) => {
                         // console.log("paymentData", paymentData);
                         // console.log("method", method);
                         return (
@@ -421,7 +392,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             <Col lg={15} xxl={9} style={{ padding: "0" }}>
                               <Row align="middle">
                                 <b style={{ padding: "8px 0" }}>
-                                  {method.name}:
+                                  {method.payment_method}:
                                 </b>
                                 {method.code === PaymentMethodCode.POINT ? (
                                   <Col className="point-spending">
@@ -496,7 +467,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                 <InputNumber
                                   size="middle"
                                   min={0}
-                                  max={calculateMax(props.amount, index)}
+                                  // max={calculateMax(props.amount, index)}
                                   value={method.amount}
                                   disabled={
                                     method.code === PaymentMethodCode.POINT
@@ -571,6 +542,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
       </div>
     </Card>
   );
-};
+}
 
-export default PaymentCard;
+export default CardPayments;

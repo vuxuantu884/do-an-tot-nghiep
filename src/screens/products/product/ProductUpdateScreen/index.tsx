@@ -15,6 +15,7 @@ import {
   Select,
   Divider,
   Space,
+  Image,
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
@@ -43,6 +44,7 @@ import { MaterialResponse } from "model/product/material.model";
 import {
   ProductRequest,
   ProductResponse,
+  VariantImage,
   VariantResponse,
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
@@ -64,6 +66,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import VariantList from "../component/VariantList";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { showSuccess } from "utils/ToastUtils";
+import ModalPickAvatar from "../component/ModalPickAvatar";
 
 const { Item } = Form;
 var tempActive: number = 0;
@@ -110,6 +113,8 @@ const ProductDetailScreen: React.FC = () => {
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
+  const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
+  const [variantImages, setVariantImage] = useState<Array<VariantImage>>([]);
   const categoryFilter = useMemo(() => {
     if (data === null) {
       return listCategory;
@@ -152,6 +157,34 @@ const ProductDetailScreen: React.FC = () => {
       setAccounts(data.items);
     },
     []
+  );
+
+  const onPickAvatar = useCallback(() => {
+    let variants: Array<VariantResponse> = form.getFieldValue("variants");
+    let variantImages: Array<VariantImage> = [];
+    variants.forEach((item) => {
+      variantImages = [...variantImages, ...item.variant_images];
+    });
+    setVisiblePickAvatar(true);
+    setVariantImage(variantImages);
+  }, [form]);
+
+  const onSaveImage = useCallback(
+    (imageId: number) => {
+      let variants: Array<VariantResponse> = form.getFieldValue("variants");
+      variants.forEach((item) => {
+        item.variant_images.forEach((item1) => {
+          if (item1.image_id === imageId) {
+            item1.product_avatar = true;
+          } else {
+            item1.product_avatar = false;
+          }
+        });
+      });
+      form.setFieldsValue({ variants: [...variants] });
+      setVisiblePickAvatar(false);
+    },
+    [form]
   );
 
   const statusValue = useMemo(() => {
@@ -211,6 +244,7 @@ const ProductDetailScreen: React.FC = () => {
       if (!data) {
       } else {
         form.setFieldsValue(data);
+        setChange(false);
         showSuccess("Cập nhật thông tin sản phẩm thành công");
         if (tempActive !== active) {
           setCurrentVariant(tempActive);
@@ -220,13 +254,9 @@ const ProductDetailScreen: React.FC = () => {
     [active, form, setCurrentVariant]
   );
 
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
-    
-  }, [])
+  const onAllowSale = useCallback((listSelected: Array<number>) => {}, []);
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    
-  }, [])
+  const onStopSale = useCallback((listSelected: Array<number>) => {}, []);
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
@@ -572,10 +602,39 @@ const ProductDetailScreen: React.FC = () => {
                   <Card className="card" title="Ảnh">
                     <div className="padding-20">
                       <div className="a-container">
-                        <div className="bpa">
-                          <PlusOutlined />
-                          Chọn ảnh đại diện
-                        </div>
+                        <Item
+                          noStyle
+                          shouldUpdate={(prev, current) =>
+                            prev.variants !== current.variants
+                          }
+                        >
+                          {({ getFieldValue }) => {
+                            const variants: Array<VariantResponse> =
+                              getFieldValue("variants");
+                            let url = null;
+                            variants.forEach((item) => {
+                              item.variant_images.forEach((item1) => {
+                                if (item1.product_avatar) {
+                                  url = item1.url;
+                                }
+                              });
+                            });
+                            if (url !== null) {
+                              return (
+                                <div onClick={onPickAvatar} className="bpa">
+                                  <Image preview={false} src={url} />
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div onClick={onPickAvatar} className="bpa">
+                                <PlusOutlined />
+                                Chọn ảnh đại diện
+                              </div>
+                            );
+                          }}
+                        </Item>
                       </div>
                     </div>
                   </Card>
@@ -687,6 +746,7 @@ const ProductDetailScreen: React.FC = () => {
                               },
                               0
                             );
+                            setChange(true);
                             setActive(0);
                           }}
                           type="link"
@@ -704,7 +764,7 @@ const ProductDetailScreen: React.FC = () => {
                           {fields.map(
                             ({ key, name, fieldKey, ...restField }, index) =>
                               active === index ? (
-                                <React.Fragment>
+                                <React.Fragment key={key}>
                                   <div className="header-view">
                                     <div className="header-view-left">
                                       <b>THÔNG TIN PHIÊN BẢN</b>
@@ -728,7 +788,11 @@ const ProductDetailScreen: React.FC = () => {
                                     <Item name={[name, "id"]} hidden noStyle>
                                       <Input />
                                     </Item>
-                                    <Item name={[name, "status"]} hidden noStyle>
+                                    <Item
+                                      name={[name, "status"]}
+                                      hidden
+                                      noStyle
+                                    >
                                       <Input />
                                     </Item>
                                     <Item name={[name, "code"]} hidden noStyle>
@@ -753,7 +817,7 @@ const ProductDetailScreen: React.FC = () => {
                                             <Col span={24} md={12}>
                                               <Item
                                                 name={[name, "sku"]}
-                                                rules={[{ required: true }]}
+                                                rules={[{ required: true}]}
                                                 label="Mã sản phẩm"
                                               >
                                                 <Input
@@ -832,7 +896,14 @@ const ProductDetailScreen: React.FC = () => {
                                               },
                                               index
                                             ) => (
-                                              <Row gutter={24}>
+                                              <Row key={key} gutter={24}>
+                                                <Item
+                                                  name={[name, "id"]}
+                                                  hidden
+                                                  noStyle
+                                                >
+                                                  <Input />
+                                                </Item>
                                                 <Col md={4}>
                                                   <Item
                                                     label="Giá bán"
@@ -881,11 +952,11 @@ const ProductDetailScreen: React.FC = () => {
                                                   <Item
                                                     name={[
                                                       name,
-                                                      "whole_sale_price",
+                                                      "wholesale_price",
                                                     ]}
                                                     fieldKey={[
                                                       fieldKey,
-                                                      "whole_sale_price",
+                                                      "wholesale_price",
                                                     ]}
                                                     label="Giá buôn"
                                                     tooltip={{
@@ -1268,6 +1339,12 @@ const ProductDetailScreen: React.FC = () => {
               </Button>
             </Space>
           }
+        />
+        <ModalPickAvatar
+          onOk={onSaveImage}
+          onCancel={() => setVisiblePickAvatar(false)}
+          variantImages={variantImages}
+          visible={visiblePickAvatar}
         />
         <ModalConfirm {...modalConfirm} />
       </ContentContainer>

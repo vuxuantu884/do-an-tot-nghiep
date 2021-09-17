@@ -3,6 +3,7 @@ import {
   ProductHistoryResponse,
   ProductRequest,
   ProductResponse,
+  ProductWrapperUpdateRequest,
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
   VariantResponse,
@@ -24,7 +25,6 @@ export const searchVariantsRequestAction = (
   });
 };
 
-
 export const searchProductWrapperRequestAction = (
   query: ProductWrapperSearchQuery,
   setData: (data: PageResponse<ProductWrapperResponse>|false) => void
@@ -34,6 +34,23 @@ export const searchProductWrapperRequestAction = (
     setData,
   });
 };
+
+export const productWrapperDeleteAction = (id: number, onDeleteSuccess: () => void) => {
+  return BaseAction(ProductType.DELETE_PRODUCT_WRAPPER_REQUEST, {id, onDeleteSuccess});
+}
+
+export const productWrapperUpdateAction = (
+  id: number|null,
+  request: ProductWrapperUpdateRequest,
+  onUpdateSuccess: (result:ProductWrapperUpdateRequest) => void
+) => {
+  return BaseAction(ProductType.UPDATE_PRODUCT_WRAPPER_REQUEST, {
+    id,
+    request,
+    onUpdateSuccess,
+  });
+};
+
 
 export const searchVariantsOrderRequestAction = (
   query: VariantSearchQuery,

@@ -30,10 +30,10 @@ import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
-  getTrackingLogError,
   getTrackingLogFulfillmentAction,
   InfoGHTKAction,
   UpdateFulFillmentStatusAction,
@@ -53,7 +53,6 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
-  // ErrorLogResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -61,6 +60,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
   checkPaymentStatusToShow,
@@ -127,6 +127,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     orderSettings,
   } = props;
 
+  const history = useHistory();
   // node dom
   const formRef = createRef<FormInstance>();
   // action
@@ -154,8 +155,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [serviceType, setServiceType] = useState<string>();
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
-
-  console.log("props", props);
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
@@ -286,14 +285,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail.fulfillments[0].shipment &&
       props.OrderDetail.fulfillments[0].shipment.pushing_status === "failed"
     ) {
-      dispatch(
-        getTrackingLogError(
-          props.OrderDetail.fulfillments[0].code,
-          () => {
-
-          }
-        )
-      );
+      // dispatch(
+      //   getTrackingLogError(
+      //     props.OrderDetail.fulfillments[0].code,
+      //     setErrorLogFulfillment
+      //   )
+      // );
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion
@@ -867,7 +864,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title={
           <Space>
             <div className="d-flex">
-              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 2</span>
+              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
@@ -1491,7 +1488,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               type="primary"
               style={{ marginLeft: "10px", padding: "0 25px" }}
               className="create-button-custom ant-btn-outline fixed-button"
-              // onClick={onOkShippingConfirm}
+              onClick={() => {
+                history.push(
+                  `${UrlConfig.ORDER}/order-return/create?orderID=${OrderDetail?.id}`
+                );
+              }}
             >
               Đổi trả hàng
             </Button>

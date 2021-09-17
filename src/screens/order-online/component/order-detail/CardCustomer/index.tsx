@@ -18,7 +18,7 @@ import {
   Typography,
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
-import imgDefault from "assets/icon/img-default.svg";
+import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import editBlueIcon from "assets/img/edit_icon.svg";
@@ -68,10 +68,10 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 //#end region
 
 type CustomerCardProps = {
-  InfoCustomerSet: (items: CustomerResponse | null) => void;
+  handleCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
-  parentCustomerDetail: CustomerResponse | null;
+  customer: CustomerResponse | null;
 };
 
 //Add query for search Customer
@@ -94,8 +94,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { parentCustomerDetail } = props;
-  console.log("parentCustomerDetail", parentCustomerDetail);
+  const { customer, handleCustomer } = props;
 
   //State
   const dispatch = useDispatch();
@@ -104,9 +103,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [customer, setCustomer] = useState<CustomerResponse | null>(
-    parentCustomerDetail
-  );
 
   const [countryId] = React.useState<number>(233);
   const [areas, setAreas] = React.useState<Array<any>>([]);
@@ -115,13 +111,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-
-  console.log("customer", customer);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(
-      parentCustomerDetail && parentCustomerDetail.shipping_addresses[0]
-        ? parentCustomerDetail.shipping_addresses[0]
+      customer && customer.shipping_addresses[0]
+        ? customer.shipping_addresses[0]
         : null
     );
 
@@ -148,7 +142,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
-    setCustomer(null);
     setVisibleCustomer(true);
   };
   const OkConfirmCustomerEdit = () => {
@@ -206,9 +199,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       <div className="row-search w-100">
         <div className="rs-left w-100" style={{ lineHeight: "35px" }}>
           <img
-            src={imgDefault}
+            src={imageDefault}
             alt="anh"
-            placeholder={imgDefault}
+            placeholder={imageDefault}
             className="logo-customer"
           />
           <div className="rs-info w-100">
@@ -243,8 +236,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   //Delete customer
   const CustomerDeleteInfo = () => {
-    setCustomer(null);
-    props.InfoCustomerSet(null);
+    handleCustomer(null);
     setVisibleBilling(false);
   };
 
@@ -258,8 +250,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
-        setCustomer(resultSearch[index]);
-        props.InfoCustomerSet(resultSearch[index]);
+        handleCustomer(resultSearch[index]);
 
         //set Shipping Address
         if (resultSearch[index].shipping_addresses) {
@@ -318,7 +309,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
-      setCustomer(customers);
+      handleCustomer(customers);
     }
   };
 
@@ -568,7 +559,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             justify="space-between"
                             align="middle"
                             className="change-shipping-address-title"
-                            style={{width:"100%"}}
+                            style={{ width: "100%" }}
                           >
                             <div
                               style={{
@@ -717,7 +708,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               justify="space-between"
                               align="middle"
                               className="change-shipping-address-title"
-                              style={{width:"100%"}}
+                              style={{ width: "100%" }}
                             >
                               <div
                                 style={{

@@ -25,8 +25,8 @@ export const StyledComponent = styled.div`
     align-items: center;
     justify-content: center;
     .bpa {
-      width: 142px;
-      height: 181px;
+      width: 178px;
+      height: 190px;
       background: #fafafa;
       border: 1px dashed #d9d9d9;
       display: flex;
@@ -35,6 +35,14 @@ export const StyledComponent = styled.div`
       flex-direction: column;
       row-gap: 10px;
       cursor: pointer;
+      .ant-image {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        img {
+          object-fit: contain;
+        }
+      }
     }
   }
 `;

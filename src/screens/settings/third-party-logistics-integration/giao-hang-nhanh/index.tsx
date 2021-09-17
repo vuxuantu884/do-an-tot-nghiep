@@ -15,7 +15,7 @@ function SingleThirdPartyLogistic(props: PropType) {
   const dispatch = useDispatch();
 
   const [listShops, setListShops] = useState<StoreResponse[]>([]);
-  const [listShopsSelected] = useState([
+  const [listShopsSelected, setListShopsSelected] = useState([
     {
       name: "YODY Chí Linh 1",
       code: "16783488",
@@ -90,8 +90,10 @@ function SingleThirdPartyLogistic(props: PropType) {
       StoreGetListAction((response) => {
         console.log("response", response);
         setListShops(response);
+        setListShopsSelected(listShopsSelected);
       })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   return (

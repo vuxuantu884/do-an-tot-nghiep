@@ -126,7 +126,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isVisibleGift, setVisibleGift] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
-  console.log("amount", amount);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [discountValue, setDiscountValue] = useState<number>(
@@ -775,11 +774,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-      newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
+      newData = listStores.filter(
+        // tạm thời bỏ điều kiện để show cửa hàng
+        (store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+        // store
       );
     }
     return newData;
@@ -859,7 +861,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Space>
       }
     >
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div style={{ padding: "24px 24px 0 24px" }}>
         <Row gutter={24}>
           <Col md={8}>
             <Form.Item

@@ -318,6 +318,9 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             </Form.Item>
             {type === "inventory" && (
               <Fragment>
+                <Form.Item hidden noStyle name={POProcumentField.store_id}>
+                  <Input />
+                </Form.Item>
                 <Col span={24} md={12}>
                   <Form.Item
                     shouldUpdate={(prev, current) =>
