@@ -8,7 +8,7 @@ import {
 } from "domain/actions/product/products.action";
 import { ProductResponse } from "model/product/product.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import RowDetail from "../component/RowDetail";
 import { StyledComponent } from "./styles";
@@ -19,6 +19,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { Products } from "utils/AppUtils";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { useQuery } from "utils/useQuery";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 export interface ProductParams {
   id: string;
@@ -27,7 +28,7 @@ export interface ProductParams {
 const ProductDetailScreen: React.FC = () => {
   const history = useHistory();
   const query = useQuery();
-  let variant_id = query.get('variant_id');
+  let variant_id = query.get("variant_id");
   const dispatch = useDispatch();
   const { id } = useParams<ProductParams>();
   const [error, setError] = useState(false);
@@ -56,6 +57,10 @@ const ProductDetailScreen: React.FC = () => {
     }
     return null;
   }, [active, data]);
+
+  const productStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_status
+  );
 
   const renderSize = useMemo(() => {
     if (currentVariant) {
@@ -109,6 +114,19 @@ const ProductDetailScreen: React.FC = () => {
     [data, update]
   );
 
+  const statusValue = useMemo(() => {
+    if (!productStatusList) {
+      return "";
+    }
+    let index = productStatusList?.findIndex(
+      (item) => item.value === data?.status
+    );
+    if (index !== -1) {
+      return productStatusList?.[index].name;
+    }
+    return "";
+  }, [data?.status, productStatusList]);
+
   const onStopSale = useCallback(
     (listSelected: Array<number>) => {
       if (data !== null) {
@@ -149,18 +167,20 @@ const ProductDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   useEffect(() => {
-    if(data && data?.variants.length > 0) {
+    if (data && data?.variants.length > 0) {
       // dispatch(inventoryGetDetailAction({varr}, onResultHistory));
     }
   }, [data, dispatch, onResult]);
   useEffect(() => {
-    if(variant_id && data) {
-      let index  = data.variants.findIndex((item) => item.id.toString() === variant_id);
-      if(index !== -1) {
+    if (variant_id && data) {
+      let index = data.variants.findIndex(
+        (item) => item.id.toString() === variant_id
+      );
+      if (index !== -1) {
         setActive(index);
       }
     }
-  }, [data, variant_id])
+  }, [data, variant_id]);
   return (
     <StyledComponent>
       <ContentContainer
@@ -185,7 +205,35 @@ const ProductDetailScreen: React.FC = () => {
           <React.Fragment>
             <Row gutter={24}>
               <Col span={24} md={18}>
-                <Card title="Thông tin sản phẩm" className="card">
+                <Card
+                  title="Thông tin sản phẩm"
+                  className="card"
+                  extra={
+                    <div className="extra-cards status">
+                      <b>Trạng thái:</b>
+                      <Switch
+                        style={{marginLeft: 10}}
+                        checked={data.status === "active"}
+                        onChange={(checked) => {
+                          data.status = checked ? 'active' : "inactive";
+                        
+                        }}
+                        className="ant-switch-success"
+                        defaultChecked
+                      />
+                      <label
+                        style={{marginLeft: 10}}
+                        className={
+                          data.status === "active"
+                            ? "text-success"
+                            : "text-error"
+                        }
+                      >
+                        {statusValue}
+                      </label>
+                    </div>
+                  }
+                >
                   <div className="padding-20">
                     <Row gutter={50}>
                       <Col span={24} md={12}>
