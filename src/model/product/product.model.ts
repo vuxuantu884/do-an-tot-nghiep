@@ -378,13 +378,22 @@ export interface VariantUpdateView {
 }
 
 export interface ProductHistoryResponse extends BaseObject {
-  rootId: number,
-  variantId: number|null,
-  data: string,
-  action: string,
-  deleted: boolean,
+  history_type:      string;
+  product_id:        number;
+  product_code:      string;
+  product_name:      string;
+  variant_id:        number | null;
+  variant_name:      null | string;
+  sku:               null | string;
+  data_old:          null | string;
+  data_current:      string;
+  action_by:         string;
+  action_name:       string;
+  action_date:       Date;
+  history_type_name: string;
 }
 
 export interface ProductHistoryQuery extends BaseQuery {
-  condition?: string
+  condition?: string,
+  history_type?: string,
 }

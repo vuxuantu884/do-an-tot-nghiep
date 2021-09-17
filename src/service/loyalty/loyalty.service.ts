@@ -5,6 +5,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { BaseQuery } from "model/base/base.query";
 import { CreateLoyaltyAccumulationRequest } from "model/request/loyalty/create-loyalty-accumulation.request";
 import { LoyaltyAccumulationProgramResponse } from "model/response/loyalty/loyalty-accumulation.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { generateQuery } from "utils/AppUtils";
@@ -48,4 +49,8 @@ export const createLoyaltyUsage = (query: Array<LoyaltyUsageResponse>): Promise<
 export const searchLoyaltyProgramList = (query: BaseQuery): Promise<BaseResponse<PageResponse<LoyaltyUsageResponse>>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-programs?${params}`);
+};
+export const getLoyaltyPoint = (customerId : number):  Promise<BaseResponse<LoyaltyPoint>>  => {
+  let link = `${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}`;
+  return BaseAxios.get(link);
 };
