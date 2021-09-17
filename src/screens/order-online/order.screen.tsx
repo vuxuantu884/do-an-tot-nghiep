@@ -94,7 +94,6 @@ export default function Order() {
   >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  // console.log("payments", payments);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
     []
   );
@@ -482,7 +481,6 @@ export default function Order() {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -492,16 +490,11 @@ export default function Order() {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
       }
     }
-  };
-
-  const handleChangeProduct = (value: string) => {
-    console.log("valueParent", value);
   };
 
   const setDataAccounts = useCallback(
@@ -558,7 +551,6 @@ export default function Order() {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(+cloneIdParam, (response) => {
-            console.log("response", response);
             const { customer_id } = response;
 
             if (customer_id) {
@@ -679,6 +671,9 @@ export default function Order() {
                 }
                 setShipmentMethod(newShipmentMethod);
                 setFulfillments(response.fulfillments);
+                setShippingFeeCustomer(
+                  response.shipping_fee_informed_to_customer
+                );
                 if (response.store_id) {
                   setStoreId(response.store_id);
                 }
@@ -797,9 +792,6 @@ export default function Order() {
                     setItemGift={setItemGifts}
                     orderSettings={orderSettings}
                     formRef={formRef}
-                    onChangeProduct={(value: string) =>
-                      handleChangeProduct(value)
-                    }
                     items={items}
                     handleCardItems={handleCardItems}
                     isCloneOrder={isCloneOrder}

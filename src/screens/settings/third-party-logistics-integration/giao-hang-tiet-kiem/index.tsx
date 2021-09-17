@@ -79,6 +79,8 @@ function SingleThirdPartyLogistic(props: PropType) {
       return;
     }
     const params = {
+      username: "",
+      password: "",
       external_service_id: thirdPartyLogisticId,
       status: DELIVER_SERVICE_STATUS.inactive,
     };
