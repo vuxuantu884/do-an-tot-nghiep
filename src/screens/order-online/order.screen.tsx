@@ -83,7 +83,7 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
-  const [loyaltyPoint, setLoyaltyPoint]= useState<LoyaltyPoint|null>(null);
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [hvc, setHvc] = useState<number | null>(null);
   const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
@@ -420,20 +420,19 @@ export default function Order() {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
-    
-    let checkPointfocus = payments.find(
-        (p) => p.code === "point"
-    );
-    if (checkPointfocus) {
-        let curenPoint = 0;
-        if (loyaltyPoint)
-            curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
-        let point =checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
 
-        if (point > curenPoint) {
-            showError("Số điểm tiêu vượt quá số điểm hiện có");
-            return;
-        }
+    let checkPointfocus = payments.find((p) => p.code === "point");
+    if (checkPointfocus) {
+      let curenPoint = 0;
+      if (loyaltyPoint)
+        curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
+      let point =
+        checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
+
+      if (point > curenPoint) {
+        showError("Số điểm tiêu vượt quá số điểm hiện có");
+        return;
+      }
     }
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -725,10 +724,11 @@ export default function Order() {
 
   useEffect(() => {
     if (customer) {
-      dispatch(getLoyaltyPoint(customer.id,setLoyaltyPoint));
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
     }
-    else {setLoyaltyPoint(null)}
-}, [dispatch, customer]);
+  }, [dispatch, customer]);
   return (
     <React.Fragment>
       <ContentContainer
