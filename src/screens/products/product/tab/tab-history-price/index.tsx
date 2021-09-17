@@ -57,7 +57,7 @@ const TabHistoryPrice: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}#2?${queryParam}`);
+      history.replace(`${UrlConfig.PRODUCT}#4?${queryParam}`);
     },
     [history, params]
   );
@@ -93,10 +93,13 @@ const TabHistoryPrice: React.FC = () => {
       visible: true,
       align: "center",
       render: (value) => {
-        const DATA_CONVERT = JSON.parse(value);
-        return (
-          DATA_CONVERT.import_price
-        )
+        if (value){
+          const DATA_CONVERT = JSON.parse(value);
+          return (
+            DATA_CONVERT.import_price
+          )
+        }
+        return '';
       }
     },
     {
@@ -116,11 +119,13 @@ const TabHistoryPrice: React.FC = () => {
       dataIndex: "data_old",
       visible: true,
       align: "center",
-      render: (value) => {
+      render: (value) => {if (value){
         const DATA_CONVERT = JSON.parse(value);
         return (
           DATA_CONVERT.retail_price
         )
+      }
+      return '';
       }
     },
     {

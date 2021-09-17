@@ -56,7 +56,7 @@ const TabHistoryInfo: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}#2?${queryParam}`);
+      history.replace(`${UrlConfig.PRODUCT}#3?${queryParam}`);
     },
     [history, params]
   );
