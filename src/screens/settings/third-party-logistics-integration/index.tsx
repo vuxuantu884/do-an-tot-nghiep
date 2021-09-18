@@ -1,10 +1,7 @@
 import { Button, Card, Col, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import {
-  DeliveryServicesGetList,
-  updateDeliveryConfigurationAction,
-} from "domain/actions/order/order.action";
+import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -19,27 +16,6 @@ function ThirdPartyLogisticsIntegration() {
     DeliveryServiceResponse[]
   >([]);
   const dispatch = useDispatch();
-
-  const handleConnect = (thirdPartyLogisticId: number | undefined) => {
-    if (!thirdPartyLogisticId) {
-      return;
-    }
-    const params = {
-      external_service_id: thirdPartyLogisticId,
-      status: DELIVER_SERVICE_STATUS.active,
-    };
-    dispatch(
-      updateDeliveryConfigurationAction(params, () => {
-        dispatch(
-          DeliveryServicesGetList(
-            (response: Array<DeliveryServiceResponse>) => {
-              setListThirdPartyLogistics(response);
-            }
-          )
-        );
-      })
-    );
-  };
 
   useEffect(() => {
     dispatch(
@@ -108,12 +84,13 @@ function ThirdPartyLogisticsIntegration() {
                             </Link>
                           </Button>
                         ) : (
-                          <Button
-                            type="primary"
-                            onClick={() => handleConnect(single.id)}
-                          >
-                            <img src={IconConnect} alt="" />
-                            Kết nối
+                          <Button type="primary">
+                            <Link
+                              to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
+                            >
+                              <img src={IconConnect} alt="" />
+                              Kết nối
+                            </Link>
                           </Button>
                         )}
                       </div>

@@ -627,7 +627,10 @@ export default function Order() {
                 setPayments(new_payments);
               }
               setItems(responseItems);
-              setOrderAmount(response.total);
+              setOrderAmount(
+                response.total -
+                  (response.shipping_fee_informed_to_customer || 0)
+              );
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
@@ -704,6 +707,7 @@ export default function Order() {
         setItems([]);
         setItemGifts([]);
         setPayments([]);
+        console.log("initialRequest", initialRequest);
         setInitialForm({
           ...initialRequest,
         });
@@ -711,6 +715,11 @@ export default function Order() {
         setStoreId(null);
         setTag("");
         setIsLoadForm(true);
+        setShippingFeeCustomer(0);
+        setDiscountRate(0);
+        setDiscountValue(0);
+        setOfficeTime(false);
+        setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
       }
     };
     fetchData();
@@ -724,6 +733,11 @@ export default function Order() {
       setLoyaltyPoint(null);
     }
   }, [dispatch, customer]);
+
+  useEffect(() => {
+    formRef.current?.resetFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloneIdParam, isCloneOrder]);
   return (
     <React.Fragment>
       <ContentContainer

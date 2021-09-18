@@ -54,49 +54,48 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   const checkServiceFee = useCallback(
     (service: string, type: string) => {
       console.log(service, type);
-      const delivery = infoFees.find(item => item.delivery_service_code === service && item.transport_type === type)
-      if (delivery) return delivery.total_fee
-      return 0
+      const delivery = infoFees.find(
+        (item) =>
+          item.delivery_service_code === service && item.transport_type === type
+      );
+      if (delivery) return delivery.total_fee;
+      return 0;
     },
     [infoFees]
   );
 
-
-  const serciveFees = useMemo(
-    () => {
-      return {
-        ghtk_standard: checkServiceFee('ghtk', 'road'),
-        ghtk_express: checkServiceFee('ghtk', 'fly'),
-        ghn_standard: checkServiceFee('ghnn', '2'),
-        vtp_standard: checkServiceFee('vtp', 'standard'),
-        vtp_express: checkServiceFee('vtp', 'express'),
-        dhl_standard: checkServiceFee('dhl', 'standard'),
-      }
-    },
-    [checkServiceFee]
-  );
+  const serciveFees = useMemo(() => {
+    return {
+      ghtk_standard: checkServiceFee("ghtk", "road"),
+      ghtk_express: checkServiceFee("ghtk", "fly"),
+      ghn_standard: checkServiceFee("ghnn", "2"),
+      vtp_standard: checkServiceFee("vtp", "standard"),
+      vtp_express: checkServiceFee("vtp", "express"),
+      dhl_standard: checkServiceFee("dhl", "standard"),
+    };
+  }, [checkServiceFee]);
 
   useEffect(() => {
     if (isCloneOrder) {
       switch (fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls) {
-        case checkServiceFee('ghtk', 'road'):
+        case checkServiceFee("ghtk", "road"):
           setSelectedShipmentMethod("ghtk_standard");
           break;
-        case checkServiceFee('ghtk', 'fly'):
+        case checkServiceFee("ghtk", "fly"):
           setSelectedShipmentMethod("ghtk_express");
           break;
-        case checkServiceFee('ghn', '2'):
+        case checkServiceFee("ghn", "2"):
           setSelectedShipmentMethod("ghn_standard");
           break;
-        case checkServiceFee('vtp', 'standard'):
+        case checkServiceFee("vtp", "standard"):
           setSelectedShipmentMethod("ghtk_express");
           break;
-        case checkServiceFee('vtp', 'express'):
+        case checkServiceFee("vtp", "express"):
           setSelectedShipmentMethod("vtp_express");
           break;
-        case checkServiceFee('dhl', 'standard'):
+        case checkServiceFee("dhl", "standard"):
           setSelectedShipmentMethod("dhl_standard");
-          break;  
+          break;
         default:
           break;
       }
@@ -185,10 +184,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       className="radio-delivery"
                                       value="standard"
                                       checked={
-                                        selectedShipmentMethod === "ghtk_standard"
+                                        selectedShipmentMethod ===
+                                        "ghtk_standard"
                                       }
                                       onChange={(e) => {
-                                        setSelectedShipmentMethod("ghtk_standard");
+                                        setSelectedShipmentMethod(
+                                          "ghtk_standard"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
@@ -208,10 +210,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       className="radio-delivery"
                                       value="express"
                                       checked={
-                                        selectedShipmentMethod === "ghtk_express"
+                                        selectedShipmentMethod ===
+                                        "ghtk_express"
                                       }
                                       onChange={(e) => {
-                                        setSelectedShipmentMethod("ghtk_express");
+                                        setSelectedShipmentMethod(
+                                          "ghtk_express"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
@@ -309,7 +314,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     name="tt"
                                     className="radio-delivery"
                                     value={`standard`}
-                                    
                                     onChange={(e) => {
                                       setSelectedShipmentMethod(
                                         `${single.code}_standard`
