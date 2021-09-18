@@ -10,7 +10,9 @@ type PropType = {
   logoSingleThirdPartyLogistic?: string;
   nameSingleThirdPartyLogistic?: string;
   onSubmit: () => void;
+  onConnect: () => void;
   onCancelConnect: () => void;
+  isConnected: boolean;
   urlGuide: string;
   children: React.ReactElement;
 };
@@ -20,7 +22,9 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
     logoSingleThirdPartyLogistic,
     nameSingleThirdPartyLogistic,
     onSubmit,
+    onConnect,
     onCancelConnect,
+    isConnected,
     urlGuide,
   } = props;
   const renderCardTitle = () => {
@@ -56,7 +60,12 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
       >
         <div className="singleThirdPartyLogistic">
           <Card title={renderCardTitle()}>{props.children}</Card>
-          <BottomBar onSubmit={onSubmit} onCancelConnect={onCancelConnect} />
+          <BottomBar
+            onSubmit={onSubmit}
+            onConnect={onConnect}
+            onCancelConnect={onCancelConnect}
+            isConnected={isConnected}
+          />
         </div>
       </ContentContainer>
     </StyledComponent>

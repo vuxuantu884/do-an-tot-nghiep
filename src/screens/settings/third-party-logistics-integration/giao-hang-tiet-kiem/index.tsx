@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
+import { showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import { StyledComponent } from "./styles";
 
@@ -31,47 +32,70 @@ function SingleThirdPartyLogistic(props: PropType) {
   const [listServices, setListServices] = useState<
     DeliveryServiceTransportType[]
   >([]);
+  const [isConnected, setIsConnected] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
 
   const initialFormValue = {
-    username: "",
-    password: "",
+    token: "",
     transport_types: [],
   };
-
   const handleSubmit = () => {
-    const formComponentValue = form.getFieldsValue();
-    let transport_types = listServices.map((single) => {
-      return {
-        ...single,
-        active: formComponentValue.transport_types.includes(single.code)
+    form.validateFields(["token"]).then(() => {
+      const formComponentValue = form.getFieldsValue();
+      let transport_types = listServices.map((single) => {
+        return {
+          ...single,
+          status: formComponentValue.transport_types.includes(single.code)
+            ? DELIVER_SERVICE_STATUS.active
+            : DELIVER_SERVICE_STATUS.inactive,
+        };
+      });
+      const formValueFormatted = {
+        external_service_id: thirdPartyLogistics?.id,
+        status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
+        token: formComponentValue.token,
+        transport_types,
       };
+      dispatch(
+        updateDeliveryConfigurationAction(formValueFormatted, () => {
+          history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
+        })
+      );
     });
-    const formValueFormatted = {
-      external_service_id: thirdPartyLogistics?.id,
-      username: formComponentValue.username,
-      password: formComponentValue.password,
-      transport_types,
-    };
-    console.log("formValueFormatted", formValueFormatted);
-    dispatch(
-      updateDeliveryConfigurationAction(formValueFormatted, () => {
-        history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
-      })
-    );
+  };
+
+  const handleConnect3PL = () => {
+    form.validateFields(["token"]).then(() => {
+      if (!thirdPartyLogistics?.id) {
+        return;
+      }
+      const params = {
+        external_service_id: thirdPartyLogistics?.id,
+        token: form.getFieldValue("token"),
+        status: DELIVER_SERVICE_STATUS.active,
+      };
+      dispatch(
+        updateDeliveryConfigurationAction(params, (response) => {
+          showSuccess("Kết nối thành công!");
+          setIsConnected(true);
+        })
+      );
+    });
   };
 
   const handleCancelConnect3PL = () => {
-    setConfirmSubTitle(
-      <React.Fragment>
-        Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
-        <strong>{thirdPartyLogistics?.name}</strong>" ?
-      </React.Fragment>
-    );
-    setIsShowConfirmDisconnect(true);
+    form.validateFields(["token"]).then(() => {
+      setConfirmSubTitle(
+        <React.Fragment>
+          Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
+          <strong>{thirdPartyLogistics?.name}</strong>" ?
+        </React.Fragment>
+      );
+      setIsShowConfirmDisconnect(true);
+    });
   };
 
   const cancelConnect3PL = (thirdPartyLogisticId: number | undefined) => {
@@ -79,16 +103,17 @@ function SingleThirdPartyLogistic(props: PropType) {
       return;
     }
     const params = {
-      username: "",
-      password: "",
+      token: form.getFieldValue("token"),
       external_service_id: thirdPartyLogisticId,
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
       updateDeliveryConfigurationAction(params, () => {
-        history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
+        setIsConnected(false);
+        showSuccess("Hủy kết nối thành công!");
       })
     );
+    setIsShowConfirmDisconnect(false);
   };
 
   useEffect(() => {
@@ -100,10 +125,22 @@ function SingleThirdPartyLogistic(props: PropType) {
           });
           if (result) {
             setThirdPartyLogistics(result);
+            setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
+
             dispatch(
               getDeliveryTransportTypesAction(result.id, (response) => {
                 if (response) {
                   setListServices(response);
+                  const listActiveServices = response.map((single) => {
+                    if (single.active) {
+                      return single.code;
+                    }
+                    return null;
+                  });
+                  form.setFieldsValue({
+                    ...initialFormValue,
+                    transport_types: listActiveServices || [],
+                  });
                 }
               })
             );
@@ -111,7 +148,8 @@ function SingleThirdPartyLogistic(props: PropType) {
         }
       })
     );
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, form]);
 
   return (
     <StyledComponent>
@@ -119,8 +157,10 @@ function SingleThirdPartyLogistic(props: PropType) {
         logoSingleThirdPartyLogistic={thirdPartyLogistics?.logo}
         nameSingleThirdPartyLogistic={thirdPartyLogistics?.name}
         onSubmit={handleSubmit}
+        onConnect={() => handleConnect3PL()}
         onCancelConnect={() => handleCancelConnect3PL()}
         urlGuide={urlGuide}
+        isConnected={isConnected}
       >
         <Form
           form={form}
@@ -130,34 +170,18 @@ function SingleThirdPartyLogistic(props: PropType) {
           style={{ width: "377px", maxWidth: "100%" }}
         >
           <Form.Item
-            name="username"
-            label="Tài khoản: "
+            name="token"
+            label="Token: "
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập tài khoản!",
+                message: "Vui lòng nhập token!",
               },
             ]}
           >
             <Input
               type="text"
-              placeholder="Nhập tài khoản"
-              style={{ width: "100%" }}
-            />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Mật khẩu: "
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập mật khẩu!",
-              },
-            ]}
-          >
-            <Input
-              type="password"
-              placeholder="Nhập mật khẩu"
+              placeholder="Nhập token"
               style={{ width: "100%" }}
             />
           </Form.Item>

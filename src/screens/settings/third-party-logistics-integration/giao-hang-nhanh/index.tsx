@@ -20,7 +20,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import IconClose from "./images/iconClose.svg";
 import { StyledComponent } from "./styles";
@@ -52,6 +52,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const [inputShopIdValue, setInputShopIdValue] = useState<string | undefined>(
     undefined
   );
+  const [isConnected, setIsConnected] = useState(false);
 
   const [deleteStore, setDeleteStore] =
     useState<DeliveryMappedStoreType | null>(null);
@@ -81,35 +82,61 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleSubmit = () => {
-    const formComponentValue = form.getFieldsValue();
-    let transport_types = listServices.map((single) => {
-      return {
-        ...single,
-        active: formComponentValue.transport_types.includes(single.code)
+    form.validateFields(["token"]).then(() => {
+      const formComponentValue = form.getFieldsValue();
+      let transport_types = listServices.map((single) => {
+        return {
+          ...single,
+          status: formComponentValue.transport_types.includes(single.code)
+            ? DELIVER_SERVICE_STATUS.active
+            : DELIVER_SERVICE_STATUS.inactive,
+        };
+      });
+      const formValueFormatted = {
+        external_service_id: thirdPartyLogistics?.id,
+        status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
+        token: formComponentValue.token,
+        transport_types,
       };
+      dispatch(
+        updateDeliveryConfigurationAction(formValueFormatted, () => {
+          history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
+        })
+      );
     });
-    const formValueFormatted = {
-      external_service_id: thirdPartyLogistics?.id,
-      token: formComponentValue.token,
-      transport_types,
-    };
-    dispatch(
-      updateDeliveryConfigurationAction(formValueFormatted, () => {
-        history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
-      })
-    );
+  };
+
+  const handleConnect3PL = () => {
+    form.validateFields(["token"]).then(() => {
+      if (!thirdPartyLogistics?.id) {
+        return;
+      }
+      const params = {
+        external_service_id: thirdPartyLogistics?.id,
+        token: form.getFieldValue("token"),
+        status: DELIVER_SERVICE_STATUS.active,
+      };
+      dispatch(
+        updateDeliveryConfigurationAction(params, () => {
+          setIsConnected(true);
+          showSuccess("Kết nối thành công!");
+        })
+      );
+    });
   };
 
   const handleCancelConnect3PL = () => {
-    setConfirmSubTitle(
-      <React.Fragment>
-        Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
-        <strong>{thirdPartyLogistics?.name}</strong>" ?
-      </React.Fragment>
-    );
-    setIsShowConfirmDisconnect(true);
+    form.validateFields(["token"]).then(() => {
+      setConfirmSubTitle(
+        <React.Fragment>
+          Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
+          <strong>{thirdPartyLogistics?.name}</strong>" ?
+        </React.Fragment>
+      );
+      setIsShowConfirmDisconnect(true);
+    });
   };
 
   const cancelConnect3PL = (thirdPartyLogisticId: number | undefined) => {
@@ -118,13 +145,16 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     }
     const params = {
       external_service_id: thirdPartyLogisticId,
+      token: form.getFieldValue("token"),
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
       updateDeliveryConfigurationAction(params, () => {
-        history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
+        setIsConnected(false);
+        showSuccess("Hủy kết nối thành công!");
       })
     );
+    setIsShowConfirmDisconnect(false);
   };
 
   const handleRemoveStoreId = (store: DeliveryMappedStoreType | null) => {
@@ -207,10 +237,21 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           });
           if (result) {
             setThirdPartyLogistics(result);
+            setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
             dispatch(
               getDeliveryTransportTypesAction(result.id, (response) => {
                 if (response) {
                   setListServices(response);
+                  const listActiveServices = response.map((single) => {
+                    if (single.active) {
+                      return single.code;
+                    }
+                    return null;
+                  });
+                  form.setFieldsValue({
+                    ...initialFormValue,
+                    transport_types: listActiveServices || [],
+                  });
                 }
               })
             );
@@ -232,8 +273,10 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         logoSingleThirdPartyLogistic={thirdPartyLogistics?.logo}
         nameSingleThirdPartyLogistic={thirdPartyLogistics?.name}
         onSubmit={handleSubmit}
+        onConnect={() => handleConnect3PL()}
         onCancelConnect={() => handleCancelConnect3PL()}
         urlGuide={urlGuide}
+        isConnected={isConnected}
       >
         <Form
           form={form}
