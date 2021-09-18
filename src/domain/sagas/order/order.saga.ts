@@ -8,11 +8,10 @@ import {
   DeliveryServiceResponse,
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
-  GHNFeeResponse,
+  FeesResponse,
   OrderResponse,
-  ShippingGHTKResponse,
+  // OrderSubStatusResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
 } from "model/response/order/order.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { call, put, takeLatest } from "redux-saga/effects";
@@ -25,6 +24,7 @@ import {
   getChannelApi,
   getDeliveryMappedStoresServices,
   getDeliveryTransportTypesServices,
+  getInfoDeliveryFees,
   getPaymentMethod,
   orderPostApi,
   updateDeliveryConnectService,
@@ -34,9 +34,6 @@ import { PaymentMethodResponse } from "./../../../model/response/order/paymentme
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import {
   getDeliverieServices,
-  getInfoDeliveryGHN,
-  getInfoDeliveryGHTK,
-  getInfoDeliveryVTP,
   getListOrderApi,
   getListOrderCustomerApi,
   getOrderDetail,
@@ -144,51 +141,12 @@ function* orderFpageCreateSaga(action: YodyAction) {
   }
 }
 
-function* InfoGHTKSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<ShippingGHTKResponse>> = yield call(
-      getInfoDeliveryGHTK,
-      request
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
-  }
-}
 
-function* InfoGHNSaga(action: YodyAction) {
+function* InfoFeesSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    let response: BaseResponse<GHNFeeResponse> = yield call(
-      getInfoDeliveryGHN,
-      request
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
-function* InfoVTPSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<VTPFeeResponse>> = yield call(
-      getInfoDeliveryVTP,
+    let response: BaseResponse<Array<FeesResponse>> = yield call(
+      getInfoDeliveryFees,
       request
     );
     switch (response.code) {
@@ -630,9 +588,10 @@ export function* OrderOnlineSaga() {
   );
 
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
-  yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
-  yield takeLatest(OrderType.GET_INFO_GHN_FEE, InfoGHNSaga);
-  yield takeLatest(OrderType.GET_INFO_VTP_FEE, InfoVTPSaga);
+  // yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
+  // yield takeLatest(OrderType.GET_INFO_GHN_FEE, InfoGHNSaga);
+  // yield takeLatest(OrderType.GET_INFO_VTP_FEE, InfoVTPSaga);
+  yield takeLatest(OrderType.GET_INFO_FEES, InfoFeesSaga);
   yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
   yield takeLatest(
     OrderType.GET_TRACKING_LOG_FULFILLMENT,
