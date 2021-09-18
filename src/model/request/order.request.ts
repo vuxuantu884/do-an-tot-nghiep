@@ -1,4 +1,3 @@
-import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
@@ -338,6 +337,34 @@ export interface VTPFeeRequest {
   height: number | 0;
   width: number | 0;
   ghn_service_id: number | 0;
+  coupon: string | null;
+  cod: number | 0;
+}
+
+export interface GetFeesRequest {
+  from_city_id: number | undefined;
+  from_city: string | undefined;
+  from_district_id: number | undefined;
+  from_district: string | undefined;
+  from_ward_id: number | undefined;
+  to_country_id: number | undefined;
+  to_city_id: number | undefined;
+  to_city: string | undefined;
+  to_district_id: number | undefined;
+  to_district: string | undefined;
+  to_ward_id: number | undefined;
+  from_address: string | undefined;
+  to_address: string | undefined;
+  price: number | 0;
+  quantity: number | 0;
+  weight: number | 0;
+  length: number | 0;
+  height: number | 0;
+  width: number | 0;
+  service_id: number | 0;
+  service: string;
+  option: string;
+  insurance: number | 0;
   coupon: string | null;
   cod: number | 0;
 }

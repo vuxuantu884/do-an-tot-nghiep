@@ -10,6 +10,7 @@ import {
   UpdateLineFulFillment,
   UpdatePaymentRequest,
   VTPFeeRequest,
+  GetFeesRequest
 } from "model/request/order.request";
 import {
   ActionLogDetailResponse,
@@ -69,6 +70,13 @@ export const InfoVTPAction = (
   setData: (data: Array<VTPFeeResponse>) => void
 ) => {
   return BaseAction(OrderType.GET_INFO_VTP_FEE, { request, setData });
+};
+
+export const getFeesAction = (
+  request: GetFeesRequest,
+  setData: (data: Array<any>) => void
+) => {
+  return BaseAction(OrderType.GET_INFO_FEES, { request, setData });
 };
 
 export const PaymentMethodGetList = (

@@ -5,6 +5,7 @@ import { BaseQuery } from "model/base/base.query";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
+  GetFeesRequest,
   GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
@@ -87,6 +88,12 @@ export const getInfoDeliveryVTP = (
   request: VTPFeeRequest
 ): Promise<BaseResponse<VTPFeeResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/vtp/fees`, request);
+};
+
+export const getInfoDeliveryFees = (
+  request: GetFeesRequest
+): Promise<BaseResponse<VTPFeeResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/shipping/fees`, request);
 };
 
 export const getOrderDetail = (

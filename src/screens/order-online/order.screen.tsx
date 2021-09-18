@@ -85,7 +85,7 @@ export default function Order() {
   );
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [hvc, setHvc] = useState<number | null>(null);
-  const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
+  const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
@@ -303,7 +303,7 @@ export default function Order() {
             value.shipping_fee_informed_to_customer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls:
-            hvc === 1 ? feeGhtk : MoneyPayThreePls.VALUE,
+            hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
@@ -818,7 +818,7 @@ export default function Order() {
                     officeTime={officeTime}
                     setServiceType={setServiceType}
                     setHVC={setHvc}
-                    setFeeGhtk={setFeeGhtk}
+                    setFee={setFee}
                     payments={payments}
                     onPayments={onPayments}
                     fulfillments={fulfillments}
