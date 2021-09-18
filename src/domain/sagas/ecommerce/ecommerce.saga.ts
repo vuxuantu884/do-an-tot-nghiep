@@ -10,18 +10,20 @@ import {
   ecommerceGetApi,
   ecommerceGetByIdApi,
   ecommerceUpdateApi,
-  ecommerceDeleteApi,ecommerceConnectSyncApi, ecommerceGetConfigInfoApi
+  ecommerceDeleteApi,
+  ecommerceConnectSyncApi,
+  ecommerceGetConfigInfoApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-
 
 // connect to the eccommerce
 function* ecommerceConnectSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceConnectSyncApi);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceConnectSyncApi
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -41,10 +43,12 @@ function* ecommerceConnectSaga(action: YodyAction) {
 }
 
 function* ecommerceGetConfigInfoSaga(action: YodyAction) {
-  let {query, setData } = action.payload;
+  let { query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceGetConfigInfoApi, query);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceGetConfigInfoApi,
+      query
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -66,8 +70,10 @@ function* ecommerceGetConfigInfoSaga(action: YodyAction) {
 function* ecommerceCreateSaga(action: YodyAction) {
   let { request, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceCreateApi, request);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceCreateApi,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -89,8 +95,10 @@ function* ecommerceCreateSaga(action: YodyAction) {
 function* ecommerceGetByIdSaga(action: YodyAction) {
   let { id, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceGetByIdApi, id);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceGetByIdApi,
+      id
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -112,8 +120,9 @@ function* ecommerceGetByIdSaga(action: YodyAction) {
 function* ecommerceGetSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceGetApi);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceGetApi
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -135,8 +144,11 @@ function* ecommerceGetSaga(action: YodyAction) {
 function* ecommerceUpdateSaga(action: YodyAction) {
   let { id, request, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceUpdateApi, id, request);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceUpdateApi,
+      id,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -158,8 +170,10 @@ function* ecommerceUpdateSaga(action: YodyAction) {
 function* ecommerceDeleteSaga(action: YodyAction) {
   let { id, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<EcommerceResponse>> =
-      yield call(ecommerceDeleteApi, id);
+    const response: BaseResponse<PageResponse<EcommerceResponse>> = yield call(
+      ecommerceDeleteApi,
+      id
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -180,6 +194,10 @@ function* ecommerceDeleteSaga(action: YodyAction) {
 
 export function* ecommerceSaga() {
   yield takeLatest(
+    EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceUpdateSaga
+  );
+  yield takeLatest(
     EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST,
     ecommerceCreateSaga
   );
@@ -199,10 +217,7 @@ export function* ecommerceSaga() {
     EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST,
     ecommerceGetSaga
   );
-  yield takeLatest(
-    EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST,
-    ecommerceUpdateSaga
-  );
+
   yield takeLatest(
     EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST,
     ecommerceDeleteSaga

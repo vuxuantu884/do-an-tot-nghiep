@@ -19,7 +19,6 @@ import CustomDatePicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./customer.create";
-import ButtonCreate from "component/header/ButtonCreate";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 

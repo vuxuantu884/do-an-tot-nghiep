@@ -135,6 +135,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const handleCancelDiscountItemModal = () => {
     showAddDiscountItemModal(false);
   };
+
+  const onInputSearchProductBlur = () => {
+    setIsInputSearchProductFocus(false);
+  };
   useEffect(() => {
     let _itemGifts: any = [];
     for (let i = 0; i < items.length; i++) {
@@ -157,7 +161,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _items[index].note = value;
     setItems(_items);
   };
-console.log(resultSearchVariant)
+
   const onChangeQuantity = (value: number | null, index: number) => {
     let _items = [...items];
 
@@ -402,7 +406,7 @@ console.log(resultSearchVariant)
                 width: "100%",
                 fontWeight: 500,
                 color: "#222222",
-                marginTop: 20,
+                marginTop: 22,
               }}
               maxLength={14}
               minLength={0}
@@ -856,7 +860,7 @@ console.log(resultSearchVariant)
                 maxLength={255}
                 open={isShowProductSearch && isInputSearchProductFocus}
                 onFocus={onInputSearchProductFocus}
-                // onBlur={onInputSearchProductBlur}
+                onBlur={onInputSearchProductBlur}
                 dropdownRender={(menu) => (
                   <div>
                     <div className="add-new-item-dropdown">

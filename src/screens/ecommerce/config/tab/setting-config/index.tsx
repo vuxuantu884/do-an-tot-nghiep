@@ -76,6 +76,8 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     (value: EcommerceRequest) => {
       
       if (configDetail) {
+        const id = configDetail?.id;
+        const index = configData.find((item) => item.id === id);
         let request = {
           ...configDetail,
           ...value,
@@ -84,8 +86,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             accounts?.find((item) => item.code === value.assign_account_code)
               ?.full_name || "",
         };
-        const id = configDetail?.id;
-        const index = configData.find((item) => item.id === id);
         if (index) {
           dispatch(
             ecommerceConfigUpdateAction(id, request, handleConfigCallback)
