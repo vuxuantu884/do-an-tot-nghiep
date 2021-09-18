@@ -306,6 +306,16 @@ export interface VTPFeeResponse {
   THOI_GIAN: string;
 }
 
+export interface FeesResponse {
+  delivery_service_code: string;
+  total_fee: number;
+  insurance_fee: number;
+  transport_type: string;
+  transport_type_name: string;
+  note: string;
+  delivery: boolean;
+}
+
 export interface StoreCustomResponse extends BaseObject {
   name: string;
   rank: number;
