@@ -381,7 +381,7 @@ function CardReturnProducts(props: PropType) {
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Cần trả khách:</strong>
+              <strong className="font-size-text">Tổng tiền hàng trả:</strong>
               <strong className="text-success font-size-price">
                 {getTotalPrice(listReturnProducts)}
               </strong>
