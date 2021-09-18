@@ -145,9 +145,7 @@ const CustomerRanking = () => {
   ]
   const [query, setQuery] = React.useState<BaseQuery>({
     page: 1,
-    limit: 30,
-    sort_column: 'accumulated_from',
-    sort_type: 'DESC'
+    limit: 30
   });
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState<boolean>(false)
   const [selectedDeleteItem, setSelectedDeleteItem] = useState<LoyaltyRankResponse>()
