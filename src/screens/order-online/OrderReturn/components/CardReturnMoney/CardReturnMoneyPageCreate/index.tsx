@@ -26,16 +26,28 @@ type PropType = {
   amountReturn: number;
   payments: OrderPaymentRequest[];
   handlePayments: (value: Array<OrderPaymentRequest>) => void;
+  totalAmountNeedToPay?: number;
 };
 function CardReturnMoneyPageCreate(props: PropType) {
-  const { listPaymentMethods, amountReturn, payments, handlePayments } = props;
+  const {
+    listPaymentMethods,
+    amountReturn,
+    payments,
+    handlePayments,
+    totalAmountNeedToPay,
+  } = props;
+
+  const isReturnMoneyToCustomer =
+    totalAmountNeedToPay !== undefined && totalAmountNeedToPay <= 0;
   /**
    * payment method bỏ tiêu điểm và qr pay
    */
-  const exceptMethod = [PaymentMethodCode.QR_CODE, PaymentMethodCode.POINT];
-  const listPaymentMethodsFormatted = listPaymentMethods.filter((single) => {
-    return !exceptMethod.includes(single.code);
-  });
+  const exceptMethods = [PaymentMethodCode.QR_CODE, PaymentMethodCode.POINT];
+  const listPaymentMethodsFormatted = isReturnMoneyToCustomer
+    ? listPaymentMethods.filter((single) => {
+        return !exceptMethods.includes(single.code);
+      })
+    : listPaymentMethods;
   const totalAmountReturn = () => {
     let total = 0;
     payments.forEach((p) => (total = total + p.amount));
@@ -273,7 +285,12 @@ function CardReturnMoneyPageCreate(props: PropType) {
   return (
     <Card
       className="margin-top-20"
-      title={<span className="title-card">Hoàn tiền</span>}
+      // title={<span className="title-card">Hoàn tiền</span>}
+      title={
+        <span className="title-card">
+          {isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}
+        </span>
+      }
     >
       <div className="padding-24">
         <Row gutter={24}>
@@ -294,7 +311,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                       padding: "6px",
                     }}
                   >
-                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                    {`Lựa chọn 1 hoặc nhiều phương thức ${
+                      isReturnMoneyToCustomer ? "hoàn tiền" : "Thanh toán"
+                    }`}
                   </span>
                 }
                 key="1"
@@ -305,7 +324,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
                         <span style={{ paddingRight: "20px" }}>
-                          Tiền trả khách:
+                          {isReturnMoneyToCustomer
+                            ? " Tiền trả khách:"
+                            : "Tổng tiền cần thanh toán"}
                         </span>
                         <strong>{formatCurrency(amountReturn)}</strong>
                       </div>
@@ -313,7 +334,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
                         <span style={{ paddingRight: "20px" }}>
-                          Còn phải trả:{" "}
+                          {isReturnMoneyToCustomer
+                            ? " Còn phải trả khách:"
+                            : "Còn lại"}
                         </span>
                         <strong>
                           {formatCurrency(Math.abs(calculateMoneyReturnLeft()))}
@@ -346,7 +369,11 @@ function CardReturnMoneyPageCreate(props: PropType) {
                           className="row-large-title"
                           style={{ padding: "8px 0", marginLeft: 2 }}
                         >
-                          <b>Tiền trả khách:</b>
+                          <b>
+                            {isReturnMoneyToCustomer
+                              ? " Tiền trả khách:"
+                              : "Tổng tiền cần thanh toán:"}
+                          </b>
                         </Col>
                         <Col
                           className="lbl-money"
@@ -370,7 +397,11 @@ function CardReturnMoneyPageCreate(props: PropType) {
                         style={{ height: 38, margin: "10px 0 0 0" }}
                       >
                         <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
-                          <b>Còn phải trả khách:</b>
+                          <b>
+                            {isReturnMoneyToCustomer
+                              ? "Còn phải trả khách:"
+                              : "Còn lại:"}
+                          </b>
                         </Col>
                         <Col
                           className="lbl-money"

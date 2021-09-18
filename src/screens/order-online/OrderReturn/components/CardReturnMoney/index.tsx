@@ -11,6 +11,7 @@ type PropType = {
   payments: OrderPaymentRequest[];
   handlePayments: (value: Array<OrderPaymentRequest>) => void;
   isDetailPage: boolean;
+  totalAmountNeedToPay?: number;
 };
 function CardReturnMoney(props: PropType) {
   const {
@@ -19,6 +20,7 @@ function CardReturnMoney(props: PropType) {
     payments,
     handlePayments,
     isDetailPage,
+    totalAmountNeedToPay,
   } = props;
   const mainRender = () => {
     if (isDetailPage) {
@@ -37,6 +39,7 @@ function CardReturnMoney(props: PropType) {
         amountReturn={amountReturn}
         payments={payments}
         handlePayments={handlePayments}
+        totalAmountNeedToPay={totalAmountNeedToPay}
       />
     );
   };

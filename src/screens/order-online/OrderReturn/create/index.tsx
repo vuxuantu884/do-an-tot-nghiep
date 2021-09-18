@@ -17,15 +17,22 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  FulFillmentResponse,
   OrderLineItemResponse,
   OrderResponse,
   ReturnProductModel,
+  StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
-import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import {
+  FulFillmentStatus,
+  PaymentMethodCode,
+  PaymentMethodOption,
+  ShipmentMethodOption,
+} from "utils/Constants";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoney from "../components/CardReturnMoney";
@@ -34,6 +41,7 @@ import CardReturnProducts from "../components/CardReturnProducts";
 import CardExchangeProducts from "../components/CardExchangeProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import ReturnBottomBar from "../components/ReturnBottomBar";
+import CardReturnShipment from "../components/CardReturnShipment";
 
 type PropType = {
   id?: string;
@@ -71,12 +79,49 @@ const ScreenReturnDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [amountReturn, setAmountReturn] = useState<number>(100000);
+  const [amountReturn, setAmountReturn] = useState<number>(0);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
   const [listExchangeProducts, setListExchangeProducts] = useState<
     OrderLineItemRequest[]
   >([]);
+
+  const [shipmentMethod, setShipmentMethod] = useState<number>(
+    ShipmentMethodOption.DELIVER_LATER
+  );
+  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
+    number | null
+  >(null);
+  const [paymentMethod, setPaymentMethod] = useState<number>(
+    PaymentMethodOption.PREPAYMENT
+  );
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [serviceType, setServiceType] = useState<string>();
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [fee, setFee] = useState<number | null>(null);
+  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
+    []
+  );
+
+  const onPayments = (value: Array<OrderPaymentRequest>) => {
+    setPayments(value);
+  };
+
+  const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
+    let total = 0;
+    listProducts.forEach((a) => {
+      let discountAmount = a.discount_items[0].value;
+      total = total + a.quantity * (a.price - discountAmount);
+    });
+    return total;
+  };
+
+  let totalAmountNeedToPay =
+    getTotalPrice(listExchangeProducts) +
+    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+    getTotalPrice(listReturnProducts);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     if (!data) {
@@ -105,8 +150,6 @@ const ScreenReturnDetail = (props: PropType) => {
       });
       setListReturnProducts(returnProduct);
       setListOrderProducts(_data.items);
-
-      setAmountReturn(0);
     }
   }, []);
 
@@ -215,6 +258,17 @@ const ScreenReturnDetail = (props: PropType) => {
     }
   };
 
+  const onShipmentSelect = (value: number) => {
+    setShipmentMethod(value);
+  };
+
+  const ChangeShippingFeeCustomer = (value: number | null) => {
+    setShippingFeeCustomer(value);
+  };
+  const ChangeShippingFeeCustomerHVC = (value: number | null) => {
+    setShippingFeeCustomerHVC(value);
+  };
+
   const handleCancel = () => {
     history.push("/");
   };
@@ -254,6 +308,8 @@ const ScreenReturnDetail = (props: PropType) => {
                   items={listExchangeProducts}
                   handleCardItems={handleListExchangeProducts}
                   shippingFeeCustomer={shippingFeeCustomer}
+                  amountReturn={getTotalPrice(listReturnProducts)}
+                  totalAmountNeedToPay={totalAmountNeedToPay}
                 />
               )}
               <CardReturnMoney
@@ -262,7 +318,36 @@ const ScreenReturnDetail = (props: PropType) => {
                 payments={payments}
                 handlePayments={handlePayments}
                 isDetailPage={false}
+                totalAmountNeedToPay={totalAmountNeedToPay}
               />
+              {isExchange && isStepExchange && (
+                <CardReturnShipment
+                  setShipmentMethodProps={onShipmentSelect}
+                  shipmentMethod={shipmentMethod}
+                  storeDetail={storeDetail}
+                  setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                  setShippingFeeInformedCustomerHVC={
+                    ChangeShippingFeeCustomerHVC
+                  }
+                  amount={getTotalPrice(listReturnProducts)}
+                  setPaymentMethod={setPaymentMethod}
+                  paymentMethod={paymentMethod}
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  shippingFeeCustomerHVC={shippingFeeCustomerHVC}
+                  customerInfo={customerDetail}
+                  items={listExchangeProducts}
+                  discountValue={discountValue}
+                  setOfficeTime={setOfficeTime}
+                  officeTime={officeTime}
+                  setServiceType={setServiceType}
+                  setHVC={setHvc}
+                  setFee={setFee}
+                  payments={payments}
+                  onPayments={onPayments}
+                  fulfillments={fulfillments}
+                  isCloneOrder={false}
+                />
+              )}
               <CardReturnReceiveProducts isDetailPage={false} />
             </Col>
 
@@ -419,7 +504,7 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   useEffect(() => {
-    setShippingFeeCustomer(10000);
+    setShippingFeeCustomer(0);
     if (orderId) {
       dispatch(OrderDetailAction(orderId, onGetDetailSuccess));
     } else {
