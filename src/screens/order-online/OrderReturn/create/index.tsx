@@ -93,12 +93,11 @@ const ScreenReturnDetail = (props: PropType) => {
   );
 
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [discountRate, setDiscountRate] = useState<number>(0);
-  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [orderAmount] = useState<number>(0);
+  const [discountRate] = useState<number>(0);
+  const [loyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [tags, setTag] = useState<string>("");
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+  const [shippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
     null
   );
@@ -118,7 +117,7 @@ const ScreenReturnDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [amountReturn, setAmountReturn] = useState<number>(0);
+  const [amountReturn] = useState<number>(0);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
   const [listExchangeProducts, setListExchangeProducts] = useState<
@@ -135,14 +134,12 @@ const ScreenReturnDetail = (props: PropType) => {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
-  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [discountValue] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
-  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
-    []
-  );
+  const [fulfillments] = useState<Array<FulFillmentResponse>>([]);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
