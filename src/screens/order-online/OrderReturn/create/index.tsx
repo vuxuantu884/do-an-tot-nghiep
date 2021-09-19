@@ -13,6 +13,7 @@ import {
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
+  ReturnRequest,
   ShipmentRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -49,10 +50,14 @@ type PropType = {
 
 const ScreenReturnDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
-  const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
-  const [isCanSubmit, setIsCanSubmit] = useState<boolean>(false);
+  const [isCanReturnOrExchange, setIsCanReturnOrExchange] =
+    useState<boolean>(false);
   const [isExchange, setIsExchange] = useState<boolean>(false);
+  const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
+  const [isCanExchange, setIsCanExchange] = useState<boolean>(false);
   const [isStepExchange, setIsStepExchange] = useState<boolean>(false);
+  const [isReceiveReturnProducts, setIsReceiveReturnProducts] =
+    useState<boolean>(false);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
@@ -105,10 +110,6 @@ const ScreenReturnDetail = (props: PropType) => {
     []
   );
 
-  const onPayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
-  };
-
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
     listProducts.forEach((a) => {
@@ -139,7 +140,7 @@ const ScreenReturnDetail = (props: PropType) => {
         return singleFulfillment.status === FulFillmentStatus.SHIPPED;
       });
       if (returnFulfillment) {
-        setIsCanReturn(true);
+        setIsCanReturnOrExchange(true);
       }
       let returnProduct: ReturnProductModel[] = _data.items.map((single) => {
         return {
@@ -161,25 +162,14 @@ const ScreenReturnDetail = (props: PropType) => {
     setPayments(value);
   };
 
-  const handleIsCanSubmit = (status: boolean) => {
-    setIsCanSubmit(status);
-  };
-
-  const handleIsExchange = (isExchange: boolean) => {
-    setIsExchange(isExchange);
-  };
-
-  const handleIsStepExchange = (isExchange: boolean) => {
-    setIsStepExchange(isExchange);
-  };
-
   const handleListExchangeProducts = (
     listExchangeProducts: OrderLineItemRequest[]
   ) => {
     setListExchangeProducts(listExchangeProducts);
   };
 
-  const handleSubmit = () => {
+  const onReturn = () => {
+    let aaa: number | null = 0;
     let newFulfillment: FulFillmentRequest[] = [];
     if (OrderDetail?.fulfillments) {
       newFulfillment = OrderDetail.fulfillments.map((single) => {
@@ -238,7 +228,7 @@ const ScreenReturnDetail = (props: PropType) => {
       });
     }
     if (OrderDetail && listReturnProducts) {
-      let orderDetailFormatted: OrderRequest = {
+      let orderDetailFormatted: ReturnRequest = {
         ...OrderDetail,
         action: "",
         delivery_service_provider_id: null,
@@ -249,13 +239,24 @@ const ScreenReturnDetail = (props: PropType) => {
         requirements: null,
         items: listReturnProducts,
         fulfillments: newFulfillment,
+        payments: payments,
+        reason_id: 1,
+        received: isReceiveReturnProducts,
       };
       dispatch(
         actionCreateOrderReturn(orderDetailFormatted, (response) => {
           console.log("response", response);
+          aaa = response;
         })
       );
     }
+    return aaa;
+  };
+
+  const onReturnAndExchange = () => {
+    let abc = onReturn();
+    console.log("abc", abc);
+    console.log("tạo đổi hàng");
   };
 
   const onShipmentSelect = (value: number) => {
@@ -292,7 +293,7 @@ const ScreenReturnDetail = (props: PropType) => {
               <CardReturnOrder
                 isDetailPage={false}
                 isExchange={isExchange}
-                handleIsExchange={handleIsExchange}
+                handleIsExchange={setIsExchange}
               />
               <CardReturnProducts
                 listReturnProducts={listReturnProducts}
@@ -300,8 +301,10 @@ const ScreenReturnDetail = (props: PropType) => {
                   listReturnProducts: ReturnProductModel[]
                 ) => setListReturnProducts(listReturnProducts)}
                 listOrderProducts={listOrderProducts}
-                handleIsCanSubmit={handleIsCanSubmit}
+                handleCanReturn={setIsCanReturn}
                 isDetailPage={false}
+                isExchange={isExchange}
+                isStepExchange={isStepExchange}
               />
               {isExchange && isStepExchange && (
                 <CardExchangeProducts
@@ -319,6 +322,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 handlePayments={handlePayments}
                 isDetailPage={false}
                 totalAmountNeedToPay={totalAmountNeedToPay}
+                isExchange={isExchange}
               />
               {isExchange && isStepExchange && (
                 <CardReturnShipment
@@ -343,12 +347,16 @@ const ScreenReturnDetail = (props: PropType) => {
                   setHVC={setHvc}
                   setFee={setFee}
                   payments={payments}
-                  onPayments={onPayments}
+                  onPayments={handlePayments}
                   fulfillments={fulfillments}
                   isCloneOrder={false}
                 />
               )}
-              <CardReturnReceiveProducts isDetailPage={false} />
+              <CardReturnReceiveProducts
+                isDetailPage={false}
+                isReceiveReturnProducts={isReceiveReturnProducts}
+                handleReceiveReturnProducts={setIsReceiveReturnProducts}
+              />
             </Col>
 
             <Col md={6}>
@@ -492,12 +500,14 @@ const ScreenReturnDetail = (props: PropType) => {
           </Row>
         </div>
         <ReturnBottomBar
-          onSubmit={() => handleSubmit()}
+          onReturn={() => onReturn()}
+          onReturnAndExchange={() => onReturnAndExchange()}
           onCancel={() => handleCancel()}
-          isCanSubmit={isCanSubmit}
+          isCanReturn={isCanReturn}
+          isCanExchange={isCanExchange}
           isExchange={isExchange}
           isStepExchange={isStepExchange}
-          handleIsStepExchange={handleIsStepExchange}
+          handleIsStepExchange={setIsStepExchange}
         />
       </React.Fragment>
     );
@@ -529,6 +539,12 @@ const ScreenReturnDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
+  useEffect(() => {
+    if (isStepExchange && listExchangeProducts.length > 0) {
+      setIsCanExchange(true);
+    }
+  }, [isStepExchange, listExchangeProducts.length]);
+
   return (
     <ContentContainer
       isError={isError}
@@ -549,7 +565,7 @@ const ScreenReturnDetail = (props: PropType) => {
         },
       ]}
     >
-      {isCanReturn ? renderIfCanReturn() : renderIfCannotReturn()}
+      {isCanReturnOrExchange ? renderIfCanReturn() : renderIfCannotReturn()}
     </ContentContainer>
   );
 };

@@ -28,8 +28,10 @@ type PropType = {
   listOrderProducts?: OrderLineItemResponse[];
   listReturnProducts: ReturnProductModel[];
   handleReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
-  handleIsCanSubmit?: (value: boolean) => void;
+  handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
+  isExchange: boolean;
+  isStepExchange: boolean;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -37,8 +39,10 @@ function CardReturnProducts(props: PropType) {
     listReturnProducts,
     handleReturnProducts,
     listOrderProducts,
-    handleIsCanSubmit,
+    handleCanReturn,
     isDetailPage,
+    isExchange,
+    isStepExchange,
   } = props;
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
@@ -73,21 +77,21 @@ function CardReturnProducts(props: PropType) {
       }
     }
     handleReturnProducts(result);
-    if (handleIsCanSubmit) {
-      handleIsCanSubmit(true);
+    if (handleCanReturn) {
+      handleCanReturn(true);
     }
   };
 
   const checkIfIsCanReturn = (listReturnProducts: ReturnProductModel[]) => {
-    if (handleIsCanSubmit) {
+    if (handleCanReturn) {
       if (
         listReturnProducts.some((single) => {
           return single.quantity > 0;
         })
       ) {
-        handleIsCanSubmit(true);
+        handleCanReturn(true);
       } else {
-        handleIsCanSubmit(false);
+        handleCanReturn(false);
       }
     }
   };
@@ -221,6 +225,15 @@ function CardReturnProducts(props: PropType) {
     return total;
   };
 
+  const isShowProductSearch = () => {
+    let result = true;
+    if (isDetailPage || isStepExchange) {
+      result = false;
+    }
+    console.log("result", result);
+    return result;
+  };
+
   const columns: ColumnType<any>[] = [
     {
       title: "Sản phẩm",
@@ -240,21 +253,26 @@ function CardReturnProducts(props: PropType) {
         console.log("record", record);
         if (isDetailPage) {
           return record.quantity;
+        } else {
+          if (isExchange && isStepExchange) {
+            return record.quantity;
+          }
+          return (
+            <div>
+              <InputNumber
+                min={0}
+                max={record.maxQuantity}
+                value={record.quantity}
+                defaultValue={0}
+                onChange={(value: number) =>
+                  onChangeProductQuantity(value, index)
+                }
+                className="hide-number-handle"
+              />{" "}
+              / {record.maxQuantity}
+            </div>
+          );
         }
-        return (
-          <div>
-            <InputNumber
-              min={0}
-              max={record.maxQuantity}
-              value={record.quantity}
-              defaultValue={0}
-              onChange={(value: number) =>
-                onChangeProductQuantity(value, index)
-              }
-            />
-            / {record.maxQuantity}
-          </div>
-        );
       },
     },
     {
@@ -305,9 +323,9 @@ function CardReturnProducts(props: PropType) {
       <Card
         className="margin-top-20"
         title="Thông tin sản phẩm trả"
-        extra={!isDetailPage ? renderCardExtra() : null}
+        extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
-        {!isDetailPage && (
+        {isShowProductSearch() && (
           <div>
             <div className="label">Sản phẩm:</div>
             <AutoComplete
