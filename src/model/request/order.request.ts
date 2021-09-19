@@ -40,6 +40,10 @@ export interface ReturnRequest extends OrderRequest {
   received: boolean;
 }
 
+export interface ExchangeRequest extends OrderRequest {
+  order_return_id: number;
+}
+
 export interface FulFillmentRequest {
   store_id: number | null;
   account_code?: string | null;
