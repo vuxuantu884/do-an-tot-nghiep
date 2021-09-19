@@ -30,6 +30,10 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
+import ImageGHTK from "assets/img/imageGHTK.svg";
+import ImageGHN from "assets/img/imageGHN.png";
+import ImageVTP from "assets/img/imageVTP.svg";
+import ImageDHL from "assets/img/imageDHL.svg";
 
 const actions: Array<MenuAction> = [
   {
@@ -174,25 +178,25 @@ const ListOrderScreen: React.FC = () => {
     {
       code: "ghtk",
       id: 1,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_8d45e336-6f25-4cec-9fe6-a52162839f35.svg",
+      logo: ImageGHTK,
       name: "Giao hàng tiết kiệm"
     },
     {
       code: "ghn",
       id: 2,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22%22delivery%22%22/2021-07-28-03-09-37_b2a5b9d2-6061-4fbd-99ad-2804eb78d82d.png",
+      logo: ImageGHN,
       name: "Giao hàng nhanh"
     },
     {
       code: "vtp",
       id: 3,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_7f5b5e68-b208-43b8-bd42-4927ffd45dd4.svg",
+      logo: ImageVTP,
       name: "Viettel Post"
     },
     {
       code: "dhl",
       id: 4,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_c8c71c38-5753-4159-b8df-5643dc400c7e.svg",
+      logo: ImageDHL,
       name: "DHL"
     }
   ]
