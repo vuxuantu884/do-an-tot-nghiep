@@ -49,6 +49,8 @@ const ScreenReturnDetail = (props: PropType) => {
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [amountReturn, setAmountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+  const [isReceiveReturnProducts, setIsReceiveReturnProducts] =
+    useState<boolean>(false);
 
   const handleChangeSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -134,21 +136,25 @@ const ScreenReturnDetail = (props: PropType) => {
               customerDetail={customerDetail}
             />
             <CardReturnOrder isDetailPage={isDetailPage} isExchange={false} />
-            <CardReturnProducts
+            {/* <CardReturnProducts
               listReturnProducts={listReturnProducts}
               handleReturnProducts={(
                 listReturnProducts: ReturnProductModel[]
               ) => setListReturnProducts(listReturnProducts)}
               isDetailPage={isDetailPage}
-            />
-            <CardReturnMoney
+            /> */}
+            {/* <CardReturnMoney
               listPaymentMethods={listPaymentMethods}
               amountReturn={amountReturn}
               payments={payments}
               handlePayments={handlePayments}
               isDetailPage={isDetailPage}
+            /> */}
+            <CardReturnReceiveProducts
+              isDetailPage={isDetailPage}
+              isReceiveReturnProducts={isReceiveReturnProducts}
+              handleReceiveReturnProducts={setIsReceiveReturnProducts}
             />
-            <CardReturnReceiveProducts isDetailPage={isDetailPage} />
           </Col>
 
           <Col md={6}>
