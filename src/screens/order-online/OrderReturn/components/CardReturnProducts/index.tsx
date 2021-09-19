@@ -230,7 +230,6 @@ function CardReturnProducts(props: PropType) {
     if (isDetailPage || isStepExchange) {
       result = false;
     }
-    console.log("result", result);
     return result;
   };
 
@@ -250,7 +249,6 @@ function CardReturnProducts(props: PropType) {
       className: "columnQuantity",
       width: "40%",
       render: (value, record: ReturnProductModel, index: number) => {
-        console.log("record", record);
         if (isDetailPage) {
           return record.quantity;
         } else {

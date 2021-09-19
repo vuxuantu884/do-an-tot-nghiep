@@ -39,6 +39,7 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getInfoDeliveryFees } from "service/order/order.service";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
@@ -103,6 +104,7 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
+
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethodProps(value);
     setPaymentMethod(value);
@@ -182,6 +184,12 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
+    console.log("customerInfo", customerInfo);
+    console.log("storeDetail", storeDetail);
+    console.log(
+      "getShippingAddressDefault(customerInfo)?.city_id",
+      getShippingAddressDefault(customerInfo)
+    );
     if (
       customerInfo &&
       storeDetail &&
