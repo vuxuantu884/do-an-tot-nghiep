@@ -40,7 +40,6 @@ function CardReturnProducts(props: PropType) {
     handleIsCanSubmit,
     isDetailPage,
   } = props;
-  console.log("listReturnProducts", listReturnProducts);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -73,10 +72,23 @@ function CardReturnProducts(props: PropType) {
         selectedVariant.quantity += 1;
       }
     }
-
     handleReturnProducts(result);
     if (handleIsCanSubmit) {
       handleIsCanSubmit(true);
+    }
+  };
+
+  const checkIfIsCanReturn = (listReturnProducts: ReturnProductModel[]) => {
+    if (handleIsCanSubmit) {
+      if (
+        listReturnProducts.some((single) => {
+          return single.quantity > 0;
+        })
+      ) {
+        handleIsCanSubmit(true);
+      } else {
+        handleIsCanSubmit(false);
+      }
     }
   };
 
@@ -92,6 +104,7 @@ function CardReturnProducts(props: PropType) {
         };
       });
       handleReturnProducts(result);
+      checkIfIsCanReturn(result);
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
         return {
@@ -101,6 +114,7 @@ function CardReturnProducts(props: PropType) {
         };
       });
       handleReturnProducts(result);
+      checkIfIsCanReturn(result);
     }
     setIsCheckReturnAll(e.target.checked);
   };
@@ -191,12 +205,11 @@ function CardReturnProducts(props: PropType) {
         return single.maxQuantity && single.quantity < single.maxQuantity;
       })
     ) {
-      console.log("2");
       setIsCheckReturnAll(false);
     } else {
-      console.log("3");
       setIsCheckReturnAll(true);
     }
+    checkIfIsCanReturn(resultListReturnProducts);
   };
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {

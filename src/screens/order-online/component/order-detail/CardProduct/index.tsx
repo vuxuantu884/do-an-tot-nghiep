@@ -85,7 +85,6 @@ type CardProductProps = {
   ) => void;
   orderSettings?: OrderSettingsModel;
   formRef: React.RefObject<FormInstance<any>>;
-  onChangeProduct: (value: string) => void;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
   isCloneOrder?: boolean;
@@ -175,7 +174,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   useEffect(() => {
     if (items) {
       let amount = totalAmount(items);
-      console.log("amount", amount);
       setChangeMoney(amount);
       setAmount(amount);
       let _itemGifts: any = [];
@@ -192,7 +190,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const showAddGiftModal = useCallback(
     (index: number) => {
       if (items) {
-        console.log("items", items);
         setIndexItem(index);
         setItemGift([...items[index].gifts]);
         setVisibleGift(true);

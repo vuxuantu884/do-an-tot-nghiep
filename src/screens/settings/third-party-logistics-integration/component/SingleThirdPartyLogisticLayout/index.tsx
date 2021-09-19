@@ -7,10 +7,13 @@ import SingleLogisticCardHeader from "../CardHeader";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  logoSingleThirdPartyLogistic: string;
-  nameSingleThirdPartyLogistic: string;
+  logoSingleThirdPartyLogistic?: string;
+  nameSingleThirdPartyLogistic?: string;
   onSubmit: () => void;
+  onConnect: () => void;
   onCancelConnect: () => void;
+  isConnected: boolean;
+  urlGuide: string;
   children: React.ReactElement;
 };
 
@@ -19,13 +22,17 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
     logoSingleThirdPartyLogistic,
     nameSingleThirdPartyLogistic,
     onSubmit,
+    onConnect,
     onCancelConnect,
+    isConnected,
+    urlGuide,
   } = props;
   const renderCardTitle = () => {
     return (
       <SingleLogisticCardHeader
         title={nameSingleThirdPartyLogistic}
         logoUrl={logoSingleThirdPartyLogistic}
+        urlGuide={urlGuide}
       />
     );
   };
@@ -47,13 +54,18 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
             path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
           },
           {
-            name: nameSingleThirdPartyLogistic,
+            name: nameSingleThirdPartyLogistic || "",
           },
         ]}
       >
         <div className="singleThirdPartyLogistic">
           <Card title={renderCardTitle()}>{props.children}</Card>
-          <BottomBar onSubmit={onSubmit} onCancelConnect={onCancelConnect} />
+          <BottomBar
+            onSubmit={onSubmit}
+            onConnect={onConnect}
+            onCancelConnect={onCancelConnect}
+            isConnected={isConnected}
+          />
         </div>
       </ContentContainer>
     </StyledComponent>

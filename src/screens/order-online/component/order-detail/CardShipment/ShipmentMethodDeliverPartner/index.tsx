@@ -4,12 +4,10 @@ import { OrderPaymentRequest } from "model/request/order.request";
 import {
   DeliveryServiceResponse,
   FulFillmentResponse,
-  GHNFeeResponse,
   OrderResponse,
-  ShippingGHTKResponse,
-  VTPFeeResponse,
+  FeesResponse,
 } from "model/response/order/order.response";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -21,9 +19,7 @@ type PropType = {
   payments?: OrderPaymentRequest[];
   setShippingFeeInformedCustomer: (value: number | null) => void;
   deliveryServices: DeliveryServiceResponse[] | null;
-  infoGHTK: ShippingGHTKResponse[];
-  infoGHN: GHNFeeResponse | null;
-  infoVTP: VTPFeeResponse[];
+  infoFees: FeesResponse[];
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   fulfillments: FulFillmentResponse[];
   isCloneOrder?: boolean;
@@ -37,9 +33,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     payments,
     setShippingFeeInformedCustomer,
     deliveryServices,
-    infoGHTK,
-    infoGHN,
-    infoVTP,
+    infoFees,
     changeServiceType,
     fulfillments,
     isCloneOrder,
@@ -57,26 +51,56 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     return total;
   };
 
+  const checkServiceFee = useCallback(
+    (service: string, type: string) => {
+      console.log(service, type);
+      const delivery = infoFees.find(
+        (item) =>
+          item.delivery_service_code === service && item.transport_type === type
+      );
+      if (delivery) return delivery.total_fee;
+      return 0;
+    },
+    [infoFees]
+  );
+
+  const serciveFees = useMemo(() => {
+    return {
+      ghtk_standard: checkServiceFee("ghtk", "road"),
+      ghtk_express: checkServiceFee("ghtk", "fly"),
+      ghn_standard: checkServiceFee("ghnn", "2"),
+      vtp_standard: checkServiceFee("vtp", "standard"),
+      vtp_express: checkServiceFee("vtp", "express"),
+      dhl_standard: checkServiceFee("dhl", "standard"),
+    };
+  }, [checkServiceFee]);
+
   useEffect(() => {
     if (isCloneOrder) {
-      // console.log(
-      //   "fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls",
-      //   fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls
-      // );
-      // console.log("infoGHTK[0]?.fee", infoGHTK[0]?.fee);
       switch (fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls) {
-        case infoGHTK[0]?.fee:
-          console.log("333333333333333333333333333333333");
-          setSelectedShipmentMethod("standard");
+        case checkServiceFee("ghtk", "road"):
+          setSelectedShipmentMethod("ghtk_standard");
           break;
-        case infoGHTK[1]?.fee:
-          setSelectedShipmentMethod("express");
+        case checkServiceFee("ghtk", "fly"):
+          setSelectedShipmentMethod("ghtk_express");
+          break;
+        case checkServiceFee("ghn", "2"):
+          setSelectedShipmentMethod("ghn_standard");
+          break;
+        case checkServiceFee("vtp", "standard"):
+          setSelectedShipmentMethod("ghtk_express");
+          break;
+        case checkServiceFee("vtp", "express"):
+          setSelectedShipmentMethod("vtp_express");
+          break;
+        case checkServiceFee("dhl", "standard"):
+          setSelectedShipmentMethod("dhl_standard");
           break;
         default:
           break;
       }
     }
-  }, [fulfillments, infoGHTK, isCloneOrder]);
+  }, [checkServiceFee, fulfillments, infoFees, isCloneOrder]);
 
   return (
     <StyledComponent>
@@ -160,22 +184,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       className="radio-delivery"
                                       value="standard"
                                       checked={
-                                        selectedShipmentMethod === "standard"
+                                        selectedShipmentMethod ===
+                                        "ghtk_standard"
                                       }
-                                      // checked={
-                                      //   fulfillments[0]?.shipment
-                                      //     ?.shipping_fee_paid_to_three_pls ===
-                                      //   infoGHTK[0]?.fee
-                                      // }
                                       onChange={(e) => {
-                                        setSelectedShipmentMethod("standard");
+                                        setSelectedShipmentMethod(
+                                          "ghtk_standard"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
-                                          "standard",
-                                          infoGHTK.length > 1
-                                            ? infoGHTK[0].fee
-                                            : 0
+                                          "road",
+                                          serciveFees.ghtk_standard
                                         );
                                       }}
                                     />
@@ -189,23 +209,19 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="express"
-                                      // checked={
-                                      //   fulfillments[0]?.shipment
-                                      //     ?.shipping_fee_paid_to_three_pls ===
-                                      //   infoGHTK[1]?.fee
-                                      // }
                                       checked={
-                                        selectedShipmentMethod === "express"
+                                        selectedShipmentMethod ===
+                                        "ghtk_express"
                                       }
                                       onChange={(e) => {
-                                        setSelectedShipmentMethod("express");
+                                        setSelectedShipmentMethod(
+                                          "ghtk_express"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
-                                          "express",
-                                          infoGHTK.length > 1
-                                            ? infoGHTK[1].fee
-                                            : 0
+                                          "fly",
+                                          serciveFees.ghtk_express
                                         );
                                       }}
                                     />
@@ -220,13 +236,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     type="radio"
                                     name="tt"
                                     className="radio-delivery"
-                                    value={`${single.code}_standard`}
-                                    // checked={
-                                    //   // tai sao lai la 20k
-                                    //   fulfillments[0]?.shipment
-                                    //     ?.shipping_fee_paid_to_three_pls ===
-                                    //   20000
-                                    // }
+                                    value="standard"
                                     checked={
                                       selectedShipmentMethod ===
                                       `${single.code}_standard`
@@ -238,9 +248,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       changeServiceType(
                                         single.id,
                                         single.code,
-                                        "standard",
-                                        // tai sao lai la 20k
-                                        20000
+                                        "2",
+                                        serciveFees.ghn_standard
                                       );
                                     }}
                                   />
@@ -255,12 +264,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       type="radio"
                                       name="tt"
                                       className="radio-delivery"
-                                      value="vtp_standard"
-                                      // checked={
-                                      //   fulfillments[0]?.shipment
-                                      //     ?.shipping_fee_paid_to_three_pls ===
-                                      //   infoGHTK[1]?.fee
-                                      // }
+                                      value="standard"
                                       checked={
                                         selectedShipmentMethod ===
                                         "vtp_standard"
@@ -273,11 +277,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           single.id,
                                           single.code,
                                           // "standard",
-                                          "vtp_standard",
-                                          infoGHTK.length > 1
-                                            ? // tai sao la ghtk ma ko phai vtp
-                                              infoGHTK[0].fee
-                                            : 0
+                                          "standard",
+                                          serciveFees.vtp_standard
                                         );
                                       }}
                                     />
@@ -289,58 +290,20 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       type="radio"
                                       name="tt"
                                       className="radio-delivery"
-                                      // value="express"
-                                      value="vtp_express"
-                                      // checked={
-                                      //   fulfillments[0]?.shipment
-                                      //     ?.shipping_fee_paid_to_three_pls ===
-                                      //   infoGHTK[1]?.fee
-                                      // }
-                                      onChange={(e) => {
-                                        setSelectedShipmentMethod(
-                                          "vtp_standard"
-                                        );
-                                        changeServiceType(
-                                          single.id,
-                                          single.code,
-                                          // "express",
-                                          "vtp_express",
-                                          infoGHTK.length > 1
-                                            ? infoGHTK[1].fee
-                                            : 0
-                                        );
-                                      }}
-                                    />
-                                    <span className="checkmark"></span>6 giờ
-                                  </label>
-                                  <Divider style={{ margin: "8px 0" }} />
-                                  <label className="radio-container">
-                                    <input
-                                      type="radio"
-                                      name="tt"
-                                      className="radio-delivery"
                                       value="express"
-                                      // checked={
-                                      //   fulfillments[0]?.shipment
-                                      //     ?.shipping_fee_paid_to_three_pls ===
-                                      //   infoGHTK[1]?.fee
-                                      // }
                                       onChange={(e) => {
                                         setSelectedShipmentMethod(
-                                          "vtp_standard"
+                                          "vtp_express"
                                         );
                                         changeServiceType(
                                           single.id,
                                           single.code,
                                           "express",
-                                          infoGHTK.length > 1
-                                            ? infoGHTK[1].fee
-                                            : 0
+                                          serciveFees.vtp_express
                                         );
                                       }}
                                     />
-                                    <span className="checkmark"></span>
-                                    12 giờ
+                                    <span className="checkmark"></span>6 giờ
                                   </label>
                                 </div>
                               )}
@@ -350,12 +313,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     type="radio"
                                     name="tt"
                                     className="radio-delivery"
-                                    value={`${single.code}_standard`}
-                                    // checked={
-                                    //   fulfillments[0]?.shipment
-                                    //     ?.shipping_fee_paid_to_three_pls ===
-                                    //   20000
-                                    // }
+                                    value={`standard`}
                                     onChange={(e) => {
                                       setSelectedShipmentMethod(
                                         `${single.code}_standard`
@@ -364,7 +322,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                         single.id,
                                         single.code,
                                         "standard",
-                                        20000
+                                        serciveFees.dhl_standard
                                       );
                                     }}
                                   />
@@ -375,72 +333,76 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                             </td>
                             <td style={{ padding: 0, textAlign: "right" }}>
                               {single.code === "ghtk" && (
-                                <div>
+                                <>
+                                  {/* {serciveFees.ghtk_standard && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {infoGHTK && infoGHTK.length > 0
-                                      ? formatCurrency(infoGHTK[0].fee)
-                                      : 0}
+                                    {serciveFees.ghtk_standard}
                                   </div>
+                                  {/* } */}
+                                  {/* {serciveFees.ghtk_express && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {infoGHTK && infoGHTK.length > 1
-                                      ? formatCurrency(infoGHTK[1].fee)
-                                      : 0}
+                                    {serciveFees.ghtk_express}
                                   </div>
-                                </div>
+                                  {/* } */}
+                                </>
                               )}
                               {single.code === "ghn" && (
-                                <div>
+                                <>
+                                  {/* {serciveFees.ghn_standard && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {infoGHN
-                                      ? formatCurrency(infoGHN.total)
-                                      : 0}
+                                    {serciveFees.ghn_standard}
                                   </div>
-                                </div>
+                                  {/* } */}
+                                </>
                               )}
                               {single.code === "vtp" && (
                                 <>
+                                  {/* {serciveFees.vtp_standard && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {infoVTP && infoVTP.length > 0
-                                      ? formatCurrency(infoVTP[0].GIA_CUOC)
-                                      : 0}
+                                    {serciveFees.vtp_standard}
                                   </div>
+                                  {/* } */}
+                                  {/* {serciveFees.vtp_express && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {infoVTP && infoVTP.length > 1
-                                      ? formatCurrency(infoVTP[2].GIA_CUOC)
-                                      : 0}
+                                    {serciveFees.vtp_express}
                                   </div>
-                                  <div
+                                  {/* } */}
+                                  {/* <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {infoVTP && infoVTP.length > 1
-                                      ? formatCurrency(infoVTP[1].GIA_CUOC)
+                                    {infoFees && infoFees.length > 1
+                                      ? formatCurrency(0)
                                       : 0}
-                                  </div>
+                                  </div> */}
                                 </>
                               )}
                               {single.code === "dhl" && (
-                                <div
-                                  style={{ padding: "8px 16px" }}
-                                  className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                >
-                                  100.000
-                                </div>
+                                <>
+                                  {/* {serciveFees.dhl_standard && */}
+                                  <div
+                                    style={{ padding: "8px 16px" }}
+                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                  >
+                                    {serciveFees.dhl_standard}
+                                  </div>
+                                  {/* } */}
+                                </>
                               )}
                             </td>
                           </tr>

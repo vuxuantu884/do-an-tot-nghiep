@@ -97,7 +97,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
   const { customer, handleCustomer } = props;
-  console.log(customer)
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -111,16 +110,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [loyaltyPoint, setLoyaltyPoint]= useState<LoyaltyPoint|null>(null);
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(
-      customer && customer.shipping_addresses[0]
-        ? customer.shipping_addresses[0]
-        : null
-    );
+    useState<ShippingAddress | null>(null);
 
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
@@ -188,7 +183,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Search and render customer by name, phone, code
   const CustomerChangeSearch = useCallback(
     (value) => {
-      console.log("value", value);
       setKeySearchCustomer(value);
       initQueryCustomer.request = value.trim();
       dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
@@ -296,7 +290,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
-      console.log(districtId);
     }
   }, [dispatch, districtId]);
 
@@ -304,12 +297,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (customer && customer.shipping_addresses[0]) {
+      setShippingAddress(customer.shipping_addresses[0]);
+    }
+  }, [customer]);
+
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
       setDistrictId(districtId);
     }
   };
-  
 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
@@ -341,10 +339,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   useEffect(() => {
     if (customer) {
-      dispatch(getLoyaltyPoint(customer.id,setLoyaltyPoint));
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
     }
-    else {setLoyaltyPoint(null)}
-}, [dispatch, customer]);
+  }, [dispatch, customer]);
 
   return (
     <Card
@@ -493,7 +492,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     style={{ color: "#FCAF17", marginLeft: "5px" }}
                     strong
                   >
-                    {loyaltyPoint?.point === undefined ? "0" : loyaltyPoint?.point}
+                    {loyaltyPoint?.point === undefined
+                      ? "0"
+                      : loyaltyPoint?.point}
                   </Typography.Text>
                 </span>
               </Space>
@@ -550,7 +551,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           marginRight: "10px",
                         }}
                       />
-                      Địa chỉ giao hàng:
+                      Địa chỉ giao hàng 2:
                     </div>
                     <Row className="customer-row-info">
                       <span>{shippingAddress?.name}</span>

@@ -111,9 +111,7 @@ const LoyaltyCardRelease = () => {
   ]
   const [query, setQuery] = useState<BaseQuery>({
     page: 1,
-    limit: 30,
-    sort_column: 'id',
-    sort_type: 'DESC'
+    limit: 30
   });
 
   const dispatch = useDispatch()

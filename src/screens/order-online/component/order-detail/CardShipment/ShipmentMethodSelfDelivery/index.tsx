@@ -69,7 +69,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
 
             {paymentMethod === PaymentMethodOption.COD && (
-              <Form.Item label="Tiền thu hộ">
+              <Form.Item label="Tiền thu hộ 2">
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
@@ -110,7 +110,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
             <Form.Item
               name="shipping_fee_informed_to_customer"
-              label="Phí ship báo khách"
+              label="Phí ship báo khách 33"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}

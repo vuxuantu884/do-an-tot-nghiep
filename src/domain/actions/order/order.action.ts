@@ -10,13 +10,16 @@ import {
   UpdateLineFulFillment,
   UpdatePaymentRequest,
   VTPFeeRequest,
+  GetFeesRequest
 } from "model/request/order.request";
 import {
   ActionLogDetailResponse,
   OrderActionLogResponse,
 } from "model/response/order/action-log.response";
 import {
+  DeliveryMappedStoreType,
   DeliveryServiceResponse,
+  DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
@@ -40,9 +43,12 @@ export const orderFpageCreateAction = (
   request: OrderRequest,
   setData: (data: OrderResponse) => void,
   setDisable: (data: any) => void
-
 ) => {
-  return BaseAction(OrderType.CREATE_FPAGE_ORDER_REQUEST, { request, setData, setDisable });
+  return BaseAction(OrderType.CREATE_FPAGE_ORDER_REQUEST, {
+    request,
+    setData,
+    setDisable,
+  });
 };
 
 export const InfoGHTKAction = (
@@ -64,6 +70,13 @@ export const InfoVTPAction = (
   setData: (data: Array<VTPFeeResponse>) => void
 ) => {
   return BaseAction(OrderType.GET_INFO_VTP_FEE, { request, setData });
+};
+
+export const getFeesAction = (
+  request: GetFeesRequest,
+  setData: (data: Array<any>) => void
+) => {
+  return BaseAction(OrderType.GET_INFO_FEES, { request, setData });
 };
 
 export const PaymentMethodGetList = (
@@ -131,6 +144,81 @@ export const DeliveryServicesGetList = (
   return BaseAction(OrderType.GET_LIST_DELIVERY_SERVICE, { setData });
 };
 
+export const getDeliveryMappedStoresAction = (
+  id: number,
+  handleData: (data: Array<DeliveryMappedStoreType>) => void
+) => {
+  return {
+    type: OrderType.GET_MAPPED_STORES,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
+
+export const createDeliveryMappedStoreAction = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
+  token: string,
+  handleData: (data: any) => void
+) => {
+  return {
+    type: OrderType.CREATE_MAPPED_STORE,
+    payload: {
+      idDelivery,
+      shop_id,
+      store_id,
+      token,
+      handleData,
+    },
+  };
+};
+
+export const deleteDeliveryMappedStoreAction = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
+  handleData: (data: any) => void
+) => {
+  return {
+    type: OrderType.DELETE_MAPPED_STORE,
+    payload: {
+      idDelivery,
+      shop_id,
+      store_id,
+      handleData,
+    },
+  };
+};
+
+export const getDeliveryTransportTypesAction = (
+  id: number,
+  handleData: (data: Array<DeliveryTransportTypesResponse>) => void
+) => {
+  return {
+    type: OrderType.GET_TRANSPORT_TYPES,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
+
+export const updateDeliveryConfigurationAction = (
+  params: any,
+  handleData: (data: any) => void
+) => {
+  return {
+    type: OrderType.UPDATE_3RD_PL_CONNECT,
+    payload: {
+      params,
+      handleData,
+    },
+  };
+};
+
 export const getListSubStatusAction = (
   status: string,
   handleData: (data: Array<OrderSubStatusResponse>) => void
@@ -177,7 +265,7 @@ export const getListOrderActionFpage = (
 
 export const GetListOrderCustomerAction = (
   query: any,
-  setData: (data: PageResponse<OrderModel>|false) => void
+  setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, {
     query,
