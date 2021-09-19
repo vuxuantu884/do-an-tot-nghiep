@@ -5,22 +5,15 @@ import UrlConfig from "config/url.config";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { actionGetOrderReturn } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
-import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import {
-  OrderResponse,
-  ReturnProductModel,
-} from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderResponse } from "model/response/order/order.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import { FulFillmentStatus } from "utils/Constants";
 import ActionHistory from "../../component/order-detail/ActionHistory";
 import UpdateCustomerCard from "../../component/update-customer-card";
-import CardReturnMoney from "../components/CardReturnMoney";
 import CardReturnOrder from "../components/CardReturnOrder";
-import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 
 type PropType = {};
@@ -37,27 +30,22 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [listReturnProducts, setListReturnProducts] = useState<
-    ReturnProductModel[]
-  >([]);
+  // const [listReturnProducts, setListReturnProducts] = useState<
+  //   ReturnProductModel[]
+  // >([]);
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
   );
-  const [listPaymentMethods, setListPaymentMethods] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  // const [listPaymentMethods, setListPaymentMethods] = useState<
+  //   Array<PaymentMethodResponse>
+  // >([]);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [amountReturn, setAmountReturn] = useState<number>(100000);
-  const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+
   const [isReceiveReturnProducts, setIsReceiveReturnProducts] =
     useState<boolean>(false);
 
   const handleChangeSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
-  };
-
-  const handlePayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
   };
 
   useEffect(() => {
@@ -76,14 +64,14 @@ const ScreenReturnDetail = (props: PropType) => {
                 f.status !== FulFillmentStatus.RETURNING
             );
             setOrderDetail(_data);
-            let formatted: ReturnProductModel[] = _data.items.map((single) => {
-              return {
-                ...single,
-                maxQuantity: single.quantity,
-              };
-            });
-            setListReturnProducts(formatted);
-            setAmountReturn(0);
+            // let formatted: ReturnProductModel[] = _data.items.map((single) => {
+            //   return {
+            //     ...single,
+            //     maxQuantity: single.quantity,
+            //   };
+            // });
+            // setListReturnProducts(formatted);
+            // setAmountReturn(0);
           }
         })
       );
@@ -101,10 +89,10 @@ const ScreenReturnDetail = (props: PropType) => {
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
-        let result = response.filter(
-          (single) => single.code !== PaymentMethodCode.CARD
-        );
-        setListPaymentMethods(result);
+        // let result = response.filter(
+        //   (single) => single.code !== PaymentMethodCode.CARD
+        // );
+        // setListPaymentMethods(result);
       })
     );
   }, [dispatch]);
