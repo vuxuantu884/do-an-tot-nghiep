@@ -27,6 +27,7 @@ type PropType = {
   handlePayments: (value: Array<OrderPaymentRequest>) => void;
   totalAmountNeedToPay?: number;
   isExchange: boolean;
+  isStepExchange: boolean;
 };
 function CardReturnMoneyPageCreate(props: PropType) {
   const {
@@ -35,6 +36,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
     handlePayments,
     totalAmountNeedToPay,
     isExchange,
+    isStepExchange,
   } = props;
 
   const isReturnMoneyToCustomer =
@@ -303,7 +305,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
         </span>
       }
     >
-      {isExchange ? (
+      {isExchange && !isStepExchange ? (
         <div className="padding-24">
           Đối với các đơn trả hàng để đổi hàng, bạn vui lòng thực hiện hoàn
           tiền/thanh toán trên đơn đổi hàng.

@@ -11,6 +11,7 @@ import {
 } from "domain/actions/order/order.action";
 import {
   BillingAddress,
+  ExchangeRequest,
   FulFillmentRequest,
   OrderDiscountRequest,
   OrderLineItemRequest,
@@ -39,6 +40,7 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethodOption,
+  TaxTreatment,
 } from "utils/Constants";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -64,6 +66,7 @@ type PropType = {
 };
 
 let typeButton = "";
+let order_return_id: number = 0;
 
 const ScreenReturnDetail = (props: PropType) => {
   const [form] = Form.useForm();
@@ -111,9 +114,6 @@ const ScreenReturnDetail = (props: PropType) => {
     OrderLineItemResponse[]
   >([]);
 
-  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
-    null
-  );
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
@@ -144,12 +144,39 @@ const ScreenReturnDetail = (props: PropType) => {
     []
   );
 
-  const initialForm = {
-    dating_ship: moment(),
-    office_time: false,
+  const initialForm: OrderRequest = {
+    action: "", //finalized
+    store_id: null,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
+    tax_treatment: TaxTreatment.INCLUSIVE,
+    delivery_service_provider_id: null,
+    shipper_code: null,
+    shipper_name: "",
+    delivery_fee: null,
+    shipping_fee_informed_to_customer: null,
+    shipping_fee_paid_to_three_pls: null,
+    dating_ship: moment(),
     requirements: null,
+    source_id: null,
+    note: "",
+    tags: "",
+    customer_note: "",
+    account_code: userReducer.account?.code,
+    assignee_code: null,
+    customer_id: null,
+    reference_code: "",
+    url: "",
+    total_line_amount_after_line_discount: null,
+    total: null,
+    total_tax: "",
+    total_discount: null,
+    currency: "VNĐ",
+    items: [],
+    discounts: [],
     fulfillments: [],
+    shipping_address: null,
+    billing_address: null,
+    payments: [],
   };
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
@@ -194,6 +221,10 @@ const ScreenReturnDetail = (props: PropType) => {
       setListReturnProducts(returnProduct);
       setListOrderProducts(_data.items);
       setStoreId(_data.store_id);
+      setBillingAddress(_data.billing_address);
+      if (_data.tags) {
+        setTag(_data.tags);
+      }
     }
   }, []);
 
@@ -233,7 +264,6 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const onReturnAndExchange = async () => {
-    let order_return_id: number | null = 0;
     if (OrderDetail && listReturnProducts) {
       let orderDetailFormatted: ReturnRequest = {
         ...OrderDetail,
@@ -254,17 +284,13 @@ const ScreenReturnDetail = (props: PropType) => {
       dispatch(
         actionCreateOrderReturn(orderDetailFormatted, (response) => {
           order_return_id = response.id;
-          console.log("order_return_id", order_return_id);
-          let abc = form.getFieldsValue();
-          console.log("abc", abc);
+          form.submit();
         })
       );
     }
   };
 
-  const onFinish = (values: OrderRequest) => {
-    const element2: any = document.getElementById("save-and-confirm");
-    element2.disable = true;
+  const onFinish = (values: ExchangeRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -306,6 +332,12 @@ const ScreenReturnDetail = (props: PropType) => {
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount =
       total_line_amount_after_line_discount;
+    values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
+    values.currency = OrderDetail ? OrderDetail.currency : null;
+    values.account_code = OrderDetail ? OrderDetail.account_code : null;
+    values.store_id = OrderDetail ? OrderDetail.store_id : null;
+    values.source_id = OrderDetail ? OrderDetail.source_id : null;
+    values.order_return_id = order_return_id;
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -329,6 +361,7 @@ const ScreenReturnDetail = (props: PropType) => {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
+            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
@@ -548,7 +581,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 {/*--- customer ---*/}
                 <UpdateCustomerCard
                   OrderDetail={OrderDetail}
-                  customerDetail={customerDetail}
+                  customerDetail={customer}
                 />
                 {/*--- end customer ---*/}
                 <CardReturnOrder
@@ -584,6 +617,7 @@ const ScreenReturnDetail = (props: PropType) => {
                   isDetailPage={false}
                   totalAmountNeedToPay={totalAmountNeedToPay}
                   isExchange={isExchange}
+                  isStepExchange={isStepExchange}
                 />
                 {isExchange && isStepExchange && (
                   <CardReturnShipment
@@ -599,7 +633,7 @@ const ScreenReturnDetail = (props: PropType) => {
                     paymentMethod={paymentMethod}
                     shippingFeeCustomer={shippingFeeCustomer}
                     shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                    customerInfo={customerDetail}
+                    customerInfo={customer}
                     items={listExchangeProducts}
                     discountValue={discountValue}
                     setOfficeTime={setOfficeTime}
@@ -795,7 +829,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
+      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomer));
     }
   }, [dispatch, OrderDetail]);
 
