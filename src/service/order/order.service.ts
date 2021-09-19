@@ -232,7 +232,7 @@ export const getTrackingLogFulFillment = (
   fulfillment_code: string
 ): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
   return BaseAxios.get(
-    `${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`
+    `${ApiConfig.ORDER}/shipping/${fulfillment_code}/tracking-log`
   );
 };
 

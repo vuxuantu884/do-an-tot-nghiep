@@ -1,15 +1,20 @@
-import { Col, Row, Form, Divider } from "antd";
+import { Col, Row, Form } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { OrderPaymentRequest } from "model/request/order.request";
 import {
-  DeliveryServiceResponse,
+  // DeliveryServiceResponse,
   FulFillmentResponse,
   OrderResponse,
   FeesResponse,
 } from "model/response/order/order.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+
+import ImageGHTK from "assets/img/imageGHTK.svg";
+import ImageGHN from "assets/img/imageGHN.png";
+import ImageVTP from "assets/img/imageVTP.svg";
+import ImageDHL from "assets/img/imageDHL.svg";
 
 type PropType = {
   amount: number;
@@ -18,7 +23,7 @@ type PropType = {
   OrderDetail?: OrderResponse | null;
   payments?: OrderPaymentRequest[];
   setShippingFeeInformedCustomer: (value: number | null) => void;
-  deliveryServices: DeliveryServiceResponse[] | null;
+  // deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   fulfillments: FulFillmentResponse[];
@@ -32,11 +37,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     OrderDetail,
     payments,
     setShippingFeeInformedCustomer,
-    deliveryServices,
+    // deliveryServices,
     infoFees,
     changeServiceType,
-    fulfillments,
-    isCloneOrder,
+    // fulfillments,
+    // isCloneOrder,
   } = props;
 
   // console.log("propsShipmentmethod", props);
@@ -51,56 +56,50 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     return total;
   };
 
-  const checkServiceFee = useCallback(
-    (service: string, type: string) => {
-      console.log(service, type);
-      const delivery = infoFees.find(
-        (item) =>
-          item.delivery_service_code === service && item.transport_type === type
-      );
-      if (delivery) return delivery.total_fee;
-      return 0;
+
+  const deliveryService = useMemo(
+    () => {
+      return {
+        ghtk: {
+          code: "ghtk",
+          id: 1,
+          logo: ImageGHTK,
+          name: "Giao hàng tiết kiệm",
+        },
+        ghn: {
+          code: "ghn",
+          id: 2,
+          logo: ImageGHN,
+          name: "Giao hàng nhanh",
+        },
+        vtp: {
+          code: "vtp",
+          id: 3,
+          logo: ImageVTP,
+          name: "Viettel Post",
+        },
+        dhl: {
+          code: "dhl",
+          id: 4,
+          logo: ImageDHL,
+          name: "DHL",
+        },
+      }
+    },
+    []
+  );  
+  const sercivesFee = useMemo(
+    () => {
+      return {
+        ghtk: infoFees.filter(item => item.delivery_service_code === 'ghtk'),
+        ghn: infoFees.filter(item => item.delivery_service_code === 'ghn'),
+        vtp: infoFees.filter(item => item.delivery_service_code === 'vtp'),
+        dhl: infoFees.filter(item => item.delivery_service_code === 'dhl'),
+      }
     },
     [infoFees]
   );
 
-  const serciveFees = useMemo(() => {
-    return {
-      ghtk_standard: checkServiceFee("ghtk", "road"),
-      ghtk_express: checkServiceFee("ghtk", "fly"),
-      ghn_standard: checkServiceFee("ghnn", "2"),
-      vtp_standard: checkServiceFee("vtp", "standard"),
-      vtp_express: checkServiceFee("vtp", "express"),
-      dhl_standard: checkServiceFee("dhl", "standard"),
-    };
-  }, [checkServiceFee]);
-
-  useEffect(() => {
-    if (isCloneOrder) {
-      switch (fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls) {
-        case checkServiceFee("ghtk", "road"):
-          setSelectedShipmentMethod("ghtk_standard");
-          break;
-        case checkServiceFee("ghtk", "fly"):
-          setSelectedShipmentMethod("ghtk_express");
-          break;
-        case checkServiceFee("ghn", "2"):
-          setSelectedShipmentMethod("ghn_standard");
-          break;
-        case checkServiceFee("vtp", "standard"):
-          setSelectedShipmentMethod("ghtk_express");
-          break;
-        case checkServiceFee("vtp", "express"):
-          setSelectedShipmentMethod("vtp_express");
-          break;
-        case checkServiceFee("dhl", "standard"):
-          setSelectedShipmentMethod("dhl_standard");
-          break;
-        default:
-          break;
-      }
-    }
-  }, [checkServiceFee, fulfillments, infoFees, isCloneOrder]);
 
   return (
     <StyledComponent>
@@ -162,253 +161,68 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                   </tr>
                 </thead>
                 <tbody className="ant-table-tbody">
-                  {deliveryServices &&
-                    deliveryServices.map((single, index) => {
-                      return (
-                        <React.Fragment key={index}>
+                  {['ghtk', 'ghn', 'vtp', 'dhl'].map((deliveryServiceName: string, index) => {
+                    return (
+                      (sercivesFee as any)[deliveryServiceName].length &&
+                        <React.Fragment key={deliveryServiceName}>
                           <tr>
                             <td>
                               <img
                                 className="logoHVC"
-                                src={single.logo ? single.logo : ""}
+                                src={(deliveryService as any)[deliveryServiceName].logo}
                                 alt=""
                               />
                             </td>
                             <td style={{ padding: 0 }}>
-                              {single.code === "ghtk" && (
-                                <div>
-                                  <label className="radio-container">
-                                    <input
-                                      type="radio"
-                                      name="tt"
-                                      className="radio-delivery"
-                                      value="standard"
-                                      checked={
-                                        selectedShipmentMethod ===
-                                        "ghtk_standard"
-                                      }
-                                      onChange={(e) => {
-                                        setSelectedShipmentMethod(
-                                          "ghtk_standard"
-                                        );
-                                        changeServiceType(
-                                          single.id,
-                                          single.code,
-                                          "road",
-                                          serciveFees.ghtk_standard
-                                        );
-                                      }}
-                                    />
-                                    <span className="checkmark"></span>
-                                    Đường bộ
-                                  </label>
-                                  <Divider style={{ margin: "8px 0" }} />
-                                  <label className="radio-container">
-                                    <input
-                                      type="radio"
-                                      name="tt"
-                                      className="radio-delivery"
-                                      value="express"
-                                      checked={
-                                        selectedShipmentMethod ===
-                                        "ghtk_express"
-                                      }
-                                      onChange={(e) => {
-                                        setSelectedShipmentMethod(
-                                          "ghtk_express"
-                                        );
-                                        changeServiceType(
-                                          single.id,
-                                          single.code,
-                                          "fly",
-                                          serciveFees.ghtk_express
-                                        );
-                                      }}
-                                    />
-                                    <span className="checkmark"></span>
-                                    Đường bay
-                                  </label>
-                                </div>
-                              )}
-                              {single.code === "ghn" && (
-                                <label className="radio-container">
-                                  <input
-                                    type="radio"
-                                    name="tt"
-                                    className="radio-delivery"
-                                    value="standard"
-                                    checked={
-                                      selectedShipmentMethod ===
-                                      `${single.code}_standard`
-                                    }
-                                    onChange={(e) => {
-                                      setSelectedShipmentMethod(
-                                        `${single.code}_standard`
-                                      );
-                                      changeServiceType(
-                                        single.id,
-                                        single.code,
-                                        "2",
-                                        serciveFees.ghn_standard
-                                      );
-                                    }}
-                                  />
-                                  <span className="checkmark"></span>
-                                  Chuyển phát nhanh PDE
-                                </label>
-                              )}
-                              {single.code === "vtp" && (
-                                <div style={{ margin: "8px 0" }}>
-                                  <label className="radio-container">
-                                    <input
-                                      type="radio"
-                                      name="tt"
-                                      className="radio-delivery"
-                                      value="standard"
-                                      checked={
-                                        selectedShipmentMethod ===
-                                        "vtp_standard"
-                                      }
-                                      onChange={(e) => {
-                                        setSelectedShipmentMethod(
-                                          "vtp_standard"
-                                        );
-                                        changeServiceType(
-                                          single.id,
-                                          single.code,
-                                          // "standard",
-                                          "standard",
-                                          serciveFees.vtp_standard
-                                        );
-                                      }}
-                                    />
-                                    <span className="checkmark"></span>2 giờ
-                                  </label>
-                                  <Divider style={{ margin: "8px 0" }} />
-                                  <label className="radio-container">
-                                    <input
-                                      type="radio"
-                                      name="tt"
-                                      className="radio-delivery"
-                                      value="express"
-                                      onChange={(e) => {
-                                        setSelectedShipmentMethod(
-                                          "vtp_express"
-                                        );
-                                        changeServiceType(
-                                          single.id,
-                                          single.code,
-                                          "express",
-                                          serciveFees.vtp_express
-                                        );
-                                      }}
-                                    />
-                                    <span className="checkmark"></span>6 giờ
-                                  </label>
-                                </div>
-                              )}
-                              {single.code === "dhl" && (
-                                <label className="radio-container">
-                                  <input
-                                    type="radio"
-                                    name="tt"
-                                    className="radio-delivery"
-                                    value={`standard`}
-                                    onChange={(e) => {
-                                      setSelectedShipmentMethod(
-                                        `${single.code}_standard`
-                                      );
-                                      changeServiceType(
-                                        single.id,
-                                        single.code,
-                                        "standard",
-                                        serciveFees.dhl_standard
-                                      );
-                                    }}
-                                  />
-                                  <span className="checkmark"></span>
-                                  Chuyển phát nhanh PDE
-                                </label>
+                              {(sercivesFee as any)[deliveryServiceName].map((service: any) => {
+                                return (
+                                  <div style={{ padding: "8px 16px" }} className="custom-table__has-border-bottom custom-table__has-select-radio">
+                                    <label className="radio-container">
+                                      <input
+                                        type="radio"
+                                        name="tt"
+                                        className="radio-delivery"
+                                        value={service.transport_type}
+                                        checked={
+                                          selectedShipmentMethod === service.transport_type
+                                        }
+                                        onChange={(e) => {
+                                          setSelectedShipmentMethod(service.transport_type);
+                                          changeServiceType(
+                                            (deliveryService as any)[deliveryServiceName].id,
+                                            deliveryServiceName,
+                                            service.transport_type,
+                                            service.total_fee
+                                          );
+                                        }}
+                                        disabled={service.total_fee === 0}
+                                      />
+                                      <span className="checkmark"></span>
+                                      {service.transport_type_name}
+                                    </label>
+                                  </div>
+                                )}
                               )}
                             </td>
                             <td style={{ padding: 0, textAlign: "right" }}>
-                              {single.code === "ghtk" && (
-                                <>
-                                  {/* {serciveFees.ghtk_standard && */}
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {serciveFees.ghtk_standard}
-                                  </div>
-                                  {/* } */}
-                                  {/* {serciveFees.ghtk_express && */}
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {serciveFees.ghtk_express}
-                                  </div>
-                                  {/* } */}
-                                </>
+                              {(sercivesFee as any)[deliveryServiceName].map((service: any) => {
+                                return (
+                                  <>
+                                    <div
+                                      style={{ padding: "8px 16px" }}
+                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                    >
+                                      {service.total_fee}
+                                    </div>
+                                  </>
+                                )}
                               )}
-                              {single.code === "ghn" && (
-                                <>
-                                  {/* {serciveFees.ghn_standard && */}
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {serciveFees.ghn_standard}
-                                  </div>
-                                  {/* } */}
-                                </>
-                              )}
-                              {single.code === "vtp" && (
-                                <>
-                                  {/* {serciveFees.vtp_standard && */}
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {serciveFees.vtp_standard}
-                                  </div>
-                                  {/* } */}
-                                  {/* {serciveFees.vtp_express && */}
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {serciveFees.vtp_express}
-                                  </div>
-                                  {/* } */}
-                                  {/* <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {infoFees && infoFees.length > 1
-                                      ? formatCurrency(0)
-                                      : 0}
-                                  </div> */}
-                                </>
-                              )}
-                              {single.code === "dhl" && (
-                                <>
-                                  {/* {serciveFees.dhl_standard && */}
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {serciveFees.dhl_standard}
-                                  </div>
-                                  {/* } */}
-                                </>
-                              )}
+                              
                             </td>
                           </tr>
                         </React.Fragment>
-                      );
-                    })}
+                      ) || null
+                  })}
                 </tbody>
               </table>
             </div>
