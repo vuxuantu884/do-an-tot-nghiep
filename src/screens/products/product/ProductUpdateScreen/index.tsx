@@ -353,7 +353,7 @@ const ProductDetailScreen: React.FC = () => {
                               });
                             }}
                             className="ant-switch-success"
-                            defaultChecked
+                            checked={status === "active"}
                           />
                         </Item>
                         <label
@@ -1030,11 +1030,11 @@ const ProductDetailScreen: React.FC = () => {
                                                   <Item
                                                     name={[
                                                       name,
-                                                      "wholesale_price",
+                                                      "cost_price",
                                                     ]}
                                                     fieldKey={[
                                                       fieldKey,
-                                                      "wholesale_price",
+                                                      "cost_price",
                                                     ]}
                                                     label="Giá vốn"
                                                     tooltip={{
