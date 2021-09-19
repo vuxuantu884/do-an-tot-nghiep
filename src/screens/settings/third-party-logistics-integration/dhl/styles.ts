@@ -51,6 +51,18 @@ export const StyledComponent = styled.div`
       &__code {
         color: #2a2a86;
       }
+      &__action {
+        .single {
+          cursor: pointer;
+        }
+      }
     }
+  }
+  .inputStoreId {
+    width: 170px;
+    margin-right: 5px;
+  }
+  .selectShopId {
+    width: 300px;
   }
 `;

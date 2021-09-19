@@ -263,6 +263,26 @@ export interface DeliveryServiceResponse {
   }[];
 }
 
+export type DeliveryServiceTransportType = {
+  code: string;
+  name: string;
+  description: string;
+  active: boolean;
+};
+
+export type DeliveryTransportTypesResponse = {
+  code: string;
+  name: string;
+  description: string;
+  active: boolean;
+};
+
+export type DeliveryMappedStoreType = {
+  store_id: number;
+  name: string;
+  shop_id: number;
+};
+
 export interface ShippingGHTKResponse {
   name: string;
   fee: number;
@@ -284,6 +304,16 @@ export interface VTPFeeResponse {
   MA_DV_CHINH: string;
   TEN_DICHVU: string;
   THOI_GIAN: string;
+}
+
+export interface FeesResponse {
+  delivery_service_code: string;
+  total_fee: number;
+  insurance_fee: number;
+  transport_type: string;
+  transport_type_name: string;
+  note: string;
+  delivery: boolean;
 }
 
 export interface StoreCustomResponse extends BaseObject {

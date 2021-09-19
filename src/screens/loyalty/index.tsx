@@ -37,9 +37,7 @@ const LoyaltyPage = () => {
   const dispatch = useDispatch();
   const [query, setQuery] = useState<BaseQuery>({
     page: 1,
-    limit: 30,
-    sort_column: 'id',
-    sort_type: 'DESC'
+    limit: 30
   });
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -223,7 +221,7 @@ const LoyaltyPage = () => {
 
   const handleChangePointUse = (v: number | null, index: number) => {
     let _rules = [...rules]
-    _rules[index].limit_order_percent = v === null ? 0 : Number(v)
+    _rules[index].limit_order_percent = v === null ? null : Number(v)
     setRules(_rules)
   }
 

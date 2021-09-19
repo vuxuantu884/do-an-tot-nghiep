@@ -5,16 +5,17 @@ import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { LoyaltyRankType, LoyaltyCardReleaseType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType } from "domain/types/loyalty.type";
+import { LoyaltyRankType, LoyaltyCardReleaseType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType, LoyaltyPointsType } from "domain/types/loyalty.type";
 import { loyaltyCardUploadApi, searchLoyaltyCardReleaseList } from "service/loyalty/release/loyalty-card-release.service";
 import { createLoyaltyRank, deleteLoyaltyRank, getLoyaltyRankDetail, getLoyaltyRankList, updateLoyaltyRank } from "service/loyalty/ranking/loyalty-ranking.service";
 import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
 import { LoyaltyCardReleaseResponse } from "model/response/loyalty/release/loyalty-card-release.response";
 import { loyaltyCardAssignmentApi, loyaltyCardLockApi, searchLoyaltyCardList } from "service/loyalty/card/loyalty-card.service";
 import { LoyaltyAccumulationProgramResponse } from "model/response/loyalty/loyalty-accumulation.response";
-import { createLoyaltyProgram, createLoyaltyRate, createLoyaltyUsage, getLoyaltyProgramDetail, getLoyaltyRate, getLoyaltyUsage, searchLoyaltyProgramList, updateLoyaltyProgram } from "service/loyalty/loyalty.service";
+import { createLoyaltyProgram, createLoyaltyRate, createLoyaltyUsage, getLoyaltyPoint, getLoyaltyProgramDetail, getLoyaltyRate, getLoyaltyUsage, searchLoyaltyProgramList, updateLoyaltyProgram } from "service/loyalty/loyalty.service";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
   const { file, name, callback } = action.payload;
@@ -432,6 +433,29 @@ function* getLoyaltyProgramList(action: YodyAction) {
   }
 }
 
+function* getloyaltyPoint(action: YodyAction) {
+  const { customerId, setData } = action.payload;
+  try {
+    const response: BaseResponse<LoyaltyPoint> = yield call(
+      getLoyaltyPoint,
+      customerId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* loyaltySaga() {
   yield takeLatest(LoyaltyCardReleaseType.UPLOAD, uploadLoyaltyCardSaga);
   yield takeLatest(LoyaltyRankType.SEARCH_LOYALTY_RANK_REQUEST, getLoyaltyRankingList);
@@ -451,4 +475,5 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyUsageType.GET_LOYALTY_USAGE_REQUEST, loyaltyUsageSaga);
   yield takeLatest(LoyaltyUsageType.CREATE_LOYALTY_USAGE_REQUEST, createLoyaltyUsageSaga);
   yield takeLatest(LoyaltyProgramType.GET_LOYALTY_ACCUMULATION_PROGRAM, getLoyaltyProgramList);
+  yield takeLatest(LoyaltyPointsType.GET_LOYALTY_POINT, getloyaltyPoint);
 }

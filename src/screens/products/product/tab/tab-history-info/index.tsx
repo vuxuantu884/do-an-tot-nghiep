@@ -17,7 +17,10 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFIlter from "../../filter/HistoryProductFilter";
-const initQuery: ProductHistoryQuery = {};
+const initQuery: ProductHistoryQuery = {
+};
+
+const IS_PRODUCT_TYPE = ['ADD_PRODUCT','UPDATE_PRODUCT','DELETE_PRODUCT']
 
 const TabHistoryInfo: React.FC = () => {
   const query = useQuery();
@@ -53,7 +56,7 @@ const TabHistoryInfo: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}#2?${queryParam}`);
+      history.replace(`${UrlConfig.PRODUCT}#3?${queryParam}`);
     },
     [history, params]
   );
@@ -62,41 +65,44 @@ const TabHistoryInfo: React.FC = () => {
   >([
     {
       title: "Sản phẩm",
-      dataIndex: "data",
+      dataIndex: "history_type",
       visible: true,
-      render: (value) => {
-        let data = JSON.parse(value);
-        console.log(data);
+      fixed: 'left',
+      width: 200,
+      render: (value, item) => {
+        if (IS_PRODUCT_TYPE.includes(value)){
+          return (
+            <div>
+              <Link to="">{item.product_code}</Link>
+              <div>{item.product_name}</div>
+            </div>
+          );
+        }
         return (
           <div>
-            <Link to="">{data.code}</Link>
-            <div>{data.name}</div>
+            <Link to="">{item.sku}</Link>
+            <div>{item.variant_name}</div>
           </div>
         );
       },
     },
     {
       title: "Người sửa",
-      dataIndex: "data",
+      dataIndex: "action_name",
       visible: true,
       align: "center",
-      render: (value) => {
-        let data = JSON.parse(value);
-        return data.updated_name;
-      },
     },
     {
       title: "Log ID",
-      dataIndex: "id",
+      dataIndex: "code",
       visible: true,
       align: "center",
     },
     {
       title: "Thao tác",
-      dataIndex: "action",
+      dataIndex: "history_type_name",
       visible: true,
       align: "center",
-      render: (value) => (value === "Create" ? "Thêm mới" : "Sửa thông tin"),
     },
     {
       title: "Thời gian",
@@ -113,8 +119,11 @@ const TabHistoryInfo: React.FC = () => {
 
   return (
     <div className="padding-20">
-      <HistoryProductFIlter onMenuClick={() => {}} actions={[]} />
+      <HistoryProductFIlter 
+        onShowColumnSetting={() => setShowSettingColumn(true)}
+        onMenuClick={() => {}} actions={[]} />
       <CustomTable
+        scroll={{ x: 1300 }}
         columns={columns}
         dataSource={data.items}
         isLoading={loading}

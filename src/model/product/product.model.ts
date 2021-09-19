@@ -22,7 +22,9 @@ export interface VariantImage  {
 export interface VariantPricesResponse  {
   id:number,
   price_type:string,
-  price:number,
+  import_price:number,
+  wholesale_price: number,
+  cost_price: number,
   variant_id:number,
   currency_code:string,
   currency_symbol:string,
@@ -378,13 +380,32 @@ export interface VariantUpdateView {
 }
 
 export interface ProductHistoryResponse extends BaseObject {
-  rootId: number,
-  variantId: number|null,
-  data: string,
-  action: string,
-  deleted: boolean,
+  history_type:      string;
+  product_id:        number;
+  product_code:      string;
+  product_name:      string;
+  variant_id:        number | null;
+  variant_name:      null | string;
+  sku:               null | string;
+  data_old:          null | string;
+  data_current:      string;
+  action_by:         string;
+  action_name:       string;
+  action_date:       Date;
+  history_type_name: string;
 }
 
 export interface ProductHistoryQuery extends BaseQuery {
   condition?: string
+  history_type?: string,
+}
+
+export interface ProductBarcodeRequest {
+  type: string,
+  products: Array<ProductBarcodeItem>,
+}
+
+export interface ProductBarcodeItem {
+  product_id: number,
+  quantity_req: number,
 }

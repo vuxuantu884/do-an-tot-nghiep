@@ -14,7 +14,7 @@ type ProductItemProps = {
 const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
   const {data, showCheckBox, checked} = props;
   const avatar = Products.findAvatar(data.variant_images);
-  const price_data = Products.findPrice(data.variant_prices, AppConfig.import_price, AppConfig.currency);
+  const price_data = Products.findPrice(data.variant_prices,  AppConfig.currency);
   return (
     <div className="product-item">
       {
@@ -31,7 +31,7 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
           <span className="product-item-sku">{data.sku}</span>
         </div>
         <div className="product-item-info-right">
-          <span className="product-item-price">{price_data !== null ?  formatCurrency(price_data.price) : 0} <span className="currency">₫</span></span>
+          <span className="product-item-price">{price_data !== null ?  formatCurrency(price_data.import_price) : 0} <span className="currency">₫</span></span>
           <span className="product-item-inventory">Số lượng: <span className="value">{data.inventory}</span></span>
         </div>
       </div>

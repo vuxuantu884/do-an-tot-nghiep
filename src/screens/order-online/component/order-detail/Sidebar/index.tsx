@@ -26,7 +26,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
       >
         <div className="padding-24">
           <Form.Item
-            label="Nhân viên bán hàng"
+            label="Nhân viên bán hàng 2"
             name="assignee_code"
             rules={[
               {

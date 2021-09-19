@@ -7,6 +7,7 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
 import {
   orderCreateAction,
   OrderDetailAction,
@@ -26,6 +27,7 @@ import {
   ShippingAddress,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import {
   FulFillmentResponse,
   // OrderLineItemResponse,
@@ -81,8 +83,9 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [hvc, setHvc] = useState<number | null>(null);
-  const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
+  const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
@@ -91,7 +94,6 @@ export default function Order() {
   >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  // console.log("payments", payments);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
     []
   );
@@ -163,6 +165,8 @@ export default function Order() {
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
   };
+
+  const [isLoadForm, setIsLoadForm] = useState(false);
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
@@ -299,7 +303,7 @@ export default function Order() {
             value.shipping_fee_informed_to_customer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls:
-            hvc === 1 ? feeGhtk : MoneyPayThreePls.VALUE,
+            hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
@@ -415,6 +419,20 @@ export default function Order() {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
+
+    let checkPointfocus = payments.find((p) => p.code === "point");
+    if (checkPointfocus) {
+      let curenPoint = 0;
+      if (loyaltyPoint)
+        curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
+      let point =
+        checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
+
+      if (point > curenPoint) {
+        showError("Số điểm tiêu vượt quá số điểm hiện có");
+        return;
+      }
+    }
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
@@ -463,7 +481,6 @@ export default function Order() {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -473,16 +490,11 @@ export default function Order() {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
       }
     }
-  };
-
-  const handleChangeProduct = (value: string) => {
-    console.log("valueParent", value);
   };
 
   const setDataAccounts = useCallback(
@@ -539,7 +551,6 @@ export default function Order() {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(+cloneIdParam, (response) => {
-            console.log("response", response);
             const { customer_id } = response;
 
             if (customer_id) {
@@ -616,7 +627,10 @@ export default function Order() {
                 setPayments(new_payments);
               }
               setItems(responseItems);
-              setOrderAmount(response.total);
+              setOrderAmount(
+                response.total -
+                  (response.shipping_fee_informed_to_customer || 0)
+              );
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
@@ -660,6 +674,9 @@ export default function Order() {
                 }
                 setShipmentMethod(newShipmentMethod);
                 setFulfillments(response.fulfillments);
+                setShippingFeeCustomer(
+                  response.shipping_fee_informed_to_customer
+                );
                 if (response.store_id) {
                   setStoreId(response.store_id);
                 }
@@ -680,6 +697,7 @@ export default function Order() {
                 ) {
                   setOfficeTime(true);
                 }
+                setIsLoadForm(true);
               }
             }
           })
@@ -689,19 +707,37 @@ export default function Order() {
         setItems([]);
         setItemGifts([]);
         setPayments([]);
+        console.log("initialRequest", initialRequest);
         setInitialForm({
           ...initialRequest,
         });
         setOfficeTime(false);
         setStoreId(null);
         setTag("");
-        formRef.current?.resetFields();
+        setIsLoadForm(true);
+        setShippingFeeCustomer(0);
+        setDiscountRate(0);
+        setDiscountValue(0);
+        setOfficeTime(false);
+        setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
       }
     };
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, dispatch, isCloneOrder]);
 
+  useEffect(() => {
+    if (customer) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+  }, [dispatch, customer]);
+
+  useEffect(() => {
+    formRef.current?.resetFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloneIdParam, isCloneOrder]);
   return (
     <React.Fragment>
       <ContentContainer
@@ -721,121 +757,120 @@ export default function Order() {
         extra={<CreateBillStep status="draff" orderDetail={null} />}
       >
         <div className="orders">
-          <Form
-            layout="vertical"
-            initialValues={initialForm}
-            ref={formRef}
-            onFinishFailed={({ errorFields }: any) => {
-              const element: any = document.getElementById(
-                errorFields[0].name.join("")
-              );
-              element?.focus();
-              const y =
-                element?.getBoundingClientRect()?.top +
-                window.pageYOffset +
-                -250;
-              window.scrollTo({ top: y, behavior: "smooth" });
-            }}
-            onFinish={onFinish}
-          >
-            <Form.Item noStyle hidden name="action">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="currency">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="account_code">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="tax_treatment">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="tags">
-              <Input />
-            </Form.Item>
-            <Row gutter={20} style={{ marginBottom: "70px" }}>
-              <Col md={18}>
-                <CardCustomer
-                  customer={customer}
-                  handleCustomer={handleCustomer}
-                  ShippingAddressChange={onChangeShippingAddress}
-                  BillingAddressChange={onChangeBillingAddress}
-                />
-                <CardProduct
-                  changeInfo={onChangeInfoProduct}
-                  selectStore={onStoreSelect}
-                  storeId={storeId}
-                  shippingFeeCustomer={shippingFeeCustomer}
-                  setItemGift={setItemGifts}
-                  orderSettings={orderSettings}
+          {isLoadForm && (
+            <Form
+              layout="vertical"
+              initialValues={initialForm}
+              ref={formRef}
+              onFinishFailed={({ errorFields }: any) => {
+                const element: any = document.getElementById(
+                  errorFields[0].name.join("")
+                );
+                element?.focus();
+                const y =
+                  element?.getBoundingClientRect()?.top +
+                  window.pageYOffset +
+                  -250;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }}
+              onFinish={onFinish}
+            >
+              <Form.Item noStyle hidden name="action">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="currency">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="account_code">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="tax_treatment">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="tags">
+                <Input />
+              </Form.Item>
+              <Row gutter={20} style={{ marginBottom: "70px" }}>
+                <Col md={18}>
+                  <CardCustomer
+                    customer={customer}
+                    handleCustomer={handleCustomer}
+                    ShippingAddressChange={onChangeShippingAddress}
+                    BillingAddressChange={onChangeBillingAddress}
+                  />
+                  <CardProduct
+                    changeInfo={onChangeInfoProduct}
+                    selectStore={onStoreSelect}
+                    storeId={storeId}
+                    shippingFeeCustomer={shippingFeeCustomer}
+                    setItemGift={setItemGifts}
+                    orderSettings={orderSettings}
+                    formRef={formRef}
+                    items={items}
+                    handleCardItems={handleCardItems}
+                    isCloneOrder={isCloneOrder}
+                    discountRateParent={discountRate}
+                    discountValueParent={discountValue}
+                  />
+                  <CardShipment
+                    setShipmentMethodProps={onShipmentSelect}
+                    shipmentMethod={shipmentMethod}
+                    storeDetail={storeDetail}
+                    setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                    setShippingFeeInformedCustomerHVC={
+                      ChangeShippingFeeCustomerHVC
+                    }
+                    amount={orderAmount}
+                    setPaymentMethod={setPaymentMethod}
+                    paymentMethod={paymentMethod}
+                    shippingFeeCustomer={shippingFeeCustomer}
+                    shippingFeeCustomerHVC={shippingFeeCustomerHVC}
+                    customerInfo={customer}
+                    items={items}
+                    discountValue={discountValue}
+                    setOfficeTime={setOfficeTime}
+                    officeTime={officeTime}
+                    setServiceType={setServiceType}
+                    setHVC={setHvc}
+                    setFee={setFee}
+                    payments={payments}
+                    onPayments={onPayments}
+                    fulfillments={fulfillments}
+                    isCloneOrder={isCloneOrder}
+                  />
+                  <CardPayments
+                    setSelectedPaymentMethod={handlePaymentMethod}
+                    payments={payments}
+                    setPayments={onPayments}
+                    paymentMethod={paymentMethod}
+                    shipmentMethod={shipmentMethod}
+                    amount={
+                      orderAmount +
+                      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                      discountValue
+                    }
+                    isCloneOrder={isCloneOrder}
+                  />
+                </Col>
+                <Col md={6}>
+                  <OrderDetailSidebar
+                    accounts={accounts}
+                    tags={tags}
+                    isCloneOrder={isCloneOrder}
+                    onChangeTag={onChangeTag}
+                  />
+                </Col>
+              </Row>
+              {isShowBillStep && (
+                <OrderDetailBottomBar
                   formRef={formRef}
-                  onChangeProduct={(value: string) =>
-                    handleChangeProduct(value)
-                  }
-                  items={items}
-                  handleCardItems={handleCardItems}
-                  isCloneOrder={isCloneOrder}
-                  discountRateParent={discountRate}
-                  discountValueParent={discountValue}
+                  handleTypeButton={handleTypeButton}
+                  isVisibleGroupButtons={true}
+                  showSaveAndConfirmModal={showSaveAndConfirmModal}
                 />
-                <CardShipment
-                  setShipmentMethodProps={onShipmentSelect}
-                  shipmentMethod={shipmentMethod}
-                  storeDetail={storeDetail}
-                  setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
-                  setShippingFeeInformedCustomerHVC={
-                    ChangeShippingFeeCustomerHVC
-                  }
-                  amount={orderAmount}
-                  setPaymentMethod={setPaymentMethod}
-                  paymentMethod={paymentMethod}
-                  shippingFeeCustomer={shippingFeeCustomer}
-                  shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                  customerInfo={customer}
-                  items={items}
-                  discountValue={discountValue}
-                  setOfficeTime={setOfficeTime}
-                  officeTime={officeTime}
-                  setServiceType={setServiceType}
-                  setHVC={setHvc}
-                  setFeeGhtk={setFeeGhtk}
-                  payments={payments}
-                  onPayments={onPayments}
-                  fulfillments={fulfillments}
-                  isCloneOrder={isCloneOrder}
-                />
-                <CardPayments
-                  setSelectedPaymentMethod={handlePaymentMethod}
-                  payments={payments}
-                  setPayments={onPayments}
-                  paymentMethod={paymentMethod}
-                  shipmentMethod={shipmentMethod}
-                  amount={
-                    orderAmount +
-                    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                    discountValue
-                  }
-                  isCloneOrder={isCloneOrder}
-                />
-              </Col>
-              <Col md={6}>
-                <OrderDetailSidebar
-                  accounts={accounts}
-                  tags={tags}
-                  isCloneOrder={isCloneOrder}
-                  onChangeTag={onChangeTag}
-                />
-              </Col>
-            </Row>
-            {isShowBillStep && (
-              <OrderDetailBottomBar
-                formRef={formRef}
-                handleTypeButton={handleTypeButton}
-                isVisibleGroupButtons={true}
-                showSaveAndConfirmModal={showSaveAndConfirmModal}
-              />
-            )}
-          </Form>
+              )}
+            </Form>
+          )}
         </div>
         <SaveAndConfirmOrder
           onCancel={onCancelSaveAndConfirm}
