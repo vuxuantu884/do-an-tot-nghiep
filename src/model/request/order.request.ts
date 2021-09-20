@@ -35,6 +35,15 @@ export interface OrderRequest {
   payments: Array<OrderPaymentRequest> | null;
 }
 
+export interface ReturnRequest extends OrderRequest {
+  reason_id: number;
+  received: boolean;
+}
+
+export interface ExchangeRequest extends OrderRequest {
+  order_return_id: number;
+}
+
 export interface FulFillmentRequest {
   store_id: number | null;
   account_code?: string | null;
