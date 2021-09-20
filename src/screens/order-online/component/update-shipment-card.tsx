@@ -299,36 +299,36 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
     showSuccess("Tạo đơn giao hàng thành công");
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, timeout);
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
   };
   const onPickSuccess = (value: OrderResponse) => {
     showSuccess("Nhặt hàng thành công");
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, timeout);
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
   };
 
   const onPackSuccess = (value: OrderResponse) => {
     showSuccess("Đóng gói thành công");
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, timeout);
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
   };
 
   const onShippingSuccess = (value: OrderResponse) => {
     showSuccess("Xuất kho thành công");
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, timeout);
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
   };
 
   const onShipedSuccess = (value: OrderResponse) => {
     showSuccess("Hoàn tất đơn hàng");
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, timeout);
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
   };
   const onCancelSuccess = (value: OrderResponse) => {
     showSuccess(

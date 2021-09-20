@@ -413,8 +413,6 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    console.log('ok ok ');
-    
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
