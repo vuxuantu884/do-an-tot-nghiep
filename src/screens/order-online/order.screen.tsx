@@ -875,6 +875,7 @@ export default function Order() {
                   <CardCustomer
                     customer={customer}
                     handleCustomer={handleCustomer}
+                    loyaltyPoint={loyaltyPoint}
                     ShippingAddressChange={onChangeShippingAddress}
                     BillingAddressChange={onChangeBillingAddress}
                   />
