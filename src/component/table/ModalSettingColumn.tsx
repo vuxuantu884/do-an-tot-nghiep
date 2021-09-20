@@ -23,7 +23,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
   const onDrag = useCallback(
     (fromIndex, toIndex) => {
       if (toIndex < 0 || toIndex > columns.length - 1) return; // Ignores if outside designated area
-      const items = [...JSON.parse(JSON.stringify(columns))];
+      const items = [...columns];
       const item = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, item);
       setColumn(items);

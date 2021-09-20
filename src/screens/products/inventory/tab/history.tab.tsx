@@ -37,7 +37,6 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   let [params, setPrams] = useState<HistoryInventoryQuery>(dataQuery);
   const onFilter = useCallback(
     (values) => {
-      console.log(values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);

@@ -66,7 +66,7 @@ import {
   replaceFormatString,
 } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, {
@@ -381,7 +381,21 @@ const ProductCreateScreen: React.FC = () => {
   const onClickAdd = useCallback(() => {
     form
       .validateFields()
-      .then(() => {
+      .then((values: ProductRequestView) => {
+        let currencyCheck: any ={};
+        let failCurrency = false;
+        values.variant_prices.forEach((item) => {
+          if(currencyCheck[item.currency] === undefined) {
+            currencyCheck[item.currency] = 1;
+          } else {
+            failCurrency = true;
+          }
+        })
+        if(failCurrency) {
+          showError('Trùng đơn vị tiền');
+          return;
+        }
+      
         if (sizeSelected.length > 0 && colorSelected.length > 0) {
           form.submit();
         } else {
@@ -483,7 +497,7 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(listColorAction({ is_main_color: 0 }, setListColor));
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT] },
+          { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
           setDataAccounts
         )
       );
