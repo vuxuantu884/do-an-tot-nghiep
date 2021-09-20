@@ -299,7 +299,8 @@ const TabProduct: React.FC = () => {
         isRowSelection
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: 1080 }}
+        scroll={{ x: 1300 }}
+        sticky={{offsetScroll: 5, offsetHeader: 55}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

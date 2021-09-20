@@ -73,14 +73,14 @@ const TabHistoryInfo: React.FC = () => {
         if (IS_PRODUCT_TYPE.includes(value)){
           return (
             <div>
-              <Link to="">{item.product_code}</Link>
+              <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>{item.product_code}</Link>
               <div>{item.product_name}</div>
             </div>
           );
         }
         return (
           <div>
-            <Link to="">{item.sku}</Link>
+            <Link  to={`${UrlConfig.PRODUCT}/${item.product_id}`}>{item.sku}</Link>
             <div>{item.variant_name}</div>
           </div>
         );
@@ -123,10 +123,10 @@ const TabHistoryInfo: React.FC = () => {
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => {}} actions={[]} />
       <CustomTable
-        scroll={{ x: 1300 }}
         columns={columns}
         dataSource={data.items}
         isLoading={loading}
+        sticky={{offsetScroll: 5, offsetHeader: 55}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

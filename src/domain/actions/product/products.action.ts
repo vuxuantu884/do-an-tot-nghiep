@@ -5,7 +5,6 @@ import {
   ProductRequest,
   ProductResponse,
   ProductWrapperUpdateRequest,
-  ProductWrapperResponse,
   ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
@@ -28,7 +27,7 @@ export const searchVariantsRequestAction = (
 
 export const searchProductWrapperRequestAction = (
   query: ProductWrapperSearchQuery,
-  setData: (data: PageResponse<ProductWrapperResponse>|false) => void
+  setData: (data: PageResponse<ProductResponse>|false) => void
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST, {
     query,

@@ -52,7 +52,7 @@ const ColorCreateScreen = React.lazy(
 
 //Product
 const Product = React.lazy(
-  () => import("screens/products/product/product.search.screen")
+  () => import("screens/products/product/ProductSearchScreen")
 );
 const VariantUpdateScreen = React.lazy(
   () => import("screens/products/product/variant-update.screen")

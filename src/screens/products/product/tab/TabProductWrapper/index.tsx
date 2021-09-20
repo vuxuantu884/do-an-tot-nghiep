@@ -1,4 +1,4 @@
-import ProductWrapperFilter from "component/filter/ProductWrapperFilter";
+import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -13,9 +13,9 @@ import { AccountResponse, AccountSearchQuery } from "model/account/account.model
 import { PageResponse } from "model/base/base-metadata.response";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
-import { ProductWrapperResponse, ProductWrapperSearchQuery, ProductWrapperUpdateRequest } from "model/product/product.model";
+import { ProductResponse, ProductWrapperResponse, ProductWrapperSearchQuery, ProductWrapperUpdateRequest, VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
@@ -36,10 +36,6 @@ const actions: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.EXPORT_EXCEL,
     name: "Xuất thông in excel",
-  },
-  {
-    id: ACTIONS_INDEX.PRINT_BAR_CODE,
-    name: "In mã vạch",
   },
   {
     id: ACTIONS_INDEX.ACTIVE,
@@ -77,14 +73,13 @@ const TabProductWrapper: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
-  const isFirstLoad = useRef(true);
 
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
 
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
-  const [listMerchandiser, setMarchandiser] = useState<Array<AccountResponse>>();
+  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const goods = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.goods
@@ -93,7 +88,7 @@ const TabProductWrapper: React.FC = () => {
   
   const [selected, setSelected] = useState<Array<ProductWrapperResponse>>([]);
 
-  const [data, setData] = useState<PageResponse<ProductWrapperResponse>>({
+  const [data, setData] = useState<PageResponse<ProductResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -112,6 +107,9 @@ const TabProductWrapper: React.FC = () => {
   >([
     {
       title: "Ảnh",
+      fixed: 'left',
+      align: 'center',
+      width: 70,
       render: (value: ProductWrapperResponse) => {
         // let image = Products.findAvatar(value.variant_images);
         return (
@@ -133,8 +131,10 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
+      width: 150,
       title: "Tên sản phẩm",
       dataIndex: "code",
+      fixed: 'left',
       render: (value: string, i: ProductWrapperResponse) => {
         return(
         <>
@@ -147,6 +147,7 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Tồn trong kho",
       // dataIndex: "color",
+      align: 'right',
       render: () => (
         <>
           <div> đợi api </div>
@@ -155,6 +156,7 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
+      align: 'right',
       title: "Có thể bán",
       // dataIndex: "color",
       render: () => (
@@ -165,50 +167,45 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
+      align: 'right',
       title: "SL Phiên bản",
-      render: (value: ProductWrapperResponse) => (
+      dataIndex: 'variants',
+      render: (value: Array<VariantResponse>) => (
         <>
-          <div>{value ? value.variants.length : ''}</div>
+          <div>{value ? value.length : ''}</div>
         </>
       ),
       visible: true,
     },
     {
       title: "Nhà thiết kế",
-      render: (value: ProductWrapperResponse) => <div> {value.designer}</div>,
+      dataIndex: 'designer',
       visible: true,
     },
     {
       title: "Merchandiser",
-      render: (value: ProductWrapperResponse) => (
-          <div> {value.merchandiser}</div>
-      ),
+      dataIndex: 'merchandiser',
       visible: true,
     },
     {
       title: "Danh mục",
-      render: (value: ProductWrapperResponse) => (
-          <div> {value.category}</div>
-      ),
+      dataIndex: 'category',
       visible: false,
     },
     {
       title: "Ngành hàng",
-      render: (value: ProductWrapperResponse) => (
-          <div> {value.goods}</div>
-      ),
+      dataIndex: 'goods',
       visible: false,
     },
     {
       title: "Chất liệu",
-      render: (value: ProductWrapperResponse) => (
-          <div> {value.material}</div>
-      ),
+      dataIndex: 'material',
       visible: false,
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
+      align: 'center',
       render: (value: string, row: ProductWrapperResponse) => (
         <div
           className={row.status === "active" ? "text-success" : "text-error"}
@@ -233,7 +230,7 @@ const TabProductWrapper: React.FC = () => {
   }, []);
 
   const setSearchResult = useCallback(
-    (result: PageResponse<ProductWrapperResponse> | false) => {
+    (result: PageResponse<ProductResponse> | false) => {
       setTableLoading(false);
       if (!!result) {
         setData(result);
@@ -336,19 +333,20 @@ const TabProductWrapper: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isFirstLoad.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
-      dispatch(AccountGetListAction(initAccountQuery, setMarchandiser));
+      dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
       dispatch(materialSearchAll(setListMaterial));
       setTableLoading(true);
-    }
-    isFirstLoad.current = false;
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult, setDataCategory]);
+
+  useEffect(() => {
+    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
+  }, [dispatch, params, setSearchResult])
 
   return (
     <div className="padding-20">
     <ProductWrapperFilter
+      openColumn={() =>  setShowSettingColumn(true)}
       onMenuClick={onMenuClick}
       actions={actions}
       onFilter={onFilter}
@@ -362,9 +360,9 @@ const TabProductWrapper: React.FC = () => {
     <CustomTable
       isRowSelection
       isLoading={tableLoading}
-      showColumnSetting={true}
       onSelectedChange={onSelect}
-      scroll={{ x: 1080 }}
+      scroll={{ x: 1500 }}
+      sticky={{offsetScroll: 5, offsetHeader: 55}}
       pagination={{
         pageSize: data.metadata.limit,
         total: data.metadata.total,
@@ -373,10 +371,9 @@ const TabProductWrapper: React.FC = () => {
         onChange: onPageChange,
         onShowSizeChange: onPageChange,
       }}
-      onShowColumnSetting={() => setShowSettingColumn(true)}
       dataSource={data.items}
       columns={columnFinal}
-      rowKey={(item: ProductWrapperResponse) => item.id}
+      rowKey={(item: ProductResponse) => item.id}
     />
     <ModalSettingColumn
         visible={showSettingColumn}
