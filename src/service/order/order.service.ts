@@ -3,6 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { BaseQuery } from "model/base/base.query";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   GetFeesRequest,
@@ -54,6 +55,13 @@ export const getShipmentApi = (
 ): Promise<BaseResponse<ShipmentModel>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
+};
+
+export const getReturnApi = (
+  query: ReturnSearchQuery
+): Promise<BaseResponse<ReturnModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/returns?${queryString}`);
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {

@@ -2,6 +2,7 @@ import BaseAction from "base/base.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
+import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import {
   GHNFeeRequest,
   OrderRequest,
@@ -278,6 +279,16 @@ export const getShipmentsAction = (
   setData: (data: PageResponse<ShipmentModel> | false) => void
 ) => {
   return BaseAction(OrderType.GET_SHIPMENTS_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+export const getReturnsAction = (
+  query: ReturnSearchQuery,
+  setData: (data: PageResponse<ReturnModel> | false) => void
+) => {
+  return BaseAction(OrderType.GET_RETURNS_REQUEST, {
     query,
     setData,
   });

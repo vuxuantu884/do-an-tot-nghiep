@@ -2,6 +2,7 @@ import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderModel } from "model/order/order.model";
+import { ReturnModel } from "model/order/return.model";
 import { ShipmentModel } from "model/order/shipment.model";
 import {
   DeliveryMappedStoreType,
@@ -26,6 +27,7 @@ import {
   getDeliveryTransportTypesServices,
   getInfoDeliveryFees,
   getPaymentMethod,
+  getReturnApi,
   orderPostApi,
   updateDeliveryConnectService,
 } from "../../../service/order/order.service";
@@ -88,6 +90,23 @@ function* getShipmentsSaga(action: YodyAction) {
   try {
     let response: BaseResponse<Array<ShipmentModel>> = yield call(
       getShipmentApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getReturnsSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<ReturnModel>> = yield call(
+      getReturnApi,
       query
     );
     switch (response.code) {
@@ -558,6 +577,7 @@ export function* OrderOnlineSaga() {
     getListOrderCustomerSaga
   );
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
+  yield takeLatest(OrderType.GET_RETURNS_REQUEST, getReturnsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.CREATE_FPAGE_ORDER_REQUEST, orderFpageCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
