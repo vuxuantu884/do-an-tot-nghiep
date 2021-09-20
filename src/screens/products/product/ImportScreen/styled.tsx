@@ -18,10 +18,9 @@ export const ProductImportScreenStyled = styled.div`
         margin-bottom: 10px;
       }
 
-      .ant-form-item-control{
+      .ant-form-item-control {
         width: 100%;
       }
     }
   }
-
 `;
