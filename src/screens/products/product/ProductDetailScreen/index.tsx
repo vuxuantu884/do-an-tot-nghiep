@@ -20,6 +20,9 @@ import { Products } from "utils/AppUtils";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { useQuery } from "utils/useQuery";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import TabProductInventory from "../tab/TabProductInventory";
+import TabProductHistory from "../tab/TabProductHistory";
+import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
 
 export interface ProductParams {
   id: string;
@@ -161,6 +164,10 @@ const ProductDetailScreen: React.FC = () => {
     [active, data, dispatch, idNumber, onUpdateSaleable]
   );
 
+  const onResultHistory = useCallback((data) => {
+    console.log(data);
+  }, [])
+
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
     return () => {};
@@ -168,9 +175,10 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (data && data?.variants.length > 0) {
-      // dispatch(inventoryGetDetailAction({varr}, onResultHistory));
+      let variantSelect = data.variants[active].id
+      dispatch(inventoryGetDetailAction({variant_id: variantSelect}, onResultHistory));
     }
-  }, [data, dispatch, onResult]);
+  }, [active, data, dispatch, onResult, onResultHistory]);
   useEffect(() => {
     if (variant_id && data) {
       let index = data.variants.findIndex(
@@ -183,7 +191,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [data, variant_id]);
   return (
     <StyledComponent>
-      <ContentContainer
+      <ContentContainer  
         isError={error}
         isLoading={loading}
         title="Chi tiết sản phẩm"
@@ -212,17 +220,16 @@ const ProductDetailScreen: React.FC = () => {
                     <div className="extra-cards status">
                       <b>Trạng thái:</b>
                       <Switch
-                        style={{marginLeft: 10}}
+                        style={{ marginLeft: 10 }}
                         checked={data.status === "active"}
                         onChange={(checked) => {
-                          data.status = checked ? 'active' : "inactive";
-                        
+                          data.status = checked ? "active" : "inactive";
                         }}
                         className="ant-switch-success"
                         defaultChecked
                       />
                       <label
-                        style={{marginLeft: 10}}
+                        style={{ marginLeft: 10 }}
                         className={
                           data.status === "active"
                             ? "text-success"
@@ -455,10 +462,10 @@ const ProductDetailScreen: React.FC = () => {
                 <Card className="card">
                   <Tabs style={{ overflow: "initial" }}>
                     <Tabs.TabPane tab="Danh sách tồn kho" key="1">
-                      {/* <TabProduct /> */}
+                      <TabProductInventory />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Lich sử tồn kho" key="2">
-                      {/* <TabProduct /> */}
+                      <TabProductHistory />
                     </Tabs.TabPane>
                   </Tabs>
                 </Card>
