@@ -788,6 +788,13 @@ export default function Order() {
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
+      if(!loyaltyPoint)
+      {
+        showError(
+          "Khách hàng chưa được áp dụng tiêu điểm"
+        );
+        return false;
+      }
       if (
         rank?.block_order_have_discount === true &&
         (discount > 0 || discountValue)
