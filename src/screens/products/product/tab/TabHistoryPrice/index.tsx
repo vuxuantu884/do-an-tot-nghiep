@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import HistoryProductFIlter from "../../filter/HistoryProductFilter";
+import HistoryProductFilter from "../../filter/HistoryProductFilter";
 const initQuery: ProductHistoryQuery = {
   history_type: 'UPDATE_PRICE'
 };
@@ -50,13 +50,13 @@ const TabHistoryPrice: React.FC = () => {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<ProductHistoryQuery>(dataQuery);
+  let [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setParams({ ...params });
       history.replace(`${UrlConfig.PRODUCT}#4?${queryParam}`);
     },
     [history, params]
@@ -161,12 +161,20 @@ const TabHistoryPrice: React.FC = () => {
 
   return (
     <div className="padding-20">
-      <HistoryProductFIlter 
+      <HistoryProductFilter 
+         onFinish={(values) => {
+          let newParams = { ...params, ...values, page: 1 };
+          setParams(newParams);
+          let queryParam = generateQuery(newParams);
+          history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
+        }}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => {}}
         actions={[]}
       />
       <CustomTable
+        rowKey={(record) => record.id }
+        isRowSelection
         scroll={{ x: 1300 }}
         columns={columns}
         dataSource={data.items}

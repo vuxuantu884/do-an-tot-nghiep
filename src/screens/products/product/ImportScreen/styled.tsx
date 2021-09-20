@@ -1,19 +1,6 @@
 import styled from "styled-components";
 
 export const ProductImportScreenStyled = styled.div`
-  .ant-tabs {
-    .ant-tabs-tabpane {
-      padding: 20px;
-    }
-  }
-
-  .ant-card{
-    margin-bottom: 20px;
-  }
-
-  .ant-card-body {
-    padding: 24px;
-  }
   .ant-form-vertical .ant-form-item {
     flex-direction: row;
     align-items: center;

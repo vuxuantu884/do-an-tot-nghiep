@@ -55,11 +55,11 @@ const actions: Array<MenuAction> = [
   },
   {
     id: ACTIONS_INDEX.ACTIVE,
-    name: "Đang hoạt động",
+    name: "Cho phép bán",
   },
   {
     id: ACTIONS_INDEX.INACTIVE,
-    name: "Ngừng hoạt động",
+    name: "Ngừng bán",
   },
   {
     id: ACTIONS_INDEX.DELETE,

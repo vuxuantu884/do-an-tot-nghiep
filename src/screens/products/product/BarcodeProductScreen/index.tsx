@@ -192,7 +192,6 @@ const BarcodeProductScreen: React.FC = () => {
                   dataIndex: "variant_prices",
                   render: (value: Array<VariantPricesResponse>) => {
                     let price = Products.findPrice(value, AppConfig.currency);
-                    console.log(price);
                     return price == null
                       ? 0
                       : formatCurrency(price?.retail_price);

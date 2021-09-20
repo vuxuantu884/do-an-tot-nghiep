@@ -176,7 +176,7 @@ const ColorCreateScreen: React.FC = () => {
                         {
                           pattern: RegUtil.HEX_COLOR,
                           message:
-                            "Kích cỡ không chứa ký tự đặc biệt và có 6 ký tự",
+                            "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
                         },
                       ]}
                     >
