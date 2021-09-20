@@ -12,7 +12,6 @@ import {
   Popover,
   Form,
   Tag,
-  Avatar,
 } from "antd";
 import React, {
   createRef,
@@ -62,7 +61,7 @@ import {
   CustomerShippingAddress,
   CustomerBillingAddress,
 } from "model/request/customer.request";
-import { display } from "html2canvas/dist/types/css/property-descriptors/display";
+import UrlConfig from "config/url.config";
 //#end region
 
 type CustomerCardProps = {
@@ -493,7 +492,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     closeBillingAddressPopover();
   };
   // end billing address
-
+console.log(customerDetail)
   return (
     <Card
       extra={
@@ -604,12 +603,23 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               justify="space-between"
               className="row-customer-detail padding-custom"
             >
-              <Col span={16}>
-                <div style={{borderRadius: "50%", backgroundColor: "#8f8f8f2e", width: 40, height: 40, display: "flex"}}>
-                  <img style={{width: 40}} src={logoMobile} alt="logo"></img>
+              <Col span={16} style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    borderRadius: "50%",
+                    backgroundColor: "#8f8f8f2e",
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    overflow: "hidden",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img style={{ width: 34 }} src={logoMobile} alt="logo"></img>
                 </div>
                 <Link
-                  to="#"
+                  to={`${UrlConfig.CUSTOMER}/${customerDetail?.id}`}
+                  target="_blank"
                   className="primary"
                   style={{ fontSize: "16px", margin: "0 10px" }}
                 >
