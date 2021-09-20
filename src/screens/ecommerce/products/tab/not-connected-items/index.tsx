@@ -2,9 +2,8 @@ import React, { useState, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
 import { StyledComponent } from "./styles";
-import { Button, Form, Row, Col, Select, Input, Modal, Tooltip } from "antd";
+import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { useHistory } from "react-router-dom";
 import circleDeleteIcon from "assets/icon/circle-delete.svg"
 import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
@@ -14,9 +13,8 @@ import deleteIcon from "assets/icon/deleteIcon.svg"
 
 
 import CustomTable from "component/table/CustomTable";
-import actionColumn from "../../actions/action.column";
 import BaseFilter from "component/filter/base.filter"
-import { showSuccess, showError, showWarning } from "utils/ToastUtils";
+import { showSuccess,} from "utils/ToastUtils";
 
 import { NotConnectedItemsQuery } from "model/query/ecommerce.query";
 import { NotConnectedItemsResponse } from "model/response/ecommerce/ecommerce.response";
@@ -34,9 +32,8 @@ type NotConnectedItemsProps = {
 const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   props: NotConnectedItemsProps
 ) => {
-  const { configData, setConfigToView } = props;
-  const history = useHistory();
-  const [activatedBtn, setActivatedBtn] = React.useState({
+  const { configData,  } = props;
+  const [activatedBtn, ] = React.useState({
     title: "",
     icon: "",
     id: "all",
@@ -162,7 +159,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
   });
 
-  const [data, setData] = React.useState<PageResponse<any>>({
+  const [, setData] = React.useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -190,7 +187,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     []
   );
 
-  const [query, setQuery] = React.useState<NotConnectedItemsQuery>({
+  const [query, ] = React.useState<NotConnectedItemsQuery>({
     page: 1,
     limit: 30,
     request: null,

@@ -1,10 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useDispatch } from "react-redux";
 
 import { StyledComponent } from "./styles";
-import { Button, Form, Row, Col, Select, Input, Modal, Tooltip } from "antd";
+import { Button, Form,Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import { useHistory } from "react-router-dom";
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
@@ -14,7 +13,7 @@ import circleDeleteIcon from "assets/icon/circle-delete.svg"
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import actionColumn from "../../actions/action.column";
 import BaseFilter from "component/filter/base.filter"
-import { showSuccess, showError, showWarning } from "utils/ToastUtils";
+import { showSuccess,  } from "utils/ToastUtils";
 
 import { ConnectedItemsQuery } from "model/query/ecommerce.query";
 import { ConnectedItemsResponse } from "model/response/ecommerce/ecommerce.response";
@@ -32,9 +31,8 @@ type ConnectedItemsProps = {
 const ConnectedItems: React.FC<ConnectedItemsProps> = (
   props: ConnectedItemsProps
 ) => {
-  const { configData, setConfigToView } = props;
-  const history = useHistory();
-  const [activatedBtn, setActivatedBtn] = React.useState({
+  const { configData,  } = props;
+  const [activatedBtn, ] = React.useState({
     title: "",
     icon: "",
     id: "all",
@@ -194,7 +192,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     }
   });
 
-  const [data, setData] = React.useState<PageResponse<any>>({
+  const [,setData] = React.useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -222,7 +220,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     []
   );
 
-  const [query, setQuery] = React.useState<ConnectedItemsQuery>({
+  const [query] = React.useState<ConnectedItemsQuery>({
     page: 1,
     limit: 30,
     request: null,

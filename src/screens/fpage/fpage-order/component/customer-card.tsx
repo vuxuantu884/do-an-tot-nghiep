@@ -492,7 +492,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     closeBillingAddressPopover();
   };
   // end billing address
-console.log(customerDetail)
   return (
     <Card
       extra={

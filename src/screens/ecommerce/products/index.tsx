@@ -1,27 +1,21 @@
 import React from "react";
 import { Card, Tabs, Form, Button, Modal, Select, DatePicker } from "antd";
-import vectorIcon from "assets/icon/vector.svg";
+import {DownloadOutlined} from "@ant-design/icons"
 import checkCircleIcon from "assets/icon/check-circle.svg";
-
-
-
 import ContentContainer from "component/container/content.container";
-import CustomDatePicker from "component/custom/date-picker.custom";
 import UrlConfig from "config/url.config";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import TotalItemsEcommerce from "./tab/total-items-ecommerce";
 import ConnectedItems from "./tab/connected-items";
 import NotConnectedItems from "./tab/not-connected-items";
-
-import ButtonCreate from "component/header/ButtonCreate";
 import { StyledComponent } from "./styles";
 import { useDispatch } from "react-redux";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import {
   AccountResponse,
-  AccountSearchQuery,
+  // AccountSearchQuery,
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -33,13 +27,13 @@ import {
 const { TabPane } = Tabs;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const initQueryAccount: AccountSearchQuery = {
-  info: "",
-};
+// const initQueryAccount: AccountSearchQuery = {
+//   info: "",
+// };
 
 const Products: React.FC = () => {
   const dispatch = useDispatch();
-  const [configForm] = Form.useForm();
+  // const [configForm] = Form.useForm();
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
@@ -51,12 +45,12 @@ const Products: React.FC = () => {
   
   
 
-  const [stores, setStores] = useState<Array<StoreResponse>>([]);
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+  const [, setStores] = useState<Array<StoreResponse>>([]);
+  const [, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [configData, setConfigData] = React.useState<Array<TotalItemsEcommerceResponse>>(
     []
   );
-  const [configToView, setConfigToView] = React.useState<TotalItemsEcommerceResponse>();
+  const [, setConfigToView] = React.useState<TotalItemsEcommerceResponse>();
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -73,13 +67,13 @@ const Products: React.FC = () => {
   const reloadConfigData = () => {
     dispatch(ecommerceConfigGetAction(setConfigData));
   }
-  const accountChangeSearch = React.useCallback(
-    (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
-    },
-    [dispatch, setDataAccounts]
-  );
+  // const accountChangeSearch = React.useCallback(
+  //   (value) => {
+  //     initQueryAccount.info = value;
+  //     dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+  //   },
+  //   [dispatch, setDataAccounts]
+  // );
 
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -168,9 +162,9 @@ const Products: React.FC = () => {
           <>
             <Button
               onClick={handleGetProductsFromEcommerce}
-              className="get-products-button"
+              className="ant-btn-outline ant-btn-primary"
               size="large"
-              icon={<img src={vectorIcon} style={{ marginRight: 8 }} alt="" />}
+              icon={<DownloadOutlined />}
             >
               Tải sản phẩm từ sàn về
             </Button>

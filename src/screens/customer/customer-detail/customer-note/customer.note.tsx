@@ -137,7 +137,6 @@ function CustomerNoteInfo(props: any) {
     history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
     window.scrollTo(0, 0);
   };
-console.log(customer.notes)
   return (
     <Row style={{ marginTop: 16 }}>
       <div

@@ -358,7 +358,6 @@ const CustomerAdd = (props: any) => {
     dispatch(UpdateCustomer(customerDetail.id, processValue, setResultUpdate));
   };
   const handleSubmitFail = (errorInfo: any) => {
-    console.error("Failed:", errorInfo);
   };
 
   const reloadPage = () => {

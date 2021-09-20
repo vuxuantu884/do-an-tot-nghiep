@@ -9,8 +9,4 @@ export const StyledComponent = styled.div`
         border: 1px solid #2a2a86;
     }
   }
-  .ant-card {
-    width: 1400px;
-  }
-
 `;

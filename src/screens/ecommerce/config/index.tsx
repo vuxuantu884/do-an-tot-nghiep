@@ -70,7 +70,6 @@ const EcommerceConfig: React.FC = () => {
 
   const configInfoCallback = React.useCallback((value: any) => {
       if(value) {
-        console.log(value)
         setConfigToView(value)
         history.replace(`${history.location.pathname}#setting`);
       }

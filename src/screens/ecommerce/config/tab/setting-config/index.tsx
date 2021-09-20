@@ -68,7 +68,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   }, []);
   const handleCreateConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
-      console.log("123")
     },
     []
   );
