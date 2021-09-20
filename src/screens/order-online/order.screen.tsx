@@ -436,7 +436,10 @@ export default function Order() {
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
-      values.payments = [];
+      // thêm payment vào đơn nháp
+      // values.payments = [];
+      values.payments = payments.filter((payment) => payment.amount > 0);
+
       values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
       values.total = orderAmount;
