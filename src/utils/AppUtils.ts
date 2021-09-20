@@ -541,7 +541,7 @@ export const Products = {
       length_unit: variant.length_unit,
       weight: variant.weight,
       weight_unit: variant.weight_unit,
-      variant_prices: [],
+      variant_prices: variant.variant_prices,
       variant_images: variant.variant_images,
     };
     return variantUpadteRequest;
