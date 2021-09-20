@@ -15,7 +15,7 @@ import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
-  DeliveryServicesGetList,
+  // DeliveryServicesGetList,
   getFeesAction,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
@@ -26,7 +26,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  DeliveryServiceResponse,
+  // DeliveryServiceResponse,
   FulFillmentResponse,
   OrderResponse,
   StoreCustomResponse,
@@ -101,8 +101,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse> | null>(null);
+  // const [deliveryServices, setDeliveryServices] =
+  //   useState<Array<DeliveryServiceResponse> | null>(null);
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethodProps(value);
     setPaymentMethod(value);
@@ -148,7 +148,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
   }, [dispatch]);
 
   useLayoutEffect(() => {
-    dispatch(DeliveryServicesGetList(setDeliveryServices));
+    // dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
 
   // shipment button action
@@ -342,7 +342,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
             <ShipmentMethodDeliverPartner
               amount={amount}
               changeServiceType={changeServiceType}
-              deliveryServices={deliveryServices}
+              // deliveryServices={deliveryServices}
               discountValue={discountValue}
               infoFees={infoFees}
               setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
