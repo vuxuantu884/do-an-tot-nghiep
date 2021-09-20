@@ -38,4 +38,12 @@ export const StyledComponent = styled.div`
       margin: 20px 0;
     }
   }
+
+  .delete-item-icon {
+    cursor: pointer;
+    width: 26px;
+    &:hover {
+      border: 1px solid #5c5c5c;
+    }
+  }
 `;

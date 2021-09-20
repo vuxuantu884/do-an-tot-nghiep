@@ -12,4 +12,5 @@ export const StyledComponent = styled.div`
   .ant-card {
     width: 1400px;
   }
+
 `;

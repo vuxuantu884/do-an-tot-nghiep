@@ -5,12 +5,12 @@ import { StyledComponent } from "./styles";
 import { Button, Form, Row, Col, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
-import disconnectIcon from "assets/icon/disconnect.svg";
+import circleDeleteIcon from "assets/icon/circle-delete.svg"
 import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
 import saveIcon from "assets/icon/save.svg"
 import closeIcon from "assets/icon/X_close.svg"
-
+import deleteIcon from "assets/icon/deleteIcon.svg"
 
 
 import CustomTable from "component/table/CustomTable";
@@ -49,29 +49,22 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const { Option } = Select;
 
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
 
-  const handleEdit = (item: any) => {
-    showSuccess("Cập nhật sản phẩm thành công");
+  const handleDeleteItem = (item: any) => {
+    setIsShowDeleteItemModal(true);
   };
 
-  const handleDisconnect = () => {
-    setIsShowModalDisconnect(true);
+  const cancelDeleteItemModal = () => {
+    setIsShowDeleteItemModal(false);
   };
 
-  const cancelDisconnectModal = () => {
-    setIsShowModalDisconnect(false);
-  };
-
-  const okDisconnectModal = () => {
-    setIsShowModalDisconnect(false);
-    showSuccess("Ngắt kết nối sản phẩm thành công");
-    //thai need todo: API
+  const okDeleteItemModal = () => {
+    setIsShowDeleteItemModal(false);
+    showSuccess("Xóa sản phẩm thành công");
+    //thai need todo: call API
   };
   
-
-  
-
   //thai need todo
   const [columns] = useState<any>([
     {
@@ -131,7 +124,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: () => {
         return (
           <div>
-            <span>"Đồng bộ tồn"</span>
+            <span>Đồng bộ tồn</span>
             <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
               <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
             </Tooltip>
@@ -149,7 +142,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       render: () => {
         return (
-          <img src={closeIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
+          <img
+            src={closeIcon}
+            className="delete-item-icon"
+            alt=""
+            onClick={handleDeleteItem}
+          />
         )
       }
     }
@@ -369,6 +367,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visibleFilter}
+          width={400}
+          footerStyle={{
+            display: "flex",
+            flexDirection: "row-reverse",
+            justifyContent: "space-between"
+          }}
+          confirmButtonTitle="Áp dụng bộ lọc"
+          deleteButtonTitle={
+            <div>
+              <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
+              <span style={{ color: "red" }}>Xóa bộ lọc</span>
+            </div>
+          }
         >
           <Form
             form={formAdvance}
@@ -377,6 +388,40 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             initialValues={params}
             layout="vertical"
           >
+            <Form.Item
+              name="category"
+              label={<b>CHỌN SÀN</b>}
+            >
+              <Select
+                showSearch
+                placeholder=""
+                allowClear
+              >
+                {CATEGORY.map((item) => (
+                  <Option key={item.id} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="category"
+              label={<b>CHỌN GIAN HÀNG</b>}
+            >
+              <Select
+                showSearch
+                placeholder=""
+                allowClear
+              >
+                {CATEGORY.map((item) => (
+                  <Option key={item.id} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
             <Form.Item
               name="category"
               label={<b>DANH MỤC</b>}
@@ -396,7 +441,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
             <Form.Item
               name="pairing"
-              label={<b>GHÉP NỐI</b>}
+              label={<b>TRẠNG THÁI GHÉP NỐI</b>}
             >
               <Select
                 showSearch
@@ -413,7 +458,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
             <Form.Item
               name="inventoryStatus"
-              label={<b>TRẠNG THÁI TỒN KHO</b>}
+              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
             >
               <Select
                 showSearch
@@ -433,16 +478,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
         <Modal
           width="600px"
-          className="modal-confirm-customer"
-          visible={isShowModalDisconnect}
+          visible={isShowDeleteItemModal}
           okText="Đồng ý"
           cancelText="Hủy"
-          onCancel={cancelDisconnectModal}
-          onOk={okDisconnectModal}
+          onCancel={cancelDeleteItemModal}
+          onOk={okDeleteItemModal}
         >
-          <div style={{margin: "20px 0"}}>
-            <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
-            <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
+          <div>
+            <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
+            <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
           </div>
         </Modal>
 

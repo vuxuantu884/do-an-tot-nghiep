@@ -1,8 +1,12 @@
 import React from "react";
-import { Card, Tabs, Form, Button } from "antd";
+import { Card, Tabs, Form, Button, Modal, Select, DatePicker } from "antd";
 import vectorIcon from "assets/icon/vector.svg";
+import checkCircleIcon from "assets/icon/check-circle.svg";
+
+
 
 import ContentContainer from "component/container/content.container";
+import CustomDatePicker from "component/custom/date-picker.custom";
 import UrlConfig from "config/url.config";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -27,6 +31,8 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 const { TabPane } = Tabs;
+const { Option } = Select;
+const { RangePicker } = DatePicker;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
@@ -36,6 +42,15 @@ const Products: React.FC = () => {
   const [configForm] = Form.useForm();
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
+  const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
+  const [isShowResultGetItemModal, setIsShowResultGetItemModal] = React.useState(false);
+  const [totalGetItem, setTotalGetItem] = React.useState(0);
+  const [itemsUpdated, setItemsUpdated] = React.useState(0);
+  const [itemsNotConnected, setItemsNotConnected] = React.useState(0);
+  
+  
+  
+
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [configData, setConfigData] = React.useState<Array<TotalItemsEcommerceResponse>>(
@@ -95,10 +110,42 @@ const Products: React.FC = () => {
   }, [history.location.hash]);
 
 
-  const getProductsFromEcommerce = () => {
-    console.log("Tải sản phẩm từ sàn về nè!");
-    
+  const handleGetProductsFromEcommerce = () => {
+    setIsShowGetItemModal(true);
   }
+
+  const cancelGetItemModal = () => {
+    setIsShowGetItemModal(false);
+  };
+
+  const getProductsFromEcommerce = () => {
+    setIsShowGetItemModal(false);
+    setIsShowResultGetItemModal(true);
+
+    setTotalGetItem(11);
+    setItemsUpdated(5)
+    setItemsNotConnected(6);
+    //thai need todo: call api
+  };
+
+  const redirectToNotConnectedItems = () => {
+    setIsShowResultGetItemModal(false);
+    history.replace(`${history.location.pathname}#not-connected-item`);
+    setActiveTab("not-connected-item");
+  };
+
+  const cancelResultGetItemModal = () => {
+    setIsShowResultGetItemModal(false);
+  };
+
+  //thai fake data 
+  const LIST_STALL = [
+    {
+      id: 1,
+      name: "Sàn Shopee",
+      value: "shopeeChannel"
+    }
+  ]
 
   return (
     <StyledComponent>
@@ -120,10 +167,7 @@ const Products: React.FC = () => {
         extra={
           <>
             <Button
-              onClick={(e) => {
-                // e.stopPropagation();
-                getProductsFromEcommerce();
-              }}
+              onClick={handleGetProductsFromEcommerce}
               className="get-products-button"
               size="large"
               icon={<img src={vectorIcon} style={{ marginRight: 8 }} alt="" />}
@@ -162,6 +206,72 @@ const Products: React.FC = () => {
             </Tabs>
           </Card>
       </ContentContainer>
+
+      <Modal
+        width="600px"
+        className=""
+        visible={isShowGetItemModal}
+        title="Cập nhật dữ liệu từ gian hàng"
+        okText="Cập nhật dữ liệu sản phẩm"
+        cancelText="Hủy"
+        onCancel={cancelGetItemModal}
+        onOk={getProductsFromEcommerce}
+      >
+        <div style={{margin: "20px 0"}}>
+          <Form
+          // form={formAdvance}
+          // onFinish={onFinish}
+          // //ref={formRef}
+          // initialValues={params}
+          layout="vertical"
+          >
+            <Form.Item
+              name="stall"
+              label={<b>Lựa chọn gian hàng</b>}
+            >
+              <Select
+                showSearch
+                placeholder="Chọn gian hàng"
+                allowClear
+                // optionFilterProp="children"
+              >
+                {LIST_STALL.map((item) => (
+                  <Option key={item.id} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          
+            <Form.Item name="start_time" label={<b>Thời gian</b>}>
+              <RangePicker placeholder={["Từ ngày", "Đến ngày"]} />
+            </Form.Item>
+          </Form>
+        </div>
+      </Modal>
+
+      <Modal
+        width="600px"
+        className=""
+        visible={isShowResultGetItemModal}
+        title={"Có " + totalGetItem + " sản phẩm được cập nhật thành công"}
+        okText="Đóng"
+        onOk={redirectToNotConnectedItems}
+        onCancel={cancelResultGetItemModal}
+        cancelButtonProps={{ style: { display: 'none' } }}
+      >
+        <div>
+          <div>
+            <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
+            <span>Có <p style={{color: "orange", display: "inline-block"}}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
+          </div>
+          <div>
+            <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
+            <span>Có <p style={{color: "green", display: "inline-block"}}>{itemsUpdated}</p> sản phẩm đã update thành công</span>
+          </div>
+        </div>
+      </Modal>
+
     </StyledComponent>
   );
 };

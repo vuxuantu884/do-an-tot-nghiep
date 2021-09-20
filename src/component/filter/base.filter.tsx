@@ -7,6 +7,7 @@ type BaseFilterProps = {
   className?: string;
   confirmButtonTitle?: any;
   deleteButtonTitle?: any;
+  footerStyle?: any;
   children: React.ReactNode;
   onCancel?: () => void;
   onFilter?: () => void;
@@ -14,7 +15,7 @@ type BaseFilterProps = {
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, width, className, children, onFilter, onClearFilter, onCancel, confirmButtonTitle, deleteButtonTitle } = props;
+  const { visible, width, className, children, onFilter, onClearFilter, onCancel, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
   return (
     <Drawer
       placement="right"
@@ -27,7 +28,7 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       footer={
         <Row gutter={10}>
           <Col md={24}>
-            <Space direction="vertical" style={{ width: "100%" }}>
+            <Space direction="vertical" style={footerStyle || {width: "100%"}} >
               <Button onClick={onFilter} type="primary" block>
                 {confirmButtonTitle || "Lọc"}
               </Button>

@@ -34,4 +34,5 @@ export const StyledComponent = styled.div`
       width: 200px;
     }
   }
+  
 `;

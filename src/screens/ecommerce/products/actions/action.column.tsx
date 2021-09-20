@@ -1,11 +1,11 @@
 import { Button, Dropdown, Menu } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
-import editIcon from "assets/icon/edit.svg";
+import deleteIcon from "assets/icon/delete.svg"
 import lockIcon from "assets/icon/lock.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
 
 //thai need todo
-const actionColumn = (handleUpdate: any, handleDelete: any) => {
+const actionColumn = (handleDeleteItem: any, handleDisconnectItem: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
@@ -17,12 +17,11 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="1">
             <Button
-              icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
+              icon={<img src={deleteIcon} style={{ marginRight: 12 }} alt="" />}
               type="text"
-              className=""
-              onClick={() => handleUpdate(item)}
+              onClick={() => handleDeleteItem(item)}
             >
-              Chỉnh sửa
+              Xóa sản phẩm đã tải về
             </Button>
           </Menu.Item>
 
@@ -31,7 +30,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
               icon={<img style={{ marginRight: 12 }} alt="" src={lockIcon} />}
               type="text"
               className=""
-              onClick={handleDelete}
+              onClick={handleDisconnectItem}
             >
               Ngắt kết nối
             </Button>
