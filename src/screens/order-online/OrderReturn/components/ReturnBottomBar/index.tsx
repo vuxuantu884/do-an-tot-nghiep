@@ -1,10 +1,13 @@
 import { Button } from "antd";
+import React from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  onSubmit: () => void;
+  onReturn: () => void;
+  onReturnAndExchange: () => void;
   onCancel: () => void;
-  isCanSubmit: boolean;
+  isCanReturn: boolean;
+  isCanExchange: boolean;
   isExchange: boolean;
   isStepExchange: boolean;
   handleIsStepExchange: (value: boolean) => void;
@@ -12,51 +15,81 @@ type PropType = {
 
 function ReturnBottomBar(props: PropType) {
   const {
-    onSubmit,
+    onReturn,
+    onReturnAndExchange,
     onCancel,
-    isCanSubmit,
+    isCanReturn,
+    isCanExchange,
     isExchange,
     isStepExchange,
     handleIsStepExchange,
   } = props;
+
+  const renderReturnButtons = () => {
+    return (
+      <React.Fragment>
+        <Button
+          onClick={() => {
+            onCancel();
+          }}
+        >
+          Hủy
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            onReturn();
+          }}
+          disabled={!isCanReturn}
+        >
+          Trả hàng
+        </Button>
+      </React.Fragment>
+    );
+  };
+
+  const renderExchangeButtons = () => {
+    return (
+      <React.Fragment>
+        <Button
+          onClick={() => {
+            onCancel();
+          }}
+        >
+          Hủy
+        </Button>
+        {!isStepExchange && (
+          <Button
+            type="primary"
+            onClick={() => {
+              handleIsStepExchange(true);
+            }}
+            disabled={!isCanReturn}
+          >
+            Tiếp theo
+          </Button>
+        )}
+        {isStepExchange && (
+          <Button
+            type="primary"
+            onClick={() => {
+              onReturnAndExchange();
+            }}
+            disabled={!isCanExchange}
+          >
+            Trả và đổi hàng
+          </Button>
+        )}
+      </React.Fragment>
+    );
+  };
   return (
     <StyledComponent>
       <div className="bottomBar">
         <div className="bottomBar__left"></div>
         <div className="bottomBar__right">
-          {isExchange && isStepExchange && (
-            <Button
-              onClick={() => {
-                handleIsStepExchange(false);
-              }}
-            >
-              Quay lại
-            </Button>
-          )}
-          <Button
-            onClick={() => {
-              onCancel();
-            }}
-          >
-            Hủy
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              if (isExchange) {
-                handleIsStepExchange(true);
-              } else {
-                onSubmit();
-              }
-            }}
-            disabled={!isExchange && !isCanSubmit}
-          >
-            {!isExchange
-              ? "Trả hàng"
-              : isStepExchange
-              ? "Tạo đơn"
-              : "Tiếp theo"}
-          </Button>
+          {!isExchange && renderReturnButtons()}
+          {isExchange && renderExchangeButtons()}
         </div>
       </div>
     </StyledComponent>

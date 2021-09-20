@@ -3,12 +3,18 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   isDetailPage?: boolean;
+  isReceiveReturnProducts: boolean;
+  handleReceiveReturnProducts: (value: boolean) => void;
 };
 function CardReturnReceiveProducts(props: PropType) {
-  const { isDetailPage } = props;
+  const { isDetailPage, handleReceiveReturnProducts } = props;
 
   const renderCardExtra = () => {
-    return <Checkbox>Đã nhận hàng trả lại</Checkbox>;
+    return (
+      <Checkbox onChange={(e) => handleReceiveReturnProducts(e.target.checked)}>
+        Đã nhận hàng trả lại
+      </Checkbox>
+    );
   };
 
   const mainRender = () => {
