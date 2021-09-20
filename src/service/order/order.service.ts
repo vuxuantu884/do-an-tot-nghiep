@@ -3,8 +3,10 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { BaseQuery } from "model/base/base.query";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
+  GetFeesRequest,
   GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
@@ -19,7 +21,9 @@ import {
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
+  DeliveryMappedStoreType,
   DeliveryServiceResponse,
+  DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
@@ -51,6 +55,13 @@ export const getShipmentApi = (
 ): Promise<BaseResponse<ShipmentModel>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
+};
+
+export const getReturnApi = (
+  query: ReturnSearchQuery
+): Promise<BaseResponse<ReturnModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/returns?${queryString}`);
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
@@ -85,6 +96,12 @@ export const getInfoDeliveryVTP = (
   request: VTPFeeRequest
 ): Promise<BaseResponse<VTPFeeResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/vtp/fees`, request);
+};
+
+export const getInfoDeliveryFees = (
+  request: GetFeesRequest
+): Promise<BaseResponse<VTPFeeResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/shipping/fees`, request);
 };
 
 export const getOrderDetail = (
@@ -123,6 +140,63 @@ export const getDeliverieServices = (): Promise<
   BaseResponse<Array<DeliveryServiceResponse>>
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
+};
+
+export const getDeliveryTransportTypesServices = (
+  id: number
+): Promise<BaseResponse<Array<DeliveryTransportTypesResponse>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/external-service/${id}/transport-types`
+  );
+};
+
+export const getDeliveryMappedStoresServices = (
+  id: number
+): Promise<BaseResponse<Array<DeliveryMappedStoreType>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/external-service/${id}/mapped-stores`
+  );
+};
+
+export const deleteDeliveryMappedStoreServices = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number
+): Promise<BaseResponse<any>> => {
+  const params = {
+    shop_id,
+    store_id,
+  };
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/external-service/${idDelivery}/delete-mapped-store`,
+    params
+  );
+};
+
+export const createDeliveryMappedStoreServices = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
+  token: string
+): Promise<BaseResponse<any>> => {
+  const params = {
+    shop_id,
+    store_id,
+    token,
+  };
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/external-service/${idDelivery}/mapping-store`,
+    params
+  );
+};
+
+export const updateDeliveryConnectService = (
+  params: any
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/external-service/update-config`,
+    params
+  );
 };
 
 /**
@@ -166,7 +240,7 @@ export const getTrackingLogFulFillment = (
   fulfillment_code: string
 ): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
   return BaseAxios.get(
-    `${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`
+    `${ApiConfig.ORDER}/shipping/${fulfillment_code}/tracking-log`
   );
 };
 

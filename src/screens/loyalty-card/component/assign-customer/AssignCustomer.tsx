@@ -1,5 +1,5 @@
-import { AutoComplete, Button, Input, Modal } from "antd";
-import { useCallback, useMemo, useState } from "react";
+import { AutoComplete, Button, Modal } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import _ from 'lodash'
 import './assign-customer.scss'
 import { useDispatch } from "react-redux";
@@ -19,12 +19,21 @@ const AssignCustomer = (props: ModalProps) => {
   const { visible, card, onClose, onSaveSuccess } = props
   const [customers, setCustomers] = useState<Array<CustomerResponse>>([])
   const [selectedCustomer, setSelectedCustomer] = useState<any>()
+  const [keyword, setKeyword] = useState<string>('')
   const dispatch = useDispatch()
 
   const fetchCustomer = _.debounce((keyword: string) => {
     let query: any = { request: keyword }
     dispatch(CustomerSearch(query, setCustomers))
   }, 300)
+
+  useEffect(() => {
+    if (!visible) {
+      setKeyword('')
+      setCustomers([])
+      setSelectedCustomer(undefined)
+    }
+  }, [visible])
 
   const transformCustomers = useMemo(() => {
     return customers.map(customer => {
@@ -45,6 +54,14 @@ const AssignCustomer = (props: ModalProps) => {
       dispatch(LoyaltyCardAssignment(card.id, { customer_id: selectedCustomer.customer.id, customer_name: selectedCustomer.customer.full_name }, assignmentCallback))
     }
   }, [selectedCustomer, dispatch, assignmentCallback, card?.id])
+
+  const onChange = (data: string) => {
+    setKeyword(data);
+  };
+
+  const onSelect = (value: any, option: any) => {
+    setSelectedCustomer(option)
+  }
 
   return (
     <Modal
@@ -67,11 +84,11 @@ const AssignCustomer = (props: ModalProps) => {
             }
             onSearch={fetchCustomer}
             options={transformCustomers}
-            onSelect={(value: any, option: any) => setSelectedCustomer(option)}
+            onSelect={onSelect}
+            onChange={onChange}
+            placeholder="Nhập số điện thoại, tên"
+            value={keyword}
           >
-            <Input
-              placeholder="Nhập số điện thoại, tên"
-            />
           </AutoComplete>
           <Button className="assign-btn" type="primary" onClick={cardAssignment}>Gán</Button>
         </div>

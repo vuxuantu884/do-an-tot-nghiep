@@ -1,4 +1,4 @@
-import { productDetailApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
+import { productBarcodeApi, productDetailApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
   ProductResponse,
@@ -330,6 +330,30 @@ function* putProductUpdate(action: YodyAction) {
   }
 }
 
+function* createProductBarcode(action: YodyAction){
+  const { request, onResult } = action.payload;
+  try {
+    let response: BaseResponse<string> =yield call(productBarcodeApi, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
@@ -353,4 +377,5 @@ export function* productSaga() {
   yield takeLatest(ProductType.GET_HISTORY, getHistorySaga);
   yield takeLatest(ProductType.PRODUCT_DETAIL, getProductDetail);
   yield takeLatest(ProductType.PRODUCT_UPDATE, putProductUpdate);
+  yield takeLatest(ProductType.PRODUCT_BARCODE, createProductBarcode)
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Modal, Row, Space, Tag, Table } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -30,6 +30,10 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
+import ImageGHTK from "assets/img/imageGHTK.svg";
+import ImageGHN from "assets/img/imageGHN.png";
+import ImageVTP from "assets/img/imageVTP.svg";
+import ImageDHL from "assets/img/imageDHL.svg";
 
 const actions: Array<MenuAction> = [
   {
@@ -81,6 +85,52 @@ const initQuery: ShipmentSearchQuery = {
   cancel_reason: [],
 };
 
+const columnsItems  = [
+  {
+    title: "STT",
+    dataIndex: "index",
+    visible: true,
+    width:"30px",
+  },
+  {
+    title: "Mã SKU",
+    dataIndex: "sku",
+    visible: true,
+    width:"150px",
+  },
+  {
+    title: "Tên sản phẩm",
+    dataIndex: "variant",
+    visible: true,
+    width: "200px",
+  },
+  {
+    title: "Số lượng",
+    dataIndex: "quantity",
+    visible: true,
+    width: "50px",
+  },
+  {
+    title: "Đơn giá",
+    dataIndex: "price",
+    visible: true,
+    width: "100px",
+  },
+  {
+    title: "Thành tiền",
+    render: (record: any) => (
+      <NumberFormat
+        value={100000}
+        className="foo"
+        displayType={"text"}
+        thousandSeparator={true}
+      />
+    ),
+    visible: true,
+    width: "150px",
+  },
+];
+
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -128,28 +178,119 @@ const ListOrderScreen: React.FC = () => {
     {
       code: "ghtk",
       id: 1,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_8d45e336-6f25-4cec-9fe6-a52162839f35.svg",
+      logo: ImageGHTK,
       name: "Giao hàng tiết kiệm"
     },
     {
       code: "ghn",
       id: 2,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22%22delivery%22%22/2021-07-28-03-09-37_b2a5b9d2-6061-4fbd-99ad-2804eb78d82d.png",
+      logo: ImageGHN,
       name: "Giao hàng nhanh"
     },
     {
       code: "vtp",
       id: 3,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_7f5b5e68-b208-43b8-bd42-4927ffd45dd4.svg",
+      logo: ImageVTP,
       name: "Viettel Post"
     },
     {
       code: "dhl",
       id: 4,
-      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_c8c71c38-5753-4159-b8df-5643dc400c7e.svg",
+      logo: ImageDHL,
       name: "DHL"
     }
   ]
+  
+  const shipmentDetailModal = useCallback(
+    (record: any) => {
+      Modal.info({
+        title: `Chi tiết đơn hàng ${record.code}`,
+        content: (
+          <Row gutter={16}>
+            <Col span={16}>
+              <Table
+                dataSource={record.items.map((item: any, index: number) => {
+                  return {
+                    ...item,
+                    index: index +1
+                  }
+                })}
+                columns={columnsItems}
+                pagination={false}
+              />
+              <div className="customer">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginTop: '20px', marginRight: '85px' }}>
+                  <div>Tổng tiền:</div>
+                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <NumberFormat
+                      value={record.total}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
+                  <div>Chiết khấu:</div>
+                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <NumberFormat
+                      value={record.total_discount? record.total_discount : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
+                  <div>Phí giao hàng:</div>
+                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <NumberFormat
+                      value={record.shipment.delivery_fee ? record.shipment.delivery_fee : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
+                  <div>COD:</div>
+                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <NumberFormat
+                      value={record.shipment.cod ? record.shipment.cod : 0}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                </div>
+                
+              </div>
+            </Col>
+            <Col span={8}>
+              {record.shipping_address && (
+              <div className="customer">
+                <div style={{ height: '50px', display: 'flex'}}>
+                  <div style={{ width: '100px'}}>Người nhận:</div>
+                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.name}</div>
+                </div>
+                <div style={{ height: '50px', display: 'flex' }}>
+                  <div style={{ width: '100px'}}>SĐT:</div>
+                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.phone}</div>
+                </div>
+                <div style={{ height: '50px', display: 'flex' }}>
+                  <div style={{ width: '100px'}}>Địa chỉ:</div>
+                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.full_address}</div>
+                </div>
+              </div>)}
+            </Col>
+          </Row>
+        ),
+        maskClosable: true,
+        width: '1200px'
+      })
+    },
+    []
+  );
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
     {
       title: "Mã đơn giao",
@@ -159,7 +300,12 @@ const ListOrderScreen: React.FC = () => {
       // ),
       render: (record: ShipmentModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${record.id}`}>{record.code}</Link>
+          <div
+            onClick={() => shipmentDetailModal(record)}
+            className="name p-b-3" style={{ color: "#2A2A86" }}
+          >
+            {record.code}
+          </div>
           <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
         </div>
       ),
@@ -295,12 +441,12 @@ const ListOrderScreen: React.FC = () => {
       key: "shipping_fee_paid_to_three_pls",
       visible: true,
     },
-    {
-      title: "Khách đã trả",
-      dataIndex: "total",
-      key: "total",
-      visible: true,
-    },
+    // {
+    //   title: "Khách đã trả",
+    //   dataIndex: "total",
+    //   key: "total",
+    //   visible: true,
+    // },
     
     {
       title: "Ngày giao hàng",
@@ -510,6 +656,9 @@ const ListOrderScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          // expandable={{
+          //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
+          // }}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
@@ -533,7 +682,3 @@ const ListOrderScreen: React.FC = () => {
 };
 
 export default ListOrderScreen;
-function setDataAccounts(arg0: {}, setDataAccounts: any): import("../../base/base.action").YodyAction {
-  throw new Error("Function not implemented.");
-}
-

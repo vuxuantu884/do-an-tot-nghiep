@@ -119,7 +119,7 @@ function CardPayments(props: CardPaymentsProps) {
     }
     setPayments([...payments]);
   };
-
+  console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;

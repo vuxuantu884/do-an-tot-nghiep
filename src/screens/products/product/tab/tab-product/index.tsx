@@ -38,15 +38,34 @@ import { generateQuery, Products } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
+
+
+const ACTIONS_INDEX = {
+  EXPORT_EXCEL: 1,
+  PRINT_BAR_CODE: 2,
+  ACTIVE: 3,
+  INACTIVE: 4,
+  DELETE: 5,
+}
+
 const actions: Array<MenuAction> = [
   {
-    id: 1,
-    name: "Xóa",
+    id: ACTIONS_INDEX.PRINT_BAR_CODE,
+    name: "In mã vạch",
   },
   {
-    id: 2,
-    name: "Export",
+    id: ACTIONS_INDEX.ACTIVE,
+    name: "Đang hoạt động",
   },
+  {
+    id: ACTIONS_INDEX.INACTIVE,
+    name: "Ngừng hoạt động",
+  },
+  {
+    id: ACTIONS_INDEX.DELETE,
+    name: "Xóa sản phẩm",
+  },
+
 ];
 
 const initQuery: VariantSearchQuery = {
@@ -93,7 +112,7 @@ const TabProduct: React.FC = () => {
   const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
-  const [listMerchandiser, setMarchandiser] =
+  const [listMerchandiser, setMerchandiser] =
     useState<Array<AccountResponse>>();
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
@@ -207,7 +226,13 @@ const TabProduct: React.FC = () => {
     },
     [history, params]
   );
-  const onMenuClick = useCallback((index: number) => {}, []);
+  const onMenuClick = useCallback((index: number) => {
+    switch(index) {
+      case ACTIONS_INDEX.PRINT_BAR_CODE:
+        history.push(`${UrlConfig.PRODUCT}/barcode`)
+        break;
+    }
+  }, [history]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -248,7 +273,7 @@ const TabProduct: React.FC = () => {
       dispatch(listColorAction(initColorQuery, setColor));
       dispatch(sizeGetAll(setSize));
       dispatch(SupplierGetAllAction(setSupplier));
-      dispatch(AccountGetListAction(initAccountQuery, setMarchandiser));
+      dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
       setTableLoading(true);
     }
     isFirstLoad.current = false;
