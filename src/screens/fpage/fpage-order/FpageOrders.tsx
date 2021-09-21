@@ -137,7 +137,6 @@ export default function FpageOrders(props: any) {
   ) => {
     setBillingAddress(_objBillingAddress);
   };
-
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
   };

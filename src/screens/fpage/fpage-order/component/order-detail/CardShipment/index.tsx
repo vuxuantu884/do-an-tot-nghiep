@@ -132,8 +132,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
     item: any,
     fee: number
   ) => {
-    console.log('changeServiceType', item);
-    
+    console.log("changeServiceType", item);
+
     setHVC(id);
     setServiceType(item);
     setFee(fee);
@@ -178,9 +178,14 @@ const CardShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
-    if (customerInfo && storeDetail
-      && (getShippingAddressDefault(customerInfo)?.city_id || getShippingAddressDefault(customerInfo)?.district_id)
-      && getShippingAddressDefault(customerInfo)?.ward_id && getShippingAddressDefault(customerInfo)?.full_address) {
+    if (
+      customerInfo &&
+      storeDetail &&
+      (getShippingAddressDefault(customerInfo)?.city_id ||
+        getShippingAddressDefault(customerInfo)?.district_id) &&
+      getShippingAddressDefault(customerInfo)?.ward_id &&
+      getShippingAddressDefault(customerInfo)?.full_address
+    ) {
       let request = {
         from_city_id: storeDetail?.city_id,
         from_city: storeDetail?.city_name,
@@ -206,7 +211,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
         option: "",
         insurance: 0,
         coupon: "",
-        cod: 0
+        cod: 0,
       };
       console.log("request", request);
       dispatch(getFeesAction(request, setInfoFees));
@@ -260,9 +265,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
       >
         <div className="padding-24 orders-shipment">
           <Row gutter={24}>
-            <Col md={9}>
-              <span className="orders-shipment__dateLabel">Hẹn giao:</span>
-              <Form.Item name="dating_ship">
+            <Col span={24}>
+              <Form.Item name="dating_ship" label="Hẹn giao:">
                 <DatePicker
                   format="DD/MM/YYYY"
                   style={{ width: "100%" }}
@@ -275,51 +279,48 @@ const CardShipment: React.FC<CardShipmentProps> = (
               </Form.Item>
             </Col>
 
-            <Col md={6}>
-              <Form.Item name="office_time">
+            <Col span={24}>
+              <Form.Item name="office_time" label="Giờ hành chính:">
                 <Checkbox
                   checked={officeTime}
                   onChange={(e) => setOfficeTime(e.target.checked)}
                   style={{ marginTop: "8px" }}
-                >
-                  Giờ hành chính
-                </Checkbox>
-              </Form.Item>
-            </Col>
-            <Col md={9}>
-              <span className="orders-shipment__dateLabel">Yêu cầu:</span>
-              <Form.Item name="requirements">
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  showArrow
-                  notFoundContent="Không tìm thấy kết quả"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn yêu cầu"
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {shipping_requirements?.map((item, index) => (
-                    <Select.Option
-                      style={{ width: "100%" }}
-                      key={index.toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
+                ></Checkbox>
               </Form.Item>
             </Col>
           </Row>
+          <Col span={24} style={{ padding: 0 }}>
+            <Form.Item name="requirements" label="Yêu cầu:">
+              <Select
+                className="select-with-search"
+                showSearch
+                showArrow
+                notFoundContent="Không tìm thấy kết quả"
+                style={{ width: "100%" }}
+                placeholder="Chọn yêu cầu"
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipping_requirements?.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.value}
+                  >
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
 
           <Row>
             <div
