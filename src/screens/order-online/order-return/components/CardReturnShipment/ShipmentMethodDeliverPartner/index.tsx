@@ -17,12 +17,12 @@ type PropType = {
   discountValue: number | null;
   OrderDetail?: OrderResponse | null;
   payments?: OrderPaymentRequest[];
-  setShippingFeeInformedCustomer: (value: number | null) => void;
   deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
-  changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   fulfillments: FulFillmentResponse[];
   isCloneOrder?: boolean;
+  changeServiceType: (id: number, code: string, item: any, fee: number) => void;
+  setShippingFeeInformedCustomer: (value: number | null) => void;
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -31,15 +31,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     discountValue,
     OrderDetail,
     payments,
-    setShippingFeeInformedCustomer,
     deliveryServices,
     infoFees,
-    changeServiceType,
     fulfillments,
     isCloneOrder,
+    setShippingFeeInformedCustomer,
+    changeServiceType,
   } = props;
-
-  // console.log("propsShipmentmethod", props);
 
   const [selectedShipmentMethod, setSelectedShipmentMethod] = useState("");
 
@@ -64,7 +62,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     [infoFees]
   );
 
-  const serciveFees = useMemo(() => {
+  const serviceFees = useMemo(() => {
     return {
       ghtk_standard: checkServiceFee("ghtk", "road"),
       ghtk_express: checkServiceFee("ghtk", "fly"),
@@ -195,7 +193,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           single.id,
                                           single.code,
                                           "road",
-                                          serciveFees.ghtk_standard
+                                          serviceFees.ghtk_standard
                                         );
                                       }}
                                     />
@@ -221,7 +219,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           single.id,
                                           single.code,
                                           "fly",
-                                          serciveFees.ghtk_express
+                                          serviceFees.ghtk_express
                                         );
                                       }}
                                     />
@@ -249,7 +247,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                         single.id,
                                         single.code,
                                         "2",
-                                        serciveFees.ghn_standard
+                                        serviceFees.ghn_standard
                                       );
                                     }}
                                   />
@@ -278,7 +276,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           single.code,
                                           // "standard",
                                           "standard",
-                                          serciveFees.vtp_standard
+                                          serviceFees.vtp_standard
                                         );
                                       }}
                                     />
@@ -299,7 +297,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           single.id,
                                           single.code,
                                           "express",
-                                          serciveFees.vtp_express
+                                          serviceFees.vtp_express
                                         );
                                       }}
                                     />
@@ -322,7 +320,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                         single.id,
                                         single.code,
                                         "standard",
-                                        serciveFees.dhl_standard
+                                        serviceFees.dhl_standard
                                       );
                                     }}
                                   />
@@ -333,76 +331,56 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                             </td>
                             <td style={{ padding: 0, textAlign: "right" }}>
                               {single.code === "ghtk" && (
-                                <>
-                                  {/* {serciveFees.ghtk_standard && */}
+                                <React.Fragment>
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serciveFees.ghtk_standard}
+                                    {serviceFees.ghtk_standard}
                                   </div>
-                                  {/* } */}
-                                  {/* {serciveFees.ghtk_express && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serciveFees.ghtk_express}
+                                    {serviceFees.ghtk_express}
                                   </div>
-                                  {/* } */}
-                                </>
+                                </React.Fragment>
                               )}
                               {single.code === "ghn" && (
-                                <>
-                                  {/* {serciveFees.ghn_standard && */}
+                                <React.Fragment>
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serciveFees.ghn_standard}
+                                    {serviceFees.ghn_standard}
                                   </div>
-                                  {/* } */}
-                                </>
+                                </React.Fragment>
                               )}
                               {single.code === "vtp" && (
-                                <>
-                                  {/* {serciveFees.vtp_standard && */}
+                                <React.Fragment>
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serciveFees.vtp_standard}
+                                    {serviceFees.vtp_standard}
                                   </div>
-                                  {/* } */}
-                                  {/* {serciveFees.vtp_express && */}
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serciveFees.vtp_express}
+                                    {serviceFees.vtp_express}
                                   </div>
-                                  {/* } */}
-                                  {/* <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {infoFees && infoFees.length > 1
-                                      ? formatCurrency(0)
-                                      : 0}
-                                  </div> */}
-                                </>
+                                </React.Fragment>
                               )}
                               {single.code === "dhl" && (
-                                <>
-                                  {/* {serciveFees.dhl_standard && */}
+                                <React.Fragment>
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serciveFees.dhl_standard}
+                                    {serviceFees.dhl_standard}
                                   </div>
-                                  {/* } */}
-                                </>
+                                </React.Fragment>
                               )}
                             </td>
                           </tr>

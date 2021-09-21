@@ -11,10 +11,10 @@ const ReturnOrder = React.lazy(
   () => import("screens/order-online/return.screen")
 );
 const ScreenReturnCreate = React.lazy(
-  () => import("screens/order-online/OrderReturn/create")
+  () => import("screens/order-online/order-return/create")
 );
 const ScreenReturnDetail = React.lazy(
-  () => import("screens/order-online/OrderReturn/[id]")
+  () => import("screens/order-online/order-return/[id]")
 );
 
 const FpageCRM = React.lazy(() => import("screens/fpage"));
