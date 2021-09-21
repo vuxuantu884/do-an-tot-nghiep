@@ -151,7 +151,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     
   ]);
 
-  const configDataFiltered = configData.filter((item: any) => {
+  const configDataFiltered = configData && configData?.filter((item: any) => {
     if (activatedBtn.id === "all") {
       return true;
     } else {

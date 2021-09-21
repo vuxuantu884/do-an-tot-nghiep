@@ -612,9 +612,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     display: "flex",
                     overflow: "hidden",
                     justifyContent: "center",
+                    alignItems: "center"
                   }}
                 >
-                  <img style={{ width: 34 }} src={logoMobile} alt="logo"></img>
+                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo"></img>
                 </div>
                 <Link
                   to={`${UrlConfig.CUSTOMER}/${customerDetail?.id}`}
