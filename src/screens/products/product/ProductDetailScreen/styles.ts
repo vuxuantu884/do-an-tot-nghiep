@@ -76,6 +76,7 @@ export const StyledComponent = styled.div`
     .image-slider {
       width: 163px;
       margin-bottom: 10px;
+
       img {
         width: 163px !important;
         height: 253.5;
@@ -84,8 +85,13 @@ export const StyledComponent = styled.div`
     }
     .image-thumbnail {
       width: 280px;
+      &.image-2 {
+        width: 130px;
+      }
       img {
-        width: 80px !important;
+        width: 60px !important;
+        height: 60px !important;
+        
         cursor: pointer;
       }
     }

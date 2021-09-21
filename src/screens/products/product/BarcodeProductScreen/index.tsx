@@ -8,7 +8,10 @@ import { StyledComponent } from "./style";
 import { BiAddToQueue } from "react-icons/bi";
 import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { productBarcodeAction, searchVariantsRequestAction } from "domain/actions/product/products.action";
+import {
+  productBarcodeAction,
+  searchVariantsRequestAction,
+} from "domain/actions/product/products.action";
 import {
   ProductBarcodeItem,
   ProductBarcodeRequest,
@@ -76,14 +79,13 @@ const BarcodeProductScreen: React.FC = () => {
     [dispatch, onResultSearch]
   );
 
-  const onResult = useCallback((data: string|false) => {
+  const onResult = useCallback((data: string | false) => {
     setLoadingButton(false);
-    if(!data) {
-
+    if (!data) {
     } else {
       window.open(data);
       setDataSelected([]);
-      showSuccess("Xuất excel thành công")
+      showSuccess("Xuất excel thành công");
     }
   }, []);
 
@@ -94,24 +96,25 @@ const BarcodeProductScreen: React.FC = () => {
       array.push({
         product_id: item.id,
         quantity_req: item.quantity_req ? item.quantity_req : 1,
-      })
-    })
+      });
+    });
     let request: ProductBarcodeRequest = {
-      type_name: 'excel',
+      type_name: "excel",
       products: array,
-    }
-    dispatch(productBarcodeAction(request, onResult))
+    };
+    dispatch(productBarcodeAction(request, onResult));
   }, [dataSelected, dispatch, onResult]);
   const onSelectProduct = useCallback(
     (value: string) => {
       let index = data.findIndex((item) => item.id.toString() === value);
       if (index !== -1) {
-        let indexItem = dataSelected.findIndex(item => item.id === data[index].id);
-        if(indexItem === -1) {
+        let indexItem = dataSelected.findIndex(
+          (item) => item.id === data[index].id
+        );
+        if (indexItem === -1) {
           dataSelected.push({ ...data[index], quantity_req: 1 });
           setDataSelected([...dataSelected]);
         }
-        
       }
       setData([]);
     },
@@ -176,7 +179,11 @@ const BarcodeProductScreen: React.FC = () => {
                   render: (data) => {
                     let img = Products.findAvatar(data);
                     return (
-                      <Image className="avatar" preview={false} src={img === null ? variantdefault : img.url} />
+                      <Image
+                        className="avatar"
+                        preview={false}
+                        src={img === null ? variantdefault : img.url}
+                      />
                     );
                   },
                 },
@@ -203,23 +210,31 @@ const BarcodeProductScreen: React.FC = () => {
                   dataIndex: "quantity_req",
                   width: 140,
                   render: (value: number, record, index) => {
-                    return <NumberInput 
-                      value={value}
-                      onChange={(v) => {
-                        dataSelected[index].quantity_req = v;
-                        setDataSelected([...dataSelected]);
-                      }}
-                    />
+                    return (
+                      <NumberInput
+                        value={value}
+                        maxLength={12}
+                        onChange={(v) => {
+                          dataSelected[index].quantity_req = v;
+                          setDataSelected([...dataSelected]);
+                        }}
+                      />
+                    );
                   },
                 },
                 {
                   title: "",
                   width: 60,
                   render: (value, record, index) => {
-                    return <Button onClick={() => {
-                      dataSelected.splice(index, 1);
-                      setDataSelected([...dataSelected]);
-                    }} icon={<CloseOutlined />} />
+                    return (
+                      <Button
+                        onClick={() => {
+                          dataSelected.splice(index, 1);
+                          setDataSelected([...dataSelected]);
+                        }}
+                        icon={<CloseOutlined />}
+                      />
+                    );
                   },
                 },
               ]}
@@ -228,7 +243,11 @@ const BarcodeProductScreen: React.FC = () => {
         </Card>
         <BottomBarContainer
           back="Quay lại sản phẩm"
-          rightComponent={<Button onClick={onInTemp} loading={loadingButton} type="primary">Xuất Excel</Button>}
+          rightComponent={
+            <Button onClick={onInTemp} loading={loadingButton} type="primary">
+              Xuất Excel
+            </Button>
+          }
         />
       </StyledComponent>
     </ContentContainer>

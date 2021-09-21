@@ -167,7 +167,7 @@ const UpdateSupplierScreen: React.FC = () => {
     if (isFirstLoad.current) {
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT] },
+          { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
           setDataAccounts
         )
       );

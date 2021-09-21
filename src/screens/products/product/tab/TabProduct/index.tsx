@@ -1,4 +1,3 @@
-import ProductFilter from "component/filter/product.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
@@ -42,6 +41,7 @@ import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, {
   VariantImageModel,
 } from "../../component/upload-image.modal";
+import ProductFilter from "../../filter/ProductFilter";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -134,6 +134,7 @@ const TabProduct: React.FC = () => {
     Array<ICustomTableColumType<VariantResponse>>
   >([
     {
+      width: 80,
       title: "Ảnh",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
@@ -155,29 +156,17 @@ const TabProduct: React.FC = () => {
       visible: true,
     },
     {
-      title: "Mã sản phẩm",
+      title: "Sản phẩm",
       dataIndex: "sku",
+      width: 300,
       render: (value: string, i: VariantResponse) => (
-        <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>
-          {value}
-        </Link>
+        <div>
+          <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>
+            {value}
+          </Link>
+          <div>{i.name}</div>
+        </div>
       ),
-      visible: true,
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "name",
-      sorter: true,
-      visible: true,
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "color",
-      visible: true,
-    },
-    {
-      title: "Size",
-      dataIndex: "size",
       visible: true,
     },
     {

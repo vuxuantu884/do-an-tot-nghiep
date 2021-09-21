@@ -23,6 +23,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import TabProductInventory from "../tab/TabProductInventory";
 import TabProductHistory from "../tab/TabProductHistory";
 import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
+import classNames from 'classnames';
 
 export interface ProductParams {
   id: string;
@@ -166,7 +167,7 @@ const ProductDetailScreen: React.FC = () => {
 
   const onResultHistory = useCallback((data) => {
     console.log(data);
-  }, [])
+  }, []);
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -175,8 +176,10 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (data && data?.variants.length > 0) {
-      let variantSelect = data.variants[active].id
-      dispatch(inventoryGetDetailAction({variant_id: variantSelect}, onResultHistory));
+      let variantSelect = data.variants[active].id;
+      dispatch(
+        inventoryGetDetailAction({ variant_id: variantSelect }, onResultHistory)
+      );
     }
   }, [active, data, dispatch, onResult, onResultHistory]);
   useEffect(() => {
@@ -191,7 +194,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [data, variant_id]);
   return (
     <StyledComponent>
-      <ContentContainer  
+      <ContentContainer
         isError={error}
         isLoading={loading}
         title="Chi tiết sản phẩm"
@@ -398,7 +401,7 @@ const ProductDetailScreen: React.FC = () => {
                                             slidesToShow={1}
                                             slidesToScroll={1}
                                             arrows={false}
-                                            className="image-slider"
+                                            className={classNames("image-slider")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -414,11 +417,17 @@ const ProductDetailScreen: React.FC = () => {
                                             asNavFor={nav1 ? nav1 : undefined}
                                             ref={(slider2) => setNav2(slider2)}
                                             infinite={true}
-                                            slidesToShow={3}
+                                            slidesToShow={
+                                              currentVariant.variant_images
+                                                .length < 3
+                                                ? currentVariant.variant_images
+                                                    .length
+                                                : 3
+                                            }
                                             slidesToScroll={1}
                                             arrows={true}
                                             focusOnSelect={true}
-                                            className="image-thumbnail"
+                                            className={classNames("image-thumbnail", currentVariant.variant_images.length === 2 && "image-2")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
