@@ -1,4 +1,10 @@
 .assign-customer-modal {
+  .ant-modal-title {
+    font-family: Roboto;
+    font-weight: bold;
+    font-size: 18px;
+  }
+
   .assignment {
     margin-top: 8px;
     display: flex;
@@ -9,7 +15,12 @@
 
     .assign-btn {
       margin-left: 12px;
-      align-self: center;
+      display: flex;
+      align-items: center;
+
+      span {
+        margin-left: 10px;
+      }
     }
   }
 }

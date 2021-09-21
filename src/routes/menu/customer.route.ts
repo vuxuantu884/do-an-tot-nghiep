@@ -35,7 +35,7 @@ const customers: Array<RouteMenu> = [
   {
     path: `${UrlConfig.CUSTOMER}/cards`,
     exact: true,
-    title: "Phát hành thẻ",
+    title: "Thẻ khách hàng",
     icon: "icon-dot",
     component: loyaltyCard,
     key: "submenu121",
@@ -45,7 +45,7 @@ const customers: Array<RouteMenu> = [
       {
         path: `${UrlConfig.CUSTOMER}/cards/upload`,
         exact: true,
-        title: "Phát hành thẻ",
+        title: "Thẻ khách hàng",
         icon: "icon-dot",
         component: uploadLoyaltyCard,
         key: "submenu122",

@@ -23,6 +23,7 @@ const ModalConfirmLock: React.FC<ModalConfirmLockProps> = (
       className="modal-confirm"
       okText={okText ? okText : "Khóa"}
       cancelText={cancelText ? cancelText : "Thoát"}
+      cancelButtonProps={{style: {backgroundColor: 'white', border: '1px solid #E5E5E5'}}}
       visible={visible}
       onOk={onOk}
       onCancel={onCancel}
@@ -38,7 +39,7 @@ const ModalConfirmLock: React.FC<ModalConfirmLockProps> = (
         </div>
         <div className="modal-confirm-right margin-left-20">
           <div className="modal-confirm-title">{title}</div>
-          <div className="modal-confirm-sub-title">{subTitle}</div>
+          <div className="modal-confirm-sub-title" style={{color: '#666666', opacity: 1}}>{subTitle}</div>
         </div>
       </div>
     </Modal>

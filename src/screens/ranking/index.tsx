@@ -16,8 +16,8 @@ import editIcon from "assets/icon/edit.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { Link } from 'react-router-dom';
-import { PlusOutlined } from '@ant-design/icons';
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
+import ButtonCreate from 'component/header/ButtonCreate';
 
 const CustomerRanking = () => {
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -39,7 +39,7 @@ const CustomerRanking = () => {
       width: '150px'
     },
     {
-      title: "Tên hạng thẻ",
+      title: "Tên hạng khách hàng",
       dataIndex: "name",
       visible: true,
       fixed: "left",
@@ -145,7 +145,9 @@ const CustomerRanking = () => {
   ]
   const [query, setQuery] = React.useState<BaseQuery>({
     page: 1,
-    limit: 30
+    limit: 30,
+    sort_column: 'accumulated_from',
+    sort_type: 'desc'
   });
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState<boolean>(false)
   const [selectedDeleteItem, setSelectedDeleteItem] = useState<LoyaltyRankResponse>()
@@ -198,15 +200,10 @@ const CustomerRanking = () => {
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.CUSTOMER}/rankings/create`}>
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-            >
-              Thêm hạng khách hàng
-            </Button>
-          </Link>
+          <ButtonCreate
+            child="Thêm mới"
+            path={`${UrlConfig.CUSTOMER}/rankings/create`}
+          />
         </>
       }
     >
