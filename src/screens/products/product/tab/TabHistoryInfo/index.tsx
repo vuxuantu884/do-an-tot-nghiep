@@ -16,14 +16,12 @@ import { Link } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import HistoryProductFIlter from "../../filter/HistoryProductFilter";
-const initQuery: ProductHistoryQuery = {
-  history_type: 'UPDATE_PRICE'
-};
+import HistoryProductFilter from "../../filter/HistoryProductFilter";
+const initQuery: ProductHistoryQuery = {};
 
-const IS_PRODUCT_TYPE = ['ADD_PRODUCT','UPDATE_PRODUCT','DELETE_PRODUCT']
+const IS_PRODUCT_TYPE = ["ADD_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT"];
 
-const TabHistoryPrice: React.FC = () => {
+const TabHistoryInfo: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -37,6 +35,7 @@ const TabHistoryPrice: React.FC = () => {
     },
     items: [],
   });
+
   const onResult = useCallback(
     (result: PageResponse<ProductHistoryResponse> | false) => {
       setLoading(false);
@@ -50,14 +49,14 @@ const TabHistoryPrice: React.FC = () => {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<ProductHistoryQuery>(dataQuery);
+  let [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}#4?${queryParam}`);
+      setParams({ ...params });
+      history.replace(`${UrlConfig.PRODUCT}#3?${queryParam}`);
     },
     [history, params]
   );
@@ -68,77 +67,28 @@ const TabHistoryPrice: React.FC = () => {
       title: "Sản phẩm",
       dataIndex: "history_type",
       visible: true,
-      fixed: 'left',
+      fixed: "left",
       width: 200,
       render: (value, item) => {
-        if (IS_PRODUCT_TYPE.includes(value)){
+        if (IS_PRODUCT_TYPE.includes(value)) {
           return (
             <div>
-              <Link to="">{item.product_code}</Link>
+              <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>
+                {item.product_code}
+              </Link>
               <div>{item.product_name}</div>
             </div>
           );
         }
         return (
           <div>
-            <Link to="">{item.sku}</Link>
+            <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>
+              {item.sku}
+            </Link>
             <div>{item.variant_name}</div>
           </div>
         );
       },
-    },
-    {
-      title: "Giá nhập cũ",
-      dataIndex: "data_old",
-      visible: true,
-      align: "center",
-      render: (value) => {
-        if (value){
-          const DATA_CONVERT = JSON.parse(value);
-          return (
-            DATA_CONVERT.import_price
-          )
-        }
-        return '';
-      }
-    },
-    {
-      title: "Giá nhập mới",
-      dataIndex: "data_current",
-      visible: true,
-      align: "center",
-      render: (value) => {
-        const DATA_CONVERT = JSON.parse(value);
-        return (
-          DATA_CONVERT.import_price
-        )
-      }
-    },
-    {
-      title: "Giá bán cũ",
-      dataIndex: "data_old",
-      visible: true,
-      align: "center",
-      render: (value) => {if (value){
-        const DATA_CONVERT = JSON.parse(value);
-        return (
-          DATA_CONVERT.retail_price
-        )
-      }
-      return '';
-      }
-    },
-    {
-      title: "Giá bán mới",
-      dataIndex: "data_current",
-      visible: true,
-      align: "center",
-      render: (value) => {
-        const DATA_CONVERT = JSON.parse(value);
-        return (
-          DATA_CONVERT.retail_price
-        )
-      }
     },
     {
       title: "Người sửa",
@@ -147,11 +97,23 @@ const TabHistoryPrice: React.FC = () => {
       align: "center",
     },
     {
+      title: "Log ID",
+      dataIndex: "code",
+      visible: true,
+      align: "center",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "history_type_name",
+      visible: true,
+      align: "center",
+    },
+    {
       title: "Thời gian",
       visible: true,
       align: "center",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value) 
+      render: (value) => ConvertUtcToLocalDate(value),
     },
   ]);
   useEffect(() => {
@@ -161,16 +123,24 @@ const TabHistoryPrice: React.FC = () => {
 
   return (
     <div className="padding-20">
-      <HistoryProductFIlter 
+      <HistoryProductFilter
+        onFinish={(values) => {
+          let newParams = { ...params, ...values, page: 1 };
+          setParams(newParams);
+          let queryParam = generateQuery(newParams);
+          history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
+        }}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => {}}
         actions={[]}
       />
       <CustomTable
-        scroll={{ x: 1300 }}
+        rowKey={(record) => record.id}
+        isRowSelection
         columns={columns}
         dataSource={data.items}
         isLoading={loading}
+        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -181,16 +151,16 @@ const TabHistoryPrice: React.FC = () => {
         }}
       />
       <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumns(data)  
-          }}
-          data={columns}
-        />
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumns(data);
+        }}
+        data={columns}
+      />
     </div>
   );
 };
 
-export default TabHistoryPrice;
+export default TabHistoryInfo;

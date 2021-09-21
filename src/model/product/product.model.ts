@@ -401,7 +401,7 @@ export interface ProductHistoryQuery extends BaseQuery {
 }
 
 export interface ProductBarcodeRequest {
-  type: string,
+  type_name: string,
   products: Array<ProductBarcodeItem>,
 }
 

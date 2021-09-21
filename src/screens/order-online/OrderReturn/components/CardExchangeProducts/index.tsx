@@ -67,6 +67,8 @@ type CardProductProps = {
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
   shippingFeeCustomer: number | null;
+  amountReturn: number;
+  totalAmountNeedToPay: number;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -77,7 +79,7 @@ const initQueryVariant: VariantSearchQuery = {
 const CardExchangeProducts: React.FC<CardProductProps> = (
   props: CardProductProps
 ) => {
-  const { items, handleCardItems } = props;
+  const { items, handleCardItems, amountReturn, totalAmountNeedToPay } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -100,7 +102,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
-  const [changeMoney, setChangeMoney] = useState<number>(0);
+  const [totalAmountExchange, setTotalAmountExchange] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   //Function
 
@@ -138,7 +140,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     if (items) {
       let amount = totalAmount(items);
       console.log("amount", amount);
-      setChangeMoney(amount);
+      setTotalAmountExchange(amount);
       setAmount(amount);
       let _itemGifts: any = [];
       for (let i = 0; i < items.length; i++) {
@@ -276,6 +278,18 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     );
     return options;
   }, [resultSearchVariant]);
+
+  const getTotalAmountExchangeNeedToPay = () => {
+    if (totalAmountExchange) {
+      return (
+        totalAmountExchange +
+        (props.shippingFeeCustomer ? props.shippingFeeCustomer : 0)
+      );
+    }
+    return 0;
+  };
+
+  const totalAmountExchangeNeedToPay = getTotalAmountExchangeNeedToPay();
 
   const ProductColumn = {
     title: () => (
@@ -730,7 +744,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     _discountRate: number,
     _discountValue: number
   ) => {
-    setChangeMoney(_amount - _discountValue);
+    setTotalAmountExchange(_amount - _discountValue);
     changeInfo(_items, _amount, _discountRate, _discountValue);
   };
 
@@ -765,7 +779,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
       className="margin-top-20"
       title={
         <div className="d-flex">
-          <span className="title-card">SẢN PHẨM</span>
+          <span className="title-card">Thông tin sản phẩm đổi</span>
         </div>
       }
       extra={
@@ -1059,16 +1073,33 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền hàng mua:</strong>
+              <strong className="font-size-text">Tổng tiền hàng mua 1:</strong>
               <strong className="text-success font-size-price">
-                {changeMoney
-                  ? formatCurrency(
-                      changeMoney +
-                        (props.shippingFeeCustomer
-                          ? props.shippingFeeCustomer
-                          : 0)
-                    )
+                {totalAmountExchangeNeedToPay
+                  ? formatCurrency(totalAmountExchangeNeedToPay)
                   : "-"}
+              </strong>
+            </Row>
+            <Divider className="margin-top-5 margin-bottom-5" />
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Tổng tiền hàng trả:</strong>
+              <strong className="text-success font-size-price">
+                {formatCurrency(amountReturn)}
+              </strong>
+            </Row>
+            <Divider className="margin-top-5 margin-bottom-5" />
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">
+                {totalAmountNeedToPay >= 0
+                  ? "Khách cần trả: "
+                  : "Cần trả lại khách: "}
+              </strong>
+              <strong className="text-success font-size-price">
+                {formatCurrency(
+                  totalAmountNeedToPay >= 0
+                    ? totalAmountNeedToPay
+                    : -totalAmountNeedToPay
+                )}
               </strong>
             </Row>
           </Col>

@@ -134,6 +134,7 @@ const Category = () => {
   const onMenuClick = useCallback(
     (index: number) => {
       if (selected.length > 0) {
+        console.log('selected', selected)
         let id = selected[0].id;
         switch (index) {
           case 1:
@@ -164,7 +165,11 @@ const Category = () => {
     });
   }, [selected]);
   const onSelect = useCallback((selectedRow: Array<CategoryView>) => {
-    setSelected(selectedRow);
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    )
   }, []);
   useEffect(() => {
     setLoading(true);

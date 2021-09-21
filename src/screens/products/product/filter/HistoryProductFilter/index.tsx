@@ -5,19 +5,23 @@ import { useCallback } from "react";
 import search from "assets/img/search.svg";
 import { StyledComponent } from "./styles";
 import ButtonSetting from "component/table/ButtonSetting";
+import { FilterOutlined } from "@ant-design/icons";
+import { ProductHistoryQuery } from "model/product/product.model";
 
-interface HistoryProductFIlterProps {
+interface HistoryProductFilterProps {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onShowColumnSetting?: () => void;
+  openFilter?: () => void;
+  onFinish: (value: ProductHistoryQuery) => void
 }
 
 const { Item } = Form;
 
-const HistoryProductFIlter: React.FC<HistoryProductFIlterProps> = (
-  props: HistoryProductFIlterProps
+const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
+  props: HistoryProductFilterProps
 ) => {
-  const { actions, onMenuClick, onShowColumnSetting } = props;
+  const { actions, onMenuClick, onShowColumnSetting, openFilter, onFinish } = props;
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -25,12 +29,16 @@ const HistoryProductFIlter: React.FC<HistoryProductFIlterProps> = (
     [onMenuClick]
   );
 
+  const onSubmit = useCallback((value: ProductHistoryQuery) => {
+    onFinish(value);
+  }, [onFinish])
+
   return (
     <StyledComponent>
       <div className="history-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form layout="inline">
-            <Item name="" className="search">
+          <Form onFinish={onSubmit} layout="inline">
+            <Item name="condition" className="search">
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: "100%" }}
@@ -43,6 +51,11 @@ const HistoryProductFIlter: React.FC<HistoryProductFIlterProps> = (
               </Button>
             </Item>
             <Item>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>
+                Thêm bộ lọc
+              </Button>
+            </Item>
+            <Item>
               <ButtonSetting onClick={onShowColumnSetting} />
             </Item>
           </Form>
@@ -52,4 +65,4 @@ const HistoryProductFIlter: React.FC<HistoryProductFIlterProps> = (
   );
 };
 
-export default HistoryProductFIlter;
+export default HistoryProductFilter;

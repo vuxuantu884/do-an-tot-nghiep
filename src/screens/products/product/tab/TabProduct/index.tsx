@@ -13,6 +13,7 @@ import { listColorAction } from "domain/actions/product/color.action";
 import {
   searchVariantsRequestAction,
   variantUpdateAction,
+  variantUpdateManyAction,
 } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import {
@@ -35,18 +36,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery, Products } from "utils/AppUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
-import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
-
+import UploadImageModal, {
+  VariantImageModel,
+} from "../../component/upload-image.modal";
 
 const ACTIONS_INDEX = {
-  EXPORT_EXCEL: 1,
   PRINT_BAR_CODE: 2,
   ACTIVE: 3,
   INACTIVE: 4,
   DELETE: 5,
-}
+};
 
 const actions: Array<MenuAction> = [
   {
@@ -55,17 +57,16 @@ const actions: Array<MenuAction> = [
   },
   {
     id: ACTIONS_INDEX.ACTIVE,
-    name: "Đang hoạt động",
+    name: "Cho phép bán",
   },
   {
     id: ACTIONS_INDEX.INACTIVE,
-    name: "Ngừng hoạt động",
+    name: "Ngừng bán",
   },
   {
     id: ACTIONS_INDEX.DELETE,
     name: "Xóa sản phẩm",
   },
-
 ];
 
 const initQuery: VariantSearchQuery = {
@@ -112,6 +113,7 @@ const TabProduct: React.FC = () => {
   const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
+  const [selected, setSelected] = useState<Array<VariantResponse>>([]);
   const [listMerchandiser, setMerchandiser] =
     useState<Array<AccountResponse>>();
   let dataQuery: VariantSearchQuery = {
@@ -156,7 +158,9 @@ const TabProduct: React.FC = () => {
       title: "Mã sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => (
-        <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>{value}</Link>
+        <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>
+          {value}
+        </Link>
       ),
       visible: true,
     },
@@ -226,13 +230,73 @@ const TabProduct: React.FC = () => {
     },
     [history, params]
   );
-  const onMenuClick = useCallback((index: number) => {
-    switch(index) {
-      case ACTIONS_INDEX.PRINT_BAR_CODE:
-        history.push(`${UrlConfig.PRODUCT}/barcode`)
-        break;
+
+  const onResultUpdateSaleable = useCallback(
+    (
+      success: Array<VariantResponse>,
+      errrr: Array<VariantResponse>,
+      isException
+    ) => {
+      dispatch(hideLoading());
+      if (!isException) {
+        data.items.forEach((item) => {
+          let index = success.findIndex((item1) => item.id === item1.id);
+          if (index !== -1) {
+            item = { ...item, ...success[index] };
+          }
+        });
+        setData({ ...data, items: [...data.items] });
+        showSuccess("Cập nhật thông tin thành công");
+        setSelected([]);
+      }
+    },
+    [data, dispatch]
+  );
+
+  const onActive = useCallback(() => {
+    if (selected.length > 0) {
+      dispatch(showLoading());
+      let request: Array<VariantUpdateRequest> = [];
+      selected.forEach((value) => {
+        let variantRequest: VariantUpdateRequest =
+          Products.convertVariantResponseToRequest(value);
+        variantRequest.saleable = true;
+        request.push(variantRequest);
+      });
+      dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));
     }
-  }, [history]);
+  }, [dispatch, onResultUpdateSaleable, selected]);
+
+  const onInActive = useCallback(() => {
+    if (selected.length > 0) {
+      dispatch(showLoading());
+      let request: Array<VariantUpdateRequest> = [];
+      selected.forEach((value) => {
+        let variantRequest: VariantUpdateRequest =
+          Products.convertVariantResponseToRequest(value);
+        variantRequest.saleable = false;
+        request.push(variantRequest);
+      });
+      dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));
+    }
+  }, [dispatch, onResultUpdateSaleable, selected]);
+
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ACTIONS_INDEX.PRINT_BAR_CODE:
+          history.push(`${UrlConfig.PRODUCT}/barcode`);
+          break;
+        case ACTIONS_INDEX.ACTIVE:
+          onActive();
+          break;
+        case ACTIONS_INDEX.INACTIVE:
+          onInActive();
+          break;
+      }
+    },
+    [history, onActive, onInActive]
+  );
 
   const setSearchResult = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -266,6 +330,14 @@ const TabProduct: React.FC = () => {
     [columns]
   );
 
+  const onSelect = useCallback((selectedRow: Array<VariantResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(CountryGetAllAction(setCountry));
@@ -298,8 +370,8 @@ const TabProduct: React.FC = () => {
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
-        showColumnSetting={true}
-        scroll={{ x: 1080 }}
+        scroll={{ x: 1300 }}
+        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -308,26 +380,27 @@ const TabProduct: React.FC = () => {
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
+        onSelectedChange={onSelect}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}
         rowKey={(item: VariantResponse) => item.id}
       />
       <UploadImageModal
-        onCancel={() => setUploadVisible(false)} 
-        variant={variant} 
-        visible={uploadVisible} 
+        onCancel={() => setUploadVisible(false)}
+        variant={variant}
+        visible={uploadVisible}
         onSave={onSave}
       />
       <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data)
-          }}
-          data={columns}
-        />
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data);
+        }}
+        data={columns}
+      />
     </div>
   );
 };
