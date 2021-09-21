@@ -7,7 +7,10 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
+import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
 import {
   orderCreateAction,
   OrderDetailAction,
@@ -28,6 +31,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
   // OrderLineItemResponse,
@@ -39,6 +43,7 @@ import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
+  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -83,7 +88,12 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
+
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
+
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
@@ -420,19 +430,19 @@ export default function Order() {
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
 
-    let checkPointfocus = payments.find((p) => p.code === "point");
-    if (checkPointfocus) {
-      let curenPoint = 0;
-      if (loyaltyPoint)
-        curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
-      let point =
-        checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
+    // let checkPointfocus = payments.find((p) => p.code === "point");
+    // if (checkPointfocus) {
+    //   let curenPoint = 0;
+    //   if (loyaltyPoint)
+    //     curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
+    //   let point =
+    //     checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
 
-      if (point > curenPoint) {
-        showError("Số điểm tiêu vượt quá số điểm hiện có");
-        return;
-      }
-    }
+    //   if (point > curenPoint) {
+    //     showError("Số điểm tiêu vượt quá số điểm hiện có");
+    //     return;
+    //   }
+    // }
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
@@ -493,7 +503,9 @@ export default function Order() {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            dispatch(orderCreateAction(values, createOrderCallback));
+            let bolCheckPointfocus=checkPointfocus(values);
+            if(bolCheckPointfocus)
+              dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
       }
@@ -735,7 +747,72 @@ export default function Order() {
     } else {
       setLoyaltyPoint(null);
     }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer]);
+
+  const checkPointfocus = useCallback(
+    (value: any) => {
+      let Pointfocus = payments.find((p) => p.code === "point");
+
+      if (!Pointfocus) return true;
+
+      let discount = 0;
+      value.items.forEach(
+        (p: any) => (discount = discount + p.discount_amount)
+      );
+
+      let rank = loyaltyUsageRules.find(
+        (x) => x.rank_id === loyaltyPoint?.loyalty_level_id
+      );
+
+      let curenPoint = !loyaltyPoint
+        ? 0
+        : loyaltyPoint.point === null
+        ? 0
+        : loyaltyPoint.point;
+      let point = !Pointfocus
+        ? 0
+        : Pointfocus.point === undefined
+        ? 0
+        : Pointfocus.point;
+
+      let totalAmountPayable =
+        orderAmount +
+        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        discountValue; //tổng tiền phải trả
+      let limitAmountPointFocus = !rank
+        ? 0
+        : !rank.limit_order_percent
+        ? 0
+        : (rank.limit_order_percent * totalAmountPayable) / 100;
+      //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
+      limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+
+      if (
+        rank?.block_order_have_discount === true &&
+        (discount > 0 || discountValue)
+      ) {
+        showError(
+          "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
+        );
+        return false;
+      }
+
+      if (point > limitAmountPointFocus) {
+        showError(
+          `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
+        );
+        return false;
+      }
+
+      if (point > curenPoint) {
+        showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
+        return false;
+      }
+      return true;
+    },
+    [loyaltyPoint, loyaltyUsageRules, payments,discountValue,orderAmount,shippingFeeCustomer]
+  );
 
   useEffect(() => {
     formRef.current?.resetFields();
