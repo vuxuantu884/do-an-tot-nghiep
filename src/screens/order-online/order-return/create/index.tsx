@@ -1,7 +1,8 @@
-import { Card, Col, Row, Tag, Form } from "antd";
+import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { actionCreateOrderReturn } from "domain/actions/order/order-return.action";
 import {
@@ -9,6 +10,7 @@ import {
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   ExchangeRequest,
@@ -22,6 +24,7 @@ import {
   ShippingAddress,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import {
   FulFillmentResponse,
   OrderLineItemResponse,
@@ -30,9 +33,14 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import {
+  getAmountPaymentRequest,
+  getTotalAmountAfferDiscount,
+} from "utils/AppUtils";
 import {
   FulFillmentStatus,
   MoneyPayThreePls,
@@ -42,24 +50,18 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
+import CardExchangeProducts from "../components/CardExchangeProducts";
 import CardReturnMoney from "../components/CardReturnMoney";
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
-import CardExchangeProducts from "../components/CardExchangeProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
-import ReturnBottomBar from "../components/ReturnBottomBar";
 import CardReturnShipment from "../components/CardReturnShipment";
-import { showError, showSuccess } from "utils/ToastUtils";
-import {
-  getAmountPaymentRequest,
-  getTotalAmountAfferDiscount,
-} from "utils/AppUtils";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import moment from "moment";
+import ReturnBottomBar from "../components/ReturnBottomBar";
+import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
+import OrderShortDetails from "../components/Sidebar/OrderShortDetails";
 
 type PropType = {
   id?: string;
@@ -533,10 +535,6 @@ const ScreenReturnDetail = (props: PropType) => {
     return listDiscountRequest;
   };
 
-  const onShipmentSelect = (value: number) => {
-    setShipmentMethod(value);
-  };
-
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
   };
@@ -618,7 +616,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 />
                 {isExchange && isStepExchange && (
                   <CardReturnShipment
-                    setShipmentMethodProps={onShipmentSelect}
+                    setShipmentMethod={setShipmentMethod}
                     shipmentMethod={shipmentMethod}
                     storeDetail={storeDetail}
                     setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
@@ -652,76 +650,7 @@ const ScreenReturnDetail = (props: PropType) => {
               </Col>
 
               <Col md={6}>
-                <Card
-                  className="card-block card-block-normal"
-                  title={
-                    <div className="d-flex">
-                      <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-                    </div>
-                  }
-                >
-                  <div className="padding-24">
-                    <Row className="" gutter={5}>
-                      <Col span={9}>Cửa hàng:</Col>
-                      <Col span={15}>
-                        <span
-                          style={{ fontWeight: 500, color: "#2A2A86" }}
-                          className="text-focus"
-                        >
-                          {OrderDetail?.store}
-                        </span>
-                      </Col>
-                    </Row>
-                    <Row className="margin-top-10" gutter={5}>
-                      <Col span={9}>Điện thoại:</Col>
-                      <Col span={15}>
-                        <span style={{ fontWeight: 500, color: "#222222" }}>
-                          {OrderDetail?.customer_phone_number}
-                        </span>
-                      </Col>
-                    </Row>
-                    <Row className="margin-top-10" gutter={5}>
-                      <Col span={9}>Địa chỉ:</Col>
-                      <Col span={15}>
-                        <span style={{ fontWeight: 500, color: "#222222" }}>
-                          {OrderDetail?.shipping_address?.full_address}
-                        </span>
-                      </Col>
-                    </Row>
-                    <Row className="margin-top-10" gutter={5}>
-                      <Col span={9}>NVBH:</Col>
-                      <Col span={15}>
-                        <span
-                          style={{ fontWeight: 500, color: "#222222" }}
-                          className="text-focus"
-                        >
-                          {OrderDetail?.assignee}
-                        </span>
-                      </Col>
-                    </Row>
-                    <Row className="margin-top-10" gutter={5}>
-                      <Col span={9}>Người tạo:</Col>
-                      <Col span={15}>
-                        <span
-                          style={{ fontWeight: 500, color: "#222222" }}
-                          className="text-focus"
-                        >
-                          {OrderDetail?.account}
-                        </span>
-                      </Col>
-                    </Row>
-                    <Row className="margin-top-10" gutter={5}>
-                      <Col span={9}>Đường dẫn:</Col>
-                      <Col span={15} style={{ wordWrap: "break-word" }}>
-                        {OrderDetail?.url ? (
-                          <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
-                        ) : (
-                          <span className="text-focus">Không</span>
-                        )}
-                      </Col>
-                    </Row>
-                  </div>
-                </Card>
+                <OrderShortDetails OrderDetail={OrderDetail} />
                 <SubStatusOrder
                   subStatusId={OrderDetail?.sub_status_id}
                   status={OrderDetail?.status}
@@ -729,67 +658,7 @@ const ScreenReturnDetail = (props: PropType) => {
                   fulfillments={OrderDetail?.fulfillments}
                   handleChangeSubStatus={handleChangeSubStatus}
                 />
-                <Card
-                  className="margin-top-20"
-                  title={
-                    <div className="d-flex">
-                      <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                    </div>
-                  }
-                >
-                  <div className="padding-24">
-                    <Row
-                      className=""
-                      gutter={5}
-                      style={{ flexDirection: "column" }}
-                    >
-                      <Col span={24} style={{ marginBottom: 6 }}>
-                        <b>Ghi chú nội bộ:</b>
-                      </Col>
-                      <Col span={24}>
-                        <span
-                          className="text-focus"
-                          style={{ wordWrap: "break-word" }}
-                        >
-                          {OrderDetail?.note !== ""
-                            ? OrderDetail?.note
-                            : "Không có ghi chú"}
-                        </span>
-                      </Col>
-                    </Row>
-
-                    <Row
-                      className="margin-top-10"
-                      gutter={5}
-                      style={{ flexDirection: "column" }}
-                    >
-                      <Col span={24} style={{ marginBottom: 6 }}>
-                        <b>Tags:</b>
-                      </Col>
-                      <Col span={24}>
-                        <span className="text-focus">
-                          {OrderDetail?.tags
-                            ? OrderDetail?.tags
-                                .split(",")
-                                .map((item, index) => (
-                                  <Tag
-                                    key={index}
-                                    className="orders-tag"
-                                    style={{
-                                      backgroundColor: "#F5F5F5",
-                                      color: "#737373",
-                                      padding: "5px 10px",
-                                    }}
-                                  >
-                                    {item}
-                                  </Tag>
-                                ))
-                            : "Không có tags"}
-                        </span>
-                      </Col>
-                    </Row>
-                  </div>
-                </Card>
+                <OrderMoreDetails OrderDetail={OrderDetail} />
               </Col>
             </Row>
           </Form>

@@ -1,4 +1,3 @@
-// @ts-ignore
 import {
   Card,
   Checkbox,
@@ -48,7 +47,7 @@ import { StyledComponent } from "./styles";
 
 type CardShipmentProps = {
   shipmentMethod: number;
-  setShipmentMethodProps: (value: number) => void;
+  setShipmentMethod: (value: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   setShippingFeeInformedCustomerHVC: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
@@ -72,31 +71,39 @@ type CardShipmentProps = {
   isCloneOrder: boolean;
 };
 
-const CardReturnShipment: React.FC<CardShipmentProps> = (
-  props: CardShipmentProps
-) => {
+type ShipmentButtonModel = {
+  name: string | null;
+  value: number;
+  icon: string | undefined;
+};
+
+/**
+ * Input: OrderDetail, paymentMethod, customerInfo, amount, storeDetail, items, discountValue, shippingFeeCustomer, officeTime, shipmentMethod, payments, fulfillments, isCloneOrder
+ * Output: setPaymentMethod, setShipmentMethod, setHVC, setServiceType, setFee, setShippingFeeInformedCustomer, setOfficeTime, onPayments
+ */
+function CardReturnShipment(props: CardShipmentProps) {
   const {
     OrderDetail,
     paymentMethod,
-    setPaymentMethod,
-    setShipmentMethodProps,
-    setHVC,
-    setServiceType,
-    setFee,
     customerInfo,
     amount,
     storeDetail,
     items,
-    setShippingFeeInformedCustomer,
     discountValue,
     shippingFeeCustomer,
     officeTime,
-    setOfficeTime,
     shipmentMethod,
     payments,
-    onPayments,
     fulfillments,
     isCloneOrder,
+    setOfficeTime,
+    setShippingFeeInformedCustomer,
+    setPaymentMethod,
+    onPayments,
+    setShipmentMethod,
+    setHVC,
+    setServiceType,
+    setFee,
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
@@ -104,10 +111,9 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
 
-  const ShipMethodOnChange = (value: number) => {
-    setShipmentMethodProps(value);
+  const handleChangeShipmentMethodByValue = (value: number) => {
+    setShipmentMethod(value);
     setPaymentMethod(value);
-    setShipmentMethodProps(value);
     if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
       if (value === ShipmentMethodOption.SELF_DELIVER) {
         setPaymentMethod(PaymentMethodOption.COD);
@@ -152,14 +158,7 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
 
-  // shipment button action
-  interface ShipmentButtonModel {
-    name: string | null;
-    value: number;
-    icon: string | undefined;
-  }
-
-  const shipmentButton: Array<ShipmentButtonModel> = [
+  const shipmentButtons: Array<ShipmentButtonModel> = [
     {
       name: "Chuyển hãng vận chuyển",
       value: 1,
@@ -183,12 +182,6 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
-    console.log("customerInfo", customerInfo);
-    console.log("storeDetail", storeDetail);
-    console.log(
-      "getShippingAddressDefault(customerInfo)?.city_id",
-      getShippingAddressDefault(customerInfo)
-    );
     if (
       customerInfo &&
       storeDetail &&
@@ -234,13 +227,13 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
   const renderShipmentTabHeader = () => {
     return (
       <React.Fragment>
-        {shipmentButton.map((button) => (
+        {shipmentButtons.map((button) => (
           <div key={button.value}>
             {shipmentMethod !== button.value ? (
               <div
                 className="saleorder_shipment_button"
                 key={button.value}
-                onClick={() => ShipMethodOnChange(button.value)}
+                onClick={() => handleChangeShipmentMethodByValue(button.value)}
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
@@ -385,6 +378,6 @@ const CardReturnShipment: React.FC<CardShipmentProps> = (
       </Card>
     </StyledComponent>
   );
-};
+}
 
 export default CardReturnShipment;
