@@ -82,3 +82,13 @@ export const productUpdateApi = (id: number, request: ProductRequest) => {
 export const productBarcodeApi = (request: ProductBarcodeRequest) => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/products/print`, request);
 }
+
+export const productImportApi = (file: File, isCreate: string) => {
+  let body = new FormData();
+  console.log(file);
+  body.append("is_create", isCreate);
+  body.append("file_upload", file);
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/import`, body, {
+    headers: { "content-type": "multipart/form-data" },
+  });
+}

@@ -22,6 +22,7 @@ import variantdefault from "assets/icon/variantdefault.jpg";
 import { AppConfig } from "config/app.config";
 import NumberInput from "component/custom/number-input.custom";
 import { showSuccess } from "utils/ToastUtils";
+import { CloseOutlined } from "@ant-design/icons";
 
 export interface VariantBarcodeLineItem extends VariantResponse {
   quantity_req: number | null;
@@ -96,7 +97,7 @@ const BarcodeProductScreen: React.FC = () => {
       })
     })
     let request: ProductBarcodeRequest = {
-      type: 'excel',
+      type_name: 'excel',
       products: array,
     }
     dispatch(productBarcodeAction(request, onResult))
@@ -192,7 +193,6 @@ const BarcodeProductScreen: React.FC = () => {
                   dataIndex: "variant_prices",
                   render: (value: Array<VariantPricesResponse>) => {
                     let price = Products.findPrice(value, AppConfig.currency);
-                    console.log(price);
                     return price == null
                       ? 0
                       : formatCurrency(price?.retail_price);
@@ -210,6 +210,16 @@ const BarcodeProductScreen: React.FC = () => {
                         setDataSelected([...dataSelected]);
                       }}
                     />
+                  },
+                },
+                {
+                  title: "",
+                  width: 60,
+                  render: (value, record, index) => {
+                    return <Button onClick={() => {
+                      dataSelected.splice(index, 1);
+                      setDataSelected([...dataSelected]);
+                    }} icon={<CloseOutlined />} />
                   },
                 },
               ]}

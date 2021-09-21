@@ -2,20 +2,21 @@ import { Button, Card, Row, Space, Tabs } from "antd";
 import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
-import TabProduct from "./tab/tab-product";
-import TabProductWrapper from "./tab/tab-product-wrapper";
 import { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import TabHistoryPrice from "./tab/tab-history-price";
-import TabHistoryInfo from "./tab/tab-history-info";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
+import TabProduct from "../tab/TabProduct";
+import TabProductWrapper from "../tab/TabProductWrapper";
+import TabHistoryInfo from "../tab/TabHistoryInfo";
+import TabHistoryPrice from "../tab/TabHistoryPrice";
 const { TabPane } = Tabs;
 
 const ListProductScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("1");
   const history = useHistory();
   useEffect(() => {
+    console.log(history.location.search);
     if (history.location.hash) {
       let hash = history.location.hash.split("?");
       switch (hash[0]) {
@@ -33,7 +34,7 @@ const ListProductScreen: React.FC = () => {
           break;
       }
     }
-  }, [history.location.hash]);
+  }, [history.location.hash, history.location.search]);
   return (
     <ContentContainer
       title="Quản lý sản phẩm"

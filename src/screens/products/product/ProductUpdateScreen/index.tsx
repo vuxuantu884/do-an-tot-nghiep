@@ -115,6 +115,7 @@ const ProductDetailScreen: React.FC = () => {
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variantImages, setVariantImage] = useState<Array<VariantImage>>([]);
+  const [loadingVariant, setLoadingVariant] = useState(false);
   const categoryFilter = useMemo(() => {
     if (data === null) {
       return listCategory;
@@ -240,6 +241,7 @@ const ProductDetailScreen: React.FC = () => {
 
   const onResultUpdate = useCallback(
     (data) => {
+      setLoadingVariant(false);
       setLoadingButton(false);
       if (!data) {
       } else {
@@ -254,9 +256,34 @@ const ProductDetailScreen: React.FC = () => {
     [active, form, setCurrentVariant]
   );
 
-  const onAllowSale = useCallback((listSelected: Array<number>) => {}, []);
+  const update = useCallback(
+    (product: ProductResponse) => {
+      setLoadingVariant(true);
+      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+    },
+    [dispatch, idNumber, onResultUpdate]
+  );
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {}, []);
+  
+  const onAllowSale = useCallback((listSelected: Array<number>) => {
+    let values: ProductResponse = form.getFieldsValue(true);
+    values?.variants.forEach((item) => {
+      if (listSelected.includes(item.id)) {
+        item.saleable = true;
+      }
+    });
+    update(values);
+  }, [form, update]);
+
+  const onStopSale = useCallback((listSelected: Array<number>) => {
+    let values: ProductResponse = form.getFieldsValue(true);
+    values?.variants.forEach((item) => {
+      if (listSelected.includes(item.id)) {
+        item.saleable = false;
+      }
+    });
+    update(values);
+  }, [form, update]);
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
@@ -353,7 +380,7 @@ const ProductDetailScreen: React.FC = () => {
                               });
                             }}
                             className="ant-switch-success"
-                            defaultChecked
+                            checked={status === "active"}
                           />
                         </Item>
                         <label
@@ -704,6 +731,7 @@ const ProductDetailScreen: React.FC = () => {
                   <Col className="left" span={24} md={6}>
                     <Item name="variants" noStyle>
                       <VariantList
+                        loading={loadingVariant}
                         onAllowSale={onAllowSale}
                         onStopSale={onStopSale}
                         active={active}
@@ -1030,11 +1058,11 @@ const ProductDetailScreen: React.FC = () => {
                                                   <Item
                                                     name={[
                                                       name,
-                                                      "wholesale_price",
+                                                      "cost_price",
                                                     ]}
                                                     fieldKey={[
                                                       fieldKey,
-                                                      "wholesale_price",
+                                                      "cost_price",
                                                     ]}
                                                     label="Giá vốn"
                                                     tooltip={{

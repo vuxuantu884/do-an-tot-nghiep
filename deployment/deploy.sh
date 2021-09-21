@@ -28,8 +28,6 @@ fi
 envsubst < $MODULE_DIR/config.$ENVIRONMENT.yml > k8s-config.yml
 envsubst < $MODULE_DIR/main.$ENVIRONMENT.yml >k8s-main.yml
 
-# Update k8s config to access EKS cluster
-aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name $AWS_EKS_CLUSTER
 
 # Apply deployment template
 kubectl apply -f k8s-config.yml -n $NAMESPACE
