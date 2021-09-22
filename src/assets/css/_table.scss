@@ -5,6 +5,9 @@
       background-color: #EFEFFC;
     }
   }
+  .ant-table-sticky-holder {
+    z-index: 1000;
+  }
   .ant-pagination-item,
   .ant-pagination-total-text {
     margin-right: 3px;

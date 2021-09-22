@@ -39,26 +39,28 @@ const ProductImportScreen: React.FC = () => {
   const [percent, setPercent] = useState(0);
   const [status, setStatus] = useState<number>(1);
 
-  const onResult = useCallback((value) => {
-    if(value) {
-      setTimeout(() => {
-        setPercent(0);
-        setStatus(2);
-        setVisibleUpload(false);
-        value.result.forEach((item: string) => {
-          showWarning(item);
-        })
-        form.resetFields();
-      }, 1000);
-     
-    } else {
-      setTimeout(() => {
-        setPercent(100);
-        setStatus(3);
-        setVisibleUpload(false);
-      }, 2000);
-    }   
-  }, [form]);
+  const onResult = useCallback(
+    (value) => {
+      if (value) {
+        setTimeout(() => {
+          setPercent(0);
+          setStatus(2);
+          setVisibleUpload(false);
+          value.result.forEach((item: string) => {
+            showWarning(item);
+          });
+          form.resetFields();
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          setPercent(100);
+          setStatus(3);
+          setVisibleUpload(false);
+        }, 2000);
+      }
+    },
+    [form]
+  );
 
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
@@ -200,12 +202,17 @@ const ProductImportScreen: React.FC = () => {
           className="ant-modal-header-nostyle ant-modal-footer-nostyle ant-modal-close-nostyle"
           visible={visibleUpload}
         >
-          <div style={{display: 'flex', justifyContent: 'center'}} className="modal-upload">
+          <div
+            style={{ display: "flex", justifyContent: "center" }}
+            className="modal-upload"
+          >
             <Progress
               type="circle"
               percent={percent}
               width={200}
-              status={status === 1 ? 'normal' : (status === 2 ? 'success' : 'exception')}
+              status={
+                status === 1 ? "normal" : status === 2 ? "success" : "exception"
+              }
             />
           </div>
         </Modal>

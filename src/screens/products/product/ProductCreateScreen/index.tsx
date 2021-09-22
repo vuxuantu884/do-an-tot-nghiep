@@ -237,7 +237,7 @@ const ProductCreateScreen: React.FC = () => {
               newVariants.push({
                 name: `${name} - ${i1.name} - ${i2.code}`,
                 color_id: i1.id,
-                color: i1.name,
+                color: i1.code,
                 size_id: i2.id,
                 size: i2.code,
                 sku: sku,
@@ -264,7 +264,7 @@ const ProductCreateScreen: React.FC = () => {
             newVariants.push({
               name: `${name} - ${i1.name}`,
               color_id: i1.id,
-              color: i1.name,
+              color: i1.code,
               size_id: null,
               size: null,
               sku: `${code}-${i1.code}`,

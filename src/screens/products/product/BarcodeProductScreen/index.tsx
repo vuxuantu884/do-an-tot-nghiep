@@ -6,7 +6,7 @@ import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { StyledComponent } from "./style";
 import { BiAddToQueue } from "react-icons/bi";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   productBarcodeAction,
@@ -26,6 +26,8 @@ import { AppConfig } from "config/app.config";
 import NumberInput from "component/custom/number-input.custom";
 import { showSuccess } from "utils/ToastUtils";
 import { CloseOutlined } from "@ant-design/icons";
+import { useLocation } from "react-router";
+import ModalPickManyProduct from "../component/ModalPickManyProduct";
 
 export interface VariantBarcodeLineItem extends VariantResponse {
   quantity_req: number | null;
@@ -33,8 +35,11 @@ export interface VariantBarcodeLineItem extends VariantResponse {
 
 const BarcodeProductScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const state: any = location.state;
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
+  const [visibleProduct, setVisibleProduct] = useState<boolean>(false);
   const [dataSelected, setDataSelected] = useState<
     Array<VariantBarcodeLineItem>
   >([]);
@@ -64,7 +69,6 @@ const BarcodeProductScreen: React.FC = () => {
         dispatch(
           searchVariantsRequestAction(
             {
-              status: "active",
               limit: 10,
               page: 1,
               info: value.trim(),
@@ -120,6 +124,15 @@ const BarcodeProductScreen: React.FC = () => {
     },
     [data, dataSelected]
   );
+  useEffect(() => {
+    if (state && state.selected) {
+      let dataSelect1: Array<VariantBarcodeLineItem> = []
+      state.selected.forEach((item: VariantResponse) => {
+        dataSelect1.push({...item, quantity_req: 1});
+      });
+      setDataSelected(dataSelect1);
+    }
+  }, [state]);
   return (
     <ContentContainer
       title="In mã vạch"
@@ -157,7 +170,7 @@ const BarcodeProductScreen: React.FC = () => {
               <Button
                 className="button-pick-many"
                 icon={<BiAddToQueue />}
-                // onClick={() => setVisibleManyProduct(true)}
+                onClick={() => setVisibleProduct(true)}
                 style={{ width: 132, marginLeft: 10 }}
               >
                 Chọn nhiều
@@ -250,6 +263,24 @@ const BarcodeProductScreen: React.FC = () => {
           }
         />
       </StyledComponent>
+      <ModalPickManyProduct 
+        visible={visibleProduct} 
+        onCancel={() => setVisibleProduct(false)}
+        selected={dataSelected}
+        onSave={(result: Array<VariantResponse>) => {
+          let dataSelect1: Array<VariantBarcodeLineItem> = []
+          result.forEach((item: VariantResponse) => {
+            let index = dataSelected.findIndex((item1) => item.id === item1.id);
+            if (index === -1) {
+              dataSelect1.push({...item, quantity_req: 1});
+            } else {
+              dataSelect1.push({...item, quantity_req: dataSelected[index].quantity_req});
+            }
+          });
+          setDataSelected(dataSelect1);
+          setVisibleProduct(false);
+        }}
+      />
     </ContentContainer>
   );
 };
