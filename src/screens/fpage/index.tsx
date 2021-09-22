@@ -11,7 +11,6 @@ import "./fpage.index.scss";
 import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
-import {useHistory} from "react-router-dom"
 
 const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",
@@ -23,7 +22,6 @@ const initQueryCustomer: FpageCustomerSearchQuery = {
 function FpageCRM() {
   let queryString = useQuery();
   const dispatch = useDispatch();
-  const history = useHistory();
   const [isButtonSelected, setIsButtonSelected] = React.useState<number>(1);
   const [customerDetail, setCustomerDetail] =
     React.useState<CustomerResponse>();
