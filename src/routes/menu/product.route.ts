@@ -160,6 +160,18 @@ const product: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
+        path: `${UrlConfig.PRODUCT}/:id/variants/:variantId`,
+        exact: true,
+        title: "Sửa sản phẩm",
+        icon: "icon-dot",
+        component: ProductDetailScreen,
+        key: "submenu213",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
         path: `${UrlConfig.PRODUCT}/:id/edit`,
         exact: true,
         title: "Sửa sản phẩm",

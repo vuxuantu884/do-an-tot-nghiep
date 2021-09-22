@@ -37,7 +37,6 @@ import { Link } from "react-router-dom";
 import { convertCategory, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -84,7 +83,6 @@ const initQuery: ProductWrapperSearchQuery = {
 var idDelete = -1;
 
 const TabProductWrapper: React.FC = () => {
-  const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -113,7 +111,6 @@ const TabProductWrapper: React.FC = () => {
   });
   let dataQuery: ProductWrapperSearchQuery = {
     ...initQuery,
-    ...getQueryParams(query),
   };
   let [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 

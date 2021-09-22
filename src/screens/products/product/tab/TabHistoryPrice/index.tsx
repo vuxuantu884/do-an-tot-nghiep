@@ -81,7 +81,7 @@ const TabHistoryPrice: React.FC = () => {
         }
         return (
           <div>
-            <Link to="">{item.sku}</Link>
+            <Link to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>{item.sku}</Link>
             <div>{item.variant_name}</div>
           </div>
         );
