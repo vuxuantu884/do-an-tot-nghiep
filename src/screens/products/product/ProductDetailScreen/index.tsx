@@ -18,7 +18,6 @@ import VariantList from "../component/VariantList";
 import { showSuccess } from "utils/ToastUtils";
 import { Products } from "utils/AppUtils";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { useQuery } from "utils/useQuery";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import TabProductInventory from "../tab/TabProductInventory";
 import TabProductHistory from "../tab/TabProductHistory";
@@ -29,14 +28,13 @@ import { InventoryResponse } from "model/inventory";
 
 export interface ProductParams {
   id: string;
+  variantId: string;
 }
 
 const ProductDetailScreen: React.FC = () => {
   const history = useHistory();
-  const query = useQuery();
-  let variant_id = query.get("variant_id");
   const dispatch = useDispatch();
-  const { id } = useParams<ProductParams>();
+  const { id, variantId } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
@@ -155,14 +153,14 @@ const ProductDetailScreen: React.FC = () => {
     [data, update]
   );
 
-  const onUpdateSaleable = useCallback(() => {
+  const onUpdateSaleable = useCallback((data1) => {
     setLoadingVariantUpdate(false);
-    if (!data) {
+    if (!data1) {
     } else {
-      setData(data);
+      setData(data1);
       showSuccess("Cập nhật thông tin thành công");
     }
-  }, [data]);
+  }, []);
 
   const onChangeChecked = useCallback(
     (e) => {
@@ -206,15 +204,15 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [active, data, dataInventory.metadata.limit, dataInventory.metadata.page, dispatch, onResult, onResultInventory]);
   useEffect(() => {
-    if (variant_id && data) {
+    if (variantId && data) {
       let index = data.variants.findIndex(
-        (item) => item.id.toString() === variant_id
+        (item) => item.id.toString() === variantId
       );
       if (index !== -1) {
         setActive(index);
       }
     }
-  }, [data, variant_id]);
+  }, [data, variantId]);
   return (
     <StyledComponent>
       <ContentContainer
@@ -250,6 +248,12 @@ const ProductDetailScreen: React.FC = () => {
                         checked={data.status === "active"}
                         onChange={(checked) => {
                           data.status = checked ? "active" : "inactive";
+                          dispatch(productUpdateAction(idNumber, data, (result) => {
+                            if(result) {
+                              setData(result);
+                              showSuccess('Cập nhật trạng thái thành công')
+                            }
+                          }))
                         }}
                         className="ant-switch-success"
                         defaultChecked
@@ -336,7 +340,9 @@ const ProductDetailScreen: React.FC = () => {
                         onStopSale={onStopSale}
                         value={data.variants}
                         active={active}
-                        setActive={(active) => setActive(active)}
+                        setActive={(active) => {
+                          history.replace(`${UrlConfig.PRODUCT}/${idNumber}/variants/${data.variants[active].id}`)
+                        }}
                         loading={loadingVariant}
                       />
                     </Col>

@@ -265,26 +265,51 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, idNumber, onResultUpdate]
   );
 
-  
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
+  const updateStatus = useCallback((listSelected: Array<number>, status) => {
     let values: ProductResponse = form.getFieldsValue(true);
     values?.variants.forEach((item) => {
       if (listSelected.includes(item.id)) {
-        item.saleable = true;
+        item.saleable = status;
       }
     });
     update(values);
   }, [form, update]);
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    let values: ProductResponse = form.getFieldsValue(true);
-    values?.variants.forEach((item) => {
-      if (listSelected.includes(item.id)) {
-        item.saleable = false;
+  const onAllowSale = useCallback((listSelected: Array<number>) => {
+    setModalConfirm({
+      visible: true,
+      okText: 'Lưu trạng thái',
+      title: 'Đổi trạng thái phiên bản',
+      cancelText: "Không lưu",
+      subTitle: 'Bạn có chắc chắn đổi trạng thái phiên bản?',
+      onCancel: () => {
+        setModalConfirm({visible: false})
+      },
+      onOk: () => {
+        setModalConfirm({visible: false})
+        updateStatus(listSelected, true);
       }
-    });
-    update(values);
-  }, [form, update]);
+    })
+  }, [updateStatus]);
+
+  const onStopSale = useCallback((listSelected: Array<number>) => {
+    setModalConfirm({
+      visible: true,
+      okText: 'Lưu trạng thái',
+      title: 'Đổi trạng thái phiên bản',
+      cancelText: "Không lưu",
+      subTitle: 'Bạn có chắc chắn đổi trạng thái phiên bản?',
+      onCancel: () => {
+        setModalConfirm({visible: false})
+      },
+      onOk: () => {
+        setModalConfirm({visible: false})
+        updateStatus(listSelected, false);
+      }
+    })
+  }, [updateStatus]);
+
+  
 
   const onResultFinish = useCallback(
     (data) => {

@@ -164,7 +164,7 @@ const TabProduct: React.FC = () => {
       width: 300,
       render: (value: string, i: VariantResponse) => (
         <div>
-          <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>
+          <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}>
             {value}
           </Link>
           <div>{i.name}</div>
