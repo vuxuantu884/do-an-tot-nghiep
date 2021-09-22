@@ -146,7 +146,7 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
-      width: 150,
+      width: 300,
       title: "Tên sản phẩm",
       dataIndex: "code",
       fixed: "left",

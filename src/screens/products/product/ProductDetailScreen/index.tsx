@@ -23,6 +23,9 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import TabProductInventory from "../tab/TabProductInventory";
 import TabProductHistory from "../tab/TabProductHistory";
 import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
+import classNames from 'classnames';
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
 
 export interface ProductParams {
   id: string;
@@ -42,6 +45,14 @@ const ProductDetailScreen: React.FC = () => {
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
+  const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
+    items: [],
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0
+    }
+  });
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
@@ -164,9 +175,22 @@ const ProductDetailScreen: React.FC = () => {
     [active, data, dispatch, idNumber, onUpdateSaleable]
   );
 
-  const onResultHistory = useCallback((data) => {
-    console.log(data);
-  }, [])
+  const onResultInventory = useCallback((result) => {
+    if(!result) {
+
+    } else {
+      setDataInventory(result)
+    }
+  }, []);
+
+  const onChangeDataInventory = useCallback((page) => {
+    if (data && data?.variants.length > 0) {
+      let variantSelect = data.variants[active].id;
+      dispatch(
+        inventoryGetDetailAction({ variant_id: variantSelect, page: page }, onResultInventory)
+      );
+    }
+  }, [active, data, dispatch, onResultInventory])
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -175,10 +199,12 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (data && data?.variants.length > 0) {
-      let variantSelect = data.variants[active].id
-      dispatch(inventoryGetDetailAction({variant_id: variantSelect}, onResultHistory));
+      let variantSelect = data.variants[active].id;
+      dispatch(
+        inventoryGetDetailAction({ variant_id: variantSelect }, onResultInventory)
+      );
     }
-  }, [active, data, dispatch, onResult, onResultHistory]);
+  }, [active, data, dataInventory.metadata.limit, dataInventory.metadata.page, dispatch, onResult, onResultInventory]);
   useEffect(() => {
     if (variant_id && data) {
       let index = data.variants.findIndex(
@@ -191,7 +217,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [data, variant_id]);
   return (
     <StyledComponent>
-      <ContentContainer  
+      <ContentContainer
         isError={error}
         isLoading={loading}
         title="Chi tiết sản phẩm"
@@ -304,7 +330,7 @@ const ProductDetailScreen: React.FC = () => {
               <Col span={24}>
                 <Card className="card">
                   <Row className="card-container">
-                    <Col className="left" span={24} md={6}>
+                    <Col className="left" span={24} md={7}>
                       <VariantList
                         onAllowSale={onAllowSale}
                         onStopSale={onStopSale}
@@ -314,7 +340,7 @@ const ProductDetailScreen: React.FC = () => {
                         loading={loadingVariant}
                       />
                     </Col>
-                    <Col className="right" span={24} md={18}>
+                    <Col className="right" span={24} md={17}>
                       {currentVariant !== null && (
                         <React.Fragment>
                           <div className="header-view">
@@ -398,7 +424,7 @@ const ProductDetailScreen: React.FC = () => {
                                             slidesToShow={1}
                                             slidesToScroll={1}
                                             arrows={false}
-                                            className="image-slider"
+                                            className={classNames("image-slider")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -414,11 +440,17 @@ const ProductDetailScreen: React.FC = () => {
                                             asNavFor={nav1 ? nav1 : undefined}
                                             ref={(slider2) => setNav2(slider2)}
                                             infinite={true}
-                                            slidesToShow={3}
+                                            slidesToShow={
+                                              currentVariant.variant_images
+                                                .length < 3
+                                                ? currentVariant.variant_images
+                                                    .length
+                                                : 3
+                                            }
                                             slidesToScroll={1}
                                             arrows={true}
                                             focusOnSelect={true}
-                                            className="image-thumbnail"
+                                            className={classNames("image-thumbnail", currentVariant.variant_images.length === 2 && "image-2")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -462,7 +494,7 @@ const ProductDetailScreen: React.FC = () => {
                 <Card className="card">
                   <Tabs style={{ overflow: "initial" }}>
                     <Tabs.TabPane tab="Danh sách tồn kho" key="1">
-                      <TabProductInventory />
+                      <TabProductInventory onChange={onChangeDataInventory} data={dataInventory} />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Lich sử tồn kho" key="2">
                       <TabProductHistory />
