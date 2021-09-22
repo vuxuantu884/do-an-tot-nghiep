@@ -60,11 +60,10 @@ function CardReturnMoneyPageCreate(props: PropType) {
     if (totalAmountNeedToPay === undefined) {
       return 0;
     }
-    return (
-      (totalAmountNeedToPay > 0
-        ? totalAmountNeedToPay
-        : -totalAmountNeedToPay) - totalAmountReturn()
-    );
+    console.log("totalAmountNeedToPay", totalAmountNeedToPay);
+    return totalAmountNeedToPay > 0
+      ? totalAmountNeedToPay - totalAmountReturn()
+      : -totalAmountNeedToPay - totalAmountReturn();
   };
 
   const handlePickPaymentMethod = (code?: string) => {
@@ -257,7 +256,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                   <InputNumber
                     size="middle"
                     min={0}
-                    max={calculateMaxInputValue(index)}
+                    // max={calculateMaxInputValue(index)}
                     value={method.amount}
                     disabled={method.code === PaymentMethodCode.POINT}
                     className="yody-payment-input hide-number-handle"
@@ -359,13 +358,11 @@ function CardReturnMoneyPageCreate(props: PropType) {
                         <div>
                           <span style={{ paddingRight: "20px" }}>
                             {isReturnMoneyToCustomer
-                              ? " Còn phải trả khách:"
+                              ? " Còn phải trả khách 3:"
                               : "Còn lại"}
                           </span>
                           <strong>
-                            {formatCurrency(
-                              Math.abs(calculateMoneyReturnLeft())
-                            )}
+                            {formatCurrency(calculateMoneyReturnLeft())}
                           </strong>
                         </div>
                       </Col>
@@ -443,9 +440,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                             }}
                           >
                             <span style={{ color: false ? "blue" : "red" }}>
-                              {formatCurrency(
-                                Math.abs(calculateMoneyReturnLeft())
-                              )}
+                              {formatCurrency(calculateMoneyReturnLeft())}
                             </span>
                           </Col>
                         </Row>

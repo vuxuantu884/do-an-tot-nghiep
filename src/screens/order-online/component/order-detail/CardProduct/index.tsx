@@ -1183,7 +1183,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                       changeMoney +
                         (props.shippingFeeCustomer
                           ? props.shippingFeeCustomer
-                          : 0)
+                          : 0) -
+                        discountValue
                     )
                   : "-"}
               </strong>

@@ -79,7 +79,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
   const [isCanExchange, setIsCanExchange] = useState<boolean>(false);
   const [isStepExchange, setIsStepExchange] = useState<boolean>(false);
-  const [isReceiveReturnProducts, setIsReceiveReturnProducts] =
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState<boolean>(false);
   const history = useHistory();
   const query = useQuery();
@@ -136,7 +136,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
-  const [discountValue] = useState<number>(0);
+  const [discountValue, setDisCountValue] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
   const [hvc, setHvc] = useState<number | null>(null);
@@ -224,6 +224,15 @@ const ScreenReturnDetail = (props: PropType) => {
       if (_data.tags) {
         setTag(_data.tags);
       }
+      if (_data.discounts) {
+        let totalDiscount = 0;
+        _data.discounts.forEach((single) => {
+          if (single.amount) {
+            totalDiscount += single.amount;
+          }
+        });
+        setDisCountValue(totalDiscount);
+      }
     }
   }, []);
 
@@ -251,7 +260,7 @@ const ScreenReturnDetail = (props: PropType) => {
         fulfillments: [],
         payments: payments,
         reason_id: 1,
-        received: isReceiveReturnProducts,
+        received: isReceivedReturnProducts,
       };
 
       dispatch(
@@ -277,7 +286,7 @@ const ScreenReturnDetail = (props: PropType) => {
         fulfillments: [],
         payments: payments,
         reason_id: 1,
-        received: isReceiveReturnProducts,
+        received: isReceivedReturnProducts,
       };
 
       dispatch(
@@ -585,6 +594,7 @@ const ScreenReturnDetail = (props: PropType) => {
                   handleIsExchange={setIsExchange}
                 />
                 <CardReturnProducts
+                  discountValue={discountValue}
                   listReturnProducts={listReturnProducts}
                   handleReturnProducts={(
                     listReturnProducts: ReturnProductModel[]
@@ -644,8 +654,10 @@ const ScreenReturnDetail = (props: PropType) => {
                 )}
                 <CardReturnReceiveProducts
                   isDetailPage={false}
-                  isReceiveReturnProducts={isReceiveReturnProducts}
-                  handleReceiveReturnProducts={setIsReceiveReturnProducts}
+                  isReceivedReturnProducts={isReceivedReturnProducts}
+                  handleReceivedReturnProducts={() =>
+                    setIsReceivedReturnProducts(true)
+                  }
                 />
               </Col>
 

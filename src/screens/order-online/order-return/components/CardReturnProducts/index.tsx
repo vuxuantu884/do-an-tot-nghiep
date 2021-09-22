@@ -27,11 +27,12 @@ import { StyledComponent } from "./styles";
 type PropType = {
   listOrderProducts?: OrderLineItemResponse[];
   listReturnProducts: ReturnProductModel[];
-  handleReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
+  handleReturnProducts?: (listReturnProducts: ReturnProductModel[]) => void;
   handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
-  isExchange: boolean;
-  isStepExchange: boolean;
+  isExchange?: boolean;
+  isStepExchange?: boolean;
+  discountValue: number;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -43,6 +44,7 @@ function CardReturnProducts(props: PropType) {
     isDetailPage,
     isExchange,
     isStepExchange,
+    discountValue,
   } = props;
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
@@ -76,7 +78,9 @@ function CardReturnProducts(props: PropType) {
         selectedVariant.quantity += 1;
       }
     }
-    handleReturnProducts(result);
+    if (handleReturnProducts) {
+      handleReturnProducts(result);
+    }
     if (handleCanReturn) {
       handleCanReturn(true);
     }
@@ -107,7 +111,9 @@ function CardReturnProducts(props: PropType) {
           maxQuantity: single.quantity,
         };
       });
-      handleReturnProducts(result);
+      if (handleReturnProducts) {
+        handleReturnProducts(result);
+      }
       checkIfIsCanReturn(result);
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
@@ -117,7 +123,9 @@ function CardReturnProducts(props: PropType) {
           maxQuantity: single.quantity,
         };
       });
-      handleReturnProducts(result);
+      if (handleReturnProducts) {
+        handleReturnProducts(result);
+      }
       checkIfIsCanReturn(result);
     }
     setIsCheckReturnAll(e.target.checked);
@@ -203,7 +211,9 @@ function CardReturnProducts(props: PropType) {
     resultListReturnProducts[index].quantity = Number(
       value == null ? "0" : value.toString().replace(".", "")
     );
-    handleReturnProducts(resultListReturnProducts);
+    if (handleReturnProducts) {
+      handleReturnProducts(resultListReturnProducts);
+    }
     if (
       resultListReturnProducts.some((single) => {
         return single.maxQuantity && single.quantity < single.maxQuantity;
@@ -394,6 +404,12 @@ function CardReturnProducts(props: PropType) {
                     {getTotalQuantity(listReturnProducts)}
                   </span>
                 )}
+              </strong>
+            </Row>
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Tổng chiết khấu:</strong>
+              <strong className="text-success font-size-price">
+                {discountValue ? discountValue : 0}
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">
