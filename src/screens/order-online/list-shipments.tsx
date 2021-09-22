@@ -19,7 +19,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { getShipmentsAction } from "domain/actions/order/order.action";
+import { getListReasonRequest, getShipmentsAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -151,9 +151,7 @@ const ListOrderScreen: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
+  const [reasons, setReasons] = useState<Array<{id: number; name: string}>>([]);
   
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
@@ -579,14 +577,7 @@ const ListOrderScreen: React.FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
-    dispatch(
-      actionFetchListOrderProcessingStatus(
-        {},
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-        }
-      )
-    );
+    dispatch(getListReasonRequest(setReasons));
   }, [dispatch, setDataAccounts]);
   
   return (
@@ -640,6 +631,7 @@ const ListOrderScreen: React.FC = () => {
           listSource={listSource}
           listStore={listStore}
           accounts={accounts}
+          reasons={reasons}
           deliveryService={delivery_service}
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />

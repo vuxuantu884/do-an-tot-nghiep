@@ -281,3 +281,9 @@ export const getChannelApi = (): Promise<
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
 };
+
+export const getReasonsApi = (): Promise<
+  BaseResponse<Array<ChannelResponse>>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
+};

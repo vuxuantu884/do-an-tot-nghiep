@@ -6,9 +6,9 @@ import {
   FormInstance,
   Input,
   Row,
-  // Select,
   Collapse,
   Tag,
+  Select,
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
@@ -32,6 +32,7 @@ type ReturnFilterProps = {
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
+  reasons: Array<{id: number; name: string}>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ReturnSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -39,7 +40,7 @@ type ReturnFilterProps = {
 };
 
 const { Item } = Form;
-// const { Option } = Select;
+const { Option } = Select;
 
 const ReturnFilter: React.FC<ReturnFilterProps> = (
   props: ReturnFilterProps
@@ -48,6 +49,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     params,
     actions,
     listStore,
+    reasons,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -310,9 +312,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
     if (initialValues.reason_ids.length) {
       let textReason = ""
-      initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id.toString() === store_id)
-        textReason = store ? textReason + store.name + ";" : textReason
+      initialValues.reason_ids.forEach(reason_id => {
+        const reason = reasons?.find(reason => reason.id.toString() === reason_id)
+        textReason = reason ? textReason + reason.name + ";" : textReason
       })
       list.push({
         key: 'reason_ids',
@@ -368,7 +370,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
     
     return list
-  }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.is_received, initialValues.payment_status, initialValues.reason_ids.length, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore]);
+  }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.is_received, initialValues.payment_status, initialValues.reason_ids, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore, reasons]);
 
   useEffect(() => {
     setIsReceived(Array.isArray(params.is_received) ? params.is_received : [params.is_received])
@@ -564,10 +566,22 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.reason_ids.length ? ["1"]: []}>
-                  <Panel header="LÝ DO HUỶ GIAO" key="1" className="header-filter">
+                  <Panel header="LÝ DO TRẢ HÀNG" key="1" className="header-filter">
                     <Item name="reason_ids">
-                      <Input placeholder="Tìm kiếm theo lý do huỷ"/>
+                      <Select
+                        mode="multiple" showSearch placeholder="Chọn lý do trả hàng"
+                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                        optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {reasons.map((reason) => (
+                          <Option key={reason.id.toString()} value={reason.id.toString()}>
+                            {reason.name}
+                          </Option>
+                        ))}
+                      </Select>
                     </Item>
+                    
                   </Panel>
                 </Collapse>
               </Col>
