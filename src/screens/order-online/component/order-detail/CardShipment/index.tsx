@@ -182,6 +182,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
+    console.log('customerInfo', customerInfo);
+    console.log('storeDetail', storeDetail);
     if (customerInfo && storeDetail
       && (getShippingAddressDefault(customerInfo)?.city_id || getShippingAddressDefault(customerInfo)?.district_id)
       && getShippingAddressDefault(customerInfo)?.ward_id && getShippingAddressDefault(customerInfo)?.full_address) {

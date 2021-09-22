@@ -55,8 +55,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   
- 
-  
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
   
@@ -106,9 +104,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         case 'store':
           onFilter && onFilter({...params, store_ids: []});
           break;
-        case 'source':
-          onFilter && onFilter({...params, source_ids: []});
-          break;
         
         case 'created':
           setCreatedOnMin(null)
@@ -120,15 +115,15 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           setReceivedOnMax(null)
           onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
           break;
-        case 'order_status':
-          onFilter && onFilter({...params, order_status: []});
+        case 'reason_ids':
+          onFilter && onFilter({...params, reason_ids: []});
           break;
         
-        case 'price':
-          onFilter && onFilter({...params, price_min: null, price_max: null});
+        case 'is_received':
+          onFilter && onFilter({...params, is_received: []});
           break;
-        case 'payment_method':
-          onFilter && onFilter({...params, payment_method_ids: []});
+        case 'payment_status':
+          onFilter && onFilter({...params, payment_status: []});
           break;
          
         default: break
@@ -255,28 +250,28 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     let newPaymentStatus = [...paymentStatus]
     
     switch (status) {
-      case '1':
-        const index1 = newPaymentStatus.indexOf('1');
+      case 'unpaid':
+        const index1 = newPaymentStatus.indexOf('unpaid');
         if (index1 > -1) {
           newPaymentStatus.splice(index1, 1);
         } else {
-          newPaymentStatus.push('1')
+          newPaymentStatus.push('unpaid')
         }
         break;
-      case '2':
-        const index2 = newPaymentStatus.indexOf('2');
+      case 'partial_paid':
+        const index2 = newPaymentStatus.indexOf('partial_paid');
         if (index2 > -1) {
           newPaymentStatus.splice(index2, 1);
         }  else {
-          newPaymentStatus.push('2')
+          newPaymentStatus.push('partial_paid')
         }
         break;
-      case '3':
-        const index = newPaymentStatus.indexOf('3');
+      case 'paid':
+        const index = newPaymentStatus.indexOf('paid');
         if (index > -1) {
           newPaymentStatus.splice(index, 1);
         } else {
-          newPaymentStatus.push('3')
+          newPaymentStatus.push('paid')
         }
         break
       default: break;  
@@ -313,6 +308,47 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         value: textStores
       })
     }
+    if (initialValues.reason_ids.length) {
+      let textReason = ""
+      initialValues.store_ids.forEach(store_id => {
+        const store = listStore?.find(store => store.id.toString() === store_id)
+        textReason = store ? textReason + store.name + ";" : textReason
+      })
+      list.push({
+        key: 'reason_ids',
+        name: 'Lý do trả hàng',
+        value: textReason
+      })
+    }
+    if (initialValues.is_received.length) {
+      let textReceived = ""
+      initialValues.is_received.forEach(received => {
+        
+        textReceived = received ? textReceived + "Đã nhận hàng;": textReceived + "Chưa nhận hàng;"
+      })
+      list.push({
+        key: 'is_received',
+        name: 'Trạng thái nhận hàng',
+        value: textReceived
+      })
+    }
+    if (initialValues.payment_status.length) {
+      let paymentStt = ""
+      const payments = [
+        {name: "Chưa hoàn tiền", value: 'unpaid'},
+        {name: "Hoàn tiền một phần", value: 'partial_paid'},
+        {name: "Đã hoàn tiền", value: 'paid'},
+      ]
+      initialValues.payment_status.forEach(status => {
+        const findStatus = payments.find(item => item.value === status)
+        paymentStt = findStatus ? paymentStt + findStatus.name + ";" : paymentStt
+      })
+      list.push({
+        key: 'payment_status',
+        name: 'Trạng thái hoàn tiền',
+        value: paymentStt
+      })
+    }
     if (initialValues.created_on_min || initialValues.created_on_max) {
       let textOrderCreatedDate = (initialValues.created_on_min ? initialValues.created_on_min : '??') + " ~ " + (initialValues.created_on_max ? initialValues.created_on_max : '??')
       list.push({
@@ -332,7 +368,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
     
     return list
-  }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore]);
+  }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.is_received, initialValues.payment_status, initialValues.reason_ids.length, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore]);
 
   useEffect(() => {
     setIsReceived(Array.isArray(params.is_received) ? params.is_received : [params.is_received])
@@ -423,7 +459,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.payment_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.is_received.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI NHẬN HÀNG" key="1" className="header-filter">
                     <div className="button-option">
                       <Button
@@ -446,26 +482,26 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.is_received.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.payment_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI HOÀN TIỀN" key="1" className="header-filter">
                     <div className="button-option">
                       <Button
-                        onClick={() => changePaymentStatus('1')}
-                        className={paymentStatus.includes('1') ? 'active' : 'deactive'}
+                        onClick={() => changePaymentStatus('unpaid')}
+                        className={paymentStatus.includes('unpaid') ? 'active' : 'deactive'}
                       >
                         Chưa hoàn tiền
                       </Button>
                       <Button
-                        onClick={() => changePaymentStatus('2')}
-                        className={paymentStatus.includes('2') ? 'active' : 'deactive'}
+                        onClick={() => changePaymentStatus('partial_paid')}
+                        className={paymentStatus.includes('partial_paid') ? 'active' : 'deactive'}
                       >
                         Hoàn tiền một phần
                       </Button>
                     </div>
                     <div className="button-option">
                       <Button
-                        onClick={() => changePaymentStatus('3')}
-                        className={paymentStatus.includes('3') ? 'active' : 'deactive'}
+                        onClick={() => changePaymentStatus('paid')}
+                        className={paymentStatus.includes('paid') ? 'active' : 'deactive'}
                       >
                         Hoàn tiền toàn bộ
                       </Button>
