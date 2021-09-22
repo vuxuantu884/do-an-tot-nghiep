@@ -52,7 +52,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useMemo, useRef } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
   formatCurrency,
@@ -72,6 +72,7 @@ const { Item } = Form;
 var tempActive: number = 0;
 const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [form] = Form.useForm();
   const { id } = useParams<ProductParams>();
   const idNumber = parseInt(id);
@@ -285,12 +286,24 @@ const ProductDetailScreen: React.FC = () => {
     update(values);
   }, [form, update]);
 
+  const onResultFinish = useCallback(
+    (data) => {
+      setLoadingVariant(false);
+      setLoadingButton(false);
+      if (!data) {
+      } else {
+        history.push(`${UrlConfig.PRODUCT}/${idNumber}`)
+      }
+    },
+    [history, idNumber]
+  );
+
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true);
-      dispatch(productUpdateAction(idNumber, values, onResultUpdate));
+      dispatch(productUpdateAction(idNumber, values, onResultFinish));
     },
-    [dispatch, idNumber, onResultUpdate]
+    [dispatch, idNumber, onResultFinish]
   );
 
   const onSave = useCallback(() => {

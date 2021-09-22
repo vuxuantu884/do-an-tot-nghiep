@@ -78,14 +78,14 @@ const CustomPagination = (props: ICustomPaginationProps) => {
     <React.Fragment>
       {pagination && (
         <div className="custom-table-pagination">
-          <Row>
+          <Row justify="space-between">
             <Col span={7}>
               <span className="custom-table-pagination__showTotal">
                 {showTotal(pagination)}
               </span>
             </Col>
-            <Col span={7}>
-              {pagination.showSizeChanger && (
+            {pagination.showSizeChanger && (
+              <Col span={7}>
                 <div className="custom-table-pagination__sizeChange">
                   <label
                     htmlFor="custom-pagination-size-changer"
@@ -109,9 +109,9 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                   </Select>
                   <span style={{ marginLeft: 12 }}>Kết quả</span>
                 </div>
-              )}
-            </Col>
-            <Col span={10}>
+              </Col>
+            )}
+            <Col span={pagination.showSizeChanger ? 10 : 17}>
               <div className="custom-table-pagination__main">
                 <div title="Trang đầu" className="ant-pagination-first">
                   <button

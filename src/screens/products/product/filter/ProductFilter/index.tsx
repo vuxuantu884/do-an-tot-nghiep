@@ -1,12 +1,11 @@
 import {
   Button,
-  Col,
-  DatePicker,
+  Collapse,
   Form,
   FormInstance,
   Input,
-  Row,
   Select,
+  Space,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
@@ -19,11 +18,15 @@ import { SupplierResponse } from "model/core/supplier.model";
 import { CountryResponse } from "model/content/country.model";
 import { VariantSearchQuery } from "model/product/product.model";
 import CustomFilter from "component/table/custom.filter";
-import NumberInput from "component/custom/number-input.custom";
-import CustomDatepicker from "component/custom/date-picker.custom";
 import BaseFilter from "component/filter/base.filter";
 import { StyledComponent } from "./style";
 import ButtonSetting from "component/table/ButtonSetting";
+import {
+  SearchVariantField,
+  SearchVariantMapping,
+} from "model/product/product-mapping";
+import NumberInputRange from "component/filter/component/number-input-range";
+import CustomRangePicker from "component/filter/component/range-picker.custom";
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -39,6 +42,7 @@ type ProductFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
   onClearFilter?: () => void;
+  onClickOpen?: () => void
 };
 
 const { Item } = Form;
@@ -61,6 +65,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     onMenuClick,
     onClearFilter,
     onFilter,
+    onClickOpen
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -123,12 +128,11 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 Lọc
               </Button>
             </Item>
-            
             <Item>
               <Button onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
             <Item>
-              <ButtonSetting />
+              <ButtonSetting onClick={onClickOpen} />
             </Item>
           </Form>
         </CustomFilter>
@@ -138,7 +142,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          width={396}
+          width={500}
         >
           <Form
             onFinish={onFinish}
@@ -146,132 +150,130 @@ const ProductFilter: React.FC<ProductFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            <Row gutter={12}>
-              <Col md={12}>
-                <Item name="from_inventory" label="Tồn kho từ">
-                  <NumberInput style={{ width: "100%" }} placeholder="Từ" />
-                </Item>
-              </Col>
-              <Col md={12}>
-                <Item name="to_inventory" label="đến">
-                  <NumberInput style={{ width: "100%" }} placeholder="Đến" />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={24}>
-                <Item name="made_in" label="Xuất xứ">
-                  <Select optionFilterProp="children" showSearch>
-                    <Option value="">Xuất xứ</Option>
-                    {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={24}>
-                <Item name="merchandiser" label="Nhà thiết kế">
-                  <Select>
-                    <Option value="">Nhà thiết kế</Option>
-                    {listMerchandisers?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.full_name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item name="from_created_date" label="Ngày tạo từ">
-                  <CustomDatepicker
-                    style={{ width: "100%" }}
-                    placeholder="Ngày tạo từ"
-                  />
-                </Item>
-              </Col>
-              <Col span={12}>
-                <Item name="to_created_date" label="Đến">
-                  <DatePicker
-                    style={{ width: "100%" }}
-                    placeholder="Ngày tạo đến"
-                  />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item name="size" label="Size">
-                  <Select>
-                    <Option value="">Size</Option>
-                    {listSize?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.code}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-              <Col span={12}>
-                <Item name="status" label="Trạng thái">
-                  <Select>
-                    <Option value="">Trạng thái</Option>
-                    {listStatus?.map((item) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={24}>
-                <Item name="main_color" label="Màu chủ đạo">
-                  <Select>
-                    <Option value="">Màu chủ đạo</Option>
-                    {listMainColors?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={24}>
-                <Item name="color" label="Màu sắc">
-                  <Select>
-                    <Option value="">Màu sắc</Option>
-                    {listColors?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={24}>
-                <Item name="supplier" label="Nhà cung cấp">
-                  <Select>
-                    <Option value="">Nhà cung cấp</Option>
-                    {listSupplier?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-            </Row>
+            <Space
+              className="po-filter"
+              direction="vertical"
+              style={{ width: "100%" }}
+            >
+              {SearchVariantMapping.map((item) => {
+                let component: any = null;
+                switch (item.field) {
+                  case SearchVariantField.inventory:
+                    component = <NumberInputRange />;
+                    break;
+                  case SearchVariantField.made_in:
+                    component = (
+                      <Select optionFilterProp="children" showSearch>
+                        <Option value="">Xuất xứ</Option>
+                        {listCountries?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case SearchVariantField.designer:
+                    component = (
+                      <Select optionFilterProp="children" showSearch>
+                        <Option value="">Nhà thiết kế</Option>
+                        {listMerchandisers?.map((item) => (
+                          <Option key={item.code} value={item.code}>
+                            {item.code} - {item.full_name}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case SearchVariantField.merchandiser:
+                    component = (
+                      <Select optionFilterProp="children" showSearch>
+                        <Option value="">Merchandiser</Option>
+                        {listMerchandisers?.map((item) => (
+                          <Option key={item.code} value={item.code}>
+                            {item.code} - {item.full_name}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case SearchVariantField.created_date:
+                    component = <CustomRangePicker />;
+                    break;
+                  case SearchVariantField.size:
+                    component = (
+                      <Select>
+                        <Option value="">Size</Option>
+                        {listSize?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.code}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case SearchVariantField.color:
+                    component = (
+                      <Select>
+                        <Option value="">Màu sắc</Option>
+                        {listColors?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.code}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case SearchVariantField.main_color:
+                    component = (
+                      <Select>
+                        <Option value="">Màu chủ đạo</Option>
+                        {listMainColors?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.code}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case SearchVariantField.supplier:
+                    component = (
+                      <Select>
+                        <Option value="">Nhà cung cấp</Option>
+                        {listSupplier?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.code}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                    case SearchVariantField.status:
+                      component = (
+                        <Select>
+                          <Option value="">Trạng thái</Option>
+                          {listStatus?.map((item) => (
+                            <Option key={item.value} value={item.value}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      );
+                      break;
+                }
+                return (
+                  <Collapse key={item.field}>
+                    <Collapse.Panel
+                      key="1"
+                      // className={params[item.field] ? "active" : ""}
+                      header={<span>{item.displayField.toUpperCase()}</span>}
+                    >
+                      <Item name={item.field}>{component}</Item>
+                    </Collapse.Panel>
+                  </Collapse>
+                );
+              })}
+            </Space>
           </Form>
         </BaseFilter>
       </div>

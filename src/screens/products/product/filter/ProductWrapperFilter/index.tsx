@@ -44,7 +44,7 @@ type ProductFilterProps = {
   onFilter?: (values: ProductWrapperSearchQuery) => void;
   onClearFilter?: () => void;
   initValue?: ProductWrapperSearchQuery;
-  openColumn: () => void
+  openColumn: () => void;
 };
 
 const { Item } = Form;
@@ -63,7 +63,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     initValue,
     onMenuClick,
     onFilter,
-    openColumn
+    openColumn,
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -433,8 +433,8 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                     <Select>
                       <Option value="">NHÀ THIẾT KẾ</Option>
                       {listMerchandisers?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.full_name}
+                        <Option key={item.code} value={item.code}>
+                          {item.code} - {item.full_name}
                         </Option>
                       ))}
                     </Select>
@@ -447,8 +447,8 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                     <Select>
                       <Option value="">MERCHANDISER</Option>
                       {listMerchandisers?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.full_name}
+                        <Option key={item.code} value={item.code}>
+                          {item.code} - {item.full_name}
                         </Option>
                       ))}
                     </Select>
