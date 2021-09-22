@@ -18,6 +18,7 @@ const InventoryQueryField = {
   import_price: 'import_price',
   mac: 'mac',
   retail_price: 'retail_price',
+  status: 'status'
 }
 
 const AvdInventoryFilter = {

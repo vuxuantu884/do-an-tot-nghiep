@@ -9,6 +9,7 @@ import search from "assets/img/search.svg";
 import {
   InventoryQueryField,
 } from "model/inventory/field";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -38,6 +39,45 @@ function tagRender(props: any) {
     </Tag>
   );
 }
+
+const ListStatus: Array<BaseBootstrapResponse> = [
+  {
+    value: "on_hand",
+    name: "Tồn trong kho",
+  },
+  {
+    value: "committed",
+    name: "Đang giao dịch",
+  },
+  {
+    value: "available",
+    name: "Có thể bán",
+  },
+  {
+    value: "in_coming",
+    name: "Đang chờ nhập",
+  },
+  {
+    value: "on_way",
+    name: "Đang trên đường",
+  },
+  {
+    value: "on_hold",
+    name: "Đang tạm giữ",
+  },
+  {
+    value: "defect",
+    name: "Hàng lỗi",
+  },
+  {
+    value: "transferring",
+    name: "Hàng đang chuyển đến",
+  },
+  {
+    name: "Hàng đang giao",
+    value: "shipping"
+  }
+]
 
 const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
@@ -106,6 +146,26 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             >
               {listStore?.map((item) => (
                 <CustomSelect.Option key={item.id} value={item.id}>
+                  {item.name}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
+          </Item>
+          <Item name={InventoryQueryField.status} className="store">
+            <CustomSelect
+              showSearch
+              optionFilterProp="children"
+              showArrow
+              placeholder="Chọn trạng thái"
+              allowClear
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+            >
+              {ListStatus?.map((item) => (
+                <CustomSelect.Option key={item.value} value={item.value}>
                   {item.name}
                 </CustomSelect.Option>
               ))}
