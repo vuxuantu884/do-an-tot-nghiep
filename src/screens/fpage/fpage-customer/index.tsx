@@ -88,14 +88,9 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-  const [popup,] = React.useState({
-    visible: false,
-    x: 0,
-    y: 0,
-  });
   const [visible, setVisible] = React.useState<boolean>(false);
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [selected, setSelected] = React.useState<Array<CustomerResponse>>([]);
+  const [, setSelected] = React.useState<Array<CustomerResponse>>([]);
 
   const genreEnum: any = {
     male: "Nam",
@@ -304,7 +299,7 @@ const Customer = () => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
 
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+  const [, setAccounts] = React.useState<Array<AccountResponse>>([]);
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {

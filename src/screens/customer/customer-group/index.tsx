@@ -218,7 +218,7 @@ const SettingCustomerGroup: React.FC = () => {
     return (
       <Button
         type="primary"
-        className="ant-btn-primary"
+        className="ant-btn-outline ant-btn-primary"
         size="large"
         onClick={() => {
           setModalAction("create");
@@ -230,6 +230,7 @@ const SettingCustomerGroup: React.FC = () => {
       </Button>
     );
   };
+
 
   const gotoFirstPage = () => {
     const newParams = {

@@ -8,6 +8,9 @@
     width: 100px;
     border-radius: 100px
   }
+  .customer-detail-icon{
+    margin-right: 8px;
+  }
   .ant-card-extra {
     width: 100%;
   }
@@ -251,8 +254,16 @@
 }
 
 .fpage-order {
-  margin-bottom: 70px;
+  .ant-table-cell{
 
+  }
+  .ant-space-horizontal{
+    width: 100%;
+    justify-content: space-between;
+    .ant-form-item{
+      justify-content: flex-end;
+    }
+  }
   .ant-card {
     margin-top: 5px;
   }

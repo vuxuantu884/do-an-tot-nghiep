@@ -65,7 +65,6 @@ import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CustomerShippingAddressOrder from "./customer-shipping";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 //#end region
 
@@ -74,6 +73,7 @@ type CustomerCardProps = {
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
   customer: CustomerResponse | null;
+  loyaltyPoint:LoyaltyPoint|null;
 };
 
 //Add query for search Customer
@@ -96,7 +96,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customer, handleCustomer } = props;
+  const { customer, handleCustomer,loyaltyPoint  } = props;
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -110,7 +110,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -149,10 +148,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
-
-  // const OkConfirmCustomer = useCallback(() => {
-  //   setVisibleCustomer(false);
-  // }, []);
 
   const ShowAddressModalAdd = () => {
     setModalAction("create");
@@ -336,14 +331,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         );
     }
   };
-
-  useEffect(() => {
-    if (customer) {
-      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-    } else {
-      setLoyaltyPoint(null);
-    }
-  }, [dispatch, customer]);
 
   return (
     <Card

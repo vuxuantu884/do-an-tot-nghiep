@@ -161,7 +161,7 @@ const CustomerCreate = (props: any) => {
         },
         {
           name: "Khách hàng",
-          path: `/customer`,
+          path: `/customers`,
         },
         {
           name: "Thêm khách hàng",

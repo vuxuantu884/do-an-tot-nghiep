@@ -2,10 +2,14 @@ import { EcommerceRequest } from "model/request/ecommerce.request";
 import BaseAction from "base/base.action";
 import { EcommerceType } from "domain/types/ecommerce.type";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { TotalItemsEcommerceQuery } from "model/query/ecommerce.query";
+import { ConnectedItemsQuery } from "model/query/ecommerce.query";
+import { NotConnectedItemsQuery} from "model/query/ecommerce.query";
 
+// config
 export const ecommerceConfigCreateAction = (
   request: EcommerceRequest,
-  setData: (data: Array<EcommerceResponse>) => void
+  setData: (data: EcommerceResponse) => void
 ) => {
   return BaseAction(EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST, {
     request,
@@ -50,3 +54,41 @@ export const ecommerceConfigDeleteAction = (
     deleteCallback,
   });
 };
+// connect to ecommerce
+
+export const ecommerceConnectAction = (
+  setData: (result: any) => void
+) => {
+  return BaseAction(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, {
+    setData,
+  });
+};
+
+export const ecommerceConfigInfoAction = (
+  query: any,
+  setData: (result: EcommerceResponse ) => void
+) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_CONFIG_INFO_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+
+export const TotalItemsEcommerceList = (query: TotalItemsEcommerceQuery, setData: (data: any) => void) => {
+  //thai need todo
+  // return BaseAction(EcommerceType.GET_TOTAL_ITEMS_ECOMMERCE, { query, setData });
+  return {}
+}
+
+export const ConnectedItemsList = (query: ConnectedItemsQuery, setData: (data: any) => void) => {
+  //thai need todo
+  // return BaseAction(EcommerceType.GET_TOTAL_ITEMS_ECOMMERCE, { query, setData });
+  return {}
+}
+
+export const NotConnectedItemsList = (query: NotConnectedItemsQuery, setData: (data: any) => void) => {
+  //thai need todo
+  // return BaseAction(EcommerceType.GET_TOTAL_ITEMS_ECOMMERCE, { query, setData });
+  return {}
+}

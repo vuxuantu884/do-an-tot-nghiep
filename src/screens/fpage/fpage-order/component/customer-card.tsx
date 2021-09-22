@@ -9,11 +9,9 @@ import {
   Row,
   Col,
   AutoComplete,
-  Space,
   Popover,
   Form,
   Tag,
-  Avatar,
 } from "antd";
 import React, {
   createRef,
@@ -28,6 +26,7 @@ import imgDefault from "assets/icon/img-default.svg";
 import editBlueIcon from "assets/img/edit_icon.svg";
 import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
+import logoMobile from "assets/icon/logoMobile.svg";
 import { SearchOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { Link } from "react-router-dom";
@@ -62,6 +61,7 @@ import {
   CustomerShippingAddress,
   CustomerBillingAddress,
 } from "model/request/customer.request";
+import UrlConfig from "config/url.config";
 //#end region
 
 type CustomerCardProps = {
@@ -175,7 +175,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       props.InfoCustomerSet(customerDetail);
       //set Shipping Address
       if (customerDetail.shipping_addresses) {
-        const lastIndex = customerDetail.shipping_addresses.length -1;
+        const lastIndex = customerDetail.shipping_addresses.length - 1;
         setShippingAddress(customerDetail.shipping_addresses[lastIndex]);
         customerDetail.shipping_addresses.forEach((item, index2) => {
           if (item.default === true) {
@@ -190,7 +190,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         setBillingAddress(customerDetail.billing_addresses[lastIndex]);
         customerDetail.billing_addresses.forEach((item, index2) => {
           if (item.default === true) {
-            
             props.BillingAddressChange(item);
           }
         });
@@ -493,7 +492,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     closeBillingAddressPopover();
   };
   // end billing address
-
   return (
     <Card
       extra={
@@ -604,29 +602,51 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               justify="space-between"
               className="row-customer-detail padding-custom"
             >
-              <Space>
-                <Avatar size={32}>A</Avatar>
-                <Link to="#" className="primary" style={{ fontSize: "16px" }}>
+              <Col span={16} style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    borderRadius: "50%",
+                    backgroundColor: "#8f8f8f2e",
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    overflow: "hidden",
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}
+                >
+                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo"></img>
+                </div>
+                <Link
+                  to={`${UrlConfig.CUSTOMER}/${customerDetail?.id}`}
+                  target="_blank"
+                  className="primary"
+                  style={{ fontSize: "16px", margin: "0 10px" }}
+                >
                   {customer.full_name}
-                </Link>{" "}
+                </Link>
                 <CloseOutlined
                   onClick={CustomerDeleteInfo}
                   style={{ marginRight: "5px" }}
                 />
-                <Tag className="orders-tag orders-tag-vip">
+                <Tag
+                  className="orders-tag orders-tag-vip"
+                  style={{ marginLeft: 10 }}
+                >
                   <b>{customer.customer_level}</b>
                 </Tag>
-              </Space>
-              <Space className="customer-detail-phone">
+              </Col>
+              <Col
+                span={8}
+                style={{ display: "flex", justifyContent: "flex-end" }}
+              >
                 <span className="customer-detail-icon">
-                  <img src={callIcon} alt="" className="icon-customer-info" />
+                  <img src={callIcon} alt="" />
                 </span>
                 <span className="customer-detail-text text-body">
-                  {customer?.phone === undefined
-                    ? "0987654321"
-                    : customer?.phone}
+                  {customer?.phone}
                 </span>
-              </Space>
+              </Col>
 
               {/* <Space className="customer-detail-point">
                 <span className="customer-detail-icon">
@@ -681,7 +701,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   <Col
                     span={12}
                     style={{
-                      borderRight: "1px solid #E5E5E5",
+                      borderRight: " solid #E5E5E5",
                     }}
                     className="font-weight-500 customer-info-left"
                   >
@@ -707,7 +727,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Row>
                     <Row className="customer-row-info">
                       <span className="font-weight-500 pd-right">Địa chỉ:</span>
-                      <span className="break-word">{shippingAddress?.full_address}</span>
+                      <span className="break-word">
+                        {shippingAddress?.full_address}
+                      </span>
                     </Row>
                     <Row>
                       <Popover
@@ -738,44 +760,50 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         content={
                           <div className="change-shipping-address-content">
                             {customer.shipping_addresses.map((item, index) => (
-                              <div key={index} >
-                              <div
-                                className="shipping-address-row"
-                                
-                              >
-                                <div className="shipping-address-name word-underline">
-                                  Địa chỉ {index + 1}{" "}
-                                  <Button
-                                    type="text"
-                                    onClick={() => {
-                                      editShippingAddress(item);
-                                    }}
-                                    className="p-0"
-                                  >
-                                    <img src={editBlueIcon} alt="" />
-                                  </Button>
-                                  <Checkbox
-                                    style={{ marginLeft: "auto" }}
-                                    checked={item.default}
-                                    onClick={(value) =>
-                                      handleShippingAddressDefault(value, item)
-                                    }
-                                  />
+                              <div key={index}>
+                                <div className="shipping-address-row">
+                                  <div className="shipping-address-name word-underline">
+                                    Địa chỉ {index + 1}{" "}
+                                    <Button
+                                      type="text"
+                                      onClick={() => {
+                                        editShippingAddress(item);
+                                      }}
+                                      className="p-0"
+                                    >
+                                      <img src={editBlueIcon} alt="" />
+                                    </Button>
+                                    <Checkbox
+                                      style={{ marginLeft: "auto" }}
+                                      checked={item.default}
+                                      onClick={(value) =>
+                                        handleShippingAddressDefault(
+                                          value,
+                                          item
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                  <div className="shipping-customer-name">
+                                    <span className="font-weight-500 pd-right">
+                                      Họ tên:
+                                    </span>
+                                    {item.name}
+                                  </div>
+                                  <div className="shipping-customer-mobile">
+                                    <span className="font-weight-500 pd-right">
+                                      Số ĐT:
+                                    </span>
+                                    {item.phone}
+                                  </div>
+                                  <div className="shipping-customer-address break-word">
+                                    <span className="font-weight-500 pd-right">
+                                      Địa chỉ:
+                                    </span>
+                                    {item.full_address}
+                                  </div>
                                 </div>
-                                <div className="shipping-customer-name">
-                                <span className="font-weight-500 pd-right">Họ tên:</span>
-                                  {item.name}
-                                </div>
-                                <div className="shipping-customer-mobile">
-                                <span className="font-weight-500 pd-right">Số ĐT:</span>
-                                  {item.phone}
-                                </div>
-                                <div className="shipping-customer-address break-word">
-                                <span className="font-weight-500 pd-right">Địa chỉ:</span>
-                                  {item.full_address}
-                                </div>
-                              </div>
-                              <Divider />
+                                <Divider />
                               </div>
                             ))}
                           </div>
@@ -841,7 +869,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Col
                       span={12}
                       style={{
-                        borderRight: "1px solid #E5E5E5",
+                        borderRight: " solid #E5E5E5",
                       }}
                       className="font-weight-500 customer-info-left"
                     >
@@ -858,15 +886,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         Địa chỉ nhận hóa đơn:
                       </div>
                       <Row className="customer-row-info">
-                      <span className="font-weight-500 pd-right">Họ tên:</span>
+                        <span className="font-weight-500 pd-right">
+                          Họ tên:
+                        </span>
                         <span>{billingAddress?.name}</span>
                       </Row>
                       <Row className="customer-row-info">
-                      <span className="font-weight-500 pd-right">Số ĐT:</span>
+                        <span className="font-weight-500 pd-right">Số ĐT:</span>
                         <span>{billingAddress?.phone}</span>
                       </Row>
                       <Row className="customer-row-info">
-                      <span className="font-weight-500 pd-right break-word">Địa chỉ:</span>
+                        <span className="font-weight-500 pd-right break-word">
+                          Địa chỉ:
+                        </span>
                         <span>{billingAddress?.full_address}</span>
                       </Row>
                       <Row>
@@ -898,44 +930,53 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           content={
                             <div className="change-shipping-address-content">
                               {customer.billing_addresses.map((item, index) => (
-                                <div key={index} >
-                                <div
-                                  className="shipping-address-row"
-                                  key={item.id}
-                                >
-                                  <div className="shipping-address-name word-underline">
-                                    Địa chỉ {index + 1}{" "}
-                                    <Button
-                                      type="text"
-                                      onClick={() => {
-                                        editBillingAddress(item);
-                                      }}
-                                      className="p-0"
-                                    >
-                                      <img src={editBlueIcon} alt="" />
-                                    </Button>
-                                    <Checkbox
-                                      style={{ marginLeft: "auto" }}
-                                      checked={item.default}
-                                      onClick={(value) =>
-                                        handleBillingAddressDefault(value, item)
-                                      }
-                                    />
+                                <div key={index}>
+                                  <div
+                                    className="shipping-address-row"
+                                    key={item.id}
+                                  >
+                                    <div className="shipping-address-name word-underline">
+                                      Địa chỉ {index + 1}{" "}
+                                      <Button
+                                        type="text"
+                                        onClick={() => {
+                                          editBillingAddress(item);
+                                        }}
+                                        className="p-0"
+                                      >
+                                        <img src={editBlueIcon} alt="" />
+                                      </Button>
+                                      <Checkbox
+                                        style={{ marginLeft: "auto" }}
+                                        checked={item.default}
+                                        onClick={(value) =>
+                                          handleBillingAddressDefault(
+                                            value,
+                                            item
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                    <div className="shipping-customer-name">
+                                      <span className="font-weight-500 pd-right">
+                                        Họ tên:
+                                      </span>
+                                      {item.name}
+                                    </div>
+                                    <div className="shipping-customer-mobile">
+                                      <span className="font-weight-500 pd-right">
+                                        Số ĐT:
+                                      </span>
+                                      {item.phone}
+                                    </div>
+                                    <div className="shipping-customer-address">
+                                      <span className="font-weight-500 pd-right break-word">
+                                        Địa chỉ:
+                                      </span>
+                                      {item.full_address}
+                                    </div>
                                   </div>
-                                  <div className="shipping-customer-name">
-                                  <span className="font-weight-500 pd-right">Họ tên:</span>
-                                    {item.name}
-                                  </div>
-                                  <div className="shipping-customer-mobile">
-                                  <span className="font-weight-500 pd-right">Số ĐT:</span>
-                                    {item.phone}
-                                  </div>
-                                  <div className="shipping-customer-address">
-                                  <span className="font-weight-500 pd-right break-word">Địa chỉ:</span>
-                                    {item.full_address}
-                                  </div>
-                                </div>
-                                <Divider />
+                                  <Divider />
                                 </div>
                               ))}
                             </div>

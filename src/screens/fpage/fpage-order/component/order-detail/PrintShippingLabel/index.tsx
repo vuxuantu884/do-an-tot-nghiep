@@ -52,7 +52,6 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
         <React.Fragment>
           <Button
             onClick={(e) => {
-              console.log("print");
               e.stopPropagation();
               handlePrint();
             }}

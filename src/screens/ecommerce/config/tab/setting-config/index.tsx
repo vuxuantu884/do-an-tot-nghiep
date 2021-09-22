@@ -15,7 +15,10 @@ import {
   EcommerceRequest,
   EcommerceShopInventoryDto,
 } from "model/request/ecommerce.request";
-import { ecommerceConfigUpdateAction } from "domain/actions/ecommerce/ecommerce.actions";
+import {
+  ecommerceConfigUpdateAction,
+  ecommerceConfigCreateAction,
+} from "domain/actions/ecommerce/ecommerce.actions";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
 
@@ -60,12 +63,24 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   }, [configToView, setConfigDetail]);
 
   const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
-    setConfigDetail(value);
-    showSuccess("Cập nhật cấu hình thành công");
+    if (value) {
+      setConfigDetail(value);
+      showSuccess("Cập nhật cấu hình thành công");
+    }
   }, []);
-  const handleUpdateConfig = React.useCallback(
+  const handleCreateConfigCallback = React.useCallback(
+    (value: EcommerceResponse) => {
+      setConfigDetail(value);
+      showSuccess("Đồng bộ cấu hình thành công");
+    },
+    []
+  );
+
+  const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
+        const id = configDetail?.id;
+        const index = configData.find((item) => item.id === id);
         let request = {
           ...configDetail,
           ...value,
@@ -74,13 +89,26 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             accounts?.find((item) => item.code === value.assign_account_code)
               ?.full_name || "",
         };
-        const id = configDetail?.id;
-        dispatch(
-          ecommerceConfigUpdateAction(id, request, handleConfigCallback)
-        );
+        if (index) {
+          dispatch(
+            ecommerceConfigUpdateAction(id, request, handleConfigCallback)
+          );
+        } else {
+          dispatch(
+            ecommerceConfigCreateAction(request, handleCreateConfigCallback)
+          );
+        }
       }
     },
-    [dispatch, handleConfigCallback, configDetail, inventories, accounts]
+    [
+      dispatch,
+      handleConfigCallback,
+      handleCreateConfigCallback,
+      configDetail,
+      inventories,
+      accounts,
+      configData,
+    ]
   );
 
   const handleStoreChange = (event: any) => {
@@ -99,7 +127,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
 
   React.useEffect(() => {
     if (configDetail) {
-      const _inventories = configDetail.inventories.filter(
+      const _inventories = configDetail.inventories?.filter(
         (item: any) => !item.deleted
       );
       setInventories(_inventories);
@@ -118,7 +146,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       setInventories([]);
     }
   }, [configDetail, form, setInventories]);
-  
+
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
@@ -127,7 +155,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     },
     [configData, setConfigDetail]
   );
-  
+
   const convertToCapitalizedString = () => {
     if (configDetail) {
       return (
@@ -138,7 +166,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   };
   return (
     <StyledConfig className="padding-20">
-      <Form form={form} onFinish={(value) => handleUpdateConfig(value)}>
+      <Form form={form} onFinish={(value) => handleConfigSetting(value)}>
         <Row>
           <Col span={8}>
             <Form.Item
@@ -167,22 +195,23 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   return false;
                 }}
               >
-                {configData.map((item: any, index) => (
-                  <CustomSelect.Option
-                    style={{ width: "100%" }}
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {
-                      <img
-                        style={{ marginRight: 8, paddingBottom: 4 }}
-                        src={iconMap[item.ecommerce]}
-                        alt=""
-                      />
-                    }
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
+                {configData &&
+                  configData?.map((item: any, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={item.id}
+                      value={item.id}
+                    >
+                      {
+                        <img
+                          style={{ marginRight: 8, paddingBottom: 4 }}
+                          src={iconMap[item.ecommerce]}
+                          alt=""
+                        />
+                      }
+                      {item.name}
+                    </CustomSelect.Option>
+                  ))}
               </CustomSelect>
             </Form.Item>
           </Col>
@@ -201,15 +230,23 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <div className="ecommerce-user-detail">
               <Row>
                 <Col span={5}>Tên Shop</Col>
-                <Col span={19}><span className="fw-500">: {configDetail?.name || "---"}</span></Col>
+                <Col span={19}>
+                  <span className="fw-500">
+                    : {configDetail?.name || "---"}
+                  </span>
+                </Col>
               </Row>
               <Row>
                 <Col span={5}>ID Shop</Col>
-                <Col span={19}><span className="fw-500">: {configDetail?.id || "---"}</span></Col>
+                <Col span={19}>
+                  <span className="fw-500">: {configDetail?.id || "---"}</span>
+                </Col>
               </Row>
               <Row>
                 <Col span={5}>Username</Col>
-                <Col span={19}><span className="fw-500">: ---</span></Col>
+                <Col span={19}>
+                  <span className="fw-500">: ---</span>
+                </Col>
               </Row>
             </div>
           </Col>
@@ -286,7 +323,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 onSearch={(value) => accountChangeSearch(value)}
               >
                 {accounts &&
-                  accounts.map((c: any) => (
+                  accounts?.map((c: any) => (
                     <Option key={c.id} value={c.code}>
                       {`${c.code} - ${c.full_name}`}
                     </Option>
@@ -333,18 +370,21 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   }
                   return false;
                 }}
-                value={inventories?.map((store) => store.store_id)}
+                value={
+                  inventories && inventories?.map((store) => store.store_id)
+                }
                 onChange={handleStoreChange}
               >
-                {listStores.map((item, index) => (
-                  <CustomSelect.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.id}
-                  >
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
+                {listStores &&
+                  listStores?.map((item, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item.id}
+                    >
+                      {item.name}
+                    </CustomSelect.Option>
+                  ))}
               </CustomSelect>
             </Form.Item>
             <Form.Item
@@ -361,7 +401,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ tồn kho"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
+                <Option value={"auto"}>
+                  <span style={{ color: "#27AE60" }}>Tự động</span>
+                </Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
@@ -389,7 +431,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ đơn hàng"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
+                <Option value={"auto"}>
+                  <span style={{ color: "#27AE60" }}>Tự động</span>
+                </Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
@@ -410,7 +454,11 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
                   convertToCapitalizedString() || "sàn"
                 } về`}</Option>
-                <Option value={"manual"}><span style={{color: "#27AE60"}}>Đợi ghép sản phẩm giữa 2 bên</span></Option>
+                <Option value={"manual"}>
+                  <span style={{ color: "#27AE60" }}>
+                    Đợi ghép sản phẩm giữa 2 bên
+                  </span>
+                </Option>
               </Select>
             </Form.Item>
           </Col>

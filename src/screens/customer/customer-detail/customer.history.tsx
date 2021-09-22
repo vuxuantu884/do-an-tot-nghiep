@@ -83,7 +83,7 @@ function CustomerHistoryInfo(props: any) {
     },
     {
       title: "Trạng thái",
-      dataIndex: "status",
+      dataIndex: "status",align: "center",
       visible: true,
       render: (value: any, row: any, index: any) => {
         const statusTag = status_order.find(
@@ -110,10 +110,11 @@ function CustomerHistoryInfo(props: any) {
     {
       title: "Sản phẩm",
       visible: true,
+      align: "center",
       render: (value, row, index) => {
         return (
           <div>
-            {row.items.length > 10 ? row.items.length : "0" + row.items.length}
+            {row.items.length}
           </div>
         );
       },
