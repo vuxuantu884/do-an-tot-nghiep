@@ -8,6 +8,7 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
+import disconnectModalIcon from "assets/icon/e-disconnect-inform.svg"
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -21,6 +22,7 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
+import EcommerceModal from "../../../common/ecommerce-custom-modal"
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -61,7 +63,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   useEffect(() => {
     setConfigDetail(configToView);
   }, [configToView, setConfigDetail]);
-
   const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
     if (value) {
       setConfigDetail(value);
@@ -75,12 +76,20 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     },
     []
   );
+ const [isVisibleDisconnectModal, setIsVisibleDisconnectModal] = React.useState<boolean>(false)
+
+    const onOkDisconnectEcommerce = () => {
+      setIsVisibleDisconnectModal(false)
+    }
+    const onCancelDisconnectModal = () => {
+      setIsVisibleDisconnectModal(false)
+    }
 
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
         const id = configDetail?.id;
-        const index = configData.find((item) => item.id === id);
+        const index =configData && configData?.find((item) => item.id === id);
         let request = {
           ...configDetail,
           ...value,
@@ -150,7 +159,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
-      const data = _configData.find((item) => item.id === id);
+      const data = _configData?.find((item) => item.id === id);
       setConfigDetail(data);
     },
     [configData, setConfigDetail]
@@ -463,6 +472,16 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </Form.Item>
           </Col>
         </Row>
+        <EcommerceModal 
+          onCancel={onCancelDisconnectModal}
+          onOk={onOkDisconnectEcommerce}
+          visible={isVisibleDisconnectModal}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          title="Bạn có chắc chắn chắn hủy kết nối sàn này không?"
+          text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+          icon={disconnectModalIcon}
+          />
 
         <div className="customer-bottom-button">
           <Button
@@ -470,6 +489,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             icon={<img src={disconnectIcon} alt="" />}
             style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
             type="ghost"
+            onClick={() => setIsVisibleDisconnectModal(true)}
           >
             Ngắt kết nối
           </Button>

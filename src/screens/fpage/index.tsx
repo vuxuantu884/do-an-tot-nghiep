@@ -11,6 +11,7 @@ import "./fpage.index.scss";
 import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
+import {useHistory} from "react-router-dom"
 
 const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",
@@ -22,6 +23,7 @@ const initQueryCustomer: FpageCustomerSearchQuery = {
 function FpageCRM() {
   let queryString = useQuery();
   const dispatch = useDispatch();
+  const history = useHistory();
   const [isButtonSelected, setIsButtonSelected] = React.useState<number>(1);
   const [customerDetail, setCustomerDetail] =
     React.useState<CustomerResponse>();
@@ -36,7 +38,7 @@ function FpageCRM() {
     queryString?.get("phone")
   );
   const [customerFbName] = React.useState<string | null>(queryString?.get("name"))
-  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>([]);
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel> | undefined>([]);
   const [querySearchOrderFpage, setQuerySearchOrderFpage] = React.useState<any>(
     {
       limit: 10,
@@ -54,11 +56,9 @@ function FpageCRM() {
   );
 
   const searchByPhoneCallback = (value: any) => {
-    if (value !== undefined) {
       setCustomerDetail(value);
-    } else {
-      setCustomerDetail(undefined);
-    }
+      setOrderHistory(undefined);
+      setMetaData(null);
   };
   React.useEffect(() => {
     if (

@@ -126,7 +126,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
         <div>
-          {l.discount_items[0].value !== null
+          {l.discount_items.length > 0 && l.discount_items[0].value !== null
             ? formatCurrency(l.discount_items[0].value)
             : 0}
         </div>
