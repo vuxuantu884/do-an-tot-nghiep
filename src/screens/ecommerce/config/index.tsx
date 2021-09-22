@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Tabs, Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import {useState } from "react";
+import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import SyncEcommerce from "./tab/sync-ecommerce";
 import SettingConfig from "./tab/setting-config";
@@ -31,11 +31,6 @@ const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 
-const initQueryConnect: EcommerceSearchQuery = {
-  shop_id: "",
-  code: null,
-};
-
 const EcommerceConfig: React.FC = () => {
   const dispatch = useDispatch();
   const connectQuery = useQuery();
@@ -48,6 +43,10 @@ const EcommerceConfig: React.FC = () => {
     []
   );
   const [configToView, setConfigToView] = React.useState<EcommerceResponse>();
+  const [initQueryConnect] = React.useState<EcommerceSearchQuery>({
+    shop_id: connectQuery.get("shop_id"),
+    code: connectQuery.get("code"),
+  });
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -61,30 +60,28 @@ const EcommerceConfig: React.FC = () => {
   // link to ecommerce
   const redirectCallback = React.useCallback((value: any) => {
     if (value) {
-      window.open(`${value}`, "_blank");
+      window.open(`${value}`, "_self");
     }
   }, []);
   const handleConnectEcommerce = React.useCallback(() => {
     dispatch(ecommerceConnectAction(redirectCallback));
   }, [dispatch, redirectCallback]);
 
-  const configInfoCallback = React.useCallback((value: any) => {
-      if(value) {
-        setConfigToView(value)
+  const configInfoCallback = React.useCallback(
+    (value: any) => {
+      if (value) {
+        setConfigToView(value);
         history.replace(`${history.location.pathname}#setting`);
       }
-  }, [history])
+    },
+    [history]
+  );
 
   React.useEffect(() => {
-    initQueryConnect.shop_id = connectQuery.get("shop_id");
-    initQueryConnect.code = connectQuery.get("code");
     if (initQueryConnect.shop_id && initQueryConnect.code) {
-      dispatch(
-        ecommerceConfigInfoAction(initQueryConnect, configInfoCallback)
-      );
+      dispatch(ecommerceConfigInfoAction(initQueryConnect, configInfoCallback));
     }
-  }, [dispatch, connectQuery, configInfoCallback]);
-
+  }, [initQueryConnect, configInfoCallback, dispatch]);
   // get all ecommerce
   React.useEffect(() => {
     dispatch(ecommerceConfigGetAction(setConfigData));

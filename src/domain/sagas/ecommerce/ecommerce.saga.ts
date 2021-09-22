@@ -137,7 +137,6 @@ function* ecommerceGetSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
