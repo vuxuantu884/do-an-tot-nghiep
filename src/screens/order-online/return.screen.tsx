@@ -6,11 +6,10 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
-import ShipmentFilter from "component/filter/shipment.filter";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { useDispatch } from "react-redux";
+import ReturnFilter from "component/filter/return.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { Item, Shipment, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
+import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { AccountResponse } from "model/account/account.model";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
@@ -28,12 +27,6 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
-import ImageGHTK from "assets/img/imageGHTK.svg";
-import ImageGHN from "assets/img/imageGHN.png";
-import ImageVTP from "assets/img/imageVTP.svg";
-import ImageDHL from "assets/img/imageDHL.svg";
 
 const actions: Array<MenuAction> = [
   {
@@ -46,43 +39,26 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: ShipmentSearchQuery = {
+const initQuery: ReturnSearchQuery = {
   page: 1,
   limit: 30,
   sort_type: null,
   sort_column: null,
   search_term: null,
-  status: [],
-  stock_location_ids: [],
-  delivery_provider_ids: [],
-  delivery_types: [],
-  shipper_ids: [],
-  reference_status: [],
-  packed_on_min: null,
-  packed_on_max: null,
-  packed_on_predefined: null,
-  exported_on_min: null,
-  exported_on_max: null,
-  exported_on_predefined: null,
-  ship_on_min: null,
-  ship_on_max: null,
-  ship_on_predefined: null,
+  created_on_min: null,
+  created_on_max: null,
+  // created_on_predefined: null,
   received_on_min: null,
   received_on_max: null,
   received_predefined: null,
-  cancelled_on_min: null,
-  cancelled_on_max: null,
-  cancelled_on_predefined: null,
-  print_status: [],
+  payment_status: [],
+  assignee_code: [],
+  price_min: null,
+  price_max: null,
   store_ids: [],
-  source_ids: [],
+  is_received: [],
   account_codes: [],
-  shipping_address: null,
-  variant_ids: [],
-  note: null,
-  customer_note: null,
-  tags: [],
-  cancel_reason: [],
+  reason_ids: [],
 };
 
 const columnsItems  = [
@@ -136,26 +112,21 @@ const ListOrderScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
  
-  const listStatus = useSelector((state: RootReducerType) => {
-    return state.bootstrapReducer.data?.variant_status;
-  });
+  
   const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
     useState<Array<AccountResponse>>();
-  let dataQuery: ShipmentSearchQuery = {
+  let dataQuery: ReturnSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<ShipmentSearchQuery>(dataQuery);
+  let [params, setPrams] = useState<ReturnSearchQuery>(dataQuery);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
   
-  const [data, setData] = useState<PageResponse<ShipmentModel>>({
+  const [data, setData] = useState<PageResponse<ReturnModel>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -164,361 +135,101 @@ const ListOrderScreen: React.FC = () => {
     items: [],
   });
   
-  const status_order = [
-    {name: "Nháp", value: "draft"},
-    {name: "Đóng gói", value: "packed"},
-    {name: "Xuất kho", value: "shipping"},
-    {name: "Đã xác nhận", value: "finalized"},
-    {name: "Hoàn thành", value: "completed"},
-    {name: "Kết thúc", value: "finished"},
-    {name: "Đã huỷ", value: "cancelled"},
-    {name: "Đã hết hạn", value: "expired"},
-  ]
-  const delivery_service = [
-    {
-      code: "ghtk",
-      id: 1,
-      logo: ImageGHTK,
-      name: "Giao hàng tiết kiệm"
-    },
-    {
-      code: "ghn",
-      id: 2,
-      logo: ImageGHN,
-      name: "Giao hàng nhanh"
-    },
-    {
-      code: "vtp",
-      id: 3,
-      logo: ImageVTP,
-      name: "Viettel Post"
-    },
-    {
-      code: "dhl",
-      id: 4,
-      logo: ImageDHL,
-      name: "DHL"
-    }
-  ]
   
-  const shipmentDetailModal = useCallback(
-    (record: any) => {
-      Modal.info({
-        title: `Chi tiết đơn hàng ${record.code}`,
-        content: (
-          <Row gutter={16}>
-            <Col span={16}>
-              <Table
-                dataSource={record.items.map((item: any, index: number) => {
-                  return {
-                    ...item,
-                    index: index +1
-                  }
-                })}
-                columns={columnsItems}
-                pagination={false}
-              />
-              <div className="customer">
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginTop: '20px', marginRight: '85px' }}>
-                  <div>Tổng tiền:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.total}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
-                  <div>Chiết khấu:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.total_discount? record.total_discount : 0}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
-                  <div>Phí giao hàng:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.shipment.delivery_fee ? record.shipment.delivery_fee : 0}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
-                  <div>COD:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.shipment.cod ? record.shipment.cod : 0}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                
-              </div>
-            </Col>
-            <Col span={8}>
-              {record.shipping_address && (
-              <div className="customer">
-                <div style={{ height: '50px', display: 'flex'}}>
-                  <div style={{ width: '100px'}}>Người nhận:</div>
-                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.name}</div>
-                </div>
-                <div style={{ height: '50px', display: 'flex' }}>
-                  <div style={{ width: '100px'}}>SĐT:</div>
-                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.phone}</div>
-                </div>
-                <div style={{ height: '50px', display: 'flex' }}>
-                  <div style={{ width: '100px'}}>Địa chỉ:</div>
-                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.full_address}</div>
-                </div>
-              </div>)}
-            </Col>
-          </Row>
-        ),
-        maskClosable: true,
-        width: '1200px'
-      })
-    },
-    []
-  );
-  const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
+  const [columns, setColumn]  = useState<Array<ICustomTableColumType<ReturnModel>>>([
     {
-      title: "Mã đơn giao",
-      // dataIndex: "code",
-      // render: (value: string, i: ShipmentModel) => (
-      //   <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-      // ),
-      render: (record: ShipmentModel) => (
+      title: "Mã đơn trả hàng",
+      render: (record: ReturnModel) => (
         <div>
           <div
-            onClick={() => shipmentDetailModal(record)}
+            // onClick={() => shipmentDetailModal(record)}
             className="name p-b-3" style={{ color: "#2A2A86" }}
           >
-            {record.code}
+            {record.code_order_return}
           </div>
           <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
         </div>
       ),
       visible: true,
       fixed: 'left',
-      width:"120px",
+      width:"10%",
     },
     {
-      title: "Mã vận đơn",
-      dataIndex: "shipment",
-      render: (shipment: any) => (
-        shipment?.tracking_code
-      ),
+      title: "Mã đơn hàng",
+      dataIndex: "code_order",
       visible: true,
-      width:"120px",
+      width:"10%",
     },
     {
       title: "Người nhận",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
-        shipping_address && (
+      render: (record: any) => (
         <div className="customer">
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}>{shipping_address.name}</div>
-          <div className="p-b-3">{shipping_address.phone}</div>
-          <div className="p-b-3">{shipping_address.full_address}</div>
-        </div>
-      )),
-      key: "customer",
-      visible: true,
-      width: "5%",
-    },
-    {
-      title: "Sản phẩm",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<Item>) => (
-        <div className="items">
-           {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-sku">{item.variant}</div>
-              </div>
-            );
-          })}
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>{record.customer_name}</div>
+          <div className="p-b-3">{record.customer_phone_number}</div>
+          <div className="p-b-3">{record.customer_email}</div>
         </div>
       ),
+      key: "customer",
       visible: true,
-      align: "left",
-      width: "6.5%",
+      width: "20%",
+    },
+    {
+      title: "Trạng thái nhận hàng",
+      dataIndex: "received",
+      key: "received",
+      render: (value: boolean) => {
+        let processIcon = null;
+        switch (value) {
+          
+          case true:
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
+      visible: true,
+      align: "center",
+      width:"10%"
+    },
+    
+    {
+      title: "Hoàn tiền",
+      dataIndex: "total_amount",
+      key: "total_amount",
+      visible: true,
+      align: "center",
     },
 
     {
-      title: "SL",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<Item>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-quantity">{item.quantity}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: "1.3%",
-    },
-    
-    {
-      title: "Tiền COD",
-      dataIndex: "shipment",
-      render: (value) => (
-        <NumberFormat
-          value={value.cod}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
-      ),
-      key: "cod",
-      visible: true,
-      align:"right"
-    },
-    {
-      title: "HTVC",
-      dataIndex: "shipment",
-      render: (shipment: Shipment) => {
-        const service_id = shipment.delivery_service_provider_id
-        const service = delivery_service.find(service => service.id === service_id)
-        return(
-          service && (
-            <img
-              src={service.logo ? service.logo : ""}
-              alt=""
-              style={{ width: "100%", height: "30px" }}
-            />
-          )
-        )
-      },
-      key: "shipment.type",
-      visible: true,
-      width: "3.5%",
-      align:"center"
-    },
-    {
-      title: "Trạng thái giao vận",
-      dataIndex: "status",
-      key: "status",
-      render: (status_value: string) => {
-        const status = status_order.find(status => status.value === status_value)
-        return <div style={{background:"rgba(42, 42, 134, 0.1)", borderRadius:"100px", color:"#2A2A86"}}>{status?.name}</div>;
-      },
-      visible: true,
-      align: "center",
-      width:"4.3%"
-    },
-    
-    {
-      title: "Tổng SL sản phẩm",
-      dataIndex: "total_quantity",
-      key: "total_quantity",
+      title: "Tổng tiền",
+      dataIndex: "total_amount",
+      key: "total_amount",
       visible: true,
       align: "center",
     },
-    
+
     {
-      title: "Phí trả đối tác",
-      dataIndex: "shipment",
-      render: (value) => value.shipping_fee_paid_to_three_pls,
-      key: "shipping_fee_paid_to_three_pls",
-      visible: true,
-    },
-    // {
-    //   title: "Khách đã trả",
-    //   dataIndex: "total",
-    //   key: "total",
-    //   visible: true,
-    // },
-    
-    {
-      title: "Ngày giao hàng",
-      dataIndex: "shipped_on",
+      title: "Ngày nhận",
+      dataIndex: "receive_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "shipped_on",
+      key: "total_amount",
       visible: true,
       align: "center",
     },
     {
-      title: "Nhân viên tạo đơn giao",
-      dataIndex: "account_code",
-      key: "account_code",
+      title: "Lý do trả",
+      dataIndex: "reason",
+      key: "reason",
       visible: true,
       align: "center",
     },
-    {
-      title: "Ngày tạo đơn",
-      dataIndex: "created_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "shipped_on",
-      visible: true,
-    },
-    {
-      title: "Ngày hoàn tất đơn",
-      dataIndex: "received_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_on",
-      visible: true,
-    },
-    {
-      title: "Ngày huỷ đơn",
-      dataIndex: "cancel_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "cancel_date",
-      visible: true,
-    },
-    {
-      title: "Lý do huỷ giao",
-      dataIndex: "shipment",
-      render: (shipment: any) => <div>{shipment.cancel_reason}</div>,
-      key: "cancel_date",
-      visible: true,
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "shipment.note_to_shipper",
-      key: "note_to_shipper",
-      visible: true,
-    },
-    {
-      title: "Tỉnh thành",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
-        shipping_address && (shipping_address.city)),
-      key: "city",
-      visible: true,
-    },
-    {
-      title: "Quận huyện",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
-        shipping_address && (shipping_address.district)),
-      key: "district",
-      visible: true,
-    },
-    {
-      title: "Trạng thái đối soát",
-      dataIndex: "reference_code",
-      key: "reference_code",
-      visible: true,
-    }
   ]);
 
   const onPageChange = useCallback(
@@ -527,7 +238,7 @@ const ListOrderScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.SHIPMENTS}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDERS_RETURN}?${queryParam}`);
     },
     [history, params]
   );
@@ -537,15 +248,14 @@ const ListOrderScreen: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log('filter start', `${UrlConfig.SHIPMENTS}?${queryParam}`)
-      history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
+      history.push(`${UrlConfig.ORDERS_RETURN}?${queryParam}`);
     },
     [history, params]
   );
   const onMenuClick = useCallback((index: number) => {}, []);
 
   const setSearchResult = useCallback(
-    (result: PageResponse<ShipmentModel>|false) => {
+    (result: PageResponse<ReturnModel>|false) => {
       setTableLoading(false);
       if(!!result) {
         setData(result);
@@ -579,14 +289,7 @@ const ListOrderScreen: React.FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
-    dispatch(
-      actionFetchListOrderProcessingStatus(
-        {},
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-        }
-      )
-    );
+    
   }, [dispatch, setDataAccounts]);
   
   return (
@@ -632,7 +335,7 @@ const ListOrderScreen: React.FC = () => {
     >
       <Card>
         <div className="padding-20">
-        <ShipmentFilter
+        <ReturnFilter
           onMenuClick={onMenuClick}
           actions={actions}
           onFilter={onFilter}
@@ -640,14 +343,13 @@ const ListOrderScreen: React.FC = () => {
           listSource={listSource}
           listStore={listStore}
           accounts={accounts}
-          deliveryService={delivery_service}
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 3630, y: "50vh" }}
+          scroll={{ x: 1200, y: "50vh" }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -662,7 +364,7 @@ const ListOrderScreen: React.FC = () => {
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
-          rowKey={(item: ShipmentModel) => item.id}
+          rowKey={(item: ReturnModel) => item.id}
           className="order-list"
         />
         </div>
