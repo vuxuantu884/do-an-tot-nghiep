@@ -8,6 +8,7 @@ const loyaltyCard = React.lazy(() => import ("screens/loyalty-card"))
 const uploadLoyaltyCard = React.lazy(() => import ("screens/loyalty-card/upload"))
 const rank = React.lazy(() => import ("screens/ranking/index"))
 const createRank = React.lazy(() => import ("screens/ranking/component/create/index"))
+const pointAdjustment = React.lazy(() => import ("screens/customer/point-adjustment/index"))
 
 const customers: Array<RouteMenu> = [
   {
@@ -38,7 +39,7 @@ const customers: Array<RouteMenu> = [
     title: "Thẻ khách hàng",
     icon: "icon-dot",
     component: loyaltyCard,
-    key: "submenu121",
+    key: "submenu156",
     isShow: true,
     header: null,
     subMenu: [
@@ -48,7 +49,7 @@ const customers: Array<RouteMenu> = [
         title: "Thẻ khách hàng",
         icon: "icon-dot",
         component: uploadLoyaltyCard,
-        key: "submenu122",
+        key: "submenu1561",
         isShow: true,
         header: null,
         subMenu: [],
@@ -61,7 +62,7 @@ const customers: Array<RouteMenu> = [
     title: "Hạng khách hàng",
     icon: 'icon-dot',
     component: rank,
-    key: "submenu101",
+    key: "submenu157",
     isShow: true,
     header: null,
     subMenu: [
@@ -71,7 +72,7 @@ const customers: Array<RouteMenu> = [
         title: "Tạo hạng thẻ",
         icon: 'icon-dot',
         component: createRank,
-        key: "submenu102",
+        key: "submenu1571",
         isShow: true,
         header: null,
         subMenu: [],
@@ -82,13 +83,24 @@ const customers: Array<RouteMenu> = [
         title: "Sửa hạng thẻ",
         icon: 'icon-dot',
         component: createRank,
-        key: "submenu103",
+        key: "submenu1572",
         isShow: true,
         header: null,
         subMenu: [],
       },
     ],
-  }
+  },
+  {
+    path: `${UrlConfig.CUSTOMER}/point-adjustments`,
+    exact: true,
+    title: "Phiếu điều chỉnh",
+    icon: 'icon-dot',
+    component: pointAdjustment,
+    key: "submenu158",
+    isShow: true,
+    header: null,
+    subMenu: [],
+  },
 ]
 
 export default customers;

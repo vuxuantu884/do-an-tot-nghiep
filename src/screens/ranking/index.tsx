@@ -32,7 +32,6 @@ const CustomerRanking = () => {
   const pageColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
-      dataIndex: "code",
       visible: true,
       fixed: "left",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
