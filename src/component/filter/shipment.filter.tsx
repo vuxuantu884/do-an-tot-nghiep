@@ -36,6 +36,7 @@ type OrderFilterProps = {
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
+  reasons: Array<{id: number; name: string}>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ShipmentSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -70,6 +71,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     listStore,
     accounts,
     deliveryService,
+    reasons,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -379,6 +381,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
+      cancel_reason: Array.isArray(params.cancel_reason) ? params.cancel_reason : [params.cancel_reason],
   }}, [params])
   const [packedOnMin, setPackedOnMin] = useState(initialValues.packed_on_min? moment(initialValues.packed_on_min, "DD-MM-YYYY") : null);
   const [packedOnMax, setPackedOnMax] = useState(initialValues.packed_on_max? moment(initialValues.packed_on_max, "DD-MM-YYYY") : null);
@@ -652,10 +655,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancel_reason.length) {
+      let textReason = ""
+      initialValues.cancel_reason.forEach(cancel_id => {
+        const reason = reasons?.find(reason => reason.id.toString() === cancel_id)
+        textReason = reason ? textReason + reason.name + ";" : textReason
+      })
+      
       list.push({
         key: 'cancel_reason',
         name: 'Lý do huỷ giao',
-        value: initialValues.cancel_reason
+        value: textReason
       })
     }
     if (initialValues.note) {
@@ -688,7 +697,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.delivery_provider_ids, initialValues.shipper_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, deliveryService, printStatus, accounts, optionsVariant, serviceType]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_ids, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, accounts, deliveryService, printStatus, optionsVariant, serviceType, reasons]
   );
 
   useEffect(() => {
@@ -1146,7 +1155,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.cancel_reason.length ? ["1"]: []}>
                   <Panel header="LÝ DO HUỶ GIAO" key="1" className="header-filter">
                     <Item name="cancel_reason">
-                      <Input placeholder="Tìm kiếm theo lý do huỷ"/>
+                    <Select
+                        mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
+                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                        optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {reasons.map((reason) => (
+                          <Option key={reason.id.toString()} value={reason.id.toString()}>
+                            {reason.name}
+                          </Option>
+                        ))}
+                      </Select>
                     </Item>
                   </Panel>
                 </Collapse>

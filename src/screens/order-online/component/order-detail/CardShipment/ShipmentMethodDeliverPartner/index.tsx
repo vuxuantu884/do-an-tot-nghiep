@@ -28,6 +28,7 @@ type PropType = {
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   fulfillments: FulFillmentResponse[];
   isCloneOrder?: boolean;
+  addressError: string;
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -42,6 +43,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     changeServiceType,
     // fulfillments,
     // isCloneOrder,
+    addressError,
   } = props;
 
   // console.log("propsShipmentmethod", props);
@@ -104,6 +106,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   return (
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
+        {addressError && (
+          <div style={{margin: '10px 0', color: '#ff4d4f' }}>{addressError}</div>
+        )}
         <Row gutter={20}>
           <Col md={12}>
             <Form.Item label="Tiền thu hộ:">

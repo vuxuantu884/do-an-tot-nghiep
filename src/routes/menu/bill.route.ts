@@ -77,7 +77,7 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
-    path: `/order-return`,
+    path: `/orders-return`,
     exact: true,
     title: "Danh sách trả hàng",
     icon: "icon-dot",
@@ -87,7 +87,7 @@ const bill: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.ORDER}/order-return/create`,
+        path: `${UrlConfig.ORDER}/orders-return/create`,
         exact: true,
         title: "Tạo đơn trả hàng",
         icon: "icon-dot",
@@ -98,7 +98,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.ORDER}/order-return/:id`,
+        path: `${UrlConfig.ORDER}/orders-return/:id`,
         exact: true,
         title: "Chi tiết trả hàng",
         icon: "icon-dot",

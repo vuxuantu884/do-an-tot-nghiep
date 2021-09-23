@@ -101,8 +101,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  // const [deliveryServices, setDeliveryServices] =
-  //   useState<Array<DeliveryServiceResponse> | null>(null);
+  const [addressError, setAddressError] = useState<string>("");
+
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethodProps(value);
     setPaymentMethod(value);
@@ -182,6 +182,9 @@ const CardShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
+    if (!storeDetail) {
+      setAddressError("Thiếu thông tin địa chỉ cửa hàng")
+    }
     if (customerInfo && storeDetail
       && (getShippingAddressDefault(customerInfo)?.city_id || getShippingAddressDefault(customerInfo)?.district_id)
       && getShippingAddressDefault(customerInfo)?.ward_id && getShippingAddressDefault(customerInfo)?.full_address) {
@@ -213,9 +216,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
         cod: 0
       };
       console.log("request", request);
+      setAddressError("")
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      console.log("cần thêm địa chỉ khách hàng");
+      setAddressError("Thiếu thông tin địa chỉ khách hàng")
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
@@ -351,6 +355,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               payments={payments}
               fulfillments={fulfillments}
               isCloneOrder={isCloneOrder}
+              addressError={addressError}
             />
           )}
 
