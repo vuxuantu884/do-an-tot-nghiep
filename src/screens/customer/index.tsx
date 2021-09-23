@@ -12,13 +12,14 @@ import CustomFilter from "component/table/custom.filter";
 import "./customer.scss";
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./customer.create";
+import ButtonCreate from "component/header/ButtonCreate";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 
@@ -461,15 +462,7 @@ const Customer = () => {
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.CUSTOMER}/create`}>
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-            >
-              Thêm mới khách hàng
-            </Button>
-          </Link>
+          <ButtonCreate path={`/customers/create`} />
         </>
       }
     >
