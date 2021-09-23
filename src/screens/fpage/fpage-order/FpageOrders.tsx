@@ -34,7 +34,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderResponse,
-  StoreCustomResponse,
+  StoreCustomResponse,FulFillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
@@ -84,6 +84,9 @@ export default function FpageOrders(props: any) {
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
     null
   );
+  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
+    []
+  );
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
@@ -93,9 +96,7 @@ export default function FpageOrders(props: any) {
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
@@ -686,6 +687,7 @@ export default function FpageOrders(props: any) {
                 setFee={setFee}
                 payments={payments}
                 onPayments={onPayments}
+                // fulfillments={fulfillments}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
