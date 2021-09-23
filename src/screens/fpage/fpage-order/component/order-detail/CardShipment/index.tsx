@@ -7,36 +7,35 @@ import {
   Form,
   Row,
   Select,
+  Space,
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
+// import IconShoppingBag from "assets/icon/shopping_bag.svg";
+// import IconWallClock from "assets/icon/wall_clock.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
-  DeliveryServicesGetList,
-  InfoGHNAction,
-  InfoGHTKAction,
-  InfoVTPAction,
+  // DeliveryServicesGetList,
+  getFeesAction,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  GHNFeeRequest,
   OrderLineItemRequest,
   OrderPaymentRequest,
-  ShippingGHTKRequest,
-  VTPFeeRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  DeliveryServiceResponse,
-  GHNFeeResponse,
   OrderResponse,
-  ShippingGHTKResponse,
   StoreCustomResponse,
-  VTPFeeResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, {
+  // useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
@@ -45,7 +44,7 @@ import ShipmentMethodReceiveAtHome from "./ShipmentMethodReceiveAtHome";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
 
-type ShipmentCardProps = {
+type CardShipmentProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
@@ -63,14 +62,16 @@ type ShipmentCardProps = {
   items?: Array<OrderLineItemRequest>;
   discountValue: number | null;
   officeTime: boolean | undefined;
-  setFeeGhtk: (value: number) => void;
+  setFee: (value: number) => void;
   OrderDetail?: OrderResponse | null;
   payments?: OrderPaymentRequest[];
   onPayments: (value: Array<OrderPaymentRequest>) => void;
+  // fulfillments: FulFillmentResponse[];
+  // isCloneOrder: boolean;
 };
 
-const ShipmentCard: React.FC<ShipmentCardProps> = (
-  props: ShipmentCardProps
+const CardShipment: React.FC<CardShipmentProps> = (
+  props: CardShipmentProps
 ) => {
   const {
     OrderDetail,
@@ -79,7 +80,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     setShipmentMethodProps,
     setHVC,
     setServiceType,
-    setFeeGhtk,
+    setFee,
     customerInfo,
     amount,
     storeDetail,
@@ -95,14 +96,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
-  const [infoGHN, setInfoGHN] = useState<GHNFeeResponse | null>(null);
-  const [infoVTP, setInfoVTP] = useState<Array<VTPFeeResponse>>([]);
-  const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse> | null>(null);
-  const [shipmentMethodState, setShipmentMethod] = useState<number>(4);
+  const [infoFees, setInfoFees] = useState<Array<any>>([]);
+  // const [deliveryServices, setDeliveryServices] =
+  //   useState<Array<DeliveryServiceResponse> | null>(null);
   const ShipMethodOnChange = (value: number) => {
-    setShipmentMethod(value);
+    setShipmentMethodProps(value);
     setPaymentMethod(value);
     setShipmentMethodProps(value);
     if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
@@ -113,9 +111,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       console.log("start request fees");
-      getInfoDeliveryGHTK();
-      getInfoDeliveryGHN();
-      getInfoDeliveryVTP();
+      // getInfoDeliveryFees();
       setPaymentMethod(PaymentMethodOption.COD);
       //reset payment
       onPayments([]);
@@ -136,188 +132,19 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     item: any,
     fee: number
   ) => {
+    console.log("changeServiceType", item);
+
     setHVC(id);
     setServiceType(item);
-    setFeeGhtk(fee);
+    setFee(fee);
   };
-
-  const getInfoDeliveryGHTK = useCallback(() => {
-    console.log("getInfoDeliveryGHTK");
-
-    let request: ShippingGHTKRequest = {
-      pick_address: storeDetail?.address,
-      pick_province: storeDetail?.city_name,
-      pick_district: storeDetail?.district_name,
-      province: getShippingAddressDefault(customerInfo)?.city,
-      district: getShippingAddressDefault(customerInfo)?.district,
-      address: getShippingAddressDefault(customerInfo)?.full_address,
-      weight: SumWeight(items),
-      value: amount,
-      transport: "",
-    };
-
-    if (
-      request.pick_address &&
-      request.pick_district &&
-      request.pick_province &&
-      request.address &&
-      request.province &&
-      request.weight &&
-      request.district
-    ) {
-      dispatch(InfoGHTKAction(request, setInfoGHTK));
-    } else {
-      console.log(
-        request.pick_address,
-        request.pick_district,
-        request.pick_province,
-        request.address,
-        request.province,
-        request.weight,
-        request.district
-      );
-    }
-  }, [dispatch, amount, customerInfo, items, storeDetail]);
-
-  const getInfoDeliveryGHN = useCallback(() => {
-    console.log("getInfoDeliveryGHN");
-    let request: GHNFeeRequest = {
-      created_by: null,
-      created_name: null,
-      updated_by: null,
-      updated_name: null,
-      request_id: null,
-      operator_kc_id: null,
-
-      sender_country_id: storeDetail?.country_id,
-      sender_city_id: storeDetail?.city_id,
-      sender_district_id: storeDetail?.district_id,
-      sender_ward_id: storeDetail?.ward_id,
-
-      receive_country_id: getShippingAddressDefault(customerInfo)?.country_id,
-      receive_city_id: getShippingAddressDefault(customerInfo)?.city_id,
-      receive_district_id: getShippingAddressDefault(customerInfo)?.district_id,
-      receive_ward_id: getShippingAddressDefault(customerInfo)?.ward_id,
-
-      sender_address: storeDetail?.address || storeDetail?.full_address,
-      receive_address: getShippingAddressDefault(customerInfo)?.full_address,
-
-      price: 0,
-      quantity: 0,
-      weight: SumWeight(items),
-      length: 0,
-      height: 0,
-      width: 0,
-      ghn_service_id: 1,
-      coupon: null,
-      cod: amount,
-    };
-
-    if (
-      request.sender_country_id &&
-      request.sender_city_id &&
-      request.sender_district_id &&
-      request.sender_ward_id &&
-      request.receive_country_id &&
-      request.receive_city_id &&
-      request.receive_district_id &&
-      request.receive_ward_id &&
-      request.sender_address &&
-      request.receive_address
-    ) {
-      dispatch(InfoGHNAction(request, setInfoGHN));
-    } else {
-      console.log(
-        request.sender_country_id,
-        request.sender_city_id,
-        request.sender_district_id,
-        request.sender_ward_id,
-
-        request.receive_country_id,
-        request.receive_city_id,
-        request.receive_district_id,
-        request.receive_ward_id,
-
-        request.sender_address,
-        request.receive_address,
-        request.ghn_service_id
-      );
-    }
-  }, [dispatch, amount, customerInfo, items, storeDetail]);
-
-  const getInfoDeliveryVTP = useCallback(() => {
-    console.log("getInfoDeliveryVTP");
-    let request: VTPFeeRequest = {
-      created_by: null,
-      created_name: null,
-      updated_by: null,
-      updated_name: null,
-      request_id: null,
-      operator_kc_id: null,
-
-      sender_country_id: storeDetail?.country_id,
-      sender_city_id: storeDetail?.city_id,
-      sender_district_id: storeDetail?.district_id,
-      sender_ward_id: storeDetail?.ward_id,
-
-      receive_country_id: getShippingAddressDefault(customerInfo)?.country_id,
-      receive_city_id: getShippingAddressDefault(customerInfo)?.city_id,
-      receive_district_id: getShippingAddressDefault(customerInfo)?.district_id,
-      receive_ward_id: getShippingAddressDefault(customerInfo)?.ward_id,
-
-      sender_address: storeDetail?.address || storeDetail?.full_address,
-      receive_address: getShippingAddressDefault(customerInfo)?.full_address,
-
-      price: 0,
-      quantity: 0,
-      weight: SumWeight(items),
-      length: 10,
-      height: 10,
-      width: 10,
-      ghn_service_id: 1,
-      coupon: null,
-      cod: amount,
-    };
-    console.log("customerInfo", customerInfo);
-    console.log("request", request);
-
-    if (
-      request.sender_country_id &&
-      request.sender_city_id &&
-      request.sender_district_id &&
-      request.sender_ward_id &&
-      request.receive_country_id &&
-      request.receive_city_id &&
-      request.receive_district_id &&
-      request.receive_ward_id &&
-      request.sender_address &&
-      request.receive_address
-    ) {
-      dispatch(InfoVTPAction(request, setInfoVTP));
-    } else {
-      console.log(
-        request.sender_country_id,
-        request.sender_city_id,
-        request.sender_district_id,
-        request.sender_ward_id,
-
-        request.receive_country_id,
-        request.receive_city_id,
-        request.receive_district_id,
-        request.receive_ward_id,
-
-        request.sender_address,
-        request.receive_address
-      );
-    }
-  }, [dispatch, amount, customerInfo, items, storeDetail]);
 
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
 
   useLayoutEffect(() => {
-    dispatch(DeliveryServicesGetList(setDeliveryServices));
+    // dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
 
   // shipment button action
@@ -329,7 +156,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 
   const shipmentButton: Array<ShipmentButtonModel> = [
     {
-      name: "Gửi vận chuyển",
+      name: "Chuyển hãng vận chuyển",
       value: 1,
       icon: IconDelivery,
     },
@@ -349,6 +176,49 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     //   icon: IconWallClock,
     // },
   ];
+
+  useEffect(() => {
+    if (
+      customerInfo &&
+      storeDetail &&
+      (getShippingAddressDefault(customerInfo)?.city_id ||
+        getShippingAddressDefault(customerInfo)?.district_id) &&
+      getShippingAddressDefault(customerInfo)?.ward_id &&
+      getShippingAddressDefault(customerInfo)?.full_address
+    ) {
+      let request = {
+        from_city_id: storeDetail?.city_id,
+        from_city: storeDetail?.city_name,
+        from_district_id: storeDetail?.district_id,
+        from_district: storeDetail?.district_name,
+        from_ward_id: storeDetail?.ward_id,
+        to_country_id: getShippingAddressDefault(customerInfo)?.country_id,
+        to_city_id: getShippingAddressDefault(customerInfo)?.city_id,
+        to_city: getShippingAddressDefault(customerInfo)?.city,
+        to_district_id: getShippingAddressDefault(customerInfo)?.district_id,
+        to_district: getShippingAddressDefault(customerInfo)?.district,
+        to_ward_id: getShippingAddressDefault(customerInfo)?.ward_id,
+        from_address: storeDetail?.address,
+        to_address: getShippingAddressDefault(customerInfo)?.full_address,
+        price: amount,
+        quantity: 1,
+        weight: SumWeight(items),
+        length: 0,
+        height: 0,
+        width: 0,
+        service_id: 0,
+        service: "",
+        option: "",
+        insurance: 0,
+        coupon: "",
+        cod: 0,
+      };
+      console.log("request", request);
+      dispatch(getFeesAction(request, setInfoFees));
+    } else {
+      console.log("cần thêm địa chỉ khách hàng");
+    }
+  }, [amount, customerInfo, dispatch, items, storeDetail]);
 
   const renderShipmentTabHeader = () => {
     return (
@@ -386,9 +256,14 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   return (
     <StyledComponent>
       <Card
-       
+        className="margin-top-20"
+        title={
+          <div className="d-flex">
+            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+          </div>
+        }
       >
-        <div className="orders-shipment" style={{padding: "12px 24px"}}>
+        <div className="padding-24 orders-shipment">
           <Row gutter={24}>
             <Col span={24}>
               <Form.Item name="dating_ship" label="Hẹn giao:">
@@ -405,13 +280,12 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             </Col>
 
             <Col span={24}>
-              <Form.Item name="office_time" label="Giờ hành chính">
+              <Form.Item name="office_time" label="Giờ hành chính:">
                 <Checkbox
                   checked={officeTime}
                   onChange={(e) => setOfficeTime(e.target.checked)}
                   style={{ marginTop: "8px" }}
-                >
-                </Checkbox>
+                ></Checkbox>
               </Form.Item>
             </Col>
           </Row>
@@ -447,6 +321,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Select>
             </Form.Item>
           </Col>
+
           <Row>
             <div
               className="saleorder_shipment_method_btn"
@@ -456,19 +331,17 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   : { borderBottom: "1px solid #2A2A86" }
               }
             >
-             {renderShipmentTabHeader()}
+              <Space size={10}>{renderShipmentTabHeader()}</Space>
             </div>
           </Row>
           {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethodState === ShipmentMethodOption.DELIVER_PARTNER && (
+          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
             <ShipmentMethodDeliverPartner
               amount={amount}
               changeServiceType={changeServiceType}
-              deliveryServices={deliveryServices}
+              // deliveryServices={deliveryServices}
               discountValue={discountValue}
-              infoGHN={infoGHN}
-              infoGHTK={infoGHTK}
-              infoVTP={infoVTP}
+              infoFees={infoFees}
               setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
               shippingFeeCustomer={shippingFeeCustomer}
               OrderDetail={OrderDetail}
@@ -476,7 +349,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             />
           )}
 
-          {shipmentMethodState === ShipmentMethodOption.SELF_DELIVER && (
+          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
             <ShipmentMethodSelfDelivery
               amount={amount}
               discountValue={discountValue}
@@ -488,7 +361,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           )}
 
           {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethodState === ShipmentMethodOption.PICK_AT_STORE && (
+          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
             <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
           )}
         </div>
@@ -497,4 +370,4 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   );
 };
 
-export default ShipmentCard;
+export default CardShipment;

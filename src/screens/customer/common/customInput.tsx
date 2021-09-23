@@ -7,7 +7,7 @@ function CustomInput(props: any) {
   const [value, setValue] = useState<string>("");
 
   const handleChange = useCallback((v: any) => {
-    setValue(v.trim());
+    setValue(v);
   }, []);
 
   const handleBlur = (v: any) => {

@@ -762,7 +762,7 @@ export default function Order() {
       );
 
       let rank = loyaltyUsageRules.find(
-        (x) => x.rank_id === loyaltyPoint?.loyalty_level_id
+        (x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id)
       );
 
       let curenPoint = !loyaltyPoint
@@ -788,6 +788,13 @@ export default function Order() {
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
+      if(!loyaltyPoint)
+      {
+        showError(
+          "Khách hàng chưa được áp dụng tiêu điểm"
+        );
+        return false;
+      }
       if (
         rank?.block_order_have_discount === true &&
         (discount > 0 || discountValue)
@@ -875,6 +882,7 @@ export default function Order() {
                   <CardCustomer
                     customer={customer}
                     handleCustomer={handleCustomer}
+                    loyaltyPoint={loyaltyPoint}
                     ShippingAddressChange={onChangeShippingAddress}
                     BillingAddressChange={onChangeBillingAddress}
                   />

@@ -39,7 +39,6 @@ const GeneralInformation = (props: any) => {
   const deleteNote = (note: any, e: any) => {
     handleNote.delete(note, customerId);
   };
-
   return (
     <Row gutter={24}>
       <Col span={24}>
@@ -51,6 +50,7 @@ const GeneralInformation = (props: any) => {
                 <span className="customer-field-label">Tên khách hàng:</span>
               }
               form={form}
+              customerDetail={customerDetail}
               message="Vui lòng nhập họ tên khách hàng"
               placeholder="Nhập họ và tên khách hàng"
               isRequired={true}

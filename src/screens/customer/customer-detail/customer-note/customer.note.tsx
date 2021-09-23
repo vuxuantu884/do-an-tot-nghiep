@@ -19,6 +19,7 @@ import FormCustomerNote from "screens/customer/customer-detail/customer-note/not
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
 
 function CustomerNoteInfo(props: any) {
   const history = useHistory();
@@ -58,6 +59,27 @@ function CustomerNoteInfo(props: any) {
       title: "Nội dung",
       dataIndex: "content",
       visible: true,
+    },
+    {
+      title: "Người tạo",
+      dataIndex: "created_name",
+      visible: true,
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "content",
+      visible: true,
+      render: (value, row, index) => {
+        return <span>{ConvertUtcToLocalDate(row.created_date)}</span>;
+      },
+    },
+    {
+      title: "Ngày sửa",
+      dataIndex: "content",
+      visible: true,
+      render: (value, row, index) => {
+        return <span>{ConvertUtcToLocalDate(row.updated_date)}</span>;
+      },
     },
     actionColumn(handleNoteEdit, handleNoteDelete, customerDetailState),
   ];
@@ -115,7 +137,6 @@ function CustomerNoteInfo(props: any) {
     history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
     window.scrollTo(0, 0);
   };
-
   return (
     <Row style={{ marginTop: 16 }}>
       <div

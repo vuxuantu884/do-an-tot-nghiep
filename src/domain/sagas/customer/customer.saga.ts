@@ -95,7 +95,6 @@ function* getCustomerByPhone(action: YodyAction) {
       default:
         setData(undefined);
         response.errors.forEach((e) => showError(e));
-
         break;
     }
   } catch (error) {

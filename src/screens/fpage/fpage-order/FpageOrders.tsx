@@ -40,6 +40,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -56,7 +57,12 @@ import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-//#endregion
+import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 
 var typeButton = "";
 export default function FpageOrders(props: any) {
@@ -69,7 +75,6 @@ export default function FpageOrders(props: any) {
     setCustomerPhone,
     setOrderHistory,
     getCustomerByPhone,
-
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -87,15 +92,20 @@ export default function FpageOrders(props: any) {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
   const [hvc, setHvc] = useState<number | null>(null);
-  const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
+  const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
     number | null
   >(null);
-  const [modalAction, setModalAction] =  React.useState<modalActionType>("create");
+  const [modalAction, setModalAction] =
+    React.useState<modalActionType>("create");
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -127,7 +137,6 @@ export default function FpageOrders(props: any) {
   ) => {
     setBillingAddress(_objBillingAddress);
   };
-
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
   };
@@ -136,7 +145,85 @@ export default function FpageOrders(props: any) {
   };
   //#endregion
   //#region Product
+  useEffect(() => {
+    if (customer) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customer]);
 
+  const checkPointfocus = useCallback(
+    (value: any) => {
+      let Pointfocus = payments.find((p) => p.code === "point");
+
+      if (!Pointfocus) return true;
+
+      let discount = 0;
+      value.items.forEach(
+        (p: any) => (discount = discount + p.discount_amount)
+      );
+
+      let rank = loyaltyUsageRules.find(
+        (x) => x.rank_id === loyaltyPoint?.loyalty_level_id
+      );
+
+      let curenPoint = !loyaltyPoint
+        ? 0
+        : loyaltyPoint.point === null
+        ? 0
+        : loyaltyPoint.point;
+      let point = !Pointfocus
+        ? 0
+        : Pointfocus.point === undefined
+        ? 0
+        : Pointfocus.point;
+
+      let totalAmountPayable =
+        orderAmount +
+        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        discountValue; //tổng tiền phải trả
+      let limitAmountPointFocus = !rank
+        ? 0
+        : !rank.limit_order_percent
+        ? 0
+        : (rank.limit_order_percent * totalAmountPayable) / 100;
+      //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
+      limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+
+      if (
+        rank?.block_order_have_discount === true &&
+        (discount > 0 || discountValue)
+      ) {
+        showError(
+          "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
+        );
+        return false;
+      }
+
+      if (point > limitAmountPointFocus) {
+        showError(
+          `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
+        );
+        return false;
+      }
+
+      if (point > curenPoint) {
+        showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
+        return false;
+      }
+      return true;
+    },
+    [
+      loyaltyPoint,
+      loyaltyUsageRules,
+      payments,
+      discountValue,
+      orderAmount,
+      shippingFeeCustomer,
+    ]
+  );
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     amount: number,
@@ -296,7 +383,7 @@ export default function FpageOrders(props: any) {
         value.shipping_fee_informed_to_customer;
       objShipment.service = serviceType!;
       if (hvc === 1) {
-        objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
+        objShipment.shipping_fee_paid_to_three_pls = fee;
       } else {
         objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE;
       }
@@ -376,11 +463,7 @@ export default function FpageOrders(props: any) {
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    [
-      setIsButtonSelected,
-      setIsClearOrderField,
-      setIsCustomerReload,
-    ]
+    [setIsButtonSelected, setIsClearOrderField, setIsCustomerReload]
   );
 
   //show modal save and confirm order ?
@@ -428,7 +511,7 @@ export default function FpageOrders(props: any) {
       }
     }
     values.account_code = userReducer?.account?.code;
-    values.currency = "VNĐ"
+    values.currency = "VNĐ";
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -452,7 +535,13 @@ export default function FpageOrders(props: any) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
             setIsDisableSubmitBtn(true);
-            dispatch(orderFpageCreateAction(values, createOrderCallback, setIsDisableSubmitBtn));
+            dispatch(
+              orderFpageCreateAction(
+                values,
+                createOrderCallback,
+                setIsDisableSubmitBtn
+              )
+            );
           }
         } else {
           if (
@@ -461,8 +550,17 @@ export default function FpageOrders(props: any) {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            setIsDisableSubmitBtn(true);
-            dispatch(orderFpageCreateAction(values, createOrderCallback, setIsDisableSubmitBtn));
+            let bolCheckPointfocus = checkPointfocus(values);
+            if (bolCheckPointfocus) {
+              setIsDisableSubmitBtn(true);
+              dispatch(
+                orderFpageCreateAction(
+                  values,
+                  createOrderCallback,
+                  setIsDisableSubmitBtn
+                )
+              );
+            }
           }
         }
       }
@@ -470,8 +568,7 @@ export default function FpageOrders(props: any) {
   };
   //#endregion
 
-  const handleChangeProduct = (value: string) => {
-  };
+  const handleChangeProduct = (value: string) => {};
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -531,7 +628,8 @@ export default function FpageOrders(props: any) {
               errorFields[0].name.join("")
             );
             element?.focus();
-            const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+            const y =
+              element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
             window.scrollTo({ top: y, behavior: "smooth" });
           }}
           onFinish={onFinishFpage}
@@ -585,7 +683,7 @@ export default function FpageOrders(props: any) {
                 officeTime={officeTime}
                 setServiceType={setServiceType}
                 setHVC={setHvc}
-                setFeeGhtk={setFeeGhtk}
+                setFee={setFee}
                 payments={payments}
                 onPayments={onPayments}
               />
@@ -647,13 +745,14 @@ export default function FpageOrders(props: any) {
                       ))}
                     </Select>
                   </Form.Item>
-                  
+
                   <Form.Item
                     label="Tham chiếu"
                     name="reference_code"
                     tooltip={{
-                      title: "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
-                      icon: <InfoCircleOutlined />
+                      title:
+                        "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
+                      icon: <InfoCircleOutlined />,
                     }}
                   >
                     <Input placeholder="Điền tham chiếu" maxLength={255} />
@@ -709,10 +808,13 @@ export default function FpageOrders(props: any) {
             </Col>
 
             <Col className="customer-bottom-button" md={8}>
-              <Button className="order-button-width" onClick={() => window.location.reload()}>
+              <Button
+                className="order-button-width"
+                onClick={() => window.location.reload()}
+              >
                 Hủy
               </Button>
-              
+
               <Button
                 disabled={isDisableSubmitBtn}
                 type="primary"

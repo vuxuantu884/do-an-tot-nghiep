@@ -61,7 +61,7 @@ export const getReturnApi = (
   query: ReturnSearchQuery
 ): Promise<BaseResponse<ReturnModel>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.ORDER}/returns?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns?${queryString}`);
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
@@ -280,4 +280,10 @@ export const getChannelApi = (): Promise<
   BaseResponse<Array<ChannelResponse>>
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
+};
+
+export const getReasonsApi = (): Promise<
+  BaseResponse<Array<ChannelResponse>>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
 };

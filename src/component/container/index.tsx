@@ -48,9 +48,6 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
       dispatch(getBootstrapAction());
     }
   }, [dispatch, isLoad, isLogin]);
-  useEffect(() => {
-    window.scrollTo(0 ,0);
-  })
   if (isLoadUser && !isLogin) {
     return (
       <Redirect to={`${UrlConfig.LOGIN}?returnUrl=${location.pathname}`} />

@@ -175,7 +175,6 @@ const CustomerUpdate = (props: any) => {
     dispatch(UpdateCustomer(params.id, processValue, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
-    console.error("Failed:", errorInfo);
   };
   return (
     <ContentContainer

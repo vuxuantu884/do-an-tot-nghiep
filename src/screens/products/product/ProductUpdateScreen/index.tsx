@@ -52,7 +52,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useMemo, useRef } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
   formatCurrency,
@@ -72,6 +72,7 @@ const { Item } = Form;
 var tempActive: number = 0;
 const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [form] = Form.useForm();
   const { id } = useParams<ProductParams>();
   const idNumber = parseInt(id);
@@ -264,33 +265,70 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, idNumber, onResultUpdate]
   );
 
-  
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
+  const updateStatus = useCallback((listSelected: Array<number>, status) => {
     let values: ProductResponse = form.getFieldsValue(true);
     values?.variants.forEach((item) => {
       if (listSelected.includes(item.id)) {
-        item.saleable = true;
+        item.saleable = status;
       }
     });
     update(values);
   }, [form, update]);
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    let values: ProductResponse = form.getFieldsValue(true);
-    values?.variants.forEach((item) => {
-      if (listSelected.includes(item.id)) {
-        item.saleable = false;
+  const onAllowSale = useCallback((listSelected: Array<number>) => {
+    setModalConfirm({
+      visible: true,
+      okText: 'Lưu trạng thái',
+      title: 'Đổi trạng thái phiên bản',
+      cancelText: "Không lưu",
+      subTitle: 'Bạn có chắc chắn đổi trạng thái phiên bản?',
+      onCancel: () => {
+        setModalConfirm({visible: false})
+      },
+      onOk: () => {
+        setModalConfirm({visible: false})
+        updateStatus(listSelected, true);
       }
-    });
-    update(values);
-  }, [form, update]);
+    })
+  }, [updateStatus]);
+
+  const onStopSale = useCallback((listSelected: Array<number>) => {
+    setModalConfirm({
+      visible: true,
+      okText: 'Lưu trạng thái',
+      title: 'Đổi trạng thái phiên bản',
+      cancelText: "Không lưu",
+      subTitle: 'Bạn có chắc chắn đổi trạng thái phiên bản?',
+      onCancel: () => {
+        setModalConfirm({visible: false})
+      },
+      onOk: () => {
+        setModalConfirm({visible: false})
+        updateStatus(listSelected, false);
+      }
+    })
+  }, [updateStatus]);
+
+  
+
+  const onResultFinish = useCallback(
+    (data) => {
+      setLoadingVariant(false);
+      setLoadingButton(false);
+      if (!data) {
+      } else {
+        history.push(`${UrlConfig.PRODUCT}/${idNumber}`)
+      }
+    },
+    [history, idNumber]
+  );
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true);
-      dispatch(productUpdateAction(idNumber, values, onResultUpdate));
+      dispatch(productUpdateAction(idNumber, values, onResultFinish));
     },
-    [dispatch, idNumber, onResultUpdate]
+    [dispatch, idNumber, onResultFinish]
   );
 
   const onSave = useCallback(() => {

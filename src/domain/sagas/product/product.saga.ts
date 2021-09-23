@@ -131,7 +131,9 @@ function* searchVariantOrderSaga(action: YodyAction) {
       );
       switch (response.code) {
         case HttpStatus.SUCCESS:
-          setData(response.data);
+          let data = { ...response.data };
+          data.items = data.items.filter((item) => item.status === "active");
+          setData(data);
           break;
         case HttpStatus.UNAUTHORIZED:
           yield put(unauthorizedAction());
@@ -275,10 +277,13 @@ function* getHistorySaga(action: YodyAction) {
   }
 }
 
-function* getProductDetail(action: YodyAction){
+function* getProductDetail(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<ProductResponse> =yield call(productDetailApi, id);
+    let response: BaseResponse<ProductResponse> = yield call(
+      productDetailApi,
+      id
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -298,10 +303,14 @@ function* getProductDetail(action: YodyAction){
   }
 }
 
-function* putProductUpdate(action: YodyAction){
+function* putProductUpdate(action: YodyAction) {
   const { id, request, onResult } = action.payload;
   try {
-    let response: BaseResponse<ProductResponse> =yield call(productUpdateApi, id, request);
+    let response: BaseResponse<ProductResponse> = yield call(
+      productUpdateApi,
+      id,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -401,7 +410,8 @@ export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
     ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST,
-    searchProductWrapperSaga);
+    searchProductWrapperSaga
+  );
   yield takeLatest(
     ProductType.DELETE_PRODUCT_WRAPPER_REQUEST,
     productWrapperDeleteSaga);

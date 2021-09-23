@@ -137,17 +137,14 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     },
   ]);
 
-  const configDataFiltered = configData.filter((item: any) => {
-    if (activatedBtn.id === "all") {
+  const configDataFiltered = configData && configData?.filter((item: any) => {
+    if (activatedBtn?.id === "all") {
       return true;
     } else {
       return item.ecommerce === activatedBtn.id;
     }
   });
 
-  const handleBtnClick = (button: any) => {
-    setActivatedBtn(button);
-  };
   return (
     <StyledComponent>
       <div className="padding-20">
@@ -160,7 +157,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
               }
               icon={button.icon && <img src={button.icon} alt={button.id} />}
               type="ghost"
-              onClick={() => handleBtnClick(button)}
+              onClick={() => setActivatedBtn(button)}
             >
               {button.title}
             </Button>

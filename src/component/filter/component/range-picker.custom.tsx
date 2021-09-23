@@ -7,7 +7,7 @@ import _ from "lodash";
 
 const { RangePicker } = DatePicker;
 
-type CustomRangepickerProps = {
+type CustomRangePickerProps = {
   value?: Array<string | null>;
   onChange?: (dates: Array<string | null> | undefined) => void;
   style?: CSSProperties;
@@ -47,8 +47,8 @@ const getRange = (distance: number, unit: "day" | "month" | "week") => {
   return [from.utc().format(), to.utc().format()];
 };
 
-const CustomRangepicker: React.FC<CustomRangepickerProps> = (
-  props: CustomRangepickerProps
+const CustomRangePicker: React.FC<CustomRangePickerProps> = (
+  props: CustomRangePickerProps
 ) => {
   const { value, onChange, style } = props;
   const convertValue: [Moment, Moment] | undefined = useMemo(() => {
@@ -172,4 +172,4 @@ const CustomRangepicker: React.FC<CustomRangepickerProps> = (
   );
 };
 
-export default CustomRangepicker;
+export default CustomRangePicker;

@@ -171,7 +171,7 @@ const CreateSupplierScreen: React.FC = () => {
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
         setDataAccounts
       )
     );

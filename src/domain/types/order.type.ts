@@ -35,4 +35,5 @@ export const OrderType = {
   return: {
     GET_RETURN_DETAIL: "GET_RETURN_DETAIL",
   },
+  GET_LIST_REASON_REQUEST: "GET_LIST_REASON_REQUEST",
 };
