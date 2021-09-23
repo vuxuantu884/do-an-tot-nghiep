@@ -4,6 +4,15 @@
     overflow-x: hidden !important;
     overflow-y: scroll;
   }
+  .ant-tabs-nav{
+    padding: 0;
+  }
+  .ant-tabs-nav::before{
+    border-bottom: none !important;
+  }
+  .ant-tabs-nav-wrap{
+    margin-bottom: 10px;
+  }
   .ant-input-suffix {
     span {
       line-height: 26px;
@@ -163,10 +172,10 @@
   }
   .ant-select-dropdown {
     // left: 0 !important;
-    // width: 100% !important;
+    width: 100% !important;
   }
   .search-layout {
-    left: 0;
+    left: 0 !important;
   }
   .login {
     width: 400px !important;

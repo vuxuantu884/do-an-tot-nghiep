@@ -34,7 +34,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderResponse,
-  StoreCustomResponse,FulFillmentResponse,
+  StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
@@ -83,9 +83,6 @@ export default function FpageOrders(props: any) {
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
     null
-  );
-  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
-    []
   );
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
