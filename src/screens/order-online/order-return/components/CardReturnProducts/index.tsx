@@ -7,6 +7,7 @@ import {
   Col,
   Input,
   InputNumber,
+  Popover,
   Row,
   Table,
 } from "antd";
@@ -27,11 +28,12 @@ import { StyledComponent } from "./styles";
 type PropType = {
   listOrderProducts?: OrderLineItemResponse[];
   listReturnProducts: ReturnProductModel[];
-  handleReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
+  handleReturnProducts?: (listReturnProducts: ReturnProductModel[]) => void;
   handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
-  isExchange: boolean;
-  isStepExchange: boolean;
+  isExchange?: boolean;
+  isStepExchange?: boolean;
+  discountValue: number;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -43,6 +45,7 @@ function CardReturnProducts(props: PropType) {
     isDetailPage,
     isExchange,
     isStepExchange,
+    discountValue,
   } = props;
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
@@ -76,7 +79,9 @@ function CardReturnProducts(props: PropType) {
         selectedVariant.quantity += 1;
       }
     }
-    handleReturnProducts(result);
+    if (handleReturnProducts) {
+      handleReturnProducts(result);
+    }
     if (handleCanReturn) {
       handleCanReturn(true);
     }
@@ -107,7 +112,9 @@ function CardReturnProducts(props: PropType) {
           maxQuantity: single.quantity,
         };
       });
-      handleReturnProducts(result);
+      if (handleReturnProducts) {
+        handleReturnProducts(result);
+      }
       checkIfIsCanReturn(result);
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
@@ -117,7 +124,9 @@ function CardReturnProducts(props: PropType) {
           maxQuantity: single.quantity,
         };
       });
-      handleReturnProducts(result);
+      if (handleReturnProducts) {
+        handleReturnProducts(result);
+      }
       checkIfIsCanReturn(result);
     }
     setIsCheckReturnAll(e.target.checked);
@@ -203,7 +212,9 @@ function CardReturnProducts(props: PropType) {
     resultListReturnProducts[index].quantity = Number(
       value == null ? "0" : value.toString().replace(".", "")
     );
-    handleReturnProducts(resultListReturnProducts);
+    if (handleReturnProducts) {
+      handleReturnProducts(resultListReturnProducts);
+    }
     if (
       resultListReturnProducts.some((single) => {
         return single.maxQuantity && single.quantity < single.maxQuantity;
@@ -231,6 +242,32 @@ function CardReturnProducts(props: PropType) {
       result = false;
     }
     return result;
+  };
+
+  const renderPopOverPriceTitle = () => {
+    return (
+      <div>
+        <div className="single">
+          <p>Đơn giá gốc: </p>
+          <p>399.000</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPopOverPriceContent = () => {
+    return (
+      <div>
+        <div className="single">
+          <p>Chiết khấu/sản phẩm: </p>
+          <p>100.000</p>
+        </div>
+        <div className="single">
+          <p>Chiết khấu/đơn hàng:: </p>
+          <p>100.000</p>
+        </div>
+      </div>
+    );
   };
 
   const columns: ColumnType<any>[] = [
@@ -274,27 +311,35 @@ function CardReturnProducts(props: PropType) {
       },
     },
     {
-      title: "Giá hàng trả",
+      title: "Đơn giá sau giảm giá",
       dataIndex: "price",
       key: "price",
       width: "20%",
       render: (value: number, record: ReturnProductModel, index: number) => {
-        return <div>{formatCurrency(value)}</div>;
-      },
-    },
-    {
-      title: "Chiết khấu",
-      width: "20%",
-      render: (value: number, record: ReturnProductModel, index: number) => {
+        // return <div>{formatCurrency(value)}</div>;
         return (
-          <div>
-            {record.discount_items[0].value !== null
-              ? formatCurrency(record.discount_items[0].value)
-              : 0}
-          </div>
+          <Popover
+            content={renderPopOverPriceContent()}
+            title={renderPopOverPriceTitle()}
+          >
+            20000d
+          </Popover>
         );
       },
     },
+    // {
+    //   title: "Chiết khấu",
+    //   width: "20%",
+    //   render: (value: number, record: ReturnProductModel, index: number) => {
+    //     return (
+    //       <div>
+    //         {record.discount_items[0].value !== null
+    //           ? formatCurrency(record.discount_items[0].value)
+    //           : 0}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       title: "Thành tiền",
       key: "total",
@@ -397,9 +442,9 @@ function CardReturnProducts(props: PropType) {
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền hàng trả:</strong>
+              <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong className="text-success font-size-price">
-                {getTotalPrice(listReturnProducts)}
+                {formatCurrency(getTotalPrice(listReturnProducts))}
               </strong>
             </Row>
           </Col>

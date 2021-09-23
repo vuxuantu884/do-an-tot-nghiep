@@ -11,7 +11,6 @@ type PropType = {
  */
 function OrderMoreDetails(props: PropType) {
   const { OrderDetail } = props;
-  console.log("OrderDetail", OrderDetail);
   return (
     <StyledComponent>
       <Card

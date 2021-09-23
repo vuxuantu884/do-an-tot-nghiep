@@ -1490,7 +1490,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => {
                 history.push(
-                  `${UrlConfig.ORDER}/orders-return/create?orderID=${OrderDetail?.id}`
+                  `${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}`
                 );
               }}
             >
