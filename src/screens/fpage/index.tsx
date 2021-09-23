@@ -11,6 +11,12 @@ import "./fpage.index.scss";
 import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
 
 const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",
@@ -45,7 +51,20 @@ function FpageCRM() {
     }
   );
   const [metaData, setMetaData] = React.useState<any>({});
+  const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>([]);
 
+
+  React.useEffect(() => {
+    if (customerDetail) {
+      dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customerDetail]);
+
+console.log(loyaltyPoint,loyaltyUsageRules )
   const onPageChange = React.useCallback(
     (page, limit) => {
       setQuerySearchOrderFpage({ ...querySearchOrderFpage, page, limit });
@@ -153,6 +172,8 @@ function FpageCRM() {
             metaData={metaData}
             onPageChange={onPageChange}
             customerFbName={customerFbName}
+            loyaltyPoint={loyaltyPoint}
+            loyaltyUsageRules={loyaltyUsageRules}
           />
         )}
       </div>
@@ -167,6 +188,8 @@ function FpageCRM() {
             setCustomerPhone={setCustomerPhone}
             setOrderHistory={setOrderHistory}
             getCustomerByPhone={getCustomerWhenChoicePhone}
+            loyaltyPoint={loyaltyPoint}
+            loyaltyUsageRules={loyaltyUsageRules}
           />
         )}
       </div>
