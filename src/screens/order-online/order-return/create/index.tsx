@@ -1,10 +1,12 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
-import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { actionCreateOrderReturn } from "domain/actions/order/order-return.action";
+import {
+  actionCreateOrderReturn,
+  actionGetOrderReturnReasons,
+} from "domain/actions/order/order-return.action";
 import {
   orderCreateAction,
   OrderDetailAction,
@@ -29,6 +31,7 @@ import {
   FulFillmentResponse,
   OrderLineItemResponse,
   OrderResponse,
+  OrderReturnReasonModel,
   ReturnProductModel,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -61,6 +64,7 @@ import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnShipment from "../components/CardReturnShipment";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
+import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
 import OrderShortDetails from "../components/Sidebar/OrderShortDetails";
 
 type PropType = {
@@ -136,6 +140,9 @@ const ScreenReturnDetail = (props: PropType) => {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
+  const [listOrderReturnReason, setListOrderReturnReason] = useState<
+    OrderReturnReasonModel[]
+  >([]);
   const [discountValue, setDisCountValue] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
@@ -236,9 +243,6 @@ const ScreenReturnDetail = (props: PropType) => {
     }
   }, []);
 
-  const handleChangeSubStatus = () => {
-    setCountChangeSubStatus(countChangeSubStatus + 1);
-  };
   const handleListExchangeProducts = (
     listExchangeProducts: OrderLineItemRequest[]
   ) => {
@@ -246,29 +250,30 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const onReturn = () => {
-    if (OrderDetail && listReturnProducts) {
-      let orderDetailFormatted: ReturnRequest = {
-        ...OrderDetail,
-        action: "",
-        delivery_service_provider_id: null,
-        delivery_fee: null,
-        shipper_code: "",
-        shipper_name: "",
-        shipping_fee_paid_to_three_pls: null,
-        requirements: null,
-        items: listReturnProducts,
-        fulfillments: [],
-        payments: payments,
-        reason_id: 1,
-        received: isReceivedReturnProducts,
-      };
-
-      dispatch(
-        actionCreateOrderReturn(orderDetailFormatted, (response) => {
-          console.log("response", response);
-        })
-      );
-    }
+    form.validateFields().then(() => {
+      if (OrderDetail && listReturnProducts) {
+        let orderDetailFormatted: ReturnRequest = {
+          ...OrderDetail,
+          action: "",
+          delivery_service_provider_id: null,
+          delivery_fee: null,
+          shipper_code: "",
+          shipper_name: "",
+          shipping_fee_paid_to_three_pls: null,
+          requirements: null,
+          items: listReturnProducts,
+          fulfillments: [],
+          payments: payments,
+          reason_id: form.getFieldValue("reason_id"),
+          received: isReceivedReturnProducts,
+        };
+        dispatch(
+          actionCreateOrderReturn(orderDetailFormatted, (response) => {
+            console.log("response", response);
+          })
+        );
+      }
+    });
   };
 
   const onReturnAndExchange = async () => {
@@ -663,12 +668,8 @@ const ScreenReturnDetail = (props: PropType) => {
 
               <Col md={6}>
                 <OrderShortDetails OrderDetail={OrderDetail} />
-                <SubStatusOrder
-                  subStatusId={OrderDetail?.sub_status_id}
-                  status={OrderDetail?.status}
-                  orderId={orderId}
-                  fulfillments={OrderDetail?.fulfillments}
-                  handleChangeSubStatus={handleChangeSubStatus}
+                <OrderReturnReason
+                  listOrderReturnReason={listOrderReturnReason}
                 />
                 <OrderMoreDetails OrderDetail={OrderDetail} />
               </Col>
@@ -727,6 +728,14 @@ const ScreenReturnDetail = (props: PropType) => {
       setIsCanExchange(true);
     }
   }, [isStepExchange, listExchangeProducts.length]);
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderReturnReasons((response) => {
+        setListOrderReturnReason(response);
+      })
+    );
+  }, [dispatch]);
 
   return (
     <ContentContainer

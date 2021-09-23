@@ -381,3 +381,8 @@ export interface ErrorLogResponse extends BaseObject {
 export interface OrderReturnModel extends OrderResponse {
   received: boolean;
 }
+
+export interface OrderReturnReasonModel {
+  id: number;
+  name: string;
+}
