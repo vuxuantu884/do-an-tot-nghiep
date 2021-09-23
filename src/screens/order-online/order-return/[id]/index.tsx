@@ -48,7 +48,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
 
-  const [discountValue, setDisCountValue] = useState<number>(0);
+  const [discountValue] = useState<number>(0);
   const [listReturnProducts, setListReturnProducts] = useState<
     ReturnProductModel[]
   >([]);

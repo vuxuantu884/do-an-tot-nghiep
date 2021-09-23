@@ -2,7 +2,6 @@ import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React from "react";
 import CardReturnMoneyPageCreate from "./CardReturnMoneyPageCreate";
-import CardReturnMoneyPageDetail from "./CardReturnMoneyPageDetail";
 import { StyledComponent } from "./styles";
 
 type PropType = {

@@ -18,7 +18,6 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
-  OrderItemDiscountResponse,
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
@@ -48,7 +47,6 @@ function CardReturnProducts(props: PropType) {
     isDetailPage,
     isExchange,
     isStepExchange,
-    discountValue,
     discountRate,
     setTotalAmountReturnProducts,
   } = props;
