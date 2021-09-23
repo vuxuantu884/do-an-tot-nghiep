@@ -14,6 +14,13 @@ type PropType = {
   isExchange: boolean;
   isStepExchange: boolean;
   totalAmountNeedToPay?: number;
+  returnMoneyType?: string;
+  returnMoneyMethod?: PaymentMethodResponse | null;
+  returnMoneyNote?: string;
+  setReturnMoneyType?: (value: string) => void;
+  setReturnMoneyMethod?: (value: PaymentMethodResponse) => void;
+  setReturnMoneyNote?: (value: string) => void;
+  setReturnMoneyAmount?: (value: number) => void;
 };
 function CardReturnMoney(props: PropType) {
   const {
@@ -25,6 +32,13 @@ function CardReturnMoney(props: PropType) {
     totalAmountNeedToPay,
     isExchange,
     isStepExchange,
+    returnMoneyType,
+    returnMoneyMethod,
+    returnMoneyNote,
+    setReturnMoneyType,
+    setReturnMoneyNote,
+    setReturnMoneyMethod,
+    setReturnMoneyAmount,
   } = props;
   const mainRender = () => {
     if (isDetailPage) {
@@ -45,6 +59,13 @@ function CardReturnMoney(props: PropType) {
         totalAmountNeedToPay={totalAmountNeedToPay}
         isExchange={isExchange}
         isStepExchange={isStepExchange}
+        returnMoneyType={returnMoneyType}
+        setReturnMoneyType={setReturnMoneyType}
+        returnMoneyMethod={returnMoneyMethod}
+        setReturnMoneyMethod={setReturnMoneyMethod}
+        returnMoneyNote={returnMoneyNote}
+        setReturnMoneyNote={setReturnMoneyNote}
+        setReturnMoneyAmount={setReturnMoneyAmount}
       />
     );
   };

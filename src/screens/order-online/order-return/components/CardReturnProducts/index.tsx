@@ -7,6 +7,7 @@ import {
   Col,
   Input,
   InputNumber,
+  Popover,
   Row,
   Table,
 } from "antd";
@@ -243,6 +244,32 @@ function CardReturnProducts(props: PropType) {
     return result;
   };
 
+  const renderPopOverPriceTitle = () => {
+    return (
+      <div>
+        <div className="single">
+          <p>Đơn giá gốc: </p>
+          <p>399.000</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPopOverPriceContent = () => {
+    return (
+      <div>
+        <div className="single">
+          <p>Chiết khấu/sản phẩm: </p>
+          <p>100.000</p>
+        </div>
+        <div className="single">
+          <p>Chiết khấu/đơn hàng:: </p>
+          <p>100.000</p>
+        </div>
+      </div>
+    );
+  };
+
   const columns: ColumnType<any>[] = [
     {
       title: "Sản phẩm",
@@ -284,12 +311,20 @@ function CardReturnProducts(props: PropType) {
       },
     },
     {
-      title: "Giá hàng trả",
+      title: "Đơn giá sau giảm giá",
       dataIndex: "price",
       key: "price",
       width: "20%",
       render: (value: number, record: ReturnProductModel, index: number) => {
-        return <div>{formatCurrency(value)}</div>;
+        // return <div>{formatCurrency(value)}</div>;
+        return (
+          <Popover
+            content={renderPopOverPriceContent()}
+            title={renderPopOverPriceTitle()}
+          >
+            20000d
+          </Popover>
+        );
       },
     },
     // {
@@ -407,13 +442,7 @@ function CardReturnProducts(props: PropType) {
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng chiết khấu:</strong>
-              <strong className="text-success font-size-price">
-                {discountValue ? formatCurrency(discountValue) : 0}
-              </strong>
-            </Row>
-            <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền hàng trả:</strong>
+              <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong className="text-success font-size-price">
                 {formatCurrency(getTotalPrice(listReturnProducts))}
               </strong>

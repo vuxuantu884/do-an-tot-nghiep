@@ -54,6 +54,7 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
+import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -75,7 +76,7 @@ type PropType = {
 let typeButton = "";
 let order_return_id: number = 0;
 
-const ScreenReturnDetail = (props: PropType) => {
+const ScreenReturnCreate = (props: PropType) => {
   const [form] = Form.useForm();
   const [isError, setError] = useState<boolean>(false);
   const [isCanReturnOrExchange, setIsCanReturnOrExchange] =
@@ -123,7 +124,6 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-  const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [amountReturn] = useState<number>(0);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
@@ -152,6 +152,13 @@ const ScreenReturnDetail = (props: PropType) => {
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
   const [fulfillments] = useState<Array<FulFillmentResponse>>([]);
+  const [returnMoneyType, setReturnMoneyType] = useState(
+    RETURN_MONEY_TYPE.return_later
+  );
+  const [returnMoneyMethod, setReturnMoneyMethod] =
+    useState<PaymentMethodResponse | null>(null);
+  const [returnMoneyNote, setReturnMoneyNote] = useState("");
+  const [returnMoneyAmount, setReturnMoneyAmount] = useState(0);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -251,10 +258,38 @@ const ScreenReturnDetail = (props: PropType) => {
   ) => {
     setListExchangeProducts(listExchangeProducts);
   };
-
   const onReturn = () => {
     form.validateFields().then(() => {
       if (OrderDetail && listReturnProducts) {
+        let payments: OrderPaymentRequest[] | null = [];
+        if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+          if (returnMoneyMethod) {
+            payments = [
+              {
+                payment_method_id: returnMoneyMethod.id,
+                payment_method: returnMoneyMethod.name,
+                amount: returnMoneyAmount,
+                reference: "",
+                source: "",
+                paid_amount: returnMoneyAmount,
+                return_amount: 0.0,
+                status: "paid",
+                customer_id: 1,
+                type: "",
+                note: returnMoneyNote || "",
+                code: "",
+              },
+            ];
+          }
+        }
+        let items = listReturnProducts.map((single) => {
+          const { maxQuantity, ...rest } = single;
+          console.log("rest", rest);
+          return rest;
+        });
+        let abc = items.filter((single) => {
+          return single.quantity > 0;
+        });
         let orderDetailFormatted: ReturnRequest = {
           ...OrderDetail,
           action: "",
@@ -264,15 +299,17 @@ const ScreenReturnDetail = (props: PropType) => {
           shipper_name: "",
           shipping_fee_paid_to_three_pls: null,
           requirements: null,
-          items: listReturnProducts,
+          items: abc,
           fulfillments: [],
           payments: payments,
           reason_id: form.getFieldValue("reason_id"),
           received: isReceivedReturnProducts,
         };
+        console.log("orderDetailFormatted", orderDetailFormatted);
         dispatch(
           actionCreateOrderReturn(orderDetailFormatted, (response) => {
             console.log("response", response);
+            history.push(`${UrlConfig.ORDER}/order-return/${response.id}`);
           })
         );
       }
@@ -631,6 +668,13 @@ const ScreenReturnDetail = (props: PropType) => {
                   totalAmountNeedToPay={totalAmountNeedToPay}
                   isExchange={isExchange}
                   isStepExchange={isStepExchange}
+                  returnMoneyType={returnMoneyType}
+                  setReturnMoneyType={setReturnMoneyType}
+                  returnMoneyMethod={returnMoneyMethod}
+                  setReturnMoneyMethod={setReturnMoneyMethod}
+                  returnMoneyNote={returnMoneyNote}
+                  setReturnMoneyNote={setReturnMoneyNote}
+                  setReturnMoneyAmount={setReturnMoneyAmount}
                 />
                 {isExchange && isStepExchange && (
                   <CardReturnShipment
@@ -787,4 +831,4 @@ const ScreenReturnDetail = (props: PropType) => {
   );
 };
 
-export default ScreenReturnDetail;
+export default ScreenReturnCreate;
