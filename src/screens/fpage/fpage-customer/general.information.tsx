@@ -50,7 +50,7 @@ const GeneralInformation = (props: any) => {
                 <span className="customer-field-label">Tên khách hàng:</span>
               }
               form={form}
-              suffix={customerDetail?.customer_level}
+              customerDetail={customerDetail}
               message="Vui lòng nhập họ tên khách hàng"
               placeholder="Nhập họ và tên khách hàng"
               isRequired={true}

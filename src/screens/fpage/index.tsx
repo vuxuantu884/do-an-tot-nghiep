@@ -36,7 +36,7 @@ function FpageCRM() {
     queryString?.get("phone")
   );
   const [customerFbName] = React.useState<string | null>(queryString?.get("name"))
-  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>([]);
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel> | undefined>([]);
   const [querySearchOrderFpage, setQuerySearchOrderFpage] = React.useState<any>(
     {
       limit: 10,
@@ -54,11 +54,9 @@ function FpageCRM() {
   );
 
   const searchByPhoneCallback = (value: any) => {
-    if (value !== undefined) {
       setCustomerDetail(value);
-    } else {
-      setCustomerDetail(undefined);
-    }
+      setOrderHistory(undefined);
+      setMetaData(null);
   };
   React.useEffect(() => {
     if (

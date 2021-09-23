@@ -61,7 +61,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   useEffect(() => {
     setConfigDetail(configToView);
   }, [configToView, setConfigDetail]);
-
   const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
     if (value) {
       setConfigDetail(value);
@@ -80,7 +79,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     (value: EcommerceRequest) => {
       if (configDetail) {
         const id = configDetail?.id;
-        const index = configData.find((item) => item.id === id);
+        const index = configData && configData?.find((item) => item.id === id);
         let request = {
           ...configDetail,
           ...value,
@@ -110,7 +109,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       configData,
     ]
   );
-
+  const handleDisconnectEcommerce = () => {
+    
+  };
   const handleStoreChange = (event: any) => {
     let inventories = [];
     for (let id of event) {
@@ -150,7 +151,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
-      const data = _configData.find((item) => item.id === id);
+      const data = _configData?.find((item) => item.id === id);
       setConfigDetail(data);
     },
     [configData, setConfigDetail]
@@ -463,13 +464,13 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </Form.Item>
           </Col>
         </Row>
-
         <div className="customer-bottom-button">
           <Button
             className="disconnect-btn"
             icon={<img src={disconnectIcon} alt="" />}
             style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
             type="ghost"
+            onClick={handleDisconnectEcommerce}
           >
             Ngắt kết nối
           </Button>

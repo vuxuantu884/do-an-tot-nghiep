@@ -9,9 +9,16 @@ type CustomInputProps = {
   placeholder?: string;
   maxLength?: number;
   isRequired?: boolean;
-  suffix?: string;
+  customerDetail?: any;
 };
-
+const color: any = {
+  "new": "#00F000",
+  "old": "#F5C4C4",
+  "Vip S": "#cccccc",
+  "Vip G": "#F0F000",
+  "Vip R": "#FF0000",
+  "Vip D": "#007FFF",
+};
 function CustomInput(props: CustomInputProps) {
   const {
     name,
@@ -21,14 +28,14 @@ function CustomInput(props: CustomInputProps) {
     placeholder,
     maxLength,
     isRequired,
-    suffix,
+    customerDetail,
   } = props;
   const [value, setValue] = useState<string>("");
-
   const handleChange = useCallback((v: any) => {
     setValue(v.trim());
   }, []);
 
+  const vipS = "new";
   const handleBlur = (v: any) => {
     setValue(v.trim());
     form.setFieldsValue({ [name]: value });
@@ -45,7 +52,13 @@ function CustomInput(props: CustomInputProps) {
       rules={[{ required: isRequired, message: `${message}` }]}
     >
       <Input
-        suffix={suffix ? <span>{suffix}</span> : null}
+        suffix={
+          customerDetail ? (
+            <span style={{ backgroundColor: `${color[vipS]}` }}>
+              {`Khách mới: ${"500"} điểm`}
+            </span>
+          ) : null
+        }
         maxLength={maxLength}
         placeholder={`${placeholder}`}
         onBlur={(value) => handleBlur(value.target.value)}
@@ -56,3 +69,5 @@ function CustomInput(props: CustomInputProps) {
 }
 
 export default CustomInput;
+
+
