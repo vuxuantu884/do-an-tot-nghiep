@@ -605,7 +605,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                   <Col span={12}>
                     Số tiền
                     <Input
-                      value={formatCurrency(calculateMoneyReturnLeft)}
+                      value={formatCurrency(
+                        Math.round(calculateMoneyReturnLeft)
+                      )}
                       disabled
                     />
                   </Col>

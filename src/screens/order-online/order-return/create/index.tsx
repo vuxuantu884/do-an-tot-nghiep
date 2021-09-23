@@ -102,7 +102,8 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const [storeId, setStoreId] = useState<number | null>(null);
   const [orderAmount] = useState<number>(0);
-  const [discountRate] = useState<number>(0);
+  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   const [loyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [tags, setTag] = useState<string>("");
   const [shippingAddress] = useState<ShippingAddress | null>(null);
@@ -124,7 +125,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-  const [amountReturn] = useState<number>(0);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
   const [listExchangeProducts, setListExchangeProducts] = useState<
@@ -207,7 +207,7 @@ const ScreenReturnCreate = (props: PropType) => {
   let totalAmountNeedToPay =
     getTotalPrice(listExchangeProducts) +
     (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-    getTotalPrice(listReturnProducts);
+    totalAmountReturnProducts;
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     if (!data) {
@@ -249,6 +249,14 @@ const ScreenReturnCreate = (props: PropType) => {
           }
         });
         setDisCountValue(totalDiscount);
+        if (_data.discounts) {
+          let discountRate = 0;
+          _data.discounts.forEach((single) => {
+            const singleDiscountRate = single.rate || 0;
+            discountRate += singleDiscountRate;
+          });
+          setDiscountRate(discountRate);
+        }
       }
     }
   }, []);
@@ -284,12 +292,12 @@ const ScreenReturnCreate = (props: PropType) => {
         }
         let items = listReturnProducts.map((single) => {
           const { maxQuantity, ...rest } = single;
-          console.log("rest", rest);
           return rest;
         });
-        let abc = items.filter((single) => {
+        let itemsResult = items.filter((single) => {
           return single.quantity > 0;
         });
+        console.log("OrderDetail", OrderDetail);
         let orderDetailFormatted: ReturnRequest = {
           ...OrderDetail,
           action: "",
@@ -299,7 +307,7 @@ const ScreenReturnCreate = (props: PropType) => {
           shipper_name: "",
           shipping_fee_paid_to_three_pls: null,
           requirements: null,
-          items: abc,
+          items: itemsResult,
           fulfillments: [],
           payments: payments,
           reason_id: form.getFieldValue("reason_id"),
@@ -640,6 +648,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 />
                 <CardReturnProducts
                   discountValue={discountValue}
+                  discountRate={discountRate}
                   listReturnProducts={listReturnProducts}
                   handleReturnProducts={(
                     listReturnProducts: ReturnProductModel[]
@@ -649,6 +658,7 @@ const ScreenReturnCreate = (props: PropType) => {
                   isDetailPage={false}
                   isExchange={isExchange}
                   isStepExchange={isStepExchange}
+                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts
@@ -661,7 +671,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 )}
                 <CardReturnMoney
                   listPaymentMethods={listPaymentMethods}
-                  amountReturn={amountReturn}
+                  amountReturn={returnMoneyAmount}
                   payments={payments}
                   handlePayments={setPayments}
                   isDetailPage={false}

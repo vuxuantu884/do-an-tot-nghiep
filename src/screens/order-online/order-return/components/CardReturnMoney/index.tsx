@@ -40,16 +40,16 @@ function CardReturnMoney(props: PropType) {
     setReturnMoneyMethod,
     setReturnMoneyAmount,
   } = props;
+  console.log("amountReturn", amountReturn);
   const mainRender = () => {
     if (isDetailPage) {
-      return (
-        <CardReturnMoneyPageDetail
-          listPaymentMethods={listPaymentMethods}
-          amountReturn={amountReturn}
-          payments={payments}
-          handlePayments={handlePayments}
-        />
-      );
+      return 222;
+      // <CardReturnMoneyPageDetail
+      //   listPaymentMethods={listPaymentMethods}
+      //   amountReturn={amountReturn}
+      //   payments={payments}
+      //   handlePayments={handlePayments}
+      // />
     }
     return (
       <CardReturnMoneyPageCreate

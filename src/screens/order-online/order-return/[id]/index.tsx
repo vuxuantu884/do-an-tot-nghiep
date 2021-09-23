@@ -8,17 +8,26 @@ import {
   actionSetIsReceivedOrderReturn,
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import {
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+} from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  OrderPaymentResponse,
   OrderResponse,
   OrderReturnModel,
   ReturnProductModel,
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { FulFillmentStatus } from "utils/Constants";
+import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
+import CardReturnMoney from "../components/CardReturnMoney";
+import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -50,6 +59,9 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listReturnProducts, setListReturnProducts] = useState<
     ReturnProductModel[]
   >([]);
+  const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
+
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
@@ -83,6 +95,9 @@ const ScreenReturnDetail = (props: PropType) => {
                   };
                 });
               setListReturnProducts(returnProductFormatted);
+              if (_data.payments) {
+                setPayments(_data.payments);
+              }
             }
             // let formatted: ReturnProductModel[] = _data.items.map((single) => {
             //   return {
@@ -150,14 +165,14 @@ const ScreenReturnDetail = (props: PropType) => {
               discountValue={discountValue}
               listReturnProducts={listReturnProducts}
               isDetailPage={true}
+              setTotalAmountReturnProducts={(value: number) => {
+                setTotalAmountReturnProducts(value);
+              }}
             />
-            {/* <CardReturnMoney
-              listPaymentMethods={listPaymentMethods}
-              amountReturn={amountReturn}
+            <CardReturnMoneyPageDetail
               payments={payments}
-              handlePayments={handlePayments}
-              isDetailPage={isDetailPage}
-            /> */}
+              returnMoneyAmount={totalAmountReturnProducts}
+            />
             <CardReturnReceiveProducts
               isDetailPage={isDetailPage}
               isReceivedReturnProducts={isReceivedReturnProducts}
