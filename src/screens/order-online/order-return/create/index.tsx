@@ -1,5 +1,6 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
+import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -145,6 +146,8 @@ const ScreenReturnDetail = (props: PropType) => {
   >([]);
   const [discountValue, setDisCountValue] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [isVisibleModalWarning, setIsVisibleModalWarning] =
+    useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
@@ -677,7 +680,15 @@ const ScreenReturnDetail = (props: PropType) => {
           </Form>
         </div>
         <ReturnBottomBar
-          onReturn={() => onReturn()}
+          onReturn={() => {
+            form.validateFields().then(() => {
+              if (isReceivedReturnProducts) {
+                onReturn();
+              } else {
+                setIsVisibleModalWarning(true);
+              }
+            });
+          }}
           onReturnAndExchange={() => onReturnAndExchange()}
           onCancel={() => handleCancel()}
           isCanReturn={isCanReturn}
@@ -685,6 +696,20 @@ const ScreenReturnDetail = (props: PropType) => {
           isExchange={isExchange}
           isStepExchange={isStepExchange}
           handleIsStepExchange={setIsStepExchange}
+        />
+        <ModalConfirm
+          onCancel={() => {
+            setIsVisibleModalWarning(false);
+          }}
+          onOk={() => {
+            onReturn();
+            setIsVisibleModalWarning(false);
+          }}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          title={`Đơn trả hàng chưa nhận hàng trả lại, bạn có muốn tiếp tục đổi hàng không?`}
+          subTitle=""
+          visible={isVisibleModalWarning}
         />
       </React.Fragment>
     );

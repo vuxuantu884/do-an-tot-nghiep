@@ -53,9 +53,9 @@ function CardReturnReceiveProducts(props: PropType) {
             }
           }}
         >
-          Đã nhận hàng trả lại
+          {!isDetailPage ? "Đã nhận hàng trả lại" : "Đã nhận hàng trả lại"}
         </Checkbox>
-        <Button>Nhận hàng</Button>
+        {isDetailPage && <Button>Nhận hàng</Button>}
       </div>
     );
   };
@@ -73,7 +73,7 @@ function CardReturnReceiveProducts(props: PropType) {
     return (
       <Card
         className="margin-top-20"
-        title="Đã nhận hàng trả lại"
+        title={!isDetailPage ? "Nhận hàng" : "Đã nhận hàng trả lại"}
         extra={renderCardExtra()}
       />
     );

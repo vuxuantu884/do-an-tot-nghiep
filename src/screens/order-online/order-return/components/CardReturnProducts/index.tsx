@@ -292,19 +292,19 @@ function CardReturnProducts(props: PropType) {
         return <div>{formatCurrency(value)}</div>;
       },
     },
-    {
-      title: "Chiết khấu",
-      width: "20%",
-      render: (value: number, record: ReturnProductModel, index: number) => {
-        return (
-          <div>
-            {record.discount_items[0].value !== null
-              ? formatCurrency(record.discount_items[0].value)
-              : 0}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: "Chiết khấu",
+    //   width: "20%",
+    //   render: (value: number, record: ReturnProductModel, index: number) => {
+    //     return (
+    //       <div>
+    //         {record.discount_items[0].value !== null
+    //           ? formatCurrency(record.discount_items[0].value)
+    //           : 0}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       title: "Thành tiền",
       key: "total",
@@ -409,13 +409,13 @@ function CardReturnProducts(props: PropType) {
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng chiết khấu:</strong>
               <strong className="text-success font-size-price">
-                {discountValue ? discountValue : 0}
+                {discountValue ? formatCurrency(discountValue) : 0}
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền hàng trả:</strong>
               <strong className="text-success font-size-price">
-                {getTotalPrice(listReturnProducts)}
+                {formatCurrency(getTotalPrice(listReturnProducts))}
               </strong>
             </Row>
           </Col>
