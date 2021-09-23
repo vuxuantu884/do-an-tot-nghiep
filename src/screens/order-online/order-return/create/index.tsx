@@ -274,7 +274,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 paid_amount: returnMoneyAmount,
                 return_amount: 0.0,
                 status: "paid",
-                customer_id: 1,
+                customer_id: customer?.id || null,
                 type: "",
                 note: returnMoneyNote || "",
                 code: "",
@@ -309,7 +309,7 @@ const ScreenReturnCreate = (props: PropType) => {
         dispatch(
           actionCreateOrderReturn(orderDetailFormatted, (response) => {
             console.log("response", response);
-            history.push(`${UrlConfig.ORDER}/order-return/${response.id}`);
+            history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
           })
         );
       }
