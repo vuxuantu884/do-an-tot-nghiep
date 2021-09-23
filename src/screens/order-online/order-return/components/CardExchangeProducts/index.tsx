@@ -29,6 +29,7 @@ import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -43,6 +44,7 @@ import React, {
   createRef,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
@@ -733,6 +735,10 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   const onCancelDiscountConfirm = useCallback(() => {
     setVisiblePickDiscount(false);
   }, []);
+
+  useLayoutEffect(() => {
+    dispatch(StoreGetListAction(setListStores));
+  }, [dispatch]);
 
   const onOkDiscountConfirm = (
     type: string,

@@ -3,17 +3,16 @@ import {
   Button,
   Card,
   Col,
+  Collapse,
+  Divider,
   Form,
   Input,
   InputNumber,
   Radio,
   Row,
-  Space,
   Select,
-  Divider,
-  Collapse,
+  Space,
 } from "antd";
-import CustomDatePicker from "component/custom/date-picker.custom";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
@@ -72,44 +71,20 @@ function CardReturnMoneyPageCreate(props: PropType) {
    * payment method bỏ tiêu điểm và qr pay
    */
   const exceptMethods = [PaymentMethodCode.QR_CODE, PaymentMethodCode.POINT];
-  // const listPaymentMethodsFormatted = isReturnMoneyToCustomer
-  //   ? listPaymentMethods.filter((single) => {
-  //       return !exceptMethods.includes(single.code);
-  //     })
-  //   : listPaymentMethods;
+
   let listPaymentMethodsFormatted = listPaymentMethods;
   if (isReturnMoneyToCustomer) {
     listPaymentMethodsFormatted = listPaymentMethods.filter((single) => {
       return !exceptMethods.includes(single.code);
     });
-    // const payLater: PaymentMethodResponse = {
-    //   code: "thanhToanSau",
-    //   id: 999,
-    //   name: "Thanh toán sau",
-    // };
-    // listPaymentMethodsFormatted.push(payLater);
   }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const totalAmountReturn = () => {
     let total = 0;
     payments.forEach((p) => (total = total + p.amount));
     return total;
   };
-
-  // const calculateMoneyReturnLeft = () => {
-  //   if (totalAmountNeedToPay === undefined) {
-  //     return 0;
-  //   }
-  //   console.log("totalAmountNeedToPay", totalAmountNeedToPay);
-  //   let result = 0;
-  //   result =
-  //     totalAmountNeedToPay > 0
-  //       ? totalAmountNeedToPay - totalAmountReturn()
-  //       : -totalAmountNeedToPay - totalAmountReturn();
-  //   if (setReturnMoneyAmount) {
-  //     setReturnMoneyAmount(result);
-  //   }
-  //   return result;
-  // };
 
   const calculateMoneyReturnLeft = useMemo(() => {
     if (totalAmountNeedToPay === undefined) {
@@ -605,7 +580,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                   <Col span={12}>
                     Số tiền
                     <Input
-                      value={formatCurrency(calculateMoneyReturnLeft)}
+                      value={formatCurrency(
+                        Math.round(calculateMoneyReturnLeft)
+                      )}
                       disabled
                     />
                   </Col>

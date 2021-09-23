@@ -10,6 +10,7 @@ import {
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  OrderPaymentResponse,
   OrderResponse,
   OrderReturnModel,
   ReturnProductModel,
@@ -19,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { FulFillmentStatus } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
+import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -46,10 +48,13 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
 
-  const [discountValue, setDisCountValue] = useState<number>(0);
+  const [discountValue] = useState<number>(0);
   const [listReturnProducts, setListReturnProducts] = useState<
     ReturnProductModel[]
   >([]);
+  const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
+
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
@@ -83,6 +88,9 @@ const ScreenReturnDetail = (props: PropType) => {
                   };
                 });
               setListReturnProducts(returnProductFormatted);
+              if (_data.payments) {
+                setPayments(_data.payments);
+              }
             }
             // let formatted: ReturnProductModel[] = _data.items.map((single) => {
             //   return {
@@ -150,14 +158,14 @@ const ScreenReturnDetail = (props: PropType) => {
               discountValue={discountValue}
               listReturnProducts={listReturnProducts}
               isDetailPage={true}
+              setTotalAmountReturnProducts={(value: number) => {
+                setTotalAmountReturnProducts(value);
+              }}
             />
-            {/* <CardReturnMoney
-              listPaymentMethods={listPaymentMethods}
-              amountReturn={amountReturn}
+            <CardReturnMoneyPageDetail
               payments={payments}
-              handlePayments={handlePayments}
-              isDetailPage={isDetailPage}
-            /> */}
+              returnMoneyAmount={totalAmountReturnProducts}
+            />
             <CardReturnReceiveProducts
               isDetailPage={isDetailPage}
               isReceivedReturnProducts={isReceivedReturnProducts}

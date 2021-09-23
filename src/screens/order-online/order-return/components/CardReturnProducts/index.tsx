@@ -34,6 +34,8 @@ type PropType = {
   isExchange?: boolean;
   isStepExchange?: boolean;
   discountValue: number;
+  discountRate?: number;
+  setTotalAmountReturnProducts: (value: number) => void;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -45,8 +47,10 @@ function CardReturnProducts(props: PropType) {
     isDetailPage,
     isExchange,
     isStepExchange,
-    discountValue,
+    discountRate,
+    setTotalAmountReturnProducts,
   } = props;
+  console.log("discountRate", discountRate);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -229,11 +233,34 @@ function CardReturnProducts(props: PropType) {
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
     let total = 0;
-    listReturnProducts.forEach((a) => {
-      let discountAmount = a.discount_items[0].value;
-      total = total + a.quantity * (a.price - discountAmount);
+    listReturnProducts.forEach((single) => {
+      let discountPerProduct = getProductDiscountPerProduct(single);
+      let discountPerOrder = getProductDiscountPerOrder(single);
+      total =
+        total +
+        single.quantity *
+          (single.price - discountPerProduct - discountPerOrder);
     });
+    setTotalAmountReturnProducts(total);
     return total;
+  };
+
+  const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+    let discountPerProduct = 0;
+    product.discount_items.forEach((single) => {
+      discountPerProduct += single.value;
+    });
+    return discountPerProduct;
+  };
+
+  const getProductDiscountPerOrder = (product: ReturnProductModel) => {
+    let discountPerOrder = 0;
+    let discountPerProduct = getProductDiscountPerProduct(product);
+    if (discountRate) {
+      discountPerOrder =
+        ((product.price - discountPerProduct) * discountRate) / 100;
+    }
+    return discountPerOrder;
   };
 
   const isShowProductSearch = () => {
@@ -244,27 +271,43 @@ function CardReturnProducts(props: PropType) {
     return result;
   };
 
-  const renderPopOverPriceTitle = () => {
+  const renderPopOverPriceTitle = (price: number) => {
     return (
       <div>
-        <div className="single">
+        <div
+          className="single"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
           <p>Đơn giá gốc: </p>
-          <p>399.000</p>
+          <p style={{ marginLeft: 20 }}>{price}</p>
         </div>
       </div>
     );
   };
 
-  const renderPopOverPriceContent = () => {
+  const renderPopOverPriceContent = (
+    discountPerProduct: number,
+    discountPerOrder: number
+  ) => {
     return (
       <div>
-        <div className="single">
+        <div
+          className="single"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
           <p>Chiết khấu/sản phẩm: </p>
-          <p>100.000</p>
+          <p style={{ marginLeft: 20 }}>
+            {formatCurrency(Math.round(discountPerProduct))}
+          </p>
         </div>
-        <div className="single">
-          <p>Chiết khấu/đơn hàng:: </p>
-          <p>100.000</p>
+        <div
+          className="single"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <p>Chiết khấu/đơn hàng: </p>
+          <p style={{ marginLeft: 20 }}>
+            {formatCurrency(Math.round(discountPerOrder))}
+          </p>
         </div>
       </div>
     );
@@ -275,7 +318,6 @@ function CardReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
-      width: "40%",
     },
     {
       title: () => (
@@ -284,7 +326,6 @@ function CardReturnProducts(props: PropType) {
         </div>
       ),
       className: "columnQuantity",
-      width: "40%",
       render: (value, record: ReturnProductModel, index: number) => {
         if (isDetailPage) {
           return record.quantity;
@@ -314,15 +355,20 @@ function CardReturnProducts(props: PropType) {
       title: "Đơn giá sau giảm giá",
       dataIndex: "price",
       key: "price",
-      width: "20%",
       render: (value: number, record: ReturnProductModel, index: number) => {
-        // return <div>{formatCurrency(value)}</div>;
+        let discountPerProduct = getProductDiscountPerProduct(record);
+        let discountPerOrder = getProductDiscountPerOrder(record);
         return (
           <Popover
-            content={renderPopOverPriceContent()}
-            title={renderPopOverPriceTitle()}
+            content={renderPopOverPriceContent(
+              discountPerProduct,
+              discountPerOrder
+            )}
+            title={renderPopOverPriceTitle(record.price)}
           >
-            20000d
+            {formatCurrency(
+              Math.round(record.price - discountPerProduct - discountPerOrder)
+            )}
           </Popover>
         );
       },
@@ -343,17 +389,18 @@ function CardReturnProducts(props: PropType) {
     {
       title: "Thành tiền",
       key: "total",
-      width: "40%",
       render: (
         value: OrderLineItemRequest,
         record: ReturnProductModel,
         index: number
       ) => {
-        let discountAmount = record.discount_items[0].value;
+        let discountPerProduct = getProductDiscountPerProduct(record);
+        let discountPerOrder = getProductDiscountPerOrder(record);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
-              Math.round(value.price - discountAmount) * value.quantity
+              Math.round(value.price - discountPerProduct - discountPerOrder) *
+                value.quantity
             )}
           </div>
         );
@@ -442,9 +489,9 @@ function CardReturnProducts(props: PropType) {
               </strong>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền trả khách:</strong>
+              <strong className="font-size-text">Cần phải trả khách:</strong>
               <strong className="text-success font-size-price">
-                {formatCurrency(getTotalPrice(listReturnProducts))}
+                {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
               </strong>
             </Row>
           </Col>
