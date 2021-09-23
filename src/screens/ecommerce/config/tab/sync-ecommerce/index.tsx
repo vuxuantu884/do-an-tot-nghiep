@@ -145,9 +145,6 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     }
   });
 
-  const handleBtnClick = (button: any) => {
-    setActivatedBtn(button);
-  };
   return (
     <StyledComponent>
       <div className="padding-20">
@@ -160,7 +157,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
               }
               icon={button.icon && <img src={button.icon} alt={button.id} />}
               type="ghost"
-              onClick={() => handleBtnClick(button)}
+              onClick={() => setActivatedBtn(button)}
             >
               {button.title}
             </Button>
