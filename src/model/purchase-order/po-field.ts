@@ -41,6 +41,7 @@ const POField = {
   quantity_return: "quantity_return",
   expect_return_date: "expect_return_date",
   designer_code: "designer_code",
+  designer: "designer",
 };
 
 const CostLineField = {

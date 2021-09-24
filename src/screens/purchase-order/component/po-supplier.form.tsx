@@ -463,10 +463,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         }
                         rules={[
                           {
-                            required: true,
-                            message: "Vui lòng nhập email",
-                          },
-                          {
                             pattern: RegUtil.EMAIL,
                             message: "Vui lòng nhập đúng định dạng email",
                           },

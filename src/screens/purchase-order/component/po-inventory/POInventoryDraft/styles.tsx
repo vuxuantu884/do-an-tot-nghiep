@@ -19,6 +19,14 @@ export const POInventoryDraftTable = styled.div`
   .ant-picker {
     width: 100%;
   }
+
+  .ant-input-number {
+    width: 100%;
+  }
+
+  .ant-input-number-handler-wrap {
+    display: none;
+  }
 `;
 
 export const ActionsTableColumn = styled.div`
