@@ -27,6 +27,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(3);
         break;
       case "shipped":
+      case "cancelled":
         setCurrentStep(4);
         break;
       default:
@@ -89,7 +90,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         }
       />
       <Steps.Step
-        title="Hoàn thành"
+        title={!(props.status === 'cancelled') ? "Hoàn thành" : "Huỷ đơn"}
         description={
           props.orderDetail &&
           props.orderDetail?.fulfillments &&
@@ -99,7 +100,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
+        style={{color: props.status === 'cancelled' ? 'rgb(226, 67, 67) !important' : ''}}
       />
+      
     </Steps>
   );
 };

@@ -330,3 +330,9 @@ export const getListReasonRequest = (
 ) => {
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };
+
+export const cancelOrderRequest = (
+  id: number | undefined
+) => {
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id });
+};
