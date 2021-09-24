@@ -81,7 +81,7 @@ const UploadLoyaltyCardRelease = () => {
     >
       <Card
         title={
-          <span>TẢI FILE MẪU</span>
+          <span>TẢI FILE</span>
         }
       >
         <Form

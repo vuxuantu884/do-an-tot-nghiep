@@ -1,9 +1,16 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
-
-import { StyledComponent } from "./styles";
 import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+
+import CustomTable from "component/table/CustomTable";
+import BaseFilter from "component/filter/base.filter"
+import { showSuccess,} from "utils/ToastUtils";
+
+import { ProductEcommerceQuery } from "model/query/ecommerce.query";
+import { PageResponse } from "model/base/base-metadata.response";
+import { getProductEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+
 import circleDeleteIcon from "assets/icon/circle-delete.svg"
 import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
@@ -11,42 +18,57 @@ import saveIcon from "assets/icon/save.svg"
 import closeIcon from "assets/icon/X_close.svg"
 import deleteIcon from "assets/icon/deleteIcon.svg"
 
+import { StyledComponent } from "./styles";
 
-import CustomTable from "component/table/CustomTable";
-import BaseFilter from "component/filter/base.filter"
-import { showSuccess,} from "utils/ToastUtils";
-
-import { NotConnectedItemsQuery } from "model/query/ecommerce.query";
-import { NotConnectedItemsResponse } from "model/response/ecommerce/ecommerce.response";
-import { NotConnectedItemsList } from "domain/actions/ecommerce/ecommerce.actions";
-import { PageResponse } from "model/base/base-metadata.response";
-
-//thai fake data
-import vectorIcon from "assets/icon/vector.svg";
-
-type NotConnectedItemsProps = {
-  configData: any;
-  setConfigToView: (value: NotConnectedItemsResponse) => void;
-};
-
-const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
-  props: NotConnectedItemsProps
-) => {
-  const { configData,  } = props;
-  const [activatedBtn, ] = React.useState({
-    title: "",
-    icon: "",
-    id: "all",
-    isActive: "",
-    key: 1,
-  });
-
+const NotConnectedItems = () => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
 
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
+
+  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+
+  const params: ProductEcommerceQuery = useMemo(
+    () => ({
+      page: 1,
+      limit: 30,
+      ecommerce_id: null,
+      shop_id: null,
+      category_id: null,
+      connect_status: null,
+      update_stock_status: null,
+    }),
+    []
+  );
+
+  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+    page: 1,
+    limit: 30,
+    ecommerce_id: null,
+    shop_id: null,
+    category_id: null,
+    connect_status: null,
+    update_stock_status: null,
+  });
+
+  const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
+    if (!!result) {
+      setVariantData(result);
+    }
+  }, []);
+
+  useEffect(() => {
+    dispatch(getProductEcommerceList(query, updateVariantData));
+  }, [dispatch, query, updateVariantData]);
 
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
@@ -68,8 +90,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Ảnh",
       visible: true,
       align: "center",
-      render: ( i: any) => {
-        return <img src={vectorIcon} alt=""></img>;
+      render: (l: any, v: any, i: any) => {
+        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
       },
     },
     {
@@ -77,7 +99,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <span>Sku/ itemID (Shopee) nè</span>
+        return <span>{l.ecommerce_sku || l.ecommerce_product_id || "-"}</span>
       },
     },
     {
@@ -85,7 +107,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>sản phẩm shopee nè</span>
+          <span>{l.ecommerce_variant || "-"}</span>
         );
       },
     },
@@ -95,7 +117,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>Giá bán (Shopee) nè</span>
+          <span>{l.ecommerce_price || "-"}</span>
         );
       },
     },
@@ -104,7 +126,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>sản phẩm YODY nè</span>
+          <span>{l.core_variant || "-"}</span>
         );
       },
     },
@@ -113,7 +135,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>Ghép nối nè</span>
+          <span>{l.connect_status || "-"}</span>
         );
       },
     },
@@ -132,7 +154,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>Đồng bộ tồn kho nè</span>
+          <span>Đồng bộ tồn - chưa có</span>
         );
       },
     },
@@ -151,70 +173,32 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     
   ]);
 
-  const configDataFiltered = configData && configData?.filter((item: any) => {
-    if (activatedBtn.id === "all") {
-      return true;
-    } else {
-      return item.ecommerce === activatedBtn.id;
+  // const variantDataNotConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
+  //   return item.connect_status === false;
+  // });
+
+  const onSearch = (value: ProductEcommerceQuery) => {
+    if (value) {
+      query.ecommerce_id = value.ecommerce_id;
+      query.shop_id = value.shop_id;
+      query.category_id = value.category_id;
+      query.connect_status = value.connect_status;
+      query.update_stock_status = value.update_stock_status;
+
+      //thai need todo: search shopee, YODY
+      // query.ecommerce_variant = value.ecommerce_variant;
+      // query.core_variant = value.core_variant;
     }
-  });
+    
+    const querySearch: ProductEcommerceQuery = value;
+    dispatch(getProductEcommerceList(querySearch, setVariantData));
+  };
 
-  const [, setData] = React.useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
-  const params: NotConnectedItemsQuery = useMemo(
-    () => ({
-      page: 1,
-      limit: 30,
-      request: "",
-      gender: null,
-      from_birthday: null,
-      to_birthday: null,
-      company: null,
-      from_wedding_date: null,
-      to_wedding_date: null,
-      customer_type_id: null,
-      customer_group_id: null,
-      customer_level_id: null,
-      responsible_staff_code: null,
-    }),
-    []
+  const onPageChange = React.useCallback(
+    (page, limit) => {
+      setQuery({ ...query, page, limit });
+    },[query]
   );
-
-  const [query, ] = React.useState<NotConnectedItemsQuery>({
-    page: 1,
-    limit: 30,
-    request: null,
-    gender: null,
-    from_birthday: null,
-    to_birthday: null,
-    company: null,
-    from_wedding_date: null,
-    to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
-    responsible_staff_code: "",
-  });
-
-  const onSearch = (value: NotConnectedItemsQuery) => {
-    query.request = value && value.request;
-    const querySearch: NotConnectedItemsQuery = value;
-    dispatch(NotConnectedItemsList(querySearch, setData));
-  };
-
-  const onFinish = (value: NotConnectedItemsQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code
-      ? value.responsible_staff_code.split(" - ")[0]
-      : null;
-    onSearch(value);
-  };
 
   //thai fake data 
   const LIST_STORE = [
@@ -276,10 +260,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         <div className="filter">
           <Form
             form={formAdvance}
-            onFinish={onFinish}
+            onFinish={onSearch}
             initialValues={params}
           >
-            <Form.Item name="channel" className="select-channel-dropdown">
+            <Form.Item name="ecommerce_id" className="select-channel-dropdown">
               <Select
                 showSearch
                 placeholder="Chọn sàn"
@@ -295,7 +279,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </Select>
             </Form.Item>
 
-            <Form.Item name="store" className="select-store-dropdown">
+            <Form.Item name="shop_id" className="select-store-dropdown">
               <Select
                 showSearch
                 placeholder="Chọn gian hàng"
@@ -311,7 +295,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </Select>
             </Form.Item>
 
-            <Form.Item name="shopee-items" className="shoppe-search">
+            <Form.Item name="ecommerce_variant" className="shoppe-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, tên sản phẩm Shopee"
@@ -336,16 +320,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         <CustomTable
           isRowSelection
           columns={columns}
-          dataSource={configDataFiltered}
-          pagination={false}
-          // pagination={{
-          //   pageSize: data.metadata.limit,
-          //   total: data.metadata.total,
-          //   current: data.metadata.page,
-          //   showSizeChanger: true,
-          //   onChange: onPageChange,
-          //   onShowSizeChange: onPageChange,
-          // }}
+          dataSource={variantData.items}
+          // dataSource={variantDataNotConnected}
+          pagination={{
+            pageSize: variantData.metadata && variantData.metadata.limit,
+            total: variantData.metadata && variantData.metadata.total,
+            current: variantData.metadata && variantData.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
           rowKey={(data) => data.id}
         />
 
@@ -380,13 +364,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         >
           <Form
             form={formAdvance}
-            onFinish={onFinish}
+            onFinish={onSearch}
             //ref={formRef}
             initialValues={params}
             layout="vertical"
           >
             <Form.Item
-              name="category"
+              name="ecommerce_id"
               label={<b>CHỌN SÀN</b>}
             >
               <Select
@@ -403,7 +387,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </Form.Item>
 
             <Form.Item
-              name="category"
+              name="shop_id"
               label={<b>CHỌN GIAN HÀNG</b>}
             >
               <Select
@@ -420,7 +404,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </Form.Item>
 
             <Form.Item
-              name="category"
+              name="category_id"
               label={<b>DANH MỤC</b>}
             >
               <Select
@@ -437,7 +421,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </Form.Item>
 
             <Form.Item
-              name="pairing"
+              name="connect_status"
               label={<b>TRẠNG THÁI GHÉP NỐI</b>}
             >
               <Select
@@ -454,7 +438,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </Form.Item>
 
             <Form.Item
-              name="inventoryStatus"
+              name="update_stock_status"
               label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
             >
               <Select
