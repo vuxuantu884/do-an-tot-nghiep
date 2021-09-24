@@ -30,6 +30,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             <Form.Item name={POField.merchandiser_code} noStyle hidden>
               <Input />
             </Form.Item>
+            <Form.Item name={POField.designer_code} noStyle hidden>
+              <Input />
+            </Form.Item>
             <Form.Item name={POField.merchandiser} noStyle hidden>
               <Input />
             </Form.Item>
@@ -216,6 +219,18 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               {rdAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
                   {item.code} - {item.full_name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name={POField.designer_code}
+            label="Thiết kế"
+          >
+            <Select showArrow showSearch optionFilterProp="children" placeholder="Chọn nhà thiết kế">
+              {winAccount.map((item) => (
+                <Select.Option key={item.code} value={item.code}>
+                  {[item.code, item.full_name].join(" - ")}
                 </Select.Option>
               ))}
             </Select>

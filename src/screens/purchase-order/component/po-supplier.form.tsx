@@ -479,6 +479,75 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         />
                       </Form.Item>
                     )}
+                    {isEdit ? (
+                      <div>
+                        <Form.Item hidden name="supplier_note" noStyle>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          label={
+                            <label className="title-address">
+                              <img
+                                src={noteCustomer}
+                                alt=""
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  marginRight: "10px",
+                                }}
+                              />
+                              Ghi chú của nhà cung cấp
+                            </label>
+                          }
+                          shouldUpdate={(prevValue, currentValue) =>
+                            prevValue.supplier_note !==
+                            currentValue.supplier_note
+                          }
+                        >
+                          {({ getFieldValue }) => {
+                            let supplier_note = getFieldValue("supplier_note");
+                            return (
+                              <div
+                                style={{
+                                  color: "#666666",
+                                  fontWeight: 400,
+                                  fontSize: 14,
+                                }}
+                              >
+                                {supplier_note !== ""
+                                  ? supplier_note
+                                  : "Không có ghi chú"}
+                              </div>
+                            );
+                          }}
+                        </Form.Item>
+                      </div>
+                    ) : (
+                      <Form.Item
+                        name="supplier_note"
+                        label={
+                          <label className="title-address">
+                            <img
+                              src={noteCustomer}
+                              alt=""
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                marginRight: "10px",
+                              }}
+                            />
+                            Ghi chú của nhà cung cấp
+                          </label>
+                        }
+                      >
+                        <Input.TextArea
+                          placeholder="Điền ghi chú"
+                          rows={4}
+                          maxLength={500}
+                          style={{ marginTop: "10px" }}
+                        />
+                      </Form.Item>
+                    )}
                   </Col>
                 </Row>
               )}
@@ -492,7 +561,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         checked={visibleSupplierAddress}
                         onChange={changeVisibleSupplierAddress}
                       >
-                        Gửi hoá đơn
+                        Thêm thông tin xuất hàng
                       </Checkbox>
                     </Row>
                   </div>
@@ -501,10 +570,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
               {showSupplierAddress && visibleSupplierAddress && (
                 <Row gutter={24}>
                   <Col
-                    xs={24}
-                    lg={12}
                     style={{
-                      borderRight: "1px solid #E5E5E5",
                       paddingTop: "14px",
                     }}
                     className="font-weight-500 customer-info-left"
@@ -593,82 +659,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         ) : null;
                       }}
                     </Form.Item>
-                  </Col>
-                  <Col
-                    xs={24}
-                    lg={12}
-                    className="font-weight-500"
-                    style={{ paddingLeft: "34px", marginTop: "14px" }}
-                  >
-                    {isEdit ? (
-                      <div>
-                        <Form.Item hidden name="supplier_note" noStyle>
-                          <Input />
-                        </Form.Item>
-                        <Form.Item
-                          label={
-                            <label className="title-address">
-                              <img
-                                src={noteCustomer}
-                                alt=""
-                                style={{
-                                  width: "20px",
-                                  height: "20px",
-                                  marginRight: "10px",
-                                }}
-                              />
-                              Ghi chú của nhà cung cấp
-                            </label>
-                          }
-                          shouldUpdate={(prevValue, currentValue) =>
-                            prevValue.supplier_note !==
-                            currentValue.supplier_note
-                          }
-                        >
-                          {({ getFieldValue }) => {
-                            let supplier_note = getFieldValue("supplier_note");
-                            return (
-                              <div
-                                style={{
-                                  color: "#666666",
-                                  fontWeight: 400,
-                                  fontSize: 14,
-                                }}
-                              >
-                                {supplier_note !== ""
-                                  ? supplier_note
-                                  : "Không có ghi chú"}
-                              </div>
-                            );
-                          }}
-                        </Form.Item>
-                      </div>
-                    ) : (
-                      <Form.Item
-                        name="supplier_note"
-                        label={
-                          <label className="title-address">
-                            <img
-                              src={noteCustomer}
-                              alt=""
-                              style={{
-                                width: "20px",
-                                height: "20px",
-                                marginRight: "10px",
-                              }}
-                            />
-                            Ghi chú của nhà cung cấp
-                          </label>
-                        }
-                      >
-                        <Input.TextArea
-                          placeholder="Điền ghi chú"
-                          rows={4}
-                          maxLength={500}
-                          style={{ marginTop: "10px" }}
-                        />
-                      </Form.Item>
-                    )}
                   </Col>
                 </Row>
               )}
