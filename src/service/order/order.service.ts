@@ -283,7 +283,13 @@ export const getChannelApi = (): Promise<
 };
 
 export const getReasonsApi = (): Promise<
-  BaseResponse<Array<ChannelResponse>>
+  BaseResponse<Array<any>>
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
+};
+
+export const cancelOrderApi = (order_id: number): Promise<
+  BaseResponse<any>
+> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/cancel`);
 };
