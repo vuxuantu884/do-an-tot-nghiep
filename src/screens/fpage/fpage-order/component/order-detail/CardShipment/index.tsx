@@ -101,7 +101,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     item: any,
     fee: number
   ) => {
-    console.log("changeServiceType", item);
 
     setHVC(id);
     setServiceType(item);

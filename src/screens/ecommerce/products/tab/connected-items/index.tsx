@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, {useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Form,Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -205,9 +205,9 @@ const ConnectedItems = () => {
     [columns]
   );
 
-  const variantDataConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
-    return item.connect_status === true;
-  });
+  // const variantDataConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
+  //   return item.connect_status === true;
+  // });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {

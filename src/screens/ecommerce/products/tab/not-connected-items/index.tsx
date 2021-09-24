@@ -173,9 +173,9 @@ const NotConnectedItems = () => {
     
   ]);
 
-  const variantDataNotConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
-    return item.connect_status === false;
-  });
+  // const variantDataNotConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
+  //   return item.connect_status === false;
+  // });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {

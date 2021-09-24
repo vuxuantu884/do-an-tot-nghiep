@@ -64,7 +64,6 @@ function FpageCRM() {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customerDetail]);
 
-console.log(loyaltyPoint,loyaltyUsageRules )
   const onPageChange = React.useCallback(
     (page, limit) => {
       setQuerySearchOrderFpage({ ...querySearchOrderFpage, page, limit });
