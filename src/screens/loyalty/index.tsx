@@ -284,6 +284,7 @@ const LoyaltyPage = () => {
                     currency={['đ']}
                     value={accumulationRate}
                     onChange={handleChangeAccumulationRate}
+                    style={{textAlign: 'left'}}
                   />
                   <span className="conversion-note" style={{marginLeft: '12px'}}>= 1 điểm thưởng</span>
                 </div>
@@ -298,6 +299,7 @@ const LoyaltyPage = () => {
                     currency={['đ']}
                     value={redemptionRate}
                     onChange={handleChangeRedemptionRate}
+                    style={{textAlign: 'left'}}
                   />
                 </div>
               </Col>
