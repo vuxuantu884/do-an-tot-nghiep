@@ -705,6 +705,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 onSelect={onSelectProduct}
                 options={renderResult}
                 ref={productSearchRef}
+                isAddProduct
               />
               <Button
                 onClick={() => setVisibleManyProduct(true)}
