@@ -141,18 +141,15 @@ const GeneralInformation = (props: any) => {
                 <Col span={12}>
                   <Form.Item
                     name="website"
-                    label={<b>Website/Facebook:</b>}
+                    label={<b>Facebook:</b>}
                     rules={[
                       {
                         pattern: RegUtil.WEBSITE_URL_2,
-                        message: "Website/Facebook chưa đúng định dạng",
+                        message: "Facebook chưa đúng định dạng",
                       },
                     ]}
                   >
-                    <Input
-                      maxLength={255}
-                      placeholder="Nhập Website/facebook"
-                    />
+                    <Input maxLength={255} placeholder="Nhập Facebook" />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -185,7 +182,6 @@ const GeneralInformation = (props: any) => {
                     <Input maxLength={255} placeholder="Mã số thuế" />
                   </Form.Item>
                 </Col>
-
                 <Col span={8}>
                   <Form.Item
                     label={<b>Quốc gia:</b>}
@@ -305,6 +301,20 @@ const GeneralInformation = (props: any) => {
           <Row gutter={12} style={{ padding: "16px" }}>
             <Col span={24}>
               <Form.Item
+                label={<b>Thẻ khách hàng:</b>}
+                name="card_number"
+                rules={[
+                  {
+                    pattern: RegUtil.NUMBERREG,
+                    message: "Thẻ khách hàng chỉ được phép nhập số",
+                  },
+                ]}
+              >
+                <Input maxLength={255} placeholder="Nhập thẻ khách hàng" />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item
                 name="customer_type_id"
                 label={<b>Loại khách hàng:</b>}
                 // rules={[
@@ -360,7 +370,6 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="responsible_staff_code"
                 label={<b>Nhân viên phụ trách:</b>}
-
                 // rules={[
                 //   {
                 //     required: true,

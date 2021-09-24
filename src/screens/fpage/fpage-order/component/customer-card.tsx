@@ -639,7 +639,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 />
                 <Tag
                   className="orders-tag orders-tag-vip"
-                  style={{ marginLeft: 10 }}
+                  style={{ margin: "0 8px" }}
                 >
                   <b>
                     {loyaltyUsageRules &&

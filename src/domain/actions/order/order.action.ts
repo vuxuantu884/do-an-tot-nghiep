@@ -258,7 +258,7 @@ export const getListOrderActionFpage = (
   query: any,
   setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
-  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+  return BaseAction(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, {
     query,
     setData,
   });
