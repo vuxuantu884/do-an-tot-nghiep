@@ -33,9 +33,9 @@ const LoyaltyCardRelease = () => {
     },
     {
       title: "Tên đợt",
-      dataIndex: "name",
       visible: true,
-      fixed: "left"
+      fixed: "left",
+      render: (value: any) => <div style={{color: '#2A2A86'}}>{value.name}</div>,
     },
     {
       title: "Ngày tạo",
@@ -111,7 +111,9 @@ const LoyaltyCardRelease = () => {
   ]
   const [query, setQuery] = useState<BaseQuery>({
     page: 1,
-    limit: 30
+    limit: 30,
+    sort_column: 'id',
+    sort_type: 'desc'
   });
 
   const dispatch = useDispatch()

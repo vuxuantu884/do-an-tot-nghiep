@@ -33,8 +33,10 @@ const LoyaltyUsageType = {
   CREATE_LOYALTY_USAGE_REQUEST: "CREATE_LOYALTY_USAGE_REQUEST",
   GET_LOYALTY_USAGE_REQUEST: "GET_LOYALTY_USAGE_REQUEST"
 };
-const LoyaltyPointsType={
-  GET_LOYALTY_POINT:'GET_LOYALTY_POINT'
+const LoyaltyPointsType = {
+  GET_LOYALTY_POINT: 'GET_LOYALTY_POINT',
+  ADD_LOYALTY_POINT: 'ADD_LOYALTY_POINT',
+  SUBTRACT_LOYALTY_POINT: 'SUBTRACT_LOYALTY_POINT',
 }
   
-export { LoyaltyCardReleaseType, LoyaltyRankType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType,LoyaltyPointsType };
+export { LoyaltyCardReleaseType, LoyaltyRankType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType, LoyaltyPointsType };
