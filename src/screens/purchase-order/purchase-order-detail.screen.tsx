@@ -48,7 +48,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POField } from "model/purchase-order/po-field";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
-import POPaymentConditionsForm from "./component/po-payment-conditions.form";
+import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import moment from "moment";
 import { PrinterFilled, SaveFilled } from "@ant-design/icons";

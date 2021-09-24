@@ -18,7 +18,7 @@ import { showSuccess } from "utils/ToastUtils";
 import ProcumentConfirmModal from "../modal/procument-confirm.modal";
 import ProducmentInventoryModal from "../modal/procument-intevory.modal.tsx";
 import ProcumentModal from "../modal/procument.modal";
-import POInventoryDraft from "./po-inventory/po-intentory.draft";
+import POInventoryDraft from "./po-inventory/POInventoryDraft";
 import POInventoryView from "./po-inventory/po-inventory.view";
 import deliveryIcon from "assets/icon/delivery.svg";
 import procument from "assets/icon/procument.svg";
@@ -32,6 +32,7 @@ type POInventoryFormProps = {
   onAddProcumentSuccess?: () => void;
   idNumber?: number;
   poData?: PurchaseOrder;
+  formMain?: any;
 };
 
 const TAB = [
@@ -60,6 +61,8 @@ const TAB = [
 const POInventoryForm: React.FC<POInventoryFormProps> = (
   props: POInventoryFormProps
 ) => {
+  const { formMain } = props;
+  
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
@@ -311,7 +314,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       }
     >
       <div className="padding-20">
-        <POInventoryDraft isEdit={props.isEdit} stores={stores} />
+        <POInventoryDraft formMain={formMain} isEdit={props.isEdit} stores={stores} />
         {status && status !== POStatus.DRAFT && (
           <POInventoryView
             tabs={TAB}
