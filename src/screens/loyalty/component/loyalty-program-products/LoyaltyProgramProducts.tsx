@@ -17,7 +17,7 @@ const LoyaltyProgramProducts = (props: ModalProp) => {
   }, [])
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => item.name?.toLowerCase().includes(keyword?.toLowerCase()) || item.sku?.includes(keyword?.toLowerCase()))
+    return items.filter(item => item.name?.toLowerCase().includes(keyword?.toLowerCase()) || item.sku?.toLowerCase().includes(keyword?.toLowerCase()))
   }, [keyword, items])
 
   return (

@@ -1,41 +1,41 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Card, Tabs, Button } from 'antd';
+import { Card, Tabs } from 'antd';
 import ContentContainer from 'component/container/content.container';
+import ButtonCreate from 'component/header/ButtonCreate';
 import UrlConfig from 'config/url.config';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import LoyaltyCards from './list';
 import LoyaltyCardRelease from './release';
 const { TabPane } = Tabs;
 
 const LoyaltyCardPage = () => {
+  const [activeTab, setActiveTab] = useState<string>('1')
   return (
     <ContentContainer
-      title="Phát hành thẻ"
+      title="Thẻ khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Phát hành thẻ"
+          name: "Thẻ khách hàng"
         }
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.CUSTOMER}/cards/upload`}>
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-            >
-              Đợt phát hành
-            </Button>
-          </Link>
+          {
+            activeTab === '1' && (
+              <ButtonCreate
+                path={`${UrlConfig.CUSTOMER}/cards/upload`}
+                child="Thêm mới"
+              />
+            )
+          }
         </>
       }
     >
       <Card>
-        <Tabs defaultActiveKey="1">
+        <Tabs defaultActiveKey="1" onChange={(activeKey: string) => setActiveTab(activeKey)}>
           <TabPane tab="Đợt phát hành" key="1">
             <LoyaltyCardRelease />
           </TabPane>

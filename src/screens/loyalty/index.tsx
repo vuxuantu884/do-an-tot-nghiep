@@ -37,7 +37,9 @@ const LoyaltyPage = () => {
   const dispatch = useDispatch();
   const [query, setQuery] = useState<BaseQuery>({
     page: 1,
-    limit: 30
+    limit: 30,
+    sort_column: 'id',
+    sort_type: 'desc'
   });
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -52,7 +54,12 @@ const LoyaltyPage = () => {
       visible: true,
       fixed: "left",
       render: (value: any, item: any, index: number) => 
-        <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${value.id}`}>{value.name}</Link>,
+        <Link
+          to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${value.id}`}
+          style={{color: '#2A2A86', fontWeight: 500}}
+        >
+          {value.name}
+        </Link>,
     },
     {
       title: "Ưu tiên",
@@ -233,7 +240,7 @@ const LoyaltyPage = () => {
 
   return (
     <ContentContainer
-      title="Thêm mới chương trình tích điểm"
+      title="Tích điểm"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -251,15 +258,7 @@ const LoyaltyPage = () => {
           title={
             <div className="d-flex">
               <span className="config-title">
-                <i
-                  className="icon-dot"
-                  style={{
-                    fontSize: "8px",
-                    marginRight: "10px",
-                    color: "#fcaf17",
-                  }}
-                ></i>
-                Cài đặt chung
+                CÀI ĐẶT CHUNG
               </span>
               <div className="status">
                 Trạng thái

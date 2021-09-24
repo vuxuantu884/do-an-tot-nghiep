@@ -5,6 +5,7 @@ export interface LoyaltyPoint{
     total_order_count:number|null;
     total_money_spend:number|null;
     total_subtract_lock_point:number|null;
+    current_point: number | null
 }
 
 export interface LoyaltyCard{

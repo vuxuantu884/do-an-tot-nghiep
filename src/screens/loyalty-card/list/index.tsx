@@ -1,8 +1,8 @@
 import { Button, Dropdown, Menu } from 'antd';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import './loyalty-cards.scss';
-import editIcon from "assets/icon/edit.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
+import lockIcon from "assets/icon/lock.svg";
+import assignIcon from "assets/icon/assign.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { useCallback, useEffect, useState } from 'react';
 import { PageResponse } from 'model/base/base-metadata.response';
@@ -98,12 +98,13 @@ const LoyaltyCards = () => {
           <Menu>
             <Menu.Item key="1">
               <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
+                icon={<img alt="" style={{ marginRight: 12 }} src={assignIcon} />}
                 type="text"
                 style={{
                   paddingLeft: 24,
                   background: "transparent",
                   border: "none",
+                  color: '#222222'
                 }}
                 onClick={() => {
                   setSelectedItem(value)
@@ -117,13 +118,13 @@ const LoyaltyCards = () => {
               value.status !== 'INACTIVE' && (
                 <Menu.Item key="2">
                   <Button
-                    icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
+                    icon={<img alt="" style={{ marginRight: 12 }} src={lockIcon} />}
                     type="text"
                     style={{
                       paddingLeft: 24,
                       background: "transparent",
                       border: "none",
-                      color: "red",
+                      color: '#222222'
                     }}
                     onClick={() => {
                       setSelectedItem(value)
@@ -168,7 +169,9 @@ const LoyaltyCards = () => {
 
   const [query, setQuery] = useState<BaseQuery>({
     page: 1,
-    limit: 30
+    limit: 30,
+    sort_column: 'id',
+    sort_type: 'desc'
   });
 
   const dispatch = useDispatch()

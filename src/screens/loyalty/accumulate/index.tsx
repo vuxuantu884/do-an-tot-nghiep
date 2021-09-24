@@ -203,6 +203,7 @@ const LoyaltyPointAccumulate = () => {
             currency={['%']}
             value={rule.percent}
             onChange={(value) => onChangePercent(value, index)}
+            style={{textAlign: 'left'}}
           />
         )
       },
@@ -506,7 +507,7 @@ const LoyaltyPointAccumulate = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
         },
         {
-          name: loyaltyProgram ? "Sửa chương trình" : "Thêm mới",
+          name: loyaltyProgram ? "Sửa chương trình tích điểm" : "Thêm mới chương trình tích điểm",
           path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`,
         },
       ]}
@@ -515,14 +516,6 @@ const LoyaltyPointAccumulate = () => {
         title={
           <div className="d-flex">
             <span className="title-card">
-              <i
-                className="icon-dot"
-                style={{
-                  fontSize: "8px",
-                  marginRight: "10px",
-                  color: "#fcaf17",
-                }}
-              ></i>
               Cài đặt Tích điểm
             </span>
             <div className="program-status">
