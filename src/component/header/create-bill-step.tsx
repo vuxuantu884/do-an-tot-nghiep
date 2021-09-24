@@ -6,7 +6,7 @@ import { OrderResponse } from "model/response/order/order.response";
 
 type StepStatusProps = {
   status?: string | null | undefined;
-  orderDetail: OrderResponse | null;
+  orderDetail?: OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
@@ -76,6 +76,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
+        className={!(props.orderDetail &&
+          props.orderDetail?.fulfillments &&
+          props.orderDetail?.fulfillments.length > 0 &&
+          props.orderDetail?.fulfillments[0].packed_on) && props.status === 'cancelled'? 'inactive' : ''}
       />
       <Steps.Step
         title="Xuất kho"
@@ -88,6 +92,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
+        className={!(props.orderDetail &&
+          props.orderDetail?.fulfillments &&
+          props.orderDetail?.fulfillments.length > 0 &&
+          props.orderDetail?.fulfillments[0].export_on) && props.status === 'cancelled' ? 'inactive' : ''}
       />
       <Steps.Step
         title={!(props.status === 'cancelled') ? "Hoàn thành" : "Huỷ đơn"}
@@ -100,7 +108,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
-        style={{color: props.status === 'cancelled' ? 'rgb(226, 67, 67) !important' : ''}}
+        className={props.status === 'cancelled'? 'cancelled' : ''}
       />
       
     </Steps>
