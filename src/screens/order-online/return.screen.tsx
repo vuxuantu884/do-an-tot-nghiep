@@ -158,7 +158,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Mã đơn hàng",
       render: (record: ReturnModel) => (
-        <Link to={`${UrlConfig.ORDER}/${record.order_id}`}>{record.code_order}</Link>
+        <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>{record.code_order}</Link>
       ),
       visible: true,
       width:"10%",
@@ -167,7 +167,7 @@ const ListOrderScreen: React.FC = () => {
       title: "Người nhận",
       render: (record: any) => (
         <div className="customer">
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}><Link to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}>{record.customer_name}</Link></div>
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}><Link target="_blank" to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}>{record.customer_name}</Link></div>
           <div className="p-b-3">{record.customer_phone_number}</div>
           <div className="p-b-3">{record.customer_email}</div>
         </div>
