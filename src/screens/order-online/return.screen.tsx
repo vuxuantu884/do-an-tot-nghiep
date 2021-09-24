@@ -199,10 +199,25 @@ const ListOrderScreen: React.FC = () => {
       align: "center",
       width:"10%"
     },
-    
     {
       title: "Hoàn tiền",
-      dataIndex: "total_amount",
+      //dataIndex: "total_amount",
+      render: (record: any) => {
+        let processIcon = null;
+        switch (record.payment_status) {
+          case "unpaid":
+            processIcon = "icon-blank";
+            break;
+          default:
+            processIcon = "icon-full";
+            break;
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       key: "total_amount",
       visible: true,
       align: "center",
@@ -210,14 +225,25 @@ const ListOrderScreen: React.FC = () => {
 
     {
       title: "Tổng tiền",
-      dataIndex: "total_amount",
+      render: (record: any) => (
+        <>
+          <span>
+            <NumberFormat
+              value={record.total_amount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
+        </>
+      ),
       key: "total_amount",
       visible: true,
       align: "center",
     },
 
     {
-      title: "Ngày nhận",
+      title: "Ngày nhận hàng",
       dataIndex: "receive_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "total_amount",
@@ -295,28 +321,19 @@ const ListOrderScreen: React.FC = () => {
   
   return (
     <ContentContainer
-      title="Danh sách đơn giao hàng"
+      title="Danh sách đơn trả hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
          path: UrlConfig.HOME,
         },
         {
-          name: "Danh sách đơn giao hàng",
+          name: "Danh sách đơn trả hàng",
         },
       ]}
       extra={
         <Row>
           <Space>
-            <Button
-              type="default"
-              className="light"
-              size="large"
-              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => {}}
-            >
-              Nhập file
-            </Button>
             <Button
               type="default"
               className="light"
@@ -329,7 +346,7 @@ const ListOrderScreen: React.FC = () => {
             >
               Xuất file
             </Button>
-            <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+            {/* <ButtonCreate path={`${UrlConfig.ORDER}/create`} /> */}
           </Space>
         </Row>
       }
