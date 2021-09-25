@@ -581,6 +581,12 @@ const LoyaltyPointAccumulate = () => {
                     <Option key={2} value={2}>2</Option>
                     <Option key={3} value={3}>3</Option>
                     <Option key={4} value={4}>4</Option>
+                    <Option key={5} value={5}>5</Option>
+                    <Option key={6} value={6}>6</Option>
+                    <Option key={7} value={7}>7</Option>
+                    <Option key={8} value={8}>8</Option>
+                    <Option key={9} value={9}>9</Option>
+                    <Option key={10} value={10}>10</Option>
                   </Select>
                 </div>
               </Col>

@@ -19,6 +19,10 @@ const ErrorLogs = (props: ModalProps) => {
       try {
         setErrorObject(JSON.parse(errors))
       } catch (error) {
+        try {
+          setErrorObject([errors])
+        } catch (error) {
+        }
       }
     }
   }, [errors])

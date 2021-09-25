@@ -52,6 +52,7 @@ const LoyaltyCards = () => {
       title: "STT",
       visible: true,
       fixed: "left",
+      align: "center",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
       width: "72px"
     },
