@@ -71,10 +71,15 @@ function FpageCRM() {
   const searchByPhoneCallback = (value: any) => {
       if(value){
         setCustomerDetail(value);
-      }else{
-      setOrderHistory(undefined);
-      setMetaData(null);
       }
+  };
+  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
+    if (data) {
+      setOrderHistory(data.items);
+      setMetaData(data.metadata);
+    }else{
+      setOrderHistory(undefined);
+    }
   };
   React.useEffect(() => {
     if (
@@ -86,15 +91,12 @@ function FpageCRM() {
       dispatch(
         getListOrderActionFpage(querySearchOrderFpage, setOrderHistoryItems)
       );
+    }else{
+      setOrderHistory(undefined);
+      setMetaData(null);
     }
   }, [customerDetail, dispatch, querySearchOrderFpage]);
 
-  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
-    if (data) {
-      setOrderHistory(data.items);
-      setMetaData(data.metadata);
-    }
-  };
 
   const deletePhone = useCallback(
     (p: any, e: any) => {
