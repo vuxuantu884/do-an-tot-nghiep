@@ -4,6 +4,7 @@ import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import IconPrint from "assets/icon/printer.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -125,7 +126,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 trigger={["click"]}
               >
                 <Button type="primary" style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
-                  In đơn hàng <DownOutlined />
+                  <img src={IconPrint} alt="" style={{paddingRight: '10px'}}/> In đơn hàng 
                 </Button>
               </Dropdown>
             </Col>
