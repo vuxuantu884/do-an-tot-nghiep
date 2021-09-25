@@ -23,6 +23,7 @@ const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (
       className="modal-confirm"
       okText={okText ? okText : "Có"}
       cancelText={cancelText ? cancelText : "Không"}
+      cancelButtonProps={{style: {backgroundColor: 'white', border: '1px solid #E5E5E5'}}}
       visible={visible}
       onOk={onOk}
       onCancel={onCancel}

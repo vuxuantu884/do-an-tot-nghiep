@@ -83,6 +83,7 @@ const AssignCustomer = (props: ModalProps) => {
               ? "Không có bản ghi nào"
               : undefined
             }
+            showArrow
             onSearch={fetchCustomer}
             options={transformCustomers}
             onSelect={onSelect}

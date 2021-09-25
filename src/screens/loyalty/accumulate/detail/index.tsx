@@ -54,6 +54,7 @@ const LoyaltyAccumulateDetail = () => {
       title: "Hóa đơn tối đa",
       width: "17%",
       visible: true,
+      align: "center",
       render: (rule: LoyaltyProgramRuleResponse) => {
         return (
           <span>{formatCurrency(rule.order_amount_max)}</span>

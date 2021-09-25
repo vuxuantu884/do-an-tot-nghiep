@@ -111,7 +111,7 @@ const UploadLoyaltyCardRelease = () => {
               </Col>
               <Col span={14}>
                 <div className="sample-file">
-                  File mẫu tạo đợt phát hành: Click để tải <a href="https://files-xls.s3.ap-southeast-1.amazonaws.com/sample.xlsx" rel="noreferrer" target="_blank">“File excel mẫu”</a>
+                  File mẫu tạo đợt phát hành: Click để tải <a href="https://loyalty-resource.s3.ap-southeast-1.amazonaws.com/sample.xlsx" rel="noreferrer" target="_blank">“File excel mẫu”</a>
                 </div>
               </Col>
             </Row>
