@@ -331,7 +331,11 @@ const PointAdjustment = () => {
                       }
                     ]}
                   >
-                    <NumberInput placeholder="Nhập giá trị" style={{textAlign: 'left'}}/>
+                    <NumberInput
+                      placeholder="Nhập giá trị"
+                      style={{textAlign: 'left'}}
+                      max={999999999999999}
+                    />
                   </Item>
                 </div>
               </Col>

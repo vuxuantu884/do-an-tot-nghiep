@@ -109,6 +109,7 @@ const LoyaltyPointAccumulate = () => {
             replace={(a: string) => replaceFormatString(a)}
             value={rule.order_amount_min}
             onChange={(value) => onChangeOrderAmountMin(value, index)}
+            max={999999999999999}
           />
         )
       },
@@ -124,6 +125,7 @@ const LoyaltyPointAccumulate = () => {
             replace={(a: string) => replaceFormatString(a)}
             value={rule.order_amount_max || undefined}
             onChange={(value) => onChangeOrderAmountMax(value, index)}
+            max={999999999999999}
           />
         )
       },
