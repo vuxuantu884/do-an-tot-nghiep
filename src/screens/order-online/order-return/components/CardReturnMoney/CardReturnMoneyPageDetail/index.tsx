@@ -1,8 +1,9 @@
 import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
-import React from "react";
+import React, { useState } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -11,6 +12,7 @@ type PropType = {
 };
 function CardReturnMoneyPageDetail(props: PropType) {
   const { payments, returnMoneyAmount } = props;
+  const [isShowPayment, setIsShowPayment] = useState(false);
   const renderCardTitle = () => {
     return (
       <React.Fragment>
@@ -72,7 +74,13 @@ function CardReturnMoneyPageDetail(props: PropType) {
           }}
         >
           Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
-          <Button>Hoàn tiền</Button>
+          <Button
+            onClick={() => {
+              setIsShowPayment(true);
+            }}
+          >
+            Hoàn tiền
+          </Button>
         </div>
       </React.Fragment>
     );
@@ -81,7 +89,18 @@ function CardReturnMoneyPageDetail(props: PropType) {
   return (
     <StyledComponent>
       <Card className="margin-top-20" title={renderCardTitle()}>
-        <div className="padding-24">{renderPayments()}</div>
+        <div className="padding-24">
+          {renderPayments()}
+          {isShowPayment && (
+            <ReturnMoneySelect
+              totalAmountNeedToPay={returnMoneyAmount}
+              handleReturnMoney={() => {}}
+              isShowButtonReturnMoney={true}
+              setReturnMoneyMethod={() => {}}
+              setReturnMoneyNote={() => {}}
+            />
+          )}
+        </div>
       </Card>
     </StyledComponent>
   );
