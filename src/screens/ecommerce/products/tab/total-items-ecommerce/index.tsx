@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
+import { Button, Form, Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import CustomTable from "component/table/CustomTable";
-import actionColumn from "../../actions/action.column";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
+import TotalItemActionColumn from "./TotalItemActionColumn";
 
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -35,7 +35,12 @@ const TotalItemsEcommerce = () => {
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
+  const [syncStockValue, setSyncStockValue] = React.useState("");
+  const [isShowChangePriceModal, setIsShowChangePriceModal] = React.useState(false);
+  const [isShowChangeItemInfoModal, setIsShowChangeItemInfoModal] = React.useState(false);
+ 
+  
   const [variantData, setVariantData] = React.useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -85,6 +90,63 @@ const TotalItemsEcommerce = () => {
   useEffect(() => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
+
+  //handle sync stock
+  const handleSyncStock = (item: any) => {
+    setIsShowSyncStockModal(true);
+  };
+
+  const onChangeSyncOption = (e: any) => {
+    setSyncStockValue(e.target.value);
+  };
+
+  const cancelSyncStockModal = () => {
+    setIsShowSyncStockModal(false);
+  };
+  
+  const okSyncStockModal = () => {
+    setIsShowSyncStockModal(false);
+    showSuccess("Đồng bộ sản phẩm thành công: " + syncStockValue);
+     //thai need todo: call API
+  };
+
+  //handle change price
+  const handleChangePrice = (item: any) => {
+    setIsShowChangePriceModal(true);
+  };
+
+  const onChangePrice = (e: any) => {
+    //todo
+  };
+
+  const cancelChangePriceModal = () => {
+    setIsShowChangePriceModal(false);
+  };
+  
+  const okChangePriceModal = () => {
+    setIsShowChangePriceModal(false);
+    showSuccess("Thay đổi giá sản phẩm thành công: " + syncStockValue);
+     //thai need todo: call API
+  };
+
+  //handle change price
+  const handleChangeItemInfo = (item: any) => {
+    setIsShowChangeItemInfoModal(true);
+  };
+
+  const onChangeItemInfo = (e: any) => {
+    //todo
+  };
+
+  const cancelChangeItemInfoModal = () => {
+    setIsShowChangeItemInfoModal(false);
+  };
+  
+  const okChangeItemInfoModal = () => {
+    setIsShowChangeItemInfoModal(false);
+    showSuccess("Thay đổi thông tin sản phẩm thành công: " + syncStockValue);
+     //thai need todo: call API
+  };
 
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
@@ -208,8 +270,8 @@ const TotalItemsEcommerce = () => {
         );
       },
     },
-    
-    actionColumn(handleDeleteItem, handleDisconnectItem),
+
+    TotalItemActionColumn(handleSyncStock, handleChangePrice, handleChangeItemInfo, handleDeleteItem, handleDisconnectItem),
   ]);
 
   const onSearch = (value: ProductEcommerceQuery) => {
@@ -352,7 +414,7 @@ const TotalItemsEcommerce = () => {
             </Form.Item>
 
             <Form.Item name="shop_id" className="select-store-dropdown">
-               {!isEcommerceSelected &&
+              {!isEcommerceSelected &&
                 <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
                   <Select
                     showSearch
@@ -590,6 +652,24 @@ const TotalItemsEcommerce = () => {
           </div>
         </Modal>
 
+        <Modal
+          width="600px"
+          visible={isShowSyncStockModal}
+          title="Đồng bộ tồn kho"
+          okText="Đồng bộ"
+          cancelText="Hủy"
+          onCancel={cancelSyncStockModal}
+          onOk={okSyncStockModal}
+        >
+          <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
+            <Space direction="vertical">
+              <Radio value="selected">Đồng bộ các sản phẩm đã chọn</Radio>
+              <Radio value="all">Đồng bộ tất cả sản phẩm</Radio>
+            </Space>
+          </Radio.Group>
+        </Modal>
+
+        
       </div>
     </StyledComponent>
   );

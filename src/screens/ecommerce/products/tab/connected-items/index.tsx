@@ -1,12 +1,12 @@
 import React, {useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Form,Select, Input, Modal, Tooltip } from "antd";
+import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import actionColumn from "../../actions/action.column";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
+import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
 
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -35,7 +35,9 @@ const ConnectedItems = () => {
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
+  const [syncStockValue, setSyncStockValue] = React.useState("");
+  
   const [variantData, setVariantData] = React.useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -86,8 +88,27 @@ const ConnectedItems = () => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
 
+  //handle sync stock
+  const handleSyncStock = () => {
+    setIsShowSyncStockModal(true);
+  };
 
-  const handleDeleteItem = (item: any) => {
+  const onChangeSyncOption = (e: any) => {
+    setSyncStockValue(e.target.value);
+  };
+
+  const cancelSyncStockModal = () => {
+    setIsShowSyncStockModal(false);
+  };
+
+  const okSyncStockModal = () => {
+    setIsShowSyncStockModal(false);
+    showSuccess("Đồng bộ sản phẩm thành công: " + syncStockValue);
+     //thai need todo: call API
+  };
+
+  //handle delete item
+  const handleDeleteItem = () => {
     setIsShowDeleteItemModal(true);
   };
 
@@ -101,6 +122,7 @@ const ConnectedItems = () => {
     //thai need todo: call API
   };
 
+  //handle disconnect item
   const handleDisconnectItem = () => {
     setIsShowModalDisconnect(true);
   };
@@ -212,7 +234,7 @@ const ConnectedItems = () => {
       },
     },
     
-    actionColumn(handleDeleteItem, handleDisconnectItem),
+    ConnectedItemActionColumn(handleSyncStock, handleDeleteItem, handleDisconnectItem),
   ]);
 
   const columnFinal = React.useMemo(
@@ -296,20 +318,25 @@ const ConnectedItems = () => {
     }
   ]
 
-  //thai fake data 
-  const LIST_STORE = [
+  const ACTION_LIST = [
     {
       id: 1,
-      name: "store 1",
-      value: "store_1"
+      name: "Đồng bộ tồn kho lên sàn",
+      value: "syncStock"
     },
     {
       id: 2,
-      name: "category 2",
-      value: "category_2"
+      name: "Xóa sản phẩm lấy về",
+      value: "deleteItem"
+    },
+    {
+      id: 3,
+      name: "Hủy liên kết",
+      value: "disconnectItem"
     }
   ]
 
+  //thai fake data 
   const CATEGORY = [
     {
       id: 1,
@@ -346,6 +373,24 @@ const ConnectedItems = () => {
     setVisibleFilter(false);
   }, []);
 
+
+  const selectAction = (value: any) => {
+    switch(value) {
+      case 'syncStock':
+        handleSyncStock();
+        break;
+      case 'deleteItem':
+        handleDeleteItem();
+        break;
+      case 'disconnectItem':
+        handleDisconnectItem();
+        break; 
+      default: break
+    }
+  }
+
+  
+
   return (
     <StyledComponent>
       <div className="total-items-ecommerce">
@@ -361,13 +406,15 @@ const ConnectedItems = () => {
                 placeholder="Thao tác"
                 allowClear
                 optionFilterProp="children"
+                onSelect={selectAction}
               >
-                {LIST_STORE &&
-                  LIST_STORE.map((c: any) => (
-                    <Option key={c.value} value={c.value}>
-                      {c.name}
+                {ACTION_LIST &&
+                  ACTION_LIST.map((action: any) => (
+                    <Option key={action.id} value={action.value}>
+                      {action.name}
                     </Option>
-                  ))}
+                  ))
+                }
               </Select>
             </Form.Item>
 
@@ -631,6 +678,24 @@ const ConnectedItems = () => {
             <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
           </div>
         </Modal>
+
+        <Modal
+          width="600px"
+          visible={isShowSyncStockModal}
+          title="Đồng bộ tồn kho"
+          okText="Đồng bộ"
+          cancelText="Hủy"
+          onCancel={cancelSyncStockModal}
+          onOk={okSyncStockModal}
+        >
+          <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
+            <Space direction="vertical">
+              <Radio value="selected">Đồng bộ các sản phẩm đã chọn</Radio>
+              <Radio value="all">Đồng bộ tất cả sản phẩm</Radio>
+            </Space>
+          </Radio.Group>
+        </Modal>
+
       </div>
     </StyledComponent>
   );

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createRef } from "react";
 import { useHistory } from "react-router-dom";
-import { Card, Tabs, Form, Button, Modal, Select, DatePicker } from "antd";
+import { useDispatch } from "react-redux";
+import { Card, Tabs, Form, Button, Modal, Select, DatePicker, Tooltip, FormInstance } from "antd";
 import {DownloadOutlined} from "@ant-design/icons"
 
 import ContentContainer from "component/container/content.container";
@@ -9,9 +10,15 @@ import TotalItemsEcommerce from "./tab/total-items-ecommerce";
 import ConnectedItems from "./tab/connected-items";
 import NotConnectedItems from "./tab/not-connected-items";
 
+import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+
+import tikiIcon from "assets/icon/e-tiki.svg";
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import sendoIcon from "assets/icon/e-sendo.svg";
 import checkCircleIcon from "assets/icon/check-circle.svg";
 
-import { StyledComponent } from "./styles";
+import { StyledComponent, StyledEcommerceList } from "./styles";
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -25,6 +32,20 @@ const Products: React.FC = () => {
   const [totalGetItem, setTotalGetItem] = React.useState(0);
   const [itemsUpdated, setItemsUpdated] = React.useState(0);
   const [itemsNotConnected, setItemsNotConnected] = React.useState(0);
+
+  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
+  const [ecommerceSelected, setEcommerceSelected] = React.useState(0);
+  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [activatedBtn, setActivatedBtn] = React.useState({
+    title: "",
+    icon: "",
+    id: 0,
+    isActive: "",
+    key: "",
+  });
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (history.location.hash) {
@@ -48,6 +69,16 @@ const Products: React.FC = () => {
 
   const cancelGetItemModal = () => {
     setIsShowGetItemModal(false);
+    setActivatedBtn(
+      {
+        title: "",
+        icon: "",
+        id: 0,
+        isActive: "",
+        key: ""
+      }
+    );
+    setEcommerceSelected(0);
   };
 
   const getProductsFromEcommerce = () => {
@@ -70,14 +101,57 @@ const Products: React.FC = () => {
     setIsShowResultGetItemModal(false);
   };
 
-  //thai fake data 
-  const LIST_STALL = [
+  const [ecommerceList] = useState<Array<any>>([
     {
+      title: "Sàn Tiki",
+      icon: tikiIcon,
+      id: 2,
+      isActive: false,
+      key: "tiki"
+    },
+    {
+      title: "Sàn Shopee",
+      icon: shopeeIcon,
       id: 1,
-      name: "Sàn Shopee",
-      value: "shopeeChannel"
-    }
-  ]
+      isActive: false,
+      key: "shopee",
+    },
+    {
+      title: "Sàn Lazada",
+      icon: lazadaIcon,
+      id: 3,
+      isActive: false,
+      key: "lazada",
+    },
+    {
+      title: "Sàn Sendo",
+      icon: sendoIcon,
+      id: 4,
+      isActive: false,
+      key: "sendo",
+    },
+  ]);
+
+  const selectEcommerce = (item: any) => {
+    setActivatedBtn(item)
+    setEcommerceSelected(item && item.id);
+    getShopEcommerce(item && item.id);
+  };
+
+  const updateEcommerceShopList = React.useCallback((result) => {
+    setIsEcommerceSelected(true);
+    setEcommerceShopList(result);
+  }, []);
+
+  const getShopEcommerce = (ecommerceId: any) => {
+    setShopIdSelected(null);
+    setIsEcommerceSelected(false);
+    dispatch(getShopEcommerceList({ecommerce_id: ecommerceId}, updateEcommerceShopList));
+  }
+
+  const selectShopEcommerce = (shop_id: any) => {
+    setShopIdSelected(shop_id);
+  }
 
   return (
     <StyledComponent>
@@ -149,26 +223,57 @@ const Products: React.FC = () => {
           // initialValues={params}
           layout="vertical"
           >
+            <StyledEcommerceList>
+              {ecommerceList.map((item) => (
+                <Button
+                  key={item.id}
+                  className={
+                    item.id === activatedBtn?.id ? "active-button" : ""
+                  }
+                  icon={item.icon && <img src={item.icon} alt={item.id} />}
+                  type="ghost"
+                  onClick={() => selectEcommerce(item)}
+                >
+                  {item.title}
+                </Button>
+              ))}
+            </StyledEcommerceList>
+
             <Form.Item
-              name="stall"
+              name="shop_id"
               label={<b>Lựa chọn gian hàng</b>}
             >
-              <Select
-                showSearch
-                placeholder="Chọn gian hàng"
-                allowClear
-                // optionFilterProp="children"
-              >
-                {LIST_STALL.map((item) => (
-                  <Option key={item.id} value={item.value}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
+              {!isEcommerceSelected &&
+                <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
+                  <Select
+                    showSearch
+                    placeholder="Chọn gian hàng"
+                    allowClear
+                    disabled={true}
+                  />
+                </Tooltip>
+              }
+
+              {isEcommerceSelected &&
+                <Select
+                  showSearch
+                  placeholder="Chọn gian hàng"
+                  allowClear
+                  onSelect={(value) => selectShopEcommerce(value)}
+                >
+                  {ecommerceShopList &&
+                    ecommerceShopList.map((shop: any) => (
+                      <Option key={shop.id} value={shop.id}>
+                        {shop.name}
+                      </Option>
+                    ))
+                  }
+                </Select>
+              }
             </Form.Item>
           
             <Form.Item name="start_time" label={<b>Thời gian</b>}>
-              <RangePicker placeholder={["Từ ngày", "Đến ngày"]} />
+              <RangePicker placeholder={["Từ ngày", "Đến ngày"]} style={{width: "100%"}} />
             </Form.Item>
           </Form>
         </div>

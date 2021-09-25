@@ -25,7 +25,7 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 
-import { StyledComponent } from "./styles";
+import { StyledComponent, StyledYodyProductColumn } from "./styles";
 
 const NotConnectedItems = () => {
   const [formAdvance] = Form.useForm();
@@ -85,6 +85,22 @@ const NotConnectedItems = () => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
 
+
+  const searchYodyProduct = (e: any) => {
+    e.preventDefault();
+    console.log("searchYodyProduct e.target.value: ", e.target.value);
+
+    // dispatch(searchVariantsRequestAction(params, setSearchResult));
+  }
+
+  const saveYodyProduct = () => {
+    console.log("saveYodyProduct: ");
+  }
+  
+  const cancelYodyProduct = () => {
+    console.log("cancelYodyProduct: ");
+  }
+
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
   };
@@ -141,7 +157,51 @@ const NotConnectedItems = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.core_variant || "-"}</span>
+          <StyledYodyProductColumn>
+            {l.core_variant &&
+              <div>
+                <ul>
+                  <li>
+                    <b>Tên sản phẩm: </b>
+                    <span>tên sản phẩm yody nè</span>
+                  </li>
+
+                  <li>
+                    <b>SKU: </b>
+                    <span>SKU yody nè</span>
+                  </li>
+                  
+                  <li>
+                    <b>Giá bán: </b>
+                    <span>Giá bán yody nè</span>
+                  </li>
+                </ul>
+
+                <div className="button">
+                  <Button type="primary" onClick={saveYodyProduct}>
+                    Lưu
+                  </Button>
+
+                  <Button onClick={cancelYodyProduct}>
+                    Hủy          
+                  </Button>
+                </div>
+              </div>
+            }
+
+            {!l.core_variant &&
+              <div>
+                <Input
+                  size="middle"
+                  className="yody-search"
+                  placeholder="Tên/Mã sản phẩm"
+                  prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  onPressEnter={(e) => searchYodyProduct(e)}
+                />
+              </div>
+            }
+
+          </StyledYodyProductColumn>
         );
       },
     },
