@@ -229,8 +229,8 @@ const CustomerRanking = () => {
         visible={isShowConfirmDelete}
         onOk={onConfirmDelete}
         onCancel={onCancel}
-        title="Bạn có chắc chắn xóa hạng thẻ này không?"
-        subTitle="Bạn sẽ không khôi phục lại hạng thẻ này nếu đã xóa."
+        title="Bạn có chắc chắn xóa hạng khách hàng này không?"
+        subTitle="Bạn sẽ không khôi phục lại hạng khách hàng này nếu đã xóa."
         okText="Xóa"
         cancelText="Thoát"
       />
