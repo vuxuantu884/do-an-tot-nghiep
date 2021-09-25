@@ -3,6 +3,7 @@ import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
+import "./create-bill-step.scss";
 
 type StepStatusProps = {
   status?: string | null | undefined;
@@ -46,7 +47,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   );
 
   return (
-    <Steps progressDot={progressDot} size="small" current={currentStep}>
+    <Steps progressDot={progressDot} size="small" current={currentStep} className="create-bill-step">
       <Steps.Step
         title="Đặt hàng"
         // description={moment(props.orderDetail?.created_date).format(

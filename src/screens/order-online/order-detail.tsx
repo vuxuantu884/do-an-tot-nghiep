@@ -1,6 +1,6 @@
 import { Button, Card, Col, Collapse, Divider, Modal, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
-// import CreateBillStep from "component/header/create-bill-step";
+import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -366,9 +366,9 @@ const OrderDetail = (props: PropType) => {
           name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
         },
       ]}
-      // extra={
-      //   <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />
-      // }
+      extra={
+        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetailAllFullfilment} />
+      }
     >
       <div className="orders">
         <Row gutter={24} style={{ marginBottom: "70px" }}>
