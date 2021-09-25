@@ -52,7 +52,7 @@ const ColorCreateScreen = React.lazy(
 
 //Product
 const Product = React.lazy(
-  () => import("screens/products/product/product.search.screen")
+  () => import("screens/products/product/ProductSearchScreen")
 );
 const VariantUpdateScreen = React.lazy(
   () => import("screens/products/product/variant-update.screen")
@@ -64,7 +64,7 @@ const ProductUpdateScreen = React.lazy(
   () => import("screens/products/product/ProductUpdateScreen")
 );
 const ProductImportScreen = React.lazy(
-  () => import("screens/products/product/ImportProductScreen")
+  () => import("screens/products/product/ImportScreen")
 );
 const ProductBarcodeScreen = React.lazy(
   () => import("screens/products/product/BarcodeProductScreen")
@@ -149,6 +149,18 @@ const product: Array<RouteMenu> = [
       },
       {
         path: `${UrlConfig.PRODUCT}/:id`,
+        exact: true,
+        title: "Sửa sản phẩm",
+        icon: "icon-dot",
+        component: ProductDetailScreen,
+        key: "submenu213",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/:id/variants/:variantId`,
         exact: true,
         title: "Sửa sản phẩm",
         icon: "icon-dot",

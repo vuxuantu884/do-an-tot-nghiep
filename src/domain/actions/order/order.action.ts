@@ -324,3 +324,9 @@ export const getListChannelRequest = (
 ) => {
   return BaseAction(OrderType.GET_LIST_CHANNEL_REQUEST, { setData });
 };
+
+export const getListReasonRequest = (
+  setData: (data: Array<{id: number; name: string}>) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
+};

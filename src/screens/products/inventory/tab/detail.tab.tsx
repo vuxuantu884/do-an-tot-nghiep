@@ -213,7 +213,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         columns={columnFinal}
         scroll={{ x: 2500 }}
-        sticky={{ offsetScroll: 5}}
+        sticky={{ offsetScroll: 5, offsetHeader: 55}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

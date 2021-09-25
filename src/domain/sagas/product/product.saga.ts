@@ -1,4 +1,4 @@
-import { productBarcodeApi, productDetailApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
+import { productBarcodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
   ProductResponse,
@@ -353,6 +353,58 @@ function* createProductBarcode(action: YodyAction){
   }
 }
 
+export function* importProductSaga(action: YodyAction) {
+  const { file, isCreate, onResult } = action.payload;
+  try {
+    let response: BaseResponse<Array<string>> =yield call(productImportApi, file, isCreate);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* variantUpdateSaleableSaga(action: YodyAction) {
+  const { variants, onResult } = action.payload;
+  try {
+    let arrSuccess: Array<VariantResponse> = [];
+    let arrFail: Array<VariantResponse> = [];
+    for(let i = 0 ; i< variants.length; i++) {
+      let response: BaseResponse<VariantResponse> =yield call(updateVariantApi,
+        variants[i].id,
+        variants[i]);
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          arrSuccess.push(response.data)
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          arrFail.push(variants[i]);
+          yield put(unauthorizedAction());
+          break;
+        default:
+          arrFail.push(variants[i]);
+          break;
+      }
+    }
+    onResult(arrSuccess, arrFail, false);
+  } catch (error) {
+    onResult([], [], true);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
@@ -378,4 +430,6 @@ export function* productSaga() {
   yield takeLatest(ProductType.PRODUCT_DETAIL, getProductDetail);
   yield takeLatest(ProductType.PRODUCT_UPDATE, putProductUpdate);
   yield takeLatest(ProductType.PRODUCT_BARCODE, createProductBarcode)
+  yield takeLatest(ProductType.PRODUCT_IMPORT, importProductSaga)
+  yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga)
 }

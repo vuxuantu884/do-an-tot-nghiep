@@ -14,7 +14,7 @@ export const getVariantByBarcode = (barcode: string): Promise<BaseResponse<Varia
   return BaseAxios.get(link);
 };
 
-export const updateVariantApi = (id: string, request: VariantUpdateRequest) => {
+export const updateVariantApi = (id: string, request: VariantUpdateRequest): Promise<BaseResponse<VariantResponse>> => {
   return BaseAxios.put(`${ApiConfig.PRODUCT}/products/${request.product_id}/variants/${id}`, request);
 }
 

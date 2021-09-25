@@ -4,7 +4,6 @@ import {
   Col,
   Space,
   Form,
-  FormInstance,
   Input,
   Radio,
   Row,
@@ -25,7 +24,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { AppConfig } from "config/app.config";
@@ -68,7 +67,6 @@ const initRequest: SupplierCreateRequest = {
 };
 const CreateSupplierScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const formRef = createRef<FormInstance>();
   const [formSupplier] = Form.useForm();
   const history = useHistory();
   const supplier_type = useSelector(
@@ -122,11 +120,11 @@ const CreateSupplierScreen: React.FC = () => {
   const onChangeStatus = useCallback(
     (checked: boolean) => {
       setStatus(checked ? "active" : "inactive");
-      formRef.current?.setFieldsValue({
+      formSupplier.setFieldsValue({
         status: checked ? "active" : "inactive",
       });
     },
-    [formRef]
+    [formSupplier]
   );
 
   const onSelectDistrict = useCallback(
@@ -173,7 +171,7 @@ const CreateSupplierScreen: React.FC = () => {
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
         setDataAccounts
       )
     );
@@ -217,7 +215,7 @@ const CreateSupplierScreen: React.FC = () => {
               <Switch
                 onChange={onChangeStatus}
                 className="ant-switch-success"
-                defaultChecked
+                checked={status === "active"}
               />
               <label
                 className={status === "active" ? "text-success" : "text-error"}
@@ -225,7 +223,7 @@ const CreateSupplierScreen: React.FC = () => {
                 {statusValue}
               </label>
               <Item noStyle name="status" hidden>
-                <Input value={status} />
+                <Input />
               </Item>
             </Space>
           }

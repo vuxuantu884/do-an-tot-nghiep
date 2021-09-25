@@ -762,7 +762,7 @@ export default function Order() {
       );
 
       let rank = loyaltyUsageRules.find(
-        (x) => x.rank_id === loyaltyPoint?.loyalty_level_id
+        (x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id)
       );
 
       let curenPoint = !loyaltyPoint

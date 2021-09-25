@@ -18,19 +18,23 @@ import VariantList from "../component/VariantList";
 import { showSuccess } from "utils/ToastUtils";
 import { Products } from "utils/AppUtils";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { useQuery } from "utils/useQuery";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import TabProductInventory from "../tab/TabProductInventory";
+import TabProductHistory from "../tab/TabProductHistory";
+import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
+import classNames from 'classnames';
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
 
 export interface ProductParams {
   id: string;
+  variantId: string;
 }
 
 const ProductDetailScreen: React.FC = () => {
   const history = useHistory();
-  const query = useQuery();
-  let variant_id = query.get("variant_id");
   const dispatch = useDispatch();
-  const { id } = useParams<ProductParams>();
+  const { id, variantId } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
@@ -39,6 +43,14 @@ const ProductDetailScreen: React.FC = () => {
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
+  const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
+    items: [],
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0
+    }
+  });
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
@@ -141,14 +153,14 @@ const ProductDetailScreen: React.FC = () => {
     [data, update]
   );
 
-  const onUpdateSaleable = useCallback(() => {
+  const onUpdateSaleable = useCallback((data1) => {
     setLoadingVariantUpdate(false);
-    if (!data) {
+    if (!data1) {
     } else {
-      setData(data);
+      setData(data1);
       showSuccess("Cập nhật thông tin thành công");
     }
-  }, [data]);
+  }, []);
 
   const onChangeChecked = useCallback(
     (e) => {
@@ -161,6 +173,23 @@ const ProductDetailScreen: React.FC = () => {
     [active, data, dispatch, idNumber, onUpdateSaleable]
   );
 
+  const onResultInventory = useCallback((result) => {
+    if(!result) {
+
+    } else {
+      setDataInventory(result)
+    }
+  }, []);
+
+  const onChangeDataInventory = useCallback((page) => {
+    if (data && data?.variants.length > 0) {
+      let variantSelect = data.variants[active].id;
+      dispatch(
+        inventoryGetDetailAction({ variant_id: variantSelect, page: page }, onResultInventory)
+      );
+    }
+  }, [active, data, dispatch, onResultInventory])
+
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
     return () => {};
@@ -168,19 +197,22 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (data && data?.variants.length > 0) {
-      // dispatch(inventoryGetDetailAction({varr}, onResultHistory));
+      let variantSelect = data.variants[active].id;
+      dispatch(
+        inventoryGetDetailAction({ variant_id: variantSelect }, onResultInventory)
+      );
     }
-  }, [data, dispatch, onResult]);
+  }, [active, data, dataInventory.metadata.limit, dataInventory.metadata.page, dispatch, onResult, onResultInventory]);
   useEffect(() => {
-    if (variant_id && data) {
+    if (variantId && data) {
       let index = data.variants.findIndex(
-        (item) => item.id.toString() === variant_id
+        (item) => item.id.toString() === variantId
       );
       if (index !== -1) {
         setActive(index);
       }
     }
-  }, [data, variant_id]);
+  }, [data, variantId]);
   return (
     <StyledComponent>
       <ContentContainer
@@ -212,17 +244,22 @@ const ProductDetailScreen: React.FC = () => {
                     <div className="extra-cards status">
                       <b>Trạng thái:</b>
                       <Switch
-                        style={{marginLeft: 10}}
+                        style={{ marginLeft: 10 }}
                         checked={data.status === "active"}
                         onChange={(checked) => {
-                          data.status = checked ? 'active' : "inactive";
-                        
+                          data.status = checked ? "active" : "inactive";
+                          dispatch(productUpdateAction(idNumber, data, (result) => {
+                            if(result) {
+                              setData(result);
+                              showSuccess('Cập nhật trạng thái thành công')
+                            }
+                          }))
                         }}
                         className="ant-switch-success"
                         defaultChecked
                       />
                       <label
-                        style={{marginLeft: 10}}
+                        style={{ marginLeft: 10 }}
                         className={
                           data.status === "active"
                             ? "text-success"
@@ -297,17 +334,19 @@ const ProductDetailScreen: React.FC = () => {
               <Col span={24}>
                 <Card className="card">
                   <Row className="card-container">
-                    <Col className="left" span={24} md={6}>
+                    <Col className="left" span={24} md={7}>
                       <VariantList
                         onAllowSale={onAllowSale}
                         onStopSale={onStopSale}
                         value={data.variants}
                         active={active}
-                        setActive={(active) => setActive(active)}
+                        setActive={(active) => {
+                          history.replace(`${UrlConfig.PRODUCT}/${idNumber}/variants/${data.variants[active].id}`)
+                        }}
                         loading={loadingVariant}
                       />
                     </Col>
-                    <Col className="right" span={24} md={18}>
+                    <Col className="right" span={24} md={17}>
                       {currentVariant !== null && (
                         <React.Fragment>
                           <div className="header-view">
@@ -391,7 +430,7 @@ const ProductDetailScreen: React.FC = () => {
                                             slidesToShow={1}
                                             slidesToScroll={1}
                                             arrows={false}
-                                            className="image-slider"
+                                            className={classNames("image-slider")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -407,11 +446,17 @@ const ProductDetailScreen: React.FC = () => {
                                             asNavFor={nav1 ? nav1 : undefined}
                                             ref={(slider2) => setNav2(slider2)}
                                             infinite={true}
-                                            slidesToShow={3}
+                                            slidesToShow={
+                                              currentVariant.variant_images
+                                                .length < 3
+                                                ? currentVariant.variant_images
+                                                    .length
+                                                : 3
+                                            }
                                             slidesToScroll={1}
                                             arrows={true}
                                             focusOnSelect={true}
-                                            className="image-thumbnail"
+                                            className={classNames("image-thumbnail", currentVariant.variant_images.length === 2 && "image-2")}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -455,10 +500,10 @@ const ProductDetailScreen: React.FC = () => {
                 <Card className="card">
                   <Tabs style={{ overflow: "initial" }}>
                     <Tabs.TabPane tab="Danh sách tồn kho" key="1">
-                      {/* <TabProduct /> */}
+                      <TabProductInventory onChange={onChangeDataInventory} data={dataInventory} />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Lich sử tồn kho" key="2">
-                      {/* <TabProduct /> */}
+                      <TabProductHistory />
                     </Tabs.TabPane>
                   </Tabs>
                 </Card>

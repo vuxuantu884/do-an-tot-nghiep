@@ -141,6 +141,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   //Function
 
+  console.log("changeMoney", changeMoney);
+
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       if (!items) {
@@ -764,7 +766,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _discountRate: number,
     _discountValue: number
   ) => {
-    setChangeMoney(_amount - _discountValue);
+    // setChangeMoney(_amount - _discountValue);
     props.changeInfo(_items, _amount, _discountRate, _discountValue);
   };
 
@@ -1183,7 +1185,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                       changeMoney +
                         (props.shippingFeeCustomer
                           ? props.shippingFeeCustomer
-                          : 0)
+                          : 0) -
+                        discountValue
                     )
                   : "-"}
               </strong>

@@ -84,7 +84,7 @@ const ColorListScreen: React.FC = () => {
     },
     {
       title: "Màu chủ đạo",
-      dataIndex: "parent_id",
+      dataIndex: "parent",
       visible: true,
     },
     {

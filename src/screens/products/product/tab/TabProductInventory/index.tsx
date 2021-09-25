@@ -1,0 +1,85 @@
+import CustomTable from "component/table/CustomTable";
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
+
+interface IProps {
+  data: PageResponse<InventoryResponse>;
+  onChange: (page: number, pageSize?: number) => void
+}
+
+const TabProductInventory: React.FC<IProps> = (props: IProps) => {
+  const { data, onChange } = props;
+  return (
+    <div className="padding-20">
+      <CustomTable
+        dataSource={data.items}
+        pagination={{
+          total: data.metadata.total,
+          pageSize: data.metadata.limit,
+          current: data.metadata.page,
+          onChange: onChange
+        }}
+        rowKey={(record) => record.id}
+        columns={[
+          {
+            title: "Kho hàng",
+            dataIndex: "store",
+          },
+          {
+            align: "right",
+            title: "Tổng tồn",
+            dataIndex: "total_stock",
+          },
+          {
+            align: "right",
+            title: "Tồn trong kho",
+            dataIndex: "on_hand",
+          },
+          {
+            align: "right",
+            title: "Đang giao dịch",
+            dataIndex: "committed",
+          },
+          {
+            align: "right",
+            title: "Có thể bán",
+            dataIndex: "available",
+          },
+          {
+            align: "right",
+            title: "Hàng tạm giữ",
+            dataIndex: "on_hold",
+          },
+          {
+            align: "right",
+            title: "Hàng lỗi",
+            dataIndex: "defect",
+          },
+          {
+            align: "right",
+            title: "Chờ nhập",
+            dataIndex: "in_coming",
+          },
+          {
+            align: "right",
+            title: "Hàng đang chuyển đến",
+            dataIndex: "transferring",
+          },
+          {
+            align: "right",
+            title: "Hàng đang chuyển đi",
+
+            dataIndex: "on_way",
+          },
+          {
+            align: "right",
+            title: "Hàng đang giao",
+            dataIndex: "shipping",
+          },
+        ]}
+      />
+    </div>
+  );
+};
+
+export default TabProductInventory;

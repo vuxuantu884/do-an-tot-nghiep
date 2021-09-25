@@ -315,7 +315,7 @@ const ListSupplierScreen: React.FC = () => {
               // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
               onDelete();
             }}
-            title="Bạn chắc chắn xóa màu sắc ?"
+            title="Bạn chắc chắn xóa nhà cung cấp ?"
             subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
             visible={isConfirmDelete}
           />

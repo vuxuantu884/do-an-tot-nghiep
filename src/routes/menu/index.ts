@@ -11,7 +11,7 @@ import promotion from './promotion.route';
 
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
-const Product = React.lazy(() => import ("screens/products/product/product.search.screen"));
+const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))

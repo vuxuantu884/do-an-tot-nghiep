@@ -5,7 +5,6 @@ import {
   ProductRequest,
   ProductResponse,
   ProductWrapperUpdateRequest,
-  ProductWrapperResponse,
   ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
@@ -28,7 +27,7 @@ export const searchVariantsRequestAction = (
 
 export const searchProductWrapperRequestAction = (
   query: ProductWrapperSearchQuery,
-  setData: (data: PageResponse<ProductWrapperResponse>|false) => void
+  setData: (data: PageResponse<ProductResponse>|false) => void
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST, {
     query,
@@ -124,4 +123,12 @@ export const productUpdateAction = (id: number, request: ProductRequest|ProductR
 
 export const productBarcodeAction = (request: ProductBarcodeRequest, onResult: (result: string|false) => void) => {
   return BaseAction(ProductType.PRODUCT_BARCODE, {request, onResult});
+}
+
+export const productImportAction = (file: File, isCreate: string, onResult: (result: string|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_IMPORT, {file, isCreate, onResult});
+}
+
+export const variantUpdateManyAction = (variants: Array<VariantUpdateRequest>, onResult: (success: Array<VariantResponse>, error: Array<VariantResponse>, exception: boolean) => void) => {
+  return BaseAction(ProductType.VARIANT_UPDATE_SALEABLE, {variants, onResult});
 }
