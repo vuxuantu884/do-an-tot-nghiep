@@ -1,7 +1,9 @@
 import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
 import React from "react";
+import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   payments: OrderPaymentResponse[];
@@ -22,7 +24,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
                 color: "#27AE60",
               }}
             >
-              Đã thanh toán
+              Đã hoàn tiền
             </Tag>
           )}
         </span>
@@ -36,7 +38,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
         <Timeline>
           {payments.map((single, index) => {
             return (
-              <Timeline.Item key={index}>
+              <Timeline.Item key={index} color="#27AE60">
                 <Row gutter={24}>
                   <Col md={8}>
                     <div className="timeline__colTitle">
@@ -62,17 +64,26 @@ function CardReturnMoneyPageDetail(props: PropType) {
     }
     return (
       <React.Fragment>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          Cần hoàn trả khách: {returnMoneyAmount} đ<Button>Hoàn tiền</Button>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontWeight: "bold",
+          }}
+        >
+          Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
+          <Button>Hoàn tiền</Button>
         </div>
       </React.Fragment>
     );
   };
 
   return (
-    <Card className="margin-top-20" title={renderCardTitle()}>
-      <div className="padding-24">{renderPayments()}</div>
-    </Card>
+    <StyledComponent>
+      <Card className="margin-top-20" title={renderCardTitle()}>
+        <div className="padding-24">{renderPayments()}</div>
+      </Card>
+    </StyledComponent>
   );
 }
 

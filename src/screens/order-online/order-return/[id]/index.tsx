@@ -164,7 +164,9 @@ const ScreenReturnDetail = (props: PropType) => {
             />
             <CardReturnMoneyPageDetail
               payments={payments}
-              returnMoneyAmount={totalAmountReturnProducts}
+              returnMoneyAmount={
+                OrderDetail?.total_line_amount_after_line_discount || 0
+              }
             />
             <CardReturnReceiveProducts
               isDetailPage={isDetailPage}

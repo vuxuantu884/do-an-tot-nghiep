@@ -59,7 +59,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardExchangeProducts from "../components/CardExchangeProducts";
-import CardReturnMoney from "../components/CardReturnMoney";
+import CardReturnMoneyPageCreate from "../components/CardReturnMoney/CardReturnMoneyPageCreate";
+import CardReturnMoneyPageCreateReturn from "../components/CardReturnMoney/CardReturnMoneyPageCreate/CardReturnMoneyPageCreateReturn";
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -82,7 +83,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isCanReturnOrExchange, setIsCanReturnOrExchange] =
     useState<boolean>(false);
   const [isExchange, setIsExchange] = useState<boolean>(false);
-  const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
+  const [isFetchData, setIsFetchData] = useState(false);
   const [isCanExchange, setIsCanExchange] = useState<boolean>(false);
   const [isStepExchange, setIsStepExchange] = useState<boolean>(false);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
@@ -210,6 +211,7 @@ const ScreenReturnCreate = (props: PropType) => {
     totalAmountReturnProducts;
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
+    setIsFetchData(true);
     if (!data) {
       setError(true);
     } else {
@@ -266,62 +268,94 @@ const ScreenReturnCreate = (props: PropType) => {
   ) => {
     setListExchangeProducts(listExchangeProducts);
   };
-  const onReturn = () => {
-    form.validateFields().then(() => {
-      if (OrderDetail && listReturnProducts) {
-        let payments: OrderPaymentRequest[] | null = [];
-        if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
-          if (returnMoneyMethod) {
-            payments = [
-              {
-                payment_method_id: returnMoneyMethod.id,
-                payment_method: returnMoneyMethod.name,
-                amount: returnMoneyAmount,
-                reference: "",
-                source: "",
-                paid_amount: returnMoneyAmount,
-                return_amount: 0.0,
-                status: "paid",
-                customer_id: customer?.id || null,
-                type: "",
-                note: returnMoneyNote || "",
-                code: "",
-              },
-            ];
-          }
-        }
-        let items = listReturnProducts.map((single) => {
-          const { maxQuantity, ...rest } = single;
-          return rest;
-        });
-        let itemsResult = items.filter((single) => {
-          return single.quantity > 0;
-        });
-        console.log("OrderDetail", OrderDetail);
-        let orderDetailFormatted: ReturnRequest = {
-          ...OrderDetail,
-          action: "",
-          delivery_service_provider_id: null,
-          delivery_fee: null,
-          shipper_code: "",
-          shipper_name: "",
-          shipping_fee_paid_to_three_pls: null,
-          requirements: null,
-          items: itemsResult,
-          fulfillments: [],
-          payments: payments,
-          reason_id: form.getFieldValue("reason_id"),
-          received: isReceivedReturnProducts,
-        };
-        console.log("orderDetailFormatted", orderDetailFormatted);
-        dispatch(
-          actionCreateOrderReturn(orderDetailFormatted, (response) => {
-            console.log("response", response);
-            history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
-          })
-        );
-      }
+
+  const handleSubmitFormReturn = () => {
+    let items = listReturnProducts.map((single) => {
+      const { maxQuantity, ...rest } = single;
+      return rest;
     });
+    let itemsResult = items.filter((single) => {
+      return single.quantity > 0;
+    });
+    if (OrderDetail && listReturnProducts) {
+      let payments: OrderPaymentRequest[] | null = [];
+      if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+        if (returnMoneyMethod) {
+          payments = [
+            {
+              payment_method_id: returnMoneyMethod.id,
+              payment_method: returnMoneyMethod.name,
+              amount: returnMoneyAmount,
+              reference: "",
+              source: "",
+              paid_amount: returnMoneyAmount,
+              return_amount: 0.0,
+              status: "paid",
+              customer_id: customer?.id || null,
+              type: "",
+              note: returnMoneyNote || "",
+              code: "",
+            },
+          ];
+        }
+      }
+      let orderDetailResult: ReturnRequest = {
+        ...OrderDetail,
+        action: "",
+        delivery_service_provider_id: null,
+        delivery_fee: null,
+        shipper_code: "",
+        shipper_name: "",
+        shipping_fee_paid_to_three_pls: null,
+        requirements: null,
+        items: itemsResult,
+        fulfillments: [],
+        payments: payments,
+        reason_id: form.getFieldValue("reason_id"),
+        received: isReceivedReturnProducts,
+      };
+      console.log("orderDetailResult", orderDetailResult);
+      dispatch(
+        actionCreateOrderReturn(orderDetailResult, (response) => {
+          console.log("response", response);
+          history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
+        })
+      );
+    }
+  };
+
+  const onReturn = () => {
+    let checkIfHasReturnProduct = listReturnProducts.some((single) => {
+      return single.quantity > 0;
+    });
+    if (!checkIfHasReturnProduct) {
+      showError("Vui lòng chọn ít nhất 1 sản phẩm");
+      const element: any = document.getElementById("search_product");
+      const offsetY =
+        element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+      window.scrollTo({ top: offsetY, behavior: "smooth" });
+      element?.focus();
+      return;
+    }
+
+    form
+      .validateFields()
+      .then(() => {
+        if (isReceivedReturnProducts) {
+          handleSubmitFormReturn();
+        } else {
+          setIsVisibleModalWarning(true);
+        }
+      })
+      .catch((error) => {
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
+        const offsetY =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        window.scrollTo({ top: offsetY, behavior: "smooth" });
+      });
   };
 
   const onReturnAndExchange = async () => {
@@ -334,7 +368,7 @@ const ScreenReturnCreate = (props: PropType) => {
         let itemsResult = items.filter((single) => {
           return single.quantity > 0;
         });
-        let orderDetailFormatted: ReturnRequest = {
+        let orderDetailResult: ReturnRequest = {
           ...OrderDetail,
           action: "",
           delivery_service_provider_id: null,
@@ -351,7 +385,7 @@ const ScreenReturnCreate = (props: PropType) => {
         };
 
         dispatch(
-          actionCreateOrderReturn(orderDetailFormatted, (response) => {
+          actionCreateOrderReturn(orderDetailResult, (response) => {
             order_return_id = response.id;
             form.submit();
           })
@@ -629,17 +663,6 @@ const ScreenReturnCreate = (props: PropType) => {
             layout="vertical"
             initialValues={initialForm}
             form={form}
-            onFinishFailed={({ errorFields }: any) => {
-              const element: any = document.getElementById(
-                errorFields[0].name.join("")
-              );
-              element?.focus();
-              const y =
-                element?.getBoundingClientRect()?.top +
-                window.pageYOffset +
-                -250;
-              window.scrollTo({ top: y, behavior: "smooth" });
-            }}
             onFinish={onFinish}
           >
             <Row gutter={24} style={{ marginBottom: "70px" }}>
@@ -663,7 +686,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     listReturnProducts: ReturnProductModel[]
                   ) => setListReturnProducts(listReturnProducts)}
                   listOrderProducts={listOrderProducts}
-                  handleCanReturn={setIsCanReturn}
                   isDetailPage={false}
                   isExchange={isExchange}
                   isStepExchange={isStepExchange}
@@ -678,20 +700,27 @@ const ScreenReturnCreate = (props: PropType) => {
                     totalAmountNeedToPay={totalAmountNeedToPay}
                   />
                 )}
-                <CardReturnMoney
+                {!isExchange && (
+                  <CardReturnMoneyPageCreateReturn
+                    payments={payments}
+                    returnMoneyType={returnMoneyType}
+                    setReturnMoneyType={setReturnMoneyType}
+                    setReturnMoneyMethod={setReturnMoneyMethod}
+                    setReturnMoneyNote={setReturnMoneyNote}
+                  />
+                )}
+                <CardReturnMoneyPageCreate
                   listPaymentMethods={listPaymentMethods}
-                  amountReturn={returnMoneyAmount}
+                  // amountReturn={returnMoneyAmount}
                   payments={payments}
                   handlePayments={setPayments}
-                  isDetailPage={false}
+                  // isDetailPage={false}
                   totalAmountNeedToPay={totalAmountNeedToPay}
                   isExchange={isExchange}
                   isStepExchange={isStepExchange}
                   returnMoneyType={returnMoneyType}
                   setReturnMoneyType={setReturnMoneyType}
-                  returnMoneyMethod={returnMoneyMethod}
                   setReturnMoneyMethod={setReturnMoneyMethod}
-                  returnMoneyNote={returnMoneyNote}
                   setReturnMoneyNote={setReturnMoneyNote}
                   setReturnMoneyAmount={setReturnMoneyAmount}
                 />
@@ -726,8 +755,8 @@ const ScreenReturnCreate = (props: PropType) => {
                 <CardReturnReceiveProducts
                   isDetailPage={false}
                   isReceivedReturnProducts={isReceivedReturnProducts}
-                  handleReceivedReturnProducts={() =>
-                    setIsReceivedReturnProducts(true)
+                  handleReceivedReturnProducts={(value: boolean) =>
+                    setIsReceivedReturnProducts(value)
                   }
                 />
               </Col>
@@ -743,18 +772,9 @@ const ScreenReturnCreate = (props: PropType) => {
           </Form>
         </div>
         <ReturnBottomBar
-          onReturn={() => {
-            form.validateFields().then(() => {
-              if (isReceivedReturnProducts) {
-                onReturn();
-              } else {
-                setIsVisibleModalWarning(true);
-              }
-            });
-          }}
+          onReturn={onReturn}
           onReturnAndExchange={() => onReturnAndExchange()}
           onCancel={() => handleCancel()}
-          isCanReturn={isCanReturn}
           isCanExchange={isCanExchange}
           isExchange={isExchange}
           isStepExchange={isStepExchange}
@@ -765,7 +785,7 @@ const ScreenReturnCreate = (props: PropType) => {
             setIsVisibleModalWarning(false);
           }}
           onOk={() => {
-            onReturn();
+            handleSubmitFormReturn();
             setIsVisibleModalWarning(false);
           }}
           okText="Đồng ý"
@@ -845,7 +865,11 @@ const ScreenReturnCreate = (props: PropType) => {
         },
       ]}
     >
-      {isCanReturnOrExchange ? renderIfCanReturn() : renderIfCannotReturn()}
+      {!isFetchData
+        ? "Loading ..."
+        : isCanReturnOrExchange
+        ? renderIfCanReturn()
+        : renderIfCannotReturn()}
     </ContentContainer>
   );
 };

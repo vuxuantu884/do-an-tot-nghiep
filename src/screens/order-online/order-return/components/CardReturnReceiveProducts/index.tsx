@@ -5,7 +5,7 @@ import { StyledComponent } from "./styles";
 type PropType = {
   isDetailPage?: boolean;
   isReceivedReturnProducts: boolean;
-  handleReceivedReturnProducts: () => void;
+  handleReceivedReturnProducts: (value: boolean) => void;
 };
 function CardReturnReceiveProducts(props: PropType) {
   const {
@@ -33,7 +33,7 @@ function CardReturnReceiveProducts(props: PropType) {
           <div className="actionReturn">
             <Button
               onClick={(e) => {
-                handleReceivedReturnProducts();
+                handleReceivedReturnProducts(true);
               }}
             >
               Nhận hàng
@@ -49,7 +49,7 @@ function CardReturnReceiveProducts(props: PropType) {
         <Checkbox
           onChange={(e) => {
             if (e.target.checked === true) {
-              handleReceivedReturnProducts();
+              handleReceivedReturnProducts(true);
             }
           }}
         >

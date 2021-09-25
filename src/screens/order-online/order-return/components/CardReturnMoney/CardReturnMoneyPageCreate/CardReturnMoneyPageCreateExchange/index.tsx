@@ -23,7 +23,7 @@ import {
 } from "utils/AppUtils";
 import { PaymentMethodCode, PointConfig } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
-import ReturnMoneySelect from "../ReturnMoneySelect";
+import ReturnMoneySelect from "../../ReturnMoneySelect";
 
 type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
