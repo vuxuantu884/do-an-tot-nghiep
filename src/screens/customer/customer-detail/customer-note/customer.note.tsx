@@ -57,8 +57,11 @@ function CustomerNoteInfo(props: any) {
     },
     {
       title: "Nội dung",
-      dataIndex: "content",
+      dataIndex: "",
       visible: true,
+      render: (value, row, index) => {
+        return <div  style={{ color: "#666666", width: 300 }}>{row.content}</div>;
+      },
     },
     {
       title: "Người tạo",

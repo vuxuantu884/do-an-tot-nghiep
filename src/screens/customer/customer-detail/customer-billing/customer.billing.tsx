@@ -95,7 +95,7 @@ function CustomerShippingInfo(props: any) {
             <div
               className="text"
               title={row.code}
-              style={{ color: "#666666", width: 200 }}
+              style={{ color: "#666666", width: 300 }}
             >
               {`${row.full_address ? row.full_address : ""}`}
             </div>
