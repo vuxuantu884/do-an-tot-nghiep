@@ -24,6 +24,8 @@ const ErrorLogs = (props: ModalProps) => {
         } catch (error) {
         }
       }
+    } else {
+      setErrorObject([])
     }
   }, [errors])
 

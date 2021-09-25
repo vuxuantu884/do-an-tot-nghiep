@@ -156,6 +156,7 @@ const CreateCustomerRanking = () => {
                         replace={(a: string) =>
                           replaceFormatString(a)
                         }
+                        max={999999999999999}
                       />
                     </Item>
                   </Col>
