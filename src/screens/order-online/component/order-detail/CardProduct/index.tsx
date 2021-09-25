@@ -28,6 +28,7 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -54,6 +55,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
+import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
 import {
   findAvatar,
@@ -139,6 +141,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
     useState(false);
 
+  const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
   //Function
 
   const totalAmount = useCallback(
@@ -737,6 +740,16 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setVisiblePickDiscount(false);
   }, []);
 
+  const ShowInventoryModal = useCallback(() => {
+    if (items) {
+      setInventoryModalVisible(true);
+    }
+  }, []);
+  const handleInventoryCancel = useCallback(() => {
+    setInventoryModalVisible(false);
+  }, []);
+  const handleisInventoryOk = () => {};
+
   const onOkDiscountConfirm = (
     type: string,
     value: number,
@@ -855,6 +868,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </Select.Option>
             </Select>
           </Form.Item>
+          <Button
+            onClick={() => {
+              ShowInventoryModal();
+            }}
+          >
+            Kiểm tra tồn
+          </Button>
         </Space>
       }
     >
@@ -1201,6 +1221,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         onCancel={onCancelDiscountConfirm}
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
+      />
+      <InventoryModal
+        isModalVisible={isInventoryModalVisible}
+        columnsItem={items}
+        handleOk={handleisInventoryOk}
+        handleCancel={handleInventoryCancel}
       />
     </Card>
   );

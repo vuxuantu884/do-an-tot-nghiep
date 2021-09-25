@@ -788,10 +788,10 @@ export default function Order() {
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
-      if(!loyaltyPoint)
+      if(!loyaltyPoint || limitAmountPointFocus===0)
       {
         showError(
-          "Khách hàng chưa được áp dụng tiêu điểm"
+          "Khách hàng đang không được áp dụng chương trình tiêu điểm"
         );
         return false;
       }
@@ -883,6 +883,7 @@ export default function Order() {
                     customer={customer}
                     handleCustomer={handleCustomer}
                     loyaltyPoint={loyaltyPoint}
+                    loyaltyUsageRules={loyaltyUsageRules}
                     ShippingAddressChange={onChangeShippingAddress}
                     BillingAddressChange={onChangeBillingAddress}
                   />
