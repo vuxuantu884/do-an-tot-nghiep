@@ -3,10 +3,11 @@ import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
+import "./create-bill-step.scss";
 
 type StepStatusProps = {
   status?: string | null | undefined;
-  orderDetail: OrderResponse | null;
+  orderDetail?: OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
@@ -27,6 +28,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(3);
         break;
       case "shipped":
+      case "cancelled":
         setCurrentStep(4);
         break;
       default:
@@ -45,7 +47,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   );
 
   return (
-    <Steps progressDot={progressDot} size="small" current={currentStep}>
+    <Steps progressDot={progressDot} size="small" current={currentStep} className="create-bill-step">
       <Steps.Step
         title="Đặt hàng"
         // description={moment(props.orderDetail?.created_date).format(
@@ -75,6 +77,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
+        className={!(props.orderDetail &&
+          props.orderDetail?.fulfillments &&
+          props.orderDetail?.fulfillments.length > 0 &&
+          props.orderDetail?.fulfillments[0].packed_on) && props.status === 'cancelled'? 'inactive' : ''}
       />
       <Steps.Step
         title="Xuất kho"
@@ -87,9 +93,13 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
+        className={!(props.orderDetail &&
+          props.orderDetail?.fulfillments &&
+          props.orderDetail?.fulfillments.length > 0 &&
+          props.orderDetail?.fulfillments[0].export_on) && props.status === 'cancelled' ? 'inactive' : ''}
       />
       <Steps.Step
-        title="Hoàn thành"
+        title={!(props.status === 'cancelled') ? "Hoàn thành" : "Huỷ đơn"}
         description={
           props.orderDetail &&
           props.orderDetail?.fulfillments &&
@@ -99,7 +109,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
+        className={props.status === 'cancelled'? 'cancelled' : ''}
       />
+      
     </Steps>
   );
 };

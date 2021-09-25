@@ -377,3 +377,12 @@ export interface ErrorLogResponse extends BaseObject {
   request_body: string;
   deleted: boolean;
 }
+
+export interface OrderReturnModel extends OrderResponse {
+  received: boolean;
+}
+
+export interface OrderReturnReasonModel {
+  id: number;
+  name: string;
+}

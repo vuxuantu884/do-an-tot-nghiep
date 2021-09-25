@@ -12,6 +12,28 @@ export interface PurchaseProcument extends BaseObject {
   stock_in_date: string;
   stock_in_by: string;
 }
+export interface PurchaseProcurementPOCreate {
+  store_id: string;
+  expect_receipt_date: string;
+  procurement_items: Array<PurchaseProcumentPOCreateLineItem>;
+  status: string;
+  status_po: string;
+}
+
+export interface PurchaseProcumentPOCreateLineItem {
+  id?: number;
+  code?: string;
+  line_item_id?: number;
+  sku: string;
+  variant: string;
+  variant_image: string | null;
+  ordered_quantity: number;
+  planned_quantity: number;
+  accepted_quantity: number;
+  quantity: number;
+  real_quantity: number;
+  note: string;
+}
 
 export interface PurchaseProcumentLineItem {
   id?: number;

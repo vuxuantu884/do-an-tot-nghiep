@@ -57,12 +57,6 @@ import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-import {
-  getLoyaltyPoint,
-  getLoyaltyUsage,
-} from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 
 var typeButton = "";
 export default function FpageOrders(props: any) {
@@ -74,7 +68,8 @@ export default function FpageOrders(props: any) {
     setIsCustomerReload,
     setCustomerPhone,
     setOrderHistory,
-    getCustomerByPhone,
+    getCustomerByPhone, loyaltyPoint,
+    loyaltyUsageRules
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -92,10 +87,8 @@ export default function FpageOrders(props: any) {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
-  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+  // const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  // const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
@@ -145,14 +138,14 @@ export default function FpageOrders(props: any) {
   };
   //#endregion
   //#region Product
-  useEffect(() => {
-    if (customer) {
-      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-    } else {
-      setLoyaltyPoint(null);
-    }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch, customer]);
+  // useEffect(() => {
+  //   if (customer) {
+  //     dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+  //   } else {
+  //     setLoyaltyPoint(null);
+  //   }
+  //   dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  // }, [dispatch, customer]);
 
   const checkPointfocus = useCallback(
     (value: any) => {
@@ -166,7 +159,7 @@ export default function FpageOrders(props: any) {
       );
 
       let rank = loyaltyUsageRules.find(
-        (x) => x.rank_id === loyaltyPoint?.loyalty_level_id
+        (x: any) => x.rank_id === loyaltyPoint?.loyalty_level_id
       );
 
       let curenPoint = !loyaltyPoint
@@ -651,6 +644,8 @@ export default function FpageOrders(props: any) {
                 setModalAction={setModalAction}
                 modalAction={modalAction}
                 setIsCustomerReload={setIsCustomerReload}
+                loyaltyPoint={loyaltyPoint}
+                loyaltyUsageRules={loyaltyUsageRules}
               />
               {/*--- product ---*/}
               <CardProduct
@@ -686,6 +681,7 @@ export default function FpageOrders(props: any) {
                 setFee={setFee}
                 payments={payments}
                 onPayments={onPayments}
+                // fulfillments={fulfillments}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}

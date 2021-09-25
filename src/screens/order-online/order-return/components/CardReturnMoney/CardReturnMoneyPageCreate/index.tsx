@@ -5,21 +5,26 @@ import {
   Col,
   Collapse,
   Divider,
+  Form,
   Input,
   InputNumber,
+  Radio,
   Row,
+  Select,
+  Space,
 } from "antd";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   formatCurrency,
   formatSuffixPoint,
   replaceFormat,
 } from "utils/AppUtils";
 import { PaymentMethodCode, PointConfig } from "utils/Constants";
+import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 
 type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
@@ -28,7 +33,19 @@ type PropType = {
   totalAmountNeedToPay?: number;
   isExchange: boolean;
   isStepExchange: boolean;
+  returnMoneyType?: string;
+  returnMoneyMethod?: PaymentMethodResponse | null;
+  returnMoneyNote?: string;
+  setReturnMoneyType?: (value: string) => void;
+  setReturnMoneyMethod?: (value: PaymentMethodResponse) => void;
+  setReturnMoneyNote?: (value: string) => void;
+  setReturnMoneyAmount?: (value: number) => void;
 };
+
+/**
+ * input: listPaymentMethod, returnMoneyType
+ * output: setReturnMoneyType
+ */
 function CardReturnMoneyPageCreate(props: PropType) {
   const {
     listPaymentMethods,
@@ -37,7 +54,16 @@ function CardReturnMoneyPageCreate(props: PropType) {
     totalAmountNeedToPay,
     isExchange,
     isStepExchange,
+    returnMoneyType,
+    setReturnMoneyType,
+    returnMoneyMethod,
+    returnMoneyNote,
+    setReturnMoneyNote,
+    setReturnMoneyMethod,
+    setReturnMoneyAmount,
   } = props;
+
+  console.log("payments", payments);
 
   const isReturnMoneyToCustomer =
     totalAmountNeedToPay !== undefined && totalAmountNeedToPay <= 0;
@@ -45,54 +71,88 @@ function CardReturnMoneyPageCreate(props: PropType) {
    * payment method bỏ tiêu điểm và qr pay
    */
   const exceptMethods = [PaymentMethodCode.QR_CODE, PaymentMethodCode.POINT];
-  const listPaymentMethodsFormatted = isReturnMoneyToCustomer
-    ? listPaymentMethods.filter((single) => {
-        return !exceptMethods.includes(single.code);
-      })
-    : listPaymentMethods;
+
+  let listPaymentMethodsFormatted = listPaymentMethods;
+  if (isReturnMoneyToCustomer) {
+    listPaymentMethodsFormatted = listPaymentMethods.filter((single) => {
+      return !exceptMethods.includes(single.code);
+    });
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const totalAmountReturn = () => {
     let total = 0;
     payments.forEach((p) => (total = total + p.amount));
     return total;
   };
 
-  const calculateMoneyReturnLeft = () => {
+  const calculateMoneyReturnLeft = useMemo(() => {
     if (totalAmountNeedToPay === undefined) {
       return 0;
     }
-    return (
-      (totalAmountNeedToPay > 0
-        ? totalAmountNeedToPay
-        : -totalAmountNeedToPay) - totalAmountReturn()
-    );
-  };
+    console.log("totalAmountNeedToPay", totalAmountNeedToPay);
+    let result = 0;
+    result =
+      totalAmountNeedToPay > 0
+        ? totalAmountNeedToPay - totalAmountReturn()
+        : -totalAmountNeedToPay - totalAmountReturn();
+    if (setReturnMoneyAmount) {
+      setReturnMoneyAmount(result);
+    }
+    return result;
+  }, [setReturnMoneyAmount, totalAmountNeedToPay, totalAmountReturn]);
 
   const handlePickPaymentMethod = (code?: string) => {
-    let paymentMaster = listPaymentMethodsFormatted.find(
-      (p) => code === p.code
-    );
-    if (!paymentMaster) return;
-    let indexPayment = payments.findIndex((p) => p.code === code);
-    if (indexPayment === -1) {
-      payments.push({
-        payment_method_id: paymentMaster.id,
-        amount: 0,
-        paid_amount: 0,
-        return_amount: 0,
-        status: "paid",
-        name: paymentMaster.name,
-        code: paymentMaster.code,
-        payment_method: paymentMaster.name,
-        reference: "",
-        source: "",
-        customer_id: 1,
-        note: "",
-        type: "",
-      });
+    if (isReturnMoneyToCustomer) {
+      let paymentSelected = listPaymentMethodsFormatted.find(
+        (p) => code === p.code
+      );
+      if (paymentSelected) {
+        let abc = {
+          payment_method_id: paymentSelected.id,
+          amount: 0,
+          paid_amount: 0,
+          return_amount: 0,
+          status: "paid",
+          name: paymentSelected.name,
+          code: paymentSelected.code,
+          payment_method: paymentSelected.name,
+          reference: "",
+          source: "",
+          customer_id: 1,
+          note: "",
+          type: "",
+        };
+        console.log("paymentSelected", paymentSelected);
+        handlePayments([abc]);
+      }
     } else {
-      payments.splice(indexPayment, 1);
+      let paymentMaster = listPaymentMethodsFormatted.find(
+        (p) => code === p.code
+      );
+      if (!paymentMaster) return;
+      let indexPayment = payments.findIndex((p) => p.code === code);
+      if (indexPayment === -1) {
+        payments.push({
+          payment_method_id: paymentMaster.id,
+          amount: 0,
+          paid_amount: 0,
+          return_amount: 0,
+          status: "paid",
+          name: paymentMaster.name,
+          code: paymentMaster.code,
+          payment_method: paymentMaster.name,
+          reference: "",
+          source: "",
+          customer_id: 1,
+          note: "",
+          type: "",
+        });
+      } else {
+        payments.splice(indexPayment, 1);
+      }
+      handlePayments([...payments]);
     }
-    handlePayments([...payments]);
   };
 
   const handleInputPayment = (value: number, paymentIndex: number) => {
@@ -257,7 +317,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                   <InputNumber
                     size="middle"
                     min={0}
-                    max={calculateMaxInputValue(index)}
+                    // max={calculateMaxInputValue(index)}
                     value={method.amount}
                     disabled={method.code === PaymentMethodCode.POINT}
                     className="yody-payment-input hide-number-handle"
@@ -305,12 +365,13 @@ function CardReturnMoneyPageCreate(props: PropType) {
         </span>
       }
     >
-      {isExchange && !isStepExchange ? (
+      {isExchange && !isStepExchange && (
         <div className="padding-24">
           Đối với các đơn trả hàng để đổi hàng, bạn vui lòng thực hiện hoàn
           tiền/thanh toán trên đơn đổi hàng.
         </div>
-      ) : (
+      )}
+      {isExchange && isStepExchange && (
         <div className="padding-24">
           <Row gutter={24}>
             <div style={{ padding: "0 24px", maxWidth: "100%" }}>
@@ -330,9 +391,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                         padding: "6px",
                       }}
                     >
-                      {`Lựa chọn 1 hoặc nhiều phương thức ${
-                        isReturnMoneyToCustomer ? "hoàn tiền" : "Thanh toán"
-                      }`}
+                      {isReturnMoneyToCustomer
+                        ? `Lựa chọn phương thức hoàn tiền`
+                        : `Lựa chọn 1 hoặc nhiều phương thức thanh toán`}
                     </span>
                   }
                   key="1"
@@ -355,20 +416,18 @@ function CardReturnMoneyPageCreate(props: PropType) {
                           </strong>
                         </div>
                       </Col>
-                      <Col lg={10} xxl={7} className="margin-top-bottom-10">
-                        <div>
-                          <span style={{ paddingRight: "20px" }}>
-                            {isReturnMoneyToCustomer
-                              ? " Còn phải trả khách:"
-                              : "Còn lại"}
-                          </span>
-                          <strong>
-                            {formatCurrency(
-                              Math.abs(calculateMoneyReturnLeft())
-                            )}
-                          </strong>
-                        </div>
-                      </Col>
+                      {!isReturnMoneyToCustomer && (
+                        <Col lg={10} xxl={7} className="margin-top-bottom-10">
+                          <div>
+                            <span style={{ paddingRight: "20px" }}>
+                              Còn lại
+                            </span>
+                            <strong>
+                              {formatCurrency(calculateMoneyReturnLeft)}
+                            </strong>
+                          </div>
+                        </Col>
+                      )}
                       <Divider style={{ margin: "10px 0" }} />
                       <Col xs={24} lg={24}>
                         <div className="create-order-payment">
@@ -384,71 +443,73 @@ function CardReturnMoneyPageCreate(props: PropType) {
                       </Col>
 
                       <Col span={20} xs={20}>
-                        <Row
-                          gutter={24}
-                          className="row-price"
-                          style={{ height: 38, margin: "10px 0" }}
-                        >
-                          <Col
-                            lg={15}
-                            xxl={9}
-                            className="row-large-title"
-                            style={{ padding: "8px 0", marginLeft: 2 }}
+                        {!isReturnMoneyToCustomer && (
+                          <Row
+                            gutter={24}
+                            className="row-price"
+                            style={{ height: 38, margin: "10px 0" }}
                           >
-                            <b>
-                              {isReturnMoneyToCustomer
-                                ? " Tiền trả khách:"
-                                : "Tổng tiền cần thanh toán:"}
-                            </b>
-                          </Col>
-                          <Col
-                            className="lbl-money"
-                            lg={6}
-                            xxl={6}
-                            style={{
-                              textAlign: "right",
-                              fontWeight: 500,
-                              fontSize: "20px",
-                            }}
+                            <Col
+                              lg={15}
+                              xxl={9}
+                              className="row-large-title"
+                              style={{ padding: "8px 0", marginLeft: 2 }}
+                            >
+                              <b>
+                                {isReturnMoneyToCustomer
+                                  ? " Tiền trả khách:"
+                                  : "Tổng tiền cần thanh toán:"}
+                              </b>
+                            </Col>
+                            <Col
+                              className="lbl-money"
+                              lg={6}
+                              xxl={6}
+                              style={{
+                                textAlign: "right",
+                                fontWeight: 500,
+                                fontSize: "20px",
+                              }}
+                            >
+                              <span className="t-result-blue">
+                                {totalAmountNeedToPay &&
+                                  (totalAmountNeedToPay > 0
+                                    ? formatCurrency(totalAmountNeedToPay)
+                                    : formatCurrency(-totalAmountNeedToPay))}
+                              </span>
+                            </Col>
+                          </Row>
+                        )}
+                        {!isReturnMoneyToCustomer && renderListPayments()}
+                        {!isReturnMoneyToCustomer && (
+                          <Row
+                            gutter={20}
+                            className="row-price"
+                            style={{ height: 38, margin: "10px 0 0 0" }}
                           >
-                            <span className="t-result-blue">
-                              {totalAmountNeedToPay &&
-                                (totalAmountNeedToPay > 0
-                                  ? formatCurrency(totalAmountNeedToPay)
-                                  : formatCurrency(-totalAmountNeedToPay))}
-                            </span>
-                          </Col>
-                        </Row>
-                        {renderListPayments()}
-                        <Row
-                          gutter={20}
-                          className="row-price"
-                          style={{ height: 38, margin: "10px 0 0 0" }}
-                        >
-                          <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
-                            <b>
-                              {isReturnMoneyToCustomer
-                                ? "Còn phải trả khách:"
-                                : "Còn lại:"}
-                            </b>
-                          </Col>
-                          <Col
-                            className="lbl-money"
-                            lg={6}
-                            xxl={6}
-                            style={{
-                              textAlign: "right",
-                              fontWeight: 500,
-                              fontSize: "20px",
-                            }}
-                          >
-                            <span style={{ color: false ? "blue" : "red" }}>
-                              {formatCurrency(
-                                Math.abs(calculateMoneyReturnLeft())
-                              )}
-                            </span>
-                          </Col>
-                        </Row>
+                            <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
+                              <b>
+                                {isReturnMoneyToCustomer
+                                  ? "Còn phải trả khách:"
+                                  : "Còn lại:"}
+                              </b>
+                            </Col>
+                            <Col
+                              className="lbl-money"
+                              lg={6}
+                              xxl={6}
+                              style={{
+                                textAlign: "right",
+                                fontWeight: 500,
+                                fontSize: "20px",
+                              }}
+                            >
+                              <span style={{ color: false ? "blue" : "red" }}>
+                                {formatCurrency(calculateMoneyReturnLeft)}
+                              </span>
+                            </Col>
+                          </Row>
+                        )}
                       </Col>
                     </Row>
                   </div>
@@ -456,6 +517,90 @@ function CardReturnMoneyPageCreate(props: PropType) {
               </Collapse>
             </div>
           </Row>
+        </div>
+      )}
+      {!isExchange && (
+        <div className="padding-20 create-order-payment">
+          <Form.Item
+          // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+          // required
+          >
+            <Radio.Group
+              value={returnMoneyType}
+              onChange={(e) => {
+                if (setReturnMoneyType) {
+                  setReturnMoneyType(e.target.value);
+                }
+              }}
+              style={{ margin: "18px 0" }}
+            >
+              <Space size={20}>
+                <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
+                <Radio value={RETURN_MONEY_TYPE.return_later}>
+                  Hoàn tiền sau
+                </Radio>
+              </Space>
+            </Radio.Group>
+            {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
+              <div>
+                <Row gutter={30}>
+                  <Col span={12}>
+                    <Form.Item
+                      label="Phương thức thanh toán"
+                      name="to_birthday"
+                    >
+                      <Select
+                        style={{ width: "100%" }}
+                        placeholder="Chọn hình thức thanh toán"
+                        notFoundContent="Không tìm thấy hình thức thanh toán"
+                        onChange={(value: number) => {
+                          if (setReturnMoneyMethod && value) {
+                            let selectedPaymentMethod =
+                              listPaymentMethodsFormatted.find((single) => {
+                                return single.id === value;
+                              });
+                            if (selectedPaymentMethod) {
+                              setReturnMoneyMethod(selectedPaymentMethod);
+                            }
+                          }
+                        }}
+                        defaultValue={returnMoneyMethod?.id}
+                      >
+                        {listPaymentMethodsFormatted &&
+                          listPaymentMethodsFormatted.map((single) => {
+                            return (
+                              <Select.Option value={single.id} key={single.id}>
+                                {single.name}
+                              </Select.Option>
+                            );
+                          })}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    Số tiền
+                    <Input
+                      value={formatCurrency(
+                        Math.round(calculateMoneyReturnLeft)
+                      )}
+                      disabled
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <Input
+                      placeholder="Nội dung"
+                      value={returnMoneyNote}
+                      onChange={(e) => {
+                        if (setReturnMoneyNote) {
+                          setReturnMoneyNote(e.target.value);
+                        }
+                      }}
+                    />
+                  </Col>
+                </Row>
+              </div>
+            )}
+          </Form.Item>
         </div>
       )}
     </Card>

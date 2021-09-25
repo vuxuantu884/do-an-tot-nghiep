@@ -2,7 +2,6 @@ import { Card, Col, Row } from 'antd';
 import ContentContainer from 'component/container/content.container'
 import UrlConfig from 'config/url.config'
 import React, { useEffect, useState } from 'react'
-import editIcon from "assets/icon/edit.svg";
 import { useParams } from 'react-router';
 import './loyalty-accumulate-detail.scss'
 import { Link } from 'react-router-dom';
@@ -116,7 +115,7 @@ const LoyaltyAccumulateDetail = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
         },
         {
-          name: "Chi tiết",
+          name: "Chi tiết chương trình tích điểm",
           path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${id}`,
         },
       ]}
@@ -127,8 +126,11 @@ const LoyaltyAccumulateDetail = () => {
             <span className="title-card">
               Thông tin chương trình
             </span>
-            <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${id}/update`}>
-              <img alt="edit-icon" src={editIcon} width="24px" height="24px" />
+            <Link
+              to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${id}/update`}
+              style={{color: '#5656A2', fontSize: '14px'}}
+            >
+              Cập nhật
             </Link>
           </div>
         }
@@ -151,10 +153,13 @@ const LoyaltyAccumulateDetail = () => {
               <div className={`info-status info-status__${loyaltyProgram?.status}`}>{loyaltyProgram?.status === 'ACTIVE' ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
             </Col>
             <Col span={12} className="row-item">
-              <div className="info-label">Cửa hàng:</div>
+              <div className="info-label">Sản phẩm:</div>
               <div className="info-content">
                 {loyaltyProgram?.items.length} sản phẩm đã chọn 
-                <span className="load-products" onClick={() => setIsShowProducts(true)}>Xem chi tiết</span></div>
+                {
+                  loyaltyProgram?.items.length ? <span className="load-products" onClick={() => setIsShowProducts(true)}>Xem chi tiết</span> : <></>
+                }
+              </div>
             </Col>
           </Row>
           <Row>

@@ -7,12 +7,8 @@ import {
   Form,
   Row,
   Select,
-  Space,
+  Tabs
 } from "antd";
-import IconDelivery from "assets/icon/delivery.svg";
-import IconSelfDelivery from "assets/icon/self_shipping.svg";
-// import IconShoppingBag from "assets/icon/shopping_bag.svg";
-// import IconWallClock from "assets/icon/wall_clock.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   // DeliveryServicesGetList,
@@ -38,9 +34,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
-import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
-import ShipmentMethodReceiveAtHome from "./ShipmentMethodReceiveAtHome";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
 
@@ -69,6 +63,7 @@ type CardShipmentProps = {
   // fulfillments: FulFillmentResponse[];
   // isCloneOrder: boolean;
 };
+const {TabPane} = Tabs
 
 const CardShipment: React.FC<CardShipmentProps> = (
   props: CardShipmentProps
@@ -76,8 +71,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const {
     OrderDetail,
     paymentMethod,
-    setPaymentMethod,
-    setShipmentMethodProps,
     setHVC,
     setServiceType,
     setFee,
@@ -90,36 +83,12 @@ const CardShipment: React.FC<CardShipmentProps> = (
     shippingFeeCustomer,
     officeTime,
     setOfficeTime,
-    shipmentMethod,
     payments,
-    onPayments,
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   // const [deliveryServices, setDeliveryServices] =
-  //   useState<Array<DeliveryServiceResponse> | null>(null);
-  const ShipMethodOnChange = (value: number) => {
-    setShipmentMethodProps(value);
-    setPaymentMethod(value);
-    setShipmentMethodProps(value);
-    if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
-      if (value === ShipmentMethodOption.SELF_DELIVER) {
-        setPaymentMethod(PaymentMethodOption.COD);
-      }
-    }
-
-    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      console.log("start request fees");
-      // getInfoDeliveryFees();
-      setPaymentMethod(PaymentMethodOption.COD);
-      //reset payment
-      onPayments([]);
-    }
-    if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
-      onPayments([]);
-    }
-  };
 
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
@@ -132,7 +101,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     item: any,
     fee: number
   ) => {
-    console.log("changeServiceType", item);
 
     setHVC(id);
     setServiceType(item);
@@ -147,35 +115,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     // dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
 
-  // shipment button action
-  interface ShipmentButtonModel {
-    name: string | null;
-    value: number;
-    icon: string | undefined;
-  }
-
-  const shipmentButton: Array<ShipmentButtonModel> = [
-    {
-      name: "Chuyển hãng vận chuyển",
-      value: 1,
-      icon: IconDelivery,
-    },
-    {
-      name: "Tự giao hàng",
-      value: 2,
-      icon: IconSelfDelivery,
-    },
-    // {
-    //   name: "Nhận tại cửa hàng",
-    //   value: 3,
-    //   icon: IconShoppingBag,
-    // },
-    // {
-    //   name: "Giao hàng sau",
-    //   value: 4,
-    //   icon: IconWallClock,
-    // },
-  ];
 
   useEffect(() => {
     if (
@@ -220,39 +159,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
-  const renderShipmentTabHeader = () => {
-    return (
-      <React.Fragment>
-        {shipmentButton.map((button) => (
-          <div key={button.value}>
-            {shipmentMethod !== button.value ? (
-              <div
-                className="saleorder_shipment_button"
-                key={button.value}
-                onClick={() => ShipMethodOnChange(button.value)}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            ) : (
-              <div
-                className={
-                  shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                    ? "saleorder_shipment_button saleorder_shipment_button_border"
-                    : "saleorder_shipment_button_active"
-                }
-                key={button.value}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </React.Fragment>
-    );
-  };
-
   return (
     <StyledComponent>
       <Card
@@ -278,7 +184,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
                 />
               </Form.Item>
             </Col>
-
             <Col span={24}>
               <Form.Item name="office_time" label="Giờ hành chính:">
                 <Checkbox
@@ -288,8 +193,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
                 ></Checkbox>
               </Form.Item>
             </Col>
-          </Row>
-          <Col span={24} style={{ padding: 0 }}>
+            <Col span={24}>
             <Form.Item name="requirements" label="Yêu cầu:">
               <Select
                 className="select-with-search"
@@ -321,21 +225,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
               </Select>
             </Form.Item>
           </Col>
-
-          <Row>
-            <div
-              className="saleorder_shipment_method_btn"
-              style={
-                shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                  ? { border: "none" }
-                  : { borderBottom: "1px solid #2A2A86" }
-              }
-            >
-              <Space size={10}>{renderShipmentTabHeader()}</Space>
-            </div>
           </Row>
-          {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+          <Row>
+          <Tabs defaultActiveKey="1">
+            <TabPane tab="Chuyển hãng vận chuyển" key="1">
             <ShipmentMethodDeliverPartner
               amount={amount}
               changeServiceType={changeServiceType}
@@ -347,9 +240,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
               OrderDetail={OrderDetail}
               payments={payments}
             />
-          )}
-
-          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
+            </TabPane>
+            <TabPane tab="Tự giao hàng" key="2">
             <ShipmentMethodSelfDelivery
               amount={amount}
               discountValue={discountValue}
@@ -358,12 +250,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
               shipper={shipper}
               shippingFeeCustomer={shippingFeeCustomer}
             />
-          )}
-
-          {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-            <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
-          )}
+            </TabPane>
+          </Tabs>
+          </Row>
+          
         </div>
       </Card>
     </StyledComponent>

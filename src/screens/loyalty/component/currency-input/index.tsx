@@ -10,6 +10,7 @@ interface IProp {
   onChange?: (value: number | null) => void
   value?: number
   onChangeCurrencyType?: (value: string) => void
+  style?: any
 }
 
 const CurrencyInput = (props: IProp) => {
@@ -24,6 +25,7 @@ const CurrencyInput = (props: IProp) => {
         placeholder={props.placeholder}
         onChange={(value) => props.onChange && props.onChange(value)}
         value={props.value}
+        style={props.style}
       />
       {
         props.currency && props.currency.length > 1 ? (
