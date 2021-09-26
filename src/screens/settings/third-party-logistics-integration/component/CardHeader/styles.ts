@@ -5,6 +5,7 @@ export const StyledComponent = styled.div`
     align-items: center;
     display: flex;
     justify-content: space-between;
+    font-size: 14px;
     &__left {
       align-items: center;
       display: flex;
