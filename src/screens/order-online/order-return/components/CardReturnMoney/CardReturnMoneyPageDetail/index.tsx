@@ -1,7 +1,7 @@
 import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useState } from "react";
+import React from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ReturnMoneySelect from "../ReturnMoneySelect";
