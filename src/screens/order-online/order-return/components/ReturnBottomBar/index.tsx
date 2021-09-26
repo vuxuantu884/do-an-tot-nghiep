@@ -6,7 +6,6 @@ type PropType = {
   onReturn: () => void;
   onReturnAndExchange: () => void;
   onCancel: () => void;
-  isCanReturn: boolean;
   isCanExchange: boolean;
   isExchange: boolean;
   isStepExchange: boolean;
@@ -18,8 +17,6 @@ function ReturnBottomBar(props: PropType) {
     onReturn,
     onReturnAndExchange,
     onCancel,
-    isCanReturn,
-    isCanExchange,
     isExchange,
     isStepExchange,
     handleIsStepExchange,
@@ -40,7 +37,6 @@ function ReturnBottomBar(props: PropType) {
           onClick={() => {
             onReturn();
           }}
-          disabled={!isCanReturn}
         >
           Trả hàng
         </Button>
@@ -64,7 +60,6 @@ function ReturnBottomBar(props: PropType) {
             onClick={() => {
               handleIsStepExchange(true);
             }}
-            disabled={!isCanReturn}
           >
             Tiếp theo
           </Button>
@@ -75,7 +70,6 @@ function ReturnBottomBar(props: PropType) {
             onClick={() => {
               onReturnAndExchange();
             }}
-            disabled={!isCanExchange}
           >
             Trả và đổi hàng
           </Button>

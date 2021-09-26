@@ -30,7 +30,7 @@ const inventoryGetHistoryApi = (
   query: HistoryInventoryQuery
 ): Promise<BaseResponse<HistoryInventoryResponse>> => {
   let params = generateQuery(query);
-  let link = `${ApiConfig.INVENTORY}/inventories/history?${params}`;
+  let link = `${ApiConfig.INVENTORY}/histories?${params}`;
   return BaseAxios.get(link);
 };
 

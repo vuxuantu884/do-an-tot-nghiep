@@ -33,7 +33,7 @@ import {
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, Products } from "utils/AppUtils";
@@ -107,7 +107,6 @@ const TabProduct: React.FC = () => {
     return state.bootstrapReducer.data?.variant_status;
   });
   const [tableLoading, setTableLoading] = useState(true);
-  const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();
   const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
@@ -352,7 +351,6 @@ const TabProduct: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isFirstLoad.current) {
       dispatch(CountryGetAllAction(setCountry));
       dispatch(listColorAction(initMainColorQuery, setMainColor));
       dispatch(listColorAction(initColorQuery, setColor));
@@ -360,10 +358,11 @@ const TabProduct: React.FC = () => {
       dispatch(SupplierGetAllAction(setSupplier));
       dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
       setTableLoading(true);
-    }
-    isFirstLoad.current = false;
+  }, [dispatch]);
+  useEffect(() => {
+    setTableLoading(true);
     dispatch(searchVariantsRequestAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult]);
+  }, [dispatch, params, setSearchResult])
   return (
     <div className="padding-20">
       <ProductFilter
