@@ -6,12 +6,11 @@ import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../../ReturnMoneySelect";
 
 type PropType = {
+  listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
-  totalAmountNeedToPay?: number;
+  totalAmountCustomerNeedToPay?: number;
   returnMoneyType?: string;
   setReturnMoneyType?: (value: string) => void;
-  setReturnMoneyMethod: (value: PaymentMethodResponse) => void;
-  setReturnMoneyNote: (value: string) => void;
 };
 
 /**
@@ -20,12 +19,11 @@ type PropType = {
  */
 function CardReturnMoneyPageCreateReturn(props: PropType) {
   const {
+    listPaymentMethods,
     payments,
-    totalAmountNeedToPay,
+    totalAmountCustomerNeedToPay,
     returnMoneyType,
     setReturnMoneyType,
-    setReturnMoneyNote,
-    setReturnMoneyMethod,
   } = props;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,17 +34,16 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
   };
 
   const moneyReturnLeft = useMemo(() => {
-    if (totalAmountNeedToPay === undefined) {
+    if (totalAmountCustomerNeedToPay === undefined) {
       return 0;
     }
-    console.log("totalAmountNeedToPay", totalAmountNeedToPay);
     let result = 0;
     result =
-      totalAmountNeedToPay > 0
-        ? totalAmountNeedToPay - totalAmountReturn()
-        : -totalAmountNeedToPay - totalAmountReturn();
+      totalAmountCustomerNeedToPay > 0
+        ? totalAmountCustomerNeedToPay - totalAmountReturn()
+        : -totalAmountCustomerNeedToPay - totalAmountReturn();
     return result;
-  }, [totalAmountNeedToPay, totalAmountReturn]);
+  }, [totalAmountCustomerNeedToPay, totalAmountReturn]);
 
   return (
     <Card
@@ -70,9 +67,8 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
         </Radio.Group>
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
-            totalAmountNeedToPay={Math.round(moneyReturnLeft)}
-            setReturnMoneyMethod={setReturnMoneyMethod}
-            setReturnMoneyNote={setReturnMoneyNote}
+            listPaymentMethods={listPaymentMethods}
+            totalAmountCustomerNeedToPay={Math.round(moneyReturnLeft)}
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}
           />

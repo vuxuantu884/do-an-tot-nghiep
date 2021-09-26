@@ -12,11 +12,11 @@ import { useDispatch } from 'react-redux';
 import { uploadFileCreateLoyaltyCard } from 'domain/actions/loyalty/release/loyalty-release.action';
 import ErrorLogs from '../component/error-logs/ErrorLogs';
 import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyalty-card-release.response';
+import { hideLoading, showLoading } from 'domain/actions/loading.action';
 
 const UploadLoyaltyCardRelease = () => {
   const [file, setFile] = useState<File>()
   const uploadRef = useRef<any>()
-  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch()
   const { Item } = Form;
   const formRef = createRef<FormInstance>();
@@ -31,21 +31,21 @@ const UploadLoyaltyCardRelease = () => {
     uploadRef.current?.click()
   }, [])
 
-  const onChangeUploadFile = useCallback((event: React.ChangeEvent<HTMLInputElement> | undefined) => {
+  const onChangeUploadFile = (event: React.ChangeEvent<HTMLInputElement> | undefined) => {
     if (event && event.target.files && event.target.files.length > 0) {
       setFile(event.target.files[0])
     }
-  }, [])
+  }
 
   const callback = useCallback((data: any) => {
-    setLoading(false)
+    dispatch(hideLoading())
     if (data) {
       showSuccess('Tạo đợt phát hành thành công')
       formRef.current?.resetFields()
       setFile(undefined)
       setResponse(data)
     }
-  }, [formRef])
+  }, [formRef, dispatch])
 
   const onCloseErrorLogModal = useCallback(() => {
     setResponse(undefined)
@@ -56,7 +56,7 @@ const UploadLoyaltyCardRelease = () => {
       showWarning('Thông tin đợt phát hành chưa đầy đủ')
       return;
     }
-    setLoading(true)
+    dispatch(showLoading())
     dispatch(uploadFileCreateLoyaltyCard(file, values.name, callback))
   },
     [callback, dispatch, file]
@@ -81,7 +81,7 @@ const UploadLoyaltyCardRelease = () => {
     >
       <Card
         title={
-          <span>TẢI FILE MẪU</span>
+          <span>TẢI FILE</span>
         }
       >
         <Form
@@ -111,7 +111,7 @@ const UploadLoyaltyCardRelease = () => {
               </Col>
               <Col span={14}>
                 <div className="sample-file">
-                  File mẫu tạo đợt phát hành: Click để tải <a href="https://files-xls.s3.ap-southeast-1.amazonaws.com/sample.xlsx" rel="noreferrer" target="_blank">“File excel mẫu”</a>
+                  File mẫu tạo đợt phát hành: Click để tải <a href="https://loyalty-resource.s3.ap-southeast-1.amazonaws.com/sample.xlsx" rel="noreferrer" target="_blank">“File excel mẫu”</a>
                 </div>
               </Col>
             </Row>
@@ -145,7 +145,6 @@ const UploadLoyaltyCardRelease = () => {
             </Row>
             <Row>
               <Button
-                loading={loading}
                 type="primary"
                 onClick={() => {
                   formRef.current?.submit();

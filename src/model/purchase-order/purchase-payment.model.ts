@@ -22,3 +22,10 @@ export interface PurchasePayments {
   status_po: string;
   purchase_order_id?: number;
 }
+export interface PurchasePaymentsCreate {
+  payment_method_code?: string;
+  amount?: number;
+  reference?: string;
+  transaction_date?: string;
+  note?: string;
+}

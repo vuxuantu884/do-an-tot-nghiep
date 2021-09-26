@@ -21,7 +21,7 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { createRef, useEffect, useMemo, useState } from "react";
+import React, { createRef, useMemo, useState } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -35,7 +35,7 @@ type PropType = {
   isStepExchange?: boolean;
   discountValue: number;
   discountRate?: number;
-  setTotalAmountReturnProducts: (value: number) => void;
+  setTotalAmountReturnProducts?: (value: number) => void;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -50,7 +50,7 @@ function CardReturnProducts(props: PropType) {
     discountRate,
     setTotalAmountReturnProducts,
   } = props;
-  console.log("discountRate", discountRate);
+  console.log("isStepExchange", isStepExchange);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -122,7 +122,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(resultReturnProducts);
       }
       checkIfIsCanReturn(resultReturnProducts);
-      setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
+      if (setTotalAmountReturnProducts) {
+        setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
+      }
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
         return {
@@ -135,7 +137,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(result);
       }
       checkIfIsCanReturn(result);
-      setTotalAmountReturnProducts(0);
+      if (setTotalAmountReturnProducts) {
+        setTotalAmountReturnProducts(0);
+      }
     }
     setIsCheckReturnAll(e.target.checked);
   };
@@ -233,7 +237,9 @@ function CardReturnProducts(props: PropType) {
       setIsCheckReturnAll(true);
     }
     checkIfIsCanReturn(resultListReturnProducts);
-    setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    if (setTotalAmountReturnProducts) {
+      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    }
   };
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
@@ -412,13 +418,12 @@ function CardReturnProducts(props: PropType) {
     },
   ];
 
-  useEffect(() => {}, [getTotalPrice(listReturnProducts)]);
-
   return (
     <StyledComponent>
       <Card
         className="margin-top-20"
-        title="Thông tin sản phẩm trả"
+        // title="SẢN PHẨM"
+        title={isStepExchange ? "Thông tin sản phẩm trả" : "SẢN PHẨM"}
         extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
         {isShowProductSearch() && (
@@ -485,18 +490,16 @@ function CardReturnProducts(props: PropType) {
           <Col xs={24} lg={11}></Col>
           <Col xs={24} lg={10}>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Số lượng trả:</strong>
-              <strong className="text-success font-size-price">
+              <span className="font-size-text">Số lượng:</span>
+              <span>
                 {listReturnProducts && (
-                  <span style={{ color: "#2A2A86" }}>
-                    {getTotalQuantity(listReturnProducts)}
-                  </span>
+                  <span>{getTotalQuantity(listReturnProducts)}</span>
                 )}
-              </strong>
+              </span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Cần phải trả khách:</strong>
-              <strong className="text-success font-size-price">
+              <strong className="font-size-text">Tổng tiền trả khách::</strong>
+              <strong>
                 {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
               </strong>
             </Row>

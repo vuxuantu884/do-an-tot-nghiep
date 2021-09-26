@@ -46,10 +46,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         if (currentStep >= 1 && activated_date !== null)
           return ConvertUtcToLocalDate(activated_date);
         return null;
-      case 2:
-        if (currentStep >= 2 && activated_date)
-          return ConvertUtcToLocalDate(activated_date);
-        return null;
       case 3:
         let date =
           procurements &&
@@ -84,7 +80,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     >
       <Steps.Step title="Đặt hàng" description={getDescription(0)} />
       <Steps.Step title="Xác nhận" description={getDescription(1)} />
-      <Steps.Step title="Phiếu nháp" description={getDescription(2)} />
       <Steps.Step title="Nhập kho" description={getDescription(3)} />
       <Steps.Step
         title={

@@ -73,18 +73,18 @@ const CreateCustomerRanking = () => {
   );
   return (
     <ContentContainer
-      title={params.id ? "Cập nhật hạng khách hàng" : "Thêm hạng khách hàng"}
+      title={params.id ? "Sửa hạng khách hàng" : "Thêm hạng khách hàng"}
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Hạng thẻ",
+          name: "Hạng khách hàng",
           path: `${UrlConfig.CUSTOMER}/rankings`,
         },
         {
-          name: `${params.id ? "Cập nhật hạng thẻ" : "Thêm hạng thẻ"}`,
+          name: `${params.id ? "Sửa hạng khách hàng" : "Thêm hạng khách hàng"}`,
         },
       ]}
     >
@@ -101,7 +101,7 @@ const CreateCustomerRanking = () => {
               title={
                 <div className="d-flex">
                   <span className="card-title">
-                    THÔNG TIN HẠNG THẺ
+                    THÔNG TIN HẠNG KHÁCH HÀNG
                   </span>
                 </div>
               }
@@ -109,19 +109,19 @@ const CreateCustomerRanking = () => {
               <div className="general-info">
                 <Row>
                   <Col span={11}>
-                    <div className="row-label">Tên hạng thẻ <span className="text-error">*</span></div>
+                    <div className="row-label">Tên hạng khách hàng <span className="text-error">*</span></div>
                     <Item
                       name="name"
                       rules={[
                         { transform: (value) => value.trim() },
                         {
                           required: true,
-                          message: "Vui lòng điền tên hạng thẻ",
+                          message: "Vui lòng điền tên hạng khách hàng",
                           whitespace: true
                         },
                       ]}
                     >
-                      <Input placeholder="Nhập tên hạng thẻ" />
+                      <Input placeholder="Nhập hạng khách hàng" />
                     </Item>
                   </Col>
                   <Col span={2}></Col>
@@ -131,7 +131,7 @@ const CreateCustomerRanking = () => {
                       name="type"
                     >
                       <Select>
-                        <Option value="CASH">Tiền tích lũy</Option>
+                        <Option value="CASH">Theo tiền tích lũy</Option>
                         {/* <Option disabled value="POINT">Theo số điểm</Option> */}
                       </Select>
                     </Item>
@@ -156,6 +156,7 @@ const CreateCustomerRanking = () => {
                         replace={(a: string) =>
                           replaceFormatString(a)
                         }
+                        max={999999999999999}
                       />
                     </Item>
                   </Col>
@@ -192,7 +193,7 @@ const CreateCustomerRanking = () => {
                     >
                       <Select>
                         <Option value="ACTIVE">Đang hoạt động</Option>
-                        <Option value="INACTIVE">Không hoạt động</Option>
+                        <Option value="INACTIVE">Dừng hoạt động</Option>
                       </Select>
                     </Item>
                   </Col>
@@ -217,7 +218,7 @@ const CreateCustomerRanking = () => {
           <Col span={6} className="back">
             <Link to={`${UrlConfig.CUSTOMER}/rankings`}>
               <img src={IconBack} alt="" style={{ marginRight: 10 }} />
-              <span>Quay lại danh sách hạng thẻ</span>
+              <span>Quay lại danh sách hạng khách hàng</span>
             </Link>
           </Col>
           <Col span={14} className="action-group">
@@ -228,7 +229,7 @@ const CreateCustomerRanking = () => {
                 formRef.current?.submit();
               }}
             >
-              {params.id ? 'Lưu' : 'Tạo'} hạng thẻ
+              {params.id ? 'Lưu' : 'Tạo'} hạng khách hàng
             </Button>
           </Col>
         </Row>

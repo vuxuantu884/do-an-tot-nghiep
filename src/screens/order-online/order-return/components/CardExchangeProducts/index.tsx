@@ -73,7 +73,7 @@ type CardProductProps = {
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
   shippingFeeCustomer: number | null;
   amountReturn: number;
-  totalAmountNeedToPay: number;
+  totalAmountCustomerNeedToPay: number;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -84,7 +84,8 @@ const initQueryVariant: VariantSearchQuery = {
 const CardExchangeProducts: React.FC<CardProductProps> = (
   props: CardProductProps
 ) => {
-  const { items, handleCardItems, amountReturn, totalAmountNeedToPay } = props;
+  const { items, handleCardItems, amountReturn, totalAmountCustomerNeedToPay } =
+    props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -111,7 +112,6 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   const [isVisibleGift, setVisibleGift] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
-  console.log("amount", amount);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -1171,15 +1171,15 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">
-                {totalAmountNeedToPay >= 0
+                {totalAmountCustomerNeedToPay >= 0
                   ? "Khách cần trả: "
                   : "Cần trả lại khách: "}
               </strong>
               <strong className="text-success font-size-price">
                 {formatCurrency(
-                  totalAmountNeedToPay >= 0
-                    ? totalAmountNeedToPay
-                    : -totalAmountNeedToPay
+                  totalAmountCustomerNeedToPay >= 0
+                    ? totalAmountCustomerNeedToPay
+                    : -totalAmountCustomerNeedToPay
                 )}
               </strong>
             </Row>

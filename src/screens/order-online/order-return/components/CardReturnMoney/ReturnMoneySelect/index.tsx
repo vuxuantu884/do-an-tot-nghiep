@@ -1,117 +1,122 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
-import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { formatCurrency } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
+import { StyledComponent } from "./styles";
 
 type PropType = {
-  totalAmountNeedToPay: number;
+  totalAmountCustomerNeedToPay: number;
   isShowButtonReturnMoney: boolean;
+  listPaymentMethods: PaymentMethodResponse[];
   handleReturnMoney: () => void;
-  setReturnMoneyMethod: (value: PaymentMethodResponse) => void;
-  setReturnMoneyNote: (value: string) => void;
 };
 
 /**
- * input: totalAmountNeedToPay
+ * input: totalAmountCustomerNeedToPay
  * output: setReturnMoneyType, setReturnMoneyMethod
  */
 function ReturnMoneySelect(props: PropType) {
+  /**
+   * payment method bỏ tiêu điểm và qr pay và card
+   */
+  const exceptMethods = [
+    PaymentMethodCode.QR_CODE,
+    PaymentMethodCode.POINT,
+    PaymentMethodCode.CARD,
+  ];
+
   const {
-    totalAmountNeedToPay,
+    totalAmountCustomerNeedToPay,
     isShowButtonReturnMoney,
-    setReturnMoneyNote,
-    setReturnMoneyMethod,
+    listPaymentMethods,
     handleReturnMoney,
   } = props;
+  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
-  const dispatch = useDispatch();
-
-  const [listPaymentMethods, setListPaymentMethods] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
-
-  useEffect(() => {
-    /**
-     * payment method bỏ tiêu điểm và qr pay và card
-     */
-    const exceptMethods = [
-      PaymentMethodCode.QR_CODE,
-      PaymentMethodCode.POINT,
-      PaymentMethodCode.CARD,
-    ];
-    dispatch(
-      PaymentMethodGetList((response) => {
-        let result = response.filter((single) => {
-          return !exceptMethods.includes(single.code);
-        });
-        setListPaymentMethods(result);
-      })
-    );
-  }, [dispatch]);
+  let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
+    return !exceptMethods.includes(single.code);
+  });
 
   return (
-    <div>
-      <Row gutter={30}>
-        <Col span={12}>
-          <Form.Item label="Phương thức thanh toán" name="to_birthday">
-            <Select
-              style={{ width: "100%" }}
-              placeholder="Chọn hình thức thanh toán"
-              notFoundContent="Không tìm thấy hình thức thanh toán"
-              onChange={(value: number) => {
-                if (setReturnMoneyMethod && value) {
-                  let selectedPaymentMethod = listPaymentMethods.find(
-                    (single) => {
-                      return single.id === value;
-                    }
-                  );
-                  if (selectedPaymentMethod) {
-                    setReturnMoneyMethod(selectedPaymentMethod);
-                  }
-                }
-              }}
-            >
-              {listPaymentMethods &&
-                listPaymentMethods.map((single) => {
-                  return (
-                    <Select.Option value={single.id} key={single.id}>
-                      {single.name}
-                    </Select.Option>
-                  );
-                })}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          Số tiền
-          <Input value={formatCurrency(totalAmountNeedToPay)} disabled />
-        </Col>
-        <Col span={12}>
-          <Input
-            placeholder="Nội dung"
-            onChange={(e) => {
-              if (setReturnMoneyNote) {
-                setReturnMoneyNote(e.target.value);
-              }
-            }}
-          />
-        </Col>
-        {isShowButtonReturnMoney && (
-          <Col span={12}>
-            <Button
-              onClick={() => {
-                handleReturnMoney();
-              }}
-            >
-              Xác nhận hoàn tiền
-            </Button>
-          </Col>
-        )}
-      </Row>
-    </div>
+    <StyledComponent>
+      <div className="returnMoney">
+        <Form.List name="returnMoneyField">
+          {(fields, { add, remove }) => {
+            return (
+              <div>
+                {fields.map((field, index) => (
+                  <div key={field.key}>
+                    <Row gutter={30}>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Phương thức thanh toán"
+                          name={[index, "returnMoneyMethod"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn phương thức thanh toán!",
+                            },
+                          ]}
+                        >
+                          <Select
+                            style={{ width: "100%" }}
+                            placeholder="Chọn hình thức thanh toán"
+                            notFoundContent="Không tìm thấy hình thức thanh toán"
+                          >
+                            {listPaymentMethodsResult &&
+                              listPaymentMethodsResult.map((single) => {
+                                return (
+                                  <Select.Option
+                                    value={single.id}
+                                    key={single.id}
+                                  >
+                                    {single.name}
+                                  </Select.Option>
+                                );
+                              })}
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <div className="ant-row ant-form-item">
+                          <div className="ant-col ant-form-item-label">
+                            Số tiền
+                          </div>
+                          <Input
+                            value={formatCurrency(totalAmountCustomerNeedToPay)}
+                            disabled
+                          />
+                        </div>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Nội dung"
+                          name={[index, "returnMoneyNote"]}
+                        >
+                          <Input placeholder="Nội dung" />
+                        </Form.Item>
+                      </Col>
+                      {isShowButtonReturnMoney && (
+                        <Col span={12}>
+                          <Button
+                            className="btnReturnMoney"
+                            onClick={() => {
+                              handleReturnMoney();
+                            }}
+                          >
+                            Xác nhận hoàn tiền
+                          </Button>
+                        </Col>
+                      )}
+                    </Row>
+                  </div>
+                ))}
+              </div>
+            );
+          }}
+        </Form.List>
+      </div>
+    </StyledComponent>
   );
 }
 

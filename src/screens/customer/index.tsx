@@ -8,11 +8,12 @@ import {
   Input,
   Select,
 } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import CustomFilter from "component/table/custom.filter";
 import "./customer.scss";
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/date-picker.custom";
@@ -467,7 +468,7 @@ const Customer = () => {
               size="large"
               icon={<PlusOutlined />}
             >
-              Thêm mới khách hàng
+              Thêm khách hàng mới
             </Button>
           </Link>
         </>

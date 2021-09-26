@@ -21,7 +21,7 @@ const GeneralInformation = (props: any) => {
     notes,
     handleNote,
     deletePhone,
-    customerDetail,
+    customerDetail,loyaltyPoint,loyaltyUsageRules
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
@@ -51,6 +51,8 @@ const GeneralInformation = (props: any) => {
               }
               form={form}
               customerDetail={customerDetail}
+              loyaltyPoint={loyaltyPoint}
+              loyaltyUsageRules={loyaltyUsageRules}
               message="Vui lòng nhập họ tên khách hàng"
               placeholder="Nhập họ và tên khách hàng"
               isRequired={true}

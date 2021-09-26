@@ -79,15 +79,14 @@ let order_return_id: number = 0;
 
 const ScreenReturnCreate = (props: PropType) => {
   const [form] = Form.useForm();
-  const [isError, setError] = useState<boolean>(false);
-  const [isCanReturnOrExchange, setIsCanReturnOrExchange] =
-    useState<boolean>(false);
-  const [isExchange, setIsExchange] = useState<boolean>(false);
+  const [isError, setError] = useState(false);
+  const [isCanReturnOrExchange, setIsCanReturnOrExchange] = useState(false);
+  const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
-  const [isCanExchange, setIsCanExchange] = useState<boolean>(false);
-  const [isStepExchange, setIsStepExchange] = useState<boolean>(false);
+  const [isCanExchange, setIsCanExchange] = useState(false);
+  const [isStepExchange, setIsStepExchange] = useState(false);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
-    useState<boolean>(false);
+    useState(false);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
@@ -105,6 +104,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [orderAmount] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
+  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [loyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [tags, setTag] = useState<string>("");
   const [shippingAddress] = useState<ShippingAddress | null>(null);
@@ -136,9 +136,8 @@ const ScreenReturnCreate = (props: PropType) => {
     ShipmentMethodOption.DELIVER_LATER
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
-    number | null
-  >(null);
+  const [shippingFeeInformedCustomerHVC, setShippingFeeInformedCustomerHVC] =
+    useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
@@ -156,9 +155,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [returnMoneyType, setReturnMoneyType] = useState(
     RETURN_MONEY_TYPE.return_later
   );
-  const [returnMoneyMethod, setReturnMoneyMethod] =
-    useState<PaymentMethodResponse | null>(null);
-  const [returnMoneyNote, setReturnMoneyNote] = useState("");
   const [returnMoneyAmount, setReturnMoneyAmount] = useState(0);
 
   const initialForm: OrderRequest = {
@@ -196,6 +192,13 @@ const ScreenReturnCreate = (props: PropType) => {
     payments: [],
   };
 
+  let initialFormValueWithReturn = {
+    ...initialForm,
+    returnMoneyField: [
+      { returnMoneyMethod: undefined, returnMoneyNote: undefined },
+    ],
+  };
+
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
     listProducts.forEach((a) => {
@@ -205,7 +208,11 @@ const ScreenReturnCreate = (props: PropType) => {
     return total;
   };
 
-  let totalAmountNeedToPay =
+  /**
+   * if return > exchange: positive
+   * else negative
+   */
+  let totalAmountCustomerNeedToPay =
     getTotalPrice(listExchangeProducts) +
     (shippingFeeCustomer ? shippingFeeCustomer : 0) -
     totalAmountReturnProducts;
@@ -270,16 +277,23 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const handleSubmitFormReturn = () => {
-    let items = listReturnProducts.map((single) => {
-      const { maxQuantity, ...rest } = single;
-      return rest;
-    });
-    let itemsResult = items.filter((single) => {
-      return single.quantity > 0;
-    });
+    let formValue = form.getFieldsValue();
+    console.log("formValue", formValue);
+
     if (OrderDetail && listReturnProducts) {
+      let items = listReturnProducts.map((single) => {
+        const { maxQuantity, ...rest } = single;
+        return rest;
+      });
+      let itemsResult = items.filter((single) => {
+        return single.quantity > 0;
+      });
       let payments: OrderPaymentRequest[] | null = [];
       if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+        const formReturnMoney = formValue.returnMoneyField[0];
+        let returnMoneyMethod = listPaymentMethods.find((single) => {
+          return single.id === formReturnMoney.returnMoneyMethod;
+        });
         if (returnMoneyMethod) {
           payments = [
             {
@@ -293,7 +307,7 @@ const ScreenReturnCreate = (props: PropType) => {
               status: "paid",
               customer_id: customer?.id || null,
               type: "",
-              note: returnMoneyNote || "",
+              note: formReturnMoney.returnMoneyNote || "",
               code: "",
             },
           ];
@@ -317,7 +331,6 @@ const ScreenReturnCreate = (props: PropType) => {
       console.log("orderDetailResult", orderDetailResult);
       dispatch(
         actionCreateOrderReturn(orderDetailResult, (response) => {
-          console.log("response", response);
           history.push(`${UrlConfig.ORDERS_RETURN}/${response.id}`);
         })
       );
@@ -358,40 +371,69 @@ const ScreenReturnCreate = (props: PropType) => {
       });
   };
 
-  const onReturnAndExchange = async () => {
+  const handleIsStepExchange = (value: boolean) => {
     form.validateFields().then(() => {
-      if (OrderDetail && listReturnProducts) {
-        let items = listReturnProducts.map((single) => {
-          const { maxQuantity, ...rest } = single;
-          return rest;
-        });
-        let itemsResult = items.filter((single) => {
-          return single.quantity > 0;
-        });
-        let orderDetailResult: ReturnRequest = {
-          ...OrderDetail,
-          action: "",
-          delivery_service_provider_id: null,
-          delivery_fee: null,
-          shipper_code: "",
-          shipper_name: "",
-          shipping_fee_paid_to_three_pls: null,
-          requirements: null,
-          items: itemsResult,
-          fulfillments: [],
-          payments: payments,
-          reason_id: form.getFieldValue("reason_id"),
-          received: isReceivedReturnProducts,
-        };
-
-        dispatch(
-          actionCreateOrderReturn(orderDetailResult, (response) => {
-            order_return_id = response.id;
-            form.submit();
-          })
-        );
+      let checkIfHasReturnProduct = listReturnProducts.some((single) => {
+        return single.quantity > 0;
+      });
+      if (!checkIfHasReturnProduct) {
+        showError("Vui lòng chọn ít nhất 1 sản phẩm");
+        const element: any = document.getElementById("search_product");
+        const offsetY =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        window.scrollTo({ top: offsetY, behavior: "smooth" });
+        element?.focus();
+        return;
       }
+      setIsStepExchange(value);
     });
+  };
+
+  const onReturnAndExchange = async () => {
+    form
+      .validateFields()
+      .then(() => {
+        if (OrderDetail && listReturnProducts) {
+          let items = listReturnProducts.map((single) => {
+            const { maxQuantity, ...rest } = single;
+            return rest;
+          });
+          let itemsResult = items.filter((single) => {
+            return single.quantity > 0;
+          });
+          let orderDetailResult: ReturnRequest = {
+            ...OrderDetail,
+            action: "",
+            delivery_service_provider_id: null,
+            delivery_fee: null,
+            shipper_code: "",
+            shipper_name: "",
+            shipping_fee_paid_to_three_pls: null,
+            requirements: null,
+            items: itemsResult,
+            fulfillments: [],
+            payments: payments,
+            reason_id: form.getFieldValue("reason_id"),
+            received: isReceivedReturnProducts,
+          };
+
+          dispatch(
+            actionCreateOrderReturn(orderDetailResult, (response) => {
+              order_return_id = response.id;
+              form.submit();
+            })
+          );
+        }
+      })
+      .catch((error) => {
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
+        const offsetY =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        window.scrollTo({ top: offsetY, behavior: "smooth" });
+      });
   };
 
   const onFinish = (values: ExchangeRequest) => {
@@ -640,13 +682,6 @@ const ScreenReturnCreate = (props: PropType) => {
     return listDiscountRequest;
   };
 
-  const ChangeShippingFeeCustomer = (value: number | null) => {
-    setShippingFeeCustomer(value);
-  };
-  const ChangeShippingFeeCustomerHVC = (value: number | null) => {
-    setShippingFeeCustomerHVC(value);
-  };
-
   const handleCancel = () => {
     history.push("/");
   };
@@ -661,22 +696,21 @@ const ScreenReturnCreate = (props: PropType) => {
         <div className="orders">
           <Form
             layout="vertical"
-            initialValues={initialForm}
+            initialValues={initialFormValueWithReturn}
             form={form}
             onFinish={onFinish}
           >
             <Row gutter={24} style={{ marginBottom: "70px" }}>
               <Col md={18}>
-                {/*--- customer ---*/}
                 <UpdateCustomerCard
                   OrderDetail={OrderDetail}
                   customerDetail={customer}
                 />
-                {/*--- end customer ---*/}
                 <CardReturnOrder
                   isDetailPage={false}
                   isExchange={isExchange}
                   handleIsExchange={setIsExchange}
+                  isStepExchange={isStepExchange}
                 />
                 <CardReturnProducts
                   discountValue={discountValue}
@@ -697,47 +731,45 @@ const ScreenReturnCreate = (props: PropType) => {
                     handleCardItems={handleListExchangeProducts}
                     shippingFeeCustomer={shippingFeeCustomer}
                     amountReturn={totalAmountReturnProducts}
-                    totalAmountNeedToPay={totalAmountNeedToPay}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                   />
                 )}
                 {!isExchange && (
                   <CardReturnMoneyPageCreateReturn
+                    listPaymentMethods={listPaymentMethods}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     payments={payments}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
-                    setReturnMoneyMethod={setReturnMoneyMethod}
-                    setReturnMoneyNote={setReturnMoneyNote}
                   />
                 )}
-                <CardReturnMoneyPageCreate
-                  listPaymentMethods={listPaymentMethods}
-                  // amountReturn={returnMoneyAmount}
-                  payments={payments}
-                  handlePayments={setPayments}
-                  // isDetailPage={false}
-                  totalAmountNeedToPay={totalAmountNeedToPay}
-                  isExchange={isExchange}
-                  isStepExchange={isStepExchange}
-                  returnMoneyType={returnMoneyType}
-                  setReturnMoneyType={setReturnMoneyType}
-                  setReturnMoneyMethod={setReturnMoneyMethod}
-                  setReturnMoneyNote={setReturnMoneyNote}
-                  setReturnMoneyAmount={setReturnMoneyAmount}
-                />
+                {isExchange && (
+                  <CardReturnMoneyPageCreate
+                    listPaymentMethods={listPaymentMethods}
+                    payments={payments}
+                    handlePayments={setPayments}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    isExchange={isExchange}
+                    isStepExchange={isStepExchange}
+                    returnMoneyType={returnMoneyType}
+                    setReturnMoneyType={setReturnMoneyType}
+                    setReturnMoneyAmount={setReturnMoneyAmount}
+                  />
+                )}
                 {isExchange && isStepExchange && (
                   <CardReturnShipment
                     setShipmentMethod={setShipmentMethod}
                     shipmentMethod={shipmentMethod}
                     storeDetail={storeDetail}
-                    setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                    setShippingFeeInformedCustomer={setShippingFeeCustomer}
                     setShippingFeeInformedCustomerHVC={
-                      ChangeShippingFeeCustomerHVC
+                      setShippingFeeInformedCustomerHVC
                     }
                     amount={getTotalPrice(listReturnProducts)}
                     setPaymentMethod={setPaymentMethod}
                     paymentMethod={paymentMethod}
                     shippingFeeCustomer={shippingFeeCustomer}
-                    shippingFeeCustomerHVC={shippingFeeCustomerHVC}
+                    shippingFeeCustomerHVC={shippingFeeInformedCustomerHVC}
                     customerInfo={customer}
                     items={listExchangeProducts}
                     discountValue={discountValue}
@@ -778,19 +810,25 @@ const ScreenReturnCreate = (props: PropType) => {
           isCanExchange={isCanExchange}
           isExchange={isExchange}
           isStepExchange={isStepExchange}
-          handleIsStepExchange={setIsStepExchange}
+          // handleIsStepExchange={setIsStepExchange}
+          handleIsStepExchange={(value: boolean) => handleIsStepExchange(value)}
         />
         <ModalConfirm
           onCancel={() => {
             setIsVisibleModalWarning(false);
           }}
           onOk={() => {
-            handleSubmitFormReturn();
+            if (!isExchange) {
+              handleSubmitFormReturn();
+            }
+            if (isExchange && isStepExchange) {
+              onReturnAndExchange();
+            }
             setIsVisibleModalWarning(false);
           }}
           okText="Đồng ý"
           cancelText="Hủy"
-          title={`Đơn trả hàng chưa nhận hàng trả lại, bạn có muốn tiếp tục đổi hàng không?`}
+          title={`Chưa nhận hàng trả lại, bạn có muốn tiếp tục không?`}
           subTitle=""
           visible={isVisibleModalWarning}
         />
@@ -799,7 +837,6 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   useEffect(() => {
-    console.log("storeId", storeId);
     if (storeId != null) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
     }
@@ -821,17 +858,6 @@ const ScreenReturnCreate = (props: PropType) => {
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
-    dispatch(
-      PaymentMethodGetList((response) => {
-        let result = response.filter(
-          (single) => single.code !== PaymentMethodCode.CARD
-        );
-        setListPaymentMethods(result);
-      })
-    );
-  }, [dispatch]);
-
-  useEffect(() => {
     if (isStepExchange && listExchangeProducts.length > 0) {
       setIsCanExchange(true);
     }
@@ -841,6 +867,17 @@ const ScreenReturnCreate = (props: PropType) => {
     dispatch(
       actionGetOrderReturnReasons((response) => {
         setListOrderReturnReason(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      PaymentMethodGetList((response) => {
+        let result = response.filter(
+          (single) => single.code !== PaymentMethodCode.CARD
+        );
+        setListPaymentMethods(result);
       })
     );
   }, [dispatch]);

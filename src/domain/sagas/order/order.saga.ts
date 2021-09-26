@@ -20,6 +20,7 @@ import { getAmountPayment } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import {
+  cancelOrderApi,
   createDeliveryMappedStoreServices,
   deleteDeliveryMappedStoreServices,
   getChannelApi,
@@ -593,6 +594,33 @@ function* getListReasonSaga(action: YodyAction) {
   }
 }
 
+function* cancelOrderSaga(action: YodyAction) {
+  yield put(showLoading());
+  let { id } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      cancelOrderApi,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        // setData(response.data);
+        showSuccess("Huỷ đơn hàng thành công!");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(
@@ -644,4 +672,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
   yield takeLatest(OrderType.GET_LIST_CHANNEL_REQUEST, getAllChannelSaga);
   yield takeLatest(OrderType.GET_LIST_REASON_REQUEST, getListReasonSaga);
+  yield takeLatest(OrderType.CANCEL_ORDER_REQUEST, cancelOrderSaga);
 }

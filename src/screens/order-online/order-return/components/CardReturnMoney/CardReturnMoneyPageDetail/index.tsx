@@ -1,5 +1,6 @@
 import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useState } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -7,11 +8,15 @@ import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropType = {
+  listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   returnMoneyAmount: number;
+  handleReturnMoney: () => void;
 };
 function CardReturnMoneyPageDetail(props: PropType) {
-  const { payments, returnMoneyAmount } = props;
+  const { payments, returnMoneyAmount, listPaymentMethods, handleReturnMoney } =
+    props;
+  console.log("listPaymentMethods", listPaymentMethods);
   const [isShowPayment, setIsShowPayment] = useState(false);
   const renderCardTitle = () => {
     return (
@@ -26,7 +31,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
                 color: "#27AE60",
               }}
             >
-              Đã hoàn tiền
+              Đã thanh toán
             </Tag>
           )}
         </span>
@@ -47,15 +52,13 @@ function CardReturnMoneyPageDetail(props: PropType) {
                       <h3>{single.payment_method}</h3>
                     </div>
                   </Col>
-                  <Col md={8}>
+                  <Col md={8} style={{ textAlign: "center" }}>
                     <strong className="po-payment-row-title">
                       {single.amount}
                     </strong>
                   </Col>
-                  <Col md={8}>
-                    <strong>
-                      {ConvertUtcToLocalDate(single.created_date)}
-                    </strong>
+                  <Col md={8} style={{ textAlign: "right" }}>
+                    <span>{ConvertUtcToLocalDate(single.created_date)}</span>
                   </Col>
                 </Row>
               </Timeline.Item>
@@ -76,6 +79,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
           Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
           <Button
             onClick={() => {
+              console.log("333");
               setIsShowPayment(true);
             }}
           >
@@ -93,11 +97,12 @@ function CardReturnMoneyPageDetail(props: PropType) {
           {renderPayments()}
           {isShowPayment && (
             <ReturnMoneySelect
-              totalAmountNeedToPay={returnMoneyAmount}
-              handleReturnMoney={() => {}}
+              listPaymentMethods={listPaymentMethods}
+              totalAmountCustomerNeedToPay={returnMoneyAmount}
+              handleReturnMoney={() => {
+                handleReturnMoney();
+              }}
               isShowButtonReturnMoney={true}
-              setReturnMoneyMethod={() => {}}
-              setReturnMoneyNote={() => {}}
             />
           )}
         </div>

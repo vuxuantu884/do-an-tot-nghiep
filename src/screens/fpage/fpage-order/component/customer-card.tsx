@@ -77,6 +77,8 @@ type CustomerCardProps = {
   setModalAction: (items: any) => void;
   setIsCustomerReload: (items: boolean) => void;
   modalAction: any;
+  loyaltyPoint: any;
+  loyaltyUsageRules: any;
 };
 
 //Add query for search Customer
@@ -109,6 +111,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setModalAction,
     modalAction,
     getCustomerByPhone,
+    loyaltyPoint,
+    loyaltyUsageRules,
   } = props;
   //State
   const dispatch = useDispatch();
@@ -602,7 +606,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               justify="space-between"
               className="row-customer-detail padding-custom"
             >
-              <Col span={16} style={{ display: "flex", alignItems: "center" }}>
+              <Col span={18} style={{ display: "flex", alignItems: "center" }}>
                 <div
                   style={{
                     borderRadius: "50%",
@@ -612,10 +616,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     display: "flex",
                     overflow: "hidden",
                     justifyContent: "center",
-                    alignItems: "center"
+                    alignItems: "center",
                   }}
                 >
-                  <img style={{ width: 34, height: 34 }} src={logoMobile} alt="logo"></img>
+                  <img
+                    style={{ width: 34, height: 34 }}
+                    src={logoMobile}
+                    alt="logo"
+                  ></img>
                 </div>
                 <Link
                   to={`${UrlConfig.CUSTOMER}/${customerDetail?.id}`}
@@ -633,11 +641,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   className="orders-tag orders-tag-vip"
                   style={{ marginLeft: 10 }}
                 >
-                  <b>{customer.customer_level}</b>
+                  <b>
+                    {loyaltyUsageRules &&
+                      loyaltyUsageRules?.find(
+                        (item: any) =>
+                          item.rank_id === loyaltyPoint?.loyalty_level_id
+                      )?.rank_name}
+                  </b>
                 </Tag>
               </Col>
               <Col
-                span={8}
+                span={6}
                 style={{ display: "flex", justifyContent: "flex-end" }}
               >
                 <span className="customer-detail-icon">

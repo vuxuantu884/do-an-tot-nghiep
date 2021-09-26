@@ -13,6 +13,7 @@ import {
   ecommerceDeleteApi,
   ecommerceConnectSyncApi,
   ecommerceGetConfigInfoApi,
+  ecommerceGetVariantsApi
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -191,6 +192,32 @@ function* ecommerceDeleteSaga(action: YodyAction) {
   }
 }
 
+function* ecommerceGetVariantsSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      ecommerceGetVariantsApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST,
@@ -221,4 +248,10 @@ export function* ecommerceSaga() {
     EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST,
     ecommerceDeleteSaga
   );
+
+  yield takeLatest(
+    EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST,
+    ecommerceGetVariantsSaga
+  );
+  
 }

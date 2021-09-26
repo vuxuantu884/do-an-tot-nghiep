@@ -52,3 +52,20 @@ export const actionGetOrderReturnReasons = (
     },
   };
 };
+
+export const actionOrderRefund = (
+  id: number,
+  params: {
+    payments: any;
+  },
+  handleData: (data: any) => void
+) => {
+  return {
+    type: ORDER_RETURN_TYPES.REFUND,
+    payload: {
+      id,
+      params,
+      handleData,
+    },
+  };
+};

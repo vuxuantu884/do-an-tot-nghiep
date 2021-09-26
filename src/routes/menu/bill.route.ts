@@ -32,7 +32,7 @@ const bill: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: `${UrlConfig.ORDER}/list`,
+    path: `${UrlConfig.ORDER}`,
     exact: true,
     title: "Danh sách đơn hàng",
     icon: "icon-dot",
@@ -109,17 +109,6 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
-  },
-  {
-    path: "/bill/return",
-    exact: true,
-    title: "Trả hàng",
-    icon: "icon-dot",
-    component: Order,
-    key: "submenu56",
-    isShow: true,
-    header: null,
-    subMenu: [],
   },
 ];
 

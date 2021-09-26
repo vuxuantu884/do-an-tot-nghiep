@@ -1,4 +1,8 @@
 import { Form, Row, Col, Button, Collapse } from "antd";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { showSuccess, showError } from "utils/ToastUtils";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
@@ -9,29 +13,24 @@ import {
   CustomerGroups,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
 import {
   CustomerModel,
   CustomerContactClass,
 } from "model/request/customer.request";
-import arrowLeft from "../../assets/icon/arrow-left.svg";
-import React from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { showSuccess, showError } from "utils/ToastUtils";
-import "./customer.scss";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import GeneralInformation from "./common/general.information";
 import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import arrowLeft from "../../assets/icon/arrow-left.svg";
+import "./customer.scss";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/url.config";
 import CustomInputContact from "./common/customInputContact";
-
+import GeneralInformation from "./common/general.information";
 const { Panel } = Collapse;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -49,7 +48,6 @@ const CustomerCreate = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
