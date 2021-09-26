@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Row, Select } from "antd";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { formatCurrency } from "utils/AppUtils";
 import { PaymentMethodCode } from "utils/Constants";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   totalAmountCustomerNeedToPay: number;
@@ -37,82 +38,85 @@ function ReturnMoneySelect(props: PropType) {
   });
 
   return (
-    <div>
-      <Form.List name="returnMoneyField">
-        {(fields, { add, remove }) => {
-          return (
-            <div>
-              {fields.map((field, index) => (
-                <div key={field.key}>
-                  <Row gutter={30}>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Phương thức thanh toán"
-                        name={[index, "returnMoneyMethod"]}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn phương thức thanh toán!",
-                          },
-                        ]}
-                      >
-                        <Select
-                          style={{ width: "100%" }}
-                          placeholder="Chọn hình thức thanh toán"
-                          notFoundContent="Không tìm thấy hình thức thanh toán"
-                        >
-                          {listPaymentMethodsResult &&
-                            listPaymentMethodsResult.map((single) => {
-                              return (
-                                <Select.Option
-                                  value={single.id}
-                                  key={single.id}
-                                >
-                                  {single.name}
-                                </Select.Option>
-                              );
-                            })}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <div className="ant-row ant-form-item">
-                        <div className="ant-col ant-form-item-label">
-                          Số tiền
-                        </div>
-                        <Input
-                          value={formatCurrency(totalAmountCustomerNeedToPay)}
-                          disabled
-                        />
-                      </div>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Nội dung"
-                        name={[index, "returnMoneyNote"]}
-                      >
-                        <Input placeholder="Nội dung" />
-                      </Form.Item>
-                    </Col>
-                    {isShowButtonReturnMoney && (
+    <StyledComponent>
+      <div className="returnMoney">
+        <Form.List name="returnMoneyField">
+          {(fields, { add, remove }) => {
+            return (
+              <div>
+                {fields.map((field, index) => (
+                  <div key={field.key}>
+                    <Row gutter={30}>
                       <Col span={12}>
-                        <Button
-                          onClick={() => {
-                            handleReturnMoney();
-                          }}
+                        <Form.Item
+                          label="Phương thức thanh toán"
+                          name={[index, "returnMoneyMethod"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn phương thức thanh toán!",
+                            },
+                          ]}
                         >
-                          Xác nhận hoàn tiền
-                        </Button>
+                          <Select
+                            style={{ width: "100%" }}
+                            placeholder="Chọn hình thức thanh toán"
+                            notFoundContent="Không tìm thấy hình thức thanh toán"
+                          >
+                            {listPaymentMethodsResult &&
+                              listPaymentMethodsResult.map((single) => {
+                                return (
+                                  <Select.Option
+                                    value={single.id}
+                                    key={single.id}
+                                  >
+                                    {single.name}
+                                  </Select.Option>
+                                );
+                              })}
+                          </Select>
+                        </Form.Item>
                       </Col>
-                    )}
-                  </Row>
-                </div>
-              ))}
-            </div>
-          );
-        }}
-      </Form.List>
-    </div>
+                      <Col span={12}>
+                        <div className="ant-row ant-form-item">
+                          <div className="ant-col ant-form-item-label">
+                            Số tiền
+                          </div>
+                          <Input
+                            value={formatCurrency(totalAmountCustomerNeedToPay)}
+                            disabled
+                          />
+                        </div>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          label="Nội dung"
+                          name={[index, "returnMoneyNote"]}
+                        >
+                          <Input placeholder="Nội dung" />
+                        </Form.Item>
+                      </Col>
+                      {isShowButtonReturnMoney && (
+                        <Col span={12}>
+                          <Button
+                            className="btnReturnMoney"
+                            onClick={() => {
+                              handleReturnMoney();
+                            }}
+                          >
+                            Xác nhận hoàn tiền
+                          </Button>
+                        </Col>
+                      )}
+                    </Row>
+                  </div>
+                ))}
+              </div>
+            );
+          }}
+        </Form.List>
+      </div>
+    </StyledComponent>
   );
 }
 

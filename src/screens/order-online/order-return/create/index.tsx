@@ -824,6 +824,7 @@ const ScreenReturnCreate = (props: PropType) => {
             if (isExchange && isStepExchange) {
               onReturnAndExchange();
             }
+            setIsVisibleModalWarning(false);
           }}
           okText="Đồng ý"
           cancelText="Hủy"
