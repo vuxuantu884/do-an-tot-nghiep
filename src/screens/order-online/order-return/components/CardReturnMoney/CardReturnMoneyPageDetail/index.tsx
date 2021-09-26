@@ -11,13 +11,21 @@ type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   returnMoneyAmount: number;
+  isShowPaymentMethod: boolean;
   handleReturnMoney: () => void;
+  setIsShowPaymentMethod: (value: boolean) => void;
 };
+
 function CardReturnMoneyPageDetail(props: PropType) {
-  const { payments, returnMoneyAmount, listPaymentMethods, handleReturnMoney } =
-    props;
-  console.log("listPaymentMethods", listPaymentMethods);
-  const [isShowPayment, setIsShowPayment] = useState(false);
+  const {
+    payments,
+    returnMoneyAmount,
+    listPaymentMethods,
+    isShowPaymentMethod,
+    handleReturnMoney,
+    setIsShowPaymentMethod,
+  } = props;
+
   const renderCardTitle = () => {
     return (
       <React.Fragment>
@@ -66,28 +74,31 @@ function CardReturnMoneyPageDetail(props: PropType) {
           })}
         </Timeline>
       );
+    } else {
+      if (!isShowPaymentMethod) {
+        return (
+          <React.Fragment>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontWeight: "bold",
+              }}
+            >
+              Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
+              <Button
+                onClick={() => {
+                  console.log("333");
+                  setIsShowPaymentMethod(true);
+                }}
+              >
+                Hoàn tiền
+              </Button>
+            </div>
+          </React.Fragment>
+        );
+      }
     }
-    return (
-      <React.Fragment>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontWeight: "bold",
-          }}
-        >
-          Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
-          <Button
-            onClick={() => {
-              console.log("333");
-              setIsShowPayment(true);
-            }}
-          >
-            Hoàn tiền
-          </Button>
-        </div>
-      </React.Fragment>
-    );
   };
 
   return (
@@ -95,7 +106,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
       <Card className="margin-top-20" title={renderCardTitle()}>
         <div className="padding-24">
           {renderPayments()}
-          {isShowPayment && (
+          {isShowPaymentMethod && (
             <ReturnMoneySelect
               listPaymentMethods={listPaymentMethods}
               totalAmountCustomerNeedToPay={returnMoneyAmount}

@@ -53,7 +53,7 @@ function* createOrderReturnSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
-        showSuccess("Tạo đơn đổi hàng thành công");
+        showSuccess("Tạo đơn trả hàng thành công");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

@@ -362,7 +362,18 @@ function CardReturnProducts(props: PropType) {
       },
     },
     {
-      title: "Đơn giá sau giảm giá",
+      title: () => (
+        <div>
+          <span style={{ color: "#222222", textAlign: "right" }}>
+            Đơn giá sau giảm giá
+          </span>
+          <span
+            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
+          >
+            ₫
+          </span>
+        </div>
+      ),
       dataIndex: "price",
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
@@ -397,7 +408,16 @@ function CardReturnProducts(props: PropType) {
     //   },
     // },
     {
-      title: "Thành tiền",
+      title: () => (
+        <div>
+          <span style={{ color: "#222222" }}>Tổng tiền</span>
+          <span
+            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
+          >
+            ₫
+          </span>
+        </div>
+      ),
       key: "total",
       render: (
         value: OrderLineItemRequest,
