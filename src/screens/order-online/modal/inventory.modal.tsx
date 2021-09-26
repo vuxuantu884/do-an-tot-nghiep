@@ -1,35 +1,81 @@
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  Form,
-  Col,
-  Input,
-  Modal,
-  Radio,
-  Row,
-  Select,
-  Space,
-  DatePicker,
-  AutoComplete,
-} from "antd";
-import { SearchOutlined } from "@ant-design/icons";
-import { Option } from "rc-select";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
-import { Table } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Col, Input, Modal, Row, Radio } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
+  setInventoryModalVisible:(item:boolean)=>void;
+  storeId: number | null;
+  setStoreId: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
-  handleOk: () => void;
+  inventoryArray: Array<InventoryResponse> | null;
+  setResultSearchStore: any;
+  dataSearchCanAccess: Array<StoreResponse> | null;
   handleCancel: () => void;
 };
 
 const InventoryModal: React.FC<InventoryModalProps> = (
   props: InventoryModalProps
 ) => {
-  const { isModalVisible, columnsItem, handleOk, handleCancel } = props;
+  const {
+    isModalVisible,
+    columnsItem,
+    inventoryArray,
+    setResultSearchStore,
+    dataSearchCanAccess,
+    storeId,
+    setStoreId,
+    setInventoryModalVisible,
+    handleCancel,
+  } = props;
+
+  const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
+  const setAvailable = (storeId: number, variantId: number) => {
+    let inventoryInt = null;
+    if (inventoryArray && inventoryArray.length) {
+      let inventory = inventoryArray.find(
+        (x: any) => x.store_id === storeId && x.variant_id === variantId
+      );
+      inventoryInt =
+        inventory === undefined || inventory === null ? 0 : inventory.available;
+    }
+    return inventoryInt === null ? 0 : inventoryInt;
+  };
+
+  const setAllAvailable = (variantId: number) => {
+    let inventoryInt = null;
+    if (inventoryArray && inventoryArray.length) {
+      inventoryArray.forEach(function (value) {
+        if (value.variant_id === variantId)
+          inventoryInt =
+            value?.available === undefined || value?.available === null
+              ? 0
+              : value?.available;
+      });
+    }
+    return inventoryInt === null ? 0 : inventoryInt;
+  };
+
+  const onChange = (e: any) => {
+    sethangeStoreItem(e.target.value);
+  };
+
+  useEffect(() => {
+    if (storeId) sethangeStoreItem(storeId);
+  }, [storeId]);
+
+  const onSearchInventory = useCallback(
+    (value) => {
+      setResultSearchStore(value);
+    },
+    [setResultSearchStore]
+  );
+
+  const handleOk = useCallback(() => {
+    if (changeStoreItem) {setStoreId(changeStoreItem);setInventoryModalVisible(false)}
+  }, [setStoreId,changeStoreItem,setInventoryModalVisible]);
 
   return (
     <Modal
@@ -44,93 +90,65 @@ const InventoryModal: React.FC<InventoryModalProps> = (
     >
       <Row gutter={24}>
         <Col md={12}>
-          <AutoComplete
-            id="search_customer"
-            dropdownClassName="search-layout-customer dropdown-search-header"
-            dropdownMatchSelectWidth={456}
-            style={{ width: "100%" }}
-          >
-            <Input
-              placeholder="Tìm kiếm kho"
-              prefix={<SearchOutlined style={{ color: "#878790" }} />}
-            />
-          </AutoComplete>
+          <Input.Search
+            placeholder="Tìm kiếm kho"
+            allowClear
+            onSearch={onSearchInventory}
+          />
         </Col>
       </Row>
-      <Row gutter={24}>
+      <Row gutter={24} className="margin-top-10">
         <Col md={24}>
           <div className="overflow-table">
-            <table className="rules">
-              <thead>
-                <tr>
-                  <th className="condition">Sản phẩm</th>
-                  {
-                    columnsItem?.map((data, index) => (
-                      <th className="condition" key={index}>{data.variant}</th>
-                    ))
-                  }
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="condition">
-                    Số điểm có thẻ tiêu không quá ... giá trị hóa đơn
-                  </td>
-                  <td className="condition" key={1}>
-                    1
-                  </td>
-                  <td className="condition" key={2}>
-                    2
-                  </td>
-                  <td className="condition" key={3}>
-                    3
-                  </td>
-                  <td className="condition" key={4}>
-                    4
-                  </td>
-                  {/* {
-                          rules.map((rule, index) => (
-                            <td className="condition" key={index}>
-                              <CurrencyInput
-                                position="before"
-                                currency={['%']}
-                                value={rule.limit_order_percent}
-                                onChangeCurrencyType={(value) => handleChangePointUseType(value, index)}
-                                onChange={(value) => handleChangePointUse(value, index)}
-                              />
-                            </td>
-                          ))
-                        } */}
-                </tr>
-                <tr>
-                  <td className="condition">
-                    Không được tiêu điểm cho đơn hàng có chiết khấu{" "}
-                  </td>
-                  <td className="condition" key={1}>
-                    1
-                  </td>
-                  <td className="condition" key={2}>
-                    2
-                  </td>
-                  <td className="condition" key={3}>
-                    3
-                  </td>
-                  <td className="condition" key={4}>
-                    4
-                  </td>
-                  {/* {
-                          rules.map((rule, index) => (
-                            <td className="condition checkbox" key={index}>
-                              <Checkbox
-                                defaultChecked={rule.block_order_have_discount}
-                                onChange={(e) => onChangePreventDiscountOrder(e.target.checked, index)}
-                              />
-                            </td>
-                          ))
-                        } */}
-                </tr>
-              </tbody>
-            </table>
+            <Radio.Group onChange={onChange} value={changeStoreItem}>
+              <table className="rules">
+                <thead>
+                  <tr>
+                    <th className="condition">Sản phẩm</th>
+                    {columnsItem?.map((data) => (
+                      <th className="condition">{data.variant}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="condition">Khách đặt</td>
+                    {columnsItem?.map((data) => (
+                      <td className="condition">{data.quantity}</td>
+                    ))}
+                  </tr>
+                </tbody>
+                <thead>
+                  <tr>
+                    <th className="condition">Tổng có thế bán</th>
+                    {columnsItem?.map((data) => (
+                      <th className="condition">
+                        {setAllAvailable(data.variant_id)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {dataSearchCanAccess?.map((data, index) => (
+                    <tr>
+                      <th className="condition" key={index}>
+                        {/* <Checkbox
+                                  defaultChecked={false}
+                                  onChange={(e) => onChangePreventIndex(e.target.checked, index)}
+                                /> {data.name} */}
+                        <Radio value={data.id}>{data.name}</Radio>
+                      </th>
+                      {columnsItem?.map((dataI) => (
+                        <td className="condition">
+                          {setAvailable(data.id, dataI.variant_id)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Radio.Group>
           </div>
         </Col>
       </Row>

@@ -15,4 +15,8 @@ const inventoryGetHistoryAction = (query: HistoryInventoryQuery, onResult: (data
   return BaseAction(InventoryType.GET_HISTORY, {query, onResult})
 }
 
-export {inventoryGetListAction, inventoryGetDetailAction, inventoryGetHistoryAction};
+const inventoryGetDetailVariantIdsSaga = (variant_id:Number[],store_id:Number|null, setData: (data: Array<InventoryResponse>|null) => void) => {
+  return BaseAction(InventoryType.GET_DETAIL_lIST_VARIANT, {variant_id,store_id, setData})
+}
+
+export {inventoryGetListAction, inventoryGetDetailAction, inventoryGetHistoryAction, inventoryGetDetailVariantIdsSaga};

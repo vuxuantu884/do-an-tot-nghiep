@@ -1,6 +1,8 @@
 .overflow-table {
     overflow-x: scroll;
-    overflow-y: hidden;
+    overflow-y: scroll;
+    height: 500px;
+    width: 100%;
 
     thead {
       border-bottom: solid 2px #e2e2e2;
@@ -21,8 +23,8 @@
         min-height: 70px;
         font-size: 14px;
         line-height: 16px;
-        border-bottom: solid 1px #e2e2e2;
-
+        border: solid 1px #e2e2e2;
+        text-align: center;
         &:first-child {
           text-align: left;
           min-width: 300px;

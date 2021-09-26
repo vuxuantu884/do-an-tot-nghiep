@@ -7,16 +7,19 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
 import {
+  configOrderSaga,
   orderCreateAction,
   OrderDetailAction,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -34,12 +37,13 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
+  OrderConfig,
   // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
@@ -122,6 +126,9 @@ export default function Order() {
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
+
+  const [inventoryResponse,setInventoryResponse] = useState<Array<InventoryResponse>|null>(null);
+  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
@@ -503,9 +510,11 @@ export default function Order() {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            let bolCheckPointfocus=checkPointfocus(values);
-            if(bolCheckPointfocus)
-              dispatch(orderCreateAction(values, createOrderCallback));
+            if(checkInventory()){
+              let bolCheckPointfocus=checkPointfocus(values);
+              if(bolCheckPointfocus)
+                dispatch(orderCreateAction(values, createOrderCallback));
+            }
           }
         }
       }
@@ -821,10 +830,41 @@ export default function Order() {
     [loyaltyPoint, loyaltyUsageRules, payments,discountValue,orderAmount,shippingFeeCustomer]
   );
 
+  const checkInventory=()=>{
+    let status=true;
+    if (inventoryResponse && inventoryResponse.length) {
+      inventoryResponse.forEach(function (value) {
+        if((value.available?value.available:0)<=0 && value.store_id===storeId && configOrder?.sellable_inventory !== true )
+        {
+          status=false;
+          showError(`${value.name} không còn tồn trong kho`);
+        }
+      });
+    }
+    return status;
+  }
+
+
   useEffect(() => {
     formRef.current?.resetFields();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, isCloneOrder]);
+
+  useEffect(() => {
+    if(items && items!=null)
+    {
+      let variant_id: Array<number> = [];
+      items.forEach(element => variant_id.push(element.variant_id));
+      dispatch(inventoryGetDetailVariantIdsSaga(variant_id,null,setInventoryResponse));
+    }
+  }, [dispatch,items])
+
+  useEffect(()=>{
+    dispatch(configOrderSaga((data:OrderConfig)=>{
+        setConfigOrder(data)
+    }));
+},[dispatch]);
+  
   return (
     <React.Fragment>
       <ContentContainer
@@ -900,6 +940,8 @@ export default function Order() {
                     isCloneOrder={isCloneOrder}
                     discountRateParent={discountRate}
                     discountValueParent={discountValue}
+                    inventoryResponse={inventoryResponse}
+                    setInventoryResponse={setInventoryResponse}
                   />
                   <CardShipment
                     setShipmentMethodProps={onShipmentSelect}

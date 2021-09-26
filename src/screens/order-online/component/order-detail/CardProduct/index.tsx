@@ -31,10 +31,13 @@ import NumberInput from "component/custom/number-input.custom";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import { StoreSearchListAction, StoreGetListAction } from "domain/actions/core/store.action";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import store from "domain/store";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
@@ -92,6 +95,8 @@ type CardProductProps = {
   isCloneOrder?: boolean;
   discountRateParent?: number;
   discountValueParent?: number;
+  inventoryResponse:Array<InventoryResponse>|null;
+  setInventoryResponse:(item:Array<InventoryResponse>|null)=>void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -105,9 +110,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     formRef,
     items,
     handleCardItems,
-    // isCloneOrder,
     discountRateParent,
     discountValueParent,
+    storeId,
+    selectStore,
+    inventoryResponse,
+    setInventoryResponse
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -141,7 +149,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
     useState(false);
 
+  const [resultSearchStore,setResultSearchStore]=useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
+
+  const [storeArrayResponse,setStoreArrayResponse] = useState<Array<StoreResponse>|null>([]);
+  // const [storeId,setStoreId]=useState(0);
   //Function
 
   console.log("changeMoney", changeMoney);
@@ -743,14 +755,31 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   }, []);
 
   const ShowInventoryModal = useCallback(() => {
-    if (items) {
       setInventoryModalVisible(true);
+  }, [dispatch]);
+
+
+  useEffect(() => {
+    dispatch(StoreSearchListAction(resultSearchStore,setStoreArrayResponse));
+  }, [resultSearchStore])
+
+  const dataSearchCanAccess = useMemo(() => {
+    let newData: Array<StoreResponse> = [];
+    if (storeArrayResponse && storeArrayResponse != null) {
+      newData = storeArrayResponse.filter(
+        (store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+      );
     }
-  }, []);
+    return newData;
+  }, [storeArrayResponse, userReducer.account]);
+
   const handleInventoryCancel = useCallback(() => {
     setInventoryModalVisible(false);
   }, []);
-  const handleisInventoryOk = () => {};
 
   const onOkDiscountConfirm = (
     type: string,
@@ -902,12 +931,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
                   if (value) {
-                    props.selectStore(value);
+                    selectStore(value);
                     setIsShowProductSearch(true);
                   } else {
                     setIsShowProductSearch(false);
                   }
                 }}
+                //defaultValue={storeId===null?0:storeId}
                 filterOption={(input, option) => {
                   if (option) {
                     return (
@@ -1225,12 +1255,22 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
-      <InventoryModal
-        isModalVisible={isInventoryModalVisible}
-        columnsItem={items}
-        handleOk={handleisInventoryOk}
-        handleCancel={handleInventoryCancel}
-      />
+      {
+        items!==null && items?.length!==0&&(
+          <InventoryModal
+            isModalVisible={isInventoryModalVisible}
+            setInventoryModalVisible={setInventoryModalVisible}
+            storeId={storeId}
+            setStoreId={selectStore}
+            columnsItem={items}
+            inventoryArray={inventoryResponse}
+            setResultSearchStore={setResultSearchStore}
+            dataSearchCanAccess={dataSearchCanAccess}
+            handleCancel={handleInventoryCancel}
+        />
+        )
+      }
+     
     </Card>
   );
 };
