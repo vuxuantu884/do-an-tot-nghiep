@@ -15,10 +15,11 @@ import {
   OrderReturnModel,
   ReturnProductModel,
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { FulFillmentStatus } from "utils/Constants";
+import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnOrder from "../components/CardReturnOrder";
@@ -44,6 +45,9 @@ const ScreenReturnDetail = (props: PropType) => {
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
   );
+  const [listPaymentMethods, setListPaymentMethods] = useState<
+    Array<PaymentMethodResponse>
+  >([]);
 
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
@@ -53,8 +57,6 @@ const ScreenReturnDetail = (props: PropType) => {
     ReturnProductModel[]
   >([]);
   const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
-
-  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
@@ -117,10 +119,10 @@ const ScreenReturnDetail = (props: PropType) => {
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
-        // let result = response.filter(
-        //   (single) => single.code !== PaymentMethodCode.CARD
-        // );
-        // setListPaymentMethods(result);
+        let result = response.filter(
+          (single) => single.code !== PaymentMethodCode.CARD
+        );
+        setListPaymentMethods(result);
       })
     );
   }, [dispatch]);
@@ -152,17 +154,19 @@ const ScreenReturnDetail = (props: PropType) => {
               customerDetail={customerDetail}
             />
             {!isDetailPage && (
-              <CardReturnOrder isDetailPage={isDetailPage} isExchange={false} />
+              <CardReturnOrder
+                isDetailPage={isDetailPage}
+                isExchange={false}
+                isStepExchange={false}
+              />
             )}
             <CardReturnProducts
               discountValue={discountValue}
               listReturnProducts={listReturnProducts}
               isDetailPage={true}
-              setTotalAmountReturnProducts={(value: number) => {
-                setTotalAmountReturnProducts(value);
-              }}
             />
             <CardReturnMoneyPageDetail
+              listPaymentMethods={listPaymentMethods}
               payments={payments}
               returnMoneyAmount={
                 OrderDetail?.total_line_amount_after_line_discount || 0

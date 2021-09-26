@@ -1,5 +1,6 @@
 import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useState } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -7,11 +8,12 @@ import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropType = {
+  listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   returnMoneyAmount: number;
 };
 function CardReturnMoneyPageDetail(props: PropType) {
-  const { payments, returnMoneyAmount } = props;
+  const { payments, returnMoneyAmount, listPaymentMethods } = props;
   const [isShowPayment, setIsShowPayment] = useState(false);
   const renderCardTitle = () => {
     return (
@@ -93,11 +95,10 @@ function CardReturnMoneyPageDetail(props: PropType) {
           {renderPayments()}
           {isShowPayment && (
             <ReturnMoneySelect
-              totalAmountNeedToPay={returnMoneyAmount}
+              listPaymentMethods={listPaymentMethods}
+              totalAmountCustomerNeedToPay={returnMoneyAmount}
               handleReturnMoney={() => {}}
               isShowButtonReturnMoney={true}
-              setReturnMoneyMethod={() => {}}
-              setReturnMoneyNote={() => {}}
             />
           )}
         </div>

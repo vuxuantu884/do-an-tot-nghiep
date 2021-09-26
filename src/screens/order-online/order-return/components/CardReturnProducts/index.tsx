@@ -21,7 +21,7 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { createRef, useEffect, useMemo, useState } from "react";
+import React, { createRef, useMemo, useState } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -35,7 +35,7 @@ type PropType = {
   isStepExchange?: boolean;
   discountValue: number;
   discountRate?: number;
-  setTotalAmountReturnProducts: (value: number) => void;
+  setTotalAmountReturnProducts?: (value: number) => void;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -50,7 +50,7 @@ function CardReturnProducts(props: PropType) {
     discountRate,
     setTotalAmountReturnProducts,
   } = props;
-  console.log("discountRate", discountRate);
+  console.log("isStepExchange", isStepExchange);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -122,7 +122,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(resultReturnProducts);
       }
       checkIfIsCanReturn(resultReturnProducts);
-      setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
+      if (setTotalAmountReturnProducts) {
+        setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
+      }
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
         return {
@@ -135,7 +137,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(result);
       }
       checkIfIsCanReturn(result);
-      setTotalAmountReturnProducts(0);
+      if (setTotalAmountReturnProducts) {
+        setTotalAmountReturnProducts(0);
+      }
     }
     setIsCheckReturnAll(e.target.checked);
   };
@@ -233,7 +237,9 @@ function CardReturnProducts(props: PropType) {
       setIsCheckReturnAll(true);
     }
     checkIfIsCanReturn(resultListReturnProducts);
-    setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    if (setTotalAmountReturnProducts) {
+      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    }
   };
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
@@ -411,8 +417,6 @@ function CardReturnProducts(props: PropType) {
       },
     },
   ];
-
-  useEffect(() => {}, [getTotalPrice(listReturnProducts)]);
 
   return (
     <StyledComponent>

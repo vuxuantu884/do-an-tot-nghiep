@@ -11,7 +11,6 @@ type PropType = {
  */
 function OrderShortDetails(props: PropType) {
   const { OrderDetail } = props;
-  console.log("OrderDetail", OrderDetail);
   return (
     <StyledComponent>
       <Card
