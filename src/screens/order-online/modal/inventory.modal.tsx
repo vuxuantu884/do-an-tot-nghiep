@@ -14,6 +14,7 @@ type InventoryModalProps = {
   setResultSearchStore: any;
   dataSearchCanAccess: Array<StoreResponse> | null;
   handleCancel: () => void;
+  setStoreForm:(id:number|null)=>void
 };
 
 const InventoryModal: React.FC<InventoryModalProps> = (
@@ -29,6 +30,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (
     setStoreId,
     setInventoryModalVisible,
     handleCancel,
+    setStoreForm
   } = props;
 
   const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
@@ -45,11 +47,13 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   };
 
   const setAllAvailable = (variantId: number) => {
-    let inventoryInt = null;
+    let inventoryInt = 0;
     if (inventoryArray && inventoryArray.length) {
-      inventoryArray.forEach(function (value) {
+      let newData: Array<InventoryResponse> = [];
+      newData = inventoryArray.filter((store) => store.variant_id===variantId);
+      newData.forEach(function (value) {
         if (value.variant_id === variantId)
-          inventoryInt =
+          inventoryInt +=
             value?.available === undefined || value?.available === null
               ? 0
               : value?.available;
@@ -74,8 +78,12 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   );
 
   const handleOk = useCallback(() => {
-    if (changeStoreItem) {setStoreId(changeStoreItem);setInventoryModalVisible(false)}
-  }, [setStoreId,changeStoreItem,setInventoryModalVisible]);
+    if (changeStoreItem) {
+      setStoreId(changeStoreItem);
+      setStoreForm(changeStoreItem);
+      setInventoryModalVisible(false)
+    }
+  }, [setStoreId,changeStoreItem,setInventoryModalVisible,setStoreForm]);
 
   return (
     <Modal

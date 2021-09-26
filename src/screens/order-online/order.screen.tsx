@@ -437,19 +437,6 @@ export default function Order() {
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
 
-    // let checkPointfocus = payments.find((p) => p.code === "point");
-    // if (checkPointfocus) {
-    //   let curenPoint = 0;
-    //   if (loyaltyPoint)
-    //     curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
-    //   let point =
-    //     checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
-
-    //   if (point > curenPoint) {
-    //     showError("Số điểm tiêu vượt quá số điểm hiện có");
-    //     return;
-    //   }
-    // }
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
@@ -479,6 +466,7 @@ export default function Order() {
           discountValue;
       }
     }
+    values.store_id = storeId;
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -701,6 +689,7 @@ export default function Order() {
                 setShippingFeeCustomer(
                   response.shipping_fee_informed_to_customer
                 );
+                setStoreId(response.store_id)
                 if (response.store_id) {
                   setStoreId(response.store_id);
                 }
@@ -733,7 +722,7 @@ export default function Order() {
         setPayments([]);
         console.log("initialRequest", initialRequest);
         setInitialForm({
-          ...initialRequest,
+          ...initialRequest
         });
         setOfficeTime(false);
         setStoreId(null);
@@ -832,12 +821,18 @@ export default function Order() {
 
   const checkInventory=()=>{
     let status=true;
-    if (inventoryResponse && inventoryResponse.length) {
-      inventoryResponse.forEach(function (value) {
-        if((value.available?value.available:0)<=0 && value.store_id===storeId && configOrder?.sellable_inventory !== true )
+    if (inventoryResponse && inventoryResponse.length && items && items!=null) {
+      let productItem=null;
+      let newData: Array<InventoryResponse> = [];
+      newData = inventoryResponse.filter((store) => store.store_id===storeId);
+      newData.forEach(function (value) {
+         productItem = items.find(
+          (x: any) => x.variant_id === value.variant_id
+        );
+        if(((value.available?value.available:0)<=0 || (productItem?productItem?.quantity:0) > (value.available?value.available:0)) && configOrder?.sellable_inventory !== true )
         {
           status=false;
-          showError(`${value.name} không còn tồn trong kho`);
+          showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
     }
@@ -859,12 +854,21 @@ export default function Order() {
     }
   }, [dispatch,items])
 
+  console.log(inventoryResponse)
+
   useEffect(()=>{
     dispatch(configOrderSaga((data:OrderConfig)=>{
         setConfigOrder(data)
     }));
 },[dispatch]);
-  
+
+const setStoreForm=useCallback((id:number|null)=>{
+  setInitialForm({
+    ...initialForm,
+    store_id: id
+  });
+},[initialForm]);
+  console.log(initialForm)
   return (
     <React.Fragment>
       <ContentContainer
@@ -942,6 +946,7 @@ export default function Order() {
                     discountValueParent={discountValue}
                     inventoryResponse={inventoryResponse}
                     setInventoryResponse={setInventoryResponse}
+                    setStoreForm={setStoreForm}
                   />
                   <CardShipment
                     setShipmentMethodProps={onShipmentSelect}

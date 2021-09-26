@@ -97,6 +97,7 @@ type CardProductProps = {
   discountValueParent?: number;
   inventoryResponse:Array<InventoryResponse>|null;
   setInventoryResponse:(item:Array<InventoryResponse>|null)=>void;
+  setStoreForm:(id:number|null)=>void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -115,7 +116,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     storeId,
     selectStore,
     inventoryResponse,
-    setInventoryResponse
+    setInventoryResponse,
+    setStoreForm
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -824,6 +826,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         // store
       );
+      // if(newData && newData.length)
+      //   selectStore(newData[0].id);
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -904,7 +908,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               ShowInventoryModal();
             }}
           >
-            Kiểm tra tồn
+            Kiểm tra tồn {storeId}
           </Button>
         </Space>
       }
@@ -914,7 +918,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           <Col md={8}>
             <Form.Item
               label="Cửa hàng"
-              name="store_id"
+              // name="store_id"
               rules={[
                 {
                   required: true,
@@ -937,7 +941,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     setIsShowProductSearch(false);
                   }
                 }}
-                //defaultValue={storeId===null?0:storeId}
+                value={storeId!==null?storeId:0}
                 filterOption={(input, option) => {
                   if (option) {
                     return (
@@ -1256,7 +1260,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         visible={isVisiblePickDiscount}
       />
       {
-        items!==null && items?.length!==0&&(
+        items!==null && items?.length&&(
           <InventoryModal
             isModalVisible={isInventoryModalVisible}
             setInventoryModalVisible={setInventoryModalVisible}
@@ -1267,6 +1271,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             setResultSearchStore={setResultSearchStore}
             dataSearchCanAccess={dataSearchCanAccess}
             handleCancel={handleInventoryCancel}
+            setStoreForm={setStoreForm}
         />
         )
       }
