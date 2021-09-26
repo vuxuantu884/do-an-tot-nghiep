@@ -26,7 +26,7 @@ import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
-import OrderShortDetails from "../components/Sidebar/OrderShortDetails";
+import OrderShortDetails from "../components/Sidebar/OrderShortDetailsReturn";
 
 type PropType = {};
 type OrderParam = {
@@ -61,8 +61,26 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
-    dispatch(actionSetIsReceivedOrderReturn(returnOrderId, () => {}));
+    dispatch(
+      actionSetIsReceivedOrderReturn(returnOrderId, () => {
+        dispatch(
+          actionGetOrderReturnDetails(
+            returnOrderId,
+            (data: OrderReturnModel) => {
+              if (!data) {
+                setError(true);
+              } else {
+                let _data = { ...data };
+                setOrderDetail(_data);
+              }
+            }
+          )
+        );
+      })
+    );
   };
+
+  const [isShowPaymentMethod, setIsShowPaymentMethod] = useState(false);
 
   const initialFormValue = {
     returnMoneyField: [
@@ -111,6 +129,7 @@ const ScreenReturnDetail = (props: PropType) => {
                   }
                 )
               );
+              setIsShowPaymentMethod(false);
             })
           );
         }
@@ -223,6 +242,8 @@ const ScreenReturnDetail = (props: PropType) => {
                 returnMoneyAmount={
                   OrderDetail?.total_line_amount_after_line_discount || 0
                 }
+                isShowPaymentMethod={isShowPaymentMethod}
+                setIsShowPaymentMethod={setIsShowPaymentMethod}
                 handleReturnMoney={handleReturnMoney}
               />
               <CardReturnReceiveProducts

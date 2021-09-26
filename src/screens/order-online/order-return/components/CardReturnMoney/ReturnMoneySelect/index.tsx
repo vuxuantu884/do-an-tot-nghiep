@@ -85,6 +85,7 @@ function ReturnMoneySelect(props: PropType) {
                           <Input
                             value={formatCurrency(totalAmountCustomerNeedToPay)}
                             disabled
+                            style={{ color: "inherit", background: "#fff" }}
                           />
                         </div>
                       </Col>
