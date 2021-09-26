@@ -73,7 +73,7 @@ const CreateCustomerRanking = () => {
   );
   return (
     <ContentContainer
-      title={params.id ? "Cập nhật hạng khách hàng" : "Thêm hạng khách hàng"}
+      title={params.id ? "Sửa hạng khách hàng" : "Thêm hạng khách hàng"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -84,7 +84,7 @@ const CreateCustomerRanking = () => {
           path: `${UrlConfig.CUSTOMER}/rankings`,
         },
         {
-          name: `${params.id ? "Cập nhật hạng khách hàng" : "Thêm hạng khách hàng"}`,
+          name: `${params.id ? "Sửa hạng khách hàng" : "Thêm hạng khách hàng"}`,
         },
       ]}
     >
@@ -156,6 +156,7 @@ const CreateCustomerRanking = () => {
                         replace={(a: string) =>
                           replaceFormatString(a)
                         }
+                        max={999999999999999}
                       />
                     </Item>
                   </Col>

@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Col, Form, FormInstance, Input, Modal, Radio, Row } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  FormInstance,
+  Input,
+  Modal,
+  Radio,
+  Row,
+} from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
@@ -7,24 +16,31 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PoPaymentMethod } from "utils/Constants";
 import moment from "moment";
 import { POCreatePaymentModalStyled } from "./styles";
-import { PurchasePayments, PurchasePaymentsCreate } from "model/purchase-order/purchase-payment.model";
+import {
+  PurchasePayments,
+  PurchasePaymentsCreate,
+} from "model/purchase-order/purchase-payment.model";
+import { DeleteOutlined } from "@ant-design/icons";
+import { POField } from "model/purchase-order/po-field";
 
 const initPOCreatePaymentValue = {
-  payment_method_code: '',
+  payment_method_code: "",
   amount: 0,
-  reference: '',
-  transaction_date: '',
-  note: '',
-}
+  reference: "",
+  transaction_date: "",
+  note: "",
+};
 
 type POCreatePaymentModalProps = {
+  isEditPage: Boolean;
   visible: boolean;
   formMain: FormInstance;
   remainPayment: number;
   purchasePayment?: PurchasePaymentsCreate;
-  indexPurchasePayment?: string;
+  indexPurchasePayment: string;
   onCancel: () => void;
-  onChangeDataPayments: (item: Array<PurchasePayments>) => void; 
+  onChangeDataPayments: (item: Array<PurchasePayments>) => void;
+  deletePayment?: (value: number) => void;
 };
 const { Item } = Form;
 const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
@@ -38,38 +54,47 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
     indexPurchasePayment,
     formMain,
     onChangeDataPayments,
+    isEditPage,
+    deletePayment,
   } = props;
   const [disabledRef, setDisabledRef] = React.useState(false);
+  const [remainPaymentNumber, setRemainPaymentNumber] = React.useState(0);
   const [formPayment] = Form.useForm();
 
   const onFinish = useCallback(() => {
-    if(indexPurchasePayment){
-      const old_payments = formMain.getFieldValue('payments');
+    if (indexPurchasePayment) {
+      const old_payments = formMain.getFieldValue("payments");
       const paymentNewData = {
-        payment_method_code: formPayment.getFieldValue('payment_method_code'),
-        transaction_date: formPayment.getFieldValue('transaction_date'),
-        amount: formPayment.getFieldValue('amount'),
-        reference: formPayment.getFieldValue('reference'),
-        note: formPayment.getFieldValue('note'),
-      }
+        payment_method_code: formPayment.getFieldValue("payment_method_code"),
+        transaction_date: formPayment.getFieldValue("transaction_date"),
+        amount: formPayment.getFieldValue("amount"),
+        reference: formPayment.getFieldValue("reference"),
+        note: formPayment.getFieldValue("note"),
+      };
       old_payments[indexPurchasePayment] = paymentNewData;
       onChangeDataPayments(old_payments);
-      
     } else {
-      const old_payments = formMain.getFieldValue('payments');
+      const old_payments = formMain.getFieldValue("payments");
       const paymentData = {
-        payment_method_code: formPayment.getFieldValue('payment_method_code'),
-        transaction_date: formPayment.getFieldValue('transaction_date'),
-        amount: formPayment.getFieldValue('amount'),
-        reference: formPayment.getFieldValue('reference'),
-        note: formPayment.getFieldValue('note'),
-      }
+        payment_method_code: formPayment.getFieldValue("payment_method_code"),
+        transaction_date: formPayment.getFieldValue("transaction_date"),
+        amount: formPayment.getFieldValue("amount"),
+        reference: formPayment.getFieldValue("reference"),
+        note: formPayment.getFieldValue("note"),
+      };
       const new_payments = [...old_payments];
       new_payments.push(paymentData);
+
       onChangeDataPayments(new_payments);
     }
     onCancel();
-  }, [formMain, formPayment, onCancel, indexPurchasePayment, onChangeDataPayments]);
+  }, [
+    formMain,
+    formPayment,
+    onCancel,
+    indexPurchasePayment,
+    onChangeDataPayments,
+  ]);
 
   const onOkPress = useCallback(() => {
     formPayment.submit();
@@ -78,6 +103,24 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
   const handleCancel = () => {
     onCancel();
   };
+
+  const loadRemainPayment = useCallback(() => {
+    let remainPaymentTotal = formMain.getFieldValue(POField.total);
+    const payments = formMain.getFieldValue(POField.payments);
+
+    if (payments && payments.length > 0) {
+      payments.forEach((element: any) => {
+        remainPaymentTotal -= element.amount;
+      });
+
+      if (indexPurchasePayment) {
+        remainPaymentTotal += payments[indexPurchasePayment].amount;
+      }
+
+      setRemainPaymentNumber(remainPaymentTotal);
+    }
+    setRemainPaymentNumber(remainPaymentTotal);
+  }, [formMain, indexPurchasePayment]);
 
   const onChangePaymentMethod = (e: any) => {
     if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
@@ -94,25 +137,54 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
 
   useEffect(() => {
     if (visible) {
+      loadRemainPayment();
       if (purchasePayment) {
         formPayment.setFieldsValue(purchasePayment);
-      }
-      else formPayment.setFieldsValue(initPOCreatePaymentValue);
+      } else formPayment.setFieldsValue(initPOCreatePaymentValue);
     }
-  }, [formPayment, purchasePayment, visible]);
+  }, [formPayment, loadRemainPayment, purchasePayment, visible]);
+
   return (
     <Modal
-      title={purchasePayment ? "Sửa thanh toán " : "Tạo thanh toán "}
+      title={purchasePayment ? "Sửa yêu cầu hoàn tiền " : "Tạo thanh toán "}
       visible={visible}
       centered
-      okText={purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
       cancelText="Hủy"
       className="update-customer-modal"
       onOk={onOkPress}
       width={700}
       onCancel={handleCancel}
+      footer={
+        purchasePayment && isEditPage
+          ? [
+              <Button
+                danger
+                onClick={() => {
+                  deletePayment &&
+                    deletePayment(parseInt(indexPurchasePayment));
+                }}
+                className="edit-delete-button"
+                style={{float: "left",}}
+              >
+                <DeleteOutlined /> Xoá
+              </Button>,
+              <Button key="back" onClick={handleCancel}>
+                Huỷ
+              </Button>,
+              <Button key="submit" type="primary" onClick={onOkPress}>
+                {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
+              </Button>,
+            ]
+          : [
+              <Button key="back" onClick={handleCancel}>
+                Huỷ
+              </Button>,
+              <Button key="submit" type="primary" onClick={onOkPress}>
+                {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
+              </Button>,
+            ]
+      }
     >
-      
       <POCreatePaymentModalStyled>
         <Form
           name="basic"
@@ -142,7 +214,10 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                   >
                     Chuyển khoản
                   </Radio>
-                  <Radio value={PoPaymentMethod.CASH} key={PoPaymentMethod.CASH}>
+                  <Radio
+                    value={PoPaymentMethod.CASH}
+                    key={PoPaymentMethod.CASH}
+                  >
                     Tiền mặt
                   </Radio>
                 </Radio.Group>
@@ -169,11 +244,16 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                 name="amount"
                 label="Số tiền thanh toán"
                 rules={[
-                  { required: true, message: "Vui lòng nhập số tiền thanh toán" },
+                  {
+                    required: true,
+                    message: "Vui lòng nhập số tiền thanh toán",
+                  },
                 ]}
                 help={
                   <div className="text-muted">
-                    {`Số tiền còn phải trả: ${formatCurrency(remainPayment)}`}
+                    {`Số tiền còn phải trả: ${formatCurrency(
+                      remainPaymentNumber
+                    )}`}
                   </div>
                 }
               >
@@ -183,7 +263,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                   }
                   replace={(a: string) => replaceFormatString(a)}
                   min={0}
-                  max={remainPayment}
+                  max={remainPaymentNumber}
                   default={0}
                   placeholder="Nhập số tiền cần thanh toán"
                 />

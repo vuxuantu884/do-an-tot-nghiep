@@ -650,7 +650,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         className="po-form margin-top-20"
         title={
           <div className="d-flex">
-            <span className="title-card">THÔNG TIN SẢN PHẨM</span>
+            <span className="title-card">SẢN PHẨM</span>
           </div>
         }
         extra={
@@ -740,18 +740,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   rowClassName="product-table-row"
                   dataSource={items}
                   tableLayout="fixed"
-                  scroll={{ y: 300, x: 950 }}
+                  scroll={{ y: 300, x: 1000 }}
                   pagination={false}
                   columns={[
                     {
                       title: "STT",
                       align: "center",
+                      fixed: "left",
                       width: 60,
                       render: (value, record, index) => index + 1,
                     },
                     {
                       title: "Ảnh",
                       width: 60,
+                      fixed: "left",
                       dataIndex: "variant_image",
                       render: (value) => (
                         <div className="product-item-image">
@@ -765,9 +767,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: "Sản phẩm",
-                      width: "99%",
                       className: "ant-col-info",
-
+                      width: 250,
+                      fixed: "left",
                       dataIndex: "variant",
                       render: (
                         value: string,
@@ -786,25 +788,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         </div>
                       ),
                     },
-                    // {
-                    //   align: "center",
-                    //   title: "Đơn vị",
-                    //   width: 100,
-                    //   dataIndex: "unit",
-                    //   render: (value) => {
-                    //     let result = "---";
-                    //     let index = -1;
-                    //     if (product_units) {
-                    //       index = product_units.findIndex(
-                    //         (item) => item.value === value
-                    //       );
-                    //       if (index !== -1) {
-                    //         result = product_units[index].name;
-                    //       }
-                    //     }
-                    //     return result;
-                    //   },
-                    // },
+                    {
+                      title: "Đơn vị",
+                      align: "center",
+                      width: 100,
+                      render: () => "Cái",
+                    },
                     {
                       title: (
                         <div
@@ -881,10 +870,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             textAlign: "right",
                           }}
                         >
-                          VAT
+                          Thành tiền (%)
                         </div>
                       ),
-                      width: 90,
+                      width: 120,
                       dataIndex: "tax_rate",
                       render: (value, item, index) => {
                         return (

@@ -19,6 +19,12 @@
       display: flex;
       align-items: center;
       padding-left: 24px !important;
+      cursor: pointer;
+
+      .back-wrapper {
+        display: flex;
+        align-items: center;
+      }
   
       a {
         color: #737373;

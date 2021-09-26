@@ -504,7 +504,7 @@ const PurchaseOrderListScreen: React.FC = () => {
             isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630}}
-            sticky={{offsetScroll: 10}}
+            sticky={{offsetScroll: 10, offsetHeader: 55}}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,

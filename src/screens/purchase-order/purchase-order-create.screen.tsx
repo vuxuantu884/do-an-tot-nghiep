@@ -79,6 +79,7 @@ const POCreateScreen: React.FC = () => {
   const [formMain] = Form.useForm();
 
   const [isLoading, setLoading] = useState<boolean>(true);
+  const [statusAction, setStatusAction] = useState<string>("");
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
@@ -138,6 +139,14 @@ const POCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (data: PurchaseOrder) => {
+      switch (statusAction) {
+        case POStatus.FINALIZED:
+          formMain.setFieldsValue({ status: POStatus.FINALIZED });
+          break;
+        default:
+          formMain.setFieldsValue({ status: POStatus.DRAFT });
+          break;
+      }
       if (data.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
@@ -157,7 +166,7 @@ const POCreateScreen: React.FC = () => {
       }
       dispatch(PoCreateAction(data, createCallback));
     },
-    [createCallback, dispatch]
+    [createCallback, dispatch, formMain, statusAction]
   );
 
   useEffect(() => {
@@ -210,7 +219,6 @@ const POCreateScreen: React.FC = () => {
         >
           <Steps.Step title="Đặt hàng" />
           <Steps.Step title="Xác nhận" />
-          <Steps.Step title="Phiếu nháp" />
           <Steps.Step title="Nhập kho" />
           <Steps.Step title="Hoàn Thành" />
         </Steps>
@@ -220,6 +228,7 @@ const POCreateScreen: React.FC = () => {
         name={PoFormName.Main}
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
+          setStatusAction("");
           const element: any = document.getElementById(
             errorFields[0].name.join("")
           );
@@ -311,7 +320,6 @@ const POCreateScreen: React.FC = () => {
               >
                 <Steps.Step title="Đặt hàng" />
                 <Steps.Step title="Xác nhận" />
-                <Steps.Step title="Phiếu nháp" />
                 <Steps.Step title="Nhập kho" />
                 <Steps.Step title="Hoàn Thành" />
               </Steps>
@@ -332,7 +340,7 @@ const POCreateScreen: React.FC = () => {
               className="create-button-custom ant-btn-outline fixed-button"
               loading={loadingDraftButton}
               onClick={() => {
-                formMain.setFieldsValue({ status: POStatus.DRAFT });
+                setStatusAction(POStatus.DRAFT)
                 formMain.submit();
               }}
             >
@@ -344,7 +352,7 @@ const POCreateScreen: React.FC = () => {
               className="create-button-custom"
               loading={loadingSaveButton}
               onClick={() => {
-                formMain.setFieldsValue({ status: POStatus.FINALIZED });
+                setStatusAction(POStatus.FINALIZED)
                 formMain.submit();
               }}
             >
