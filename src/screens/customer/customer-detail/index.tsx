@@ -9,7 +9,7 @@ import {
 import { modalActionType } from "model/modal/modal.model";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -23,7 +23,13 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
-// import { formatCurrency } from "utils/AppUtils";
+import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { formatCurrency } from "utils/AppUtils";
 // import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const { TabPane } = Tabs;
@@ -37,7 +43,9 @@ const CustomerDetailIndex = () => {
   const [customerPointInfo, setCustomerPoint] = React.useState<any>([]);
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
-
+    const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
+    const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>([]);
+    const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
   const [queryParams, setQueryParams] = React.useState<any>({
     limit: 10,
     page: 1,
@@ -51,6 +59,15 @@ const CustomerDetailIndex = () => {
     },
     items: [],
   });
+  
+  React.useEffect(() => {
+    if (customer) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customer]);
 
   React.useEffect(() => {
     if (history.location.hash) {
@@ -74,25 +91,28 @@ const CustomerDetailIndex = () => {
     }
   }, [history.location.hash]);
 
-  const [customerBuyDetail] = React.useState<any>([
-    {
-      name: "Tổng chi tiêu",
-      value: null,
-    },
+  React.useEffect (() => {
+      const _detail = [
+        {
+          name: "Tổng chi tiêu",
+          value: formatCurrency(loyaltyPoint?.total_money_spend!),
+        },
+        {
+          name: "Ngày đầu tiên mua hàng",
+          value: null,
+        },
+        {
+          name: "Tổng đơn hàng",
+          value: loyaltyPoint?.total_order_count,
+        },
+        {
+          name: "Ngày cuối cùng mua hàng",
+          value: null,
+        },
+      ]
 
-    {
-      name: "Ngày đầu tiên mua hàng",
-      value: null,
-    },
-    {
-      name: "Tổng đơn hàng",
-      value: null,
-    },
-    {
-      name: "Ngày cuối cùng mua hàng",
-      value: null,
-    },
-  ]);
+      setCustomerSpendDetail(_detail)
+  }, [loyaltyPoint])
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -115,39 +135,35 @@ const CustomerDetailIndex = () => {
       dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
     }
   }, [params, dispatch, queryParams, setOrderHistoryItems]);
-
+console.log(loyaltyPoint, loyaltyUsageRules)
   // end
+  React.useEffect (() => {
+    const _detail = [
+      { name: "Điểm hiện tại", value: loyaltyPoint?.point || null },
+      {
+        name: "Hạng thẻ hiện tại",
+        value: loyaltyUsageRules?.find((item) => item.rank_id === loyaltyPoint?.loyalty_level_id)?.rank_name || null,
+      },
+      {
+        name: "Mã số thẻ",
+        value: null,
+      },
 
-  React.useEffect(() => {
-    let details: any = [];
-    if (customer) {
-      details = [
-        { name: "Điểm hiện tại", value: null },
-        {
-          name: "Hạng thẻ hiện tại",
-          value: null,
-        },
-        {
-          name: "Mã số thẻ",
-          value: null,
-        },
-
-        {
-          name: "Ngày kích hoạt",
-          value: null,
-        },
-        {
-          name: "Ngày hết hạn",
-          value: null,
-        },
-        {
-          name: "Cửa hàng kích hoạt",
-          value: null,
-        },
-      ];
-    }
-    setCustomerPoint(details);
-  }, [customer, setCustomerPoint]);
+      {
+        name: "Ngày kích hoạt",
+        value: null,
+      },
+      {
+        name: "Ngày hết hạn",
+        value: null,
+      },
+      {
+        name: "Cửa hàng kích hoạt",
+        value: null,
+      },
+    ];
+    setCustomerPoint(_detail)
+}, [loyaltyPoint, loyaltyUsageRules])
 
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
@@ -183,15 +199,15 @@ const CustomerDetailIndex = () => {
                 <span className="title-card">THÔNG TIN MUA HÀNG</span>
               </div>
             }
-            extra={[
-              <Link key="1" to={``}>
-                Chi tiết
-              </Link>,
-            ]}
+            // extra={[
+            //   <Link key="1" to={``}>
+            //     Chi tiết
+            //   </Link>,
+            // ]}
           >
             <Row gutter={30} style={{ padding: "16px" }}>
-              {customerBuyDetail &&
-                customerBuyDetail.map((info: any, index: number) => (
+              {customerSpendDetail &&
+                customerSpendDetail.map((info: any, index: number) => (
                   <Col
                     key={index}
                     span={12}

@@ -10,14 +10,16 @@ type CustomInputProps = {
   maxLength?: number;
   isRequired?: boolean;
   customerDetail?: any;
+  loyaltyPoint?: any;
+  loyaltyUsageRules?: any;
 };
 const color: any = {
-  "new": "#00F000",
-  "old": "#F5C4C4",
-  "Vip S": "#cccccc",
-  "Vip G": "#F0F000",
-  "Vip R": "#FF0000",
-  "Vip D": "#007FFF",
+  "KH mới": "#00F000",
+  "KH mũ": "#F5C4C4",
+  "Vip Silver": "#cccccc",
+  "Vip Gold": "#F0F000",
+  "Vip Ruby": "#FF0000",
+  "Vip Diamond": "#007FFF",
 };
 function CustomInput(props: CustomInputProps) {
   const {
@@ -29,13 +31,13 @@ function CustomInput(props: CustomInputProps) {
     maxLength,
     isRequired,
     customerDetail,
+    loyaltyPoint,
+    loyaltyUsageRules,
   } = props;
   const [value, setValue] = useState<string>("");
   const handleChange = useCallback((v: any) => {
     setValue(v.trim());
   }, []);
-
-  const vipS = "new";
   const handleBlur = (v: any) => {
     setValue(v.trim());
     form.setFieldsValue({ [name]: value });
@@ -44,7 +46,13 @@ function CustomInput(props: CustomInputProps) {
   React.useEffect(() => {
     if (value) form.setFieldsValue({ [name]: value });
   }, [value, handleChange, form, name]);
-
+  const rankLvl = () => {
+    if (loyaltyUsageRules) {
+      return loyaltyUsageRules?.find(
+        (item: any) => item.rank_id === loyaltyPoint?.loyalty_level_id
+      )?.rank_name;
+    }
+  };
   return (
     <Form.Item
       name={name}
@@ -54,8 +62,10 @@ function CustomInput(props: CustomInputProps) {
       <Input
         suffix={
           customerDetail ? (
-            <span style={{ backgroundColor: `${color[vipS]}` }}>
-              {`Khách mới: ${"500"} điểm`}
+            <span style={{ backgroundColor: `${color[rankLvl()]}` }}>
+              {`${
+                rankLvl() || "Không xác định"
+              }: ${loyaltyPoint?.point} điểm`}
             </span>
           ) : null
         }
@@ -69,5 +79,3 @@ function CustomInput(props: CustomInputProps) {
 }
 
 export default CustomInput;
-
-

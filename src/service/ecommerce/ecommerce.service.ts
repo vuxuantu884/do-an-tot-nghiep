@@ -52,6 +52,12 @@ const ecommerceGetConfigInfoApi = (query: any): Promise<BaseResponse<EcommerceRe
   return BaseAxios.get(link);
 };
 
+const ecommerceGetVariantsApi = (query: any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/variants?${params}`;
+  return BaseAxios.get(link);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -59,5 +65,6 @@ export {
   ecommerceUpdateApi,
   ecommerceDeleteApi,
   ecommerceConnectSyncApi,
-  ecommerceGetConfigInfoApi
+  ecommerceGetConfigInfoApi,
+  ecommerceGetVariantsApi
 };

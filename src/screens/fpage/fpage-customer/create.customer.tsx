@@ -60,7 +60,8 @@ const CustomerAdd = (props: any) => {
     customerPhone,
     deletePhone,
     metaData,
-    onPageChange,customerFbName
+    onPageChange,customerFbName, loyaltyPoint,
+    loyaltyUsageRules
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -464,6 +465,8 @@ const CustomerAdd = (props: any) => {
               handleNote={handleNote}
               customerDetail={customerDetail}
               deletePhone={deletePhone}
+              loyaltyPoint={loyaltyPoint}
+              loyaltyUsageRules={loyaltyUsageRules}
             />
           </Col>
         </Row>
