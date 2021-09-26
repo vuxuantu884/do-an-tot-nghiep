@@ -24,6 +24,7 @@ import deliveryIcon from "assets/icon/delivery.svg";
 import procument from "assets/icon/procument.svg";
 import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
   status: string;
@@ -33,6 +34,7 @@ type POInventoryFormProps = {
   idNumber?: number;
   poData?: PurchaseOrder;
   formMain?: any;
+  formMainEdit?: any;
 };
 
 const TAB = [
@@ -61,11 +63,12 @@ const TAB = [
 const POInventoryForm: React.FC<POInventoryFormProps> = (
   props: POInventoryFormProps
 ) => {
-  const { formMain } = props;
+  const { stores, status, now, idNumber, onAddProcumentSuccess, poData, formMainEdit, formMain } = props;
   
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
+  const [visibleEditProcurement, setVisibleEditProcurement] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
@@ -79,8 +82,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEdit, setIsEdit] = useState(false);
-  const { stores, status, now, idNumber, onAddProcumentSuccess, poData } =
-    props;
+    
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingCreate(false);
@@ -286,7 +288,27 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               POField.line_items
             );
             let receive_status: string = getFieldValue(POField.receive_status);
+            
             setPOItem(line_items);
+            if (receive_status === ProcumentStatus.DRAFT && props.isEdit) {
+              return (
+                <Button
+                  onClick={() => {
+                    setIsEdit(false);
+                    setStoreExpect(expect_store_id);
+                    setVisibleEditProcurement(true);
+                  }}
+                  style={{
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                  type="primary"
+                  className="create-button-custom ant-btn-outline fixed-button"
+                >
+                  Sửa kế hoạch nhập kho
+                </Button>
+              )
+            }
             return (
               receive_status !== ProcumentStatus.DRAFT &&
               receive_status !== ProcumentStatus.FINISHED &&
@@ -314,8 +336,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       }
     >
       <div className="padding-20">
-        <POInventoryDraft formMain={formMain} isEdit={props.isEdit} stores={stores} />
-        {status && status !== POStatus.DRAFT && (
+        {status && status !== POStatus.DRAFT ? (
           <POInventoryView
             tabs={TAB}
             activeTab={activeTab}
@@ -346,7 +367,21 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               }
             }}
           />
-        )}
+        ) : (
+          <POInventoryDraft
+            poData={poData}
+            formMainEdit={formMainEdit}
+            formMain={formMain}
+            isEdit={props.isEdit}
+            stores={stores}
+            onCancelPU={() => {
+              setVisibleEditProcurement(false);
+            }}
+            visible={visibleEditProcurement}
+          />
+        )
+        
+        }
       </div>
       <ProcumentModal
         onCancle={() => {

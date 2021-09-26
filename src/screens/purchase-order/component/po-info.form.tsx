@@ -98,6 +98,26 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 );
               }}
             </Form.Item>
+            <Form.Item
+              shouldUpdate={(prev, current) =>
+                prev[POField.designer] !== current[POField.designer]
+              }
+            >
+              {({ getFieldValue }) => {
+                let designer = getFieldValue(POField.designer);
+                let designer_code = getFieldValue(
+                  POField.designer_code
+                );
+                return (
+                  <div className="row-view">
+                    <div className="row-view-title">Thiết kế:</div>
+                    <div className="row-view-result">
+                      {designer_code} - {designer}
+                    </div>
+                  </div>
+                );
+              }}
+            </Form.Item>
             <Form.Item name={POField.reference} noStyle hidden>
               <Input />
             </Form.Item>
@@ -233,6 +253,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   {[item.code, item.full_name].join(" - ")}
                 </Select.Option>
               ))}
+              <Select.Option value="">
+                Chọn thiết kế
+              </Select.Option>
             </Select>
           </Form.Item>
           <Form.Item
