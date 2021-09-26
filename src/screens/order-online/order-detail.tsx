@@ -241,9 +241,9 @@ const OrderDetail = (props: PropType) => {
           break
         default: break  
       }
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 500);
     },
     [OrderDetail, handleCancelOrder]
   );

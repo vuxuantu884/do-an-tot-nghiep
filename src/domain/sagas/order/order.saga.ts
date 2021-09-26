@@ -606,6 +606,9 @@ function* cancelOrderSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         // setData(response.data);
         showSuccess("Huỷ đơn hàng thành công!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
