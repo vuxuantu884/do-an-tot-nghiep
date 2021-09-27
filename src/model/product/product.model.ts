@@ -122,6 +122,7 @@ export interface ProductWrapperUpdateRequest{
 export interface VariantResponse extends BaseObject {
   name: string,
   inventory: number,
+  available:number|null,
   category: string,
   supplier_id:number,
   supplier:string,

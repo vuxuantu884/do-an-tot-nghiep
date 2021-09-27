@@ -34,6 +34,7 @@ import { RegUtil } from "./RegUtils";
 import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { ErrorGHTK } from "./Constants";
+import { UploadFile } from "antd/lib/upload/interface";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -559,6 +560,18 @@ export const Products = {
     }
     return avatar;
   },
+  convertAvatarToFileList: (arrImg: Array<VariantImage>) => {
+    let arr: Array<UploadFile> = [];
+    arrImg.forEach((item, index) => {
+      arr.push({
+        uid: item.image_id.toString(),
+        name: item.image_id.toString(),
+        url: item.url,
+        status: 'done',
+      });
+    });
+    return arr;
+  }
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {

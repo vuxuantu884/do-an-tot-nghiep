@@ -2,9 +2,9 @@ import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React from "react";
+import ReturnMoneySelect from "screens/order-online/order-return/components/CardReturnMoney/ReturnMoneySelect";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -16,7 +16,7 @@ type PropType = {
   setIsShowPaymentMethod: (value: boolean) => void;
 };
 
-function CardReturnMoneyPageDetail(props: PropType) {
+function CardReturnMoney(props: PropType) {
   const {
     payments,
     returnMoneyAmount,
@@ -122,4 +122,4 @@ function CardReturnMoneyPageDetail(props: PropType) {
   );
 }
 
-export default CardReturnMoneyPageDetail;
+export default CardReturnMoney;

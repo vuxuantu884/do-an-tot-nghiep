@@ -97,9 +97,11 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
+      width: 300,
       title: "Tên nhà cung cấp",
       dataIndex: "name",
       visible: true,
+      ellipsis: true,
     },
     {
       title: "Loại",

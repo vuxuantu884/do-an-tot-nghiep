@@ -1,8 +1,3 @@
-include:
-  - project: yody-system/devops/cicd-templates
-    file: before-scripts-template.yml
-    ref: master
-
 cache:
   key: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   paths:
@@ -13,35 +8,19 @@ variables:
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 stages:
-  - verify
   - compile_build
   - docker_build
   - deploy
-  - tag
-  - notify
 
 docker build:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   only:
-    refs:
-      - develop
-      - feature/move-cluster
+    - develop
+    - uat
+    - master
   variables:
     DOCKER_FILE: Dockerfile
-    SERVICE_NAME: yody-app-admin
-    DOCKER_IMAGE_NAME: yody-app-admin
-  script:
-    - bash deployment/dockerbuild.sh
-
-docker build uat:
-  stage: docker_build
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  only:
-    refs:
-      - uat
-  variables:
-    DOCKER_FILE: Dockerfile-uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
@@ -52,14 +31,10 @@ deploy to dev:
   tags:
     - nonprod-deploy
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  dependencies: []
   only:
     - develop
-    - feature/sprint-4-app-admin
-    - feature/ci-cd
-    - feature/move-cluster
   variables:
-    HOST: dev-new.yody.io
+    HOST: dev.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
@@ -70,7 +45,6 @@ deploy to dev:
 deploy to uat:
   stage: deploy
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  dependencies: []
   when: manual
   only:
     - uat
@@ -82,13 +56,3 @@ deploy to uat:
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - bash deployment/deploy.sh app-admin
-
-tag:
-  stage: tag
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  only:
-    - tags
-  variables:
-    DOCKER_IMAGE_NAME: yody-app-admin
-  script:
-    - bash deployment/dockertag.sh $DOCKER_IMAGE_NAME $IMAGE_TAG $CI_COMMIT_TAG
