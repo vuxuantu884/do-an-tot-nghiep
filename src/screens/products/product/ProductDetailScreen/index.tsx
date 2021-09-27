@@ -252,7 +252,7 @@ const ProductDetailScreen: React.FC = () => {
         )
       );
     }
-  }, [active, data, dataInventory.metadata.limit, dataInventory.metadata.page, dispatch, onResult, onResultDetail, onResultInventoryHistory]);
+  }, [active, data, dispatch, onResult, onResultDetail, onResultInventoryHistory]);
   useEffect(() => {
     if (variantId && data) {
       let index = data.variants.findIndex(
