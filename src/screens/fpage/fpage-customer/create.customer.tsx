@@ -197,7 +197,7 @@ console.log("till kept",orderHistory)
       title: "",
       align: "center",
       render: (value: any, row: any, index: any) => {
-        let href = `https://dev-new.yody.io/unicorn/admin/orders/${row.id}`;
+        let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;
         return (
           <Tooltip placement="topLeft" title="Xem chi tiết">
             <a target="blank" href={href}>
