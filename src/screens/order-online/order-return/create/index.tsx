@@ -126,6 +126,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
+
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
   const [listExchangeProducts, setListExchangeProducts] = useState<
@@ -155,7 +156,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [returnMoneyType, setReturnMoneyType] = useState(
     RETURN_MONEY_TYPE.return_later
   );
-  const [returnMoneyAmount, setReturnMoneyAmount] = useState(0);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -299,10 +299,10 @@ const ScreenReturnCreate = (props: PropType) => {
             {
               payment_method_id: returnMoneyMethod.id,
               payment_method: returnMoneyMethod.name,
-              amount: returnMoneyAmount,
+              amount: Math.abs(totalAmountCustomerNeedToPay),
               reference: "",
               source: "",
-              paid_amount: returnMoneyAmount,
+              paid_amount: Math.abs(totalAmountCustomerNeedToPay),
               return_amount: 0.0,
               status: "paid",
               customer_id: customer?.id || null,
@@ -373,27 +373,56 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const handleIsStepExchange = (value: boolean) => {
-    form.validateFields().then(() => {
-      let checkIfHasReturnProduct = listReturnProducts.some((single) => {
-        return single.quantity > 0;
-      });
-      if (!checkIfHasReturnProduct) {
-        showError("Vui lòng chọn ít nhất 1 sản phẩm");
-        const element: any = document.getElementById("search_product");
+    form
+      .validateFields()
+      .then(() => {
+        let checkIfHasReturnProduct = listReturnProducts.some((single) => {
+          return single.quantity > 0;
+        });
+        console.log("checkIfHasReturnProduct", checkIfHasReturnProduct);
+        if (!checkIfHasReturnProduct) {
+          showError("Vui lòng chọn ít nhất 1 sản phẩm");
+          const element: any = document.getElementById("search_product");
+          const offsetY =
+            element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+          window.scrollTo({ top: offsetY, behavior: "smooth" });
+          element?.focus();
+          return;
+        } else {
+          if (isReceivedReturnProducts) {
+            setIsStepExchange(value);
+          } else {
+            setIsVisibleModalWarning(true);
+          }
+        }
+      })
+      .catch((error) => {
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
         const offsetY =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
         window.scrollTo({ top: offsetY, behavior: "smooth" });
-        element?.focus();
-        return;
-      }
-      setIsStepExchange(value);
-    });
+      });
   };
 
   const onReturnAndExchange = async () => {
     form
       .validateFields()
       .then(() => {
+        let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
+          return single.quantity > 0;
+        });
+        if (listExchangeProducts.length === 0 || !checkIfHasExchangeProduct) {
+          showError("Vui lòng chọn ít nhất 1 sản phẩm mua");
+          const element: any = document.getElementById("search_product");
+          const offsetY =
+            element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+          window.scrollTo({ top: offsetY, behavior: "smooth" });
+          element?.focus();
+          return;
+        }
         if (OrderDetail && listReturnProducts) {
           let items = listReturnProducts.map((single) => {
             const { maxQuantity, ...rest } = single;
@@ -402,6 +431,32 @@ const ScreenReturnCreate = (props: PropType) => {
           let itemsResult = items.filter((single) => {
             return single.quantity > 0;
           });
+          let payments: OrderPaymentRequest[] | null = [];
+          if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+            let formValue = form.getFieldsValue();
+            const formReturnMoney = formValue.returnMoneyField[0];
+            let returnMoneyMethod = listPaymentMethods.find((single) => {
+              return single.id === formReturnMoney.returnMoneyMethod;
+            });
+            if (returnMoneyMethod) {
+              payments = [
+                {
+                  payment_method_id: returnMoneyMethod.id,
+                  payment_method: returnMoneyMethod.name,
+                  amount: Math.abs(totalAmountCustomerNeedToPay),
+                  reference: "",
+                  source: "",
+                  paid_amount: Math.abs(totalAmountCustomerNeedToPay),
+                  return_amount: 0.0,
+                  status: "paid",
+                  customer_id: customer?.id || null,
+                  type: "",
+                  note: formReturnMoney.returnMoneyNote || "",
+                  code: "",
+                },
+              ];
+            }
+          }
           let orderDetailResult: ReturnRequest = {
             ...OrderDetail,
             action: "",
@@ -417,6 +472,8 @@ const ScreenReturnCreate = (props: PropType) => {
             reason_id: form.getFieldValue("reason_id"),
             received: isReceivedReturnProducts,
           };
+
+          console.log("orderDetailResult", orderDetailResult);
 
           dispatch(
             actionCreateOrderReturn(orderDetailResult, (response) => {
@@ -754,7 +811,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     isStepExchange={isStepExchange}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
-                    setReturnMoneyAmount={setReturnMoneyAmount}
                   />
                 )}
                 {isExchange && isStepExchange && (
@@ -788,9 +844,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 <CardReturnReceiveProducts
                   isDetailPage={false}
                   isReceivedReturnProducts={isReceivedReturnProducts}
-                  handleReceivedReturnProducts={(value: boolean) =>
-                    setIsReceivedReturnProducts(value)
-                  }
+                  handleReceivedReturnProducts={setIsReceivedReturnProducts}
                 />
               </Col>
 
@@ -821,9 +875,12 @@ const ScreenReturnCreate = (props: PropType) => {
           onOk={() => {
             if (!isExchange) {
               handleSubmitFormReturn();
-            }
-            if (isExchange && isStepExchange) {
-              onReturnAndExchange();
+            } else {
+              if (isStepExchange) {
+                onReturnAndExchange();
+              } else {
+                setIsStepExchange(true);
+              }
             }
             setIsVisibleModalWarning(false);
           }}

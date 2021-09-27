@@ -11,6 +11,7 @@ import {
   Table,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import input from "antd/lib/input";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -21,7 +22,13 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { createRef, useMemo, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -122,9 +129,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(resultReturnProducts);
       }
       checkIfIsCanReturn(resultReturnProducts);
-      if (setTotalAmountReturnProducts) {
-        setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
-      }
+      // if (setTotalAmountReturnProducts) {
+      //   setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
+      // }
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
         return {
@@ -137,9 +144,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(result);
       }
       checkIfIsCanReturn(result);
-      if (setTotalAmountReturnProducts) {
-        setTotalAmountReturnProducts(0);
-      }
+      // if (setTotalAmountReturnProducts) {
+      //   setTotalAmountReturnProducts(0);
+      // }
     }
     setIsCheckReturnAll(e.target.checked);
   };
@@ -237,23 +244,66 @@ function CardReturnProducts(props: PropType) {
       setIsCheckReturnAll(true);
     }
     checkIfIsCanReturn(resultListReturnProducts);
-    if (setTotalAmountReturnProducts) {
-      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
-    }
+    // if (setTotalAmountReturnProducts) {
+    //   setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    // }
   };
 
-  const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
-    let totalPrice = 0;
-    listReturnProducts.forEach((single) => {
-      let discountPerProduct = getProductDiscountPerProduct(single);
-      let discountPerOrder = getProductDiscountPerOrder(single);
-      let singleTotalPrice =
-        single.price - discountPerProduct - discountPerOrder;
-      totalPrice = totalPrice + single.quantity * singleTotalPrice;
-    });
-    // setTotalAmountReturnProducts(totalPrice);
-    return totalPrice;
-  };
+  // const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
+  //   let totalPrice = 0;
+  //   listReturnProducts.forEach((single) => {
+  //     let discountPerProduct = getProductDiscountPerProduct(single);
+  //     let discountPerOrder = getProductDiscountPerOrder(single);
+  //     let singleTotalPrice =
+  //       single.price - discountPerProduct - discountPerOrder;
+  //     totalPrice = totalPrice + single.quantity * singleTotalPrice;
+  //   });
+  //   // setTotalAmountReturnProducts(totalPrice);
+  //   return totalPrice;
+  // };
+
+  // const getProductDiscountPerOrder = (product: ReturnProductModel) => {
+  //   let discountPerOrder = 0;
+  //   let discountPerProduct = getProductDiscountPerProduct(product);
+  //   if (discountRate) {
+  //     discountPerOrder =
+  //       ((product.price - discountPerProduct) * discountRate) / 100;
+  //   }
+  //   return discountPerOrder;
+  // };
+
+  const getProductDiscountPerOrder = useCallback(
+    (product: ReturnProductModel) => {
+      let discountPerOrder = 0;
+      let discountPerProduct = getProductDiscountPerProduct(product);
+      if (discountRate) {
+        discountPerOrder =
+          ((product.price - discountPerProduct) * discountRate) / 100;
+      }
+      return discountPerOrder;
+    },
+    [discountRate]
+  );
+
+  const getTotalPrice = useCallback(
+    (listReturnProducts: ReturnProductModel[]) => {
+      let totalPrice = 0;
+      listReturnProducts.forEach((single) => {
+        let discountPerProduct = getProductDiscountPerProduct(single);
+        let discountPerOrder = getProductDiscountPerOrder(single);
+        let singleTotalPrice =
+          single.price - discountPerProduct - discountPerOrder;
+        totalPrice = totalPrice + single.quantity * singleTotalPrice;
+      });
+      // setTotalAmountReturnProducts(totalPrice);
+      return totalPrice;
+    },
+    [getProductDiscountPerOrder]
+  );
+
+  // const getTotalPrice =  (listReturnProducts: ReturnProductModel[]) => {
+
+  // };
 
   const getProductDiscountPerProduct = (product: ReturnProductModel) => {
     let discountPerProduct = 0;
@@ -261,16 +311,6 @@ function CardReturnProducts(props: PropType) {
       discountPerProduct += single.value;
     });
     return discountPerProduct;
-  };
-
-  const getProductDiscountPerOrder = (product: ReturnProductModel) => {
-    let discountPerOrder = 0;
-    let discountPerProduct = getProductDiscountPerProduct(product);
-    if (discountRate) {
-      discountPerOrder =
-        ((product.price - discountPerProduct) * discountRate) / 100;
-    }
-    return discountPerOrder;
   };
 
   const isShowProductSearch = () => {
@@ -441,6 +481,12 @@ function CardReturnProducts(props: PropType) {
     },
   ];
 
+  useEffect(() => {
+    if (setTotalAmountReturnProducts) {
+      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    }
+  }, [getTotalPrice, listReturnProducts, setTotalAmountReturnProducts]);
+
   return (
     <StyledComponent>
       <Card
@@ -521,7 +567,7 @@ function CardReturnProducts(props: PropType) {
               </span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền trả khách::</strong>
+              <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
                 {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
               </strong>

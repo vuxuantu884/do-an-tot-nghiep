@@ -48,9 +48,7 @@ function CardReturnReceiveProducts(props: PropType) {
       <div className="checkIfReturned">
         <Checkbox
           onChange={(e) => {
-            if (e.target.checked === true) {
-              handleReceivedReturnProducts(true);
-            }
+            handleReceivedReturnProducts(e.target.checked);
           }}
         >
           {!isDetailPage ? "Đã nhận hàng trả lại" : "Đã nhận hàng trả lại"}
