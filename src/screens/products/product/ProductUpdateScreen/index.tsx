@@ -249,6 +249,8 @@ const ProductDetailScreen: React.FC = () => {
                 let index = variants.findIndex((item) => item.id === idActive);
                 form.setFieldsValue({ variants: variants });
                 setActive(index);
+                let fieldList = Products.convertAvatarToFileList(variants[index].variant_images);
+                setFieldList(fieldList);
               }
             },
             visible: true,
@@ -924,6 +926,7 @@ const ProductDetailScreen: React.FC = () => {
                             );
                             setChange(true);
                             setActive(0);
+                            setFieldList([]);
                           }}
                           type="link"
                           icon={<PlusOutlined />}

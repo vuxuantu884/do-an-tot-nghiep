@@ -207,12 +207,12 @@ const TabProduct: React.FC = () => {
     
     {
       title: "Trạng thái",
-      dataIndex: "status",
+      dataIndex: "saleable",
       render: (value: string, row: VariantResponse) => (
         <div
-          className={row.status === "active" ? "text-success" : "text-error"}
+          className={value ? "text-success" : "text-error"}
         >
-          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
+          {value ? "Có thể bán" : "Ngừng  bán"}
         </div>
       ),
       visible: true,
@@ -223,7 +223,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "created_date",
       visible: true,
       align: 'center',
-      render: (value) => ConvertUtcToLocalDate(value)
+      render: (value, record) => ConvertUtcToLocalDate(record.product.created_date)
     },
   ]);
 
