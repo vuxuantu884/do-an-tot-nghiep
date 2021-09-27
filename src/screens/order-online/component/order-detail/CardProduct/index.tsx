@@ -28,12 +28,16 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import { StoreSearchListAction, StoreGetListAction } from "domain/actions/core/store.action";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import store from "domain/store";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
@@ -54,6 +58,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
+import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
 import {
   findAvatar,
@@ -90,6 +95,9 @@ type CardProductProps = {
   isCloneOrder?: boolean;
   discountRateParent?: number;
   discountValueParent?: number;
+  inventoryResponse:Array<InventoryResponse>|null;
+  setInventoryResponse:(item:Array<InventoryResponse>|null)=>void;
+  setStoreForm:(id:number|null)=>void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -103,9 +111,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     formRef,
     items,
     handleCardItems,
-    // isCloneOrder,
     discountRateParent,
     discountValueParent,
+    storeId,
+    selectStore,
+    inventoryResponse,
+    setInventoryResponse,
+    setStoreForm
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -139,6 +151,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
     useState(false);
 
+  const [resultSearchStore,setResultSearchStore]=useState("");
+  const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
+
+  const [storeArrayResponse,setStoreArrayResponse] = useState<Array<StoreResponse>|null>([]);
+  // const [storeId,setStoreId]=useState(0);
   //Function
 
   console.log("changeMoney", changeMoney);
@@ -739,6 +756,33 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setVisiblePickDiscount(false);
   }, []);
 
+  const ShowInventoryModal = useCallback(() => {
+      setInventoryModalVisible(true);
+  }, [dispatch]);
+
+
+  useEffect(() => {
+    dispatch(StoreSearchListAction(resultSearchStore,setStoreArrayResponse));
+  }, [resultSearchStore])
+
+  const dataSearchCanAccess = useMemo(() => {
+    let newData: Array<StoreResponse> = [];
+    if (storeArrayResponse && storeArrayResponse != null) {
+      newData = storeArrayResponse.filter(
+        (store) =>
+          haveAccess(
+            store.id,
+            userReducer.account ? userReducer.account.account_stores : []
+          )
+      );
+    }
+    return newData;
+  }, [storeArrayResponse, userReducer.account]);
+
+  const handleInventoryCancel = useCallback(() => {
+    setInventoryModalVisible(false);
+  }, []);
+
   const onOkDiscountConfirm = (
     type: string,
     value: number,
@@ -782,6 +826,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         // store
       );
+      // if(newData && newData.length)
+      //   selectStore(newData[0].id);
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -857,6 +903,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </Select.Option>
             </Select>
           </Form.Item>
+          <Button
+            onClick={() => {
+              ShowInventoryModal();
+            }}
+          >
+            Kiểm tra tồn {storeId}
+          </Button>
         </Space>
       }
     >
@@ -865,7 +918,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           <Col md={8}>
             <Form.Item
               label="Cửa hàng"
-              name="store_id"
+              // name="store_id"
               rules={[
                 {
                   required: true,
@@ -882,12 +935,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
                   if (value) {
-                    props.selectStore(value);
+                    selectStore(value);
                     setIsShowProductSearch(true);
                   } else {
                     setIsShowProductSearch(false);
                   }
                 }}
+                value={storeId!==null?storeId:0}
                 filterOption={(input, option) => {
                   if (option) {
                     return (
@@ -1205,6 +1259,23 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
+      {
+        items!==null && items?.length&&(
+          <InventoryModal
+            isModalVisible={isInventoryModalVisible}
+            setInventoryModalVisible={setInventoryModalVisible}
+            storeId={storeId}
+            setStoreId={selectStore}
+            columnsItem={items}
+            inventoryArray={inventoryResponse}
+            setResultSearchStore={setResultSearchStore}
+            dataSearchCanAccess={dataSearchCanAccess}
+            handleCancel={handleInventoryCancel}
+            setStoreForm={setStoreForm}
+        />
+        )
+      }
+     
     </Card>
   );
 };

@@ -73,6 +73,7 @@ export interface AllInventoryResponse {
   retail_price: string,
   import_price: string,
   total_on_hand: string,
+  total_available:number,
   inventories: Array<InventoryResponse>,
 }
 
