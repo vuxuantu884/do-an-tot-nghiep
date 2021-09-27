@@ -496,7 +496,7 @@ label {
   position: fixed;
   bottom: 0;
   background-color: #fff;
-  z-index: 99;
+  z-index: 1000;
   padding: 0 280px 0 32px;
   &.collapse {
     margin-left:-25px;

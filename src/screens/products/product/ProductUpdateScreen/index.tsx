@@ -16,6 +16,7 @@ import {
   Divider,
   Space,
   Image,
+  Upload,
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
@@ -32,6 +33,7 @@ import { materialSearchAll } from "domain/actions/product/material.action";
 import {
   productGetDetail,
   productUpdateAction,
+  productUploadAction,
 } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
@@ -56,6 +58,7 @@ import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
   formatCurrency,
+  Products,
   replaceFormatString,
 } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
@@ -65,11 +68,21 @@ import NumberInput from "component/custom/number-input.custom";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import VariantList from "../component/VariantList";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ModalPickAvatar from "../component/ModalPickAvatar";
+import { RcFile, UploadFile } from "antd/lib/upload/interface";
+import { ProductUploadModel } from "model/product/product-upload.model";
 
 const { Item } = Form;
 var tempActive: number = 0;
+
+const uploadButton = (
+  <div>
+    <PlusOutlined />
+    <div style={{ marginTop: 8 }}>Upload</div>
+  </div>
+);
+
 const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -127,10 +140,20 @@ const ProductDetailScreen: React.FC = () => {
     visible: false,
   });
 
-  const setCurrentVariant = useCallback((newActive: number) => {
-    setActive(newActive);
-    setChange(false);
-  }, []);
+  const [fieldList, setFieldList] = useState<Array<UploadFile>>([]);
+
+  const setCurrentVariant = useCallback(
+    (newActive: number) => {
+      setActive(newActive);
+      setChange(false);
+      let variants: Array<VariantResponse> = form.getFieldValue("variants");
+      let fieldList = Products.convertAvatarToFileList(
+        variants[newActive].variant_images
+      );
+      setFieldList(fieldList);
+    },
+    [form]
+  );
 
   const onResult = useCallback(
     (result: ProductResponse | false) => {
@@ -141,9 +164,13 @@ const ProductDetailScreen: React.FC = () => {
         setData(result);
         setStatus(result.status);
         form.setFieldsValue(result);
+        let fieldList = Products.convertAvatarToFileList(
+          result.variants[active].variant_images
+        );
+        setFieldList(fieldList);
       }
     },
-    [form]
+    [active, form]
   );
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
@@ -265,51 +292,58 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, idNumber, onResultUpdate]
   );
 
-  const updateStatus = useCallback((listSelected: Array<number>, status) => {
-    let values: ProductResponse = form.getFieldsValue(true);
-    values?.variants.forEach((item) => {
-      if (listSelected.includes(item.id)) {
-        item.saleable = status;
-      }
-    });
-    update(values);
-  }, [form, update]);
+  const updateStatus = useCallback(
+    (listSelected: Array<number>, status) => {
+      let values: ProductResponse = form.getFieldsValue(true);
+      values?.variants.forEach((item) => {
+        if (listSelected.includes(item.id)) {
+          item.saleable = status;
+        }
+      });
+      update(values);
+    },
+    [form, update]
+  );
 
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
-    setModalConfirm({
-      visible: true,
-      okText: 'Lưu trạng thái',
-      title: 'Đổi trạng thái phiên bản',
-      cancelText: "Không lưu",
-      subTitle: 'Bạn có chắc chắn đổi trạng thái phiên bản?',
-      onCancel: () => {
-        setModalConfirm({visible: false})
-      },
-      onOk: () => {
-        setModalConfirm({visible: false})
-        updateStatus(listSelected, true);
-      }
-    })
-  }, [updateStatus]);
+  const onAllowSale = useCallback(
+    (listSelected: Array<number>) => {
+      setModalConfirm({
+        visible: true,
+        okText: "Lưu trạng thái",
+        title: "Đổi trạng thái phiên bản",
+        cancelText: "Không lưu",
+        subTitle: "Bạn có chắc chắn đổi trạng thái phiên bản?",
+        onCancel: () => {
+          setModalConfirm({ visible: false });
+        },
+        onOk: () => {
+          setModalConfirm({ visible: false });
+          updateStatus(listSelected, true);
+        },
+      });
+    },
+    [updateStatus]
+  );
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    setModalConfirm({
-      visible: true,
-      okText: 'Lưu trạng thái',
-      title: 'Đổi trạng thái phiên bản',
-      cancelText: "Không lưu",
-      subTitle: 'Bạn có chắc chắn đổi trạng thái phiên bản?',
-      onCancel: () => {
-        setModalConfirm({visible: false})
-      },
-      onOk: () => {
-        setModalConfirm({visible: false})
-        updateStatus(listSelected, false);
-      }
-    })
-  }, [updateStatus]);
-
-  
+  const onStopSale = useCallback(
+    (listSelected: Array<number>) => {
+      setModalConfirm({
+        visible: true,
+        okText: "Lưu trạng thái",
+        title: "Đổi trạng thái phiên bản",
+        cancelText: "Không lưu",
+        subTitle: "Bạn có chắc chắn đổi trạng thái phiên bản?",
+        onCancel: () => {
+          setModalConfirm({ visible: false });
+        },
+        onOk: () => {
+          setModalConfirm({ visible: false });
+          updateStatus(listSelected, false);
+        },
+      });
+    },
+    [updateStatus]
+  );
 
   const onResultFinish = useCallback(
     (data) => {
@@ -317,7 +351,7 @@ const ProductDetailScreen: React.FC = () => {
       setLoadingButton(false);
       if (!data) {
       } else {
-        history.push(`${UrlConfig.PRODUCT}/${idNumber}`)
+        history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
       }
     },
     [history, idNumber]
@@ -330,6 +364,79 @@ const ProductDetailScreen: React.FC = () => {
     },
     [dispatch, idNumber, onResultFinish]
   );
+
+  const beforeUpload = useCallback((file: RcFile) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      showWarning("Vui lòng chọn đúng định dạng file JPG, PNG");
+    }
+    const isLt2M = file.size / 1024 / 1024 < 5;
+    if (!isLt2M) {
+      showWarning("Cần chọn ảnh nhỏ hơn 5mb");
+    }
+    return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
+  }, []);
+
+  const onRemoveFile = useCallback(
+    (file, active) => {
+      let variants: Array<VariantResponse> = form.getFieldValue("variants");
+      let index = variants[active].variant_images.findIndex(
+        (variantImg) => variantImg.image_id.toString() === file.uid
+      );
+      if (index !== -1) {
+        variants[active].variant_images.splice(index, 1);
+        variants[active].variant_images = [...variants[active].variant_images];
+        let newVariants = [...variants];
+        form.setFieldsValue({ variants: newVariants });
+      }
+    },
+    [form]
+  );
+
+  const onAddFile = useCallback((info) => {
+    setFieldList(info.fileList);
+  }, []);
+
+  const customRequest = useCallback((options, active) => {
+    console.log(options);
+    let files: Array<File> = [];
+    if (options.file instanceof File) {
+      let uuid = options.file.uid;
+      files.push(options.file);
+      dispatch(
+        productUploadAction(
+          files,
+          "variant",
+          (data: false | Array<ProductUploadModel>) => {
+            let index = fieldList.findIndex((item) => item.uid === uuid);
+            if (!!data) {
+              if (index !== -1) {
+                let variants: Array<VariantResponse> = form.getFieldValue("variants");
+                variants[active].variant_images.push({
+                  image_id: data[0].id,
+                  product_avatar: false,
+                  variant_avatar: false,
+                  variant_id: variants[active].id,
+                  url: data[0].path,
+                  position: null,
+                })
+                variants[active].variant_images = [...variants[active].variant_images];
+                let newVariants = [...variants];
+                form.setFieldsValue({ variants: newVariants });
+                fieldList[index].status = "done";
+                fieldList[index].url = data[0].path;
+                fieldList[index].name = data[0].id.toString();
+              }
+            } else {
+              fieldList.splice(index, 1);
+              showError("Upload ảnh không thành công");
+            }
+            setFieldList([...fieldList]);
+          }
+        )
+      );
+    }
+  }, [dispatch, fieldList, form]);
 
   const onSave = useCallback(() => {
     form.submit();
@@ -766,7 +873,7 @@ const ProductDetailScreen: React.FC = () => {
               </Row>
               <Card className="card">
                 <Row className="card-container">
-                  <Col className="left" span={24} md={6}>
+                  <Col className="left" span={24} md={7}>
                     <Item name="variants" noStyle>
                       <VariantList
                         loading={loadingVariant}
@@ -826,7 +933,7 @@ const ProductDetailScreen: React.FC = () => {
                       )}
                     </Form.List>
                   </Col>
-                  <Col className="right" span={24} md={18}>
+                  <Col className="right" span={24} md={17}>
                     <Form.List name="variants">
                       {(fields, { add, remove }) => (
                         <>
@@ -1094,10 +1201,7 @@ const ProductDetailScreen: React.FC = () => {
                                                 </Col>
                                                 <Col md={4}>
                                                   <Item
-                                                    name={[
-                                                      name,
-                                                      "cost_price",
-                                                    ]}
+                                                    name={[name, "cost_price"]}
                                                     fieldKey={[
                                                       fieldKey,
                                                       "cost_price",
@@ -1411,7 +1515,37 @@ const ProductDetailScreen: React.FC = () => {
                                           </Input.Group>
                                         </Item>
                                       </Col>
-                                      <Col span={24} sm={12}></Col>
+                                      <Col span={24} sm={12}>
+                                        <Item
+                                          name={[name, "variant_images"]}
+                                          hidden
+                                          noStyle
+                                        >
+                                          <Input />
+                                        </Item>
+
+                                        <Upload
+                                          style={{ width: "100%" }}
+                                          multiple
+                                          maxCount={6}
+                                          beforeUpload={beforeUpload}
+                                          fileList={fieldList}
+                                          onChange={(info) => {
+                                            onAddFile(info);
+                                          }}
+                                          customRequest={(options) => {
+                                            customRequest(options, active);
+                                          }}
+                                          listType="picture-card"
+                                          onRemove={(file) => {
+                                            onRemoveFile(file, active);
+                                          }}
+                                        >
+                                          {fieldList.length >= 6
+                                            ? null
+                                            : uploadButton}
+                                        </Upload>
+                                      </Col>
                                     </Row>
                                   </div>
                                 </React.Fragment>
