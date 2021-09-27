@@ -6,12 +6,15 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { cancelOrderRequest, OrderDetailAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderResponse,
   StoreCustomResponse,
@@ -84,6 +87,13 @@ const OrderDetail = (props: PropType) => {
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+
+  //loyalty
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
+
 
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
@@ -288,6 +298,15 @@ const OrderDetail = (props: PropType) => {
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
+    if (customerDetail !=null) {
+      dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customerDetail]);
+
+  useEffect(() => {
     if (OrderDetail?.store_id != null) {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
@@ -377,6 +396,8 @@ const OrderDetail = (props: PropType) => {
             <UpdateCustomerCard
               OrderDetail={OrderDetail}
               customerDetail={customerDetail}
+              loyaltyPoint={loyaltyPoint}
+              loyaltyUsageRules={loyaltyUsageRules}
             />
             {/*--- end customer ---*/}
 
