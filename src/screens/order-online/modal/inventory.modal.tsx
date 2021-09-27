@@ -108,7 +108,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (
       <Row gutter={24} className="margin-top-10">
         <Col md={24}>
           <div className="overflow-table">
-            <Radio.Group onChange={onChange} value={changeStoreItem}>
+            <Radio.Group onChange={onChange} value={changeStoreItem}  style={{ width: "100%" }}> 
               <table className="rules">
                 <thead>
                   <tr>
