@@ -37,8 +37,8 @@ const TotalItemsEcommerce = () => {
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
   const [syncStockValue, setSyncStockValue] = React.useState("");
-  const [isShowChangePriceModal, setIsShowChangePriceModal] = React.useState(false);
-  const [isShowChangeItemInfoModal, setIsShowChangeItemInfoModal] = React.useState(false);
+  const [, setIsShowChangePriceModal] = React.useState(false);
+  const [, setIsShowChangeItemInfoModal] = React.useState(false);
  
   
   const [variantData, setVariantData] = React.useState<PageResponse<any>>({
@@ -115,38 +115,38 @@ const TotalItemsEcommerce = () => {
     setIsShowChangePriceModal(true);
   };
 
-  const onChangePrice = (e: any) => {
-    //todo
-  };
+  // const onChangePrice = (e: any) => {
+  //   //todo
+  // };
 
-  const cancelChangePriceModal = () => {
-    setIsShowChangePriceModal(false);
-  };
+  // const cancelChangePriceModal = () => {
+  //   setIsShowChangePriceModal(false);
+  // };
   
-  const okChangePriceModal = () => {
-    setIsShowChangePriceModal(false);
-    showSuccess("Thay đổi giá sản phẩm thành công: " + syncStockValue);
-     //thai need todo: call API
-  };
+  // const okChangePriceModal = () => {
+  //   setIsShowChangePriceModal(false);
+  //   showSuccess("Thay đổi giá sản phẩm thành công: " + syncStockValue);
+  //    //thai need todo: call API
+  // };
 
   //handle change price
   const handleChangeItemInfo = (item: any) => {
     setIsShowChangeItemInfoModal(true);
   };
 
-  const onChangeItemInfo = (e: any) => {
-    //todo
-  };
+  // const onChangeItemInfo = (e: any) => {
+  //   //todo
+  // };
 
-  const cancelChangeItemInfoModal = () => {
-    setIsShowChangeItemInfoModal(false);
-  };
+  // const cancelChangeItemInfoModal = () => {
+  //   setIsShowChangeItemInfoModal(false);
+  // };
   
-  const okChangeItemInfoModal = () => {
-    setIsShowChangeItemInfoModal(false);
-    showSuccess("Thay đổi thông tin sản phẩm thành công: " + syncStockValue);
-     //thai need todo: call API
-  };
+  // const okChangeItemInfoModal = () => {
+  //   setIsShowChangeItemInfoModal(false);
+  //   showSuccess("Thay đổi thông tin sản phẩm thành công: " + syncStockValue);
+  //    //thai need todo: call API
+  // };
 
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);

@@ -1,7 +1,7 @@
-import React, { useEffect, useState, createRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Tabs, Form, Button, Modal, Select, DatePicker, Tooltip, FormInstance } from "antd";
+import { Card, Tabs, Form, Button, Modal, Select, DatePicker, Tooltip } from "antd";
 import {DownloadOutlined} from "@ant-design/icons"
 
 import ContentContainer from "component/container/content.container";
@@ -34,9 +34,9 @@ const Products: React.FC = () => {
   const [itemsNotConnected, setItemsNotConnected] = React.useState(0);
 
   const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceSelected, setEcommerceSelected] = React.useState(0);
+  const [, setEcommerceSelected] = React.useState(0);
   const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [, setShopIdSelected] = React.useState(null);
   const [activatedBtn, setActivatedBtn] = React.useState({
     title: "",
     icon: "",

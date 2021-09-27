@@ -323,18 +323,18 @@ const NotConnectedItems = () => {
     }
   ]
   //thai fake data 
-  const LIST_STORE = [
-    {
-      id: 1,
-      name: "store 1",
-      value: "store_1"
-    },
-    {
-      id: 2,
-      name: "store 2",
-      value: "store_2"
-    }
-  ]
+  // const LIST_STORE = [
+  //   {
+  //     id: 1,
+  //     name: "store 1",
+  //     value: "store_1"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "store 2",
+  //     value: "store_2"
+  //   }
+  // ]
 
   const CATEGORY = [
     {

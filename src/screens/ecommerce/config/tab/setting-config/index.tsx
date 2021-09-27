@@ -84,7 +84,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     },
     [history, reloadConfigData]
   );
-  console.log(configDetail);
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
@@ -140,7 +139,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       const _inventories = configDetail.inventories?.filter(
         (item: any) => !item.deleted
       );
-      console.log(_inventories);
       setInventories(_inventories);
       form.setFieldsValue({
         id: configDetail.id,

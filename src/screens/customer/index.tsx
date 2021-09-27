@@ -276,7 +276,6 @@ const Customer = () => {
     },
     items: [],
   });
-  console.log(data);
 
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
@@ -364,7 +363,6 @@ const Customer = () => {
   const onSearch = (value: CustomerSearchQuery) => {
     query.request = value && value.request;
     const querySearch: CustomerSearchQuery = value;
-    console.log(querySearch)
     dispatch(CustomerList(querySearch, setData));
   };
   
@@ -520,7 +518,7 @@ const Customer = () => {
             isRowSelection
             isLoading={tableLoading}
             scroll={{ x: 2000 }}
-            sticky={{ offsetScroll: 5 }}
+            sticky={{ offsetScroll: 5, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
