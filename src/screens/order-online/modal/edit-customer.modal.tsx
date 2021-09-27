@@ -233,7 +233,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         form={customerForm}
         name="customer_add"
         onFinish={handleSubmit}
-        // onFinishFailed={handleSubmitFail}
         layout="vertical"
         initialValues={initialFormValue}
       >

@@ -214,6 +214,7 @@
   display: flex;
   justify-content: space-between;
   border-radius: 5px;
-  word-wrap: break-word;
-  word-break:break-all
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
 }

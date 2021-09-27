@@ -30,6 +30,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
           defaultOpenKeys={collapsed ? [] : defaultOpenKeys}
           defaultSelectedKeys={defaultSelectedKeys}
           mode="inline"
+          style={{borderRight: 'none'}}
         >
           {menu.map((route) => {
             if (route.subMenu.length > 0) {

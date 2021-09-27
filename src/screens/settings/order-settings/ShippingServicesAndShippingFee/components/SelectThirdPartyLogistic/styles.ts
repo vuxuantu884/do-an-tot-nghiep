@@ -8,8 +8,8 @@ export const StyledComponent = styled.div`
     vertical-align: middle;
   }
   th.columnService {
-    padding-left: 14%;
-    text-align: left !important;
+    text-align: center;
+    text-indent: -30%;
   }
   .ant-table-cell {
     .ant-form-item {
@@ -23,11 +23,12 @@ export const StyledComponent = styled.div`
   }
   .columnService {
     .listServices {
-      display: flex;
+      display: block;
     }
     label {
-      flex-grow: 1;
-      flex-basis: 0;
+      float: left;
+      margin: 5px 0;
+      width: 50%;
     }
   }
   .logoHVC {

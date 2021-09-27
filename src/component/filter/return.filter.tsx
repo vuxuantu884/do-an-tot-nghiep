@@ -391,7 +391,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo mã đơn giao hàng, mã đơn hàng, tên, sđt khách hàng"
+                placeholder="Tìm kiếm theo mã đơn trả hàng, tên, sđt khách hàng"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     search_term: e.target.value.trim()

@@ -41,3 +41,39 @@ export interface Vat {
   rate: number;
   amount: number;
 }
+
+export interface PurchaseOrderLineItemDraft {
+  id?: number;
+  code?: string;
+  line_item_id?: number;
+  sku: string;
+  variant: string;
+  variant_image: string | null;
+  ordered_quantity: number;
+  planned_quantity: number;
+  accepted_quantity: number;
+  quantity: number;
+  real_quantity: number;
+  note: string;
+  variant_id?: number;
+  product_id?: number;
+  product?: string;
+  product_type?: string;
+  price?: number;
+  amount?: number;
+  type?: string;
+  unit?: string;
+  tax?: number;
+  tax_rate?: number;
+  tax_included?: boolean;
+  tax_type_id?: number | null;
+  line_amount_after_line_discount?: number;
+  discount_rate?: number | null;
+  discount_value?: number | null;
+  discount_amount?: number;
+  position?: number | null;
+  purchase_order_id?: number | null;
+  temp_id?: string;
+  showNote?: boolean;
+  receipt_quantity?: number;
+}

@@ -242,14 +242,14 @@
       &-process {
         .ant-steps-item-tail {
           top: 11px !important;
-          background-color: #2a2a86 !important;
+          background-color: #2a2a86;
           &::after {
-            background-color: #2a2a86 !important;
+            background-color: #2a2a86;
             margin-left: 10px !important;
           }
         }
         .ant-steps-icon-dot {
-          background-color: #2a2a86 !important;
+          background-color: #2a2a86;
         }
         .ant-steps-item-title,
         .ant-steps-item-description {
@@ -258,20 +258,20 @@
           font-family: Roboto;
         }
         .ant-steps-item-icon > .ant-steps-icon .ant-steps-icon-dot {
-          background-color: #2a2a86 !important;
+          background-color: #2a2a86;
         }
       }
       &-finish {
         .ant-steps-item-tail {
           top: 11px !important;
           &::after {
-            background-color: #2a2a86 !important;
+            background-color: #2a2a86;
             margin-left: 10px !important;
           }
         }
         .ant-steps-icon-dot {
           color: $white;
-          background-color: #2a2a86 !important;
+          background-color: #2a2a86 ;
         }
       }
     }
@@ -875,12 +875,12 @@
   border-radius: 3px;
 }
 
-.ant-steps-item-process
-  .ant-steps-item-icon
-  > .ant-steps-icon
-  .ant-steps-icon-dot {
-  background-color: #2a2a86;
-}
+// .ant-steps-item-process
+//   .ant-steps-item-icon
+//   > .ant-steps-icon
+//   .ant-steps-icon-dot {
+//   background-color: #2a2a86;
+// }
 
 .cancle-button {
   color: "#222222";

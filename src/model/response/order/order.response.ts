@@ -58,6 +58,9 @@ export interface OrderResponse extends BaseObject {
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status_id?: number | null;
+  reason_name?: string;
+  return_date?: string;
+  receive_date?: string;
 }
 
 export interface OrderLineItemResponse {
@@ -385,4 +388,8 @@ export interface OrderReturnModel extends OrderResponse {
 export interface OrderReturnReasonModel {
   id: number;
   name: string;
+}
+
+export interface OrderConfig extends BaseObject{
+  sellable_inventory:boolean;
 }

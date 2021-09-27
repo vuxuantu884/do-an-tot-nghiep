@@ -48,7 +48,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POField } from "model/purchase-order/po-field";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
-import POPaymentConditionsForm from "./component/po-payment-conditions.form";
+import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import moment from "moment";
 import { PrinterFilled, SaveFilled } from "@ant-design/icons";
@@ -178,7 +178,7 @@ const PODetailScreen: React.FC = () => {
     [idNumber, loadDetail]
   );
   const onFinish = useCallback(
-    (value: PurchaseOrder) => {
+    (value: PurchaseOrder) => {      
       switch (value.status) {
         case POStatus.FINALIZED:
         case POStatus.CANCELLED:
@@ -424,6 +424,12 @@ const PODetailScreen: React.FC = () => {
         <Form.Item name={POField.status} noStyle hidden>
           <Input />
         </Form.Item>
+        <Form.Item name={POField.payments} noStyle hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name={POField.procurements} noStyle hidden>
+          <Input />
+        </Form.Item>
         <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
@@ -444,6 +450,7 @@ const PODetailScreen: React.FC = () => {
               now={now}
               status={status}
               stores={listStore}
+              formMainEdit={formMain}
             />
 
             {poData && poData.status !== POStatus.DRAFT ? (
@@ -454,7 +461,9 @@ const PODetailScreen: React.FC = () => {
               />
             ) : (
               <POPaymentConditionsForm
+                poDataPayments={poData?.payments}
                 isEdit={true}
+                formMainEdit={formMain}
                 listPayment={listPaymentConditions}
               />
             )}
