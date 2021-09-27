@@ -12,7 +12,9 @@ import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   getProductEcommerceList,
-  getShopEcommerceList
+  getShopEcommerceList,
+  deleteEcommerceItem,
+  disconnectEcommerceItem
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -32,16 +34,15 @@ const TotalItemsEcommerce = () => {
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
-  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
-  const [syncStockValue, setSyncStockValue] = React.useState("");
-  const [, setIsShowChangePriceModal] = React.useState(false);
-  const [, setIsShowChangeItemInfoModal] = React.useState(false);
- 
+  const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
+  const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
+  const [idDisconnectItem, setIdDisconnectItem] = useState(null);
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [idDeleteItem, setIdDeleteItem] = useState(null);
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
+  const [syncStockValue, setSyncStockValue] = useState(""); 
   
-  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -50,9 +51,9 @@ const TotalItemsEcommerce = () => {
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -69,7 +70,7 @@ const TotalItemsEcommerce = () => {
     []
   );
 
-  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+  const [query, setQuery] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -91,6 +92,10 @@ const TotalItemsEcommerce = () => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
 
+  const reloadPage = () => {
+    dispatch(getProductEcommerceList(query, setVariantData));
+  }
+
   //handle sync stock
   const handleSyncStock = (item: any) => {
     setIsShowSyncStockModal(true);
@@ -110,46 +115,11 @@ const TotalItemsEcommerce = () => {
      //thai need todo: call API
   };
 
-  //handle change price
-  const handleChangePrice = (item: any) => {
-    setIsShowChangePriceModal(true);
-  };
 
-  // const onChangePrice = (e: any) => {
-  //   //todo
-  // };
-
-  // const cancelChangePriceModal = () => {
-  //   setIsShowChangePriceModal(false);
-  // };
-  
-  // const okChangePriceModal = () => {
-  //   setIsShowChangePriceModal(false);
-  //   showSuccess("Thay đổi giá sản phẩm thành công: " + syncStockValue);
-  //    //thai need todo: call API
-  // };
-
-  //handle change price
-  const handleChangeItemInfo = (item: any) => {
-    setIsShowChangeItemInfoModal(true);
-  };
-
-  // const onChangeItemInfo = (e: any) => {
-  //   //todo
-  // };
-
-  // const cancelChangeItemInfoModal = () => {
-  //   setIsShowChangeItemInfoModal(false);
-  // };
-  
-  // const okChangeItemInfoModal = () => {
-  //   setIsShowChangeItemInfoModal(false);
-  //   showSuccess("Thay đổi thông tin sản phẩm thành công: " + syncStockValue);
-  //    //thai need todo: call API
-  // };
-
+  //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
+    setIdDeleteItem(item.id);
   };
 
   const cancelDeleteItemModal = () => {
@@ -158,12 +128,21 @@ const TotalItemsEcommerce = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
-    showSuccess("Xóa sản phẩm thành công");
-    //thai need todo: call API
+
+    if (idDeleteItem) {
+      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
   };
 
-  const handleDisconnectItem = () => {
+  //handle disconnect item
+  const handleDisconnectItem = (item: any) => {
     setIsShowModalDisconnect(true);
+    setIdDisconnectItem(item.id);
   };
 
   const cancelDisconnectModal = () => {
@@ -172,8 +151,13 @@ const TotalItemsEcommerce = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-    showSuccess("Ngắt kết nối sản phẩm thành công");
-    //thai need todo: API
+    
+    dispatch(disconnectEcommerceItem({id: idDisconnectItem}, (result) => {
+      if (result) {
+        showSuccess("Ngắt kết nối sản phẩm thành công");
+        reloadPage();
+      }
+    }));
   };
 
   //thai need todo
@@ -271,7 +255,7 @@ const TotalItemsEcommerce = () => {
       },
     },
 
-    TotalItemActionColumn(handleSyncStock, handleChangePrice, handleChangeItemInfo, handleDeleteItem, handleDisconnectItem),
+    TotalItemActionColumn(handleSyncStock, handleDeleteItem, handleDisconnectItem)
   ]);
 
   const onSearch = (value: ProductEcommerceQuery) => {

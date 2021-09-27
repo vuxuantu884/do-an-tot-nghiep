@@ -64,6 +64,22 @@ const ecommerceGetShopApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
+const ecommercePostVariantsApi = (query: any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/variants?${params}`;
+  return BaseAxios.post(link);
+};
+
+const ecommerceDeleteItemApi = (query: any) => {
+  let link = `${ApiConfig.ECOMMERCE}/variants/${query.id}`;
+  return BaseAxios.delete(link);
+};
+
+const ecommerceDisconnectItemApi = (query: any) => {
+  let link = `${ApiConfig.ECOMMERCE}/variants/${query.id}/disconnect`;
+  return BaseAxios.put(link);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -73,5 +89,8 @@ export {
   ecommerceConnectSyncApi,
   ecommerceGetConfigInfoApi,
   ecommerceGetVariantsApi,
-  ecommerceGetShopApi
+  ecommerceGetShopApi,
+  ecommercePostVariantsApi,
+  ecommerceDeleteItemApi,
+  ecommerceDisconnectItemApi
 };
