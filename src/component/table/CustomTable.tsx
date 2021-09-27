@@ -12,6 +12,8 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   isLoading?: boolean;
   showColumnSetting?: boolean;
   isRowSelection?: boolean;
+  selecedRowKey?: any[]
+  onChangeRowkey?: (rowkey: any[]) => void;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -59,6 +61,8 @@ const CustomTable = (props: ICustomTableProps) => {
     showColumnSetting,
     isLoading,
     isRowSelection,
+    selecedRowKey,
+    onChangeRowkey
   } = props;
 
   const configSettingColumns: ICustomTableColumType<any>[] = [
@@ -95,9 +99,11 @@ const CustomTable = (props: ICustomTableProps) => {
         rowSelection={
           isRowSelection
             ? {
+                selectedRowKeys: selecedRowKey,
                 type: "checkbox",
                 onSelect: onSelect,
                 onSelectAll: onSelectAll,
+                onChange: onChangeRowkey,
                 columnWidth: 60,
               }
             : undefined

@@ -45,9 +45,9 @@ type ProductFilterProps = {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
-  onClearFilter?: () => void;
   onClickOpen?: () => void;
 };
+
 
 const { Item } = Form;
 const { Option } = Select;
@@ -67,7 +67,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     actions,
     listCountries,
     onMenuClick,
-    onClearFilter,
     onFilter,
     onClickOpen,
   } = props;
@@ -109,6 +108,11 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     },
     [onMenuClick]
   );
+  const onClearFilterClick = useCallback(() => {
+    formRef.current?.resetFields();
+    formRef.current?.submit();
+    setVisible(false);
+  }, [formRef]);
   const resetField = useCallback(
     (field: string) => {
       formRef.current?.setFieldsValue({
@@ -175,7 +179,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           listMerchandisers={listMerchandisers}
         />
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={onClearFilterClick}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -184,7 +188,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           <Form
             onFinish={onFinishAvd}
             ref={formRef}
-            initialValues={params}
+            initialValues={{}}
             layout="vertical"
           >
             <Space
