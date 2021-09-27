@@ -149,7 +149,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
         store: configDetail.store,
-        inventories: _inventories.map((item: any) => item.store_id),
+        inventories: _inventories?.map((item: any) => item.store_id),
       });
     } else {
       form.resetFields();
