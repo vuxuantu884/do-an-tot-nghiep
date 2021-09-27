@@ -131,12 +131,13 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                       width: "100%",
                       display: "flex",
                       flexDirection: "column",
+                      position: 'relative',
                     }}
                   >
                     {item.id ? (
                       <React.Fragment>
                         <div>{item.sku}</div>
-                        <div>{item.name}</div>
+                        <div className="right__name">{item.name}</div>
                       </React.Fragment>
                     ) : (
                       <div className="item-new">Phiên bản mới</div>

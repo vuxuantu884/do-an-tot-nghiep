@@ -75,9 +75,8 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-  const notes = customerDetail && customerDetail.notes;
   const customerId = customerDetail && customerDetail.id;
-  
+  const [notes, setNotes] = React.useState<any>([])
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -101,7 +100,7 @@ const CustomerAdd = (props: any) => {
       dispatch(WardGetByDistrictAction(customerDetail.district_id, setWards));
     }
   }, [dispatch, customerDetail]);
-
+console.log("till kept",orderHistory)
   const status_order = [
     {
       name: "Nháp",
@@ -262,6 +261,7 @@ const CustomerAdd = (props: any) => {
         full_address: customerDetail.full_address,
         city_id: customerDetail.city_id,
       };
+      setNotes(customerDetail.notes?.reverse())
       customerForm.setFieldsValue(field);
     } else {
       const field = {

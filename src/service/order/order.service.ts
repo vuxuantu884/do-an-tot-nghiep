@@ -293,3 +293,9 @@ export const cancelOrderApi = (order_id: number): Promise<
 > => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/cancel`);
 };
+
+export const getOrderConfig=():Promise<any>=>{
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/orders-config`
+  );
+}

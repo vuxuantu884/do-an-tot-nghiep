@@ -12,7 +12,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -245,6 +245,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       
       default: break;  
     }
+    console.log();
+    
     setIsReceived(newIsReceived)
   }, [isReceived]);
 
@@ -377,12 +379,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     setPaymentStatus(Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status])
   }, [params.is_received, params.payment_status]);
 
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
-    }
-  }, [formRef, visible]);
-
   return (
     <div>
       <div className="order-filter">
@@ -425,7 +421,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           className="order-filter-drawer"
           width={500}
         >
-          <Form
+          {visible && <Form
             onFinish={onFinish}
             ref={formRef}
             initialValues={params}
@@ -587,7 +583,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
               </Col>
             </Row>
             
-          </Form>
+          </Form>}
         </BaseFilter>
       </div>
       <div className="order-filter-tags">

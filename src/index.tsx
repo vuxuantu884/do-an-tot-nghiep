@@ -11,6 +11,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import "assets/css/_inventoryTable.scss";
 
 ReactDOM.render(
   <Provider store={store}>

@@ -66,6 +66,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import CustomerShippingAddressOrder from "./customer-shipping";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 //#end region
 
 type CustomerCardProps = {
@@ -74,6 +75,7 @@ type CustomerCardProps = {
   BillingAddressChange: (items: BillingAddress) => void;
   customer: CustomerResponse | null;
   loyaltyPoint:LoyaltyPoint|null;
+  loyaltyUsageRules:Array<LoyaltyUsageResponse>;
 };
 
 //Add query for search Customer
@@ -96,7 +98,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customer, handleCustomer,loyaltyPoint  } = props;
+  const { customer, handleCustomer,loyaltyPoint,loyaltyUsageRules  } = props;
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -332,6 +334,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
+  const rankName =loyaltyUsageRules.find((x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id))?.rank_name;
+
   return (
     <Card
       title={
@@ -454,7 +458,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   style={{ marginRight: "5px" }}
                 />
                 <Tag className="orders-tag orders-tag-vip">
-                  <b>{customer.customer_level}</b>
+                  <b>{!rankName?"Default":rankName}</b>
                 </Tag>
               </Space>
               <Space className="customer-detail-phone">

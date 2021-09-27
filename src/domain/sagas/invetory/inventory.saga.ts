@@ -1,3 +1,4 @@
+import { InventoryResponse } from './../../../model/inventory/index';
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -6,7 +7,7 @@ import { InventoryType } from "domain/types/inventory.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AllInventoryResponse, HistoryInventoryResponse } from "model/inventory";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { inventoryGetApi, inventoryGetDetailApi, inventoryGetHistoryApi } from "service/inventory";
+import { inventoryGetApi, inventoryGetDetailApi, inventoryGetDetailVariantIdsApi, inventoryGetHistoryApi } from "service/inventory";
 import { showError } from "utils/ToastUtils";
 
 function* inventoryGetSaga(action: YodyAction) {
@@ -84,8 +85,36 @@ function* inventoryGetHistorySaga(action: YodyAction) {
   }
 }
 
+function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
+  const { variant_id, store_id, setData } = action.payload;
+  try {
+    console.log(variant_id)
+    const response: BaseResponse<Array<InventoryResponse>> = yield call(
+      inventoryGetDetailVariantIdsApi,
+      variant_id,
+      store_id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(null);
+        break;
+    }
+  } catch (error) {
+    setData(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* inventorySaga() {
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
   yield takeLatest(InventoryType.GET_DETAIL, inventoryGetDetailSaga);
   yield takeLatest(InventoryType.GET_HISTORY, inventoryGetHistorySaga);
+  yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT, inventoryGetDetailVariantIdsSaga);
 }
