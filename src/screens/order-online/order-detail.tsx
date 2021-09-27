@@ -1,4 +1,14 @@
-import { Button, Card, Col, Collapse, Divider, Modal, Row, Space, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Divider,
+  Modal,
+  Row,
+  Space,
+  Tag,
+} from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -7,7 +17,10 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { cancelOrderRequest, OrderDetailAction } from "domain/actions/order/order.action";
+import {
+  cancelOrderRequest,
+  OrderDetailAction,
+} from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -43,6 +56,7 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
+import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -101,6 +115,8 @@ const OrderDetail = (props: PropType) => {
     }
     setPaymentType(paymentType);
   };
+
+  const handleReturnMoney = () => {};
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     // setPayments(value);
@@ -202,54 +218,63 @@ const OrderDetail = (props: PropType) => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
   };
 
-  const handleCancelOrder = useCallback((id: any) => {
-    dispatch(cancelOrderRequest(id));
+  const handleCancelOrder = useCallback(
+    (id: any) => {
+      dispatch(cancelOrderRequest(id));
     },
     [dispatch]
   );
 
   const cancelModal = useCallback(
     (type) => {
-      console.log('OrderDetail', OrderDetail);
+      console.log("OrderDetail", OrderDetail);
       switch (type) {
         case 1:
           Modal.confirm({
             title: `Xác nhận huỷ đơn hàng`,
             content: (
               <div>
-                <p>Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>? Thao tác này không thể khôi phục và tác động:</p>
+                <p>
+                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>?
+                  Thao tác này không thể khôi phục và tác động:
+                </p>
                 <p>- Thay đổi thông số kho các sản phẩm trong đơn hàng</p>
-                <p>- Huỷ các chứng từ liên quan: vận đơn, phiếu thu thanh toán đơn hàng, phiếu thu đặt cọc shipper</p>
+                <p>
+                  - Huỷ các chứng từ liên quan: vận đơn, phiếu thu thanh toán
+                  đơn hàng, phiếu thu đặt cọc shipper
+                </p>
                 <p>- Cập nhật công nợ khách hàng, công nợ đối tác vận chuyển</p>
                 <p>- Cập nhật lịch sử khuyến mãi, lịch sử tích điểm</p>
               </div>
             ),
             maskClosable: true,
-            width: '600px',
+            width: "600px",
             onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => console.log('cancel'),
+            onCancel: () => console.log("cancel"),
             okText: "Xác nhận",
-            cancelText: "Huỷ"
-          })
-          break
+            cancelText: "Huỷ",
+          });
+          break;
         case 2:
           Modal.confirm({
             title: `Xác nhận huỷ đơn hàng`,
             content: (
               <div>
-                <p>Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>?</p>
-                
+                <p>
+                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>?
+                </p>
               </div>
             ),
             maskClosable: true,
-            width: '600px',
+            width: "600px",
             onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => console.log('cancel'),
+            onCancel: () => console.log("cancel"),
             okText: "Xác nhận",
-            cancelText: "Huỷ"
-          })
-          break
-        default: break  
+            cancelText: "Huỷ",
+          });
+          break;
+        default:
+          break;
       }
       // setTimeout(() => {
       //   window.location.reload();
@@ -258,23 +283,28 @@ const OrderDetail = (props: PropType) => {
     [OrderDetail, handleCancelOrder]
   );
 
-  const orderActionsClick = useCallback((type) => {
+  const orderActionsClick = useCallback(
+    (type) => {
+      console.log("type", type);
+      console.log("OrderDetail?.status", OrderDetail?.status);
+      switch (type) {
+        case "cancel":
+          if (
+            OrderDetail?.fulfillments &&
+            OrderDetail?.fulfillments[0]?.export_on
+          ) {
+            cancelModal(1);
+          } else {
+            cancelModal(2);
+          }
 
-    console.log('type', type);
-    console.log('OrderDetail?.status', OrderDetail?.status);
-    switch (type) {
-      case 'cancel':
-        if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
-          cancelModal(1)
-        } else  {
-          cancelModal(2)
-        }
-        
-        break
-      default: break  
-    }
-    
-  }, [OrderDetail?.fulfillments, OrderDetail?.status, cancelModal]);
+          break;
+        default:
+          break;
+      }
+    },
+    [OrderDetail?.fulfillments, OrderDetail?.status, cancelModal]
+  );
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -386,7 +416,10 @@ const OrderDetail = (props: PropType) => {
         },
       ]}
       extra={
-        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetailAllFullfilment} />
+        <CreateBillStep
+          status={stepsStatusValue}
+          orderDetail={OrderDetailAllFullfilment}
+        />
       }
     >
       <div className="orders">
@@ -875,6 +908,17 @@ const OrderDetail = (props: PropType) => {
               )}
 
             {/*--- end payment ---*/}
+
+            <CardReturnMoney
+              listPaymentMethods={[]}
+              payments={[]}
+              returnMoneyAmount={
+                OrderDetail?.total_line_amount_after_line_discount || 0
+              }
+              isShowPaymentMethod={true}
+              setIsShowPaymentMethod={() => {}}
+              handleReturnMoney={handleReturnMoney}
+            />
           </Col>
 
           <Col md={6}>

@@ -38,6 +38,7 @@ export interface OrderRequest {
 export interface ReturnRequest extends OrderRequest {
   reason_id: number;
   received: boolean;
+  order_returns?: any[];
 }
 
 export interface ExchangeRequest extends OrderRequest {
