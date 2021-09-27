@@ -1,4 +1,4 @@
-import { Col, Form, Input, Modal, Radio, Row } from "antd";
+import { Button, Col, Form, Input, Modal, Radio, Row } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import CustomDatepicker from "component/custom/date-picker.custom";
@@ -14,14 +14,17 @@ import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
 import { POUtils } from "utils/POUtils";
+import { DeleteOutlined } from "@ant-design/icons";
 
 type PaymentModalProps = {
   visible: boolean;
   poId: number;
   remainPayment: number;
+  indexPaymentItem: string;
   purchasePayment?: PurchasePayments;
   poData: PurchaseOrder;
   onCancel: () => void;
+  deletePayment: () => void;
   onOk: (isLoad: boolean) => void;
 };
 const { Item } = Form;
@@ -94,6 +97,13 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     [createCallback, dispatch, formPayment, poData, poId, updateCallback]
   );
 
+  const onDeletePayment = useCallback(() => {
+    let data = formPayment.getFieldsValue(true);
+    if (data.id) {
+      dispatch(PoPaymentUpdateAction(poId, data.id, null, updateCallback));
+    }
+  }, [dispatch, formPayment, poId, updateCallback]);
+
   const onChangePaymentMethod = (e: any) => {
     console.log("radio checked", e.target.value);
     if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
@@ -134,6 +144,23 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       width={700}
       confirmLoading={confirmLoading}
       onCancel={handleCancel}
+      footer={[
+        <Button
+          danger
+          onClick={() => {
+            onDeletePayment()
+          }}
+          style={{ float: "left" }}
+        >
+          <DeleteOutlined /> Xoá
+        </Button>,
+        <Button key="back" onClick={handleCancel}>
+          Huỷ
+        </Button>,
+        <Button key="submit" type="primary" onClick={onOkPress}>
+          {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
+        </Button>,
+      ]}
     >
       <Form
         layout="vertical"
