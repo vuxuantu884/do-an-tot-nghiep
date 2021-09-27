@@ -61,6 +61,8 @@ export interface OrderResponse extends BaseObject {
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
+  order_code?: string;
+  order_id?: number;
 }
 
 export interface OrderLineItemResponse {

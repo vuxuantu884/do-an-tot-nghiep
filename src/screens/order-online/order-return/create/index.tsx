@@ -327,6 +327,7 @@ const ScreenReturnCreate = (props: PropType) => {
         payments: payments,
         reason_id: form.getFieldValue("reason_id"),
         received: isReceivedReturnProducts,
+        order_returns: [],
       };
       console.log("orderDetailResult", orderDetailResult);
       dispatch(
