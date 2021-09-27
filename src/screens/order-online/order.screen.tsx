@@ -466,7 +466,6 @@ export default function Order() {
           discountValue;
       }
     }
-    values.store_id = storeId;
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -689,7 +688,6 @@ export default function Order() {
                 setShippingFeeCustomer(
                   response.shipping_fee_informed_to_customer
                 );
-                setStoreId(response.store_id)
                 if (response.store_id) {
                   setStoreId(response.store_id);
                 }
@@ -863,11 +861,12 @@ export default function Order() {
 },[dispatch]);
 
 const setStoreForm=useCallback((id:number|null)=>{
-  setInitialForm({
-    ...initialForm,
-    store_id: id
-  });
-},[initialForm]);
+  formRef.current?.setFieldsValue({ store_id: id});
+  // setInitialForm({
+  //   ...initialForm,
+  //   store_id: id
+  // });
+},[formRef]);
   console.log(initialForm)
   return (
     <React.Fragment>

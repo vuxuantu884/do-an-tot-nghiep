@@ -28,13 +28,10 @@ import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
-import { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import { StoreSearchListAction, StoreGetListAction } from "domain/actions/core/store.action";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import store from "domain/store";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -116,7 +113,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     storeId,
     selectStore,
     inventoryResponse,
-    setInventoryResponse,
     setStoreForm
   } = props;
   const dispatch = useDispatch();
@@ -155,7 +151,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
   const [storeArrayResponse,setStoreArrayResponse] = useState<Array<StoreResponse>|null>([]);
-  // const [storeId,setStoreId]=useState(0);
   //Function
 
   console.log("changeMoney", changeMoney);
@@ -908,7 +903,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               ShowInventoryModal();
             }}
           >
-            Kiểm tra tồn {storeId}
+            Kiểm tra tồn
           </Button>
         </Space>
       }
@@ -918,7 +913,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           <Col md={8}>
             <Form.Item
               label="Cửa hàng"
-              // name="store_id"
+              name="store_id"
               rules={[
                 {
                   required: true,
@@ -941,7 +936,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     setIsShowProductSearch(false);
                   }
                 }}
-                value={storeId!==null?storeId:0}
                 filterOption={(input, option) => {
                   if (option) {
                     return (
