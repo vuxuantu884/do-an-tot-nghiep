@@ -1,6 +1,8 @@
 import { Card, Col, Row } from "antd";
+import UrlConfig from "config/url.config";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
+import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./styles";
 
@@ -43,7 +45,16 @@ function OrderShortDetailsReturn(props: PropType) {
                 style={{ fontWeight: 500, color: "#2A2A86" }}
                 className="text-focus"
               >
-                {OrderDetail?.account ? OrderDetail?.account : "-"}
+                {OrderDetail?.order_code && OrderDetail.order_id ? (
+                  <Link
+                    to={`${UrlConfig.ORDER}/${OrderDetail.order_id}`}
+                    target="_blank"
+                  >
+                    {OrderDetail?.order_code}
+                  </Link>
+                ) : (
+                  "-"
+                )}
               </span>
             </Col>
           </Row>
