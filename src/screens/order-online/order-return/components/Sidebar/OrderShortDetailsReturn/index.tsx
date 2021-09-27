@@ -37,6 +37,17 @@ function OrderShortDetailsReturn(props: PropType) {
             </Col>
           </Row>
           <Row className="margin-top-10" gutter={5}>
+            <Col span={9}>Mã đơn đổi hàng:</Col>
+            <Col span={15}>
+              <span
+                style={{ fontWeight: 500, color: "#2A2A86" }}
+                className="text-focus"
+              >
+                {OrderDetail?.account ? OrderDetail?.account : "-"}
+              </span>
+            </Col>
+          </Row>
+          <Row className="margin-top-10" gutter={5}>
             <Col span={9}>Lý do trả:</Col>
             <Col span={15}>{OrderDetail?.reason_name}</Col>
           </Row>
