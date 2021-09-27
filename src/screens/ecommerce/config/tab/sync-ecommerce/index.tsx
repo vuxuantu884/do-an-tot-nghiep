@@ -82,13 +82,13 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
       },
     },
     { title: "Cửa hàng", visible: true, dataIndex: "store" },
-    {
-      title: "Đồng bộ sản phẩm",
-      visible: true,
-      align: "center",
-      dataIndex: "product_sync",
-    },
-    { title: "Nhân viên bán hàng", visible: true, dataIndex: "assign_account" },
+    // {
+    //   title: "Đồng bộ sản phẩm",
+    //   visible: true,
+    //   align: "center",
+    //   dataIndex: "product_sync",
+    // },
+    { title: "Nhân viên bán hàng", visible: true,align: "center", dataIndex: "assign_account" },
     {
       title: "Ngày kết nối",
       visible: true,

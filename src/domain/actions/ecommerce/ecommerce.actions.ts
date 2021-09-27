@@ -2,7 +2,7 @@ import { EcommerceRequest } from "model/request/ecommerce.request";
 import BaseAction from "base/base.action";
 import { EcommerceType } from "domain/types/ecommerce.type";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { ProductEcommerceQuery } from "model/query/ecommerce.query";
+import { ProductEcommerceQuery, ShopEcommerceQuery } from "model/query/ecommerce.query";
 
 // config
 export const ecommerceConfigCreateAction = (
@@ -74,4 +74,8 @@ export const ecommerceConfigInfoAction = (
 
 export const getProductEcommerceList = (query: ProductEcommerceQuery, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST, { query, setData });
+}
+
+export const getShopEcommerceList = (query: ShopEcommerceQuery, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_SHOP_REQUEST, { query, setData });
 }

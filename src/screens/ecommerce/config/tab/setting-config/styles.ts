@@ -35,7 +35,7 @@ export const StyledConfig = styled.div`
   .description {
     display: block;
     height: 38px;
-    font-weight: 300;
+    font-weight: 400;
     font-size: 13px;
     color: #666666;
   }

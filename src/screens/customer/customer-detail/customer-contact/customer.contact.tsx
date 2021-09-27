@@ -80,9 +80,10 @@ function CustomerContactInfo(props: any) {
     },
     {
       title: "Chức vụ/phòng ban",
-      dataIndex: "title",
       visible: true,
-      // width: "20%",
+      render: (value, row, index) => {
+        return <div style={{ width: 200 }}>{row.title}</div>;
+      },
     },
     {
       title: "Ghi chú",

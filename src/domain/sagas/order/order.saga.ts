@@ -72,6 +72,23 @@ function* getListOrderSaga(action: YodyAction) {
   } catch (error) {}
 }
 
+function* getListOrderFpageSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderModel>> = yield call(
+      getListOrderApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
 function* getListOrderCustomerSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
@@ -649,6 +666,7 @@ function * configOrderSaga(action:YodyAction)
 
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
+  yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
   yield takeLatest(
     OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST,
     getListOrderCustomerSaga

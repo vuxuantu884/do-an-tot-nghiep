@@ -1,9 +1,8 @@
 import { Button, Dropdown, Menu } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
-import { StyledMenu, StyledDropDown } from "./styles";
 
 //thai need todo
-const actionColumn = (handleSyncStock: any, handleChangePrice: any, handleChangeItemInfo: any, handleDeleteItem: any, handleDisconnectItem: any) => {
+const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, handleDisconnectItem: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
@@ -11,8 +10,7 @@ const actionColumn = (handleSyncStock: any, handleChangePrice: any, handleChange
     className: "saleorder-product-card-action ",
     render: (l: any, item: any, index: number) => {      
       const menu = (
-        <StyledMenu>
-          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
             {/* thai need todo */}
             {item.connect_status === "waiting" &&
               <>
@@ -24,26 +22,8 @@ const actionColumn = (handleSyncStock: any, handleChangePrice: any, handleChange
                     Đồng bộ tồn kho lên sàn
                   </Button>
                 </Menu.Item>
-
-                <Menu.Item key="2">
-                  <Button
-                    type="text"
-                    onClick={() => handleChangePrice(item)}
-                  >
-                    Sửa giá bán
-                  </Button>
-                </Menu.Item>
-
-                <Menu.Item key="3">
-                  <Button
-                    type="text"
-                    onClick={() => handleChangeItemInfo(item)}
-                  >
-                    Sửa thông tin sản phẩm
-                  </Button>
-                </Menu.Item>
                 
-                <Menu.Item key="4">
+                <Menu.Item key="2">
                   <Button
                     type="text"
                     onClick={() => handleDeleteItem(item)}
@@ -52,7 +32,7 @@ const actionColumn = (handleSyncStock: any, handleChangePrice: any, handleChange
                   </Button>
                 </Menu.Item>
                 
-                <Menu.Item key="5">
+                <Menu.Item key="3">
                   <Button
                     type="text"
                     onClick={() => handleDisconnectItem(item)}
@@ -62,24 +42,10 @@ const actionColumn = (handleSyncStock: any, handleChangePrice: any, handleChange
                 </Menu.Item>
               </>
             }
-
-            {item.connect_status === "success" &&
-              <>
-                <Menu.Item key="4">
-                  <Button
-                    type="text"
-                    onClick={() => handleDeleteItem(item)}
-                  >
-                    Xóa sản phẩm lấy về
-                  </Button>
-                </Menu.Item>
-              </>
-            }
           </Menu>
-        </StyledMenu>
       );
       return (
-        <StyledDropDown
+        <div
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -104,11 +70,11 @@ const actionColumn = (handleSyncStock: any, handleChangePrice: any, handleChange
               ></Button>
             </Dropdown>
           </div>
-        </StyledDropDown>
+        </div>
       );
     },
   };
   return _actionColumn;
 };
 
-export default actionColumn;
+export default ConnectedItemActionColumn;
