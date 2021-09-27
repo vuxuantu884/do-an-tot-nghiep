@@ -4,6 +4,7 @@ import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderReturn,
   actionGetOrderReturnReasons,
@@ -28,6 +29,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
   OrderLineItemResponse,
@@ -105,7 +107,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   console.log("totalAmountReturnProducts", totalAmountReturnProducts);
-  const [loyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [tags, setTag] = useState<string>("");
   const [shippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
@@ -156,6 +157,12 @@ const ScreenReturnCreate = (props: PropType) => {
     RETURN_MONEY_TYPE.return_later
   );
   const [returnMoneyAmount, setReturnMoneyAmount] = useState(0);
+
+  //loyalty
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
 
   const initialForm: OrderRequest = {
     action: "", //finalized
@@ -706,6 +713,8 @@ const ScreenReturnCreate = (props: PropType) => {
                 <UpdateCustomerCard
                   OrderDetail={OrderDetail}
                   customerDetail={customer}
+                  loyaltyPoint={loyaltyPoint}
+                  loyaltyUsageRules={loyaltyUsageRules}
                 />
                 <CardReturnOrder
                   isDetailPage={false}
@@ -857,6 +866,15 @@ const ScreenReturnCreate = (props: PropType) => {
       dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomer));
     }
   }, [dispatch, OrderDetail]);
+
+  useEffect(() => {
+    if (customer !=null) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customer]);
 
   useEffect(() => {
     if (isStepExchange && listExchangeProducts.length > 0) {
