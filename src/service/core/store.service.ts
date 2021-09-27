@@ -8,6 +8,14 @@ const getListStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   return BaseAxios.get(link);
 };
 
+const getSearchListStore = (
+  name: string
+): Promise<BaseResponse<Array<StoreResponse>>> => {
+  if (!name) name = "";
+  let link = `${ApiConfig.CORE}/stores?name=${name}&simple=true&status=active`;
+  return BaseAxios.get(link);
+};
+
 const getStoreDetail = (
   storeId: number
 ): Promise<BaseResponse<StoreResponse>> => {
@@ -20,4 +28,4 @@ const getListStoreSimple = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   return BaseAxios.get(link);
 };
 
-export { getListStore, getStoreDetail, getListStoreSimple };
+export { getListStore, getStoreDetail, getListStoreSimple, getSearchListStore };

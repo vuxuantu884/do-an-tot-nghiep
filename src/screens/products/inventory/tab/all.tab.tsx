@@ -96,7 +96,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
       render: (value, record, index) => (
         <div>
-          <Link to="">{value}</Link>
+          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>{value}</Link>
         </div>
       ),
     },

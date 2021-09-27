@@ -5,7 +5,10 @@ export const StyledComponent = styled.div`
   .list__variants {
     .ant-list-items {
       height: 450px;
-      overflow: auto;
+      overflow-y: auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
       .ant-list-item {
         height: 55px;
         border: none;
@@ -15,6 +18,45 @@ export const StyledComponent = styled.div`
         &:hover {
           background: #f3f3ff;
           cursor: pointer;
+          .right__name {
+            width: 100%;
+            -moz-transform: translateX(50%);
+            -webkit-transform: translateX(50%);
+            transform: translateX(50%);
+            -moz-animation: bouncing-text 5s linear infinite alternate;
+            -webkit-animation: bouncing-text 5s linear infinite alternate;
+            animation: bouncing-text 10s linear infinite alternate;
+          }
+          @-moz-keyframes bouncing-text {
+            0% {
+              -moz-transform: translateX(50%);
+            }
+            100% {
+              -moz-transform: translateX(-50%);
+            }
+          }
+
+          @-webkit-keyframes bouncing-text {
+            0% {
+              -webkit-transform: translateX(50%);
+            }
+            100% {
+              -webkit-transform: translateX(-50%);
+            }
+          }
+
+          @keyframes bouncing-text {
+            0% {
+              -moz-transform: translateX(50%);
+              -webkit-transform: translateX(50%);
+              transform: translateX(50%);
+            }
+            100% {
+              -moz-transform: translateX(-50%);
+              -webkit-transform: translateX(-50%);
+              transform: translateX(-50%);
+            }
+          }
         }
         .line-item {
           width: 100%;
@@ -53,6 +95,12 @@ export const StyledComponent = styled.div`
                 background-color: rgba(34, 34, 34, 0.7);
               }
             }
+          }
+          .right__name {
+            width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }
@@ -105,6 +153,6 @@ export const StyledComponent = styled.div`
     justify-content: center;
     align-items: center;
     z-index: 99999;
-    background-color:  rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.2);
   }
 `;

@@ -1,14 +1,31 @@
 import { Button, Card, Col, Row, Tag, Timeline } from "antd";
 import { OrderPaymentResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React from "react";
+import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import ReturnMoneySelect from "../ReturnMoneySelect";
+import { StyledComponent } from "./styles";
 
 type PropType = {
+  listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   returnMoneyAmount: number;
+  isShowPaymentMethod: boolean;
+  handleReturnMoney: () => void;
+  setIsShowPaymentMethod: (value: boolean) => void;
 };
+
 function CardReturnMoneyPageDetail(props: PropType) {
-  const { payments, returnMoneyAmount } = props;
+  const {
+    payments,
+    returnMoneyAmount,
+    listPaymentMethods,
+    isShowPaymentMethod,
+    handleReturnMoney,
+    setIsShowPaymentMethod,
+  } = props;
+
   const renderCardTitle = () => {
     return (
       <React.Fragment>
@@ -36,22 +53,20 @@ function CardReturnMoneyPageDetail(props: PropType) {
         <Timeline>
           {payments.map((single, index) => {
             return (
-              <Timeline.Item key={index}>
+              <Timeline.Item key={index} color="#27AE60">
                 <Row gutter={24}>
                   <Col md={8}>
                     <div className="timeline__colTitle">
                       <h3>{single.payment_method}</h3>
                     </div>
                   </Col>
-                  <Col md={8}>
+                  <Col md={8} style={{ textAlign: "center" }}>
                     <strong className="po-payment-row-title">
                       {single.amount}
                     </strong>
                   </Col>
-                  <Col md={8}>
-                    <strong>
-                      {ConvertUtcToLocalDate(single.created_date)}
-                    </strong>
+                  <Col md={8} style={{ textAlign: "right" }}>
+                    <span>{ConvertUtcToLocalDate(single.created_date)}</span>
                   </Col>
                 </Row>
               </Timeline.Item>
@@ -59,20 +74,51 @@ function CardReturnMoneyPageDetail(props: PropType) {
           })}
         </Timeline>
       );
+    } else {
+      if (!isShowPaymentMethod) {
+        return (
+          <React.Fragment>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontWeight: "bold",
+              }}
+            >
+              Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
+              <Button
+                onClick={() => {
+                  console.log("333");
+                  setIsShowPaymentMethod(true);
+                }}
+              >
+                Hoàn tiền
+              </Button>
+            </div>
+          </React.Fragment>
+        );
+      }
     }
-    return (
-      <React.Fragment>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          Cần hoàn trả khách: {returnMoneyAmount} đ<Button>Hoàn tiền</Button>
-        </div>
-      </React.Fragment>
-    );
   };
 
   return (
-    <Card className="margin-top-20" title={renderCardTitle()}>
-      <div className="padding-24">{renderPayments()}</div>
-    </Card>
+    <StyledComponent>
+      <Card className="margin-top-20" title={renderCardTitle()}>
+        <div className="padding-24">
+          {renderPayments()}
+          {isShowPaymentMethod && (
+            <ReturnMoneySelect
+              listPaymentMethods={listPaymentMethods}
+              totalAmountCustomerNeedToPay={returnMoneyAmount}
+              handleReturnMoney={() => {
+                handleReturnMoney();
+              }}
+              isShowButtonReturnMoney={true}
+            />
+          )}
+        </div>
+      </Card>
+    </StyledComponent>
   );
 }
 

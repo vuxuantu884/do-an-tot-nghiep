@@ -19,6 +19,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
           current: data.metadata.page,
           onChange: onChange
         }}
+        sticky={{offsetHeader: 55, offsetScroll: 10}}
         rowKey={(record) => record.id}
         columns={[
           {

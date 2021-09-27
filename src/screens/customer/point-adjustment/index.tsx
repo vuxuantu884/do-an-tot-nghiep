@@ -15,14 +15,26 @@ import { addLoyaltyPoint, getLoyaltyPoint, subtractLoyaltyPoint } from "domain/a
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response"
 import { showError, showSuccess } from "utils/ToastUtils"
 import { useQuery } from "utils/useQuery"
+import { hideLoading, showLoading } from "domain/actions/loading.action"
 
 const initFormValues = {
-  type: null,
+  type: 'add',
   reason: null,
   value: 1,
   note: null
 }
 const { Item } = Form;
+const POINT_ADD_REASON = [
+  "Tặng điểm sinh nhật",
+  "Tặng điểm ngày cưới",
+  "Tặng điểm bù",
+  "Tặng điểm sự cố",
+  "Khác"
+]
+const POINT_SUBTRACT_REASON = [
+  "Trừ điểm bù",
+  "Khác"
+]
 
 const pageColumns: Array<ICustomTableColumType<any>> = [
   {
@@ -49,6 +61,12 @@ const pageColumns: Array<ICustomTableColumType<any>> = [
     visible: true,
     dataIndex: "code",
     fixed: "left"
+  },
+  {
+    title: "Số điểm hiện tại",
+    visible: true,
+    dataIndex: "current_point",
+    fixed: "left"
   }
 ]
 
@@ -56,9 +74,9 @@ const PointAdjustment = () => {
   const history = useHistory()
   const formRef = createRef<FormInstance>()
   const dispatch = useDispatch()
-  const [isLoading, setIsLoading] = useState<boolean>()
   const [customers, setCustomers] = useState<CustomerResponse[]>([])
   const [selectedCustomers, setSelectedCustomers] = useState<any[]>([])
+  const [type, setType] = useState<string>('add')
   const [keyword, setKeyword] = useState<string>('')
   const query = useQuery()
 
@@ -107,6 +125,8 @@ const PointAdjustment = () => {
   }
 
   const onUpdateEnd = useCallback((data: LoyaltyPoint) => {
+    formRef.current?.resetFields()
+    setType('add')
     let _selectedCustomers = selectedCustomers
     _selectedCustomers = _selectedCustomers.map(customer => {
       if (customer.id === data.customer_id) {
@@ -116,12 +136,12 @@ const PointAdjustment = () => {
     })
     showSuccess('Thành công')
     setSelectedCustomers(_selectedCustomers)
-    setIsLoading(false)
-  }, [selectedCustomers])
+    dispatch(hideLoading())
+  }, [selectedCustomers, formRef, dispatch])
 
   const handleError = useCallback(() => {
-    setIsLoading(false)
-  }, [])
+    dispatch(hideLoading())
+  }, [dispatch])
 
   const onFinish = useCallback((values) => {
     if (selectedCustomers.length === 0) {
@@ -139,8 +159,7 @@ const PointAdjustment = () => {
       note: values.note ? values.note.trim() ? values.note.trim() : null : null,
       reason: values.reason
     } as any
-    setIsLoading(true)
-    formRef.current?.resetFields()
+    dispatch(showLoading());
     if (values.type === 'add') {
       params.add_point = values.value
       dispatch(addLoyaltyPoint(customer.id, params, onUpdateEnd, handleError))
@@ -148,7 +167,14 @@ const PointAdjustment = () => {
       params.subtract_point = values.value
       dispatch(subtractLoyaltyPoint(customer.id, params, onUpdateEnd, handleError))
     }
-  }, [selectedCustomers, dispatch, onUpdateEnd, formRef, handleError]);
+  }, [selectedCustomers, dispatch, onUpdateEnd, handleError]);
+
+  const onChangeType = useCallback((value: string) => {
+    setType(value)
+    formRef.current?.setFieldsValue({
+      'reason': null
+    });
+  }, [formRef])
 
   return (
     <ContentContainer
@@ -231,6 +257,7 @@ const PointAdjustment = () => {
                     <Select
                       placeholder="Chọn kiểu điều chỉnh"
                       style={{width: '100%'}}
+                      onChange={onChangeType}
                     >
                       <Select.Option
                         key="add"
@@ -265,16 +292,27 @@ const PointAdjustment = () => {
                       placeholder="Chọn lý do điều chỉnh"
                       style={{width: '100%'}}
                     >
-                      <Select.Option
-                        value="Thích"
-                      >
-                        Thích
-                      </Select.Option>
-                      <Select.Option
-                        value="Không thích"
-                      >
-                        Không thích
-                      </Select.Option>
+                      {
+                        type === 'add' ? (
+                          POINT_ADD_REASON.map((reason, idx) => (
+                            <Select.Option
+                              key={idx}
+                              value={reason}
+                            >
+                              {reason}
+                            </Select.Option>
+                          ))
+                        ) : (
+                          POINT_SUBTRACT_REASON.map((reason, idx) => (
+                            <Select.Option
+                              key={idx}
+                              value={reason}
+                            >
+                              {reason}
+                            </Select.Option>
+                          ))
+                        )
+                      }
                     </Select>
                   </Item>
                 </div>
@@ -293,7 +331,11 @@ const PointAdjustment = () => {
                       }
                     ]}
                   >
-                    <NumberInput placeholder="Nhập giá trị" style={{textAlign: 'left'}}/>
+                    <NumberInput
+                      placeholder="Nhập giá trị"
+                      style={{textAlign: 'left'}}
+                      max={999999999999999}
+                    />
                   </Item>
                 </div>
               </Col>
@@ -334,7 +376,7 @@ const PointAdjustment = () => {
               }}
             >
               <Col span={6} className="back">
-                <div onClick={() => history.goBack()}>
+                <div className="back-wrapper" onClick={() => history.goBack()}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M13.3281 6.33203H3.04317L9.19903 0.988281C9.29746 0.902148 9.2377 0.742188 9.10762 0.742188H7.55196C7.4834 0.742188 7.41836 0.766797 7.36739 0.810742L0.724614 6.57461C0.663774 6.62735 0.614981 6.69255 0.58154 6.76579C0.548099 6.83903 0.530792 6.91861 0.530792 6.99912C0.530792 7.07964 0.548099 7.15921 0.58154 7.23245C0.614981 7.3057 0.663774 7.37089 0.724614 7.42363L7.40606 13.2227C7.43243 13.2455 7.46407 13.2578 7.49746 13.2578H9.10586C9.23594 13.2578 9.29571 13.0961 9.19727 13.0117L3.04317 7.66797H13.3281C13.4055 7.66797 13.4688 7.60469 13.4688 7.52734V6.47266C13.4688 6.39531 13.4055 6.33203 13.3281 6.33203Z" fill="#666666"/>
                   </svg>
@@ -356,7 +398,6 @@ const PointAdjustment = () => {
                   onClick={() => {
                     formRef.current?.submit();
                   }}
-                  loading={isLoading}
                 >
                   Thêm mới
                 </Button>

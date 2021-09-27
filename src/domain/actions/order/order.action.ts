@@ -23,6 +23,7 @@ import {
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
+  OrderConfig,
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
@@ -329,4 +330,16 @@ export const getListReasonRequest = (
   setData: (data: Array<{id: number; name: string}>) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
+};
+
+export const cancelOrderRequest = (
+  id: number | undefined
+) => {
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id });
+};
+
+export const configOrderSaga = (
+  setData: (data: OrderConfig) => void
+) => {
+  return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
