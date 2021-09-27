@@ -13,7 +13,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -724,12 +724,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     setControl(Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status])
   }, [params.reference_status, params.print_status, params.variant_ids]);
 
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
-    }
-  }, [formRef, visible]);
-
   return (
     <div>
       <div className="order-options">
@@ -783,7 +777,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           className="order-filter-drawer"
           width={500}
         >
-          <Form
+          {visible && <Form
             onFinish={onFinish}
             ref={formRef}
             initialValues={params}
@@ -1209,7 +1203,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
             </Row>
             
-          </Form>
+          </Form>}
         </BaseFilter>
       </div>
       <div className="order-filter-tags">
