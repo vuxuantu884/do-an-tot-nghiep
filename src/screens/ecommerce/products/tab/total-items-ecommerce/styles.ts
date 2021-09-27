@@ -16,7 +16,7 @@ export const StyledComponent = styled.div`
 
     .select-channel-dropdown {
       margin-right: 15px;
-      width: 130px;
+      width: 190px;
     }
 
     .select-store-dropdown {

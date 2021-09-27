@@ -230,7 +230,7 @@ const GeneralInformation = (props: any) => {
                   allowClear
                   optionFilterProp="children"
                 >
-                  {countries.map((country: any) => (
+                  {countries && countries.map((country: any) => (
                     <Option key={country.id} value={country.id}>
                       {country.name + ` - ${country.code}`}
                     </Option>
@@ -376,8 +376,8 @@ const GeneralInformation = (props: any) => {
             >
               <div>
                 {notes &&
-                  notes.map((note: any) => (
-                    <div className="customer-note-item">
+                  notes.map((note: any, index: number) => (
+                    <div className="customer-note-item" key={index}>
                       <span key={note.id}>{note.content}</span>
                       <img
                         alt="delete"

@@ -1,5 +1,4 @@
 import { BaseObject } from "model/base/base.response";
-import { BaseMetadata } from "model/base/base-metadata.response";
 
 export interface EcommerceShopInventoryDto {
 store: String; //

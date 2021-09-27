@@ -62,9 +62,10 @@ function CustomerShippingInfo(props: any) {
     },
     {
       title: "Họ tên người nhận",
-      dataIndex: "name",
       visible: true,
-      width: 150,
+      render: (value, row, index) => {
+        return <div style={{ width: 200 }}>{row.name}</div>;
+      },
     },
     {
       title: "Số điện thoại",
@@ -91,13 +92,13 @@ function CustomerShippingInfo(props: any) {
       render: (value, row, index) => {
         return (
           <div>
-            <span
+            <div
               className="text"
               title={row.code}
-              style={{ color: "#666666" }}
+              style={{ color: "#666666", width: 300 }}
             >
               {`${row.full_address ? row.full_address : ""}`}
-            </span>
+            </div>
             <span
               className="text"
               title={row.code}

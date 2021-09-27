@@ -47,3 +47,10 @@ export const StyledComponent = styled.div`
     }
   }
 `;
+
+export const StyledYodyProductColumn = styled.div`
+  .button {
+    display: flex;
+    justify-content: space-evenly;
+  }
+`;

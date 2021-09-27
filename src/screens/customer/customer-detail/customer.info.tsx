@@ -106,7 +106,7 @@ function CustomerInfo(props: any) {
           key: "4",
         },
         {
-          name: "Website/Facebook",
+          name: "Facebook",
           value: customer.website,
           position: "right",
           isWebsite: true,
@@ -144,6 +144,16 @@ function CustomerInfo(props: any) {
     }
     setCustomerDetailCollapse(details);
   }, [customer, setCustomerDetailCollapse]);
+
+  const handleLinkClick = React.useCallback((detail: any) => {
+    let link = ""
+    if(!detail?.value.includes("https://")){
+      link = `https://${detail.value}`
+    }else{
+      link = `${detail.value}`
+    }
+    window.open(link, "_blank");
+  },[])
   return (
     <Card
       className="customer-information-card"
@@ -341,7 +351,7 @@ function CustomerInfo(props: any) {
                             >
                               {detail.isWebsite ? (
                                 detail.value ? (
-                                  <a href={detail.value}>{detail.value}</a>
+                                  <span style={{ color: "#2a2a86", cursor: "pointer"}} onClick={() => handleLinkClick(detail)}>{detail.value}</span>
                                 ) : (
                                   "---"
                                 )
