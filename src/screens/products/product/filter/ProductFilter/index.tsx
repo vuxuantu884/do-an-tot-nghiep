@@ -6,6 +6,7 @@ import {
   Input,
   Select,
   Space,
+  Tag,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
@@ -27,6 +28,9 @@ import {
 } from "model/product/product-mapping";
 import NumberInputRange from "component/filter/component/number-input-range";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
+import moment from "moment";
+import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import CustomSelectOne from "component/filter/component/select-one.custom";
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -42,7 +46,7 @@ type ProductFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
   onClearFilter?: () => void;
-  onClickOpen?: () => void
+  onClickOpen?: () => void;
 };
 
 const { Item } = Form;
@@ -65,13 +69,26 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     onMenuClick,
     onClearFilter,
     onFilter,
-    onClickOpen
+    onClickOpen,
   } = props;
   const [visible, setVisible] = useState(false);
-
+  let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
+      onFilter && onFilter(values);
+    },
+    [onFilter]
+  );
+  const onFinishAvd = useCallback(
+    (values: any) => {
+      setAdvanceFilters(values);
+      if(values.created_date) {
+        const [from_created_date, to_created_date] = values.created_date;
+        values.from_created_date = from_created_date;
+        values.to_created_date = to_created_date;
+        values.created_date = undefined;
+      }
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -91,6 +108,16 @@ const ProductFilter: React.FC<ProductFilterProps> = (
       onMenuClick && onMenuClick(index);
     },
     [onMenuClick]
+  );
+  const resetField = useCallback(
+    (field: string) => {
+      formRef.current?.setFieldsValue({
+        ...formRef.current?.getFieldsValue(true),
+        [field]: undefined,
+      });
+      formRef.current?.submit();
+    },
+    [formRef]
   );
   useLayoutEffect(() => {
     if (visible) {
@@ -136,7 +163,17 @@ const ProductFilter: React.FC<ProductFilterProps> = (
             </Item>
           </Form>
         </CustomFilter>
-
+        <FilterList
+          filters={advanceFilters}
+          listColors={listColors}
+          listMainColors={listMainColors}
+          listSupplier={listSupplier}
+          listSize={listSize}
+          listCountries={listCountries}
+          listStatus={listStatus}
+          resetField={resetField}
+          listMerchandisers={listMerchandisers}
+        />
         <BaseFilter
           onClearFilter={onClearFilter}
           onFilter={onFilterClick}
@@ -145,7 +182,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           width={500}
         >
           <Form
-            onFinish={onFinish}
+            onFinish={onFinishAvd}
             ref={formRef}
             initialValues={params}
             layout="vertical"
@@ -155,9 +192,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               direction="vertical"
               style={{ width: "100%" }}
             >
-              {SearchVariantMapping.map((item) => {
+              {Object.keys(SearchVariantMapping).map((key) => {
                 let component: any = null;
-                switch (item.field) {
+                switch (key) {
                   case SearchVariantField.inventory:
                     component = <NumberInputRange />;
                     break;
@@ -218,7 +255,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                         <Option value="">Màu sắc</Option>
                         {listColors?.map((item) => (
                           <Option key={item.id} value={item.id}>
-                            {item.code}
+                            {item.name}
                           </Option>
                         ))}
                       </Select>
@@ -248,27 +285,21 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                       </Select>
                     );
                     break;
-                    case SearchVariantField.status:
-                      component = (
-                        <Select>
-                          <Option value="">Trạng thái</Option>
-                          {listStatus?.map((item) => (
-                            <Option key={item.value} value={item.value}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      );
-                      break;
+                  case SearchVariantField.saleable:
+                    component = (
+                      <CustomSelectOne span={12} data={{"true": "Cho phép bán", "false": "Ngừng bán"}} />
+                    );
+                    break;
                 }
                 return (
-                  <Collapse key={item.field}>
+                  <Collapse key={key}>
                     <Collapse.Panel
                       key="1"
-                      // className={params[item.field] ? "active" : ""}
-                      header={<span>{item.displayField.toUpperCase()}</span>}
+                      header={
+                        <span>{SearchVariantMapping[key].toUpperCase()}</span>
+                      }
                     >
-                      <Item name={item.field}>{component}</Item>
+                      <Item name={key}>{component}</Item>
                     </Collapse.Panel>
                   </Collapse>
                 );
@@ -278,6 +309,89 @@ const ProductFilter: React.FC<ProductFilterProps> = (
         </BaseFilter>
       </div>
     </StyledComponent>
+  );
+};
+
+const FilterList = ({
+  filters,
+  resetField,
+  listColors,
+  listMainColors,
+  listSupplier,
+  listCountries,
+  listSize,
+  listMerchandisers
+}: any) => {
+  let filtersKeys = Object.keys(filters);
+  let renderTxt: any = null;
+  return (
+    <Space wrap={true} style={{ marginBottom: 20 }}>
+      {filtersKeys.map((filterKey) => {
+        let value = filters[filterKey];
+        if (!value) return null;
+        if (!SearchVariantMapping[filterKey]) return null;
+        switch (filterKey) {
+          case SearchVariantField.created_date:
+            let [from, to] = value;
+            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
+              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+            let fixedDate = checkFixedDate(from, to);
+            if (fixedDate)
+              renderTxt = `${SearchVariantMapping[filterKey]} : ${fixedDate}`;
+            else
+              renderTxt = `${SearchVariantMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            break;
+          case SearchVariantField.color:
+            let index = listColors.findIndex(
+              (item: ColorResponse) => item.id === value
+            );
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listColors[index].name}`;
+            break;
+          case SearchVariantField.main_color:
+            let index1 = listMainColors.findIndex(
+              (item: ColorResponse) => item.id === value
+            );
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listMainColors[index1].name}`;
+            break;
+          case SearchVariantField.supplier:
+            let index2 = listSupplier.findIndex(
+              (item: SupplierResponse) => item.id === value
+            );
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listSupplier[index2].name}`;
+            break;
+          case SearchVariantField.size:
+            let index3 = listSize.findIndex(
+              (item: SupplierResponse) => item.id === value
+            );
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listSize[index3].code}`;
+            break;
+          case SearchVariantField.made_in:
+            let index4 = listCountries.findIndex(
+              (item: CountryResponse) => item.id === value
+            );
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listCountries[index4].name}`;
+            break;
+          case SearchVariantField.saleable:
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${value === 'true' ? "Cho phép bán" : "Ngừng bán"}`;
+            break;
+          case SearchVariantField.merchandiser:
+          case SearchVariantField.designer:
+            let index5 = listMerchandisers.findIndex(
+              (item: AccountResponse) => item.code === value
+            );
+              renderTxt = `${SearchVariantMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
+              break;
+        }
+        return (
+          <Tag
+            onClose={() => resetField(filterKey)}
+            key={filterKey}
+            className="fade"
+            closable
+          >{`${renderTxt}`}</Tag>
+        );
+      })}
+    </Space>
   );
 };
 
