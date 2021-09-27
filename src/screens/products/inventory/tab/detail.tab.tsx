@@ -93,7 +93,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       fixed: 'left',
       render: (value, record, index) => (
         <div>
-          <Link to="">{value}</Link>
+          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
           <div>{record.name}</div>
         </div>
       )
