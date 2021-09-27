@@ -83,6 +83,7 @@ export interface HistoryInventoryResponse extends BaseObject{
   store_id: number;
   store: string,
   variant_id: number;
+  variant: string;
   product_id: number;
   available_adj: number;
   in_coming_adj: number | null;
