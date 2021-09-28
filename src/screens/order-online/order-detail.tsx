@@ -4,11 +4,11 @@ import {
   Col,
   Collapse,
   Divider,
+  Form,
   Modal,
   Row,
   Space,
   Tag,
-  Form,
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -67,7 +67,6 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
-import CardReturnProducts from "./order-return/components/CardReturnProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 const { Panel } = Collapse;
 
@@ -117,6 +116,11 @@ const OrderDetail = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
+
+  // đổi hàng
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
+    useState<number>(0);
+  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -470,6 +474,7 @@ const OrderDetail = (props: PropType) => {
               {OrderDetail?.order_return_origin?.items && (
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
+                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                 />
               )}
 
@@ -478,6 +483,7 @@ const OrderDetail = (props: PropType) => {
                 OrderDetail={OrderDetail}
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 customerNeedToPayValue={customerNeedToPayValue}
+                totalAmountReturnProducts={totalAmountReturnProducts}
               />
               {/*--- end product ---*/}
 
@@ -558,7 +564,13 @@ const OrderDetail = (props: PropType) => {
                         </Col>
                         <Col span={12}>
                           <span className="text-field margin-right-40">
-                            Còn phải trả:
+                            {customerNeedToPayValue -
+                              (OrderDetail?.total_paid
+                                ? OrderDetail?.total_paid
+                                : 0) >
+                            0
+                              ? `Còn phải trả:`
+                              : `Hoàn tiền cho khách:`}
                           </span>
                           <b style={{ color: "red" }}>
                             {OrderDetail?.fulfillments &&
@@ -566,10 +578,12 @@ const OrderDetail = (props: PropType) => {
                             OrderDetail?.fulfillments[0].shipment?.cod
                               ? 0
                               : formatCurrency(
-                                  customerNeedToPayValue -
-                                    (OrderDetail?.total_paid
-                                      ? OrderDetail?.total_paid
-                                      : 0)
+                                  Math.abs(
+                                    customerNeedToPayValue -
+                                      (OrderDetail?.total_paid
+                                        ? OrderDetail?.total_paid
+                                        : 0)
+                                  )
                                 )}
                           </b>
                         </Col>
@@ -836,14 +850,7 @@ const OrderDetail = (props: PropType) => {
                           <span className="text-field margin-right-40">
                             Còn phải trả:
                           </span>
-                          <b style={{ color: "red" }}>
-                            0
-                            {/* {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
-                            ? formatCurrency(
-                                OrderDetail.fulfillments[0].shipment?.cod
-                              )
-                            : 0} */}
-                          </b>
+                          <b style={{ color: "red" }}>0</b>
                         </Col>
                       </Row>
                     </div>

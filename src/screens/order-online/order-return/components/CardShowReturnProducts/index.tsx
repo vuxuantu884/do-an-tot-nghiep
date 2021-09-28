@@ -13,10 +13,12 @@ import { StyledComponent } from "./styles";
 type PropType = {
   listReturnProducts: OrderLineItemResponse[];
   discountRate?: number;
+  setTotalAmountReturnProducts: (value: number) => void;
 };
 
 function CardShowReturnProducts(props: PropType) {
-  const { listReturnProducts, discountRate } = props;
+  const { listReturnProducts, discountRate, setTotalAmountReturnProducts } =
+    props;
 
   const getProductDiscountPerOrder = useCallback(
     (product: OrderLineItemResponse) => {
@@ -41,7 +43,7 @@ function CardShowReturnProducts(props: PropType) {
           single.price - discountPerProduct - discountPerOrder;
         totalPrice = totalPrice + single.quantity * singleTotalPrice;
       });
-      // setTotalAmountReturnProducts(totalPrice);
+      setTotalAmountReturnProducts(totalPrice);
       return totalPrice;
     },
     [getProductDiscountPerOrder]
