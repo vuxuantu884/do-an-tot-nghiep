@@ -26,14 +26,19 @@ import {
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
+import _ from "lodash";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
-import { OrderPaymentRequest } from "model/request/order.request";
+import {
+  OrderPaymentRequest,
+  UpdateOrderPaymentRequest,
+} from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  OrderPaymentResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -210,6 +215,7 @@ const OrderDetail = (props: PropType) => {
     },
     []
   );
+
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -222,6 +228,7 @@ const OrderDetail = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNED &&
           f.status !== FulFillmentStatus.RETURNING
       );
+
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
     }
@@ -362,6 +369,46 @@ const OrderDetail = (props: PropType) => {
     });
   }, []);
 
+  useEffect(() => {
+    let returnPaymentCode = "cash";
+    console.log("listPaymentMethods", listPaymentMethods);
+    let returnPaymentMethod = listPaymentMethods.find((single) => {
+      return single.code === returnPaymentCode;
+    });
+    console.log("returnPaymentMethod", returnPaymentMethod);
+    console.log("3333333333");
+    console.log("returnPaymentMethod", returnPaymentMethod);
+    if (OrderDetail?.order_return_origin && returnPaymentMethod) {
+      let dataPaymentReturn: OrderPaymentResponse = {
+        customer_id: OrderDetail?.customer_id || 0,
+        payment_method_id: returnPaymentMethod.id,
+        amount:
+          OrderDetail?.order_return_origin
+            .total_line_amount_after_line_discount,
+        paid_amount: 0,
+        return_amount: 0,
+        status: "paid",
+        name: returnPaymentMethod.name,
+        code: returnPaymentMethod.code,
+        payment_method: returnPaymentMethod.name,
+        reference: "",
+        source: "",
+        note: "",
+        type: "",
+        id: 0,
+      };
+
+      console.log("dataPaymentReturn", dataPaymentReturn);
+      OrderDetail.payments?.push(dataPaymentReturn);
+    }
+    console.log("OrderDetail", OrderDetail);
+  }, [
+    OrderDetail,
+    OrderDetail?.customer_id,
+    OrderDetail?.order_return_origin,
+    listPaymentMethods,
+  ]);
+
   // khách cần trả
   const customerNeedToPay: any = () => {
     if (
@@ -498,8 +545,8 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                OrderDetail?.payments &&
-                OrderDetail?.payments?.length > 0 && (
+                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
+                  OrderDetail.order_return_origin) && (
                   <Card
                     className="margin-top-20"
                     title={

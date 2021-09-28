@@ -63,6 +63,7 @@ export interface OrderResponse extends BaseObject {
   receive_date?: string;
   order_code?: string;
   order_id?: number;
+  order_return_origin?: OrderResponse;
 }
 
 export interface OrderLineItemResponse {
@@ -392,6 +393,6 @@ export interface OrderReturnReasonModel {
   name: string;
 }
 
-export interface OrderConfig extends BaseObject{
-  sellable_inventory:boolean;
+export interface OrderConfig extends BaseObject {
+  sellable_inventory: boolean;
 }
