@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -12,7 +12,9 @@ import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   getProductEcommerceList,
-  getShopEcommerceList
+  getShopEcommerceList,
+  deleteEcommerceItem,
+  disconnectEcommerceItem
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -32,13 +34,19 @@ const ConnectedItems = () => {
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
-  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
-  const [syncStockValue, setSyncStockValue] = React.useState("");
-  
-  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+  const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
+  const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
+  const [idDisconnectItem, setIdDisconnectItem] = useState(null);
+  const [idsDisconnectItem, setIdsDisconnectItem] = useState<any>();
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [idDeleteItem, setIdDeleteItem] = useState(null);
+  const [idsDeleteItem, setIdsDeleteItem] = useState<any>();
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
+  const [syncStockValue, setSyncStockValue] = useState("");
+
+  const [selectedRow, setSelected] = useState<Array<any>>([]);
+ 
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -47,9 +55,9 @@ const ConnectedItems = () => {
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -66,7 +74,7 @@ const ConnectedItems = () => {
     []
   );
 
-  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+  const [query, setQuery] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -87,6 +95,10 @@ const ConnectedItems = () => {
   useEffect(() => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
+  
+  const reloadPage = () => {
+    dispatch(getProductEcommerceList(query, setVariantData));
+  }
 
   //handle sync stock
   const handleSyncStock = () => {
@@ -108,8 +120,9 @@ const ConnectedItems = () => {
   };
 
   //handle delete item
-  const handleDeleteItem = () => {
+  const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
+    setIdDeleteItem(item.id);
   };
 
   const cancelDeleteItemModal = () => {
@@ -118,13 +131,39 @@ const ConnectedItems = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
-    showSuccess("Xóa sản phẩm thành công");
-    //thai need todo: call API
+    
+    if (idDeleteItem) {
+      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
+
+    
+    if (idsDeleteItem) {
+      console.log("okDeleteItemModal idsDeleteItem: ", idsDeleteItem);
+      showSuccess("Cần cập nhật api xóa nhiều sản phẩm");
+    }
+  };
+
+  const handleDeleteItems = () => {
+    setIsShowDeleteItemModal(true);
+
+    const idsDeleteItemList: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        idsDeleteItemList.push(item.id);
+      });
+    }
+    setIdsDeleteItem(idsDeleteItemList);
   };
 
   //handle disconnect item
-  const handleDisconnectItem = () => {
+  const handleDisconnectItem = (item: any) => {
     setIsShowModalDisconnect(true);
+    setIdDisconnectItem(item.id);
   };
 
   const cancelDisconnectModal = () => {
@@ -133,8 +172,32 @@ const ConnectedItems = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-    showSuccess("Ngắt kết nối sản phẩm thành công");
-    //thai need todo: API
+    
+    if (idDisconnectItem) {
+      dispatch(disconnectEcommerceItem({id: idDisconnectItem}, (result) => {
+        if (result) {
+          showSuccess("Ngắt kết nối sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
+
+    if (idsDisconnectItem) {
+      console.log("okDeleteItemModal idsDeleteItem: ", idsDisconnectItem);
+      showSuccess("Cần cập nhật api ngắt kết nối nhiều sản phẩm");
+    }
+  };
+
+  const handleDisconnectItems = () => {
+    setIsShowModalDisconnect(true);
+
+    const idsDisconnectItemList: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        idsDisconnectItemList.push(item.id);
+      });
+    }
+    setIdsDisconnectItem(idsDisconnectItemList);
   };
 
   //thai need todo
@@ -380,16 +443,21 @@ const ConnectedItems = () => {
         handleSyncStock();
         break;
       case 'deleteItem':
-        handleDeleteItem();
+        handleDeleteItems();
         break;
       case 'disconnectItem':
-        handleDisconnectItem();
+        handleDisconnectItems();
         break; 
       default: break
     }
   }
 
-  
+  const onSelectTable = React.useCallback(
+    (selectedRow: Array<any>) => {
+      setSelected(selectedRow);
+    },
+    []
+  );
 
   return (
     <StyledComponent>
@@ -500,6 +568,7 @@ const ConnectedItems = () => {
 
         <CustomTable
           isRowSelection
+          onSelectedChange={onSelectTable}
           columns={columnFinal}
           dataSource={variantData.items}
           // dataSource={variantDataConnected}
