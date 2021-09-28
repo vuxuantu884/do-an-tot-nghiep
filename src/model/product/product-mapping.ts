@@ -1,6 +1,3 @@
-import { BaseMapping } from 'model/base/base-mapping';
-
-
 const SearchVariantField = {
   inventory: 'inventory',
   made_in: 'made_in',
@@ -11,51 +8,21 @@ const SearchVariantField = {
   color: 'color',
   main_color: 'main_color',
   supplier: 'supplier',
-  status: 'status'
+  saleable: 'saleable'
 };
 
-const SearchVariantMapping: Array<BaseMapping> = [
-  {
-    field: SearchVariantField.created_date,
-    displayField: 'Ngày tạo'
-  },
-  {
-    field: SearchVariantField.status,
-    displayField: 'Trạng thái'
-  },
-  {
-    field: SearchVariantField.inventory,
-    displayField: 'Tồn kho'
-  },
-  {
-    field: SearchVariantField.made_in,
-    displayField: 'Xuất xứ'
-  },
-  {
-    field: SearchVariantField.designer,
-    displayField: 'Nhà thiết kế'
-  },
-  {
-    field: SearchVariantField.merchandiser,
-    displayField: 'Merchandiser'
-  },
-  {
-    field: SearchVariantField.size,
-    displayField: 'Kích thước'
-  },
-  {
-    field: SearchVariantField.color,
-    displayField: 'Màu sắc'
-  },
-  {
-    field: SearchVariantField.main_color,
-    displayField: 'Màu chủ đạo'
-  },
-  {
-    field: SearchVariantField.supplier,
-    displayField: 'Nhà cung cấp'
-  },
- 
-];
+const SearchVariantMapping = {
+  [SearchVariantField.created_date]: "Ngày tạo",
+  [SearchVariantField.saleable]: "Cho phép bán",
+  [SearchVariantField.inventory]: "Tồn kho",
+  [SearchVariantField.made_in]: "Xuất xứ",
+  [SearchVariantField.designer]: "Nhà thiết kế",
+  [SearchVariantField.merchandiser]: "Merchandiser",
+  [SearchVariantField.size]: "Kích thước",
+  [SearchVariantField.color]: "Màu sắc",
+  [SearchVariantField.main_color]: "Màu chủ đạo",
+  [SearchVariantField.supplier]: "Nhà cung cấp",
+};
+
 
 export {SearchVariantMapping, SearchVariantField};
