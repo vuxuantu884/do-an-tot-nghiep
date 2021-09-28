@@ -139,6 +139,7 @@ const PODetailScreen: React.FC = () => {
   );
   const onConfirmButton = useCallback(() => {
     setStatusAction(POStatus.FINALIZED)
+    setIsEditDetail(false);
     formMain.submit();
   }, [formMain]);
 
@@ -295,7 +296,6 @@ const PODetailScreen: React.FC = () => {
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
   const renderButton = useMemo(() => {
-    console.log(status);
     
     switch (status) {
       case POStatus.DRAFT:
@@ -514,7 +514,12 @@ const PODetailScreen: React.FC = () => {
               formMain={formMain}
               isEditDetail={isEditDetail}
             />
-            <POProductForm isEditDetail={isEditDetail} isEdit={true} formMain={formMain} />
+            <POProductForm
+              isEditDetail={isEditDetail}
+              isEdit={true}
+              formMain={formMain}
+              status={status}
+            />
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
@@ -539,6 +544,7 @@ const PODetailScreen: React.FC = () => {
                 isEdit={true}
                 formMainEdit={formMain}
                 listPayment={listPaymentConditions}
+                isEditDetail={isEditDetail}
               />
             )}
             {poData &&

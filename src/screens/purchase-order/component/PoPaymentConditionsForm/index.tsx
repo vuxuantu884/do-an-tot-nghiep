@@ -14,24 +14,27 @@ import { POPaymentConditionsFormStyled } from "./styles";
 type POPaymentConditionsFormProps = {
   listPayment: Array<PoPaymentConditions>;
   isEdit: Boolean;
+  isEditDetail?: Boolean;
   formMain?: any;
   poDataPayments?: Array<PurchasePayments>;
   formMainEdit?: any;
 };
 
 export const TYPE_PAYMENTS = {
-  EDIT_IN_CREATE: 'EDIT_IN_CREATE',
-  EDIT_IN_DRAFT: 'EDIT_IN_DRAFT',
-}
+  EDIT_IN_CREATE: "EDIT_IN_CREATE",
+  EDIT_IN_DRAFT: "EDIT_IN_DRAFT",
+};
 const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
   props: POPaymentConditionsFormProps
 ) => {
-  const { isEdit, formMain, listPayment, poDataPayments, formMainEdit } = props;
+  const { isEdit, formMain, listPayment, poDataPayments, formMainEdit, isEditDetail } = props;
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [paymentsData, setPaymentsData] = useState<Array<PurchasePayments>>([]);
-  const [paymentsDataDraft, setPaymentsDataDraft] = useState<Array<PurchasePayments>>([]);
+  const [paymentsDataDraft, setPaymentsDataDraft] = useState<
+    Array<PurchasePayments>
+  >([]);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
-  const [indexPurchasePayment, setIndexPurchasePayment] = useState('');
+  const [indexPurchasePayment, setIndexPurchasePayment] = useState("");
 
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
@@ -47,7 +50,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
     switch (isEdit) {
       case true:
         const newPaymentsDataDraft = [...paymentsDataDraft];
-        newPaymentsDataDraft?.splice(index,1);
+        newPaymentsDataDraft?.splice(index, 1);
         setPaymentsDataDraft(newPaymentsDataDraft);
         formMainEdit.setFieldsValue({
           payments: newPaymentsDataDraft,
@@ -56,16 +59,16 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
         break;
       default:
         const newPaymentsData = [...paymentsData];
-        newPaymentsData?.splice(index,1);
+        newPaymentsData?.splice(index, 1);
         setPaymentsData(newPaymentsData);
         formMain.setFieldsValue({
           payments: newPaymentsData,
         });
         break;
     }
-  }
-  
-  const editPayment = useCallback((item: PurchasePayments, index:number) => {
+  };
+
+  const editPayment = useCallback((item: PurchasePayments, index: number) => {
     setIndexPurchasePayment(index.toString());
     setPaymentItem(item);
     setVisiblePaymentModal(true);
@@ -77,22 +80,22 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
         setPaymentsDataDraft(dataPayments);
         formMainEdit.setFieldsValue({
           payments: dataPayments,
-        })
-        
+        });
+
         break;
       default:
         setPaymentsData(dataPayments);
         formMain.setFieldsValue({
           payments: dataPayments,
-        })
+        });
         break;
     }
-  }
+  };
 
   useEffect(() => {
     poDataPayments && setPaymentsDataDraft(poDataPayments);
-  }, [poDataPayments])
-  
+  }, [poDataPayments]);
+
   if (!isEdit) {
     return (
       <POPaymentConditionsFormStyled>
@@ -142,7 +145,10 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
               </Col>
               <Col span={24} md={10}>
                 <Form.Item name={POField.payment_note} label="Diễn giải">
-                  <Input.TextArea maxLength={255} placeholder="Nhập diễn giải" />
+                  <Input.TextArea
+                    maxLength={255}
+                    placeholder="Nhập diễn giải"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -181,12 +187,8 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                         <Button onClick={() => editPayment(item, index)}>
                           <EditOutlined /> Sửa
                         </Button>
-                        <Button
-                          danger
-                          onClick={() => deletePayment(index)}
-                        >
-                          <DeleteOutlined />{" "}
-                          Xoá
+                        <Button danger onClick={() => deletePayment(index)}>
+                          <DeleteOutlined /> Xoá
                         </Button>
                       </div>
                     </Col>
@@ -235,33 +237,87 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
         }
       >
         <div className="padding-20">
-          <Row gutter={50}>
-            <Col span={24} md={10}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn điều khoản thanh toán",
-                  },
-                ]}
-                name={POField.payment_condition_id}
-                label="Điều khoản thanh toán"
-              >
-                <Select placeholder="Chọn điều khoản thanh toán">
-                  {listPayment?.map((item) => (
-                    <Select.Option key={item.id} value={item.id}>
-                      {item.note}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} md={10}>
-              <Form.Item name={POField.payment_note} label="Diễn giải">
-                <Input.TextArea maxLength={255} placeholder="Nhập diễn giải" />
-              </Form.Item>
-            </Col>
-          </Row>
+          {isEdit && !isEditDetail ? (
+            <Row gutter={24} className="margin-bottom-40">
+              <Col md={12}>
+                {/* <Form.Item label="Điều khoản thanh toán"> Sau 15 ngày</Form.Item> */}
+                <div className="shortInformation__column">
+                  <span className="text-field margin-right-10">
+                    Điều khoản thanh toán:
+                  </span>
+                  <span>
+                    {" "}
+                    <strong className="po-payment-row-title">
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(prev, current) =>
+                          prev[POField.payment_condition_name] !==
+                          current[POField.payment_condition_name]
+                        }
+                      >
+                        {({ getFieldValue }) => {
+                          let payment_condition_name = getFieldValue(
+                            POField.payment_condition_name
+                          );
+                          return payment_condition_name;
+                        }}
+                      </Form.Item>
+                    </strong>
+                  </span>
+                </div>
+              </Col>
+              <Col md={12}>
+                <div className="shortInformation__column">
+                  <span className="text-field margin-right-10">Diễn giải:</span>
+                  <span>
+                    <Form.Item
+                      noStyle
+                      shouldUpdate={(prev, current) =>
+                        prev[POField.payment_note] !==
+                        current[POField.payment_note]
+                      }
+                    >
+                      {({ getFieldValue }) => {
+                        let payment_note = getFieldValue(POField.payment_note);
+                        return payment_note;
+                      }}
+                    </Form.Item>
+                  </span>
+                </div>
+              </Col>
+            </Row>
+          ) : (
+            <Row gutter={50}>
+              <Col span={24} md={10}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn điều khoản thanh toán",
+                    },
+                  ]}
+                  name={POField.payment_condition_id}
+                  label="Điều khoản thanh toán"
+                >
+                  <Select placeholder="Chọn điều khoản thanh toán">
+                    {listPayment?.map((item) => (
+                      <Select.Option key={item.id} value={item.id}>
+                        {item.note}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={24} md={10}>
+                <Form.Item name={POField.payment_note} label="Diễn giải">
+                  <Input.TextArea
+                    maxLength={255}
+                    placeholder="Nhập diễn giải"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
 
           <Timeline>
             {paymentsDataDraft?.map((item, index) => (

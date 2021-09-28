@@ -307,17 +307,30 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           ),
           width: 200,
           align: "center",
-          render: (value: number, item: any, indexLineItems: number) => (
-            <NumberInput
-              isFloat={false}
-              max={5}
-              min={0}
-              maxLength={6}
-              onChange={(value: number | null) => {
-                onChangeValueLineItem(value, index, indexLineItems);
-              }}
-            />
-          ),
+          render: (value: number, item1: any, indexLineItems: number) => {
+            let maxValue = item1.quantity;
+            if (dataProcurement?.length > 1) {
+              dataProcurement?.forEach((item, index) => {
+                if (index > 0) {
+                  return;
+                } else {
+                  maxValue -= item?.procurement_items[indexLineItems]?.quantity;
+                }
+              })
+            }
+
+            return (
+              <NumberInput
+                isFloat={false}
+                max={maxValue}
+                min={0}
+                maxLength={6}
+                value={item?.procurement_items[indexLineItems]?.quantity}
+                onChange={(value: number | null) => {
+                  onChangeValueLineItem(value, index, indexLineItems);
+                }}
+              />
+          )},
         };
       }
     );

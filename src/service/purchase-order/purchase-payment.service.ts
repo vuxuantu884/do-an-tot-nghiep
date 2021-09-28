@@ -25,3 +25,13 @@ export const updatePurchasePaymentService = (
     data
   );
 };
+
+
+export const deletePurchasePaymentService = (
+  poId: number,
+  paymentId: number,
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/payments/${paymentId}`
+  );
+};
