@@ -14,7 +14,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -685,14 +685,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     return list
   }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
 
-  
-
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
-    }
-  }, [formRef, visible]);
-
   return (
     <div>
       <div className="order-options">
@@ -742,7 +734,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           className="order-filter-drawer"
           width={500}
         >
-          <Form
+          {visible && <Form
             onFinish={onFinish}
             ref={formRef}
             initialValues={params}
@@ -1290,7 +1282,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Collapse>
               </Col>
             </Row>
-          </Form>
+          </Form>}
         </BaseFilter>
       </div>
       <div className="order-filter-tags">

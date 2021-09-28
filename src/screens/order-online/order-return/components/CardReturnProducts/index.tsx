@@ -6,7 +6,6 @@ import {
   Checkbox,
   Col,
   Input,
-  InputNumber,
   Popover,
   Row,
   Table,
@@ -16,6 +15,7 @@ import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import imgDefault from "assets/icon/img-default.svg";
+import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
   OrderLineItemResponse,
@@ -171,7 +171,7 @@ function CardReturnProducts(props: PropType) {
         </div>
         <div className="rs-right">
           <span style={{ color: "#222222" }} className="text t-right">
-            {item.price}
+            {formatCurrency(item.price)}
             <span
               style={{
                 color: "#737373",
@@ -219,10 +219,10 @@ function CardReturnProducts(props: PropType) {
     setSearchVariantInputValue(value);
   };
 
-  const onChangeProductQuantity = (value: number, index: number) => {
+  const onChangeProductQuantity = (value: number | null, index: number) => {
     let resultListReturnProducts = [...listReturnProducts];
     resultListReturnProducts[index].quantity = Number(
-      value == null ? "0" : value.toString().replace(".", "")
+      value === null ? "0" : value.toString().replace(".", "")
     );
     if (handleReturnProducts) {
       handleReturnProducts(resultListReturnProducts);
@@ -288,8 +288,8 @@ function CardReturnProducts(props: PropType) {
           className="single"
           style={{ display: "flex", justifyContent: "space-between" }}
         >
-          <p>Đơn giá gốc: </p>
-          <p style={{ marginLeft: 20 }}>{price}</p>
+          <p style={{ margin: 0 }}>Đơn giá gốc: </p>
+          <p style={{ margin: "0 0 0 20px" }}>{price}</p>
         </div>
       </div>
     );
@@ -345,15 +345,18 @@ function CardReturnProducts(props: PropType) {
           }
           return (
             <div>
-              <InputNumber
+              <NumberInput
                 min={0}
                 max={record.maxQuantity}
                 value={record.quantity}
-                defaultValue={0}
-                onChange={(value: number) =>
+                // defaultValue={0}
+                onChange={(value: number | null) =>
                   onChangeProductQuantity(value, index)
                 }
                 className="hide-number-handle"
+                maxLength={4}
+                minLength={0}
+                style={{ width: 100 }}
               />{" "}
               / {record.maxQuantity}
             </div>
