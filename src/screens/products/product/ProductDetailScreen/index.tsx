@@ -21,7 +21,10 @@ import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import TabProductInventory from "../tab/TabProductInventory";
 import TabProductHistory from "../tab/TabProductHistory";
-import { inventoryGetDetailAction, inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
+import {
+  inventoryGetDetailAction,
+  inventoryGetHistoryAction,
+} from "domain/actions/inventory/inventory.action";
 import classNames from "classnames";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse, InventoryResponse } from "model/inventory";
@@ -39,7 +42,7 @@ const ProductDetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
   const [loadingSwitch, setLoadingSwitch] = useState(false);
-  
+
   const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
@@ -56,15 +59,15 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const [dataHistory, setDataHistory] = useState<
-  PageResponse<HistoryInventoryResponse>
->({
-  items: [],
-  metadata: {
-    limit: 30,
-    page: 1,
-    total: 0,
-  },
-});
+    PageResponse<HistoryInventoryResponse>
+  >({
+    items: [],
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+  });
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
@@ -240,10 +243,7 @@ const ProductDetailScreen: React.FC = () => {
     if (data && data?.variants.length > 0) {
       let variantSelect = data.variants[active].id;
       dispatch(
-        inventoryGetDetailAction(
-          { variant_id: variantSelect },
-          onResultDetail
-        )
+        inventoryGetDetailAction({ variant_id: variantSelect }, onResultDetail)
       );
       dispatch(
         inventoryGetHistoryAction(
@@ -252,7 +252,14 @@ const ProductDetailScreen: React.FC = () => {
         )
       );
     }
-  }, [active, data, dispatch, onResult, onResultDetail, onResultInventoryHistory]);
+  }, [
+    active,
+    data,
+    dispatch,
+    onResult,
+    onResultDetail,
+    onResultInventoryHistory,
+  ]);
   useEffect(() => {
     if (variantId && data) {
       let index = data.variants.findIndex(
@@ -299,6 +306,12 @@ const ProductDetailScreen: React.FC = () => {
                         onChange={(checked) => {
                           let newData = { ...data };
                           newData.status = checked ? "active" : "inactive";
+                          newData.variants.forEach((item) => {
+                            item.status = checked ? "active" : "inactive";
+                            if (!checked) {
+                              item.saleable = checked;
+                            }
+                          });
                           setLoadingSwitch(true);
                           dispatch(
                             productUpdateAction(idNumber, newData, (result) => {
@@ -402,6 +415,7 @@ const ProductDetailScreen: React.FC = () => {
                   <Row className="card-container">
                     <Col className="left" span={24} md={7}>
                       <VariantList
+                        disabledAction={data.status === "inactive"}
                         onAllowSale={onAllowSale}
                         onStopSale={onStopSale}
                         value={data.variants}
@@ -425,6 +439,7 @@ const ProductDetailScreen: React.FC = () => {
                               <Switch
                                 onChange={onChangeChecked}
                                 className="ant-switch-success"
+                                disabled={data.status === "inactive"}
                                 checked={currentVariant.saleable}
                               />
                               <label className="label-switch">
@@ -580,9 +595,9 @@ const ProductDetailScreen: React.FC = () => {
                       />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Lich sử tồn kho" key="2">
-                      <TabProductHistory 
-                       onChange={onChangeDataHistory}
-                       data={dataHistory}
+                      <TabProductHistory
+                        onChange={onChangeDataHistory}
+                        data={dataHistory}
                       />
                     </Tabs.TabPane>
                   </Tabs>
