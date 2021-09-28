@@ -127,9 +127,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     }
                   >
                     {({ getFieldValue }) => {
-                      const expected_store = getFieldValue(
-                        POField.expect_store
-                      );
+                      // const expected_store = getFieldValue(
+                      //   POField.expect_store
+                      // );
                       const expect_import_date = getFieldValue(
                         POField.expect_import_date
                       );
@@ -147,10 +147,10 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               size="large"
                               split={<i className="icon-dot" />}
                             >
-                              <div>
+                              {/* <div>
                                 Kho nhận hàng:{" "}
                                 <strong>{expected_store.toUpperCase()}</strong>
-                              </div>
+                              </div> */}
                               <div>
                                 Ngày nhận dự kiến:{" "}
                                 <strong>
