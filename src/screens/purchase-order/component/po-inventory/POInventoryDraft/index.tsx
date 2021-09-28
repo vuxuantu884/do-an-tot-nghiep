@@ -168,7 +168,9 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     },
   ];
 
-  const dataLineItems = formMain && formMain.getFieldValue(POField.line_items);
+  const dataLineItems = formMain?.getFieldValue(POField.line_items);
+  const dataLineItemsDraft = formMainEdit?.getFieldValue(POField.line_items);
+  
 
   const addColumnNumber = () => {
     const newDataProcurement = [...dataProcurement];
@@ -250,7 +252,8 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
 
     setDataProcurement(newDataProcurement);
     //isView
-    const procurementsData = poData?.procurements;
+    const procurementsData = formMainEdit?.getFieldValue('procurements');
+    
 
     if (procurementsData) {
       setProcurementDataState(procurementsData);
@@ -307,6 +310,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           render: (value: number, item: any, indexLineItems: number) => (
             <NumberInput
               isFloat={false}
+              max={5}
               min={0}
               maxLength={6}
               onChange={(value: number | null) => {
@@ -406,7 +410,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           <Table
             columns={columnsDraft}
             pagination={false}
-            dataSource={poData?.line_items}
+            dataSource={dataLineItemsDraft}
             scroll={{ y: 300, x: 1000 }}
           />
         </Col>
@@ -417,7 +421,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           stores={stores}
           columnsDefault={columnsDefault}
           procurementDataState={procurementDataState}
-          dataSource={poData?.line_items}
+          dataSource={dataLineItemsDraft}
           changeColumnPO={(value) => {
             setProcurementDataState(value);
           }

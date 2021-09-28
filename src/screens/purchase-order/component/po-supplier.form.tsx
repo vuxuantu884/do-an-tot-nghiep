@@ -42,6 +42,7 @@ type POSupplierFormProps = {
   listDistrict: Array<DistrictResponse>;
   formMain: FormInstance;
   isEdit: boolean;
+  isEditDetail?: boolean;
   showBillingAddress: boolean;
   showSupplierAddress: boolean;
   hideExpand?: boolean;
@@ -54,6 +55,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     listCountries,
     listDistrict,
     isEdit,
+    isEditDetail,
     showBillingAddress,
     showSupplierAddress,
     hideExpand,
@@ -236,7 +238,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       >
                         {supplier}
                       </Link>
-                      {!isEdit && (
+                      {(!isEdit || isEditDetail) && (
                         <Button
                           className="icon-information-delete"
                           onClick={removeSupplier}
@@ -405,7 +407,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     className="font-weight-500"
                     style={{ paddingLeft: "34px", marginTop: "14px" }}
                   >
-                    {isEdit ? (
+                    {isEdit && !isEditDetail ? (
                       <div>
                         <Form.Item
                           shouldUpdate={(prevValues, curValues) =>
@@ -475,7 +477,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         />
                       </Form.Item>
                     )}
-                    {isEdit ? (
+                    {isEdit && !isEditDetail ? (
                       <div>
                         <Form.Item hidden name="supplier_note" noStyle>
                           <Input />

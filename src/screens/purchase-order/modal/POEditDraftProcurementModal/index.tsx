@@ -91,9 +91,10 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
   };
   
   const onChangeValueDate = useCallback((value: Moment, index: number) => {
-    if (!newProcurement) return;
-    newProcurement[index].expect_receipt_date = ConvertDateToUtc(value);
-    setData(newProcurement);
+    if (newProcurement){
+      newProcurement[index].expect_receipt_date = ConvertDateToUtc(value);
+      setData(newProcurement);
+    }
   }, [newProcurement])
 
   const onChangeValueStore = useCallback((value: string, index: number) => {
