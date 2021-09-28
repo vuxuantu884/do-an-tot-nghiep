@@ -11,11 +11,11 @@ import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   getProductEcommerceList,
-  getShopEcommerceList
+  getShopEcommerceList,
+  deleteEcommerceItem,
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import circleDeleteIcon from "assets/icon/circle-delete.svg"
-import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
 import saveIcon from "assets/icon/save.svg"
 import closeIcon from "assets/icon/X_close.svg"
@@ -32,10 +32,11 @@ const NotConnectedItems = () => {
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-
-  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+  const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [idDeleteItem, setIdDeleteItem] = useState(null);
+   
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -44,9 +45,9 @@ const NotConnectedItems = () => {
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -63,7 +64,7 @@ const NotConnectedItems = () => {
     []
   );
 
-  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+  const [query, setQuery] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -84,7 +85,10 @@ const NotConnectedItems = () => {
   useEffect(() => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
-
+ 
+  const reloadPage = () => {
+    dispatch(getProductEcommerceList(query, setVariantData));
+  }
 
   const searchYodyProduct = (e: any) => {
     e.preventDefault();
@@ -101,8 +105,10 @@ const NotConnectedItems = () => {
     console.log("cancelYodyProduct: ");
   }
 
+  //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
+    setIdDeleteItem(item.id);
   };
 
   const cancelDeleteItemModal = () => {
@@ -111,8 +117,14 @@ const NotConnectedItems = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
-    showSuccess("Xóa sản phẩm thành công");
-    //thai need todo: call API
+    if (idDeleteItem) {
+      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
   };
   
   //thai need todo
@@ -215,25 +227,6 @@ const NotConnectedItems = () => {
       },
     },
     {
-      title: () => {
-        return (
-          <div>
-            <span>Đồng bộ tồn</span>
-            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
-              <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
-            </Tooltip>
-          </div>
-        )
-      },
-      visible: true,
-      align: "center",
-      render: (l: any, v: any, i: any) => {
-        return (
-          <span>Đồng bộ tồn - chưa có</span>
-        );
-      },
-    },
-    {
       render: () => {
         return (
           <img
@@ -322,20 +315,8 @@ const NotConnectedItems = () => {
       ecommerce_id: 4,
     }
   ]
-  //thai fake data 
-  // const LIST_STORE = [
-  //   {
-  //     id: 1,
-  //     name: "store 1",
-  //     value: "store_1"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "store 2",
-  //     value: "store_2"
-  //   }
-  // ]
 
+  //thai fake data
   const CATEGORY = [
     {
       id: 1,
