@@ -31,6 +31,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             <Form.Item name={POField.merchandiser_code} noStyle hidden>
               <Input />
             </Form.Item>
+            <Form.Item name={POField.qc_code} noStyle hidden>
+              <Input />
+            </Form.Item>
             <Form.Item name={POField.designer_code} noStyle hidden>
               <Input />
             </Form.Item>

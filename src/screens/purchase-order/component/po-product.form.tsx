@@ -40,14 +40,16 @@ import { DiscountType, POField } from "model/purchase-order/po-field";
 // import { CostLine } from "model/purchase-order/cost-line.model";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { AppConfig } from "config/app.config";
+import { POStatus } from "utils/Constants";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
   isEditDetail?: boolean;
+  status?: string;
 };
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain, isEdit, isEditDetail } = props;
+  const { formMain, isEdit, isEditDetail, status } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   // const product_units = useSelector(
   //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
@@ -519,6 +521,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [dispatch, onResultSearch]
   );
+
+  const isDraft = status === POStatus.DRAFT;
+  
   return (
     <React.Fragment>
       <Card
@@ -530,7 +535,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
         extra={
           <Space size={20}>
-            {(!isEdit || isEditDetail) && (
+            {(!isEdit || (isEditDetail && isDraft)) && (
               <Checkbox
                 checked={splitLine}
                 onChange={() => setSplitLine(!splitLine)}
@@ -540,7 +545,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             )}
 
             <span>Chính sách giá:</span>
-            {isEdit && !isEditDetail ? (
+            {isEdit && !(!isEditDetail && isDraft) ? (
               <div>
                 <span style={{ fontWeight: 700 }}>Giá nhập</span>
                 <Form.Item name={POField.policy_price_code} noStyle hidden>
@@ -566,7 +571,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
       >
         <div className="padding-20">
-          {(!isEdit || isEditDetail) && (
+          {(!isEdit || (isEditDetail && isDraft)) && (
             <Input.Group className="display-flex">
               <CustomAutoComplete
                 id="#product_search"
@@ -606,7 +611,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 ? getFieldValue(POField.line_items)
                 : [];
 
-              return isEdit && !isEditDetail ? (
+              return isEdit && !(!isEditDetail && isDraft) ? (
                 <Table
                   className="product-table"
                   rowKey={(record: PurchaseOrderLineItem) =>

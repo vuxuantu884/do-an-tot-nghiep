@@ -15,6 +15,7 @@ export const PaymentConditionsType = {
 export const POPaymentType = {
   CREATE_PO_PAYMENT_REQUEST: "CREATE_PO_PAYMENT_REQUEST",
   UPDATE_PO_PAYMENT_REQUEST: "UPDATE_PO_PAYMENT_REQUEST",
+  DELETE_PO_PAYMENT_REQUEST: "DELETE_PO_PAYMENT_REQUEST",
 };
 
 export const POProcumentType = {
