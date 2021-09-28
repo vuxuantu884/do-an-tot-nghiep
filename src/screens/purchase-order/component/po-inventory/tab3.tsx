@@ -108,25 +108,12 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                 dataIndex: POProcumentField.status,
                 render: (value, item, index: number) => (
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    {
-                      (value === ProcumentStatus.NOT_RECEIVED || value === ProcumentStatus.CANCELLED) ? (
-                        <Button
-                          disabled
-                          type="primary"
-                        >
-                          Đã Huỷ
-                        </Button>
-
-                      ) : (
-                        <Button
-                          onClick={() => confirmInventory(item, false)}
-                          type="primary"
-                        >
-                          Xác nhận nhập
-                        </Button>
-
-                      )
-                    }
+                    <Button
+                      onClick={() => confirmInventory(item, false)}
+                      type="primary"
+                    >
+                      Xác nhận nhập
+                    </Button>
                   </div>
                 ),
               },

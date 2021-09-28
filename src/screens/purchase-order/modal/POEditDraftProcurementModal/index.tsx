@@ -208,6 +208,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
         width={"60%"}
         centered
         onOk={handleOk}
+        title={"Tạo phiếu nhập kho nháp"}
         visible={visible}
         onCancel={onCancel}
         cancelText={`Hủy`}
