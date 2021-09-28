@@ -11,7 +11,6 @@ import {
   Table,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import input from "antd/lib/input";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";

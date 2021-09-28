@@ -4,8 +4,12 @@ import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
+import {
+  actionCreateOrderExchange,
   actionCreateOrderReturn,
   actionGetOrderReturnReasons,
 } from "domain/actions/order/order-return.action";
@@ -563,7 +567,10 @@ const ScreenReturnCreate = (props: PropType) => {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            dispatch(orderCreateAction(values, createOrderCallback));
+            console.log("values", values);
+            dispatch(
+              actionCreateOrderExchange(values, createOrderExchangeCallback)
+            );
           }
         } else {
           if (
@@ -573,22 +580,19 @@ const ScreenReturnCreate = (props: PropType) => {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
             console.log("values", values);
-            dispatch(orderCreateAction(values, createOrderCallback));
+            dispatch(
+              actionCreateOrderExchange(values, createOrderExchangeCallback)
+            );
           }
         }
       }
     }
   };
 
-  const createOrderCallback = useCallback(
+  const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
-      if (value.fulfillments && value.fulfillments.length > 0) {
-        showSuccess("Đơn được lưu và duyệt thành công");
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
-      } else {
-        showSuccess("Đơn được lưu nháp thành công");
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
-      }
+      console.log("value22", value);
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
     [history]
   );
@@ -925,7 +929,7 @@ const ScreenReturnCreate = (props: PropType) => {
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
-    if (customer !=null) {
+    if (customer != null) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
     } else {
       setLoyaltyPoint(null);
