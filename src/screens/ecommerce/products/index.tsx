@@ -84,6 +84,7 @@ const Products: React.FC = () => {
       }
     );
     setEcommerceSelected(0);
+    setIsEcommerceSelected(false);
   };
 
   
@@ -121,6 +122,10 @@ const Products: React.FC = () => {
     }
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
+
+  const isDisableGetItemOkButton = () => {
+    return !shopIdSelected || !startDate || !endDate;
+  }
 
   const redirectToNotConnectedItems = () => {
     setIsShowResultGetItemModal(false);
@@ -245,6 +250,7 @@ const Products: React.FC = () => {
         cancelText="Hủy"
         onCancel={cancelGetItemModal}
         onOk={getProductsFromEcommerce}
+        okButtonProps={{disabled: isDisableGetItemOkButton()}}
       >
         <div style={{margin: "20px 0"}}>
           <Form
@@ -272,7 +278,7 @@ const Products: React.FC = () => {
 
             <Form.Item
               name="shop_id"
-              label={<b>Lựa chọn gian hàng</b>}
+              label={<b>Lựa chọn gian hàng <span style={{color: 'red'}}>*</span></b>}
             >
               {!isEcommerceSelected &&
                 <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
@@ -303,7 +309,7 @@ const Products: React.FC = () => {
               }
             </Form.Item>
           
-            <Form.Item name="start_time" label={<b>Thời gian</b>}>            
+            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>            
               <RangePicker
                 placeholder={["Từ ngày", "Đến ngày"]}
                 style={{width: "100%"}}

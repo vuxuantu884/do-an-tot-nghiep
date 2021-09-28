@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -7,6 +7,7 @@ import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,} from "utils/ToastUtils";
 
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -222,7 +223,19 @@ const NotConnectedItems = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.connect_status || "-"}</span>
+          <div>
+            {l.connect_status === "connected" &&
+              <span style={{color: '#27AE60'}}>Thành công</span>
+            }
+            {l.connect_status === "error" &&
+              <Tooltip title="error">
+                <span style={{color: '#E24343'}}>Thất bại</span>
+              </Tooltip>
+            }
+            {l.connect_status === "waiting" &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
@@ -241,9 +254,9 @@ const NotConnectedItems = () => {
     
   ]);
 
-  // const variantDataNotConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
-  //   return item.connect_status === false;
-  // });
+  const variantNotConnectedItem = variantData && variantData.items && variantData.items.filter((item: any) => {
+    return item.connect_status !== "connected";
+  });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
@@ -316,6 +329,12 @@ const NotConnectedItems = () => {
     }
   ]
 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
+  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
+  
   //thai fake data
   const CATEGORY = [
     {
@@ -442,11 +461,10 @@ const NotConnectedItems = () => {
         <CustomTable
           isRowSelection
           columns={columns}
-          dataSource={variantData.items}
-          // dataSource={variantDataNotConnected}
+          dataSource={variantNotConnectedItem}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
-            total: variantData.metadata && variantData.metadata.total,
+            total: variantNotConnectedItem && variantNotConnectedItem.length,
             current: variantData.metadata && variantData.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
@@ -555,7 +573,7 @@ const NotConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn danh mục"
                 allowClear
               >
                 {CATEGORY.map((item) => (
@@ -572,11 +590,11 @@ const NotConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái ghép nối"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -589,11 +607,11 @@ const NotConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái đồng bộ tồn kho"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {STOCK_STATUS && STOCK_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}

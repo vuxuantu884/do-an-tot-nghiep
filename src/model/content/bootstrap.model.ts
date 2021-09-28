@@ -36,4 +36,6 @@ export interface BootstrapResponse {
   print_size: Array<BaseBootstrapResponse>;
   print_type: Array<BaseBootstrapResponse>;
   print_variable: Array<BaseBootstrapResponse>;
+  stock_sync_status: Array<BaseBootstrapResponse>;
+  connect_product_status: Array<BaseBootstrapResponse>;
 }
