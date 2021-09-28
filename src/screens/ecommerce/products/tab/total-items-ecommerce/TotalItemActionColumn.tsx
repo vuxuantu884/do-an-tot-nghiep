@@ -2,7 +2,7 @@ import { Button, Dropdown, Menu } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
 
 //thai need todo
-const TotalItemActionColumn = (handleSyncStock: any, handleChangePrice: any, handleChangeItemInfo: any, handleDeleteItem: any, handleDisconnectItem: any) => {
+const TotalItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, handleDisconnectItem: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
@@ -22,26 +22,8 @@ const TotalItemActionColumn = (handleSyncStock: any, handleChangePrice: any, han
                     Đồng bộ tồn kho lên sàn
                   </Button>
                 </Menu.Item>
-
-                <Menu.Item key="2">
-                  <Button
-                    type="text"
-                    onClick={() => handleChangePrice(item)}
-                  >
-                    Sửa giá bán
-                  </Button>
-                </Menu.Item>
-
-                <Menu.Item key="3">
-                  <Button
-                    type="text"
-                    onClick={() => handleChangeItemInfo(item)}
-                  >
-                    Sửa thông tin sản phẩm
-                  </Button>
-                </Menu.Item>
                 
-                <Menu.Item key="4">
+                <Menu.Item key="2">
                   <Button
                     type="text"
                     onClick={() => handleDeleteItem(item)}
@@ -50,7 +32,7 @@ const TotalItemActionColumn = (handleSyncStock: any, handleChangePrice: any, han
                   </Button>
                 </Menu.Item>
                 
-                <Menu.Item key="5">
+                <Menu.Item key="3">
                   <Button
                     type="text"
                     onClick={() => handleDisconnectItem(item)}

@@ -90,12 +90,13 @@ const CustomerDetailIndex = () => {
       }
     }
   }, [history.location.hash]);
-
+console.log(loyaltyPoint, loyaltyUsageRules)
+console.log(customer)
   React.useEffect (() => {
       const _detail = [
         {
           name: "Tổng chi tiêu",
-          value: formatCurrency(loyaltyPoint?.total_money_spend!),
+          value: formatCurrency(loyaltyPoint?.total_money_spend ? loyaltyPoint?.total_money_spend : "" ),
         },
         {
           name: "Ngày đầu tiên mua hàng",
@@ -145,7 +146,7 @@ const CustomerDetailIndex = () => {
       },
       {
         name: "Mã số thẻ",
-        value: null,
+        value: customer?.card_number || null,
       },
 
       {
@@ -162,7 +163,7 @@ const CustomerDetailIndex = () => {
       },
     ];
     setCustomerPoint(_detail)
-}, [loyaltyPoint, loyaltyUsageRules])
+}, [loyaltyPoint, loyaltyUsageRules, customer])
 
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
@@ -249,10 +250,10 @@ const CustomerDetailIndex = () => {
                       color: "#222222",
                     }}
                   >
-                    <Col span={14}>
+                    <Col span={10}>
                       <span>{detail.name}</span>
                     </Col>
-                    <Col span={10}>
+                    <Col span={14}>
                       <b>: {detail.value ? detail.value : "---"}</b>
                     </Col>
                   </Col>
