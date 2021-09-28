@@ -34,7 +34,7 @@ export const ActionsTableColumn = styled.div`
   position: absolute;
   right: 30px;
   top: 35px;
-  z-index: 10;
+  z-index: 5;
   display: flex;
   flex-direction: column;
 

@@ -149,16 +149,29 @@ const POCreateScreen: React.FC = () => {
         showError("Vui lòng thêm sản phẩm");
         return;
       }
-      const dataClone = {...data, status: statusAction};
-      switch (dataClone.status) {
-        case POStatus.DRAFT:
-          setLoadingDraftButton(true);
-          break;
-        case POStatus.FINALIZED:
-          setLoadingSaveButton(true);
-          break;
-      }      
-      dispatch(PoCreateAction(dataClone, createCallback));
+      const dataClone = { ...data, status: statusAction };
+      //validate expect_receipt_date and store_id
+      let isValidReceiptDateAndStore = true;
+      dataClone.procurements.forEach((element) => {
+        if (!element.expect_receipt_date || !element.store_id) {
+          isValidReceiptDateAndStore = false;
+        }
+      });
+      if (isValidReceiptDateAndStore && dataClone.procurements.length>0) {
+        switch (dataClone.status) {
+          case POStatus.DRAFT:
+            setLoadingDraftButton(true);
+            break;
+          case POStatus.FINALIZED:
+            setLoadingSaveButton(true);
+            break;
+        }
+
+        dispatch(PoCreateAction(dataClone, createCallback));
+      } else {
+        showError("Vui lòng chọn đầy đủ ngày nhận và kho nhập");
+        return;
+      }
     },
     [createCallback, dispatch, statusAction]
   );
