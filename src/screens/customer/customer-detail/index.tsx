@@ -90,7 +90,8 @@ const CustomerDetailIndex = () => {
       }
     }
   }, [history.location.hash]);
-
+console.log(loyaltyPoint, loyaltyUsageRules)
+console.log(customer)
   React.useEffect (() => {
       const _detail = [
         {
@@ -145,7 +146,7 @@ const CustomerDetailIndex = () => {
       },
       {
         name: "Mã số thẻ",
-        value: null,
+        value: customer?.card_number || null,
       },
 
       {
