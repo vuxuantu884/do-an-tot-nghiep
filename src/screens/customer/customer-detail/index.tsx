@@ -96,7 +96,7 @@ console.log(customer)
       const _detail = [
         {
           name: "Tổng chi tiêu",
-          value: formatCurrency(loyaltyPoint?.total_money_spend!),
+          value: formatCurrency(loyaltyPoint?.total_money_spend ? loyaltyPoint?.total_money_spend : "" ),
         },
         {
           name: "Ngày đầu tiên mua hàng",
@@ -163,7 +163,7 @@ console.log(customer)
       },
     ];
     setCustomerPoint(_detail)
-}, [loyaltyPoint, loyaltyUsageRules])
+}, [loyaltyPoint, loyaltyUsageRules, customer])
 
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
@@ -250,10 +250,10 @@ console.log(customer)
                       color: "#222222",
                     }}
                   >
-                    <Col span={14}>
+                    <Col span={10}>
                       <span>{detail.name}</span>
                     </Col>
-                    <Col span={10}>
+                    <Col span={14}>
                       <b>: {detail.value ? detail.value : "---"}</b>
                     </Col>
                   </Col>

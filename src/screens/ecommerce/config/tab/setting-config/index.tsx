@@ -40,6 +40,9 @@ type SettingConfigProps = {
   configToView: EcommerceResponse | undefined;
   accountChangeSearch: (value: string) => void;
   reloadConfigData: () => void;
+  setConfigToView: (value: any) => void;
+  configFromEcommerce: any | undefined;
+  setConfigFromEcommerce: (value: any) => void;
 };
 const SettingConfig: React.FC<SettingConfigProps> = (
   props: SettingConfigProps
@@ -52,37 +55,59 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     configToView,
     configData,
     reloadConfigData,
+    setConfigToView,
+    configFromEcommerce,
+    setConfigFromEcommerce,
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const [configDetail, setConfigDetail] = useState<
     EcommerceResponse | undefined
-  >(configToView);
+  >(undefined);
   const [inventories, setInventories] = React.useState<
     Array<EcommerceShopInventoryDto>
   >([]);
+
   useEffect(() => {
-    setConfigDetail(configToView);
-  }, [configToView, setConfigDetail]);
+    if (configFromEcommerce) {
+      const _existConfig = configData?.find(
+        (item) => item.id === configFromEcommerce.id
+      );
+      if (_existConfig) {
+        setConfigDetail(_existConfig);
+      } else {
+        setConfigDetail(configFromEcommerce);
+      }
+    } else {
+      setConfigDetail(configToView);
+    }
+  }, [configToView, setConfigDetail, configFromEcommerce, configData]);
+
   const handleConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       if (value) {
-        setConfigDetail(value);
+        setConfigToView(null);
+        setConfigDetail(undefined);
+        setConfigFromEcommerce(undefined);
         showSuccess("Cập nhật cấu hình thành công");
         history.replace(`${history.location.pathname}#sync`);
         reloadConfigData();
       }
     },
-    [history, reloadConfigData]
+    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
   );
   const handleCreateConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
-      setConfigDetail(value);
-      showSuccess("Đồng bộ cấu hình thành công");
-      history.replace(`${history.location.pathname}#sync`);
-      reloadConfigData();
+      if (value) {
+        setConfigToView(null);
+        setConfigDetail(undefined);
+        setConfigFromEcommerce(undefined);
+        showSuccess("Đồng bộ cấu hình thành công");
+        history.replace(`${history.location.pathname}#sync`);
+        reloadConfigData();
+      }
     },
-    [history, reloadConfigData]
+    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
   );
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
@@ -119,7 +144,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     ]
   );
   const handleDisconnectEcommerce = () => {};
-  
+
   const handleStoreChange = (event: any) => {
     let _inventories = [];
     for (let id of event) {
@@ -205,7 +230,23 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   return false;
                 }}
               >
-                {configData &&
+                {configFromEcommerce ? (
+                  <CustomSelect.Option
+                    style={{ width: "100%" }}
+                    key={configFromEcommerce.id}
+                    value={configFromEcommerce.id}
+                  >
+                    {
+                      <img
+                        style={{ marginRight: 8, paddingBottom: 4 }}
+                        src={iconMap[configFromEcommerce.ecommerce]}
+                        alt=""
+                      />
+                    }
+                    {configFromEcommerce.name}
+                  </CustomSelect.Option>
+                ) : (
+                  configData &&
                   configData?.map((item: any, index) => (
                     <CustomSelect.Option
                       style={{ width: "100%" }}
@@ -215,15 +256,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                       {
                         <img
                           style={{ marginRight: 8, paddingBottom: 4 }}
-                          src={
-                            iconMap[item.ecommerce || configDetail?.ecommerce]
-                          }
+                          src={iconMap[item.ecommerce]}
                           alt=""
                         />
                       }
-                      {item.name || configDetail?.name}
+                      {item.name}
                     </CustomSelect.Option>
-                  ))}
+                  ))
+                )}
               </CustomSelect>
             </Form.Item>
           </Col>
