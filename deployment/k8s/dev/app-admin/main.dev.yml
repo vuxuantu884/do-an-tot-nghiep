@@ -87,6 +87,6 @@ spec:
             name: $SERVICE_NAME
             port:
               number: 80
-        path: /*
+        path: $SERVICE_PATH*
         pathType: ImplementationSpecific
 
