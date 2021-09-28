@@ -78,9 +78,9 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       dataIndex: 'sku',
       fixed: 'left',
       render: (value, record, index) => (
-        <div>4
+        <div>
           <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
-          <div>{record.name}</div>
+          <div>{record.variant}</div>
         </div>
       )
     },
@@ -88,7 +88,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: 'ID chứng từ',
       visible: true,
       fixed: 'left',
-      dataIndex: 'document_id'
+      dataIndex: 'document_code'
     },
     {
       align: 'center',

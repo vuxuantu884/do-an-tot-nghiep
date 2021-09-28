@@ -100,6 +100,7 @@ const TabProductWrapper: React.FC = () => {
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
 
   const [selected, setSelected] = useState<Array<ProductWrapperResponse>>([]);
+  const [rowkey, setRowkey] = useState<Array<any>>([]);
 
   const [data, setData] = useState<PageResponse<ProductResponse>>({
     metadata: {
@@ -284,13 +285,15 @@ const TabProductWrapper: React.FC = () => {
   const onDeleteSuccess = useCallback(() => {
     setSelected([]);
     dispatch(hideLoading());
-    showSuccess("Xóa danh mục thành công");
+    showSuccess("Xóa sản phẩm thành công");
     dispatch(searchProductWrapperRequestAction(params, setSearchResult));
   }, [dispatch, setSearchResult, params]);
 
   const onUpdateSuccess = useCallback(
     (result: ProductWrapperUpdateRequest) => {
       if (result) {
+        setSelected([]);
+        setRowkey([]);
         dispatch(searchProductWrapperRequestAction(params, setSearchResult));
         showSuccess("Cập nhật dữ liệu thành công");
       } else {
@@ -386,6 +389,8 @@ const TabProductWrapper: React.FC = () => {
         initValue={initQuery}
       />
       <CustomTable
+        selecedRowKey={rowkey}
+        onChangeRowkey={(rowkey) => setRowkey(rowkey)}
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelect}

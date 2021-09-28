@@ -2,6 +2,7 @@ import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionGetOrderReturnDetails,
   actionOrderRefund,
@@ -9,6 +10,8 @@ import {
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderPaymentResponse,
   OrderResponse,
@@ -58,6 +61,12 @@ const ScreenReturnDetail = (props: PropType) => {
     ReturnProductModel[]
   >([]);
   const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
+
+  //loyalty
+  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
@@ -183,6 +192,15 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
+    if (customerDetail !=null) {
+      dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
+    } else {
+      setLoyaltyPoint(null);
+    }
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch, customerDetail]);
+
+  useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
         let result = response.filter(
@@ -223,6 +241,8 @@ const ScreenReturnDetail = (props: PropType) => {
               <UpdateCustomerCard
                 OrderDetail={OrderDetail}
                 customerDetail={customerDetail}
+                loyaltyPoint={loyaltyPoint}
+                loyaltyUsageRules={loyaltyUsageRules}
               />
               {!isDetailPage && (
                 <CardReturnOrder
