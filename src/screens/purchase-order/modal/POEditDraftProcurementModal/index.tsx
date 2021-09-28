@@ -91,9 +91,10 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
   };
   
   const onChangeValueDate = useCallback((value: Moment, index: number) => {
-    if (!newProcurement) return;
-    newProcurement[index].expect_receipt_date = ConvertDateToUtc(value);
-    setData(newProcurement);
+    if (newProcurement){
+      newProcurement[index].expect_receipt_date = ConvertDateToUtc(value);
+      setData(newProcurement);
+    }
   }, [newProcurement])
 
   const onChangeValueStore = useCallback((value: string, index: number) => {
@@ -207,6 +208,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
         width={"60%"}
         centered
         onOk={handleOk}
+        title={"Tạo phiếu nhập kho nháp"}
         visible={visible}
         onCancel={onCancel}
         cancelText={`Hủy`}

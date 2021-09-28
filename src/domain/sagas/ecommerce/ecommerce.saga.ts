@@ -14,7 +14,10 @@ import {
   ecommerceConnectSyncApi,
   ecommerceGetConfigInfoApi,
   ecommerceGetVariantsApi,
-  ecommerceGetShopApi
+  ecommerceGetShopApi,
+  ecommercePostVariantsApi,
+  ecommerceDeleteItemApi,
+  ecommerceDisconnectItemApi
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -245,6 +248,84 @@ function* ecommerceGetShopSaga(action: YodyAction) {
   }
 }
 
+function* ecommercePostVariantsSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      ecommercePostVariantsApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* ecommerceDeleteItemSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      ecommerceDeleteItemApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* ecommerceDisconnectItemSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      ecommerceDisconnectItemApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST,
@@ -284,6 +365,22 @@ export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_SHOP_REQUEST,
     ecommerceGetShopSaga
+  );
+
+  yield takeLatest(
+    EcommerceType.POST_ECOMMERCE_VARIANTS_REQUEST,
+    ecommercePostVariantsSaga
+  );
+
+  yield takeLatest(
+    EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST,
+    ecommerceDeleteItemSaga
+  );
+
+  
+  yield takeLatest(
+    EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST,
+    ecommerceDisconnectItemSaga
   );
 
 }

@@ -212,7 +212,7 @@ const TabProduct: React.FC = () => {
         <div
           className={value ? "text-success" : "text-error"}
         >
-          {value ? "Có thể bán" : "Ngừng  bán"}
+          {value ? "Cho phép bán" : "Ngừng  bán"}
         </div>
       ),
       visible: true,

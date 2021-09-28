@@ -8,7 +8,8 @@ const SearchVariantField = {
   color: 'color',
   main_color: 'main_color',
   supplier: 'supplier',
-  saleable: 'saleable'
+  saleable: 'saleable',
+  brand: 'brand'
 };
 
 const SearchVariantMapping = {
@@ -22,6 +23,7 @@ const SearchVariantMapping = {
   [SearchVariantField.color]: "Màu sắc",
   [SearchVariantField.main_color]: "Màu chủ đạo",
   [SearchVariantField.supplier]: "Nhà cung cấp",
+  [SearchVariantField.brand]: "Thương hiệu",
 };
 
 

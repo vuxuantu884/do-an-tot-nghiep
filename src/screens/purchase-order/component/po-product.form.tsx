@@ -342,105 +342,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
-  // const onPaymentDiscountChange = useCallback(
-  //   (type: string, discount: number) => {
-  //     let trade_discount_amount = formMain.getFieldValue(
-  //       POField.trade_discount_amount
-  //     );
-  //     let tax_lines = formMain.getFieldValue(POField.tax_lines);
-  //     let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-  //     let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-  //     let payment_discount_rate = null;
-  //     let payment_discount_value = null;
-  //     if (type === DiscountType.percent) {
-  //       payment_discount_rate = discount;
-  //     }
-  //     if (type === DiscountType.money) {
-  //       payment_discount_value = discount;
-  //     }
-  //     let total_after_tax = POUtils.getTotalAfterTax(
-  //       untaxed_amount,
-  //       trade_discount_amount,
-  //       tax_lines
-  //     );
-  //     let payment_discount_amount = POUtils.getTotalDiscount(
-  //       total_after_tax,
-  //       payment_discount_rate,
-  //       payment_discount_value
-  //     );
-  //     let total = POUtils.getTotalPayment(
-  //       untaxed_amount,
-  //       trade_discount_amount,
-  //       payment_discount_amount,
-  //       total_cost_line,
-  //       tax_lines
-  //     );
-  //     formMain.setFieldsValue({
-  //       payment_discount_rate: payment_discount_rate,
-  //       payment_discount_value: payment_discount_value,
-  //       payment_discount_amount: payment_discount_amount,
-  //       total: total,
-  //     });
-  //   },
-  //   [formMain]
-  // );
-  // const onTradeDiscountChange = useCallback(
-  //   (type: string, discount: number) => {
-  //     let trade_discount_rate = null;
-  //     let trade_discount_value = null;
-  //     let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-  //     let data = formMain.getFieldValue(POField.line_items);
-  //     let payment_discount_rate = formMain.getFieldValue(
-  //       POField.payment_discount_rate
-  //     );
-  //     let payment_discount_value = formMain.getFieldValue(
-  //       POField.payment_discount_value
-  //     );
-  //     let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-  //     if (type === DiscountType.percent) {
-  //       trade_discount_rate = discount;
-  //     }
-  //     if (type === DiscountType.money) {
-  //       trade_discount_value = discount;
-  //     }
-  //     let tax_lines = POUtils.getVatList(
-  //       data,
-  //       trade_discount_rate,
-  //       trade_discount_value
-  //     );
-  //     let trade_discount_amount = POUtils.getTotalDiscount(
-  //       untaxed_amount,
-  //       trade_discount_rate,
-  //       trade_discount_value
-  //     );
-  //     let total_after_tax = POUtils.getTotalAfterTax(
-  //       untaxed_amount,
-  //       trade_discount_amount,
-  //       tax_lines
-  //     );
-  //     let payment_discount_amount = POUtils.getTotalDiscount(
-  //       total_after_tax,
-  //       payment_discount_rate,
-  //       payment_discount_value
-  //     );
-  //     let total = POUtils.getTotalPayment(
-  //       untaxed_amount,
-  //       trade_discount_amount,
-  //       payment_discount_amount,
-  //       total_cost_line,
-  //       tax_lines
-  //     );
-  //     formMain.setFieldsValue({
-  //       trade_discount_rate: trade_discount_rate,
-  //       trade_discount_value: trade_discount_value,
-  //       trade_discount_amount: trade_discount_amount,
-  //       payment_discount_amount: payment_discount_amount,
-  //       total: total,
-  //       tax_lines: tax_lines,
-  //     });
-  //   },
-  //   [formMain]
-  // );
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
       setVisibleManyProduct(false);
@@ -597,33 +498,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
-  // const onOkExpense = useCallback(
-  //   (result: Array<CostLine>) => {
-  //     let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-  //     let payment_discount_amount = formMain.getFieldValue(
-  //       POField.payment_discount_amount
-  //     );
-  //     let trade_discount_amount = formMain.getFieldValue(
-  //       POField.trade_discount_amount
-  //     );
-  //     let tax_lines = formMain.getFieldValue(POField.tax_lines);
-  //     let total_cost_line = POUtils.getTotaExpense(result);
-  //     let total = POUtils.getTotalPayment(
-  //       untaxed_amount,
-  //       trade_discount_amount,
-  //       payment_discount_amount,
-  //       total_cost_line,
-  //       tax_lines
-  //     );
-  //     formMain.setFieldsValue({
-  //       total: total,
-  //       total_cost_line: total_cost_line,
-  //       cost_lines: result,
-  //     });
-  //     setVisibleExpense(false);
-  //   },
-  //   [formMain]
-  // );
   const onSearch = useCallback(
     (value: string) => {
       if (value.trim() !== "" && value.length >= 3) {
@@ -644,6 +518,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [dispatch, onResultSearch]
   );
+
   return (
     <React.Fragment>
       <Card
@@ -655,7 +530,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
         extra={
           <Space size={20}>
-            {!isEdit && (
+            {!isEdit  && (
               <Checkbox
                 checked={splitLine}
                 onChange={() => setSplitLine(!splitLine)}

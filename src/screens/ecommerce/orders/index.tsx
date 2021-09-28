@@ -237,7 +237,7 @@ const EcommerceOrderSync: React.FC = () => {
           {items.map((item, i) => {
             return (
               <div
-              
+                key={item.variant_id}
                 className="item custom-td"
                 style={{ width: "100%" }}
               >
@@ -259,7 +259,7 @@ const EcommerceOrderSync: React.FC = () => {
         <div className="items">
           {items.map((item, i) => {
             return (
-              <div className="item custom-td" style={{ width: "100%" }}>
+              <div key={i} className="item custom-td" style={{ width: "100%" }}>
                 <div className="item-quantity">{item.quantity}</div>
               </div>
             );
@@ -553,7 +553,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "payments.type",
       render: (payments: Array<OrderPaymentModel>) =>
         payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
+          return <Tag key={payment.id}>{payment.payment_method}</Tag>;
         }),
       visible: true,
     },
@@ -726,7 +726,6 @@ const EcommerceOrderSync: React.FC = () => {
       )
     );
   }, [dispatch, setDataAccounts]);
-
   return (
     <ContentContainer
       title="Danh sách đơn hàng"

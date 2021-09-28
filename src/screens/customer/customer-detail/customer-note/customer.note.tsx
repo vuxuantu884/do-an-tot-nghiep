@@ -84,6 +84,11 @@ function CustomerNoteInfo(props: any) {
         return <span>{ConvertUtcToLocalDate(row.updated_date)}</span>;
       },
     },
+    {
+      title: "Nguồn tạo",
+      dataIndex: "created_source",
+      visible: true,
+    },
     actionColumn(handleNoteEdit, handleNoteDelete, customerDetailState),
   ];
   const noteColumnFinal = () =>

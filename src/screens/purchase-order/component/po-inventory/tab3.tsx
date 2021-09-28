@@ -30,7 +30,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
         let items =
           procurements !== undefined
             ? procurements.filter(
-                (item) => item.status === ProcumentStatus.NOT_RECEIVED
+                (item) => (item.status === ProcumentStatus.NOT_RECEIVED || item.status === ProcumentStatus.CANCELLED)
               )
             : [];
         return (
@@ -105,6 +105,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
               {
                 title: "",
                 width: 200,
+                dataIndex: POProcumentField.status,
                 render: (value, item, index: number) => (
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <Button

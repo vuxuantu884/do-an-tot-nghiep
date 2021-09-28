@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { Button, Form, Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -7,12 +8,16 @@ import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
 import TotalItemActionColumn from "./TotalItemActionColumn";
+import UrlConfig from "config/url.config";
 
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   getProductEcommerceList,
-  getShopEcommerceList
+  getShopEcommerceList,
+  deleteEcommerceItem,
+  disconnectEcommerceItem
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -32,16 +37,15 @@ const TotalItemsEcommerce = () => {
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
-  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
-  const [syncStockValue, setSyncStockValue] = React.useState("");
-  const [, setIsShowChangePriceModal] = React.useState(false);
-  const [, setIsShowChangeItemInfoModal] = React.useState(false);
- 
+  const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
+  const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
+  const [idDisconnectItem, setIdDisconnectItem] = useState(null);
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [idDeleteItem, setIdDeleteItem] = useState(null);
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
+  const [syncStockValue, setSyncStockValue] = useState(""); 
   
-  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -50,9 +54,9 @@ const TotalItemsEcommerce = () => {
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -69,7 +73,7 @@ const TotalItemsEcommerce = () => {
     []
   );
 
-  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+  const [query, setQuery] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -91,6 +95,10 @@ const TotalItemsEcommerce = () => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
 
+  const reloadPage = () => {
+    dispatch(getProductEcommerceList(query, setVariantData));
+  }
+
   //handle sync stock
   const handleSyncStock = (item: any) => {
     setIsShowSyncStockModal(true);
@@ -110,46 +118,14 @@ const TotalItemsEcommerce = () => {
      //thai need todo: call API
   };
 
-  //handle change price
-  const handleChangePrice = (item: any) => {
-    setIsShowChangePriceModal(true);
-  };
+  const isDisableSyncStockOkButton = () => {
+    return !syncStockValue;
+  }
 
-  // const onChangePrice = (e: any) => {
-  //   //todo
-  // };
-
-  // const cancelChangePriceModal = () => {
-  //   setIsShowChangePriceModal(false);
-  // };
-  
-  // const okChangePriceModal = () => {
-  //   setIsShowChangePriceModal(false);
-  //   showSuccess("Thay đổi giá sản phẩm thành công: " + syncStockValue);
-  //    //thai need todo: call API
-  // };
-
-  //handle change price
-  const handleChangeItemInfo = (item: any) => {
-    setIsShowChangeItemInfoModal(true);
-  };
-
-  // const onChangeItemInfo = (e: any) => {
-  //   //todo
-  // };
-
-  // const cancelChangeItemInfoModal = () => {
-  //   setIsShowChangeItemInfoModal(false);
-  // };
-  
-  // const okChangeItemInfoModal = () => {
-  //   setIsShowChangeItemInfoModal(false);
-  //   showSuccess("Thay đổi thông tin sản phẩm thành công: " + syncStockValue);
-  //    //thai need todo: call API
-  // };
-
+  //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
+    setIdDeleteItem(item.id);
   };
 
   const cancelDeleteItemModal = () => {
@@ -158,12 +134,21 @@ const TotalItemsEcommerce = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
-    showSuccess("Xóa sản phẩm thành công");
-    //thai need todo: call API
+
+    if (idDeleteItem) {
+      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
   };
 
-  const handleDisconnectItem = () => {
+  //handle disconnect item
+  const handleDisconnectItem = (item: any) => {
     setIsShowModalDisconnect(true);
+    setIdDisconnectItem(item.id);
   };
 
   const cancelDisconnectModal = () => {
@@ -172,8 +157,13 @@ const TotalItemsEcommerce = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-    showSuccess("Ngắt kết nối sản phẩm thành công");
-    //thai need todo: API
+    
+    dispatch(disconnectEcommerceItem({id: idDisconnectItem}, (result) => {
+      if (result) {
+        showSuccess("Ngắt kết nối sản phẩm thành công");
+        reloadPage();
+      }
+    }));
   };
 
   //thai need todo
@@ -218,7 +208,16 @@ const TotalItemsEcommerce = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.core_variant || "-"}</span>
+          <div>
+            {l.core_variant &&
+              <Link to={`${UrlConfig.PRODUCT}/${l.ecommerce_id}/variants/${l.id}`}>
+                {l.core_variant}
+              </Link>
+            }
+            {!l.core_variant &&
+              <span>-</span>
+            }
+          </div>
         );
       },
     },
@@ -247,7 +246,17 @@ const TotalItemsEcommerce = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.connect_status || "-"}</span>
+          <div>
+            {l.connect_status === "connected" &&
+              <span style={{color: '#27AE60'}}>Thành công</span>
+            }
+            {l.connect_status === "error" &&
+              <span style={{color: '#E24343'}}>Thất bại</span>
+            }
+            {l.connect_status === "waiting" &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
@@ -266,12 +275,26 @@ const TotalItemsEcommerce = () => {
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>Đồng bộ tồn - chưa có</span>
+          <div>
+            {l.stock === "done" &&
+              <Tooltip title={l.updated_date}>
+                <span style={{color: '#27AE60'}}>Thành công</span>
+              </Tooltip>
+            }
+            {l.stock === "error" &&
+              <Tooltip title="error">
+                <span style={{color: '#E24343'}}>Thất bại</span>
+              </Tooltip>
+            }
+            {(l.stock === "in_progress" || l.stock === null) &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
 
-    TotalItemActionColumn(handleSyncStock, handleChangePrice, handleChangeItemInfo, handleDeleteItem, handleDisconnectItem),
+    TotalItemActionColumn(handleSyncStock, handleDeleteItem, handleDisconnectItem)
   ]);
 
   const onSearch = (value: ProductEcommerceQuery) => {
@@ -346,7 +369,13 @@ const TotalItemsEcommerce = () => {
     }
   ]
 
-  //thai fake data 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
+  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
+  
+  //thai fake data
   const CATEGORY = [
     {
       id: 1,
@@ -359,7 +388,6 @@ const TotalItemsEcommerce = () => {
       value: "category_2"
     }
   ]
-
 
   
   ////////////////////
@@ -576,7 +604,7 @@ const TotalItemsEcommerce = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn danh mục"
                 allowClear
               >
                 {CATEGORY.map((item) => (
@@ -593,11 +621,11 @@ const TotalItemsEcommerce = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái ghép nối"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -610,11 +638,11 @@ const TotalItemsEcommerce = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái đồng bộ tồn kho"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {STOCK_STATUS && STOCK_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -660,6 +688,7 @@ const TotalItemsEcommerce = () => {
           cancelText="Hủy"
           onCancel={cancelSyncStockModal}
           onOk={okSyncStockModal}
+          okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
           <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
             <Space direction="vertical">
