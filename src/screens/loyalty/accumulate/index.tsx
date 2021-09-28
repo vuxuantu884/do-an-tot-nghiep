@@ -306,7 +306,7 @@ const LoyaltyPointAccumulate = () => {
     const removeProductIds = removedProducts.map(p => p.id)
     const missingProductIds = values.filter(value => !removeProductIds.includes(value))
     let missingProducts = listProduct.filter(p => missingProductIds.includes(p.id)).map(p => {
-      return {id: p.id, name: p.name, sku: p.sku}
+      return {id: p.id, name: p.name, sku: p.sku, code: p.code}
     })
     setProducts([...removedProducts, ...missingProducts])
   }
@@ -427,13 +427,13 @@ const LoyaltyPointAccumulate = () => {
       return;
     }
     const storeRequestParams = stores.map(store => {
-      return {id: store.id, name: store.name}
+      return {id: store.id, name: store.name, code: store.code}
     })
     const channelRequestParams = channels.map(channel => {
-      return {id: channel.id, name: channel.name}
+      return {id: channel.id, name: channel.name, code: channel.code}
     })
     const sourceRequestParams = sources.map(source => {
-      return {id: source.id, name: source.name}
+      return {id: source.id, name: source.name, code: source.code}
     })
     const params = {
       id: loyaltyProgram ? loyaltyProgram.id : null,
@@ -812,7 +812,7 @@ const LoyaltyPointAccumulate = () => {
             style={{
               position: "fixed",
               textAlign: "right",
-              width: "calc(100% + 30px)",
+              width: "calc(100% - 240px)",
               height: "55px",
               bottom: "0%",
               backgroundColor: "#FFFFFF",
@@ -827,7 +827,7 @@ const LoyaltyPointAccumulate = () => {
                 <span>Quay lại</span>
               </div>
             </Col>
-            <Col span={14} className="action-group">
+            <Col span={18} className="action-group">
               <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`}>
                 <Button
                   type="default"

@@ -156,7 +156,7 @@ const LoyaltyAccumulateDetail = () => {
             <Col span={12} className="row-item">
               <div className="info-label">Sản phẩm:</div>
               <div className="info-content">
-                {loyaltyProgram?.items.length} sản phẩm đã chọn 
+                {loyaltyProgram?.items.length ? loyaltyProgram.items.length + ' sản phẩm đã chọn' : ''}
                 {
                   loyaltyProgram?.items.length ? <span className="load-products" onClick={() => setIsShowProducts(true)}>Xem chi tiết</span> : <></>
                 }

@@ -208,7 +208,7 @@ const CreateCustomerRanking = () => {
           style={{
             position: "fixed",
             textAlign: "right",
-            width: "100%",
+            width: "calc(100% - 240px)",
             height: "55px",
             bottom: "0%",
             backgroundColor: "#FFFFFF",
@@ -221,7 +221,7 @@ const CreateCustomerRanking = () => {
               <span>Quay lại danh sách hạng khách hàng</span>
             </Link>
           </Col>
-          <Col span={14} className="action-group">
+          <Col span={18} className="action-group">
             <Button
               type="primary"
               className="save-btn"

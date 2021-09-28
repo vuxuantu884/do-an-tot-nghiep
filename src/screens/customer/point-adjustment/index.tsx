@@ -368,7 +368,7 @@ const PointAdjustment = () => {
               style={{
                 position: "fixed",
                 textAlign: "right",
-                width: "calc(100% + 30px)",
+                width: "calc(100% - 240px)",
                 height: "55px",
                 bottom: "0%",
                 backgroundColor: "#FFFFFF",
@@ -383,7 +383,7 @@ const PointAdjustment = () => {
                   <span>Quay lại</span>
                 </div>
               </Col>
-              <Col span={14} className="action-group">
+              <Col span={18} className="action-group">
                 <Link to={`${UrlConfig.CUSTOMER}`}>
                   <Button
                     type="default"
