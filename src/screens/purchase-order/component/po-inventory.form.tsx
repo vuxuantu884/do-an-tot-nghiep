@@ -65,7 +65,7 @@ const TAB = [
 const POInventoryForm: React.FC<POInventoryFormProps> = (
   props: POInventoryFormProps
 ) => {
-  const { stores, status, now, idNumber, onAddProcumentSuccess, poData, formMainEdit, formMain } = props;
+  const { stores, status, now, idNumber, onAddProcumentSuccess, poData, formMainEdit, formMain, isShowStatusTag } = props;
   
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const dispatch = useDispatch();
@@ -245,13 +245,15 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
-          {({ getFieldValue }) => {
+         {({ getFieldValue }) => {
             let receive_status = getFieldValue(POField.receive_status);
             let statusName = "Chưa nhập kho";
             let className = "po-tag";
+            let dotClassName = "icon-dot";
             if (receive_status === ProcumentStatus.PARTIAL_RECEIVED) {
               statusName = "Nhập kho 1 phần";
               className += " po-tag-warning";
+              dotClassName += " partial";
             }
             if (
               receive_status === ProcumentStatus.CANCELLED ||
@@ -260,15 +262,15 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             ) {
               statusName = "Đã nhập kho";
               className += " po-tag-success";
+              dotClassName += " success";
             }
             return (
               <Space>
+               { isShowStatusTag && <div className={dotClassName} style={{ fontSize: 8 }} />}
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
-                </div>
-                {
-                  isEdit && ( <Tag className={className}>{statusName}</Tag>)
-                }
+                </div>{" "}
+               {isShowStatusTag && <Tag className={className}>{statusName}</Tag>}
               </Space>
             );
           }}
