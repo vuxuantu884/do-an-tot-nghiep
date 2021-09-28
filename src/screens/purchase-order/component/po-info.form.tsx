@@ -8,11 +8,12 @@ type POInfoFormProps = {
   winAccount: Array<AccountResponse>;
   rdAccount: Array<AccountResponse>;
   isEdit: boolean;
+  isEditDetail?: boolean;
 };
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
-  const { winAccount, rdAccount, isEdit } = props;
-  if (isEdit) {
+  const { winAccount, rdAccount, isEdit, isEditDetail } = props;
+  if (isEdit && !isEditDetail) {
     return (
       <div>
         <Card
@@ -28,6 +29,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               <Input />
             </Form.Item>
             <Form.Item name={POField.merchandiser_code} noStyle hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.qc_code} noStyle hidden>
               <Input />
             </Form.Item>
             <Form.Item name={POField.designer_code} noStyle hidden>
@@ -91,7 +95,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       </div>
                     ) : (
                       <div className="row-view-result row-view-result-empty">
-                        Không có QC
+                        ---
                       </div>
                     )}
                   </div>
@@ -112,7 +116,15 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   <div className="row-view">
                     <div className="row-view-title">Thiết kế:</div>
                     <div className="row-view-result">
-                      {designer_code} - {designer}
+                      {designer_code !== null && designer_code !== "" && designer !== null && designer !== "" ? (
+                        <div className="row-view-result">
+                          {`${designer_code} - ${designer}`}
+                        </div>
+                      ) : (
+                        <div className="row-view-result row-view-result-empty">
+                          ---
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

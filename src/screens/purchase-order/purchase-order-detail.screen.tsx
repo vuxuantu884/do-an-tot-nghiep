@@ -55,7 +55,7 @@ import { PrinterFilled, SaveFilled } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 
 type PurchaseOrderParam = {
   id: string;
@@ -93,21 +93,29 @@ const PODetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
+
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
+
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+
   const [loadingConfirmButton, setLoadingConfirmButton] = useState(false);
+  const [loadingSaveDraftButton, setLoadingSaveDraftButton] = useState(false);
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
   >([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+
   const [poData, setPurchaseItem] = useState<PurchaseOrder>();
   const [printContent, setPrintContent] = useState<string>("");
+  const [isEditDetail, setIsEditDetail] = useState<boolean>(false);
+  const [statusAction, setStatusAction] = useState<string>("");
+
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       if (!result) {
@@ -130,9 +138,11 @@ const PODetailScreen: React.FC = () => {
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
   const onConfirmButton = useCallback(() => {
-    formMain.setFieldsValue({ status: POStatus.FINALIZED });
+    setStatusAction(POStatus.FINALIZED)
+    setIsEditDetail(false);
     formMain.submit();
   }, [formMain]);
+
   const onResultRD = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -170,24 +180,41 @@ const PODetailScreen: React.FC = () => {
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
+      setLoadingSaveDraftButton(false);
+      setIsEditDetail(!isEditDetail);
       if (result !== null) {
         showSuccess("Cập nhật nhập hàng thành công");
         loadDetail(idNumber, true);
       }
     },
-    [idNumber, loadDetail]
+    [idNumber, isEditDetail, loadDetail]
   );
   const onFinish = useCallback(
-    (value: PurchaseOrder) => {      
-      switch (value.status) {
+    (value: PurchaseOrder) => { 
+      if (value.line_items.length === 0) {
+        let element: any = document.getElementById("#product_search");
+        element?.focus();
+        const y =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        window.scrollTo({ top: y, behavior: "smooth" });
+        showError("Vui lòng thêm sản phẩm");
+        return;
+      }
+      
+      const dataClone = {...value, status: statusAction};
+      switch (dataClone.status) {
+        case POStatus.DRAFT:
+          setLoadingSaveDraftButton(true);
+          dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+          break;
         case POStatus.FINALIZED:
         case POStatus.CANCELLED:
           setLoadingConfirmButton(true);
-          dispatch(PoUpdateAction(idNumber, value, onUpdateCall));
+          dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
       }
     },
-    [dispatch, idNumber, onUpdateCall]
+    [dispatch, idNumber, onUpdateCall, statusAction]
   );
   const onScroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -267,23 +294,67 @@ const PODetailScreen: React.FC = () => {
       />
     );
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
+
   const renderButton = useMemo(() => {
+    
     switch (status) {
       case POStatus.DRAFT:
         return (
-          <Button
-            type="primary"
-            onClick={onConfirmButton}
-            className="create-button-custom"
-            loading={loadingConfirmButton}
-          >
-            Duyệt
-          </Button>
+          <>
+            <Button
+              type="primary"
+              className="create-button-custom ant-btn-outline"
+              loading={isEditDetail && loadingSaveDraftButton}
+              onClick={() => {
+                if (isEditDetail) {
+                  setStatusAction(POStatus.DRAFT)
+                  formMain.submit();
+                }
+                else {
+                  setIsEditDetail(!isEditDetail);
+                }
+              }
+            }
+            >
+              {
+                isEditDetail ? 'Lưu nháp' : 'Sửa'
+              }
+            </Button>
+            <Button
+              type="primary"
+              onClick={onConfirmButton}
+              className="create-button-custom"
+              loading={loadingConfirmButton}
+            >
+              Duyệt
+            </Button>
+          </>
         );
       default:
-        return null;
+        return (
+          <Button
+            type="primary"
+            className="create-button-custom ant-btn-outline"
+            loading={isEditDetail && loadingSaveDraftButton}
+            onClick={() => {
+              if (isEditDetail) {
+                setStatusAction(status);
+                formMain.submit();
+              }
+              else {
+                setIsEditDetail(!isEditDetail);
+              }
+            }
+          }
+          >
+            {
+              isEditDetail ? 'Lưu' : 'Sửa'
+            }
+          </Button>
+        )
     }
-  }, [loadingConfirmButton, onConfirmButton, status]);
+  }, [formMain, isEditDetail, loadingConfirmButton, loadingSaveDraftButton, onConfirmButton, status]);
+
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
       if (!printContent || printContent.length === 0) return;
@@ -403,6 +474,7 @@ const PODetailScreen: React.FC = () => {
         name={PoFormName.Main}
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
+          setStatusAction("");
           const element: any = document.getElementById(
             errorFields[0].name.join("")
           );
@@ -440,13 +512,20 @@ const PODetailScreen: React.FC = () => {
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
+              isEditDetail={isEditDetail}
             />
-            <POProductForm isEdit={true} formMain={formMain} />
+            <POProductForm
+              isEditDetail={isEditDetail}
+              isEdit={true}
+              formMain={formMain}
+              status={status}
+            />
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
               poData={poData}
               isEdit={true}
+              isEditDetail={isEditDetail}
               now={now}
               status={status}
               stores={listStore}
@@ -465,6 +544,7 @@ const PODetailScreen: React.FC = () => {
                 isEdit={true}
                 formMainEdit={formMain}
                 listPayment={listPaymentConditions}
+                isEditDetail={isEditDetail}
               />
             )}
             {poData &&
@@ -484,6 +564,7 @@ const PODetailScreen: React.FC = () => {
               isEdit={true}
               winAccount={winAccount}
               rdAccount={rdAccount}
+              isEditDetail={isEditDetail}
             />
           </Col>
         </Row>
@@ -494,6 +575,7 @@ const PODetailScreen: React.FC = () => {
           style={{
             position: "fixed",
             textAlign: "right",
+            zIndex:5,
             width: "100%",
             height: "55px",
             bottom: "0%",
@@ -515,12 +597,6 @@ const PODetailScreen: React.FC = () => {
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
-            {/* <Button
-              className="ant-btn-outline fixed-button cancle-button"
-              onClick={() => history.goBack()}
-            >
-              Trở về
-            </Button> */}
             {renderButton}
           </Col>
         </Row>

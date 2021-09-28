@@ -179,20 +179,23 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                   ),
                   width: 150,
                   dataIndex: POProcumentLineItemField.real_quantity,
-                  render: (value, item, index) => (
+                  render: (value, item, index) => {
+                    console.log('value', value);
+                    
+                    return (
                     <NumberInput
                       placeholder="SL thực nhận"
                       isFloat={false}
-                      value={value}
+                      value={item.quantity}
                       min={0}
-                      // max={item.quantity}
+                      max={item.quantity}
                       default={0}
                       maxLength={6}
                       onChange={(quantity: number | null) => {
                         onQuantityChange(quantity, index);
                       }}
                     />
-                  ),
+                  )},
                 },
                 {
                   title: "",

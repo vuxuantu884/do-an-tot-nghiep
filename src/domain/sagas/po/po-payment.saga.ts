@@ -6,7 +6,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { POPaymentType } from "domain/types/purchase-order.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";
-import { createPurchasePaymentService, updatePurchasePaymentService } from "service/purchase-order/purchase-payment.service";
+import { createPurchasePaymentService, updatePurchasePaymentService, deletePurchasePaymentService } from "service/purchase-order/purchase-payment.service";
 
 function* poPaymentCreateSaga(action: YodyAction) {
   const { poId, request, createCallback } = action.payload;
@@ -18,7 +18,6 @@ function* poPaymentCreateSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         createCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -47,8 +46,34 @@ function* poPaymentUpdateSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         updateCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        updateCallback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        updateCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    updateCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* poPaymentDeleteSaga(action: YodyAction) {
+  const { poId, paymentId, updateCallback } = action.payload;
+  try {
+    let response: BaseResponse<BaseResponse<PurchasePayments>> = yield call(
+      deletePurchasePaymentService,
+      poId,
+      paymentId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        updateCallback(response.code);
         break;
       case HttpStatus.UNAUTHORIZED:
         updateCallback(null);
@@ -68,4 +93,5 @@ function* poPaymentUpdateSaga(action: YodyAction) {
 export function* poPaymentSaga() {
   yield takeLatest(POPaymentType.CREATE_PO_PAYMENT_REQUEST, poPaymentCreateSaga);
   yield takeLatest(POPaymentType.UPDATE_PO_PAYMENT_REQUEST, poPaymentUpdateSaga);
+  yield takeLatest(POPaymentType.DELETE_PO_PAYMENT_REQUEST, poPaymentDeleteSaga);
 }

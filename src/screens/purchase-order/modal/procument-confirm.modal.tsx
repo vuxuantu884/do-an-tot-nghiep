@@ -1,6 +1,6 @@
 import { Table, Button } from "antd";
 import { StoreResponse } from "model/core/store.model";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import {
   POProcumentLineItemField,
   PurchaseProcument,
@@ -12,6 +12,7 @@ import imgDefIcon from "assets/img/img-def.svg";
 import { Moment } from "moment";
 
 import ProcumentCommonModal from "./procument.common.modal";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 type ProcumentConfirmProps = {
   visible: boolean;
@@ -43,6 +44,27 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     items,
     isEdit,
   } = props;
+  const [isShowConfirmDeleteLineItem, setIsShowConfirmDeleteLineItem] =
+    useState(false);
+  const [message, setMessage] = useState("");
+  const [removeIndex, setRemoveIndex] = useState(-1);
+
+  const handleRemoveLineItem = (
+    item: PurchaseProcumentLineItem,
+    lineIndex: number
+  ) => {
+    setMessage(`Bạn chắc chắn xoá ${item.sku}`);
+    setRemoveIndex(lineIndex);
+    setIsShowConfirmDeleteLineItem(true);
+  };
+
+  const onRemoveLineItem = (callbackFn: (index: number) => void) => {
+    setIsShowConfirmDeleteLineItem(false);
+    //remove here
+    if (callbackFn) {
+      callbackFn(removeIndex);
+    }
+  };
   if (visible) {
     return (
       <ProcumentCommonModal
@@ -224,7 +246,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     <Button
                       type="link"
                       onClick={() => {
-                        onRemove(index);
+                        handleRemoveLineItem(item, index);
                       }}
                     >
                       x
@@ -276,6 +298,16 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                         </div>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>
+                    <ModalDeleteConfirm
+                      visible={isShowConfirmDeleteLineItem}
+                      onOk={() => onRemoveLineItem(onRemove)}
+                      onCancel={() => {
+                        setIsShowConfirmDeleteLineItem(false);
+                      }}
+                      title={
+                        <span style={{ fontSize: "1rem" }}>{message}</span>
+                      }
+                    ></ModalDeleteConfirm>
                   </Table.Summary>
                 );
               }}

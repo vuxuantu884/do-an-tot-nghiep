@@ -13,16 +13,29 @@ export const PoPaymentCreateAction = (
     createCallback,
   });
 };
+
 export const PoPaymentUpdateAction = (
   poId: number,
   paymentId: number,
-  request: PurchasePayments,
+  request: PurchasePayments | null,
   updateCallback: (result: PurchasePayments | null) => void
 ) => {
   return BaseAction(POPaymentType.UPDATE_PO_PAYMENT_REQUEST, {
     poId,
     paymentId,
     request,
+    updateCallback,
+  });
+};
+
+export const PoPaymentDeleteAction = (
+  poId: number,
+  paymentId: number,
+  updateCallback: (result: PurchasePayments | null) => void
+) => {
+  return BaseAction(POPaymentType.DELETE_PO_PAYMENT_REQUEST, {
+    poId,
+    paymentId,
     updateCallback,
   });
 };
