@@ -137,16 +137,9 @@ const POCreateScreen: React.FC = () => {
     },
     [history]
   );
+
   const onFinish = useCallback(
     (data: PurchaseOrder) => {
-      switch (statusAction) {
-        case POStatus.FINALIZED:
-          formMain.setFieldsValue({ status: POStatus.FINALIZED });
-          break;
-        default:
-          formMain.setFieldsValue({ status: POStatus.DRAFT });
-          break;
-      }
       if (data.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
@@ -156,17 +149,18 @@ const POCreateScreen: React.FC = () => {
         showError("Vui lòng thêm sản phẩm");
         return;
       }
-      switch (data.status) {
+      const dataClone = {...data, status: statusAction};
+      switch (dataClone.status) {
         case POStatus.DRAFT:
           setLoadingDraftButton(true);
           break;
         case POStatus.FINALIZED:
           setLoadingSaveButton(true);
           break;
-      }
-      dispatch(PoCreateAction(data, createCallback));
+      }      
+      dispatch(PoCreateAction(dataClone, createCallback));
     },
-    [createCallback, dispatch, formMain, statusAction]
+    [createCallback, dispatch, statusAction]
   );
 
   useEffect(() => {
@@ -290,6 +284,7 @@ const POCreateScreen: React.FC = () => {
           className="margin-top-10 "
           style={{
             position: "fixed",
+            zIndex:5,
             textAlign: "right",
             width: "100%",
             height: "55px",
@@ -341,7 +336,7 @@ const POCreateScreen: React.FC = () => {
               loading={loadingDraftButton}
               onClick={() => {
                 setStatusAction(POStatus.DRAFT)
-                formMain.submit();
+                formMain.submit()
               }}
             >
               Lưu nháp
@@ -353,7 +348,7 @@ const POCreateScreen: React.FC = () => {
               loading={loadingSaveButton}
               onClick={() => {
                 setStatusAction(POStatus.FINALIZED)
-                formMain.submit();
+                formMain.submit()
               }}
             >
               Lưu và duyệt

@@ -30,6 +30,7 @@ type POInventoryFormProps = {
   status: string;
   now: Moment;
   isEdit: boolean;
+  isEditDetail?: boolean;
   onAddProcumentSuccess?: () => void;
   idNumber?: number;
   poData?: PurchaseOrder;
@@ -126,6 +127,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [dispatch, idNumber, onAddProcumentCallback, isEdit, poData]
   );
+
   const onDeleteProcumentCallback = useCallback(() => {
     setLoadingCreate(false);
     showSuccess("Xóa phiếu nháp thành công");
@@ -134,6 +136,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     setVisibleConfirm(false);
     onAddProcumentSuccess && onAddProcumentSuccess();
   }, [onAddProcumentSuccess]);
+
   const onDeleteProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
@@ -152,6 +155,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [dispatch, idNumber, onDeleteProcumentCallback, poData]
   );
+
   const onConfirmProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingConfirm(false);
@@ -164,6 +168,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [onAddProcumentSuccess]
   );
+
   const onConfirmProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
@@ -290,7 +295,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let receive_status: string = getFieldValue(POField.receive_status);
             
             setPOItem(line_items);
-            if (receive_status === ProcumentStatus.DRAFT && props.isEdit) {
+            
+            if ((receive_status || status) === ProcumentStatus.DRAFT && props.isEdit) {
               return (
                 <Button
                   onClick={() => {
