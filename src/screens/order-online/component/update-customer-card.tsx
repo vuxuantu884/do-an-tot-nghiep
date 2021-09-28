@@ -147,13 +147,17 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </Typography.Text>
             </span>
           </Space>
-
-          <Space className="customer-detail-birthday">
-            <span className="customer-detail-icon">
-              <img src={bithdayIcon} alt="" />
-            </span>
-            <span className="customer-detail-text">{customerBirthday}</span>
-          </Space>
+          {
+            (props.customerDetail?.birthday!==null) &&(
+              <Space className="customer-detail-birthday">
+                  <span className="customer-detail-icon">
+                      <img src={bithdayIcon} alt="" />
+                  </span>
+                  <span className="customer-detail-text">{customerBirthday}</span>
+              </Space>
+            )
+          }
+                    
         </Row>
         <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
         <div className="padding-lef-right">
