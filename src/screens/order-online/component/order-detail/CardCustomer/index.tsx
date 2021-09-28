@@ -491,7 +491,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              <Space className="customer-detail-birthday">
+            {
+              (customer?.birthday!==null) &&(
+                <Space className="customer-detail-birthday">
                 <span className="customer-detail-icon">
                   <img
                     src={birthdayIcon}
@@ -501,6 +503,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
                 <span className="customer-detail-text">{customerBirthday}</span>
               </Space>
+              )
+            }
+             
 
               <Space className="customer-detail-action">
                 <Button
