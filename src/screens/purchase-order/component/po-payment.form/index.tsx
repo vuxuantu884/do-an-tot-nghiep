@@ -8,6 +8,7 @@ import {
   Card,
   Col,
   Form,
+  Input,
   Progress,
   Row,
   Space,
@@ -219,6 +220,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                   <span>
                     {" "}
                     <strong className="po-payment-row-title">
+                      <Form.Item name={POField.payment_condition_id} noStyle hidden>
+                        <Input />
+                      </Form.Item>
                       <Form.Item
                         noStyle
                         shouldUpdate={(prev, current) =>

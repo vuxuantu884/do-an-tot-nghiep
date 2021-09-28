@@ -1,23 +1,20 @@
-import {
-  DoubleLeftOutlined,
-  DoubleRightOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { Divider, Input, List, Modal, Pagination, Checkbox } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { Divider, Input, List, Modal, Checkbox } from "antd";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   VariantResponse,
   VariantSearchQuery,
 } from "model/product/product.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import ProductItem from "../component/product-item";
-import classNames from "classnames";
+import CustomPagination from "component/table/CustomPagination";
+import ProductItem from "screens/products/product/component/ModalPickManyProduct/product-item";
 
 type PickManyProductModalType = {
   visible: boolean;
-  onCancle: () => void;
+  onCancel: () => void;
+  selected: Array<VariantResponse>;
   onSave: (result: Array<VariantResponse>) => void;
 };
 
@@ -28,37 +25,12 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     info: "",
     page: 1,
     limit: 10,
-    status: "active",
   };
   const dispatch = useDispatch();
   const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
   const [selection, setSelection] = useState<Array<VariantResponse>>([]);
   const [query, setQuery] = useState<VariantSearchQuery>(initQuery);
-  const handleLastNextPage = (
-    total: number,
-    current: number,
-    pageSize: number,
-    type: number
-  ) => {
-    const totalPage = Math.ceil(total / pageSize);
 
-    if (type) {
-      if (current === totalPage) return;
-      return onPageChange(totalPage, pageSize);
-    }
-
-    if (current === 1) return;
-    return onPageChange(1, pageSize);
-  };
-  const showTotal = (total: number, current: number, pageSize: number) => {
-    let from = (current - 1) * pageSize + 1;
-    let to = current * pageSize;
-    if (from > total) {
-      return "Hiển thị kết quả: 0 kết quả";
-    }
-    if (to > total) to = total;
-    return `Hiển thị kết quả: ${from}-${to} / ${total} kết quả`;
-  };
   const onResultSuccess = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
       if (!!result) {
@@ -94,12 +66,6 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     },
     [query]
   );
-  const totalPage = useMemo(() => {
-    if (data === null) {
-      return 0;
-    }
-    return Math.ceil(data.metadata.total / data.metadata.limit);
-  }, [data]);
 
   const fillAll = useCallback(
     (checked: boolean) => {
@@ -114,16 +80,21 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   useEffect(() => {
     dispatch(searchVariantsRequestAction(query, onResultSuccess));
   }, [dispatch, onResultSuccess, query]);
+  useEffect(() => {
+    if(props.visible) {
+      setSelection([...props.selected])
+    }
+  }, [props.selected, props.visible])
   return (
     <Modal
       visible={props.visible}
       cancelText="Thoát"
-      okText="Thêm vào đơn"
-      width={800}
+      okText="Thêm vào danh sách in"
+      width={1000}
       onCancel={() => {
         setSelection([]);
         setQuery(initQuery);
-        props.onCancle && props.onCancle();
+        props.onCancel && props.onCancel();
       }}
       onOk={() => {
         props.onSave && props.onSave(selection);
@@ -143,6 +114,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       />
       <Divider />
       <Checkbox
+        style={{marginLeft: 12}}
         checked={selection.length === data?.metadata.limit}
         onChange={(e) => {
           fillAll(e.target.checked);
@@ -174,76 +146,15 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
               />
             )}
           />
-          <div className="custom-table-pagination">
-            <div className="custom-table-pagination-left">
-              <span className="custom-table-pagination-show-total">
-                {showTotal(
-                  data.metadata.total,
-                  data.metadata.page,
-                  data.metadata.limit
-                )}
-              </span>
-            </div>
-            <div className="custom-table-pagination-right">
-              <div className="custom-table-pagination-container">
-                <li
-                  title="Trang đầu"
-                  className={classNames(
-                    "ant-pagination-prev",
-                    data.metadata.page &&
-                      data.metadata.page === 1 &&
-                      "ant-pagination-disabled"
-                  )}
-                >
-                  <button
-                    onClick={() =>
-                      handleLastNextPage(
-                        data.metadata.total,
-                        data.metadata.page,
-                        data.metadata.limit,
-                        0
-                      )
-                    }
-                    className="ant-pagination-item-link"
-                    type="button"
-                  >
-                    <DoubleLeftOutlined />
-                  </button>
-                </li>
-                <Pagination
-                  total={data.metadata.total}
-                  current={data.metadata.page}
-                  pageSize={data.metadata.limit}
-                  onChange={onPageChange}
-                  showSizeChanger={false}
-                />
-                <li
-                  title="Trang cuối"
-                  className={classNames(
-                    "ant-pagination-prev",
-                    data.metadata.page &&
-                      data.metadata.page === totalPage &&
-                      "ant-pagination-disabled"
-                  )}
-                >
-                  <button
-                    onClick={() =>
-                      handleLastNextPage(
-                        data.metadata.total,
-                        data.metadata.page,
-                        data.metadata.limit,
-                        1
-                      )
-                    }
-                    className="ant-pagination-item-link"
-                    type="button"
-                  >
-                    <DoubleRightOutlined />
-                  </button>
-                </li>
-              </div>
-            </div>
-          </div>
+          <CustomPagination
+            pagination={{
+              showSizeChanger: false,
+              pageSize: data.metadata.limit,
+              current: data.metadata.page,
+              total: data.metadata.total,
+              onChange: onPageChange
+            }}
+          />
         </div>
       )}
     </Modal>
