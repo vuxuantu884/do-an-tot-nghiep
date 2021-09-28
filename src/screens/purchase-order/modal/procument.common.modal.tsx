@@ -204,13 +204,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   };
   useEffect(() => {
     if (item) {
+      if(type === "inventory" ) {
+        item.procurement_items.forEach((item1) => {
+          item1.real_quantity = item1.quantity
+        })
+      }
       form.setFieldsValue(JSON.parse(JSON.stringify(item)));
     } else {
       form.setFieldsValue({
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, [form, item, allProcurementItems]);
+  }, [form, item, allProcurementItems, type]);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";
