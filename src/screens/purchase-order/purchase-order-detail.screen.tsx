@@ -139,7 +139,7 @@ const PODetailScreen: React.FC = () => {
   );
   const onConfirmButton = useCallback(() => {
     setStatusAction(POStatus.FINALIZED)
-    setIsEditDetail(false);
+    setIsEditDetail(true);
     formMain.submit();
     
   }, [formMain]);
@@ -534,10 +534,8 @@ const PODetailScreen: React.FC = () => {
               isEditDetail={isEditDetail}
             />
             <POProductForm
-              isEditDetail={isEditDetail}
-              isEdit={true}
+              isEdit={!isEditDetail}
               formMain={formMain}
-              status={status}
             />
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
