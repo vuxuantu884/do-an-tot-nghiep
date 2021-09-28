@@ -1417,7 +1417,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       /> */}
       <PickManyProductModal
         onSave={onPickManyProduct}
-        onCancle={() => setVisibleManyProduct(false)}
+        selected={data}
+        onCancel={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
       />
     </React.Fragment>
