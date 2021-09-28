@@ -420,6 +420,24 @@ const PODetailScreen: React.FC = () => {
     });
   };
 
+  const showPOReturnList = () => {
+    if (
+      poData &&
+      ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
+        (poData.total_paid && poData.total_paid > 0)) 
+    ) {
+      return (
+        <POReturnList
+          id={id}
+          params={formMain.getFieldsValue(true)}
+          listCountries={listCountries}
+          listDistrict={listDistrict}
+        />
+      );
+    } else {
+      return <></>;
+    }
+  };
   return (
     <ContentContainer
       isError={isError}
@@ -547,16 +565,9 @@ const PODetailScreen: React.FC = () => {
                 isEditDetail={isEditDetail}
               />
             )}
-            {poData &&
-              ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
-                (poData.total_paid && poData.total_paid > 0)) && (
-                <POReturnList
-                  id={id}
-                  params={formMain.getFieldsValue(true)}
-                  listCountries={listCountries}
-                  listDistrict={listDistrict}
-                />
-              )}
+       
+              {showPOReturnList()}
+              
           </Col>
           {/* Right Side */}
           <Col md={6}>

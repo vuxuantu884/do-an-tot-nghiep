@@ -262,6 +262,7 @@ const POCreateScreen: React.FC = () => {
               status={formMain.getFieldValue(POField.status)}
               stores={listStore}
               formMain={formMain}
+              isShowStatusTag={false}
             />
             <POPaymentConditionsForm
               formMain={formMain}

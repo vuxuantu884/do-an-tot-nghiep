@@ -36,6 +36,7 @@ type POInventoryFormProps = {
   poData?: PurchaseOrder;
   formMain?: any;
   formMainEdit?: any;
+  isShowStatusTag?: boolean;
 };
 
 const TAB = [
@@ -64,7 +65,7 @@ const TAB = [
 const POInventoryForm: React.FC<POInventoryFormProps> = (
   props: POInventoryFormProps
 ) => {
-  const { stores, status, now, idNumber, onAddProcumentSuccess, poData, formMainEdit, formMain } = props;
+  const { stores, status, now, idNumber, onAddProcumentSuccess, poData, formMainEdit, formMain, isShowStatusTag } = props;
   
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const dispatch = useDispatch();
@@ -265,11 +266,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             }
             return (
               <Space>
-                <div className={dotClassName} style={{ fontSize: 8 }} />
+               { isShowStatusTag && <div className={dotClassName} style={{ fontSize: 8 }} />}
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
                 </div>{" "}
-                <Tag className={className}>{statusName}</Tag>
+               {isShowStatusTag && <Tag className={className}>{statusName}</Tag>}
               </Space>
             );
           }}
@@ -446,5 +447,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     </Card>
   );
 };
-
+POInventoryForm.defaultProps = {
+  isShowStatusTag:true
+}
 export default POInventoryForm;
