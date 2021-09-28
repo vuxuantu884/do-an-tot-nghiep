@@ -67,6 +67,7 @@ import CustomerShippingAddressOrder from "./customer-shipping";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import UrlConfig from "config/url.config";
 //#end region
 
 type CustomerCardProps = {
@@ -446,10 +447,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Space>
                 <Avatar size={32}>A</Avatar>
                 <Link
-                  to="#"
+                  target='_blank' 
+                  to={`${UrlConfig.CUSTOMER}/${customer.id}`}
                   className="primary"
                   style={{ fontSize: "16px" }}
-                  onClick={OkConfirmCustomerEdit}
                 >
                   {customer.full_name}
                 </Link>{" "}
