@@ -30,14 +30,9 @@ export const POInventoryDraftTable = styled.div`
 `;
 
 export const ActionsTableColumn = styled.div`
-
-  position: absolute;
-  right: 30px;
-  top: 35px;
-  z-index: 10;
   display: flex;
   flex-direction: column;
-
+  align-items: center;
   span.anticon {
     height: 40px;
     width: 40px;
