@@ -1,4 +1,4 @@
-import { Col, DatePicker, Form, Input, Row, Select, Table } from "antd";
+import { Col, DatePicker, Form, Input, Row, Select, Space, Table } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { POField } from "model/purchase-order/po-field";
@@ -170,11 +170,38 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
 
   const dataLineItems = formMain?.getFieldValue(POField.line_items);
   const dataLineItemsDraft = formMainEdit?.getFieldValue(POField.line_items);
-  
 
   const addColumnNumber = () => {
     const newDataProcurement = [...dataProcurement];
-    newDataProcurement.push(dataProcurement[0]);
+    const procurementItemsDefault: Array<PurchaseProcumentPOCreateLineItem> =
+      dataLineItems?.map((item: PurchaseOrderLineItem, index: number) => {
+        const newDataProcurement1 = JSON.parse(JSON.stringify(dataProcurement));
+        let total = 0;
+        newDataProcurement.forEach((item1) => {
+          item1.procurement_items.forEach((item2) => {
+            if (item2.sku === item.sku) {
+              total = total + item2.quantity;
+            }
+          });
+        });
+        return (newDataProcurement1[0].procurement_items[index] = {
+          accepted_quantity: 0,
+          code: item.code,
+          line_item_id: item.id,
+          note: "",
+          ordered_quantity: item.quantity,
+          planned_quantity: 0,
+          quantity: item.quantity - total > 0 ? item.quantity - total : 0,
+          real_quantity: 0,
+          sku: item.sku,
+          variant: item.variant,
+          variant_image: item.variant,
+        });
+      });
+    newDataProcurement.push({
+      ...dataProcurement[0],
+      procurement_items: procurementItemsDefault,
+    });
     setDataProcurement(newDataProcurement);
   };
 
@@ -227,7 +254,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   // init
   useEffect(() => {
     //edit);
-    
+
     const procurementItemsDefault: Array<PurchaseProcumentPOCreateLineItem> =
       dataLineItems?.map((item: PurchaseOrderLineItem, index: number) => {
         const newDataProcurement = JSON.parse(JSON.stringify(dataProcurement));
@@ -252,8 +279,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
 
     setDataProcurement(newDataProcurement);
     //isView
-    const procurementsData = formMainEdit?.getFieldValue('procurements');
-
+    const procurementsData = formMainEdit?.getFieldValue("procurements");
 
     if (procurementsData) {
       setProcurementDataState(procurementsData);
@@ -270,38 +296,40 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           title: (
             <>
               <Row>
-                <Col span={24}>
-                  <Form.Item name={POField.expect_import_date} noStyle hidden>
-                    <Input />
-                  </Form.Item>
-                  <DatePicker
-                    placeholder="dd/mm/yyyy"
-                    onChange={(value) => {
-                      value && onChangeValueDate(value, index);
-                    }}
-                    disabledDate={(date) => date <= moment().startOf("days")}
-                    format={DATE_FORMAT.DDMMYYY}
-                  />
-                </Col>
-                <Col span={24}>
-                  <Form.Item name={POField.expect_store_id} noStyle hidden>
-                    <Input />
-                  </Form.Item>
-                  <Select
-                    placeholder="Chọn kho"
-                    showSearch
-                    optionFilterProp="children"
-                    onChange={(value: string) => {
-                      value && onChangeValueStore(value, index);
-                    }}
-                  >
-                    {stores.map((item) => (
-                      <Select.Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Col>
+                <Space style={{ width: "100%" }} direction="vertical">
+                  <Col span={24}>
+                    <Form.Item name={POField.expect_import_date} noStyle hidden>
+                      <Input />
+                    </Form.Item>
+                    <DatePicker
+                      placeholder="dd/mm/yyyy"
+                      onChange={(value) => {
+                        value && onChangeValueDate(value, index);
+                      }}
+                      disabledDate={(date) => date <= moment().startOf("days")}
+                      format={DATE_FORMAT.DDMMYYY}
+                    />
+                  </Col>
+                  <Col span={24}>
+                    <Form.Item name={POField.expect_store_id} noStyle hidden>
+                      <Input />
+                    </Form.Item>
+                    <Select
+                      placeholder="Chọn kho"
+                      showSearch
+                      optionFilterProp="children"
+                      onChange={(value: string) => {
+                        value && onChangeValueStore(value, index);
+                      }}
+                    >
+                      {stores.map((item) => (
+                        <Select.Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Col>
+                </Space>
               </Row>
             </>
           ),
@@ -316,7 +344,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 } else {
                   maxValue -= item?.procurement_items[indexLineItems]?.quantity;
                 }
-              })
+              });
             }
 
             return (
@@ -330,15 +358,32 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   onChangeValueLineItem(value, index, indexLineItems);
                 }}
               />
-          )},
+            );
+          },
         };
       }
     );
 
+    const isHaveManyColumn = columns.length > QUANTITY_INVENTORY_COLUMNS_DRAFT;
+
     const columnFixed = [
       {
-        title: "",
-        align: "center",
+        title: () => (
+          <ActionsTableColumn
+            className={isHaveManyColumn ? "group_actions" : ""}
+          >
+            <PlusOutlined
+              style={{ fontSize: 25, color: "#2a2a86" }}
+              onClick={addColumnNumber}
+            />
+            {isHaveManyColumn && (
+              <MinusOutlined
+                style={{ fontSize: 25, color: "#ff4d4f" }}
+                onClick={removeColumnNumber}
+              />
+            )}
+          </ActionsTableColumn>
+        ),
         width: 100,
         fixed: "right",
       },
@@ -364,9 +409,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                       DATE_FORMAT.DDMMYYY
                     )}
                   </Col>
-                  <Col span={24}>
-                    {itemProcurement.store}
-                  </Col>
+                  <Col span={24}>{itemProcurement.store}</Col>
                 </Row>
               </>
             ),
@@ -386,26 +429,10 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataProcurement, procurementDataState]);
 
-  const isHaveManyColumn = columns.length > QUANTITY_INVENTORY_COLUMNS_DRAFT;
-
   if (!isEdit) {
     return (
       <>
         <POInventoryDraftTable>
-          <ActionsTableColumn
-            className={isHaveManyColumn ? "group_actions" : ""}
-          >
-            <PlusOutlined
-              style={{ fontSize: 25, color: "#2a2a86" }}
-              onClick={addColumnNumber}
-            />
-            {isHaveManyColumn && (
-              <MinusOutlined
-                style={{ fontSize: 25, color: "#ff4d4f" }}
-                onClick={removeColumnNumber}
-              />
-            )}
-          </ActionsTableColumn>
           <Table
             columns={columns}
             pagination={false}
@@ -437,8 +464,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           dataSource={dataLineItemsDraft}
           changeColumnPO={(value) => {
             setProcurementDataState(value);
-          }
-          }
+          }}
           onOk={(value) => {
             onCancelPU && onCancelPU();
             setProcurementDataState(value);
