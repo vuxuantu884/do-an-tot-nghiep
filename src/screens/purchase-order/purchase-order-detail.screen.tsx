@@ -139,8 +139,9 @@ const PODetailScreen: React.FC = () => {
   );
   const onConfirmButton = useCallback(() => {
     setStatusAction(POStatus.FINALIZED)
-    setIsEditDetail(false);
+    setIsEditDetail(true);
     formMain.submit();
+    
   }, [formMain]);
 
   const onResultRD = useCallback(
@@ -180,14 +181,14 @@ const PODetailScreen: React.FC = () => {
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
-      setLoadingSaveDraftButton(false);
-      setIsEditDetail(!isEditDetail);
+      setLoadingSaveDraftButton(false);      
+      setIsEditDetail(false);
       if (result !== null) {
         showSuccess("Cập nhật nhập hàng thành công");
         loadDetail(idNumber, true);
       }
     },
-    [idNumber, isEditDetail, loadDetail]
+    [idNumber, loadDetail]
   );
   const onFinish = useCallback(
     (value: PurchaseOrder) => { 
@@ -533,10 +534,8 @@ const PODetailScreen: React.FC = () => {
               isEditDetail={isEditDetail}
             />
             <POProductForm
-              isEditDetail={isEditDetail}
-              isEdit={true}
+              isEdit={!isEditDetail}
               formMain={formMain}
-              status={status}
             />
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}

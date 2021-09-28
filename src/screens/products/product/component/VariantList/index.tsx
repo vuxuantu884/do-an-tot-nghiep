@@ -15,6 +15,7 @@ interface VariantListProps {
   onStopSale: (data: Array<number>) => void;
   onAllowSale: (data: Array<number>) => void;
   loading?: boolean;
+  disabledAction?: boolean
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
@@ -48,7 +49,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                 checked={checkedAll}
                 onChange={(e) => {
                   setCheckedAll(e.target.checked);
-                  if (props.value) {
+                  if (props.value) { 
                     if (e.target.checked) {
                       props.value.forEach((item) => {
                         let index = listSelected.findIndex(
@@ -65,12 +66,12 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                   }
                 }}
               >
-                ` Chọn tất cả
+                Chọn tất cả
               </Checkbox>
             </div>
             <div className="header-tab-right">
               <ActionButton
-                disabled={listSelected.length === 0}
+                disabled={listSelected.length === 0 || props.disabledAction}
                 onMenuClick={onMenuClick}
                 menu={[
                   {
@@ -132,6 +133,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                       display: "flex",
                       flexDirection: "column",
                       position: 'relative',
+                      overflow: 'hidden',
                     }}
                   >
                     {item.id ? (

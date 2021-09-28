@@ -51,7 +51,7 @@ import {
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
@@ -112,7 +112,6 @@ const ProductDetailScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.product_status
   );
 
-  const isLoadMaterData = useRef(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProductResponse | null>(null);
@@ -449,7 +448,6 @@ const ProductDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   useEffect(() => {
-    if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
       dispatch(SupplierGetAllAction(setListSupplier));
       dispatch(materialSearchAll(setListMaterial));
@@ -462,8 +460,6 @@ const ProductDetailScreen: React.FC = () => {
           setDataAccounts
         )
       );
-    }
-    isLoadMaterData.current = true;
     return () => {};
   }, [dispatch, setDataAccounts, setDataCategory]);
 
@@ -522,8 +518,17 @@ const ProductDetailScreen: React.FC = () => {
                           <Switch
                             onChange={(checked) => {
                               setStatus(checked ? "active" : "inactive");
+                              let variants: Array<VariantResponse> = form.getFieldValue("variants");
+                              if(!checked) {
+                                variants = [...variants];
+                                variants.forEach((item) => {
+                                  item.status = 'inactive';
+                                  item.saleable = false;
+                                })
+                              }
                               form.setFieldsValue({
                                 status: checked ? "active" : "inactive",
+                                variants: variants
                               });
                             }}
                             className="ant-switch-success"
@@ -878,6 +883,7 @@ const ProductDetailScreen: React.FC = () => {
                   <Col className="left" span={24} md={7}>
                     <Item name="variants" noStyle>
                       <VariantList
+                        disabledAction={status === 'inactive'}
                         loading={loadingVariant}
                         onAllowSale={onAllowSale}
                         onStopSale={onStopSale}
@@ -957,6 +963,7 @@ const ProductDetailScreen: React.FC = () => {
                                         noStyle
                                       >
                                         <Switch
+                                          disabled={status === 'inactive'}
                                           style={{ marginLeft: 10 }}
                                           className="ant-switch-success"
                                         />

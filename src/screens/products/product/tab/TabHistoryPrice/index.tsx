@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
@@ -96,7 +96,7 @@ const TabHistoryPrice: React.FC = () => {
         if (value){
           const DATA_CONVERT = JSON.parse(value);
           return (
-            DATA_CONVERT.import_price
+            formatCurrency(DATA_CONVERT.import_price)
           )
         }
         return '';
@@ -110,7 +110,7 @@ const TabHistoryPrice: React.FC = () => {
       render: (value) => {
         const DATA_CONVERT = JSON.parse(value);
         return (
-          DATA_CONVERT.import_price
+          formatCurrency( DATA_CONVERT.import_price)
         )
       }
     },
@@ -122,7 +122,7 @@ const TabHistoryPrice: React.FC = () => {
       render: (value) => {if (value){
         const DATA_CONVERT = JSON.parse(value);
         return (
-          DATA_CONVERT.retail_price
+          formatCurrency(DATA_CONVERT.retail_price)
         )
       }
       return '';
@@ -136,7 +136,7 @@ const TabHistoryPrice: React.FC = () => {
       render: (value) => {
         const DATA_CONVERT = JSON.parse(value);
         return (
-          DATA_CONVERT.retail_price
+          formatCurrency(DATA_CONVERT.retail_price)
         )
       }
     },

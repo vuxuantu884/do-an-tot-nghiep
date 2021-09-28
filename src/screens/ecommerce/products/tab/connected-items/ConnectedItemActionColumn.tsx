@@ -11,8 +11,7 @@ const ConnectedItemActionColumn = (handleSyncStock: any, handleDeleteItem: any, 
     render: (l: any, item: any, index: number) => {      
       const menu = (
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-            {/* thai need todo */}
-            {item.connect_status === "waiting" &&
+            {item.connect_status === "connected" &&
               <>
                 <Menu.Item key="1">
                   <Button
