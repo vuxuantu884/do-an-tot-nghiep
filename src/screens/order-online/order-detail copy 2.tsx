@@ -67,8 +67,6 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
-import CardReturnProducts from "./order-return/components/CardReturnProducts";
-import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -467,12 +465,6 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end customer ---*/}
 
-              {OrderDetail?.order_return_origin?.items && (
-                <CardShowReturnProducts
-                  listReturnProducts={OrderDetail?.order_return_origin?.items}
-                />
-              )}
-
               {/*--- product ---*/}
               <UpdateProductCard
                 OrderDetail={OrderDetail}
@@ -810,6 +802,16 @@ const OrderDetail = (props: PropType) => {
                         <div className="d-flex">
                           <span className="title-card">THANH TOÁN 2</span>
                         </div>
+                        {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                        <Tag className="orders-tag orders-tag-default">
+                          Chưa thanh toán
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                        <Tag className="orders-tag orders-tag-warning">
+                          Thanh toán 1 phần
+                        </Tag>
+                      )} */}
                         {checkPaymentStatusToShow(OrderDetail) === 1 && (
                           <Tag
                             className="orders-tag orders-tag-success"
@@ -950,16 +952,16 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- end payment ---*/}
 
-              {OrderDetail?.total && OrderDetail?.total > 0 && (
-                <CardReturnMoney
-                  listPaymentMethods={listPaymentMethods}
-                  payments={[]}
-                  returnMoneyAmount={OrderDetail?.total || 0}
-                  isShowPaymentMethod={true}
-                  setIsShowPaymentMethod={() => {}}
-                  handleReturnMoney={handleReturnMoney}
-                />
-              )}
+              <CardReturnMoney
+                listPaymentMethods={listPaymentMethods}
+                payments={[]}
+                returnMoneyAmount={
+                  OrderDetail?.total_line_amount_after_line_discount || 0
+                }
+                isShowPaymentMethod={true}
+                setIsShowPaymentMethod={() => {}}
+                handleReturnMoney={handleReturnMoney}
+              />
             </Col>
 
             <Col md={6}>

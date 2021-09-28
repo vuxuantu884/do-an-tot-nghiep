@@ -39,7 +39,6 @@ type PropType = {
   isDetailPage?: boolean;
   isExchange?: boolean;
   isStepExchange?: boolean;
-  discountValue: number;
   discountRate?: number;
   setTotalAmountReturnProducts?: (value: number) => void;
 };

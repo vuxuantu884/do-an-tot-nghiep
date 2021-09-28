@@ -2,7 +2,10 @@ import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
 import {
   actionGetOrderReturnDetails,
   actionOrderRefund,
@@ -192,7 +195,7 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch, OrderDetail]);
 
   useEffect(() => {
-    if (customerDetail !=null) {
+    if (customerDetail != null) {
       dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
     } else {
       setLoyaltyPoint(null);
@@ -252,7 +255,6 @@ const ScreenReturnDetail = (props: PropType) => {
                 />
               )}
               <CardReturnProducts
-                discountValue={discountValue}
                 listReturnProducts={listReturnProducts}
                 isDetailPage={true}
               />

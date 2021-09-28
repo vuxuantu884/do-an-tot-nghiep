@@ -784,7 +784,6 @@ const ScreenReturnCreate = (props: PropType) => {
                   isStepExchange={isStepExchange}
                 />
                 <CardReturnProducts
-                  discountValue={discountValue}
                   discountRate={discountRate}
                   listReturnProducts={listReturnProducts}
                   handleReturnProducts={(

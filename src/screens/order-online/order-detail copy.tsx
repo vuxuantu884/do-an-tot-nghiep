@@ -26,14 +26,19 @@ import {
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
+import _ from "lodash";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
-import { OrderPaymentRequest } from "model/request/order.request";
+import {
+  OrderPaymentRequest,
+  UpdateOrderPaymentRequest,
+} from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  OrderPaymentResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -67,8 +72,6 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
-import CardReturnProducts from "./order-return/components/CardReturnProducts";
-import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -212,6 +215,7 @@ const OrderDetail = (props: PropType) => {
     },
     []
   );
+
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -224,6 +228,7 @@ const OrderDetail = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNED &&
           f.status !== FulFillmentStatus.RETURNING
       );
+
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
     }
@@ -364,6 +369,48 @@ const OrderDetail = (props: PropType) => {
     });
   }, []);
 
+  /**
+   * trường hợp khac
+   */
+  useEffect(() => {
+    let returnPaymentCode = "cash";
+    let returnPaymentMethod = listPaymentMethods.find((single) => {
+      return single.code === returnPaymentCode;
+    });
+
+    if (OrderDetail?.order_return_origin && returnPaymentMethod) {
+      let dataPaymentReturn: OrderPaymentResponse = {
+        customer_id: OrderDetail?.customer_id || 0,
+        payment_method_id: returnPaymentMethod.id,
+        amount:
+          OrderDetail?.order_return_origin
+            .total_line_amount_after_line_discount,
+        paid_amount: 0,
+        return_amount: 0,
+        status: "paid",
+        name: returnPaymentMethod.name,
+        code: returnPaymentMethod.code,
+        payment_method: returnPaymentMethod.name,
+        reference: "",
+        source: "",
+        note: "",
+        type: "",
+        id: 0,
+      };
+      let newPayment = OrderDetail.payments;
+      newPayment?.push(dataPaymentReturn);
+      let resultOrderDetail: OrderResponse = {
+        ...OrderDetail,
+        payments: newPayment,
+      };
+      setOrderDetail(resultOrderDetail);
+    }
+  }, [
+    OrderDetail?.customer_id,
+    OrderDetail?.order_return_origin,
+    listPaymentMethods,
+  ]);
+
   // khách cần trả
   const customerNeedToPay: any = () => {
     if (
@@ -467,12 +514,6 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end customer ---*/}
 
-              {OrderDetail?.order_return_origin?.items && (
-                <CardShowReturnProducts
-                  listReturnProducts={OrderDetail?.order_return_origin?.items}
-                />
-              )}
-
               {/*--- product ---*/}
               <UpdateProductCard
                 OrderDetail={OrderDetail}
@@ -506,8 +547,8 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                OrderDetail?.payments &&
-                OrderDetail?.payments?.length > 0 && (
+                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
+                  OrderDetail.order_return_origin) && (
                   <Card
                     className="margin-top-20"
                     title={
@@ -810,6 +851,16 @@ const OrderDetail = (props: PropType) => {
                         <div className="d-flex">
                           <span className="title-card">THANH TOÁN 2</span>
                         </div>
+                        {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                        <Tag className="orders-tag orders-tag-default">
+                          Chưa thanh toán
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                        <Tag className="orders-tag orders-tag-warning">
+                          Thanh toán 1 phần
+                        </Tag>
+                      )} */}
                         {checkPaymentStatusToShow(OrderDetail) === 1 && (
                           <Tag
                             className="orders-tag orders-tag-success"
@@ -950,16 +1001,16 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- end payment ---*/}
 
-              {OrderDetail?.total && OrderDetail?.total > 0 && (
-                <CardReturnMoney
-                  listPaymentMethods={listPaymentMethods}
-                  payments={[]}
-                  returnMoneyAmount={OrderDetail?.total || 0}
-                  isShowPaymentMethod={true}
-                  setIsShowPaymentMethod={() => {}}
-                  handleReturnMoney={handleReturnMoney}
-                />
-              )}
+              <CardReturnMoney
+                listPaymentMethods={listPaymentMethods}
+                payments={[]}
+                returnMoneyAmount={
+                  OrderDetail?.total_line_amount_after_line_discount || 0
+                }
+                isShowPaymentMethod={true}
+                setIsShowPaymentMethod={() => {}}
+                handleReturnMoney={handleReturnMoney}
+              />
             </Col>
 
             <Col md={6}>
