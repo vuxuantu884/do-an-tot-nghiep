@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { Button, Form, Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -7,7 +8,9 @@ import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
 import TotalItemActionColumn from "./TotalItemActionColumn";
+import UrlConfig from "config/url.config";
 
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -115,6 +118,9 @@ const TotalItemsEcommerce = () => {
      //thai need todo: call API
   };
 
+  const isDisableSyncStockOkButton = () => {
+    return !syncStockValue;
+  }
 
   //handle delete item
   const handleDeleteItem = (item: any) => {
@@ -202,7 +208,16 @@ const TotalItemsEcommerce = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.core_variant || "-"}</span>
+          <div>
+            {l.core_variant &&
+              <Link to={`${UrlConfig.PRODUCT}/${l.ecommerce_id}/variants/${l.id}`}>
+                {l.core_variant}
+              </Link>
+            }
+            {!l.core_variant &&
+              <span>-</span>
+            }
+          </div>
         );
       },
     },
@@ -231,7 +246,17 @@ const TotalItemsEcommerce = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.connect_status || "-"}</span>
+          <div>
+            {l.connect_status === "connected" &&
+              <span style={{color: '#27AE60'}}>Thành công</span>
+            }
+            {l.connect_status === "error" &&
+              <span style={{color: '#E24343'}}>Thất bại</span>
+            }
+            {l.connect_status === "waiting" &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
@@ -250,7 +275,21 @@ const TotalItemsEcommerce = () => {
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>Đồng bộ tồn - chưa có</span>
+          <div>
+            {l.stock === "done" &&
+              <Tooltip title={l.updated_date}>
+                <span style={{color: '#27AE60'}}>Thành công</span>
+              </Tooltip>
+            }
+            {l.stock === "error" &&
+              <Tooltip title="error">
+                <span style={{color: '#E24343'}}>Thất bại</span>
+              </Tooltip>
+            }
+            {(l.stock === "in_progress" || l.stock === null) &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
@@ -330,7 +369,13 @@ const TotalItemsEcommerce = () => {
     }
   ]
 
-  //thai fake data 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
+  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
+  
+  //thai fake data
   const CATEGORY = [
     {
       id: 1,
@@ -343,7 +388,6 @@ const TotalItemsEcommerce = () => {
       value: "category_2"
     }
   ]
-
 
   
   ////////////////////
@@ -560,7 +604,7 @@ const TotalItemsEcommerce = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn danh mục"
                 allowClear
               >
                 {CATEGORY.map((item) => (
@@ -577,11 +621,11 @@ const TotalItemsEcommerce = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái ghép nối"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -594,11 +638,11 @@ const TotalItemsEcommerce = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái đồng bộ tồn kho"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {STOCK_STATUS && STOCK_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -644,6 +688,7 @@ const TotalItemsEcommerce = () => {
           cancelText="Hủy"
           onCancel={cancelSyncStockModal}
           onOk={okSyncStockModal}
+          okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
           <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
             <Space direction="vertical">
