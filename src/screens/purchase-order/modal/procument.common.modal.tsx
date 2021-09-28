@@ -375,7 +375,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                     ]}
                     label="Kho nhận hàng"
                   >
-                    <Select showSearch showArrow optionFilterProp="children">
+                    <Select showSearch showArrow optionFilterProp="children" placeholder="Chọn kho">
                       <Select.Option value="">Chọn kho nhận</Select.Option>
                       {stores.map((item) => (
                         <Select.Option key={item.id} value={item.id}>

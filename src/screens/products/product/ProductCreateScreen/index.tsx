@@ -382,20 +382,20 @@ const ProductCreateScreen: React.FC = () => {
     form
       .validateFields()
       .then((values: ProductRequestView) => {
-        let currencyCheck: any ={};
+        let currencyCheck: any = {};
         let failCurrency = false;
         values.variant_prices.forEach((item) => {
-          if(currencyCheck[item.currency] === undefined) {
+          if (currencyCheck[item.currency] === undefined) {
             currencyCheck[item.currency] = 1;
           } else {
             failCurrency = true;
           }
-        })
-        if(failCurrency) {
-          showError('Trùng đơn vị tiền');
+        });
+        if (failCurrency) {
+          showError("Trùng đơn vị tiền");
           return;
         }
-      
+
         if (sizeSelected.length > 0 && colorSelected.length > 0) {
           form.submit();
         } else {
@@ -497,7 +497,7 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(listColorAction({ is_main_color: 0 }, setListColor));
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active' },
+          { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
           setDataAccounts
         )
       );
@@ -543,9 +543,10 @@ const ProductCreateScreen: React.FC = () => {
                       <Item noStyle>
                         <b>Trạng thái:</b>
                         <Switch
-                          onChange={(checked) =>
-                            setStatus(checked ? "active" : "inactive")
-                          }
+                          onChange={(checked) => {
+                            setStatus(checked ? "active" : "inactive");
+                            form.setFieldsValue({saleable: checked})
+                          }}
                           className="ant-switch-success"
                           defaultChecked
                         />
@@ -1174,7 +1175,10 @@ const ProductCreateScreen: React.FC = () => {
                   <div className="extra-cards">
                     <b>Cho phép bán:</b>
                     <Item valuePropName="checked" name="saleable" noStyle>
-                      <Switch className="ant-switch-success" />
+                      <Switch
+                        disabled={status === "inactive"}
+                        className="ant-switch-success"
+                      />
                     </Item>
                   </div>
                 }

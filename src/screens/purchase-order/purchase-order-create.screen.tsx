@@ -39,6 +39,7 @@ import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
 import { CheckOutlined } from "@ant-design/icons";
+import POStep from "./component/po-step";
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
@@ -201,22 +202,7 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={
-        <Steps
-          progressDot={() => (
-            <div className="ant-steps-icon-dot">
-              <CheckOutlined />
-            </div>
-          )}
-          size="small"
-          current={0}
-        >
-          <Steps.Step title="Đặt hàng" />
-          <Steps.Step title="Xác nhận" />
-          <Steps.Step title="Nhập kho" />
-          <Steps.Step title="Hoàn Thành" />
-        </Steps>
-      }
+      extra={<POStep poData={initPurchaseOrder} />}
     >
       <Form
         name={PoFormName.Main}
@@ -262,6 +248,7 @@ const POCreateScreen: React.FC = () => {
               status={formMain.getFieldValue(POField.status)}
               stores={listStore}
               formMain={formMain}
+              isShowStatusTag={false}
             />
             <POPaymentConditionsForm
               formMain={formMain}

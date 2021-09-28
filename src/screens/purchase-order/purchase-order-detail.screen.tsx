@@ -139,8 +139,9 @@ const PODetailScreen: React.FC = () => {
   );
   const onConfirmButton = useCallback(() => {
     setStatusAction(POStatus.FINALIZED)
-    setIsEditDetail(false);
+    setIsEditDetail(true);
     formMain.submit();
+    
   }, [formMain]);
 
   const onResultRD = useCallback(
@@ -180,14 +181,14 @@ const PODetailScreen: React.FC = () => {
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
-      setLoadingSaveDraftButton(false);
-      setIsEditDetail(!isEditDetail);
+      setLoadingSaveDraftButton(false);      
+      setIsEditDetail(false);
       if (result !== null) {
         showSuccess("Cập nhật nhập hàng thành công");
         loadDetail(idNumber, true);
       }
     },
-    [idNumber, isEditDetail, loadDetail]
+    [idNumber, loadDetail]
   );
   const onFinish = useCallback(
     (value: PurchaseOrder) => { 
@@ -420,6 +421,24 @@ const PODetailScreen: React.FC = () => {
     });
   };
 
+  const showPOReturnList = () => {
+    if (
+      poData &&
+      ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
+        (poData.total_paid && poData.total_paid > 0)) 
+    ) {
+      return (
+        <POReturnList
+          id={id}
+          params={formMain.getFieldsValue(true)}
+          listCountries={listCountries}
+          listDistrict={listDistrict}
+        />
+      );
+    } else {
+      return <></>;
+    }
+  };
   return (
     <ContentContainer
       isError={isError}
@@ -515,10 +534,8 @@ const PODetailScreen: React.FC = () => {
               isEditDetail={isEditDetail}
             />
             <POProductForm
-              isEditDetail={isEditDetail}
-              isEdit={true}
+              isEdit={!isEditDetail}
               formMain={formMain}
-              status={status}
             />
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
@@ -547,16 +564,9 @@ const PODetailScreen: React.FC = () => {
                 isEditDetail={isEditDetail}
               />
             )}
-            {poData &&
-              ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
-                (poData.total_paid && poData.total_paid > 0)) && (
-                <POReturnList
-                  id={id}
-                  params={formMain.getFieldsValue(true)}
-                  listCountries={listCountries}
-                  listDistrict={listDistrict}
-                />
-              )}
+       
+              {showPOReturnList()}
+              
           </Col>
           {/* Right Side */}
           <Col md={6}>

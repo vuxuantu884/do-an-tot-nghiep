@@ -36,6 +36,7 @@ type POInventoryFormProps = {
   poData?: PurchaseOrder;
   formMain?: any;
   formMainEdit?: any;
+  isShowStatusTag?: boolean;
 };
 
 const TAB = [
@@ -248,11 +249,9 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let receive_status = getFieldValue(POField.receive_status);
             let statusName = "Chưa nhập kho";
             let className = "po-tag";
-            let dotClassName = "icon-dot";
             if (receive_status === ProcumentStatus.PARTIAL_RECEIVED) {
               statusName = "Nhập kho 1 phần";
               className += " po-tag-warning";
-              dotClassName += " partial";
             }
             if (
               receive_status === ProcumentStatus.CANCELLED ||
@@ -261,15 +260,15 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             ) {
               statusName = "Đã nhập kho";
               className += " po-tag-success";
-              dotClassName += " success";
             }
             return (
               <Space>
-                <div className={dotClassName} style={{ fontSize: 8 }} />
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
-                </div>{" "}
-                <Tag className={className}>{statusName}</Tag>
+                </div>
+                {
+                  isEdit && ( <Tag className={className}>{statusName}</Tag>)
+                }
               </Space>
             );
           }}
@@ -446,5 +445,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     </Card>
   );
 };
-
+POInventoryForm.defaultProps = {
+  isShowStatusTag:true
+}
 export default POInventoryForm;

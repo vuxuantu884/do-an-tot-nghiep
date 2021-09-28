@@ -22,7 +22,7 @@ const statusToStep = {
 //   FINISHED("finished", "Đã kết thúc"), //Kết thúc
 //   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export interface POStepProps {
-  poData: PurchaseOrder;
+  poData: PurchaseOrder|any;
 }
 
 const POStep: React.FC<POStepProps> = (props: POStepProps) => {

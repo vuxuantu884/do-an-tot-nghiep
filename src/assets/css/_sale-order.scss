@@ -244,7 +244,7 @@
           top: 11px !important;
           background-color: #2a2a86;
           &::after {
-            background-color: #2a2a86;
+            background-color: #2a2a86!important;
             margin-left: 10px !important;
           }
         }
@@ -265,13 +265,13 @@
         .ant-steps-item-tail {
           top: 11px !important;
           &::after {
-            background-color: #2a2a86;
+            background-color: #2a2a86 !important;
             margin-left: 10px !important;
           }
         }
         .ant-steps-icon-dot {
           color: $white;
-          background-color: #2a2a86 ;
+          background-color: #2a2a86 !important;
         }
       }
     }
