@@ -70,6 +70,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         okText={isEdit ? "Lưu phiếu nhập kho" : "Xác nhận nhập"}
       >
         {(onQuantityChange, onRemove, line_items) => {
+          console.log(line_items);
           return (
             <Table
               className="product-table"
@@ -181,13 +182,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                   width: 150,
                   dataIndex: POProcumentLineItemField.real_quantity,
                   render: (value, item, index) => {
-                    console.log('value', value);
-                    
                     return (
                     <NumberInput
                       placeholder="SL thực nhận"
                       isFloat={false}
-                      value={item.quantity}
+                      value={value}
                       min={0}
                       max={item.quantity}
                       default={0}
