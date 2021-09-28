@@ -141,6 +141,7 @@ const PODetailScreen: React.FC = () => {
     setStatusAction(POStatus.FINALIZED)
     setIsEditDetail(false);
     formMain.submit();
+    
   }, [formMain]);
 
   const onResultRD = useCallback(
@@ -180,14 +181,14 @@ const PODetailScreen: React.FC = () => {
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
-      setLoadingSaveDraftButton(false);
-      setIsEditDetail(!isEditDetail);
+      setLoadingSaveDraftButton(false);      
+      setIsEditDetail(false);
       if (result !== null) {
         showSuccess("Cập nhật nhập hàng thành công");
         loadDetail(idNumber, true);
       }
     },
-    [idNumber, isEditDetail, loadDetail]
+    [idNumber, loadDetail]
   );
   const onFinish = useCallback(
     (value: PurchaseOrder) => { 

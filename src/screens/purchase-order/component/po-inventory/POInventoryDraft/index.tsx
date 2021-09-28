@@ -253,7 +253,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     setDataProcurement(newDataProcurement);
     //isView
     const procurementsData = formMainEdit?.getFieldValue('procurements');
-    
+
 
     if (procurementsData) {
       setProcurementDataState(procurementsData);
