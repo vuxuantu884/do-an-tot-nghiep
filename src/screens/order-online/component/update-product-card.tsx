@@ -412,13 +412,13 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               </span>
               <span>{formatCurrency(props.customerNeedToPayValue)}</span>
             </Row>
-            {totalAmountReturnProducts && (
+            {totalAmountReturnProducts ? (
               <Row className="payment-row" justify="space-between">
                 <span className="font-size-text">Tổng tiền hàng trả:</span>
                 <span>{formatCurrency(totalAmountReturnProducts)}</span>
               </Row>
-            )}
-            {totalAmountReturnProducts && (
+            ) : null}
+            {totalAmountReturnProducts ? (
               <React.Fragment>
                 <Divider
                   className="margin-top-5 margin-bottom-5"
@@ -440,7 +440,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   </strong>
                 </Row>
               </React.Fragment>
-            )}
+            ) : null}
           </Col>
         </Row>
       </div>

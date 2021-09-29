@@ -21,6 +21,7 @@ type PropType = {
   infoFees: FeesResponse[];
   fulfillments: FulFillmentResponse[];
   isCloneOrder?: boolean;
+  totalAmountReturnProducts?: number;
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
 };
@@ -35,6 +36,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoFees,
     fulfillments,
     isCloneOrder,
+    totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
     changeServiceType,
   } = props;
@@ -115,7 +117,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
                   (discountValue ? discountValue : 0) -
                   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-                  totalAmountPaid()
+                  totalAmountPaid() -
+                  (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
                 }
                 className="formInputAmount"
                 maxLength={999999999999}

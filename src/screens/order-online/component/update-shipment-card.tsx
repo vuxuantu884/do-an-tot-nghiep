@@ -1495,7 +1495,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
             <Button
               type="primary"
-              style={{ marginLeft: "10px", padding: "0 25px" }}
+              style={{ margin: "0 10px", padding: "0 25px" }}
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => {
                 history.push(
