@@ -88,28 +88,30 @@ const Products: React.FC = () => {
   };
 
   
-  const convertDateToTimestamp = (date: any, splitType: any) => {
-    const myDate = date.split(splitType);
-    var newDate = new Date( myDate[2], myDate[1] - 1, myDate[0]);
-    return newDate.getTime();
+  const convertDateToTimestamp = (date: any) => {
+    const myDate = date.split("/");
+    var newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
+    return moment(new Date(newDate)).unix();
   }
 
   const onChangeDate = (dates: any, dateStrings: any) => {
-    const startDate = convertDateToTimestamp(dateStrings[0],"/");
+
+    const startDate = convertDateToTimestamp(dateStrings[0]);
+    // const startDate = moment(new Date(dateStrings[0])).unix();
     setStartDate(startDate);
-    const endDate = convertDateToTimestamp(dateStrings[1],"/");
+    // const endDate = moment(new Date(dateStrings[1])).unix();
+    const endDate = convertDateToTimestamp(dateStrings[1]);
     setEndDate(endDate);
   };
 
-  const updateEcommerceList = React.useCallback((result) => {
-    console.log("postProductEcommerceList: ", result);
-    if (result) {
+  const updateEcommerceList = React.useCallback((data) => {
+    if (data) {
       setIsShowResultGetItemModal(true);
-      setTotalGetItem(11);
-      setItemsUpdated(5)
-      setItemsNotConnected(6);
+
+      setTotalGetItem(data.total);
+      setItemsUpdated(data.update_total);
+      setItemsNotConnected(data.create_total);
     }
-    
   }, []);
 
   const getProductsFromEcommerce = () => {
@@ -314,7 +316,6 @@ const Products: React.FC = () => {
                 placeholder={["Từ ngày", "Đến ngày"]}
                 style={{width: "100%"}}
                 ranges={{
-                  "Hôm nay": [moment(), moment()],
                   'Tháng này': [moment().startOf('month'), moment().endOf('month')],
                 }}
                 format={DATE_FORMAT.DDMMYYY}
