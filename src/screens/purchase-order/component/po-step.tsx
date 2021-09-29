@@ -33,7 +33,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     activated_date,
     completed_date,
     cancelled_date,
-
     status: poStatus,
   } = poData;
   const getDescription = (step: number) => {
@@ -57,9 +56,9 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       case 4:
         if (currentStep === 6 && cancelled_date) {
           return ConvertUtcToLocalDate(cancelled_date);
-        } else if(completed_date){
+        } else if (completed_date) {
           return ConvertUtcToLocalDate(completed_date);
-        }else{
+        } else {
           return null;
         }
 
