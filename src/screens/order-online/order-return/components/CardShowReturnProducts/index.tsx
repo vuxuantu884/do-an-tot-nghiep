@@ -46,7 +46,7 @@ function CardShowReturnProducts(props: PropType) {
       setTotalAmountReturnProducts(totalPrice);
       return totalPrice;
     },
-    [getProductDiscountPerOrder]
+    [getProductDiscountPerOrder, setTotalAmountReturnProducts]
   );
 
   const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {

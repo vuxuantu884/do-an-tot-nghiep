@@ -14,7 +14,6 @@ import {
   actionGetOrderReturnReasons,
 } from "domain/actions/order/order-return.action";
 import {
-  orderCreateAction,
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
@@ -61,7 +60,7 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardExchangeProducts from "../components/CardExchangeProducts";
