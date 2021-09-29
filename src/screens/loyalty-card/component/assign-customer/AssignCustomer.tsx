@@ -50,10 +50,10 @@ const AssignCustomer = (props: ModalProps) => {
   }, [onSaveSuccess, onClose])
 
   const cardAssignment = useCallback(() => {
-    if (selectedCustomer) {
-      dispatch(LoyaltyCardAssignment(card.id, { customer_id: selectedCustomer.customer.id, customer_name: selectedCustomer.customer.full_name }, assignmentCallback))
+    if (selectedCustomer && card) {
+      dispatch(LoyaltyCardAssignment(card.id, { customer_id: selectedCustomer.customer.id, card_number: card.card_number }, assignmentCallback))
     }
-  }, [selectedCustomer, dispatch, assignmentCallback, card?.id])
+  }, [selectedCustomer, dispatch, assignmentCallback, card])
 
   const onChange = (data: string) => {
     setKeyword(data);

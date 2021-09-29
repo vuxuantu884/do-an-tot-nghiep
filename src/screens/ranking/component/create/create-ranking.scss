@@ -29,7 +29,8 @@
   }
 
   .action-group {
-    padding-right: 50px !important;
+    width: 100%;
+    padding-right: calc(35px + 2.4%) !important;
     display: flex;
     align-items: center;
     justify-content: flex-end;

@@ -307,7 +307,7 @@ const LoyaltyPage = () => {
             <Row>
               <div className="redemption-rules">
                 <div className="row-label">Cấu hình tiêu điểm</div>
-                <div className="overflow-table">
+                <div className="redemption-rules__table">
                   <table className="rules">
                     <thead>
                       <tr>
