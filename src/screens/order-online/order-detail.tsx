@@ -32,9 +32,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import {
   OrderPaymentRequest,
-  UpdateFulFillmentRequest,
   UpdateOrderPaymentRequest,
-  UpdatePaymentRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -142,32 +140,32 @@ const OrderDetail = (props: PropType) => {
     setPaymentType(paymentType);
   };
 
-  const CreateFulFillmentRequest = () => {
-    let request: UpdateFulFillmentRequest = {
-      id: null,
-      order_id: null,
-      store_id: OrderDetail?.store_id,
-      account_code: OrderDetail?.account_code,
-      assignee_code: OrderDetail?.assignee_code,
-      delivery_type: "",
-      stock_location_id: null,
-      payment_status: "",
-      total: null,
-      total_tax: null,
-      total_discount: null,
-      total_quantity: null,
-      discount_rate: null,
-      discount_value: null,
-      discount_amount: null,
-      total_line_amount_after_line_discount: null,
-      shipment: null,
-      items: OrderDetail?.items,
-      shipping_fee_informed_to_customer: null,
-    };
-    let listFullfillmentRequest = [];
-    listFullfillmentRequest.push(request);
-    return listFullfillmentRequest;
-  };
+  // const CreateFulFillmentRequest = () => {
+  //   let request: UpdateFulFillmentRequest = {
+  //     id: null,
+  //     order_id: null,
+  //     store_id: OrderDetail?.store_id,
+  //     account_code: OrderDetail?.account_code,
+  //     assignee_code: OrderDetail?.assignee_code,
+  //     delivery_type: "",
+  //     stock_location_id: null,
+  //     payment_status: "",
+  //     total: null,
+  //     total_tax: null,
+  //     total_discount: null,
+  //     total_quantity: null,
+  //     discount_rate: null,
+  //     discount_value: null,
+  //     discount_amount: null,
+  //     total_line_amount_after_line_discount: null,
+  //     shipment: null,
+  //     items: OrderDetail?.items,
+  //     shipping_fee_informed_to_customer: null,
+  //   };
+  //   let listFullfillmentRequest = [];
+  //   listFullfillmentRequest.push(request);
+  //   return listFullfillmentRequest;
+  // };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
     showSuccess("Thanh toán thành công");
@@ -176,7 +174,7 @@ const OrderDetail = (props: PropType) => {
 
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
-      let fulfillment = CreateFulFillmentRequest();
+      let fulfillment = OrderDetail?.fulfillments;
       let formValue = form.getFieldsValue();
       let payments: UpdateOrderPaymentRequest[] = [];
       const formReturnMoney = formValue.returnMoneyField[0];
@@ -209,7 +207,7 @@ const OrderDetail = (props: PropType) => {
         ];
       }
 
-      let request: UpdatePaymentRequest = {
+      let request = {
         payments: payments,
         fulfillments: fulfillment,
       };
