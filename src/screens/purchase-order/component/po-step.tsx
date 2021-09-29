@@ -22,7 +22,7 @@ const statusToStep = {
 //   FINISHED("finished", "Đã kết thúc"), //Kết thúc
 //   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export interface POStepProps {
-  poData: PurchaseOrder|any;
+  poData: PurchaseOrder | any;
 }
 
 const POStep: React.FC<POStepProps> = (props: POStepProps) => {
@@ -33,6 +33,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     activated_date,
     completed_date,
     cancelled_date,
+
     status: poStatus,
   } = poData;
   const getDescription = (step: number) => {
@@ -54,20 +55,29 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         if (currentStep >= 3 && date) return ConvertUtcToLocalDate(date);
         return null;
       case 4:
-        if (currentStep >= 4) {
-          if (
-            currentStep === statusToStep[POStatus.CANCELLED] &&
-            cancelled_date
-          ) {
-            return ConvertUtcToLocalDate(cancelled_date);
-          } else if (completed_date) {
-            return ConvertUtcToLocalDate(completed_date);
-          }
+        if (currentStep === 6 && cancelled_date) {
+          return ConvertUtcToLocalDate(cancelled_date);
+        } else if(completed_date){
+          return ConvertUtcToLocalDate(completed_date);
+        }else{
+          return null;
         }
+
+      default:
         return null;
     }
   };
-
+  const getLastStepName = () => {
+    const currentStep = statusToStep[poStatus];
+    switch (currentStep) {
+      case 5:
+        return "Kết thúc";
+      case 6:
+        return "Huỷ";
+      default:
+        return "Hoàn thành";
+    }
+  };
   return (
     <Steps
       progressDot={(dot: any, { status, index }: any) => (
@@ -81,16 +91,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       <Steps.Step title="Đặt hàng" description={getDescription(0)} />
       <Steps.Step title="Xác nhận" description={getDescription(1)} />
       <Steps.Step title="Nhập kho" description={getDescription(3)} />
-      <Steps.Step
-        title={
-          statusToStep[poStatus] === 4
-            ? "Hoàn thành"
-            : statusToStep[poStatus] === 5
-            ? "Kết thúc"
-            : "Hủy"
-        }
-        description={getDescription(4)}
-      />
+      <Steps.Step title={getLastStepName()} description={getDescription(4)} />
     </Steps>
   );
 };
