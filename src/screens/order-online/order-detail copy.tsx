@@ -4,11 +4,11 @@ import {
   Col,
   Collapse,
   Divider,
-  Form,
   Modal,
   Row,
   Space,
   Tag,
+  Form,
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -25,21 +25,20 @@ import {
   cancelOrderRequest,
   OrderDetailAction,
   PaymentMethodGetList,
-  UpdatePaymentAction,
 } from "domain/actions/order/order.action";
+import _ from "lodash";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import {
   OrderPaymentRequest,
-  UpdateFulFillmentRequest,
   UpdateOrderPaymentRequest,
-  UpdatePaymentRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  OrderPaymentResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -52,7 +51,7 @@ import {
   useState,
 } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
@@ -66,7 +65,6 @@ import {
   PaymentMethodCode,
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
 import ActionHistory from "./component/order-detail/ActionHistory";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
@@ -74,7 +72,6 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
-import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -88,7 +85,6 @@ type OrderParam = {
 const OrderDetail = (props: PropType) => {
   const { isCloneOrder } = props;
   let { id } = useParams<OrderParam>();
-  const history = useHistory();
   if (!id && props.id && isCloneOrder) {
     id = props.id;
   }
@@ -125,11 +121,6 @@ const OrderDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
 
-  // đổi hàng
-  const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
-    useState<number>(0);
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
-
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -143,85 +134,7 @@ const OrderDetail = (props: PropType) => {
     setPaymentType(paymentType);
   };
 
-  const CreateFulFillmentRequest = () => {
-    let request: UpdateFulFillmentRequest = {
-      id: null,
-      order_id: null,
-      store_id: OrderDetail?.store_id,
-      account_code: OrderDetail?.account_code,
-      assignee_code: OrderDetail?.assignee_code,
-      delivery_type: "",
-      stock_location_id: null,
-      payment_status: "",
-      total: null,
-      total_tax: null,
-      total_discount: null,
-      total_quantity: null,
-      discount_rate: null,
-      discount_value: null,
-      discount_amount: null,
-      total_line_amount_after_line_discount: null,
-      shipment: null,
-      items: OrderDetail?.items,
-      shipping_fee_informed_to_customer: null,
-    };
-    let listFullfillmentRequest = [];
-    listFullfillmentRequest.push(request);
-    return listFullfillmentRequest;
-  };
-
-  const onUpdateSuccess = useCallback((value: OrderResponse) => {
-    showSuccess("Thanh toán thành công");
-    window.location.reload();
-  }, []);
-
-  const handleReturnMoney = () => {
-    form.validateFields().then(() => {
-      let fulfillment = CreateFulFillmentRequest();
-      let formValue = form.getFieldsValue();
-      let payments: UpdateOrderPaymentRequest[] = [];
-      const formReturnMoney = formValue.returnMoneyField[0];
-      let returnMoneyMethod = listPaymentMethods.find((single) => {
-        return single.id === formReturnMoney.returnMoneyMethod;
-      });
-      if (returnMoneyMethod) {
-        payments = [
-          {
-            payment_method_id: returnMoneyMethod.id,
-            payment_method: returnMoneyMethod.name,
-            amount: -Math.abs(
-              customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-            ),
-            reference: "",
-            source: "",
-            paid_amount: -Math.abs(
-              customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-            ),
-            return_amount: 0.0,
-            status: "paid",
-            type: "",
-            note: formReturnMoney.returnMoneyNote || "",
-            code: "",
-            order_id: OrderDetail?.id ? OrderDetail?.id : null,
-            customer_id: customerDetail?.id || null,
-          },
-        ];
-      }
-
-      let request: UpdatePaymentRequest = {
-        payments: payments,
-        fulfillments: fulfillment,
-      };
-      console.log("request", request);
-      if (OrderDetail?.id) {
-        dispatch(
-          UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess)
-        );
-      }
-    });
-  };
+  const handleReturnMoney = () => {};
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     // setPayments(value);
@@ -302,6 +215,7 @@ const OrderDetail = (props: PropType) => {
     },
     []
   );
+
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -314,6 +228,7 @@ const OrderDetail = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNED &&
           f.status !== FulFillmentStatus.RETURNING
       );
+
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
     }
@@ -390,21 +305,26 @@ const OrderDetail = (props: PropType) => {
 
   const orderActionsClick = useCallback(
     (type) => {
-    switch (type) {
-      case 'cancel':
-        if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
-          cancelModal(1)
-        } else  {
-          cancelModal(2)
-        }
-        
-        break
-      case 'update':
-        history.push(`${UrlConfig.ORDER}/${id}/update`);
-        break
-      default: break  
-    }
-  }, [OrderDetail?.fulfillments, cancelModal, history, id]);
+      console.log("type", type);
+      console.log("OrderDetail?.status", OrderDetail?.status);
+      switch (type) {
+        case "cancel":
+          if (
+            OrderDetail?.fulfillments &&
+            OrderDetail?.fulfillments[0]?.export_on
+          ) {
+            cancelModal(1);
+          } else {
+            cancelModal(2);
+          }
+
+          break;
+        default:
+          break;
+      }
+    },
+    [OrderDetail?.fulfillments, OrderDetail?.status, cancelModal]
+  );
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -448,6 +368,48 @@ const OrderDetail = (props: PropType) => {
       cauHinhInNhieuLienHoaDon: 3,
     });
   }, []);
+
+  /**
+   * trường hợp khac
+   */
+  useEffect(() => {
+    let returnPaymentCode = "cash";
+    let returnPaymentMethod = listPaymentMethods.find((single) => {
+      return single.code === returnPaymentCode;
+    });
+
+    if (OrderDetail?.order_return_origin && returnPaymentMethod) {
+      let dataPaymentReturn: OrderPaymentResponse = {
+        customer_id: OrderDetail?.customer_id || 0,
+        payment_method_id: returnPaymentMethod.id,
+        amount:
+          OrderDetail?.order_return_origin
+            .total_line_amount_after_line_discount,
+        paid_amount: 0,
+        return_amount: 0,
+        status: "paid",
+        name: returnPaymentMethod.name,
+        code: returnPaymentMethod.code,
+        payment_method: returnPaymentMethod.name,
+        reference: "",
+        source: "",
+        note: "",
+        type: "",
+        id: 0,
+      };
+      let newPayment = OrderDetail.payments;
+      newPayment?.push(dataPaymentReturn);
+      let resultOrderDetail: OrderResponse = {
+        ...OrderDetail,
+        payments: newPayment,
+      };
+      setOrderDetail(resultOrderDetail);
+    }
+  }, [
+    OrderDetail?.customer_id,
+    OrderDetail?.order_return_origin,
+    listPaymentMethods,
+  ]);
 
   // khách cần trả
   const customerNeedToPay: any = () => {
@@ -552,19 +514,11 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end customer ---*/}
 
-              {OrderDetail?.order_return_origin?.items && (
-                <CardShowReturnProducts
-                  listReturnProducts={OrderDetail?.order_return_origin?.items}
-                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
-                />
-              )}
-
               {/*--- product ---*/}
               <UpdateProductCard
                 OrderDetail={OrderDetail}
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 customerNeedToPayValue={customerNeedToPayValue}
-                totalAmountReturnProducts={totalAmountReturnProducts}
               />
               {/*--- end product ---*/}
 
@@ -593,8 +547,8 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
-                OrderDetail?.payments &&
-                OrderDetail?.payments?.length > 0 && (
+                ((OrderDetail?.payments && OrderDetail?.payments?.length > 0) ||
+                  OrderDetail.order_return_origin) && (
                   <Card
                     className="margin-top-20"
                     title={
@@ -645,13 +599,7 @@ const OrderDetail = (props: PropType) => {
                         </Col>
                         <Col span={12}>
                           <span className="text-field margin-right-40">
-                            {customerNeedToPayValue -
-                              (OrderDetail?.total_paid
-                                ? OrderDetail?.total_paid
-                                : 0) >
-                            0
-                              ? `Còn phải trả:`
-                              : `Hoàn tiền cho khách:`}
+                            Còn phải trả:
                           </span>
                           <b style={{ color: "red" }}>
                             {OrderDetail?.fulfillments &&
@@ -659,12 +607,10 @@ const OrderDetail = (props: PropType) => {
                             OrderDetail?.fulfillments[0].shipment?.cod
                               ? 0
                               : formatCurrency(
-                                  Math.abs(
-                                    customerNeedToPayValue -
-                                      (OrderDetail?.total_paid
-                                        ? OrderDetail?.total_paid
-                                        : 0)
-                                  )
+                                  customerNeedToPayValue -
+                                    (OrderDetail?.total_paid
+                                      ? OrderDetail?.total_paid
+                                      : 0)
                                 )}
                           </b>
                         </Col>
@@ -905,6 +851,16 @@ const OrderDetail = (props: PropType) => {
                         <div className="d-flex">
                           <span className="title-card">THANH TOÁN 2</span>
                         </div>
+                        {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                        <Tag className="orders-tag orders-tag-default">
+                          Chưa thanh toán
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                        <Tag className="orders-tag orders-tag-warning">
+                          Thanh toán 1 phần
+                        </Tag>
+                      )} */}
                         {checkPaymentStatusToShow(OrderDetail) === 1 && (
                           <Tag
                             className="orders-tag orders-tag-success"
@@ -931,7 +887,14 @@ const OrderDetail = (props: PropType) => {
                           <span className="text-field margin-right-40">
                             Còn phải trả:
                           </span>
-                          <b style={{ color: "red" }}>0</b>
+                          <b style={{ color: "red" }}>
+                            0
+                            {/* {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
+                            ? formatCurrency(
+                                OrderDetail.fulfillments[0].shipment?.cod
+                              )
+                            : 0} */}
+                          </b>
                         </Col>
                       </Row>
                     </div>
@@ -1038,21 +1001,16 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- end payment ---*/}
 
-              {customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
-                0 && (
-                <CardReturnMoney
-                  listPaymentMethods={listPaymentMethods}
-                  payments={[]}
-                  returnMoneyAmount={Math.abs(
-                    customerNeedToPayValue -
-                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-                  )}
-                  isShowPaymentMethod={true}
-                  setIsShowPaymentMethod={() => {}}
-                  handleReturnMoney={handleReturnMoney}
-                />
-              )}
+              <CardReturnMoney
+                listPaymentMethods={listPaymentMethods}
+                payments={[]}
+                returnMoneyAmount={
+                  OrderDetail?.total_line_amount_after_line_discount || 0
+                }
+                isShowPaymentMethod={true}
+                setIsShowPaymentMethod={() => {}}
+                handleReturnMoney={handleReturnMoney}
+              />
             </Col>
 
             <Col md={6}>

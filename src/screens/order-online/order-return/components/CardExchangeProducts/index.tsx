@@ -86,6 +86,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
 ) => {
   const { items, handleCardItems, amountReturn, totalAmountCustomerNeedToPay } =
     props;
+  console.log("amountReturn", amountReturn);
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);

@@ -567,11 +567,11 @@ export const Products = {
         uid: item.image_id.toString(),
         name: item.image_id.toString(),
         url: item.url,
-        status: 'done',
+        status: "done",
       });
     });
     return arr;
-  }
+  },
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
@@ -660,7 +660,7 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       items?.discounts.length > 0 &&
       items?.discounts[0].amount
         ? items?.discounts[0].amount
-        : 0) ===
+        : 0) <=
     value
   ) {
     return 1; //đã thanh toán

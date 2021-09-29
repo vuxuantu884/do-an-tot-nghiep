@@ -11,11 +11,13 @@ type PropType = {
   orderDetail?: OrderResponse | null;
   isVisibleGroupButtons?: boolean;
   isVisibleActionsButtons?: boolean;
+  isVisibleUpdateButtons?: boolean;
   stepsStatusValue?: string;
   formRef?: React.RefObject<FormInstance<any>>;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
+  updateCancelClick?: () => void;
 };
 
 const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
@@ -23,11 +25,13 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     orderDetail,
     isVisibleGroupButtons,
     isVisibleActionsButtons,
+    isVisibleUpdateButtons,
     stepsStatusValue,
     formRef,
     handleTypeButton,
     showSaveAndConfirmModal,
-    orderActionsClick
+    orderActionsClick,
+    updateCancelClick
   } = props;
 
   return (
@@ -43,94 +47,132 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
           formRef &&
           handleTypeButton &&
           showSaveAndConfirmModal && (
-            <Col md={9} style={{ marginTop: "8px" }}>
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => window.location.reload()}
-              >
-                Huỷ
+          <Col md={9} style={{ marginTop: "8px" }}>
+            <Button
+              style={{ padding: "0 25px", fontWeight: 400 }}
+              className="ant-btn-outline fixed-button cancle-button"
+              onClick={() => window.location.reload()}
+            >
+              Huỷ
+            </Button>
+            <Button
+              style={{ padding: "0 25px", fontWeight: 400 }}
+              className="create-button-custom ant-btn-outline fixed-button"
+              type="primary"
+              onClick={showSaveAndConfirmModal}
+            >
+              Lưu nháp
+            </Button>
+            <Button
+              style={{ padding: "0 25px", fontWeight: 400 }}
+              type="primary"
+              className="create-button-custom"
+              id="save-and-confirm"
+              onClick={() => {
+                handleTypeButton(OrderStatus.FINALIZED);
+                console.log(
+                  "formRef.current.value",
+                  formRef?.current?.getFieldsValue()
+                );
+                formRef.current?.submit();
+              }}
+            >
+              Lưu và Xác nhận
+            </Button>
+          </Col>
+        )}
+        {isVisibleUpdateButtons &&
+          formRef &&
+          handleTypeButton &&
+          showSaveAndConfirmModal && (
+          <Col md={9} style={{ marginTop: "8px" }}>
+            <Button
+              style={{ padding: "0 25px", fontWeight: 400 }}
+              className="ant-btn-outline fixed-button cancle-button"
+              onClick={() => updateCancelClick && updateCancelClick()}
+            >
+              Huỷ
+            </Button>
+            
+            <Button
+              style={{ padding: "0 25px", fontWeight: 400 }}
+              type="primary"
+              className="create-button-custom"
+              id="save-and-confirm"
+              onClick={() => {
+                handleTypeButton(OrderStatus.FINALIZED);
+                console.log(
+                  "formRef.current.value",
+                  formRef?.current?.getFieldsValue()
+                );
+                formRef.current?.submit();
+              }}
+            >
+              Cập nhật đơn hàng
+            </Button>
+          </Col>
+        )}
+        {isVisibleActionsButtons &&(
+          <Col md={10} style={{ marginTop: "8px" }}>
+            <Dropdown
+              // overlayStyle={{ minWidth: "15rem" }}
+              getPopupContainer={trigger => trigger}
+              overlay={
+                <Menu >
+                  <Menu.Item
+                    key="update"
+                    onClick={() => orderActionsClick && orderActionsClick('update')}
+                    // disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
+                  >
+                    Sửa đơn hàng
+                  </Menu.Item>
+                  <Menu.Item
+                    key="cancel"
+                    onClick={() => orderActionsClick && orderActionsClick('cancel')}
+                    disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
+                  >
+                    Huỷ đơn hàng
+                  </Menu.Item>
+                  <Menu.Item
+                    key="clone"
+                    onClick={() => orderActionsClick && orderActionsClick('clone')}
+                  >
+                    Sao chép đơn hàng
+                  </Menu.Item>
+                </Menu>
+              }
+              
+              trigger={["click"]}
+            >
+              <Button style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
+                Thêm thao tác <DownOutlined />
               </Button>
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                type="primary"
-                onClick={showSaveAndConfirmModal}
-              >
-                Lưu nháp
+            </Dropdown>
+            <Dropdown
+              // overlayStyle={{ minWidth: "15rem" }}
+              getPopupContainer={trigger => trigger}
+              overlay={
+                <Menu>
+                  <Menu.Item
+                    onClick={() => props.orderActionsClick && props.orderActionsClick('cancel')}
+                  >
+                    In nhanh
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => props.orderActionsClick && props.orderActionsClick('clone')}
+                  >
+                    In tuỳ chọn
+                  </Menu.Item>
+                </Menu>
+              }
+              trigger={["click"]}
+            >
+              <Button type="primary" style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
+                <img src={IconPrint} alt="" style={{paddingRight: '10px'}}/> In đơn hàng 
               </Button>
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                type="primary"
-                className="create-button-custom"
-                id="save-and-confirm"
-                onClick={() => {
-                  handleTypeButton(OrderStatus.FINALIZED);
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
-                  formRef.current?.submit();
-                }}
-              >
-                Lưu và Xác nhận
-              </Button>
-            </Col>
-          )}
-          {isVisibleActionsButtons &&(
-            <Col md={10} style={{ marginTop: "8px" }}>
-              <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
-                getPopupContainer={trigger => trigger}
-                overlay={
-                  <Menu >
-                    <Menu.Item
-                      key="cancel"
-                      onClick={() => orderActionsClick && orderActionsClick('cancel')}
-                      disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
-                    >
-                      Huỷ đơn hàng
-                    </Menu.Item>
-                    <Menu.Item
-                      key="clone"
-                      onClick={() => orderActionsClick && orderActionsClick('clone')}
-                    >
-                      Sao chép đơn hàng
-                    </Menu.Item>
-                  </Menu>
-                }
-                
-                trigger={["click"]}
-              >
-                <Button style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
-                  Thêm thao tác <DownOutlined />
-                </Button>
-              </Dropdown>
-              <Dropdown
-                // overlayStyle={{ minWidth: "15rem" }}
-                getPopupContainer={trigger => trigger}
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      onClick={() => props.orderActionsClick && props.orderActionsClick('cancel')}
-                    >
-                      In nhanh
-                    </Menu.Item>
-                    <Menu.Item
-                      onClick={() => props.orderActionsClick && props.orderActionsClick('clone')}
-                    >
-                      In tuỳ chọn
-                    </Menu.Item>
-                  </Menu>
-                }
-                trigger={["click"]}
-              >
-                <Button type="primary" style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
-                  <img src={IconPrint} alt="" style={{paddingRight: '10px'}}/> In đơn hàng 
-                </Button>
-              </Dropdown>
-            </Col>
-          )}  
+            </Dropdown>
+          </Col>
+        )}
       </Row>
     </StyledComponent>
   );
