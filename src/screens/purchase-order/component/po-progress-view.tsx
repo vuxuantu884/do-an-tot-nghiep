@@ -62,7 +62,7 @@ const POProgressView: React.FC<POProgressViewProps> = (
                 <MinusCircleFilled
                   style={{ color: "#E24343", marginRight: 4 }}
                 />
-                {remainTitle}:
+                {`${remainTitle}: `} 
                 <span style={{ color: "#E24343" }}>
                   {total - received}
                 </span>
@@ -72,7 +72,7 @@ const POProgressView: React.FC<POProgressViewProps> = (
                 <PlusCircleOutlined
                   style={{ color: "#27ae60", marginRight: 4 }}
                 />
-                {remainTitle}:
+                {`${remainTitle}: `} 
                 <span style={{ color: "#27ae60" }}>
                   {Math.abs(total - received)}
                 </span>

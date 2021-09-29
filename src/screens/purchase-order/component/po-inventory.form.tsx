@@ -84,7 +84,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEdit, setIsEdit] = useState(false);
-    
+   
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingCreate(false);
@@ -257,14 +257,19 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             }
             if (
               receive_status === ProcumentStatus.CANCELLED ||
-              receive_status === ProcumentStatus.FINISHED ||
               receive_status === ProcumentStatus.RECEIVED
             ) {
               statusName = "Đã nhập kho";
               className += " po-tag-success";
               dotClassName += " success";
             }
-            return (
+            if( receive_status === ProcumentStatus.FINISHED ){
+              statusName = "Đã nhận hàng";
+              className += " po-tag-success";
+              dotClassName += " success";
+            }
+
+            return ( 
               <Space>
                { isShowStatusTag && <div className={dotClassName} style={{ fontSize: 8 }} />}
                 <div className="d-flex">
@@ -373,6 +378,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setVisibleConfirm(true);
               }
             }}
+            
           />
         ) : (
           <POInventoryDraft
