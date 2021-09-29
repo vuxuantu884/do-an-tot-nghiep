@@ -50,7 +50,7 @@ import {
   useState,
 } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
@@ -86,6 +86,7 @@ type OrderParam = {
 const OrderDetail = (props: PropType) => {
   const { isCloneOrder } = props;
   let { id } = useParams<OrderParam>();
+  const history = useHistory();
   if (!id && props.id && isCloneOrder) {
     id = props.id;
   }
@@ -387,26 +388,21 @@ const OrderDetail = (props: PropType) => {
 
   const orderActionsClick = useCallback(
     (type) => {
-      console.log("type", type);
-      console.log("OrderDetail?.status", OrderDetail?.status);
-      switch (type) {
-        case "cancel":
-          if (
-            OrderDetail?.fulfillments &&
-            OrderDetail?.fulfillments[0]?.export_on
-          ) {
-            cancelModal(1);
-          } else {
-            cancelModal(2);
-          }
-
-          break;
-        default:
-          break;
-      }
-    },
-    [OrderDetail?.fulfillments, OrderDetail?.status, cancelModal]
-  );
+    switch (type) {
+      case 'cancel':
+        if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
+          cancelModal(1)
+        } else  {
+          cancelModal(2)
+        }
+        
+        break
+      case 'update':
+        history.push(`${UrlConfig.ORDER}/${id}/update`);
+        break
+      default: break  
+    }
+  }, [OrderDetail?.fulfillments, cancelModal, history, id]);
 
   useEffect(() => {
     if (isFirstLoad.current) {

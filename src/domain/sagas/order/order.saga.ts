@@ -33,6 +33,7 @@ import {
   getReasonsApi,
   getReturnApi,
   orderPostApi,
+  orderPutApi,
   updateDeliveryConnectService,
 } from "../../../service/order/order.service";
 import { OrderType } from "../../types/order.type";
@@ -145,6 +146,26 @@ function* orderCreateSaga(action: YodyAction) {
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       orderPostApi,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+function* orderUpdateSaga(action: YodyAction) {
+  const { id, request, setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      orderPutApi,
+      id,
       request
     );
     switch (response.code) {
@@ -674,6 +695,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.GET_RETURNS_REQUEST, getReturnsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
+  yield takeLatest(OrderType.UPDATE_ORDER_REQUEST, orderUpdateSaga);
   yield takeLatest(OrderType.CREATE_FPAGE_ORDER_REQUEST, orderFpageCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);

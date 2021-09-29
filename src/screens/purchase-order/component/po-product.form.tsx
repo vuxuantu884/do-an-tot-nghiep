@@ -745,7 +745,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             textAlign: "right",
                           }}
                         >
-                          Thành tiền (%)
+                          VAT (%)
                         </div>
                       ),
                       width: 120,
