@@ -42,7 +42,7 @@ const bill: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.ORDER}/list`,
+        path: `${UrlConfig.ORDER}`,
         exact: true,
         title: "Chi tiết đơn hàng",
         icon: "icon-dot",
