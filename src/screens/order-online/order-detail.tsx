@@ -25,11 +25,17 @@ import {
   cancelOrderRequest,
   OrderDetailAction,
   PaymentMethodGetList,
+  UpdatePaymentAction,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
-import { OrderPaymentRequest } from "model/request/order.request";
+import {
+  OrderPaymentRequest,
+  UpdateFulFillmentRequest,
+  UpdateOrderPaymentRequest,
+  UpdatePaymentRequest,
+} from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -60,6 +66,7 @@ import {
   PaymentMethodCode,
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
 import ActionHistory from "./component/order-detail/ActionHistory";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
@@ -135,7 +142,85 @@ const OrderDetail = (props: PropType) => {
     setPaymentType(paymentType);
   };
 
-  const handleReturnMoney = () => {};
+  const CreateFulFillmentRequest = () => {
+    let request: UpdateFulFillmentRequest = {
+      id: null,
+      order_id: null,
+      store_id: OrderDetail?.store_id,
+      account_code: OrderDetail?.account_code,
+      assignee_code: OrderDetail?.assignee_code,
+      delivery_type: "",
+      stock_location_id: null,
+      payment_status: "",
+      total: null,
+      total_tax: null,
+      total_discount: null,
+      total_quantity: null,
+      discount_rate: null,
+      discount_value: null,
+      discount_amount: null,
+      total_line_amount_after_line_discount: null,
+      shipment: null,
+      items: OrderDetail?.items,
+      shipping_fee_informed_to_customer: null,
+    };
+    let listFullfillmentRequest = [];
+    listFullfillmentRequest.push(request);
+    return listFullfillmentRequest;
+  };
+
+  const onUpdateSuccess = useCallback((value: OrderResponse) => {
+    showSuccess("Thanh toán thành công");
+    window.location.reload();
+  }, []);
+
+  const handleReturnMoney = () => {
+    form.validateFields().then(() => {
+      let fulfillment = CreateFulFillmentRequest();
+      let formValue = form.getFieldsValue();
+      let payments: UpdateOrderPaymentRequest[] = [];
+      const formReturnMoney = formValue.returnMoneyField[0];
+      let returnMoneyMethod = listPaymentMethods.find((single) => {
+        return single.id === formReturnMoney.returnMoneyMethod;
+      });
+      if (returnMoneyMethod) {
+        payments = [
+          {
+            payment_method_id: returnMoneyMethod.id,
+            payment_method: returnMoneyMethod.name,
+            amount: -Math.abs(
+              customerNeedToPayValue -
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            ),
+            reference: "",
+            source: "",
+            paid_amount: -Math.abs(
+              customerNeedToPayValue -
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            ),
+            return_amount: 0.0,
+            status: "paid",
+            type: "",
+            note: formReturnMoney.returnMoneyNote || "",
+            code: "",
+            order_id: OrderDetail?.id ? OrderDetail?.id : null,
+            customer_id: customerDetail?.id || null,
+          },
+        ];
+      }
+
+      let request: UpdatePaymentRequest = {
+        payments: payments,
+        fulfillments: fulfillment,
+      };
+      console.log("request", request);
+      if (OrderDetail?.id) {
+        dispatch(
+          UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess)
+        );
+      }
+    });
+  };
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     // setPayments(value);
@@ -957,11 +1042,16 @@ const OrderDetail = (props: PropType) => {
 
               {/*--- end payment ---*/}
 
-              {OrderDetail?.total && OrderDetail?.total > 0 && (
+              {customerNeedToPayValue -
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                0 && (
                 <CardReturnMoney
                   listPaymentMethods={listPaymentMethods}
                   payments={[]}
-                  returnMoneyAmount={OrderDetail?.total || 0}
+                  returnMoneyAmount={Math.abs(
+                    customerNeedToPayValue -
+                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                  )}
                   isShowPaymentMethod={true}
                   setIsShowPaymentMethod={() => {}}
                   handleReturnMoney={handleReturnMoney}
