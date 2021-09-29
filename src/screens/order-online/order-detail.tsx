@@ -169,7 +169,7 @@ const OrderDetail = (props: PropType) => {
   // };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
-    showSuccess("Thanh toán thành công");
+    showSuccess("Thanh toán thành công!");
     window.location.reload();
   }, []);
 
@@ -388,21 +388,27 @@ const OrderDetail = (props: PropType) => {
 
   const orderActionsClick = useCallback(
     (type) => {
-    switch (type) {
-      case 'cancel':
-        if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
-          cancelModal(1)
-        } else  {
-          cancelModal(2)
-        }
-        
-        break
-      case 'update':
-        history.push(`${UrlConfig.ORDER}/${id}/update`);
-        break
-      default: break  
-    }
-  }, [OrderDetail?.fulfillments, cancelModal, history, id]);
+      switch (type) {
+        case "cancel":
+          if (
+            OrderDetail?.fulfillments &&
+            OrderDetail?.fulfillments[0]?.export_on
+          ) {
+            cancelModal(1);
+          } else {
+            cancelModal(2);
+          }
+
+          break;
+        case "update":
+          history.push(`${UrlConfig.ORDER}/${id}/update`);
+          break;
+        default:
+          break;
+      }
+    },
+    [OrderDetail?.fulfillments, cancelModal, history, id]
+  );
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -565,6 +571,22 @@ const OrderDetail = (props: PropType) => {
                 totalAmountReturnProducts={totalAmountReturnProducts}
               />
               {/*--- end product ---*/}
+
+              {customerNeedToPayValue -
+                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                0 && (
+                <CardReturnMoney
+                  listPaymentMethods={listPaymentMethods}
+                  payments={[]}
+                  returnMoneyAmount={Math.abs(
+                    customerNeedToPayValue -
+                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                  )}
+                  isShowPaymentMethod={true}
+                  setIsShowPaymentMethod={() => {}}
+                  handleReturnMoney={handleReturnMoney}
+                />
+              )}
 
               {/*--- shipment ---*/}
               <UpdateShipmentCard
@@ -1048,22 +1070,6 @@ const OrderDetail = (props: PropType) => {
                 )}
 
               {/*--- end payment ---*/}
-
-              {customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
-                0 && (
-                <CardReturnMoney
-                  listPaymentMethods={listPaymentMethods}
-                  payments={[]}
-                  returnMoneyAmount={Math.abs(
-                    customerNeedToPayValue -
-                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-                  )}
-                  isShowPaymentMethod={true}
-                  setIsShowPaymentMethod={() => {}}
-                  handleReturnMoney={handleReturnMoney}
-                />
-              )}
             </Col>
 
             <Col md={6}>
