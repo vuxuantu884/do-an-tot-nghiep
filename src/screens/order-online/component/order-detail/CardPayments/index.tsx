@@ -45,10 +45,12 @@ type CardPaymentsProps = {
   amount: number;
   shipmentMethod: number;
   isCloneOrder: boolean;
+  levelOrder?: number;
+  updateOrder?: boolean;
 };
 
 function CardPayments(props: CardPaymentsProps) {
-  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod } =
+  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod, levelOrder = 0 } =
     props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
@@ -153,7 +155,8 @@ function CardPayments(props: CardPaymentsProps) {
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-
+  console.log('levelOrder', levelOrder);
+  
   // useEffect(() => {
   //   if (isCloneOrder && paymentMethod === 2) {
   //     handlePickPaymentMethod(paymentMethod);
@@ -179,6 +182,7 @@ function CardPayments(props: CardPaymentsProps) {
             value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
             style={{ margin: "18px 0" }}
+            disabled={levelOrder > 2}
           >
             <Space size={20}>
               <Radio value={PaymentMethodOption.COD}>COD</Radio>
@@ -251,6 +255,7 @@ function CardPayments(props: CardPaymentsProps) {
                 }
                 key="1"
                 showArrow={false}
+                // disabled={levelOrder > 2}
               >
                 <div style={{ width: "1200px", maxWidth: "100%" }}>
                   <Row gutter={24}>
@@ -341,6 +346,7 @@ function CardPayments(props: CardPaymentsProps) {
                                   handlePickPaymentMethod(method.id);
                                 }}
                                 className=""
+                                disabled={levelOrder > 2}
                               >
                                 {method.name}
                               </Button>
@@ -432,6 +438,7 @@ function CardPayments(props: CardPaymentsProps) {
                                       onChange={(value) => {
                                         handleInputPoint(index, value);
                                       }}
+                                      disabled={levelOrder > 2}
                                     />
                                   </Col>
                                 ) : null}
@@ -452,6 +459,7 @@ function CardPayments(props: CardPaymentsProps) {
                                           e.target.value
                                         )
                                       }
+                                      disabled={levelOrder > 2}
                                     />
                                   </Col>
                                 ) : null}
@@ -470,7 +478,7 @@ function CardPayments(props: CardPaymentsProps) {
                                   // max={calculateMax(props.amount, index)}
                                   value={method.amount}
                                   disabled={
-                                    method.code === PaymentMethodCode.POINT
+                                    method.code === PaymentMethodCode.POINT || levelOrder > 2
                                   }
                                   className="yody-payment-input hide-number-handle"
                                   formatter={(value) =>

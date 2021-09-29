@@ -80,6 +80,13 @@ export const orderPostApi = (
   return BaseAxios.post(`${ApiConfig.ORDER}/orders`, request);
 };
 
+export const orderPutApi = (
+  id: string,
+  request: OrderRequest
+): Promise<BaseResponse<OrderResponse>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/${id}`, request);
+};
+
 export const getInfoDeliveryGHTK = (
   request: ShippingGHTKRequest
 ): Promise<BaseResponse<ShippingGHTKResponse>> => {

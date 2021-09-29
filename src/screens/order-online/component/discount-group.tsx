@@ -12,12 +12,13 @@ type DiscountGroupProps = {
   totalAmount: number;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (_items: Array<OrderLineItemRequest>) => void;
+  disabled?: boolean;
 };
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (
   props: DiscountGroupProps
 ) => {
-  const { items } = props;
+  const { items, disabled = false } = props;
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
   let showResult = true;
@@ -79,6 +80,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           onFocus={(e) => {
             e.target.setSelectionRange(0, e.target.value.length);
           }}
+          disabled={disabled}
         />
       </Input.Group>
       {showResult && (

@@ -17,18 +17,20 @@ import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
 
 type PropType = {
-  amount: number;
+  amount: number | undefined;
   shippingFeeCustomer: number | null;
-  discountValue: number | null;
+  discountValue: number | null | undefined;
   OrderDetail?: OrderResponse | null;
-  payments?: OrderPaymentRequest[];
+  payments?: OrderPaymentRequest[] | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   // deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
+  serviceType?: string | null;
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
-  fulfillments: FulFillmentResponse[];
+  fulfillments: FulFillmentResponse[] | null | undefined;
   isCloneOrder?: boolean;
   addressError: string;
+  levelOrder?: number;
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -40,15 +42,17 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     setShippingFeeInformedCustomer,
     // deliveryServices,
     infoFees,
+    serviceType,
     changeServiceType,
     // fulfillments,
     // isCloneOrder,
     addressError,
+    levelOrder = 0
   } = props;
 
-  // console.log("propsShipmentmethod", props);
+  console.log("propsShipmentmethod", props.serviceType);
 
-  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState("");
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
 
   const totalAmountPaid = () => {
     let total = 0;
@@ -103,6 +107,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             {addressError}
           </div>
         )}
+        {levelOrder > 3 && (
+          <div style={{margin: '10px 0', color: '#ff4d4f' }}>Huỷ đơn giao để thực hiện các thay đổi giao hàng</div>
+        )}
         <Row gutter={20}>
           <Col md={12}>
             <Form.Item label="Tiền thu hộ: 3">
@@ -111,7 +118,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  amount +
+                  (amount? amount : 0) +
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
                   (discountValue ? discountValue : 0) -
                   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
