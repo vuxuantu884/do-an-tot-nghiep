@@ -95,18 +95,19 @@ export const ErrorGHTK = {
 //   FINISHED("finished", "Đã kết thúc"), //Kết thúc
 //   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export const POStatus = {
+  //Nháp
   DRAFT: "draft",
-  //xac nhan
+  //Đã xác nhận
   FINALIZED: "finalized",
-  //ket thuc
+  // Đã hoàn thành
   COMPLETED: "completed",
-  //hoan thanh
+  //Đã kết thúc
   FINISHED: "finished",
-  //huy
+  //Đã hủy
   CANCELLED: "cancelled",
-  //phieu nhap
+  //Phiếu nháp
   DRAFTPO: "draftpo",
-  //da nhap kho
+  //Đã nhập kho
   STORED: "stored",
   STOCK_IN: "stock_in",
 };

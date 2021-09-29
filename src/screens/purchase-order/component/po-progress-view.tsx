@@ -1,5 +1,5 @@
 import { Row, Col, Progress } from "antd";
-import { MinusCircleFilled, PlusCircleFilled, PlusCircleOutlined } from "@ant-design/icons";
+import { MinusCircleFilled, PlusCircleOutlined } from "@ant-design/icons";
 import { ReactNode, useMemo } from "react";
 type POProgressViewProps = {
   receivedTitle: string;
