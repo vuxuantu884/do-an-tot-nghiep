@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Button, Form, Select, Input, Modal, Tooltip, Radio, Space } from "antd";
+import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import CustomTable from "component/table/CustomTable";
@@ -43,9 +43,6 @@ const TotalItemsEcommerce = () => {
   const [idDisconnectItem, setIdDisconnectItem] = useState(null);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
-  const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
-  const [syncStockAll, setSyncStockAll] = useState(null);
-  const [syncStockId, setSyncStockId] = useState<Array<any>>([]); 
   
   const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
@@ -103,26 +100,9 @@ const TotalItemsEcommerce = () => {
 
   //handle sync stock
   const handleSyncStock = (item: any) => {
-    setIsShowSyncStockModal(true);
-    setSyncStockId([item.id]);
-  };
-
-  const onChangeSyncOption = (e: any) => {
-    setSyncStockAll(e.target.value);
-  };
-
-  const cancelSyncStockModal = () => {
-    setIsShowSyncStockModal(false);
-    setSyncStockAll(null);
-  };
-  
-  const okSyncStockModal = () => {
-    setIsShowSyncStockModal(false);
-    setSyncStockAll(null);
-
     const requestSyncStock = {
-      variant_ids: syncStockId,
-      all: syncStockAll
+      variant_ids: [item.id],
+      all: false
     }
 
     dispatch(postSyncStockEcommerceProduct(requestSyncStock, (result) => {
@@ -132,10 +112,6 @@ const TotalItemsEcommerce = () => {
       }
     }));
   };
-
-  const isDisableSyncStockOkButton = () => {
-    return syncStockAll === null;
-  }
 
   //handle delete item
   const handleDeleteItem = (item: any) => {
@@ -695,25 +671,6 @@ const TotalItemsEcommerce = () => {
           </div>
         </Modal>
 
-        <Modal
-          width="600px"
-          visible={isShowSyncStockModal}
-          title="Đồng bộ tồn kho"
-          okText="Đồng bộ"
-          cancelText="Hủy"
-          onCancel={cancelSyncStockModal}
-          onOk={okSyncStockModal}
-          okButtonProps={{disabled: isDisableSyncStockOkButton()}}
-        >
-          <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
-            <Space direction="vertical">
-              <Radio value={false}>Đồng bộ các sản phẩm đã chọn</Radio>
-              <Radio value={true}>Đồng bộ tất cả sản phẩm</Radio>
-            </Space>
-          </Radio.Group>
-        </Modal>
-
-        
       </div>
     </StyledComponent>
   );
