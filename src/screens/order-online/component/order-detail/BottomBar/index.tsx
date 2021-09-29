@@ -17,6 +17,7 @@ type PropType = {
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
+  updateCancelClick?: () => void;
 };
 
 const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
@@ -29,7 +30,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     formRef,
     handleTypeButton,
     showSaveAndConfirmModal,
-    orderActionsClick
+    orderActionsClick,
+    updateCancelClick
   } = props;
 
   return (
@@ -87,7 +89,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
             <Button
               style={{ padding: "0 25px", fontWeight: 400 }}
               className="ant-btn-outline fixed-button cancle-button"
-              onClick={() => window.location.reload()}
+              onClick={() => updateCancelClick && updateCancelClick()}
             >
               Huỷ
             </Button>
@@ -124,60 +126,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   >
                     Sửa đơn hàng
                   </Menu.Item>
-                  <Menu.Item
-                    key="cancel"
-                    onClick={() => orderActionsClick && orderActionsClick('cancel')}
-                    disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
-                  >
-                    Huỷ đơn hàng
-                  </Menu.Item>
-                  <Menu.Item
-                    key="clone"
-                    onClick={() => orderActionsClick && orderActionsClick('clone')}
-                  >
-                    Sao chép đơn hàng
-                  </Menu.Item>
-                </Menu>
-              }
-              
-              trigger={["click"]}
-            >
-              <Button style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
-                Thêm thao tác <DownOutlined />
-              </Button>
-            </Dropdown>
-            <Dropdown
-              // overlayStyle={{ minWidth: "15rem" }}
-              getPopupContainer={trigger => trigger}
-              overlay={
-                <Menu>
-                  <Menu.Item
-                    onClick={() => props.orderActionsClick && props.orderActionsClick('cancel')}
-                  >
-                    In nhanh
-                  </Menu.Item>
-                  <Menu.Item
-                    onClick={() => props.orderActionsClick && props.orderActionsClick('clone')}
-                  >
-                    In tuỳ chọn
-                  </Menu.Item>
-                </Menu>
-              }
-              trigger={["click"]}
-            >
-              <Button type="primary" style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
-                <img src={IconPrint} alt="" style={{paddingRight: '10px'}}/> In đơn hàng 
-              </Button>
-            </Dropdown>
-          </Col>
-        )}
-        {isVisibleActionsButtons &&(
-          <Col md={10} style={{ marginTop: "8px" }}>
-            <Dropdown
-              // overlayStyle={{ minWidth: "15rem" }}
-              getPopupContainer={trigger => trigger}
-              overlay={
-                <Menu >
                   <Menu.Item
                     key="cancel"
                     onClick={() => orderActionsClick && orderActionsClick('cancel')}

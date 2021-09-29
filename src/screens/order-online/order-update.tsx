@@ -552,6 +552,12 @@ export default function Order(props: PropType) {
     setItems(cardItems);
   };
 
+  const updateCancelClick = useCallback(
+    () => {
+    history.push(`${UrlConfig.ORDER}/${id}`);
+
+  }, [history, id]);
+
   useEffect(() => {
     if (storeId != null) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
@@ -1019,6 +1025,7 @@ const setStoreForm=useCallback((id:number|null)=>{
                   formRef={formRef}
                   handleTypeButton={handleTypeButton}
                   isVisibleGroupButtons={false}
+                  updateCancelClick={updateCancelClick}
                   showSaveAndConfirmModal={showSaveAndConfirmModal}
                 />
               )}
