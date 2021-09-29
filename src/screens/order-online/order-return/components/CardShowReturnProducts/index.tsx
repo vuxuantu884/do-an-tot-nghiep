@@ -182,7 +182,10 @@ function CardShowReturnProducts(props: PropType) {
 
   return (
     <StyledComponent>
-      <Card className="margin-top-20" title="THÔNG TIN SẢN PHẨM TRẢ">
+      <Card
+        className="margin-top-20"
+        title={<span className="title-card">THÔNG TIN SẢN PHẨM TRẢ</span>}
+      >
         <Table
           locale={{
             emptyText: (

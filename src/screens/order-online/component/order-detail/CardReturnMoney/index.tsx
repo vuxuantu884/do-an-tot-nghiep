@@ -88,7 +88,6 @@ function CardReturnMoney(props: PropType) {
               Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
               <Button
                 onClick={() => {
-                  console.log("333");
                   setIsShowPaymentMethod(true);
                 }}
               >

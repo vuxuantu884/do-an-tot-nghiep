@@ -1,5 +1,5 @@
 import { Form, Row, Col, Button } from "antd";
-import { Fragment, useState, useCallback } from "react";
+import { Fragment, useState, useCallback, useEffect } from "react";
 import { useParams, useLocation, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -19,6 +19,8 @@ import {
   PurchaseOrderLineReturnItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 
 interface POReturnProps {}
 type PurchaseOrderReturnParams = {
@@ -28,6 +30,7 @@ type PurchaseOrderReturnParams = {
 const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [isError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
   const [formMain] = Form.useForm();
@@ -60,6 +63,10 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
       onFinish(values);
     });
   }, [formMain, onFinish]);
+
+  useEffect(() => {
+    dispatch(StoreGetListAction(setListStore));
+  }, [dispatch]);
 
   const state: any = location.state;
   if (!state) return <Fragment></Fragment>;
@@ -128,6 +135,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                   totalVat={totalVat}
                   totalReturn={totalReturn}
                   tax_lines={tax_lines}
+                  listStore={listStore}
                 />
                 <POReturnPaymentForm
                   formMain={formMain}

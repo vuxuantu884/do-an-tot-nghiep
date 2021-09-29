@@ -230,6 +230,7 @@ const PODetailScreen: React.FC = () => {
 
   const onCancel = useCallback(() => {
     formMain.setFieldsValue({ status: POStatus.CANCELLED });
+    setStatusAction(POStatus.CANCELLED);
     formMain.submit();
   }, [formMain]);
   const onMenuClick = useCallback(
@@ -255,7 +256,7 @@ const PODetailScreen: React.FC = () => {
     let poStatus = poData.status;
     if (
       poStatus &&
-      [POStatus.FINALIZED, POStatus.DRAFTPO].includes(poStatus) &&
+      [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) &&
       poData.receipt_quantity < 1
     )
       menuActions.push({
@@ -439,6 +440,7 @@ const PODetailScreen: React.FC = () => {
       return <></>;
     }
   };
+
   return (
     <ContentContainer
       isError={isError}
@@ -460,7 +462,7 @@ const PODetailScreen: React.FC = () => {
     >
       <div id="test" className="page-filter">
         <Space direction="horizontal">
-          <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
+          <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary"   />
 
           <Button
             type="link"

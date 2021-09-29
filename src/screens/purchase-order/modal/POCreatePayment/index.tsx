@@ -155,34 +155,24 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       width={700}
       onCancel={handleCancel}
       footer={
-        purchasePayment && isEditPage
-          ? [
-              <Button
-                danger
-                onClick={() => {
-                  deletePayment &&
-                    deletePayment(parseInt(indexPurchasePayment));
-                }}
-                className="edit-delete-button"
-                style={{float: "left",}}
-              >
-                <DeleteOutlined /> Xoá
-              </Button>,
-              <Button key="back" onClick={handleCancel}>
-                Huỷ
-              </Button>,
-              <Button key="submit" type="primary" onClick={onOkPress}>
-                {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
-              </Button>,
-            ]
-          : [
-              <Button key="back" onClick={handleCancel}>
-                Huỷ
-              </Button>,
-              <Button key="submit" type="primary" onClick={onOkPress}>
-                {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
-              </Button>,
-            ]
+        purchasePayment && [
+          <Button
+            danger
+            onClick={() => {
+              deletePayment && deletePayment(parseInt(indexPurchasePayment));
+            }}
+            className="edit-delete-button"
+            style={{ float: "left" }}
+          >
+            <DeleteOutlined /> Xoá
+          </Button>,
+          <Button key="back" onClick={handleCancel}>
+            Huỷ
+          </Button>,
+          <Button key="submit" type="primary" onClick={onOkPress}>
+            {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
+          </Button>,
+        ]
       }
     >
       <POCreatePaymentModalStyled>
@@ -206,6 +196,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                 ]}
                 label="Phương thức thanh toán"
                 name="payment_method_code"
+                style={{ width: "100%"}}
               >
                 <Radio.Group onChange={onChangePaymentMethod}>
                   <Radio
@@ -233,7 +224,6 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
               >
                 <CustomDatepicker
                   disableDate={(date) => date <= moment().startOf("days")}
-                  style={{ width: "100%" }}
                   placeholder="dd/mm/yyyy"
                 />
               </Item>

@@ -94,6 +94,15 @@ function CardReturnProducts(props: PropType) {
     if (handleCanReturn) {
       handleCanReturn(true);
     }
+    if (
+      result.some((single) => {
+        return single.maxQuantity && single.quantity < single.maxQuantity;
+      })
+    ) {
+      setIsCheckReturnAll(false);
+    } else {
+      setIsCheckReturnAll(true);
+    }
   };
 
   const checkIfIsCanReturn = (listReturnProducts: ReturnProductModel[]) => {

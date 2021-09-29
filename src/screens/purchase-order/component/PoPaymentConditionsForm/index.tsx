@@ -64,6 +64,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
         formMain.setFieldsValue({
           payments: newPaymentsData,
         });
+        setVisiblePaymentModal(false);
         break;
     }
   };
@@ -201,6 +202,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
             visible={isVisiblePaymentModal}
             isEditPage={isEdit}
             formMain={formMain}
+            deletePayment={deletePayment}
             purchasePayment={paymentItem}
             indexPurchasePayment={indexPurchasePayment}
             onCancel={CancelPaymentModal}

@@ -1275,7 +1275,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             style={{
                               marginTop: 12,
                               marginBottom: 0,
-                              padding: "0 12px",
+                              padding: "0 12px 0 0",
                             }}
                           >
                             <Col span={24}>
@@ -1293,11 +1293,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                           Mã vận đơn:
                                         </span>
                                         <Link
-                                          href={`https://i.ghtk.vn/${
-                                            props.OrderDetail?.fulfillments &&
-                                            props.OrderDetail?.fulfillments[0]
-                                              .shipment?.tracking_code
-                                          }`}
                                           className="text-field"
                                           style={{
                                             color: "#2A2A86",
