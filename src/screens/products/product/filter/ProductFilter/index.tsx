@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
+import { createRef, useCallback, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import { SizeResponse } from "model/product/size.model";
@@ -85,7 +85,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
         const [from_created_date, to_created_date] = values.created_date;
         values.from_created_date = from_created_date;
         values.to_created_date = to_created_date;
-        values.created_date = undefined;
       }
       onFilter && onFilter(values);
     },
@@ -122,12 +121,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     },
     [formRef]
   );
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
-    }
-  }, [formRef, visible]);
-
   return (
     <StyledComponent>
       <div className="product-filter">
