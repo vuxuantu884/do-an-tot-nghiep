@@ -1,7 +1,7 @@
 import { Checkbox, List, Spin } from "antd";
 import { VariantResponse } from "model/product/product.model";
 import { Products } from "utils/AppUtils";
-import classNames from "classnames/";
+import classNames from "classnames";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import React, { useCallback, useState } from "react";
 import { StyledComponent } from "./style";
