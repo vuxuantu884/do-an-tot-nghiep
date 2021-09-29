@@ -295,14 +295,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   <span className="fw-500">: {configDetail?.id || "---"}</span>
                 </Col>
               </Row>
-              <Row>
+              {/* <Row>
                 <Col span={5}>Username</Col>
                 <Col span={19}>
                   <span className="fw-500">
                     : {configDetail?.assign_account || "---"}
                   </span>
                 </Col>
-              </Row>
+              </Row> */}
             </div>
           </Col>
         </Row>
