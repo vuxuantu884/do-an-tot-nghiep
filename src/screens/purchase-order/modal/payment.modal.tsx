@@ -161,7 +161,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       width={700}
       confirmLoading={confirmLoading}
       onCancel={handleCancel}
-      footer={[
+      footer={ purchasePayment && [
         <Button
           danger
           onClick={() => {
