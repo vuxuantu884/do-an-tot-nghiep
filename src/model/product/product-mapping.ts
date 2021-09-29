@@ -26,5 +26,23 @@ const SearchVariantMapping = {
   [SearchVariantField.brand]: "Thương hiệu",
 };
 
+const SearchVariantWrapperField = {
+  created_date: "created_date",
+  designer_code: "designer_code",
+  merchandiser_code: "merchandiser_code",
+  status: "status",
+  category_id: "category_id",
+  goods: "goods",
+  material_id: "material_id",
+};
+const SearchVariantWrapperMapping = {
+  [SearchVariantWrapperField.created_date]: "Ngày khởi tạo",
+  [SearchVariantWrapperField.designer_code]: "Nhà thiết kế",
+  [SearchVariantWrapperField.merchandiser_code]: "Merchandiser",
+  [SearchVariantWrapperField.status]: "Trạng thái",
+  [SearchVariantWrapperField.category_id]: "Danh mục",
+  [SearchVariantWrapperField.goods]: "Ngành hàng",
+  [SearchVariantWrapperField.material_id]: "Chất liệu",
+};
 
-export {SearchVariantMapping, SearchVariantField};
+export {SearchVariantMapping, SearchVariantField, SearchVariantWrapperMapping, SearchVariantWrapperField};

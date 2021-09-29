@@ -377,7 +377,7 @@ const TabProductWrapper: React.FC = () => {
   return (
     <div className="padding-20">
       <ProductWrapperFilter
-        openColumn={() => setShowSettingColumn(true)}
+        onClickOpen={() => setShowSettingColumn(true)}
         onMenuClick={onMenuClick}
         actions={actions}
         onFilter={onFilter}
