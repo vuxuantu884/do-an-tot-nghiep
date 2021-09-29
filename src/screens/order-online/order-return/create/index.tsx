@@ -17,6 +17,7 @@ import {
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -161,6 +162,11 @@ const ScreenReturnCreate = (props: PropType) => {
     RETURN_MONEY_TYPE.return_later
   );
 
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
+
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -241,7 +247,10 @@ const ScreenReturnCreate = (props: PropType) => {
       );
       setOrderDetail(_data);
       let returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
-        return singleFulfillment.status === FulFillmentStatus.SHIPPED;
+        return (
+          singleFulfillment.status === FulFillmentStatus.SHIPPED ||
+          singleFulfillment.status === FulFillmentStatus.UNSHIPPED
+        );
       });
       if (returnFulfillment) {
         setIsCanReturnOrExchange(true);
@@ -796,6 +805,8 @@ const ScreenReturnCreate = (props: PropType) => {
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts
+                    orderSettings={orderSettings}
+                    form={form}
                     items={listExchangeProducts}
                     handleCardItems={handleListExchangeProducts}
                     shippingFeeCustomer={shippingFeeCustomer}
@@ -833,7 +844,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setShippingFeeInformedCustomerHVC={
                       setShippingFeeInformedCustomerHVC
                     }
-                    amount={getTotalPrice(listReturnProducts)}
+                    amount={getTotalPrice(listExchangeProducts)}
                     setPaymentMethod={setPaymentMethod}
                     paymentMethod={paymentMethod}
                     shippingFeeCustomer={shippingFeeCustomer}
@@ -850,6 +861,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     onPayments={setPayments}
                     fulfillments={fulfillments}
                     isCloneOrder={false}
+                    totalAmountReturnProducts={totalAmountReturnProducts}
                   />
                 )}
                 <CardReturnReceiveProducts
@@ -959,6 +971,16 @@ const ScreenReturnCreate = (props: PropType) => {
       })
     );
   }, [dispatch]);
+
+  /**
+   * orderSettings
+   */
+  useEffect(() => {
+    setOrderSettings({
+      chonCuaHangTruocMoiChonSanPham: true,
+      cauHinhInNhieuLienHoaDon: 3,
+    });
+  }, []);
 
   return (
     <ContentContainer
