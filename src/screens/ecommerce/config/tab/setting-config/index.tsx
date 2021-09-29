@@ -1,5 +1,5 @@
 import { StyledConfig } from "./styles";
-import { Row, Col, Form, Input, Select, Button } from "antd";
+import { Row, Col, Form, Select, Button } from "antd";
 import React, { useEffect, useState } from "react";
 import CustomSelect from "component/custom/select.custom";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -22,6 +22,7 @@ import {
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
+import CustomInput from "screens/customer/common/customInput";
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -294,14 +295,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   <span className="fw-500">: {configDetail?.id || "---"}</span>
                 </Col>
               </Row>
-              <Row>
+              {/* <Row>
                 <Col span={5}>Username</Col>
                 <Col span={19}>
                   <span className="fw-500">
                     : {configDetail?.assign_account || "---"}
                   </span>
                 </Col>
-              </Row>
+              </Row> */}
             </div>
           </Col>
         </Row>
@@ -314,7 +315,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </span>
           </Col>
           <Col span={12}>
-            <Form.Item
+            {/* <Form.Item
               label={<span>Tên gian hàng</span>}
               name="name"
               rules={[
@@ -329,7 +330,17 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Nhập tên gian hàng"
                 disabled={configDetail ? false : true}
               ></Input>
-            </Form.Item>
+            </Form.Item> */}
+            <CustomInput
+              name="name"
+              label={<span>Tên gian hàng</span>}
+              form={form}
+              message="Vui lòng chọn gian hàng"
+              placeholder="Nhập tên gian hàng"
+              maxLength={255}
+              isRequired={true}
+              disabled={configDetail ? false : true}
+            />
           </Col>
         </Row>
         <Row gutter={24}>
@@ -466,10 +477,13 @@ const SettingConfig: React.FC<SettingConfigProps> = (
         <Row gutter={24}>
           <Col span={12}>
             <span className="description-name">Cấu hình đơn hàng</span>
-            <span className="description">
+            <span className="description" style={{ height: "auto" }}>
               Khi có đơn hàng mới trên sàn thì hệ thống sẽ tự động tải về admin
-              để xử lý. Trường hợp trong đơn hàng tải về hệ thống sẽ đợi người
-              dùng ghép nối sản phẩm trước khi tải đơn thành công.
+              để xử lý.
+            </span>
+            <span className="description">
+              Trường hợp trong đơn hàng tải về hệ thống sẽ đợi người dùng ghép
+              nối sản phẩm trước khi tải đơn thành công.
             </span>
           </Col>
           <Col span={12}>

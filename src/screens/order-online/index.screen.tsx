@@ -62,18 +62,6 @@ import ImageDHL from "assets/img/imageDHL.svg";
 
 const actions: Array<MenuAction> = [
   {
-    id: 1,
-    name: "Xóa",
-  },
-  {
-    id: 2,
-    name: "Export",
-  },
-  // {
-  //   id: 3,
-  //   name: "Clone đơn hàng",
-  // },
-  {
     id: 4,
     name: "In phiếu giao hàng",
   },

@@ -434,15 +434,15 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                     <Item name="store_ids">
                       <CustomSelect
                         mode="multiple"
+                        allowClear
                         showArrow
-                        showSearch
                         placeholder="Cửa hàng"
-                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children"
                         style={{
                           width: '100%'
                         }}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
+                        notFoundContent="Không tìm thấy kết quả"
+                        maxTagCount="responsive"
                       >
                         {listStore?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>

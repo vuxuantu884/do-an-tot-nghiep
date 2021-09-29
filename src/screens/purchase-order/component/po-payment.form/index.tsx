@@ -503,6 +503,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               payments.length > 0 &&
               receive_status === ProcumentStatus.FINISHED &&
               financial_status !== PoFinancialStatus.CANCELLED &&
+              financial_status !== PoFinancialStatus.PAID &&
               financial_status !== PoFinancialStatus.FINISHED && (
                 <div className="card__footer">
                   <Button

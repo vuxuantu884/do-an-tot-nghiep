@@ -12,5 +12,8 @@ export const POCreatePaymentModalStyled = styled.div`
     .ant-col.ant-form-item-control {
       width: 100%;
     }
+    .ant-form-item-label {
+      max-width: 100%;
+    }
   }
 `

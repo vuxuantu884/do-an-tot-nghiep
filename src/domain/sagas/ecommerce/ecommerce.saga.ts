@@ -17,7 +17,8 @@ import {
   ecommerceGetShopApi,
   ecommercePostVariantsApi,
   ecommerceDeleteItemApi,
-  ecommerceDisconnectItemApi
+  ecommerceDisconnectItemApi,
+  ecommercePostSyncStockItemApi
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -275,12 +276,12 @@ function* ecommercePostVariantsSaga(action: YodyAction) {
 }
 
 function* ecommerceDeleteItemSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { ids, setData } = action.payload;
   
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceDeleteItemApi,
-      query
+      ids
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -301,11 +302,37 @@ function* ecommerceDeleteItemSaga(action: YodyAction) {
 }
 
 function* ecommerceDisconnectItemSaga(action: YodyAction) {
-  let { query, setData } = action.payload;
+  let { ids, setData } = action.payload;
   
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceDisconnectItemApi,
+      ids
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* ecommercePostSyncStockItemSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      ecommercePostSyncStockItemApi,
       query
     );
     switch (response.code) {
@@ -325,6 +352,7 @@ function* ecommerceDisconnectItemSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+
 
 export function* ecommerceSaga() {
   yield takeLatest(
@@ -381,6 +409,11 @@ export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST,
     ecommerceDisconnectItemSaga
+  );
+
+  yield takeLatest(
+    EcommerceType.POST_SYNC_STOCK_ECOMMERCE_ITEM_REQUEST,
+    ecommercePostSyncStockItemSaga
   );
 
 }

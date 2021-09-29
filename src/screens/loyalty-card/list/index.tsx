@@ -150,17 +150,21 @@ const LoyaltyCards = () => {
             <div
               className="action-group"
             >
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
+              {
+                value.status !== 'INACTIVE' ? (
+                  <Dropdown
+                    overlay={menu}
+                    trigger={["click"]}
+                    placement="bottomRight"
+                  >
+                    <Button
+                      type="text"
+                      className="p-0 ant-btn-custom"
+                      icon={<img src={threeDot} alt=""></img>}
+                    ></Button>
+                  </Dropdown>
+                ) : <></>
+              }
             </div>
           </div>
         )

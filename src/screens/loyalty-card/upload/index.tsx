@@ -160,8 +160,10 @@ const UploadLoyaltyCardRelease = () => {
       <ErrorLogs
         visible={response !== undefined}
         onOk={onCloseErrorLogModal}
-        okText="Đóng"
+        okText="Thoát"
         errors={response?.errors}
+        success={response?.success || 0}
+        fail={response?.fail || 0}
         onCancel={onCloseErrorLogModal}
       />
     </ContentContainer>

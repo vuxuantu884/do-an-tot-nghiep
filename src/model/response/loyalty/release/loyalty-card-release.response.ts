@@ -5,4 +5,7 @@ export interface LoyaltyCardReleaseResponse extends BaseObject {
   file: string
   errors: string
   status: string
+  success: number
+  fail: number
+  file_path: string
 }

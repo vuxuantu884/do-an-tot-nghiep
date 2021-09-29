@@ -27,10 +27,12 @@ export interface LoyaltyProgramRuleRequest {
 export interface LoyaltyProgramRuleItem {
   id: number
   name: string
+  code: string
 }
 
 export interface LoyaltyProgramRuleProductItem {
   id: number
   name: string
   sku: string
+  code: string
 }

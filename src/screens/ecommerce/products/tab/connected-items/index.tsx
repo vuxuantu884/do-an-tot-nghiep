@@ -17,7 +17,8 @@ import {
   getProductEcommerceList,
   getShopEcommerceList,
   deleteEcommerceItem,
-  disconnectEcommerceItem
+  disconnectEcommerceItem,
+  postSyncStockEcommerceProduct
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -39,14 +40,11 @@ const ConnectedItems = () => {
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
-  const [idDisconnectItem, setIdDisconnectItem] = useState(null);
-  const [idsDisconnectItem, setIdsDisconnectItem] = useState<any>();
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
-  const [idDeleteItem, setIdDeleteItem] = useState(null);
-  const [idsDeleteItem, setIdsDeleteItem] = useState<any>();
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
-  const [syncStockValue, setSyncStockValue] = useState(null);
-
+  const [syncStockAll, setSyncStockAll] = useState(null);
+  const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
+  
   const [selectedRow, setSelected] = useState<Array<any>>([]);
  
   const [variantData, setVariantData] = useState<PageResponse<any>>({
@@ -104,33 +102,67 @@ const ConnectedItems = () => {
   }
 
   //handle sync stock
-  const handleSyncStock = () => {
+  const handleSyncStock = (item: any) => {
+    setIsShowSyncStockModal(true);
+    setIdsItemSelected([item.id]);
+  };
+
+  const handleSyncStockItemsSelected = () => {
+    const itemSelected: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        itemSelected.push(item.id);
+      });
+    }
+    setIdsItemSelected(itemSelected);
     setIsShowSyncStockModal(true);
   };
 
   const onChangeSyncOption = (e: any) => {
-    setSyncStockValue(e.target.value);
+    setSyncStockAll(e.target.value);
   };
 
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    setSyncStockValue(null);
+    setSyncStockAll(null);
   };
 
   const okSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    showSuccess("Đồng bộ sản phẩm thành công: " + syncStockValue);
-     //thai need todo: call API
+    setSyncStockAll(null);
+
+    const requestSyncStock = {
+      variant_ids: idsItemSelected,
+      all: syncStockAll
+    }
+
+    dispatch(postSyncStockEcommerceProduct(requestSyncStock, (result) => {
+      if (result) {
+        showSuccess("Đồng bộ tồn kho sản phẩm thành công");
+        reloadPage();
+      }
+    }));
   };
 
   const isDisableSyncStockOkButton = () => {
-    return !syncStockValue;
+    return syncStockAll === null;
   }
 
   //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
-    setIdDeleteItem(item.id);
+    setIdsItemSelected([item.id]);
+  };
+
+  const handleDeleteItemsSelected = () => {
+    const itemSelected: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        itemSelected.push(item.id);
+      });
+    }
+    setIdsItemSelected(itemSelected);
+    setIsShowDeleteItemModal(true);
   };
 
   const cancelDeleteItemModal = () => {
@@ -140,8 +172,8 @@ const ConnectedItems = () => {
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
     
-    if (idDeleteItem) {
-      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+    if (idsItemSelected) {
+      dispatch(deleteEcommerceItem(idsItemSelected, (result) => {
         if (result) {
           showSuccess("Xóa sản phẩm thành công");
           reloadPage();
@@ -149,29 +181,23 @@ const ConnectedItems = () => {
       }));
     }
 
-    
-    if (idsDeleteItem) {
-      console.log("okDeleteItemModal idsDeleteItem: ", idsDeleteItem);
-      showSuccess("Cần cập nhật api xóa nhiều sản phẩm");
-    }
-  };
-
-  const handleDeleteItems = () => {
-    setIsShowDeleteItemModal(true);
-
-    const idsDeleteItemList: any[] = [];
-    if (selectedRow) {
-      selectedRow.forEach((item) => {
-        idsDeleteItemList.push(item.id);
-      });
-    }
-    setIdsDeleteItem(idsDeleteItemList);
   };
 
   //handle disconnect item
   const handleDisconnectItem = (item: any) => {
     setIsShowModalDisconnect(true);
-    setIdDisconnectItem(item.id);
+    setIdsItemSelected([item.id]);
+  };
+
+  const handleDisconnectItemsSelected = () => {
+    const itemSelected: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        itemSelected.push(item.id);
+      });
+    }
+    setIdsItemSelected(itemSelected);
+    setIsShowModalDisconnect(true);
   };
 
   const cancelDisconnectModal = () => {
@@ -181,31 +207,14 @@ const ConnectedItems = () => {
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
     
-    if (idDisconnectItem) {
-      dispatch(disconnectEcommerceItem({id: idDisconnectItem}, (result) => {
+    if (idsItemSelected) {
+      dispatch(disconnectEcommerceItem({ids: idsItemSelected}, (result) => {
         if (result) {
           showSuccess("Ngắt kết nối sản phẩm thành công");
           reloadPage();
         }
       }));
     }
-
-    if (idsDisconnectItem) {
-      console.log("okDeleteItemModal idsDeleteItem: ", idsDisconnectItem);
-      showSuccess("Cần cập nhật api ngắt kết nối nhiều sản phẩm");
-    }
-  };
-
-  const handleDisconnectItems = () => {
-    setIsShowModalDisconnect(true);
-
-    const idsDisconnectItemList: any[] = [];
-    if (selectedRow) {
-      selectedRow.forEach((item) => {
-        idsDisconnectItemList.push(item.id);
-      });
-    }
-    setIdsDisconnectItem(idsDisconnectItemList);
   };
 
   //thai need todo
@@ -487,13 +496,13 @@ const ConnectedItems = () => {
   const selectAction = (value: any) => {
     switch(value) {
       case 'syncStock':
-        handleSyncStock();
+        handleSyncStockItemsSelected();
         break;
       case 'deleteItem':
-        handleDeleteItems();
+        handleDeleteItemsSelected();
         break;
       case 'disconnectItem':
-        handleDisconnectItems();
+        handleDisconnectItemsSelected();
         break; 
       default: break
     }
@@ -807,10 +816,10 @@ const ConnectedItems = () => {
           onOk={okSyncStockModal}
           okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
-          <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
+          <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
             <Space direction="vertical">
-              <Radio value="selected">Đồng bộ các sản phẩm đã chọn</Radio>
-              <Radio value="all">Đồng bộ tất cả sản phẩm</Radio>
+              <Radio value={false}>Đồng bộ các sản phẩm đã chọn</Radio>
+              <Radio value={true}>Đồng bộ tất cả sản phẩm</Radio>
             </Space>
           </Radio.Group>
         </Modal>

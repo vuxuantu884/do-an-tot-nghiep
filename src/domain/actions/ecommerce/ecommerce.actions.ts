@@ -88,10 +88,14 @@ export const postProductEcommerceList = (query: PostProductEcommerceQuery, setDa
   return BaseAction(EcommerceType.POST_ECOMMERCE_VARIANTS_REQUEST, { query, setData });
 }
 
-export const deleteEcommerceItem = (query: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST, { query, setData });
+export const deleteEcommerceItem = (ids: any, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST, { ids, setData });
 }
 
-export const disconnectEcommerceItem = (query: any, setData: (data: any) => void) => {
-  return BaseAction(EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST, { query, setData });
+export const disconnectEcommerceItem = (ids: any, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST, { ids, setData });
+}
+
+export const postSyncStockEcommerceProduct = (query: any, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.POST_SYNC_STOCK_ECOMMERCE_ITEM_REQUEST, { query, setData });
 }

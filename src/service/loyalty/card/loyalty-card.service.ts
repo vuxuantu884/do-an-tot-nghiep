@@ -15,7 +15,7 @@ export const loyaltyCardAssignmentApi = (
   id: number,
   query: LoyaltyCardAssignmentRequest
 ): Promise<BaseResponse<LoyaltyCardResponse>> => {
-  return BaseAxios.put(`${ApiConfig.LOYALTY}/loyalty-cards/${id}`, query);
+  return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-cards/assignment`, query);
 };
 
 export const loyaltyCardLockApi = (

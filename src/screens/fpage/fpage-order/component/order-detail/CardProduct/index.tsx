@@ -90,9 +90,9 @@ type CardProductProps = {
 const initQueryVariant: VariantSearchQuery = {
   limit: 10,
   page: 1,
-  status: "active"
+  status: "active",
+  saleable: true,
 };
-
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const { orderSettings, formRef } = props;
   const dispatch = useDispatch();

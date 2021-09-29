@@ -10,6 +10,7 @@ import {
   Input,
   FormInstance,
   Checkbox,
+  Select
 } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
@@ -27,16 +28,20 @@ import { useSelector } from "react-redux";
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import { POUtils } from "utils/POUtils";
 import "./po-return-form.scss";
+import { StoreResponse } from "model/core/store.model";
+import { POProcumentField } from "model/purchase-order/purchase-procument";
+
 type POReturnFormProps = {
   formMain: FormInstance;
   totalReturn: number;
   totalVat: number;
   tax_lines: Array<Vat>;
+  listStore: Array<StoreResponse>;
 };
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
-  const { formMain, totalReturn, totalVat, tax_lines } = props;
+  const { formMain, totalReturn, totalVat, tax_lines, listStore } = props;
   // const [allChecked, setAllChecked] = useState(false);
   let [currentLineReturn, setCurrentLineReturn] = useState<
     Array<PurchaseOrderLineReturnItem>
@@ -141,23 +146,55 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                       );
                       return (
                         <Fragment>
-                          <Row>
-                            <Space
-                              direction="horizontal"
-                              size="large"
-                              split={<i className="icon-dot" />}
-                            >
-                              {/* <div>
-                                Kho nhận hàng:{" "}
-                                <strong>{expected_store.toUpperCase()}</strong>
-                              </div> */}
-                              <div>
-                                Ngày nhận dự kiến:{" "}
-                                <strong>
-                                  {ConvertUtcToLocalDate(expect_import_date, DATE_FORMAT.DDMMYYY)}
-                                </strong>
-                              </div>
-                            </Space>
+                          <Row gutter={50}>
+                          <Col span={24} md={12}>
+                              <Form.Item
+                                name={POProcumentField.store_id}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Vui lòng chọn kho nhận hàng",
+                                  },
+                                ]}
+                                label="Kho nhận hàng"
+                              >
+                                <Select
+                                  showSearch
+                                  showArrow
+                                  optionFilterProp="children"
+                                  placeholder="Chọn kho"
+                                >
+                                  <Select.Option value="">
+                                    Chọn kho nhận
+                                  </Select.Option>
+                                  {listStore.map((item) => (
+                                    <Select.Option
+                                      key={item.id}
+                                      value={item.id}
+                                    >
+                                      {item.name}
+                                    </Select.Option>
+                                  ))}
+                                </Select>
+                              </Form.Item>
+                            </Col>
+                            <Col span={24} md={12}>
+                              <Space
+                                direction="horizontal"
+                                size="large"
+                                split={<i className="icon-dot" />}
+                              >
+                                <div>
+                                  Ngày nhận dự kiến:{" "}
+                                  <strong>
+                                    {ConvertUtcToLocalDate(
+                                      expect_import_date,
+                                      DATE_FORMAT.DDMMYYY
+                                    )}
+                                  </strong>
+                                </div>
+                              </Space>
+                            </Col>
                           </Row>
                           <POProgressView
                             remainTitle={"SL CÒN LẠI"}
