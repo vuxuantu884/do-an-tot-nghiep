@@ -3,6 +3,7 @@ import Checkbox from "antd/lib/checkbox/Checkbox";
 import Column from "antd/lib/table/Column";
 import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -13,6 +14,7 @@ type PropType = {
 
 function SelectThirdPartyLogistic(props: PropType) {
   const { initialFormValue, list3rdPartyLogistic, form } = props;
+  const [listValue, setListValue] = useState<number[]>([]);
   const list3rdPartyLogisticFormat = list3rdPartyLogistic.map((single) => {
     return {
       ...single,
@@ -36,11 +38,17 @@ function SelectThirdPartyLogistic(props: PropType) {
         list_external_service_transport_type_ids.splice(index, 1);
       }
     }
+    setListValue(list_external_service_transport_type_ids);
     form.setFieldsValue({
       external_service_transport_type_ids:
         list_external_service_transport_type_ids,
     });
   };
+
+  useEffect(() => {
+    setListValue(initialFormValue.external_service_transport_type_ids);
+  }, [initialFormValue.external_service_transport_type_ids]);
+
   return (
     <StyledComponent>
       <Card title="Chọn hãng vận chuyển sử dụng trên toàn quốc">
@@ -70,11 +78,9 @@ function SelectThirdPartyLogistic(props: PropType) {
                         onChange={(e) => {
                           onChange(e, singleType.id);
                         }}
-                        key={index}
-                        // defaultChecked={false}
-                        defaultChecked={initialFormValue.external_service_transport_type_ids.includes(
-                          singleType.id
-                        )}
+                        // random key to re-render
+                        key={Math.random()}
+                        defaultChecked={listValue.includes(singleType.id)}
                       >
                         {singleType.name}
                       </Checkbox>
