@@ -118,8 +118,9 @@ const NotConnectedItems = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
+
     if (idDeleteItem) {
-      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+      dispatch(deleteEcommerceItem([idDeleteItem], (result) => {
         if (result) {
           showSuccess("Xóa sản phẩm thành công");
           reloadPage();
@@ -240,13 +241,13 @@ const NotConnectedItems = () => {
       },
     },
     {
-      render: () => {
+      render: (l: any, v: any, i: any) => {
         return (
           <img
             src={closeIcon}
             className="delete-item-icon"
             alt=""
-            onClick={handleDeleteItem}
+            onClick={() => handleDeleteItem(l)}
           />
         )
       }

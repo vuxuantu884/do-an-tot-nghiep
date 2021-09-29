@@ -17,7 +17,8 @@ import {
   getProductEcommerceList,
   getShopEcommerceList,
   deleteEcommerceItem,
-  disconnectEcommerceItem
+  disconnectEcommerceItem,
+  postSyncStockEcommerceProduct
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -43,7 +44,8 @@ const TotalItemsEcommerce = () => {
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
-  const [syncStockValue, setSyncStockValue] = useState(""); 
+  const [syncStockAll, setSyncStockAll] = useState(null);
+  const [syncStockId, setSyncStockId] = useState<Array<any>>([]); 
   
   const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
@@ -102,24 +104,37 @@ const TotalItemsEcommerce = () => {
   //handle sync stock
   const handleSyncStock = (item: any) => {
     setIsShowSyncStockModal(true);
+    setSyncStockId([item.id]);
   };
 
   const onChangeSyncOption = (e: any) => {
-    setSyncStockValue(e.target.value);
+    setSyncStockAll(e.target.value);
   };
 
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
+    setSyncStockAll(null);
   };
   
   const okSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    showSuccess("Đồng bộ sản phẩm thành công: " + syncStockValue);
-     //thai need todo: call API
+    setSyncStockAll(null);
+
+    const requestSyncStock = {
+      variant_ids: syncStockId,
+      all: syncStockAll
+    }
+
+    dispatch(postSyncStockEcommerceProduct(requestSyncStock, (result) => {
+      if (result) {
+        showSuccess("Đồng bộ tồn kho sản phẩm thành công");
+        reloadPage();
+      }
+    }));
   };
 
   const isDisableSyncStockOkButton = () => {
-    return !syncStockValue;
+    return syncStockAll === null;
   }
 
   //handle delete item
@@ -136,7 +151,7 @@ const TotalItemsEcommerce = () => {
     setIsShowDeleteItemModal(false);
 
     if (idDeleteItem) {
-      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+      dispatch(deleteEcommerceItem([idDeleteItem], (result) => {
         if (result) {
           showSuccess("Xóa sản phẩm thành công");
           reloadPage();
@@ -158,7 +173,7 @@ const TotalItemsEcommerce = () => {
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
     
-    dispatch(disconnectEcommerceItem({id: idDisconnectItem}, (result) => {
+    dispatch(disconnectEcommerceItem({ids: [idDisconnectItem]}, (result) => {
       if (result) {
         showSuccess("Ngắt kết nối sản phẩm thành công");
         reloadPage();
@@ -690,10 +705,10 @@ const TotalItemsEcommerce = () => {
           onOk={okSyncStockModal}
           okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
-          <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
+          <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
             <Space direction="vertical">
-              <Radio value="selected">Đồng bộ các sản phẩm đã chọn</Radio>
-              <Radio value="all">Đồng bộ tất cả sản phẩm</Radio>
+              <Radio value={false}>Đồng bộ các sản phẩm đã chọn</Radio>
+              <Radio value={true}>Đồng bộ tất cả sản phẩm</Radio>
             </Space>
           </Radio.Group>
         </Modal>

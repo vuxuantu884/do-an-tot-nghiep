@@ -1,6 +1,7 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
+import { PostProductEcommerceQuery } from "model/query/ecommerce.query";
 import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { generateQuery } from 'utils/AppUtils';
@@ -64,21 +65,27 @@ const ecommerceGetShopApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
-const ecommercePostVariantsApi = (query: any) => {
-  let params = generateQuery(query);
-  let link = `${ApiConfig.ECOMMERCE}/variants?${params}`;
-  return BaseAxios.post(link);
+const ecommercePostVariantsApi = (requestBody: PostProductEcommerceQuery): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ECOMMERCE}/variants`;
+  return BaseAxios.post(link, requestBody);
 };
 
-const ecommerceDeleteItemApi = (query: any) => {
-  let link = `${ApiConfig.ECOMMERCE}/variants/${query.id}`;
+const ecommerceDeleteItemApi = (ids: any) => {
+  let idsParam =  ids.join(',');
+  let link = `${ApiConfig.ECOMMERCE}/variants?ids=${idsParam}`;
   return BaseAxios.delete(link);
 };
 
-const ecommerceDisconnectItemApi = (query: any) => {
-  let link = `${ApiConfig.ECOMMERCE}/variants/${query.id}/disconnect`;
-  return BaseAxios.put(link);
+const ecommerceDisconnectItemApi = (ids: any) => {
+  let link = `${ApiConfig.ECOMMERCE}/variants/disconnect`;
+  return BaseAxios.put(link, ids);
 };
+
+const ecommercePostSyncStockItemApi = (requestBody: any): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ECOMMERCE}/variants/stockSync`;
+  return BaseAxios.post(link, requestBody);
+};
+
 
 export {
   ecommerceCreateApi,
@@ -92,5 +99,6 @@ export {
   ecommerceGetShopApi,
   ecommercePostVariantsApi,
   ecommerceDeleteItemApi,
-  ecommerceDisconnectItemApi
+  ecommerceDisconnectItemApi,
+  ecommercePostSyncStockItemApi
 };

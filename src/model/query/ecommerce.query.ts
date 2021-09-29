@@ -14,7 +14,7 @@ export interface ShopEcommerceQuery extends BaseQuery {
   ecommerce_id: number | null;
 }
 
-export interface PostProductEcommerceQuery extends BaseQuery {
+export interface PostProductEcommerceQuery {
   ecommerce_id: number | null;
   shop_id: number | null;
   update_time_from: number | null;
