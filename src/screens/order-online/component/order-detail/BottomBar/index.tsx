@@ -39,7 +39,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       <Row gutter={24}>
         <Col
           md={10}
-          style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
+          style={{ marginLeft: "-10px", marginTop: "3px", padding: "3px" }}
         >
           <CreateBillStep status={stepsStatusValue} orderDetail={orderDetail} />
         </Col>
