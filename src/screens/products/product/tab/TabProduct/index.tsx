@@ -143,6 +143,7 @@ const TabProduct: React.FC = () => {
         return (
           <ImageProduct
             path={image !== null ? image.url : null}
+            isUpload={true}
             onClick={() => {
               setVariant({
                 name: value.name,

@@ -72,6 +72,8 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
 import { ProductUploadModel } from "model/product/product-upload.model";
+import ModalConfirmPrice from "../component/ModalConfirmPrice";
+import ModalUpdatePrice from "../component/ModalUpdatePrice";
 
 const { Item } = Form;
 var tempActive: number = 0;
@@ -126,9 +128,13 @@ const ProductDetailScreen: React.FC = () => {
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
+  const [isChangePrice, setChangePrice] = useState<boolean>(false);
   const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variantImages, setVariantImage] = useState<Array<VariantImage>>([]);
   const [loadingVariant, setLoadingVariant] = useState(false);
+  const [visiblePrice, setVisiblePrice] = useState(false);
+  const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
+  const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const categoryFilter = useMemo(() => {
     if (data === null) {
       return listCategory;
@@ -228,8 +234,9 @@ const ProductDetailScreen: React.FC = () => {
 
   const onActive = useCallback(
     (active1: number) => {
+      let variants = form.getFieldValue("variants");
       if (active1 !== active) {
-        if (isChange === true) {
+        if (isChange && !isChangePrice) {
           tempActive = active1;
           setModalConfirm({
             onOk: () => {
@@ -248,7 +255,9 @@ const ProductDetailScreen: React.FC = () => {
                 let index = variants.findIndex((item) => item.id === idActive);
                 form.setFieldsValue({ variants: variants });
                 setActive(index);
-                let fieldList = Products.convertAvatarToFileList(variants[index].variant_images);
+                let fieldList = Products.convertAvatarToFileList(
+                  variants[index].variant_images
+                );
                 setFieldList(fieldList);
               }
             },
@@ -256,16 +265,23 @@ const ProductDetailScreen: React.FC = () => {
             title: "Xác nhận",
             subTitle: "Bạn có muốn lưu lại phiên bản này?",
           });
+        } else if (isChangePrice && variants.length > 1) {
+          tempActive = active1;
+          setVisiblePrice(true);
         } else {
           setCurrentVariant(active1);
         }
       }
     },
-    [active, form, isChange, setCurrentVariant]
+    [active, form, isChange, isChangePrice, setCurrentVariant]
   );
 
   const onChange = useCallback(() => {
     setChange(true);
+  }, []);
+
+  const onChangePrice = useCallback(() => {
+    setChangePrice(true);
   }, []);
 
   const onResultUpdate = useCallback(
@@ -276,6 +292,7 @@ const ProductDetailScreen: React.FC = () => {
       } else {
         form.setFieldsValue(data);
         setChange(false);
+        setChangePrice(false);
         showSuccess("Cập nhật thông tin sản phẩm thành công");
         if (tempActive !== active) {
           setCurrentVariant(tempActive);
@@ -292,6 +309,20 @@ const ProductDetailScreen: React.FC = () => {
     },
     [dispatch, idNumber, onResultUpdate]
   );
+
+  const onUpdatePrice = useCallback((listSelected: Array<number>) => {
+    setVisibleUpdatePrice(false);
+    let values: ProductResponse = form.getFieldsValue(true);
+    if(values) {
+      values.variants.forEach((item) => {
+        if (listSelected.includes(item.id)) {
+          item.variant_prices = values.variants[active].variant_prices;
+        }
+      });
+      update(values);
+    }
+     
+  }, [active, form, update])
 
   const updateStatus = useCallback(
     (listSelected: Array<number>, status) => {
@@ -312,7 +343,7 @@ const ProductDetailScreen: React.FC = () => {
         visible: true,
         okText: "Lưu trạng thái",
         title: "Đổi trạng thái phiên bản",
-        cancelText: "Không lưu",
+        cancelText: "Hủy",
         subTitle: "Bạn có chắc chắn đổi trạng thái phiên bản?",
         onCancel: () => {
           setModalConfirm({ visible: false });
@@ -398,68 +429,92 @@ const ProductDetailScreen: React.FC = () => {
     setFieldList(info.fileList);
   }, []);
 
-  const customRequest = useCallback((options, active) => {
-    console.log(options);
-    let files: Array<File> = [];
-    if (options.file instanceof File) {
-      let uuid = options.file.uid;
-      files.push(options.file);
-      dispatch(
-        productUploadAction(
-          files,
-          "variant",
-          (data: false | Array<ProductUploadModel>) => {
-            let index = fieldList.findIndex((item) => item.uid === uuid);
-            if (!!data) {
-              if (index !== -1) {
-                let variants: Array<VariantResponse> = form.getFieldValue("variants");
-                variants[active].variant_images.push({
-                  image_id: data[0].id,
-                  product_avatar: false,
-                  variant_avatar: false,
-                  variant_id: variants[active].id,
-                  url: data[0].path,
-                  position: null,
-                })
-                variants[active].variant_images = [...variants[active].variant_images];
-                let newVariants = [...variants];
-                form.setFieldsValue({ variants: newVariants });
-                fieldList[index].status = "done";
-                fieldList[index].url = data[0].path;
-                fieldList[index].name = data[0].id.toString();
+  const customRequest = useCallback(
+    (options, active) => {
+      console.log(options);
+      let files: Array<File> = [];
+      if (options.file instanceof File) {
+        let uuid = options.file.uid;
+        files.push(options.file);
+        dispatch(
+          productUploadAction(
+            files,
+            "variant",
+            (data: false | Array<ProductUploadModel>) => {
+              let index = fieldList.findIndex((item) => item.uid === uuid);
+              if (!!data) {
+                if (index !== -1) {
+                  let variants: Array<VariantResponse> =
+                    form.getFieldValue("variants");
+                  variants[active].variant_images.push({
+                    image_id: data[0].id,
+                    product_avatar: false,
+                    variant_avatar: false,
+                    variant_id: variants[active].id,
+                    url: data[0].path,
+                    position: null,
+                  });
+                  variants[active].variant_images = [
+                    ...variants[active].variant_images,
+                  ];
+                  let newVariants = [...variants];
+                  form.setFieldsValue({ variants: newVariants });
+                  fieldList[index].status = "done";
+                  fieldList[index].url = data[0].path;
+                  fieldList[index].name = data[0].id.toString();
+                }
+              } else {
+                fieldList.splice(index, 1);
+                showError("Upload ảnh không thành công");
               }
-            } else {
-              fieldList.splice(index, 1);
-              showError("Upload ảnh không thành công");
+              setFieldList([...fieldList]);
             }
-            setFieldList([...fieldList]);
-          }
-        )
-      );
-    }
-  }, [dispatch, fieldList, form]);
+          )
+        );
+      }
+    },
+    [dispatch, fieldList, form]
+  );
 
   const onSave = useCallback(() => {
-    form.submit();
-  }, [form]);
+    if (isChangePrice) {
+      setVisiblePrice(true);
+    } else {
+      form.submit();
+    }
+  }, [form, isChangePrice]);
+
+  const onOkPrice = useCallback(
+    (isOnly) => {
+      setVisiblePrice(false);
+      if (isOnly) {
+        form.submit();
+      } else {
+        let variants = form.getFieldValue('variants');
+        setCurrentVariants(variants);
+        setVisibleUpdatePrice(true);
+      }
+    },
+    [form]
+  );
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   useEffect(() => {
-      dispatch(getCategoryRequestAction({}, setDataCategory));
-      dispatch(SupplierGetAllAction(setListSupplier));
-      dispatch(materialSearchAll(setListMaterial));
-      dispatch(CountryGetAllAction(setListCountry));
-      dispatch(sizeGetAll(setListSize));
-      dispatch(listColorAction({ is_main_color: 0 }, setListColor));
-      dispatch(
-        AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT] },
-          setDataAccounts
-        )
-      );
+    dispatch(getCategoryRequestAction({}, setDataCategory));
+    dispatch(SupplierGetAllAction(setListSupplier));
+    dispatch(materialSearchAll(setListMaterial));
+    dispatch(CountryGetAllAction(setListCountry));
+    dispatch(sizeGetAll(setListSize));
+    dispatch(listColorAction({ is_main_color: 0 }, setListColor));
+    dispatch(
+      AccountSearchAction(
+        { department_ids: [AppConfig.WIN_DEPARTMENT] },
+        setDataAccounts
+      )
+    );
     return () => {};
   }, [dispatch, setDataAccounts, setDataCategory]);
 
@@ -518,17 +573,18 @@ const ProductDetailScreen: React.FC = () => {
                           <Switch
                             onChange={(checked) => {
                               setStatus(checked ? "active" : "inactive");
-                              let variants: Array<VariantResponse> = form.getFieldValue("variants");
-                              if(!checked) {
+                              let variants: Array<VariantResponse> =
+                                form.getFieldValue("variants");
+                              if (!checked) {
                                 variants = [...variants];
                                 variants.forEach((item) => {
-                                  item.status = 'inactive';
+                                  item.status = "inactive";
                                   item.saleable = false;
-                                })
+                                });
                               }
                               form.setFieldsValue({
                                 status: checked ? "active" : "inactive",
-                                variants: variants
+                                variants: variants,
                               });
                             }}
                             className="ant-switch-success"
@@ -883,7 +939,7 @@ const ProductDetailScreen: React.FC = () => {
                   <Col className="left" span={24} md={7}>
                     <Item name="variants" noStyle>
                       <VariantList
-                        disabledAction={status === 'inactive'}
+                        disabledAction={status === "inactive"}
                         loading={loadingVariant}
                         onAllowSale={onAllowSale}
                         onStopSale={onStopSale}
@@ -963,7 +1019,7 @@ const ProductDetailScreen: React.FC = () => {
                                         noStyle
                                       >
                                         <Switch
-                                          disabled={status === 'inactive'}
+                                          disabled={status === "inactive"}
                                           style={{ marginLeft: 10 }}
                                           className="ant-switch-success"
                                         />
@@ -1123,7 +1179,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChange}
+                                                      onChange={onChangePrice}
                                                       format={(a: string) =>
                                                         formatCurrency(a)
                                                       }
@@ -1161,7 +1217,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChange}
+                                                      onChange={onChangePrice}
                                                       format={(a: string) =>
                                                         formatCurrency(a)
                                                       }
@@ -1198,7 +1254,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChange}
+                                                      onChange={onChangePrice}
                                                       format={(a: string) =>
                                                         formatCurrency(a)
                                                       }
@@ -1236,7 +1292,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChange}
+                                                      onChange={onChangePrice}
                                                       format={(a: string) =>
                                                         formatCurrency(a)
                                                       }
@@ -1257,7 +1313,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     ]}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChange}
+                                                      onChange={onChangePrice}
                                                       placeholder="VD: 10"
                                                       suffix={<span>%</span>}
                                                     />
@@ -1285,7 +1341,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     ]}
                                                   >
                                                     <CustomSelect
-                                                      onChange={onChange}
+                                                      onChange={onChangePrice}
                                                       placeholder="Đơn vị tiền tệ"
                                                     >
                                                       {currencyList?.map(
@@ -1588,6 +1644,14 @@ const ProductDetailScreen: React.FC = () => {
           visible={visiblePickAvatar}
         />
         <ModalConfirm {...modalConfirm} />
+        <ModalConfirmPrice
+          onCancel={() => {
+            setVisiblePrice(false)
+          }}
+          visible={visiblePrice}
+          onOk={onOkPrice}
+        />
+        <ModalUpdatePrice onCancel={() => setVisibleUpdatePrice(false)} onOk={onUpdatePrice} currentVariant={active} variants={currentVariants} visible={visibleUpdatePrice} />
       </ContentContainer>
     </StyledComponent>
   );
