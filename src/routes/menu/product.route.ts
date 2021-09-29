@@ -54,9 +54,6 @@ const ColorCreateScreen = React.lazy(
 const Product = React.lazy(
   () => import("screens/products/product/ProductSearchScreen")
 );
-const VariantUpdateScreen = React.lazy(
-  () => import("screens/products/product/variant-update.screen")
-);
 const ProductDetailScreen = React.lazy(
   () => import("screens/products/product/ProductDetailScreen")
 );
@@ -109,18 +106,6 @@ const product: Array<RouteMenu> = [
         icon: "icon-dot",
         component: ProductCreateScreen,
         key: "submenu211",
-        isShow: true,
-        header: null,
-        subMenu: [],
-      },
-      
-      {
-        path: `${UrlConfig.PRODUCT}/variants/:id`,
-        exact: true,
-        title: "Sửa biến thể",
-        icon: "icon-dot",
-        component: VariantUpdateScreen,
-        key: "submenu212",
         isShow: true,
         header: null,
         subMenu: [],
