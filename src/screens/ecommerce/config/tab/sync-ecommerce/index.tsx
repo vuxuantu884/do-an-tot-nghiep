@@ -9,7 +9,8 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import { useHistory } from "react-router-dom";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import moment from "moment";
+
 const iconMap: any = {
   shopee: shopeeIcon,
   lazada: lazadaIcon,
@@ -93,7 +94,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
       title: "Ngày kết nối",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        return <span>{ConvertUtcToLocalDate(v.auth_time)}</span>;
+        return <span>{moment.unix(v.auth_time).format("DD/MM/YYYY HH:mm:ss")}</span>;
       },
     },
     actionColumn(handleUpdate, handleDisconnect),
