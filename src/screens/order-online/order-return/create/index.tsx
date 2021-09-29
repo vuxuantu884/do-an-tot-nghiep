@@ -47,6 +47,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
+  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -510,19 +511,6 @@ const ScreenReturnCreate = (props: PropType) => {
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(listExchangeProducts);
 
-    let checkPointFocus = payments.find((p) => p.code === "point");
-    if (checkPointFocus) {
-      let currentPoint = 0;
-      if (loyaltyPoint)
-        currentPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
-      let point =
-        checkPointFocus.point === undefined ? 0 : checkPointFocus.point;
-
-      if (point > currentPoint) {
-        showError("Số điểm tiêu vượt quá số điểm hiện có");
-        return;
-      }
-    }
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     values.payments = payments.filter((payment) => payment.amount > 0);
@@ -552,41 +540,112 @@ const ScreenReturnCreate = (props: PropType) => {
     values.store_id = OrderDetail ? OrderDetail.store_id : null;
     values.source_id = OrderDetail ? OrderDetail.source_id : null;
     values.order_return_id = order_return_id;
-    if (!values.customer_id) {
-      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
-      const element: any = document.getElementById("search_customer");
-      element?.focus();
-    } else {
-      if (listExchangeProducts.length === 0) {
-        showError("Vui lòng chọn ít nhất 1 sản phẩm");
-        const element: any = document.getElementById("search_product");
+    if(checkPointfocus(values))
+    {
+      if (!values.customer_id) {
+        showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+        const element: any = document.getElementById("search_customer");
         element?.focus();
       } else {
-        if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-          if (values.delivery_service_provider_id === null) {
-            showError("Vui lòng chọn đối tác giao hàng");
-          } else {
-            console.log("values", values);
-            dispatch(
-              actionCreateOrderExchange(values, createOrderExchangeCallback)
-            );
-          }
+        if (listExchangeProducts.length === 0) {
+          showError("Vui lòng chọn ít nhất 1 sản phẩm");
+          const element: any = document.getElementById("search_product");
+          element?.focus();
         } else {
-          if (
-            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !serviceType
-          ) {
-            showError("Vui lòng chọn đơn vị vận chuyển");
+          if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+            if (values.delivery_service_provider_id === null) {
+              showError("Vui lòng chọn đối tác giao hàng");
+            } else {
+              console.log("values", values);
+              dispatch(
+                actionCreateOrderExchange(values, createOrderExchangeCallback)
+              );
+            }
           } else {
-            console.log("values", values);
-            dispatch(
-              actionCreateOrderExchange(values, createOrderExchangeCallback)
-            );
+            if (
+              shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+              !serviceType
+            ) {
+              showError("Vui lòng chọn đơn vị vận chuyển");
+            } else {
+              console.log("values", values);
+              dispatch(
+                actionCreateOrderExchange(values, createOrderExchangeCallback)
+              );
+            }
           }
         }
       }
     }
+    
   };
+
+  const checkPointfocus = (value: any) => {
+    let Pointfocus = payments.find((p) => p.code === "point");
+
+    if (!Pointfocus) return true;
+
+    let discount = 0;
+    value.items.forEach(
+      (p: any) => (discount = discount + (p.discount_amount* p.quantity))
+    );
+
+    let rank = loyaltyUsageRules.find(
+      (x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id)
+    );
+
+    let curenPoint = !loyaltyPoint
+      ? 0
+      : loyaltyPoint.point === null
+      ? 0
+      : loyaltyPoint.point;
+    let point = !Pointfocus
+      ? 0
+      : Pointfocus.point === undefined
+      ? 0
+      : Pointfocus.point;
+
+    let total = 0;
+    payments.forEach((p) => (total = total + p.amount));
+    let totalAmountPayable =totalAmountCustomerNeedToPay; //tổng tiền phải trả
+    let limitAmountPointFocus = !rank
+      ? 0
+      : !rank.limit_order_percent
+      ? 0
+      : (rank.limit_order_percent * totalAmountPayable) / 100;
+    //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
+    limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+
+    if(!loyaltyPoint || limitAmountPointFocus===0)
+    {
+      showError(
+        "Khách hàng đang không được áp dụng chương trình tiêu điểm"
+      );
+      return false;
+    }
+    if (
+      rank?.block_order_have_discount === true &&
+      (discount > 0 || discountValue)
+    ) {
+      showError(
+        "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
+      );
+      return false;
+    }
+
+    if (point > limitAmountPointFocus) {
+      showError(
+        `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
+      );
+      return false;
+    }
+
+    if (point > curenPoint) {
+      showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
+      return false;
+    }
+    return true;
+  }
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
