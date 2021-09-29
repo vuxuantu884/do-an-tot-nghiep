@@ -683,11 +683,16 @@ const OrderDetail = (props: PropType) => {
                             ) : (
                               <>
                                 {OrderDetail?.payments
-                                  .filter(
-                                    (payment) =>
+                                  .filter((payment) => {
+                                    // nếu là đơn trả thì tính cả cod
+                                    if (OrderDetail.order_return_origin) {
+                                      return true;
+                                    }
+                                    return (
                                       payment.payment_method !== "cod" &&
                                       payment.amount
-                                  )
+                                    );
+                                  })
                                   .map((payment: any, index: number) => (
                                     <Panel
                                       showArrow={false}
@@ -696,7 +701,13 @@ const OrderDetail = (props: PropType) => {
                                         <div className="orderPaymentItem">
                                           <div className="orderPaymentItem__left">
                                             <div>
-                                              <b>{payment.payment_method}</b>
+                                              {/* <b>{payment.payment_method}</b> */}
+                                              {/* trường hợp số tiền âm là hoàn lại tiền */}
+                                              <b>
+                                                {payment.paid_amount < 0
+                                                  ? "Hoàn tiền cho khách"
+                                                  : payment.payment_method}
+                                              </b>
                                               <span>{payment.reference}</span>
                                               {payment.payment_method_id ===
                                                 5 && (
@@ -708,7 +719,9 @@ const OrderDetail = (props: PropType) => {
                                               )}
                                             </div>
                                             <span className="amount">
-                                              {formatCurrency(payment.amount)}
+                                              {formatCurrency(
+                                                Math.abs(payment.paid_amount)
+                                              )}
                                             </span>
                                           </div>
                                           <div className="orderPaymentItem__right">
