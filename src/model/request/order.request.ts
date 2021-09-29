@@ -365,7 +365,7 @@ export interface GetFeesRequest {
   to_ward_id: number | undefined;
   from_address: string | undefined;
   to_address: string | undefined;
-  price: number | 0;
+  price: number | undefined;
   quantity: number | 0;
   weight: number | 0;
   length: number | 0;

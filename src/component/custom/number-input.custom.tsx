@@ -22,7 +22,8 @@ interface NumberInputProps {
   default?: number;
   prefix?: React.ReactNode;
   autoFocus?: boolean;
-  onFocus?: () => void
+  onFocus?: () => void;
+  disabled?: boolean
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -41,7 +42,8 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     className,
     prefix,
     id,
-    onFocus
+    onFocus,
+    disabled = false
   } = props;
   const [data, setData] = useState<string>('');
   const onChangeText = useCallback(
@@ -118,6 +120,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       }}
       prefix={prefix}
       autoFocus={props.autoFocus}
+      disabled={disabled}
     />
   );
 };
