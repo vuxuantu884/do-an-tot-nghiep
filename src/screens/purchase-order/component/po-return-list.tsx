@@ -69,7 +69,7 @@ const POReturnList: React.FC<POReturnListProps> = (
       extra={
         <Button
           onClick={() => {
-            history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
+            history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
               params,
               listCountries: listCountries,
               listDistrict: listDistrict,

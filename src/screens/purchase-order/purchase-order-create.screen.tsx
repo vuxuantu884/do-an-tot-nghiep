@@ -35,11 +35,11 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
-import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
 import { CheckOutlined } from "@ant-design/icons";
 import POStep from "./component/po-step";
+import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
