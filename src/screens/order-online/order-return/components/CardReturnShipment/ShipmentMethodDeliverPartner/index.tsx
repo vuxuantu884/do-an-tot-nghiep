@@ -75,6 +75,17 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     };
   }, [checkServiceFee]);
 
+  const totalAmountCustomerNeedToPayShipper = () => {
+    return (
+      amount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+      totalAmountPaid() -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+    );
+  };
+
   useEffect(() => {
     if (isCloneOrder) {
       switch (fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls) {
@@ -113,12 +124,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  amount +
-                  (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                  (discountValue ? discountValue : 0) -
-                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-                  totalAmountPaid() -
-                  (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+                  totalAmountCustomerNeedToPayShipper() > 0
+                    ? totalAmountCustomerNeedToPayShipper()
+                    : 0
                 }
                 className="formInputAmount"
                 maxLength={999999999999}

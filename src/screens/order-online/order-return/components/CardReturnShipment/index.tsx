@@ -370,6 +370,7 @@ function CardReturnShipment(props: CardShipmentProps) {
               setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
               shipper={shipper}
               shippingFeeCustomer={shippingFeeCustomer}
+              totalAmountReturnProducts={totalAmountReturnProducts}
             />
           )}
 
