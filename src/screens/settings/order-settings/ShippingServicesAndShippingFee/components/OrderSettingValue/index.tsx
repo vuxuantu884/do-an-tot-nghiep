@@ -1,8 +1,9 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Card, Form, InputNumber, Select, Table } from "antd";
+import { Card, Form, Select, Table } from "antd";
 import Column from "antd/lib/table/Column";
+import NumberInput from "component/custom/number-input.custom";
 import { ProvinceModel } from "model/content/district.model";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -11,14 +12,6 @@ type PropType = {
 
 function OrderSettingValue(props: PropType) {
   const { listProvinces } = props;
-
-  const formatterCurrency = (value: number | undefined) => {
-    let result = "";
-    if (value) {
-      result = formatCurrency(value);
-    }
-    return result;
-  };
 
   const OrderSettingTable = (props: any) => {
     const { shipping_fee_configs, add } = props;
@@ -45,7 +38,13 @@ function OrderSettingValue(props: PropType) {
                 name={[index, "from_price"]}
                 rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
-                <InputNumber formatter={formatterCurrency} min={0} />
+                <NumberInput
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="0"
+                  maxLength={15}
+                  min={0}
+                />
               </Form.Item>
             );
           }}
@@ -59,7 +58,13 @@ function OrderSettingValue(props: PropType) {
                 name={[index, "to_price"]}
                 rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
-                <InputNumber formatter={formatterCurrency} min={0} />
+                <NumberInput
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="0"
+                  maxLength={15}
+                  min={0}
+                />
               </Form.Item>
             );
           }}
@@ -111,7 +116,13 @@ function OrderSettingValue(props: PropType) {
                   { required: true, message: "Vui lòng nhập phí vận chuyển" },
                 ]}
               >
-                <InputNumber formatter={formatterCurrency} />
+                <NumberInput
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="0"
+                  maxLength={15}
+                  min={0}
+                />
               </Form.Item>
             );
           }}
