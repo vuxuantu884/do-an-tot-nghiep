@@ -60,6 +60,7 @@ function* configureIsAllowToSellWhenNotAvailableStockSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
+        showSuccess("Cập nhật trạng thái cho phép bán khi tồn kho thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

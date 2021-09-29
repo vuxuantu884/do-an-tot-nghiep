@@ -23,16 +23,22 @@ import { Link } from "react-router-dom";
 import moment from "moment";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { useState } from "react";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 //#endregion
 
 type CustomerCardUpdateProps = {
   OrderDetail: OrderResponse | null;
   customerDetail: CustomerResponse | null;
+  loyaltyPoint:LoyaltyPoint|null;
+  loyaltyUsageRules:Array<LoyaltyUsageResponse>;
 };
 
 const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   props: CustomerCardUpdateProps
 ) => {
+
+  const {loyaltyPoint,loyaltyUsageRules} =props;
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
@@ -70,6 +76,8 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
     "DD/MM/YYYY"
   );
 
+  const rankName =loyaltyUsageRules.find((x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id))?.rank_name;
+
   return (
     <Card
       className="card-block card-block-customer"
@@ -104,7 +112,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             <Avatar size={32}>A</Avatar>
             <Link to="#">{props.customerDetail?.full_name}</Link>
             <Tag className="orders-tag orders-tag-vip">
-              <b>{props.customerDetail?.customer_level}</b>
+              <b>{!rankName?"Default":rankName}</b>
             </Tag>
           </Space>
           <Space className="customer-detail-phone">
@@ -127,9 +135,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 style={{ color: "#0080FF" }}
                 strong
               >
-                {props.customerDetail?.loyalty === undefined
-                  ? "0"
-                  : props.customerDetail?.loyalty}
+                {loyaltyPoint?.point === undefined
+                      ? "0"
+                      : loyaltyPoint?.point}
               </Typography.Text>
             </span>
           </Space>

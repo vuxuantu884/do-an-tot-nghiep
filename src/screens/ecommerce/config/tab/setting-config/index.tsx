@@ -21,6 +21,7 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
+import { useHistory } from "react-router-dom";
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -38,6 +39,7 @@ type SettingConfigProps = {
   configData: Array<EcommerceResponse>;
   configToView: EcommerceResponse | undefined;
   accountChangeSearch: (value: string) => void;
+  reloadConfigData: () => void;
 };
 const SettingConfig: React.FC<SettingConfigProps> = (
   props: SettingConfigProps
@@ -49,32 +51,39 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     form,
     configToView,
     configData,
+    reloadConfigData,
   } = props;
   const dispatch = useDispatch();
+  const history = useHistory();
   const [configDetail, setConfigDetail] = useState<
     EcommerceResponse | undefined
   >(configToView);
   const [inventories, setInventories] = React.useState<
     Array<EcommerceShopInventoryDto>
   >([]);
-
   useEffect(() => {
     setConfigDetail(configToView);
   }, [configToView, setConfigDetail]);
-  const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
-    if (value) {
-      setConfigDetail(value);
-      showSuccess("Cập nhật cấu hình thành công");
-    }
-  }, []);
+  const handleConfigCallback = React.useCallback(
+    (value: EcommerceResponse) => {
+      if (value) {
+        setConfigDetail(value);
+        showSuccess("Cập nhật cấu hình thành công");
+        history.replace(`${history.location.pathname}#sync`);
+        reloadConfigData();
+      }
+    },
+    [history, reloadConfigData]
+  );
   const handleCreateConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       setConfigDetail(value);
       showSuccess("Đồng bộ cấu hình thành công");
+      history.replace(`${history.location.pathname}#sync`);
+      reloadConfigData();
     },
-    []
+    [history, reloadConfigData]
   );
-
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
@@ -109,21 +118,20 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       configData,
     ]
   );
-  const handleDisconnectEcommerce = () => {
-    
-  };
+  const handleDisconnectEcommerce = () => {};
+  
   const handleStoreChange = (event: any) => {
-    let inventories = [];
+    let _inventories = [];
     for (let id of event) {
       const _store = listStores.find((store) => store.id === id);
       if (_store) {
-        inventories.push({
+        _inventories.push({
           store: _store.name,
           store_id: id,
         });
       }
     }
-    setInventories(inventories);
+    setInventories(_inventories);
   };
 
   React.useEffect(() => {
@@ -141,6 +149,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
         store: configDetail.store,
+        inventories: _inventories?.map((item: any) => item.store_id),
       });
     } else {
       form.resetFields();
@@ -206,11 +215,13 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                       {
                         <img
                           style={{ marginRight: 8, paddingBottom: 4 }}
-                          src={iconMap[item.ecommerce]}
+                          src={
+                            iconMap[item.ecommerce || configDetail?.ecommerce]
+                          }
                           alt=""
                         />
                       }
-                      {item.name}
+                      {item.name || configDetail?.name}
                     </CustomSelect.Option>
                   ))}
               </CustomSelect>
@@ -246,7 +257,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Row>
                 <Col span={5}>Username</Col>
                 <Col span={19}>
-                  <span className="fw-500">: ---</span>
+                  <span className="fw-500">
+                    : {configDetail?.assign_account || "---"}
+                  </span>
                 </Col>
               </Row>
             </div>
@@ -299,12 +312,23 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 },
               ]}
             >
-              <Input
-                maxLength={255}
-                placeholder="Nhập tên cửa hàng"
+              <Select
+                placeholder="Chọn cửa hàng"
                 disabled={configDetail ? false : true}
-              ></Input>
+              >
+                {listStores &&
+                  listStores?.map((item, index) => (
+                    <Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item.name}
+                    >
+                      {item.name}
+                    </Option>
+                  ))}
+              </Select>
             </Form.Item>
+
             <Form.Item
               label={<span>Nhân viên bán hàng</span>}
               name="assign_account_code"
@@ -337,14 +361,15 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           <Col span={12}>
             <span className="description-name">Cấu hình tồn kho</span>
             <span className="description">
-              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
-              các gian hàng với nhau
+              Khi có bất khì thay đổi gì về tồn trong kho được chọn thì hệ thống
+              sẽ “tự động” cập nhật lên shop của bạn trên sàn. Trừ một số trường
+              hợp lỗi api, lỗi hệ thống sàn, hệ thống admin YODY, Flash Sale thì
+              sẽ không thể cập nhật Realtime
             </span>
           </Col>
           <Col span={12}>
             <Form.Item
-              // name="inventories"
-              className="store"
+              name="inventories"
               label={<span>Kho đồng bộ tồn</span>}
               rules={[
                 {
@@ -355,39 +380,27 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             >
               <CustomSelect
                 disabled={configDetail ? false : true}
+                onChange={handleStoreChange}
                 mode="multiple"
                 className="dropdown-rule"
                 showArrow
                 showSearch
-                placeholder="Chọn cửa hàng"
+                placeholder="Chọn kho đồng bộ tồn"
                 notFoundContent="Không tìm thấy kết quả"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
+                style={{
+                  width: "100%",
                 }}
-                value={
-                  inventories && inventories?.map((store) => store.store_id)
-                }
-                onChange={handleStoreChange}
+                optionFilterProp="children"
+                getPopupContainer={(trigger) => trigger.parentNode}
               >
-                {listStores &&
-                  listStores?.map((item, index) => (
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key={index.toString()}
-                      value={item.id}
-                    >
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))}
+                {listStores?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.id}>
+                    {item.name}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Form.Item>
+
             <Form.Item
               label={<span>Kiểu đồng bộ tồn kho</span>}
               name="inventory_sync"
@@ -414,7 +427,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           <Col span={12}>
             <span className="description-name">Cấu hình đơn hàng</span>
             <span className="description">
-              Chọn kiểu đồng bộ đơn hàng để cập nhật đơn tự động hay thủ công
+              Khi có đơn hàng mới trên sàn thì hệ thống sẽ tự động tải về admin
+              để xử lý. Trường hợp trong đơn hàng tải về hệ thống sẽ đợi người
+              dùng ghép nối sản phẩm trước khi tải đơn thành công.
             </span>
           </Col>
           <Col span={12}>
@@ -456,9 +471,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                   convertToCapitalizedString() || "sàn"
                 } về`}</Option>
                 <Option value={"manual"}>
-                  <span style={{ color: "#27AE60" }}>
-                    Đợi ghép sản phẩm giữa 2 bên
-                  </span>
+                  <span style={{ color: "#27AE60" }}>Đợi ghép nối</span>
                 </Option>
               </Select>
             </Form.Item>

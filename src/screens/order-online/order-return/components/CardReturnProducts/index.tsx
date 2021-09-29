@@ -6,7 +6,6 @@ import {
   Checkbox,
   Col,
   Input,
-  InputNumber,
   Popover,
   Row,
   Table,
@@ -16,6 +15,7 @@ import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import imgDefault from "assets/icon/img-default.svg";
+import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
   OrderLineItemResponse,
@@ -35,7 +35,7 @@ type PropType = {
   isStepExchange?: boolean;
   discountValue: number;
   discountRate?: number;
-  setTotalAmountReturnProducts: (value: number) => void;
+  setTotalAmountReturnProducts?: (value: number) => void;
 };
 
 function CardReturnProducts(props: PropType) {
@@ -50,7 +50,7 @@ function CardReturnProducts(props: PropType) {
     discountRate,
     setTotalAmountReturnProducts,
   } = props;
-  console.log("discountRate", discountRate);
+  console.log("isStepExchange", isStepExchange);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
@@ -110,16 +110,21 @@ function CardReturnProducts(props: PropType) {
       return;
     }
     if (e.target.checked) {
-      const result: ReturnProductModel[] = listOrderProducts.map((single) => {
-        return {
-          ...single,
-          maxQuantity: single.quantity,
-        };
-      });
+      const resultReturnProducts: ReturnProductModel[] = listOrderProducts.map(
+        (single) => {
+          return {
+            ...single,
+            maxQuantity: single.quantity,
+          };
+        }
+      );
       if (handleReturnProducts) {
-        handleReturnProducts(result);
+        handleReturnProducts(resultReturnProducts);
       }
-      checkIfIsCanReturn(result);
+      checkIfIsCanReturn(resultReturnProducts);
+      if (setTotalAmountReturnProducts) {
+        setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
+      }
     } else {
       const result: ReturnProductModel[] = listOrderProducts.map((single) => {
         return {
@@ -132,6 +137,9 @@ function CardReturnProducts(props: PropType) {
         handleReturnProducts(result);
       }
       checkIfIsCanReturn(result);
+      if (setTotalAmountReturnProducts) {
+        setTotalAmountReturnProducts(0);
+      }
     }
     setIsCheckReturnAll(e.target.checked);
   };
@@ -163,7 +171,7 @@ function CardReturnProducts(props: PropType) {
         </div>
         <div className="rs-right">
           <span style={{ color: "#222222" }} className="text t-right">
-            {item.price}
+            {formatCurrency(item.price)}
             <span
               style={{
                 color: "#737373",
@@ -211,10 +219,10 @@ function CardReturnProducts(props: PropType) {
     setSearchVariantInputValue(value);
   };
 
-  const onChangeProductQuantity = (value: number, index: number) => {
+  const onChangeProductQuantity = (value: number | null, index: number) => {
     let resultListReturnProducts = [...listReturnProducts];
     resultListReturnProducts[index].quantity = Number(
-      value == null ? "0" : value.toString().replace(".", "")
+      value === null ? "0" : value.toString().replace(".", "")
     );
     if (handleReturnProducts) {
       handleReturnProducts(resultListReturnProducts);
@@ -229,20 +237,22 @@ function CardReturnProducts(props: PropType) {
       setIsCheckReturnAll(true);
     }
     checkIfIsCanReturn(resultListReturnProducts);
+    if (setTotalAmountReturnProducts) {
+      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    }
   };
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
-    let total = 0;
+    let totalPrice = 0;
     listReturnProducts.forEach((single) => {
       let discountPerProduct = getProductDiscountPerProduct(single);
       let discountPerOrder = getProductDiscountPerOrder(single);
-      total =
-        total +
-        single.quantity *
-          (single.price - discountPerProduct - discountPerOrder);
+      let singleTotalPrice =
+        single.price - discountPerProduct - discountPerOrder;
+      totalPrice = totalPrice + single.quantity * singleTotalPrice;
     });
-    setTotalAmountReturnProducts(total);
-    return total;
+    // setTotalAmountReturnProducts(totalPrice);
+    return totalPrice;
   };
 
   const getProductDiscountPerProduct = (product: ReturnProductModel) => {
@@ -278,8 +288,8 @@ function CardReturnProducts(props: PropType) {
           className="single"
           style={{ display: "flex", justifyContent: "space-between" }}
         >
-          <p>Đơn giá gốc: </p>
-          <p style={{ marginLeft: 20 }}>{price}</p>
+          <p style={{ margin: 0 }}>Đơn giá gốc: </p>
+          <p style={{ margin: "0 0 0 20px" }}>{price}</p>
         </div>
       </div>
     );
@@ -335,15 +345,18 @@ function CardReturnProducts(props: PropType) {
           }
           return (
             <div>
-              <InputNumber
+              <NumberInput
                 min={0}
                 max={record.maxQuantity}
                 value={record.quantity}
-                defaultValue={0}
-                onChange={(value: number) =>
+                // defaultValue={0}
+                onChange={(value: number | null) =>
                   onChangeProductQuantity(value, index)
                 }
                 className="hide-number-handle"
+                maxLength={4}
+                minLength={0}
+                style={{ width: 100 }}
               />{" "}
               / {record.maxQuantity}
             </div>
@@ -352,7 +365,18 @@ function CardReturnProducts(props: PropType) {
       },
     },
     {
-      title: "Đơn giá sau giảm giá",
+      title: () => (
+        <div>
+          <span style={{ color: "#222222", textAlign: "right" }}>
+            Đơn giá sau giảm giá
+          </span>
+          <span
+            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
+          >
+            ₫
+          </span>
+        </div>
+      ),
       dataIndex: "price",
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
@@ -387,7 +411,16 @@ function CardReturnProducts(props: PropType) {
     //   },
     // },
     {
-      title: "Thành tiền",
+      title: () => (
+        <div>
+          <span style={{ color: "#222222" }}>Tổng tiền</span>
+          <span
+            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
+          >
+            ₫
+          </span>
+        </div>
+      ),
       key: "total",
       render: (
         value: OrderLineItemRequest,
@@ -412,7 +445,8 @@ function CardReturnProducts(props: PropType) {
     <StyledComponent>
       <Card
         className="margin-top-20"
-        title="Thông tin sản phẩm trả"
+        // title="SẢN PHẨM"
+        title={isStepExchange ? "Thông tin sản phẩm trả" : "SẢN PHẨM"}
         extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
         {isShowProductSearch() && (
@@ -479,18 +513,16 @@ function CardReturnProducts(props: PropType) {
           <Col xs={24} lg={11}></Col>
           <Col xs={24} lg={10}>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Số lượng trả:</strong>
-              <strong className="text-success font-size-price">
+              <span className="font-size-text">Số lượng:</span>
+              <span>
                 {listReturnProducts && (
-                  <span style={{ color: "#2A2A86" }}>
-                    {getTotalQuantity(listReturnProducts)}
-                  </span>
+                  <span>{getTotalQuantity(listReturnProducts)}</span>
                 )}
-              </strong>
+              </span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Cần phải trả khách:</strong>
-              <strong className="text-success font-size-price">
+              <strong className="font-size-text">Tổng tiền trả khách::</strong>
+              <strong>
                 {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
               </strong>
             </Row>

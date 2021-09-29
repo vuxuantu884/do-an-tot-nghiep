@@ -21,10 +21,10 @@ import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import TabProductInventory from "../tab/TabProductInventory";
 import TabProductHistory from "../tab/TabProductHistory";
-import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
-import classNames from 'classnames';
+import { inventoryGetDetailAction, inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
+import classNames from "classnames";
 import { PageResponse } from "model/base/base-metadata.response";
-import { InventoryResponse } from "model/inventory";
+import { HistoryInventoryResponse, InventoryResponse } from "model/inventory";
 
 export interface ProductParams {
   id: string;
@@ -38,19 +38,33 @@ const ProductDetailScreen: React.FC = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
+  const [loadingSwitch, setLoadingSwitch] = useState(false);
+  
   const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
-  const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
+  const [dataInventory, setDataInventory] = useState<
+    PageResponse<InventoryResponse>
+  >({
     items: [],
     metadata: {
       limit: 30,
       page: 1,
-      total: 0
-    }
+      total: 0,
+    },
   });
+  const [dataHistory, setDataHistory] = useState<
+  PageResponse<HistoryInventoryResponse>
+>({
+  items: [],
+  metadata: {
+    limit: 30,
+    page: 1,
+    total: 0,
+  },
+});
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
@@ -173,22 +187,49 @@ const ProductDetailScreen: React.FC = () => {
     [active, data, dispatch, idNumber, onUpdateSaleable]
   );
 
-  const onResultInventory = useCallback((result) => {
-    if(!result) {
-
+  const onResultDetail = useCallback((result) => {
+    if (!result) {
     } else {
-      setDataInventory(result)
+      setDataInventory(result);
     }
   }, []);
 
-  const onChangeDataInventory = useCallback((page) => {
-    if (data && data?.variants.length > 0) {
-      let variantSelect = data.variants[active].id;
-      dispatch(
-        inventoryGetDetailAction({ variant_id: variantSelect, page: page }, onResultInventory)
-      );
+  const onResultInventoryHistory = useCallback((result) => {
+    if (!result) {
+    } else {
+      setDataHistory(result);
     }
-  }, [active, data, dispatch, onResultInventory])
+  }, []);
+
+  const onChangeDataInventory = useCallback(
+    (page) => {
+      if (data && data?.variants.length > 0) {
+        let variantSelect = data.variants[active].id;
+        dispatch(
+          inventoryGetDetailAction(
+            { variant_id: variantSelect, page: page },
+            onResultDetail
+          )
+        );
+      }
+    },
+    [active, data, dispatch, onResultDetail]
+  );
+
+  const onChangeDataHistory = useCallback(
+    (page) => {
+      if (data && data?.variants.length > 0) {
+        let variantSelect = data.variants[active].id;
+        dispatch(
+          inventoryGetHistoryAction(
+            { variant_id: variantSelect, page: page },
+            onResultInventoryHistory
+          )
+        );
+      }
+    },
+    [active, data, dispatch, onResultInventoryHistory]
+  );
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -199,10 +240,19 @@ const ProductDetailScreen: React.FC = () => {
     if (data && data?.variants.length > 0) {
       let variantSelect = data.variants[active].id;
       dispatch(
-        inventoryGetDetailAction({ variant_id: variantSelect }, onResultInventory)
+        inventoryGetDetailAction(
+          { variant_id: variantSelect },
+          onResultDetail
+        )
+      );
+      dispatch(
+        inventoryGetHistoryAction(
+          { variant_id: variantSelect },
+          onResultInventoryHistory
+        )
       );
     }
-  }, [active, data, dataInventory.metadata.limit, dataInventory.metadata.page, dispatch, onResult, onResultInventory]);
+  }, [active, data, dispatch, onResult, onResultDetail, onResultInventoryHistory]);
   useEffect(() => {
     if (variantId && data) {
       let index = data.variants.findIndex(
@@ -247,13 +297,18 @@ const ProductDetailScreen: React.FC = () => {
                         style={{ marginLeft: 10 }}
                         checked={data.status === "active"}
                         onChange={(checked) => {
-                          data.status = checked ? "active" : "inactive";
-                          dispatch(productUpdateAction(idNumber, data, (result) => {
-                            if(result) {
-                              setData(result);
-                              showSuccess('Cập nhật trạng thái thành công')
-                            }
-                          }))
+                          let newData = { ...data };
+                          newData.status = checked ? "active" : "inactive";
+                          setLoadingSwitch(true);
+                          dispatch(
+                            productUpdateAction(idNumber, newData, (result) => {
+                              setLoadingSwitch(false);
+                              if (result) {
+                                setData(result);
+                                showSuccess("Cập nhật trạng thái thành công");
+                              }
+                            })
+                          );
                         }}
                         className="ant-switch-success"
                         defaultChecked
@@ -268,6 +323,18 @@ const ProductDetailScreen: React.FC = () => {
                       >
                         {statusValue}
                       </label>
+                      {loadingSwitch && (
+                        <div className="loading-view">
+                          <Spin
+                            indicator={
+                              <Loading3QuartersOutlined
+                                style={{ fontSize: 28 }}
+                                spin
+                              />
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   }
                 >
@@ -318,7 +385,6 @@ const ProductDetailScreen: React.FC = () => {
               <Col span={24} md={6}>
                 <Card title="Ảnh" className="card">
                   <div className="padding-20 card-image">
-                    {console.log(productAvatar)}
                     <Image src={productAvatar} />
                   </div>
                 </Card>
@@ -341,7 +407,9 @@ const ProductDetailScreen: React.FC = () => {
                         value={data.variants}
                         active={active}
                         setActive={(active) => {
-                          history.replace(`${UrlConfig.PRODUCT}/${idNumber}/variants/${data.variants[active].id}`)
+                          history.replace(
+                            `${UrlConfig.PRODUCT}/${idNumber}/variants/${data.variants[active].id}`
+                          );
                         }}
                         loading={loadingVariant}
                       />
@@ -430,7 +498,9 @@ const ProductDetailScreen: React.FC = () => {
                                             slidesToShow={1}
                                             slidesToScroll={1}
                                             arrows={false}
-                                            className={classNames("image-slider")}
+                                            className={classNames(
+                                              "image-slider"
+                                            )}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -456,7 +526,11 @@ const ProductDetailScreen: React.FC = () => {
                                             slidesToScroll={1}
                                             arrows={true}
                                             focusOnSelect={true}
-                                            className={classNames("image-thumbnail", currentVariant.variant_images.length === 2 && "image-2")}
+                                            className={classNames(
+                                              "image-thumbnail",
+                                              currentVariant.variant_images
+                                                .length === 2 && "image-2"
+                                            )}
                                           >
                                             {currentVariant.variant_images.map(
                                               (item, index) => (
@@ -500,10 +574,16 @@ const ProductDetailScreen: React.FC = () => {
                 <Card className="card">
                   <Tabs style={{ overflow: "initial" }}>
                     <Tabs.TabPane tab="Danh sách tồn kho" key="1">
-                      <TabProductInventory onChange={onChangeDataInventory} data={dataInventory} />
+                      <TabProductInventory
+                        onChange={onChangeDataInventory}
+                        data={dataInventory}
+                      />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Lich sử tồn kho" key="2">
-                      <TabProductHistory />
+                      <TabProductHistory 
+                       onChange={onChangeDataHistory}
+                       data={dataHistory}
+                      />
                     </Tabs.TabPane>
                   </Tabs>
                 </Card>

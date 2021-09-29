@@ -19,8 +19,8 @@ function SelectThirdPartyLogistic(props: PropType) {
       key: single.id,
     };
   });
-
-  let list_external_service_transport_type_ids: any[] = [];
+  let list_external_service_transport_type_ids: any[] =
+    initialFormValue.external_service_transport_type_ids;
 
   const onChange = (e: any, fieldValueId: any) => {
     if (e.target.checked) {
@@ -63,7 +63,7 @@ function SelectThirdPartyLogistic(props: PropType) {
             className="columnService"
             render={(value, row: any, index) => {
               return (
-                <div className="listServices">
+                <div className="listServices clearfix">
                   {row.transport_types.map((singleType: any, index: number) => {
                     return (
                       <Checkbox

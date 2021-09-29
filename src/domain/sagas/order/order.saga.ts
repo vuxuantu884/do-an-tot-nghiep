@@ -10,6 +10,7 @@ import {
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
   FeesResponse,
+  OrderConfig,
   OrderResponse,
   // OrderSubStatusResponse,
   TrackingLogFulfillmentResponse,
@@ -27,6 +28,7 @@ import {
   getDeliveryMappedStoresServices,
   getDeliveryTransportTypesServices,
   getInfoDeliveryFees,
+  getOrderConfig,
   getPaymentMethod,
   getReasonsApi,
   getReturnApi,
@@ -54,6 +56,23 @@ import {
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
 
 function* getListOrderSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderModel>> = yield call(
+      getListOrderApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getListOrderFpageSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
     let response: BaseResponse<Array<OrderModel>> = yield call(
@@ -606,6 +625,9 @@ function* cancelOrderSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         // setData(response.data);
         showSuccess("Huỷ đơn hàng thành công!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -621,8 +643,30 @@ function* cancelOrderSaga(action: YodyAction) {
   }
 }
 
+function * configOrderSaga(action:YodyAction)
+{
+  const { setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderConfig> = yield call(getOrderConfig);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
+  yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
   yield takeLatest(
     OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST,
     getListOrderCustomerSaga
@@ -673,4 +717,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_CHANNEL_REQUEST, getAllChannelSaga);
   yield takeLatest(OrderType.GET_LIST_REASON_REQUEST, getListReasonSaga);
   yield takeLatest(OrderType.CANCEL_ORDER_REQUEST, cancelOrderSaga);
+  yield takeLatest(OrderType.GET_ORDER_CONFIG, configOrderSaga);
 }

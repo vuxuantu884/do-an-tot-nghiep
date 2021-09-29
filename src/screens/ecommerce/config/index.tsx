@@ -176,6 +176,7 @@ const EcommerceConfig: React.FC = () => {
                 form={configForm}
                 configData={configData}
                 configToView={configToView}
+                reloadConfigData={reloadConfigData}
               />
             </TabPane>
           </Tabs>

@@ -79,8 +79,8 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       fixed: 'left',
       render: (value, record, index) => (
         <div>
-          <Link to="">{value}</Link>
-          <div>{record.name}</div>
+          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
+          <div>{record.variant}</div>
         </div>
       )
     },
@@ -88,7 +88,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: 'ID chứng từ',
       visible: true,
       fixed: 'left',
-      dataIndex: 'document_id'
+      dataIndex: 'document_code'
     },
     {
       align: 'center',
@@ -101,7 +101,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: 'right',
       title: 'SL thay đổi',
       visible: true,
-      dataIndex: 'on_hand_adj'
+      dataIndex: 'quantity'
     },
    
     {
@@ -128,7 +128,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: 'right',
       title: 'Tồng trong kho',
       visible: true,
-      dataIndex: 'on_hand_adj'
+      dataIndex: 'on_hand'
     },
     {
       align: 'center',

@@ -13,6 +13,7 @@ export interface CustomerResponse extends BaseObject {
   company: string | null;
   tax_code: string | null;
   notes: Array<note>;
+  card_number: string | null;
   customer_level_id: number;
   customer_level: string | null;
   wedding_date: number;

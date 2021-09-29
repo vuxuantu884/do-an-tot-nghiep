@@ -73,7 +73,7 @@ function CustomerHistoryInfo(props: any) {
       dataIndex: "code",
       visible: true,
       render: (value: any, row: any, index: any) => {
-        let href = `https://dev-new.yody.io/unicorn/admin/orders/${row.id}`;
+        let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;
         return (
           <a target="blank" href={href}>
             {row.code}

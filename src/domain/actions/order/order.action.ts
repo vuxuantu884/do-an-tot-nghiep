@@ -23,6 +23,7 @@ import {
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
+  OrderConfig,
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
@@ -258,7 +259,7 @@ export const getListOrderActionFpage = (
   query: any,
   setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
-  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+  return BaseAction(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, {
     query,
     setData,
   });
@@ -335,4 +336,10 @@ export const cancelOrderRequest = (
   id: number | undefined
 ) => {
   return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id });
+};
+
+export const configOrderSaga = (
+  setData: (data: OrderConfig) => void
+) => {
+  return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };

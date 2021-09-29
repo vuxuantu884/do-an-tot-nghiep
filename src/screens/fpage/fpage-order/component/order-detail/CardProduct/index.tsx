@@ -90,6 +90,7 @@ type CardProductProps = {
 const initQueryVariant: VariantSearchQuery = {
   limit: 10,
   page: 1,
+  status: "active"
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
@@ -135,7 +136,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const handleCancelDiscountItemModal = () => {
     showAddDiscountItemModal(false);
   };
-
   const onInputSearchProductBlur = () => {
     setIsInputSearchProductFocus(false);
   };

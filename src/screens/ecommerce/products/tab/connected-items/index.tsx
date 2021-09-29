@@ -1,22 +1,29 @@
 import React, {useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Form,Select, Input, Modal, Tooltip } from "antd";
+import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import actionColumn from "../../actions/action.column";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
+import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
 
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
-import { getProductEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import {
+  getProductEcommerceList,
+  getShopEcommerceList
+ } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
 import deleteIcon from "assets/icon/deleteIcon.svg"
 import circleDeleteIcon from "assets/icon/circle-delete.svg"
+import tikiIcon from "assets/icon/e-tiki.svg";
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent } from "./styles";
 
@@ -28,7 +35,9 @@ const ConnectedItems = () => {
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
+  const [syncStockValue, setSyncStockValue] = React.useState("");
+  
   const [variantData, setVariantData] = React.useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -37,6 +46,10 @@ const ConnectedItems = () => {
     },
     items: [],
   });
+
+  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = React.useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -47,6 +60,8 @@ const ConnectedItems = () => {
       category_id: null,
       connect_status: null,
       update_stock_status: null,
+      sku_or_name_core: "",
+      sku_or_name_ecommerce: ""
     }),
     []
   );
@@ -59,6 +74,8 @@ const ConnectedItems = () => {
     category_id: null,
     connect_status: null,
     update_stock_status: null,
+    sku_or_name_core: "",
+    sku_or_name_ecommerce: "",
   });
 
   const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
@@ -71,8 +88,27 @@ const ConnectedItems = () => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
 
+  //handle sync stock
+  const handleSyncStock = () => {
+    setIsShowSyncStockModal(true);
+  };
 
-  const handleDeleteItem = (item: any) => {
+  const onChangeSyncOption = (e: any) => {
+    setSyncStockValue(e.target.value);
+  };
+
+  const cancelSyncStockModal = () => {
+    setIsShowSyncStockModal(false);
+  };
+
+  const okSyncStockModal = () => {
+    setIsShowSyncStockModal(false);
+    showSuccess("Đồng bộ sản phẩm thành công: " + syncStockValue);
+     //thai need todo: call API
+  };
+
+  //handle delete item
+  const handleDeleteItem = () => {
     setIsShowDeleteItemModal(true);
   };
 
@@ -86,6 +122,7 @@ const ConnectedItems = () => {
     //thai need todo: call API
   };
 
+  //handle disconnect item
   const handleDisconnectItem = () => {
     setIsShowModalDisconnect(true);
   };
@@ -197,7 +234,7 @@ const ConnectedItems = () => {
       },
     },
     
-    actionColumn(handleDeleteItem, handleDisconnectItem),
+    ConnectedItemActionColumn(handleSyncStock, handleDeleteItem, handleDisconnectItem),
   ]);
 
   const columnFinal = React.useMemo(
@@ -211,15 +248,15 @@ const ConnectedItems = () => {
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
+      value.shop_id = shopIdSelected;
+
       query.ecommerce_id = value.ecommerce_id;
       query.shop_id = value.shop_id;
       query.category_id = value.category_id;
       query.connect_status = value.connect_status;
       query.update_stock_status = value.update_stock_status;
-
-      //thai need todo: search shopee, YODY
-      // query.ecommerce_variant = value.ecommerce_variant;
-      // query.core_variant = value.core_variant;
+      query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
+      query.sku_or_name_core = value.sku_or_name_core;
     }
     
     const querySearch: ProductEcommerceQuery = value;
@@ -232,20 +269,74 @@ const ConnectedItems = () => {
     },[query]
   );
 
-  //thai fake data 
-  const LIST_STORE = [
+  const updateEcommerceShopList = React.useCallback((result) => {
+    setIsEcommerceSelected(true);
+    setEcommerceShopList(result);
+  }, []);
+
+  const getShopEcommerce = (ecommerceId: any) => {
+    setShopIdSelected(null);
+
+    setIsEcommerceSelected(false);
+    dispatch(getShopEcommerceList({ecommerce_id: ecommerceId}, updateEcommerceShopList));
+  }
+
+  const removeEcommerce = () => {
+    setEcommerceShopList([]);
+    setIsEcommerceSelected(false);
+  }
+
+  const selectShopEcommerce = (shop_id: any) => {
+    setShopIdSelected(shop_id);
+  }
+
+  const ECOMMERCE_LIST = [
     {
-      id: 1,
-      name: "store 1",
-      value: "store_1"
+      title: "Sàn Shopee",
+      icon: shopeeIcon,
+      id: "shopee",
+      ecommerce_id: 1,
     },
     {
-      id: 2,
-      name: "store 2",
-      value: "store_2"
+      title: "Sàn Tiki",
+      icon: tikiIcon,
+      id: "tiki",
+      ecommerce_id: 2,
+    },
+    {
+      title: "Sàn Lazada",
+      icon: lazadaIcon,
+      id: "lazada",
+      ecommerce_id: 3,
+    },
+    {
+      title: "Sàn Sendo",
+      icon: sendoIcon,
+      id: "sendo",
+      isActive: false,
+      ecommerce_id: 4,
     }
   ]
 
+  const ACTION_LIST = [
+    {
+      id: 1,
+      name: "Đồng bộ tồn kho lên sàn",
+      value: "syncStock"
+    },
+    {
+      id: 2,
+      name: "Xóa sản phẩm lấy về",
+      value: "deleteItem"
+    },
+    {
+      id: 3,
+      name: "Hủy liên kết",
+      value: "disconnectItem"
+    }
+  ]
+
+  //thai fake data 
   const CATEGORY = [
     {
       id: 1,
@@ -282,6 +373,24 @@ const ConnectedItems = () => {
     setVisibleFilter(false);
   }, []);
 
+
+  const selectAction = (value: any) => {
+    switch(value) {
+      case 'syncStock':
+        handleSyncStock();
+        break;
+      case 'deleteItem':
+        handleDeleteItem();
+        break;
+      case 'disconnectItem':
+        handleDisconnectItem();
+        break; 
+      default: break
+    }
+  }
+
+  
+
   return (
     <StyledComponent>
       <div className="total-items-ecommerce">
@@ -297,13 +406,15 @@ const ConnectedItems = () => {
                 placeholder="Thao tác"
                 allowClear
                 optionFilterProp="children"
+                onSelect={selectAction}
               >
-                {LIST_STORE &&
-                  LIST_STORE.map((c: any) => (
-                    <Option key={c.value} value={c.value}>
-                      {c.name}
+                {ACTION_LIST &&
+                  ACTION_LIST.map((action: any) => (
+                    <Option key={action.id} value={action.value}>
+                      {action.name}
                     </Option>
-                  ))}
+                  ))
+                }
               </Select>
             </Form.Item>
 
@@ -312,41 +423,60 @@ const ConnectedItems = () => {
                 showSearch
                 placeholder="Chọn sàn"
                 allowClear
-                optionFilterProp="children"
+                onSelect={(value) => getShopEcommerce(value)}
+                onClear={removeEcommerce}
               >
-                {LIST_STORE &&
-                  LIST_STORE.map((c: any) => (
-                    <Option key={c.value} value={c.value}>
-                      {c.name}
+                {ECOMMERCE_LIST &&
+                  ECOMMERCE_LIST.map((item: any) => (
+                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                      <div>
+                        <img src={item.icon} alt={item.id} style={{marginRight: "10px"}} />
+                        <span>{item.title}</span>
+                      </div>
                     </Option>
-                  ))}
+                  ))
+                }
               </Select>
             </Form.Item>
 
             <Form.Item name="shop_id" className="select-store-dropdown">
-              <Select
-                showSearch
-                placeholder="Chọn gian hàng"
-                allowClear
-                optionFilterProp="children"
-              >
-                {LIST_STORE &&
-                  LIST_STORE.map((c: any) => (
-                    <Option key={c.value} value={c.value}>
-                      {c.name}
-                    </Option>
-                  ))}
-              </Select>
+               {!isEcommerceSelected &&
+                <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
+                  <Select
+                    showSearch
+                    placeholder="Chọn gian hàng"
+                    allowClear
+                    disabled={true}
+                  />
+                </Tooltip>
+              }
+
+              {isEcommerceSelected &&
+                <Select
+                  showSearch
+                  placeholder="Chọn gian hàng"
+                  allowClear
+                  onSelect={(value) => selectShopEcommerce(value)}
+                >
+                  {ecommerceShopList &&
+                    ecommerceShopList.map((shop: any) => (
+                      <Option key={shop.id} value={shop.id}>
+                        {shop.name}
+                      </Option>
+                    ))
+                  }
+                </Select>
+              }
             </Form.Item>
 
-            <Form.Item name="ecommerce_variant" className="shoppe-search">
+            <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, tên sản phẩm Shopee"
               />
             </Form.Item>
 
-            <Form.Item name="core_variant" className="yody-search">
+            <Form.Item name="sku_or_name_core" className="yody-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, Sản phẩm YODY"
@@ -416,34 +546,57 @@ const ConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn sàn"
                 allowClear
+                onSelect={(value) => getShopEcommerce(value)}
+                onClear={removeEcommerce}
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
-                    {item.name}
-                  </Option>
-                ))}
+                {ECOMMERCE_LIST &&
+                  ECOMMERCE_LIST.map((item: any) => (
+                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                      <div>
+                        <img src={item.icon} alt={item.id} style={{marginRight: "10px"}} />
+                        <span>{item.title}</span>
+                      </div>
+                    </Option>
+                  ))
+                }
               </Select>
             </Form.Item>
 
             <Form.Item
               name="shop_id"
+              className="select-store-dropdown"
               label={<b>CHỌN GIAN HÀNG</b>}
             >
-              <Select
-                showSearch
-                placeholder=""
-                allowClear
-              >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
+              {!isEcommerceSelected &&
+                <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
+                  <Select
+                    showSearch
+                    placeholder="Chọn gian hàng"
+                    allowClear
+                    disabled={true}
+                  />
+                </Tooltip>
+              }
 
+              {isEcommerceSelected &&
+                <Select
+                  showSearch
+                  placeholder="Chọn gian hàng"
+                  allowClear
+                  onSelect={(value) => selectShopEcommerce(value)}
+                >
+                  {ecommerceShopList &&
+                    ecommerceShopList.map((shop: any) => (
+                      <Option key={shop.id} value={shop.id}>
+                        {shop.name}
+                      </Option>
+                    ))
+                  }
+                </Select>
+              }
+            </Form.Item>
             <Form.Item
               name="category_id"
               label={<b>DANH MỤC</b>}
@@ -525,6 +678,24 @@ const ConnectedItems = () => {
             <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
           </div>
         </Modal>
+
+        <Modal
+          width="600px"
+          visible={isShowSyncStockModal}
+          title="Đồng bộ tồn kho"
+          okText="Đồng bộ"
+          cancelText="Hủy"
+          onCancel={cancelSyncStockModal}
+          onOk={okSyncStockModal}
+        >
+          <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
+            <Space direction="vertical">
+              <Radio value="selected">Đồng bộ các sản phẩm đã chọn</Radio>
+              <Radio value="all">Đồng bộ tất cả sản phẩm</Radio>
+            </Space>
+          </Radio.Group>
+        </Modal>
+
       </div>
     </StyledComponent>
   );

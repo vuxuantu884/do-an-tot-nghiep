@@ -73,6 +73,7 @@ export interface AllInventoryResponse {
   retail_price: string,
   import_price: string,
   total_on_hand: string,
+  total_available:number,
   inventories: Array<InventoryResponse>,
 }
 
@@ -83,6 +84,7 @@ export interface HistoryInventoryResponse extends BaseObject{
   store_id: number;
   store: string,
   variant_id: number;
+  variant: string;
   product_id: number;
   available_adj: number;
   in_coming_adj: number | null;
@@ -106,4 +108,5 @@ export interface HistoryInventoryQuery extends BaseQuery {
   to_created_date?: string,
   from_transaction_date?: string,
   to_transaction_date?: string,
+  variant_id?: number
 }

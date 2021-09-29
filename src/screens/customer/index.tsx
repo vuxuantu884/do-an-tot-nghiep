@@ -43,9 +43,10 @@ import { MenuAction } from "component/table/ActionButton";
 
 import {
   CustomerGroups,
-  CustomerLevels,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 
 const { Option } = Select;
 
@@ -90,15 +91,11 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
   const [visible, setVisible] = React.useState<boolean>(false);
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-
-  const genreEnum: any = {
-    male: "Nam",
-    female: "Nữ",
-    other: "Khác",
-  };
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -142,7 +139,12 @@ const Customer = () => {
       title: "Giới tính",
       dataIndex: "gender",
       // align: "center",
-      render: (value: any, item: any) => <div>{genreEnum[value]}</div>,
+      render: (value: any, item: any) => (
+        <div>
+          {LIST_GENDER &&
+            LIST_GENDER?.find((item) => item.value === value)?.name}
+        </div>
+      ),
       visible: true,
       width: 100,
     },
@@ -266,7 +268,6 @@ const Customer = () => {
       visible: false,
     },
   ]);
-
   const [data, setData] = React.useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -275,6 +276,7 @@ const Customer = () => {
     },
     items: [],
   });
+
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
   const onPageChange = React.useCallback(
@@ -300,6 +302,10 @@ const Customer = () => {
     React.useState<boolean>(false);
 
   React.useEffect(() => {
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+  }, [dispatch]);
+
+  React.useEffect(() => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
 
@@ -318,13 +324,11 @@ const Customer = () => {
 
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
-  const [levels, setLevels] = React.useState<Array<any>>([]);
+
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
-    dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
-
   // const onRow = (record: any) => ({
   //   onContextMenu: (event: any) => {
   //     event.preventDefault();
@@ -361,7 +365,7 @@ const Customer = () => {
     const querySearch: CustomerSearchQuery = value;
     dispatch(CustomerList(querySearch, setData));
   };
-
+  
   const initQueryAccount: AccountSearchQuery = useMemo(
     () => ({
       info: "",
@@ -514,7 +518,7 @@ const Customer = () => {
             isRowSelection
             isLoading={tableLoading}
             scroll={{ x: 2000 }}
-            sticky={{ offsetScroll: 5 }}
+            sticky={{ offsetScroll: 5, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -537,6 +541,7 @@ const Customer = () => {
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
+        width={400}
       >
         <Form
           form={formAdvance}
@@ -648,9 +653,9 @@ const Customer = () => {
                   allowClear
                   optionFilterProp="children"
                 >
-                  {levels.map((level) => (
-                    <Option key={level.id} value={level.id}>
-                      {level.name + ` - ${level.code}`}
+                  {loyaltyUsageRules.map((loyalty) => (
+                    <Option key={loyalty.id} value={loyalty.rank_id}>
+                      {loyalty.rank_name}
                     </Option>
                   ))}
                 </Select>

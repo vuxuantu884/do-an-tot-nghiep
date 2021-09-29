@@ -33,6 +33,7 @@ function OrderReturnReason(props: PropType): React.ReactElement {
             showSearch
             style={{ width: "100%" }}
             placeholder="Chọn lý do đổi trả hàng"
+            allowClear
             optionFilterProp="children"
             filterOption={(input, option) =>
               option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0

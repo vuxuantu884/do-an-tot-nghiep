@@ -67,3 +67,10 @@ export const getListStoresSimpleAction = (
 ) => {
   return BaseAction(StoreType.GET_LIST_STORE_REQUEST_SIMPLE, { setData });
 };
+
+export const StoreSearchListAction = (
+  name:string,
+  setData: (data: Array<StoreResponse>) => void
+) => {
+  return BaseAction(StoreType.GET_SEARCH_STORE_REQUEST, { name,setData });
+};

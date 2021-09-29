@@ -53,8 +53,6 @@ function FpageCRM() {
   const [metaData, setMetaData] = React.useState<any>({});
   const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>([]);
-
-
   React.useEffect(() => {
     if (customerDetail) {
       dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
@@ -70,11 +68,18 @@ function FpageCRM() {
     },
     [querySearchOrderFpage, setQuerySearchOrderFpage]
   );
-
   const searchByPhoneCallback = (value: any) => {
-      setCustomerDetail(value);
+      if(value){
+        setCustomerDetail(value);
+      }
+  };
+  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
+    if (data) {
+      setOrderHistory(data.items);
+      setMetaData(data.metadata);
+    }else{
       setOrderHistory(undefined);
-      setMetaData(null);
+    }
   };
   React.useEffect(() => {
     if (
@@ -86,15 +91,12 @@ function FpageCRM() {
       dispatch(
         getListOrderActionFpage(querySearchOrderFpage, setOrderHistoryItems)
       );
+    }else{
+      setOrderHistory(undefined);
+      setMetaData(null);
     }
   }, [customerDetail, dispatch, querySearchOrderFpage]);
 
-  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
-    if (data) {
-      setOrderHistory(data.items);
-      setMetaData(data.metadata);
-    }
-  };
 
   const deletePhone = useCallback(
     (p: any, e: any) => {

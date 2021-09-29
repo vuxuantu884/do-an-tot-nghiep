@@ -135,7 +135,6 @@ const CustomerDetailIndex = () => {
       dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
     }
   }, [params, dispatch, queryParams, setOrderHistoryItems]);
-console.log(loyaltyPoint, loyaltyUsageRules)
   // end
   React.useEffect (() => {
     const _detail = [
