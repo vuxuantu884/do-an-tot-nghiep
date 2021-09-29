@@ -347,13 +347,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serviceFees.ghtk_standard}
+                                    {formatCurrency(serviceFees.ghtk_standard)}
                                   </div>
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serviceFees.ghtk_express}
+                                    {formatCurrency(serviceFees.ghtk_express)}
                                   </div>
                                 </React.Fragment>
                               )}
@@ -363,7 +363,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serviceFees.ghn_standard}
+                                    {formatCurrency(serviceFees.ghn_standard)}
                                   </div>
                                 </React.Fragment>
                               )}
@@ -373,13 +373,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serviceFees.vtp_standard}
+                                    {formatCurrency(serviceFees.vtp_standard)}
                                   </div>
                                   <div
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serviceFees.vtp_express}
+                                    {formatCurrency(serviceFees.vtp_express)}
                                   </div>
                                 </React.Fragment>
                               )}
@@ -389,7 +389,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     style={{ padding: "8px 16px" }}
                                     className="custom-table__has-border-bottom custom-table__has-select-radio"
                                   >
-                                    {serviceFees.dhl_standard}
+                                    {formatCurrency(serviceFees.dhl_standard)}
                                   </div>
                                 </React.Fragment>
                               )}

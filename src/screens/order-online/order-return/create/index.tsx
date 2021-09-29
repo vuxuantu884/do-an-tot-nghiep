@@ -549,8 +549,8 @@ const ScreenReturnCreate = (props: PropType) => {
     values.store_id = OrderDetail ? OrderDetail.store_id : null;
     values.source_id = OrderDetail ? OrderDetail.source_id : null;
     values.order_return_id = order_return_id;
-    if(checkPointfocus(values))
-    {
+    console.log("values", values);
+    if (checkPointfocus(values)) {
       if (!values.customer_id) {
         showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
         const element: any = document.getElementById("search_customer");
@@ -586,7 +586,6 @@ const ScreenReturnCreate = (props: PropType) => {
         }
       }
     }
-    
   };
 
   const checkPointfocus = (value: any) => {
@@ -596,11 +595,15 @@ const ScreenReturnCreate = (props: PropType) => {
 
     let discount = 0;
     value.items.forEach(
-      (p: any) => (discount = discount + (p.discount_amount* p.quantity))
+      (p: any) => (discount = discount + p.discount_amount * p.quantity)
     );
 
     let rank = loyaltyUsageRules.find(
-      (x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id)
+      (x) =>
+        x.rank_id ===
+        (loyaltyPoint?.loyalty_level_id === null
+          ? 0
+          : loyaltyPoint?.loyalty_level_id)
     );
 
     let curenPoint = !loyaltyPoint
@@ -616,7 +619,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
     let total = 0;
     payments.forEach((p) => (total = total + p.amount));
-    let totalAmountPayable =totalAmountCustomerNeedToPay; //tổng tiền phải trả
+    let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
     let limitAmountPointFocus = !rank
       ? 0
       : !rank.limit_order_percent
@@ -625,11 +628,8 @@ const ScreenReturnCreate = (props: PropType) => {
     //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
     limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
-    if(!loyaltyPoint || limitAmountPointFocus===0)
-    {
-      showError(
-        "Khách hàng đang không được áp dụng chương trình tiêu điểm"
-      );
+    if (!loyaltyPoint || limitAmountPointFocus === 0) {
+      showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
       return false;
     }
     if (
@@ -654,7 +654,7 @@ const ScreenReturnCreate = (props: PropType) => {
       return false;
     }
     return true;
-  }
+  };
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
