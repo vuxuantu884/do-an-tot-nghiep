@@ -282,10 +282,13 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
             Có thể bán:
             <span
               style={{
-                color: item.inventory > 0 ? "#2A2A86" : "rgba(226, 67, 67, 1)",
+                color:
+                  (item.available === null ? 0 : item.available) > 0
+                    ? "#2A2A86"
+                    : "rgba(226, 67, 67, 1)",
               }}
             >
-              {` ${item.inventory}`}
+              {` ${item.available === null ? 0 : item.available}`}
             </span>
           </span>
         </div>
