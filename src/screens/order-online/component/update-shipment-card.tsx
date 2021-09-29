@@ -126,7 +126,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   const history = useHistory();
   // node dom
-  const formRef = createRef<FormInstance>();
+  const formRefShipment = createRef<FormInstance>();
   // action
   const dispatch = useDispatch();
 
@@ -1646,7 +1646,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           <div className="padding-24">
             <Form
               initialValues={initialFormUpdateShipment}
-              ref={formRef}
+              ref={formRefShipment}
               onFinishFailed={({ errorFields }: any) => {
                 const element: any = document.getElementById(
                   errorFields[0].name.join("")
@@ -1859,7 +1859,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           padding: "0 25px",
                           letterSpacing: "0.2px",
                         }}
-                        htmlType="submit"
+                        // htmlType="submit"
+                        onClick={() => formRefShipment.current?.submit()}
                       >
                         Tạo đơn giao hàng 1
                       </Button>
