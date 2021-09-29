@@ -39,6 +39,7 @@ import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
 import { CheckOutlined } from "@ant-design/icons";
+import POStep from "./component/po-step";
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
@@ -137,16 +138,9 @@ const POCreateScreen: React.FC = () => {
     },
     [history]
   );
+
   const onFinish = useCallback(
     (data: PurchaseOrder) => {
-      switch (statusAction) {
-        case POStatus.FINALIZED:
-          formMain.setFieldsValue({ status: POStatus.FINALIZED });
-          break;
-        default:
-          formMain.setFieldsValue({ status: POStatus.DRAFT });
-          break;
-      }
       if (data.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
@@ -156,17 +150,31 @@ const POCreateScreen: React.FC = () => {
         showError("Vui lòng thêm sản phẩm");
         return;
       }
-      switch (data.status) {
-        case POStatus.DRAFT:
-          setLoadingDraftButton(true);
-          break;
-        case POStatus.FINALIZED:
-          setLoadingSaveButton(true);
-          break;
+      const dataClone = { ...data, status: statusAction };
+      //validate expect_receipt_date and store_id
+      let isValidReceiptDateAndStore = true;
+      dataClone.procurements.forEach((element) => {
+        if (!element.expect_receipt_date || !element.store_id) {
+          isValidReceiptDateAndStore = false;
+        }
+      });
+      if (isValidReceiptDateAndStore && dataClone.procurements.length>0) {
+        switch (dataClone.status) {
+          case POStatus.DRAFT:
+            setLoadingDraftButton(true);
+            break;
+          case POStatus.FINALIZED:
+            setLoadingSaveButton(true);
+            break;
+        }
+
+        dispatch(PoCreateAction(dataClone, createCallback));
+      } else {
+        showError("Vui lòng chọn đầy đủ ngày nhận và kho nhập");
+        return;
       }
-      dispatch(PoCreateAction(data, createCallback));
     },
-    [createCallback, dispatch, formMain, statusAction]
+    [createCallback, dispatch, statusAction]
   );
 
   useEffect(() => {
@@ -207,22 +215,7 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={
-        <Steps
-          progressDot={() => (
-            <div className="ant-steps-icon-dot">
-              <CheckOutlined />
-            </div>
-          )}
-          size="small"
-          current={0}
-        >
-          <Steps.Step title="Đặt hàng" />
-          <Steps.Step title="Xác nhận" />
-          <Steps.Step title="Nhập kho" />
-          <Steps.Step title="Hoàn Thành" />
-        </Steps>
-      }
+      extra={<POStep poData={initPurchaseOrder} />}
     >
       <Form
         name={PoFormName.Main}
@@ -268,6 +261,7 @@ const POCreateScreen: React.FC = () => {
               status={formMain.getFieldValue(POField.status)}
               stores={listStore}
               formMain={formMain}
+              isShowStatusTag={false}
             />
             <POPaymentConditionsForm
               formMain={formMain}
@@ -290,6 +284,7 @@ const POCreateScreen: React.FC = () => {
           className="margin-top-10 "
           style={{
             position: "fixed",
+            zIndex:5,
             textAlign: "right",
             width: "100%",
             height: "55px",
@@ -341,7 +336,7 @@ const POCreateScreen: React.FC = () => {
               loading={loadingDraftButton}
               onClick={() => {
                 setStatusAction(POStatus.DRAFT)
-                formMain.submit();
+                formMain.submit()
               }}
             >
               Lưu nháp
@@ -353,7 +348,7 @@ const POCreateScreen: React.FC = () => {
               loading={loadingSaveButton}
               onClick={() => {
                 setStatusAction(POStatus.FINALIZED)
-                formMain.submit();
+                formMain.submit()
               }}
             >
               Lưu và duyệt

@@ -1,6 +1,6 @@
 import { ORDER_RETURN_TYPES } from "domain/types/order-return";
 import { OrderType } from "domain/types/order.type";
-import { OrderRequest } from "model/request/order.request";
+import { ExchangeRequest, OrderRequest } from "model/request/order.request";
 import { OrderReturnReasonModel } from "model/response/order/order.response";
 
 export const actionGetOrderReturnDetails = (
@@ -64,6 +64,19 @@ export const actionOrderRefund = (
     type: ORDER_RETURN_TYPES.REFUND,
     payload: {
       id,
+      params,
+      handleData,
+    },
+  };
+};
+
+export const actionCreateOrderExchange = (
+  params: ExchangeRequest,
+  handleData: (data: any) => void
+) => {
+  return {
+    type: ORDER_RETURN_TYPES.CREATE_ORDER_EXCHANGE,
+    payload: {
       params,
       handleData,
     },

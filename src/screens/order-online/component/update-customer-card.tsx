@@ -25,6 +25,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { useState } from "react";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import UrlConfig from "config/url.config";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -110,7 +111,12 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         >
           <Space>
             <Avatar size={32}>A</Avatar>
-            <Link to="#">{props.customerDetail?.full_name}</Link>
+            <Link 
+            target='_blank' 
+            to={`${UrlConfig.CUSTOMER}/${props.customerDetail?.id}`}
+            >{
+              props.customerDetail?.full_name}
+            </Link>
             <Tag className="orders-tag orders-tag-vip">
               <b>{!rankName?"Default":rankName}</b>
             </Tag>
@@ -141,13 +147,17 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </Typography.Text>
             </span>
           </Space>
-
-          <Space className="customer-detail-birthday">
-            <span className="customer-detail-icon">
-              <img src={bithdayIcon} alt="" />
-            </span>
-            <span className="customer-detail-text">{customerBirthday}</span>
-          </Space>
+          {
+            (props.customerDetail?.birthday!==null) &&(
+              <Space className="customer-detail-birthday">
+                  <span className="customer-detail-icon">
+                      <img src={bithdayIcon} alt="" />
+                  </span>
+                  <span className="customer-detail-text">{customerBirthday}</span>
+              </Space>
+            )
+          }
+                    
         </Row>
         <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
         <div className="padding-lef-right">

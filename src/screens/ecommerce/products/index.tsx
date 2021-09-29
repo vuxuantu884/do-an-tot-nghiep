@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Card, Tabs, Form, Button, Modal, Select, DatePicker, Tooltip } from "antd";
+import moment from "moment";
+import { DATE_FORMAT } from 'utils/DateUtils';
 import {DownloadOutlined} from "@ant-design/icons"
 
 import ContentContainer from "component/container/content.container";
@@ -10,7 +12,7 @@ import TotalItemsEcommerce from "./tab/total-items-ecommerce";
 import ConnectedItems from "./tab/connected-items";
 import NotConnectedItems from "./tab/not-connected-items";
 
-import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import { getShopEcommerceList, postProductEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -34,9 +36,12 @@ const Products: React.FC = () => {
   const [itemsNotConnected, setItemsNotConnected] = React.useState(0);
 
   const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [, setEcommerceSelected] = React.useState(0);
+  const [ecommerceSelected, setEcommerceSelected] = React.useState(0);
   const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [, setShopIdSelected] = React.useState(null);
+
+  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [startDate, setStartDate] = React.useState<any>();
+  const [endDate, setEndDate] = React.useState<any>();
   const [activatedBtn, setActivatedBtn] = React.useState({
     title: "",
     icon: "",
@@ -79,17 +84,48 @@ const Products: React.FC = () => {
       }
     );
     setEcommerceSelected(0);
+    setIsEcommerceSelected(false);
   };
+
+  
+  const convertDateToTimestamp = (date: any, splitType: any) => {
+    const myDate = date.split(splitType);
+    var newDate = new Date( myDate[2], myDate[1] - 1, myDate[0]);
+    return newDate.getTime();
+  }
+
+  const onChangeDate = (dates: any, dateStrings: any) => {
+    const startDate = convertDateToTimestamp(dateStrings[0],"/");
+    setStartDate(startDate);
+    const endDate = convertDateToTimestamp(dateStrings[1],"/");
+    setEndDate(endDate);
+  };
+
+  const updateEcommerceList = React.useCallback((result) => {
+    console.log("postProductEcommerceList: ", result);
+    if (result) {
+      setIsShowResultGetItemModal(true);
+      setTotalGetItem(11);
+      setItemsUpdated(5)
+      setItemsNotConnected(6);
+    }
+    
+  }, []);
 
   const getProductsFromEcommerce = () => {
     setIsShowGetItemModal(false);
-    setIsShowResultGetItemModal(true);
-
-    setTotalGetItem(11);
-    setItemsUpdated(5)
-    setItemsNotConnected(6);
-    //thai need todo: call api
+    const params = {
+      ecommerce_id: ecommerceSelected || null,
+      shop_id: shopIdSelected || null,
+      update_time_from: startDate || null,
+      update_time_to: endDate || null
+    }
+    dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
+
+  const isDisableGetItemOkButton = () => {
+    return !shopIdSelected || !startDate || !endDate;
+  }
 
   const redirectToNotConnectedItems = () => {
     setIsShowResultGetItemModal(false);
@@ -214,6 +250,7 @@ const Products: React.FC = () => {
         cancelText="Hủy"
         onCancel={cancelGetItemModal}
         onOk={getProductsFromEcommerce}
+        okButtonProps={{disabled: isDisableGetItemOkButton()}}
       >
         <div style={{margin: "20px 0"}}>
           <Form
@@ -241,7 +278,7 @@ const Products: React.FC = () => {
 
             <Form.Item
               name="shop_id"
-              label={<b>Lựa chọn gian hàng</b>}
+              label={<b>Lựa chọn gian hàng <span style={{color: 'red'}}>*</span></b>}
             >
               {!isEcommerceSelected &&
                 <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
@@ -272,8 +309,17 @@ const Products: React.FC = () => {
               }
             </Form.Item>
           
-            <Form.Item name="start_time" label={<b>Thời gian</b>}>
-              <RangePicker placeholder={["Từ ngày", "Đến ngày"]} style={{width: "100%"}} />
+            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>            
+              <RangePicker
+                placeholder={["Từ ngày", "Đến ngày"]}
+                style={{width: "100%"}}
+                ranges={{
+                  "Hôm nay": [moment(), moment()],
+                  'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                }}
+                format={DATE_FORMAT.DDMMYYY}
+                onChange={onChangeDate}
+              />
             </Form.Item>
           </Form>
         </div>

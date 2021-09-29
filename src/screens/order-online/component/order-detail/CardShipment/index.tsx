@@ -54,6 +54,7 @@ type CardShipmentProps = {
   setPaymentMethod: (value: number) => void;
   setHVC: (value: number) => void;
   setOfficeTime: (value: boolean) => void;
+  serviceType?: string |null;
   setServiceType: (value: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
@@ -70,6 +71,8 @@ type CardShipmentProps = {
   onPayments: (value: Array<OrderPaymentRequest>) => void;
   fulfillments: FulFillmentResponse[];
   isCloneOrder: boolean;
+  levelOrder?: number;
+  updateOrder?: boolean;
 };
 
 const CardShipment: React.FC<CardShipmentProps> = (
@@ -81,6 +84,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
     setPaymentMethod,
     setShipmentMethodProps,
     setHVC,
+    serviceType,
     setServiceType,
     setFee,
     customerInfo,
@@ -97,6 +101,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
     onPayments,
     fulfillments,
     isCloneOrder,
+    levelOrder = 0
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
@@ -232,7 +237,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               <div
                 className="saleorder_shipment_button"
                 key={button.value}
-                onClick={() => ShipMethodOnChange(button.value)}
+                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
@@ -345,6 +350,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
           {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
             <ShipmentMethodDeliverPartner
               amount={amount}
+              serviceType={serviceType}
               changeServiceType={changeServiceType}
               // deliveryServices={deliveryServices}
               discountValue={discountValue}
@@ -356,6 +362,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               fulfillments={fulfillments}
               isCloneOrder={isCloneOrder}
               addressError={addressError}
+              levelOrder={levelOrder}
             />
           )}
 

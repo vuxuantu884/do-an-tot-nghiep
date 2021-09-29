@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: $SERVICE_NAME
 spec:
-  replicas: 1
+  replicas: 2
   progressDeadlineSeconds: 600
   strategy:
     type: RollingUpdate
@@ -87,6 +87,6 @@ spec:
             name: $SERVICE_NAME
             port:
               number: 80
-        path: /*
+        path: $SERVICE_PATH*
         pathType: ImplementationSpecific
 

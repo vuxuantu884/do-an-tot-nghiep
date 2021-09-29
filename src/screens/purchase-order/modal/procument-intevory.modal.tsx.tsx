@@ -1,4 +1,4 @@
-import { Table, Button } from "antd";
+import { Table } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import {
   POProcumentLineItemField,
@@ -60,6 +60,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         onOk={onOk}
         onDelete={onDelete}
         loading={loading}
+        isConfirmModal={true}
         title={
           <div>
             {isEdit ? "Sửa phiếu nhập kho " : "Xác nhận nhập kho phiếu nháp "}
@@ -69,6 +70,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
         okText={isEdit ? "Lưu phiếu nhập kho" : "Xác nhận nhập"}
       >
         {(onQuantityChange, onRemove, line_items) => {
+          console.log(line_items);
           return (
             <Table
               className="product-table"
@@ -179,39 +181,21 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                   ),
                   width: 150,
                   dataIndex: POProcumentLineItemField.real_quantity,
-                  render: (value, item, index) => (
+                  render: (value, item, index) => {
+                    return (
                     <NumberInput
                       placeholder="SL thực nhận"
                       isFloat={false}
                       value={value}
                       min={0}
-                      // max={item.quantity}
+                      max={item.quantity}
                       default={0}
                       maxLength={6}
                       onChange={(quantity: number | null) => {
                         onQuantityChange(quantity, index);
                       }}
                     />
-                  ),
-                },
-                {
-                  title: "",
-                  width: 40,
-                  render: (value: string, item, index: number) => (
-                    <Button
-                      type="link"
-                      onClick={() => {
-                        onRemove(index);
-                      }}
-                    >
-                      x
-                    </Button>
-                  ),
-                },
-                {
-                  title: "",
-                  width: 20,
-                  render: (value: string, item, index: number) => "",
+                  )},
                 },
               ]}
               summary={(data) => {

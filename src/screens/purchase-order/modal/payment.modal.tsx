@@ -1,4 +1,4 @@
-import { Col, Form, Input, Modal, Radio, Row } from "antd";
+import { Button, Col, Form, Input, Modal, Radio, Row } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import CustomDatepicker from "component/custom/date-picker.custom";
@@ -8,20 +8,26 @@ import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { showSuccess } from "utils/ToastUtils";
 import {
   PoPaymentCreateAction,
+  PoPaymentDeleteAction,
   PoPaymentUpdateAction,
 } from "domain/actions/po/po-payment.action";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
 import { POUtils } from "utils/POUtils";
+import { DeleteOutlined } from "@ant-design/icons";
+import ModalConfirm from "component/modal/ModalConfirm";
+import { HttpStatus } from "config/http-status.config";
 
 type PaymentModalProps = {
   visible: boolean;
   poId: number;
   remainPayment: number;
+  indexPaymentItem: string;
   purchasePayment?: PurchasePayments;
   poData: PurchaseOrder;
   onCancel: () => void;
+  deletePayment: () => void;
   onOk: (isLoad: boolean) => void;
 };
 const { Item } = Form;
@@ -41,6 +47,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [disabledRef, setDisabledRef] = React.useState(false);
+  const [isVisibleModalDeleteWarning, setIsVisibleModalDeleteWarning] = React.useState(false);
 
   const onOkPress = useCallback(() => {
     // onOk();
@@ -61,8 +68,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     },
     [formPayment, onOk]
   );
+
   const updateCallback = useCallback(
-    (result: PurchasePayments | null) => {
+    (result: PurchasePayments | null) => {      
       if (result !== null && result !== undefined) {
         setConfirmLoading(false);
         showSuccess("cập nhật dữ liệu thành công");
@@ -72,6 +80,19 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     },
     [formPayment, onOk]
   );
+
+  const deleteCallback = useCallback(
+    (result) => {
+      if (result === HttpStatus.SUCCESS) {
+        setConfirmLoading(false);
+        showSuccess("Xoá thành công");
+        onOk(true);
+        formPayment.resetFields();
+      }
+    },
+    [formPayment, onOk]
+  );
+
   const onFinish = useCallback(
     (values: PurchasePayments) => {
       setConfirmLoading(true);
@@ -94,8 +115,14 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     [createCallback, dispatch, formPayment, poData, poId, updateCallback]
   );
 
+  const onDeletePayment = useCallback(() => {
+    let data = formPayment.getFieldsValue(true);
+    if (data.id) {
+      dispatch(PoPaymentDeleteAction(poId, data.id, deleteCallback));
+    }
+  }, [dispatch, formPayment, poId, deleteCallback]);
+
   const onChangePaymentMethod = (e: any) => {
-    console.log("radio checked", e.target.value);
     if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
       setDisabledRef(false);
     } else {
@@ -134,6 +161,23 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       width={700}
       confirmLoading={confirmLoading}
       onCancel={handleCancel}
+      footer={[
+        <Button
+          danger
+          onClick={() => {
+            setIsVisibleModalDeleteWarning(true);
+          }}
+          style={{ float: "left" }}
+        >
+          <DeleteOutlined /> Xoá
+        </Button>,
+        <Button key="back" onClick={handleCancel}>
+          Huỷ
+        </Button>,
+        <Button key="submit" type="primary" onClick={onOkPress}>
+          {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
+        </Button>,
+      ]}
     >
       <Form
         layout="vertical"
@@ -223,6 +267,20 @@ const PaymentModal: React.FC<PaymentModalProps> = (
           </Col>
         </Row>
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsVisibleModalDeleteWarning(false);
+        }}
+        onOk={() => {
+          onDeletePayment()
+          setIsVisibleModalDeleteWarning(false);
+        }}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title={`Bạn có muốn xoá thanh toán không?`}
+        subTitle=""
+        visible={isVisibleModalDeleteWarning}
+      />
     </Modal>
   );
 };

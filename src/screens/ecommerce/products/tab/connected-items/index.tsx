@@ -1,5 +1,6 @@
-import React, {useEffect, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -7,12 +8,16 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
 import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
+import UrlConfig from "config/url.config";
 
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   getProductEcommerceList,
-  getShopEcommerceList
+  getShopEcommerceList,
+  deleteEcommerceItem,
+  disconnectEcommerceItem
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -32,13 +37,19 @@ const ConnectedItems = () => {
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
-  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-  const [isShowSyncStockModal, setIsShowSyncStockModal] = React.useState(false);
-  const [syncStockValue, setSyncStockValue] = React.useState("");
-  
-  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+  const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
+  const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
+  const [idDisconnectItem, setIdDisconnectItem] = useState(null);
+  const [idsDisconnectItem, setIdsDisconnectItem] = useState<any>();
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [idDeleteItem, setIdDeleteItem] = useState(null);
+  const [idsDeleteItem, setIdsDeleteItem] = useState<any>();
+  const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
+  const [syncStockValue, setSyncStockValue] = useState(null);
+
+  const [selectedRow, setSelected] = useState<Array<any>>([]);
+ 
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -47,9 +58,9 @@ const ConnectedItems = () => {
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -66,7 +77,7 @@ const ConnectedItems = () => {
     []
   );
 
-  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+  const [query, setQuery] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -87,6 +98,10 @@ const ConnectedItems = () => {
   useEffect(() => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
+  
+  const reloadPage = () => {
+    dispatch(getProductEcommerceList(query, setVariantData));
+  }
 
   //handle sync stock
   const handleSyncStock = () => {
@@ -99,6 +114,7 @@ const ConnectedItems = () => {
 
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
+    setSyncStockValue(null);
   };
 
   const okSyncStockModal = () => {
@@ -107,9 +123,14 @@ const ConnectedItems = () => {
      //thai need todo: call API
   };
 
+  const isDisableSyncStockOkButton = () => {
+    return !syncStockValue;
+  }
+
   //handle delete item
-  const handleDeleteItem = () => {
+  const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
+    setIdDeleteItem(item.id);
   };
 
   const cancelDeleteItemModal = () => {
@@ -118,13 +139,39 @@ const ConnectedItems = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
-    showSuccess("Xóa sản phẩm thành công");
-    //thai need todo: call API
+    
+    if (idDeleteItem) {
+      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
+
+    
+    if (idsDeleteItem) {
+      console.log("okDeleteItemModal idsDeleteItem: ", idsDeleteItem);
+      showSuccess("Cần cập nhật api xóa nhiều sản phẩm");
+    }
+  };
+
+  const handleDeleteItems = () => {
+    setIsShowDeleteItemModal(true);
+
+    const idsDeleteItemList: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        idsDeleteItemList.push(item.id);
+      });
+    }
+    setIdsDeleteItem(idsDeleteItemList);
   };
 
   //handle disconnect item
-  const handleDisconnectItem = () => {
+  const handleDisconnectItem = (item: any) => {
     setIsShowModalDisconnect(true);
+    setIdDisconnectItem(item.id);
   };
 
   const cancelDisconnectModal = () => {
@@ -133,8 +180,32 @@ const ConnectedItems = () => {
 
   const okDisconnectModal = () => {
     setIsShowModalDisconnect(false);
-    showSuccess("Ngắt kết nối sản phẩm thành công");
-    //thai need todo: API
+    
+    if (idDisconnectItem) {
+      dispatch(disconnectEcommerceItem({id: idDisconnectItem}, (result) => {
+        if (result) {
+          showSuccess("Ngắt kết nối sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
+
+    if (idsDisconnectItem) {
+      console.log("okDeleteItemModal idsDeleteItem: ", idsDisconnectItem);
+      showSuccess("Cần cập nhật api ngắt kết nối nhiều sản phẩm");
+    }
+  };
+
+  const handleDisconnectItems = () => {
+    setIsShowModalDisconnect(true);
+
+    const idsDisconnectItemList: any[] = [];
+    if (selectedRow) {
+      selectedRow.forEach((item) => {
+        idsDisconnectItemList.push(item.id);
+      });
+    }
+    setIdsDisconnectItem(idsDisconnectItemList);
   };
 
   //thai need todo
@@ -181,7 +252,16 @@ const ConnectedItems = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.core_variant || "-"}</span>
+          <div>
+            {l.core_variant &&
+              <Link to={`${UrlConfig.PRODUCT}/${l.ecommerce_id}/variants/${l.id}`}>
+                {l.core_variant}
+              </Link>
+            }
+            {!l.core_variant &&
+              <span>-</span>
+            }
+          </div>
         );
       },
     },
@@ -210,7 +290,17 @@ const ConnectedItems = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.connect_status || "-"}</span>
+          <div>
+            {l.connect_status === "connected" &&
+              <span style={{color: '#27AE60'}}>Thành công</span>
+            }
+            {l.connect_status === "error" &&
+              <span style={{color: '#E24343'}}>Thất bại</span>
+            }
+            {l.connect_status === "waiting" &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
@@ -229,7 +319,21 @@ const ConnectedItems = () => {
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>Đồng bộ tồn - chưa có</span>
+          <div>
+            {l.stock === "done" &&
+              <Tooltip title={l.updated_date}>
+                <span style={{color: '#27AE60'}}>Thành công</span>
+              </Tooltip>
+            }
+            {l.stock === "error" &&
+              <Tooltip title="error">
+                <span style={{color: '#E24343'}}>Thất bại</span>
+              </Tooltip>
+            }
+            {(l.stock === "in_progress" || l.stock === null) &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
+          </div>
         );
       },
     },
@@ -242,9 +346,9 @@ const ConnectedItems = () => {
     [columns]
   );
 
-  // const variantDataConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
-  //   return item.connect_status === true;
-  // });
+  const variantConnectedItem = variantData && variantData.items && variantData.items.filter((item: any) => {
+    return item.connect_status === "connected";
+  });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
@@ -336,6 +440,12 @@ const ConnectedItems = () => {
     }
   ]
 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
+  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
+  
   //thai fake data 
   const CATEGORY = [
     {
@@ -380,16 +490,25 @@ const ConnectedItems = () => {
         handleSyncStock();
         break;
       case 'deleteItem':
-        handleDeleteItem();
+        handleDeleteItems();
         break;
       case 'disconnectItem':
-        handleDisconnectItem();
+        handleDisconnectItems();
         break; 
       default: break
     }
   }
 
-  
+  const onSelectTable = React.useCallback(
+    (selectedRow: Array<any>) => {
+      setSelected(selectedRow);
+    },
+    []
+  );
+
+  const isDisableAction = () => {
+    return selectedRow && selectedRow.length === 0;
+  }
 
   return (
     <StyledComponent>
@@ -405,12 +524,11 @@ const ConnectedItems = () => {
                 showSearch
                 placeholder="Thao tác"
                 allowClear
-                optionFilterProp="children"
                 onSelect={selectAction}
               >
                 {ACTION_LIST &&
                   ACTION_LIST.map((action: any) => (
-                    <Option key={action.id} value={action.value}>
+                    <Option key={action.id} value={action.value} disabled={isDisableAction()}>
                       {action.name}
                     </Option>
                   ))
@@ -500,12 +618,12 @@ const ConnectedItems = () => {
 
         <CustomTable
           isRowSelection
+          onSelectedChange={onSelectTable}
           columns={columnFinal}
-          dataSource={variantData.items}
-          // dataSource={variantDataConnected}
+          dataSource={variantConnectedItem}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
-            total: variantData.metadata && variantData.metadata.total,
+            total: variantConnectedItem && variantConnectedItem.length,
             current: variantData.metadata && variantData.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
@@ -603,7 +721,7 @@ const ConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn danh mục"
                 allowClear
               >
                 {CATEGORY.map((item) => (
@@ -620,11 +738,11 @@ const ConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái ghép nối"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -637,11 +755,11 @@ const ConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái đồng bộ tồn kho"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {STOCK_STATUS && STOCK_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -687,6 +805,7 @@ const ConnectedItems = () => {
           cancelText="Hủy"
           onCancel={cancelSyncStockModal}
           onOk={okSyncStockModal}
+          okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
           <Radio.Group onChange={onChangeSyncOption} value={syncStockValue}>
             <Space direction="vertical">

@@ -17,18 +17,20 @@ import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
 
 type PropType = {
-  amount: number;
+  amount: number | undefined;
   shippingFeeCustomer: number | null;
-  discountValue: number | null;
+  discountValue: number | null | undefined;
   OrderDetail?: OrderResponse | null;
-  payments?: OrderPaymentRequest[];
+  payments?: OrderPaymentRequest[] | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   // deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
+  serviceType?: string | null;
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
-  fulfillments: FulFillmentResponse[];
+  fulfillments: FulFillmentResponse[] | null | undefined;
   isCloneOrder?: boolean;
   addressError: string;
+  levelOrder?: number;
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -40,15 +42,17 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     setShippingFeeInformedCustomer,
     // deliveryServices,
     infoFees,
+    serviceType,
     changeServiceType,
     // fulfillments,
     // isCloneOrder,
     addressError,
+    levelOrder = 0
   } = props;
 
-  // console.log("propsShipmentmethod", props);
+  console.log("propsShipmentmethod", props.serviceType);
 
-  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState("");
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
 
   const totalAmountPaid = () => {
     let total = 0;
@@ -58,66 +62,63 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     return total;
   };
 
-
-  const deliveryService = useMemo(
-    () => {
-      return {
-        ghtk: {
-          code: "ghtk",
-          id: 1,
-          logo: ImageGHTK,
-          name: "Giao hàng tiết kiệm",
-        },
-        ghn: {
-          code: "ghn",
-          id: 2,
-          logo: ImageGHN,
-          name: "Giao hàng nhanh",
-        },
-        vtp: {
-          code: "vtp",
-          id: 3,
-          logo: ImageVTP,
-          name: "Viettel Post",
-        },
-        dhl: {
-          code: "dhl",
-          id: 4,
-          logo: ImageDHL,
-          name: "DHL",
-        },
-      }
-    },
-    []
-  );  
-  const sercivesFee = useMemo(
-    () => {
-      return {
-        ghtk: infoFees.filter(item => item.delivery_service_code === 'ghtk'),
-        ghn: infoFees.filter(item => item.delivery_service_code === 'ghn'),
-        vtp: infoFees.filter(item => item.delivery_service_code === 'vtp'),
-        dhl: infoFees.filter(item => item.delivery_service_code === 'dhl'),
-      }
-    },
-    [infoFees]
-  );
-
+  const deliveryService = useMemo(() => {
+    return {
+      ghtk: {
+        code: "ghtk",
+        id: 1,
+        logo: ImageGHTK,
+        name: "Giao hàng tiết kiệm",
+      },
+      ghn: {
+        code: "ghn",
+        id: 2,
+        logo: ImageGHN,
+        name: "Giao hàng nhanh",
+      },
+      vtp: {
+        code: "vtp",
+        id: 3,
+        logo: ImageVTP,
+        name: "Viettel Post",
+      },
+      dhl: {
+        code: "dhl",
+        id: 4,
+        logo: ImageDHL,
+        name: "DHL",
+      },
+    };
+  }, []);
+  const sercivesFee = useMemo(() => {
+    return {
+      ghtk: infoFees.filter((item) => item.delivery_service_code === "ghtk"),
+      ghn: infoFees.filter((item) => item.delivery_service_code === "ghn"),
+      vtp: infoFees.filter((item) => item.delivery_service_code === "vtp"),
+      dhl: infoFees.filter((item) => item.delivery_service_code === "dhl"),
+    };
+  }, [infoFees]);
 
   return (
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
         {addressError && (
-          <div style={{margin: '10px 0', color: '#ff4d4f' }}>{addressError}</div>
+          <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
+            {addressError}
+          </div>
+        )}
+        {levelOrder > 3 && (
+          <div style={{margin: '10px 0', color: '#ff4d4f' }}>Huỷ đơn giao để thực hiện các thay đổi giao hàng</div>
         )}
         <Row gutter={20}>
           <Col md={12}>
-            <Form.Item label="Tiền thu hộ:">
+            <Form.Item label="Tiền thu hộ: 3">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  amount +
+                  (amount? amount : 0) +
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
                   (discountValue ? discountValue : 0) -
                   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
@@ -166,68 +167,87 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                   </tr>
                 </thead>
                 <tbody className="ant-table-tbody">
-                  {['ghtk', 'ghn', 'vtp', 'dhl'].map((deliveryServiceName: string, index) => {
-                    return (
-                      (sercivesFee as any)[deliveryServiceName].length &&
-                        <React.Fragment key={deliveryServiceName}>
-                          <tr>
-                            <td>
-                              <img
-                                className="logoHVC"
-                                src={(deliveryService as any)[deliveryServiceName].logo}
-                                alt=""
-                              />
-                            </td>
-                            <td style={{ padding: 0 }}>
-                              {(sercivesFee as any)[deliveryServiceName].map((service: any) => {
-                                return (
-                                  <div style={{ padding: "8px 16px" }} className="custom-table__has-border-bottom custom-table__has-select-radio">
-                                    <label className="radio-container">
-                                      <input
-                                        type="radio"
-                                        name="tt"
-                                        className="radio-delivery"
-                                        value={service.transport_type}
-                                        checked={
-                                          selectedShipmentMethod === service.transport_type
-                                        }
-                                        onChange={(e) => {
-                                          setSelectedShipmentMethod(service.transport_type);
-                                          changeServiceType(
-                                            (deliveryService as any)[deliveryServiceName].id,
-                                            deliveryServiceName,
-                                            service.transport_type,
-                                            service.total_fee
-                                          );
-                                        }}
-                                        disabled={service.total_fee === 0}
-                                      />
-                                      <span className="checkmark"></span>
-                                      {service.transport_type_name}
-                                    </label>
-                                  </div>
+                  {["ghtk", "ghn", "vtp", "dhl"].map(
+                    (deliveryServiceName: string, index) => {
+                      return (
+                        ((sercivesFee as any)[deliveryServiceName].length && (
+                          <React.Fragment key={deliveryServiceName}>
+                            <tr>
+                              <td>
+                                <img
+                                  className="logoHVC"
+                                  src={
+                                    (deliveryService as any)[
+                                      deliveryServiceName
+                                    ].logo
+                                  }
+                                  alt=""
+                                />
+                              </td>
+                              <td style={{ padding: 0 }}>
+                                {(sercivesFee as any)[deliveryServiceName].map(
+                                  (service: any) => {
+                                    return (
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        <label className="radio-container">
+                                          <input
+                                            type="radio"
+                                            name="tt"
+                                            className="radio-delivery"
+                                            value={service.transport_type}
+                                            checked={
+                                              selectedShipmentMethod ===
+                                              service.transport_type
+                                            }
+                                            onChange={(e) => {
+                                              setSelectedShipmentMethod(
+                                                service.transport_type
+                                              );
+                                              changeServiceType(
+                                                (deliveryService as any)[
+                                                  deliveryServiceName
+                                                ].id,
+                                                deliveryServiceName,
+                                                service.transport_type,
+                                                service.total_fee
+                                              );
+                                            }}
+                                            disabled={service.total_fee === 0}
+                                          />
+                                          <span className="checkmark"></span>
+                                          {service.transport_type_name}
+                                        </label>
+                                      </div>
+                                    );
+                                  }
                                 )}
-                              )}
-                            </td>
-                            <td style={{ padding: 0, textAlign: "right" }}>
-                              {(sercivesFee as any)[deliveryServiceName].map((service: any) => {
-                                return (
-                                  <>
-                                    <div
-                                      style={{ padding: "8px 16px" }}
-                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                    >
-                                      {service.total_fee}
-                                    </div>
-                                  </>
+                              </td>
+                              <td style={{ padding: 0, textAlign: "right" }}>
+                                {(sercivesFee as any)[deliveryServiceName].map(
+                                  (service: any) => {
+                                    return (
+                                      <>
+                                        <div
+                                          style={{ padding: "8px 16px" }}
+                                          className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        >
+                                          {service.total_fee}
+                                        </div>
+                                      </>
+                                    );
+                                  }
                                 )}
-                              )}
-                              
-                            </td>
-                          </tr>
-                        </React.Fragment>
-                      ) || null
-                  })}
+                              </td>
+                            </tr>
+                          </React.Fragment>
+                        )) ||
+                        null
+                      );
+                    }
+                  )}
                 </tbody>
               </table>
             </div>

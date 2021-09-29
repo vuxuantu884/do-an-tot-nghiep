@@ -1,6 +1,7 @@
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
+import OrderUpdate from "screens/order-online/order-update";
 
 const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
 const OrderDetail = React.lazy(
@@ -59,6 +60,17 @@ const bill: Array<RouteMenu> = [
         icon: "icon-dot",
         component: OrderDetail,
         key: "submenu5413",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ORDER}/:id/update`,
+        exact: true,
+        title: "Sửa đơn hàng",
+        icon: "icon-dot",
+        component: OrderUpdate,
+        key: "submenu5414",
         isShow: true,
         header: null,
         subMenu: [],

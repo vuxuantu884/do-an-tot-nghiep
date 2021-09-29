@@ -67,6 +67,7 @@ import CustomerShippingAddressOrder from "./customer-shipping";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import UrlConfig from "config/url.config";
 //#end region
 
 type CustomerCardProps = {
@@ -76,6 +77,8 @@ type CustomerCardProps = {
   customer: CustomerResponse | null;
   loyaltyPoint:LoyaltyPoint|null;
   loyaltyUsageRules:Array<LoyaltyUsageResponse>;
+  levelOrder?: number;
+  updateOrder?: boolean;
 };
 
 //Add query for search Customer
@@ -98,8 +101,10 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customer, handleCustomer,loyaltyPoint,loyaltyUsageRules  } = props;
+  const { customer, handleCustomer,loyaltyPoint,loyaltyUsageRules, levelOrder = 0  } = props;
   //State
+  console.log('customer customer', customer);
+  
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
@@ -446,17 +451,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Space>
                 <Avatar size={32}>A</Avatar>
                 <Link
-                  to="#"
+                  target='_blank' 
+                  to={`${UrlConfig.CUSTOMER}/${customer.id}`}
                   className="primary"
                   style={{ fontSize: "16px" }}
-                  onClick={OkConfirmCustomerEdit}
                 >
                   {customer.full_name}
                 </Link>{" "}
+                {levelOrder < 2 &&
                 <CloseOutlined
                   onClick={CustomerDeleteInfo}
                   style={{ marginRight: "5px" }}
-                />
+                />}
                 <Tag className="orders-tag orders-tag-vip">
                   <b>{!rankName?"Default":rankName}</b>
                 </Tag>
@@ -490,7 +496,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              <Space className="customer-detail-birthday">
+            {
+              (customer?.birthday!==null) &&(
+                <Space className="customer-detail-birthday">
                 <span className="customer-detail-icon">
                   <img
                     src={birthdayIcon}
@@ -500,6 +508,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
                 <span className="customer-detail-text">{customerBirthday}</span>
               </Space>
+              )
+            }
+             
 
               <Space className="customer-detail-action">
                 <Button
@@ -622,7 +633,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         trigger="click"
                         className="change-shipping-address"
                       >
-                        <Button type="link" className="btn-style">
+                        <Button type="link" className="btn-style" disabled={levelOrder > 3}>
                           Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
@@ -652,6 +663,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         rows={4}
                         maxLength={500}
                         style={{ marginTop: "10px" }}
+                        disabled={levelOrder > 3}
                       />
                     </Form.Item>
                   </Col>
@@ -665,6 +677,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     className="checkbox-style"
                     onChange={ShowBillingAddress}
                     style={{ marginLeft: "3px" }}
+                    disabled={levelOrder > 3}
                   >
                     Gửi hoá đơn
                   </Checkbox>

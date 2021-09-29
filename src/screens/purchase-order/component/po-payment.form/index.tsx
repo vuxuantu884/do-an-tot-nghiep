@@ -8,6 +8,7 @@ import {
   Card,
   Col,
   Form,
+  Input,
   Progress,
   Row,
   Space,
@@ -48,6 +49,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
+  const [indexPaymentItem, setIndexPaymentItem] = useState<string>("");
   const [loadingApproval, setLoaddingApproval] = useState<any>({});
   const { poData } = props;
 
@@ -114,10 +116,16 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     setVisiblePaymentModal(true);
   }, []);
 
-  const editPayment = useCallback((item: PurchasePayments) => {
+  const editPayment = useCallback((item: PurchasePayments, index: number) => {
     setPaymentItem(item);
+    setIndexPaymentItem(index.toString());    
     setVisiblePaymentModal(true);
   }, []);
+  
+  const onDeletePayment = useCallback(() => {
+    setIndexPaymentItem("");
+  }, []);
+
   return (
     <StyledComponent>
       <Card
@@ -212,6 +220,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                   <span>
                     {" "}
                     <strong className="po-payment-row-title">
+                      <Form.Item name={POField.payment_condition_id} noStyle hidden>
+                        <Input />
+                      </Form.Item>
                       <Form.Item
                         noStyle
                         shouldUpdate={(prev, current) =>
@@ -415,7 +426,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                   PoPaymentStatus.CANCELLED ? (
                                   <Col md={8}>
                                     <div className="timeline__groupButtons">
-                                      <Button onClick={() => editPayment(item)}>
+                                      <Button onClick={() => editPayment(item, index)}>
                                         <EditOutlined
                                           style={{ fontSize: "18px" }}
                                         />{" "}
@@ -527,6 +538,8 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               purchasePayment={paymentItem}
               poId={props.poId}
               remainPayment={remainPayment}
+              deletePayment={onDeletePayment}
+              indexPaymentItem={indexPaymentItem}
             />
           );
         }}

@@ -9,6 +9,7 @@ import {
   Divider,
   Dropdown,
   Form,
+  FormInstance,
   Input,
   Menu,
   Row,
@@ -33,7 +34,10 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { OrderItemDiscountModel } from "model/other/order/order-model";
+import {
+  OrderItemDiscountModel,
+  OrderSettingsModel,
+} from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
@@ -74,6 +78,8 @@ type CardProductProps = {
   shippingFeeCustomer: number | null;
   amountReturn: number;
   totalAmountCustomerNeedToPay: number;
+  orderSettings?: OrderSettingsModel;
+  form: FormInstance<any>;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -84,8 +90,15 @@ const initQueryVariant: VariantSearchQuery = {
 const CardExchangeProducts: React.FC<CardProductProps> = (
   props: CardProductProps
 ) => {
-  const { items, handleCardItems, amountReturn, totalAmountCustomerNeedToPay } =
-    props;
+  const {
+    items,
+    handleCardItems,
+    amountReturn,
+    totalAmountCustomerNeedToPay,
+    orderSettings,
+    form,
+  } = props;
+  console.log("amountReturn", amountReturn);
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -721,6 +734,11 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   );
 
   const onChangeProductSearch = (value: string) => {
+    if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
+      if (value) {
+        form.validateFields(["store_id"]);
+      }
+    }
     setKeySearchVariant(value);
     initQueryVariant.info = value;
     dispatch(

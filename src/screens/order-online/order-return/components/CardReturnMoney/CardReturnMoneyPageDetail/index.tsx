@@ -26,6 +26,8 @@ function CardReturnMoneyPageDetail(props: PropType) {
     setIsShowPaymentMethod,
   } = props;
 
+  console.log("listPaymentMethods", listPaymentMethods);
+
   const renderCardTitle = () => {
     return (
       <React.Fragment>

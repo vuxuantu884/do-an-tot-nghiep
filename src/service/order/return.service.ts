@@ -1,7 +1,7 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { OrderRequest } from "model/request/order.request";
+import { ExchangeRequest, OrderRequest } from "model/request/order.request";
 import {
   OrderPaymentResponse,
   OrderReturnReasonModel,
@@ -38,4 +38,13 @@ export const orderRefundService = (
   }
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/return/${id}/refund`, params);
+};
+
+export const createOrderExchangeService = (
+  params: ExchangeRequest
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/orders/create-order-exchange`,
+    params
+  );
 };

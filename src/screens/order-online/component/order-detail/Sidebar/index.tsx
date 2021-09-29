@@ -10,6 +10,8 @@ type PropType = {
   onChangeTag: (value: []) => void;
   tags: string;
   isCloneOrder?: boolean;
+  levelOrder?: number;
+  updateOrder?: boolean;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {

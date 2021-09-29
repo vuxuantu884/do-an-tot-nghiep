@@ -5,6 +5,7 @@ import { ORDER_RETURN_TYPES } from "domain/types/order-return";
 import { OrderReturnReasonModel } from "model/response/order/order.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
+  createOrderExchangeService,
   createOrderReturnService,
   getOrderReturnReasonService,
   getOrderReturnService,
@@ -153,6 +154,35 @@ function* orderRefundSaga(action: YodyAction) {
   }
 }
 
+function* createOrderExchangeSaga(action: YodyAction) {
+  const { params, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(
+      createOrderExchangeService,
+      params
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        showSuccess("Tạo đơn đổi hàng thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* OrderReturnSaga() {
   yield takeLatest(
     OrderType.return.GET_RETURN_DETAIL,
@@ -168,4 +198,8 @@ export function* OrderReturnSaga() {
     getOrderReturnReasonsSaga
   );
   yield takeLatest(ORDER_RETURN_TYPES.REFUND, orderRefundSaga);
+  yield takeLatest(
+    ORDER_RETURN_TYPES.CREATE_ORDER_EXCHANGE,
+    createOrderExchangeSaga
+  );
 }

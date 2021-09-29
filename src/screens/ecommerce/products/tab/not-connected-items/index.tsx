@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -7,15 +7,16 @@ import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,} from "utils/ToastUtils";
 
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   getProductEcommerceList,
-  getShopEcommerceList
+  getShopEcommerceList,
+  deleteEcommerceItem,
  } from "domain/actions/ecommerce/ecommerce.actions";
 
 import circleDeleteIcon from "assets/icon/circle-delete.svg"
-import warningCircleIcon from "assets/icon/warning-circle.svg"
 import filterIcon from "assets/icon/filter.svg"
 import saveIcon from "assets/icon/save.svg"
 import closeIcon from "assets/icon/X_close.svg"
@@ -32,10 +33,11 @@ const NotConnectedItems = () => {
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = React.useState(false);
-
-  const [variantData, setVariantData] = React.useState<PageResponse<any>>({
+  const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
+  const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [idDeleteItem, setIdDeleteItem] = useState(null);
+   
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -44,9 +46,9 @@ const NotConnectedItems = () => {
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
-  const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = React.useState(null);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
+  const [shopIdSelected, setShopIdSelected] = useState(null);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -63,7 +65,7 @@ const NotConnectedItems = () => {
     []
   );
 
-  const [query, setQuery] = React.useState<ProductEcommerceQuery>({
+  const [query, setQuery] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -84,7 +86,10 @@ const NotConnectedItems = () => {
   useEffect(() => {
     dispatch(getProductEcommerceList(query, updateVariantData));
   }, [dispatch, query, updateVariantData]);
-
+ 
+  const reloadPage = () => {
+    dispatch(getProductEcommerceList(query, setVariantData));
+  }
 
   const searchYodyProduct = (e: any) => {
     e.preventDefault();
@@ -101,8 +106,10 @@ const NotConnectedItems = () => {
     console.log("cancelYodyProduct: ");
   }
 
+  //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
+    setIdDeleteItem(item.id);
   };
 
   const cancelDeleteItemModal = () => {
@@ -111,8 +118,14 @@ const NotConnectedItems = () => {
 
   const okDeleteItemModal = () => {
     setIsShowDeleteItemModal(false);
-    showSuccess("Xóa sản phẩm thành công");
-    //thai need todo: call API
+    if (idDeleteItem) {
+      dispatch(deleteEcommerceItem({id: idDeleteItem}, (result) => {
+        if (result) {
+          showSuccess("Xóa sản phẩm thành công");
+          reloadPage();
+        }
+      }));
+    }
   };
   
   //thai need todo
@@ -210,26 +223,19 @@ const NotConnectedItems = () => {
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.connect_status || "-"}</span>
-        );
-      },
-    },
-    {
-      title: () => {
-        return (
           <div>
-            <span>Đồng bộ tồn</span>
-            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
-              <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
-            </Tooltip>
+            {l.connect_status === "connected" &&
+              <span style={{color: '#27AE60'}}>Thành công</span>
+            }
+            {l.connect_status === "error" &&
+              <Tooltip title="error">
+                <span style={{color: '#E24343'}}>Thất bại</span>
+              </Tooltip>
+            }
+            {l.connect_status === "waiting" &&
+              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+            }
           </div>
-        )
-      },
-      visible: true,
-      align: "center",
-      render: (l: any, v: any, i: any) => {
-        return (
-          <span>Đồng bộ tồn - chưa có</span>
         );
       },
     },
@@ -248,9 +254,9 @@ const NotConnectedItems = () => {
     
   ]);
 
-  // const variantDataNotConnected = variantData && variantData.items && variantData.items.filter((item: any) => {
-  //   return item.connect_status === false;
-  // });
+  const variantNotConnectedItem = variantData && variantData.items && variantData.items.filter((item: any) => {
+    return item.connect_status !== "connected";
+  });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
@@ -322,20 +328,14 @@ const NotConnectedItems = () => {
       ecommerce_id: 4,
     }
   ]
-  //thai fake data 
-  // const LIST_STORE = [
-  //   {
-  //     id: 1,
-  //     name: "store 1",
-  //     value: "store_1"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "store 2",
-  //     value: "store_2"
-  //   }
-  // ]
 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
+  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
+  
+  //thai fake data
   const CATEGORY = [
     {
       id: 1,
@@ -461,11 +461,10 @@ const NotConnectedItems = () => {
         <CustomTable
           isRowSelection
           columns={columns}
-          dataSource={variantData.items}
-          // dataSource={variantDataNotConnected}
+          dataSource={variantNotConnectedItem}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
-            total: variantData.metadata && variantData.metadata.total,
+            total: variantNotConnectedItem && variantNotConnectedItem.length,
             current: variantData.metadata && variantData.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
@@ -574,7 +573,7 @@ const NotConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn danh mục"
                 allowClear
               >
                 {CATEGORY.map((item) => (
@@ -591,11 +590,11 @@ const NotConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái ghép nối"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}
@@ -608,11 +607,11 @@ const NotConnectedItems = () => {
             >
               <Select
                 showSearch
-                placeholder=""
+                placeholder="Chọn trạng thái đồng bộ tồn kho"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
+                {STOCK_STATUS && STOCK_STATUS.map((item) => (
+                  <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
                 ))}

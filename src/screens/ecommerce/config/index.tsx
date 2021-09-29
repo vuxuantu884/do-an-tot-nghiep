@@ -47,6 +47,8 @@ const EcommerceConfig: React.FC = () => {
     shop_id: connectQuery.get("shop_id"),
     code: connectQuery.get("code"),
   });
+  const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse  | undefined>() 
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -70,7 +72,7 @@ const EcommerceConfig: React.FC = () => {
   const configInfoCallback = React.useCallback(
     (value: any) => {
       if (value) {
-        setConfigToView(value);
+        setConfigFromEcommerce(value);
         history.replace(`${history.location.pathname}#setting`);
       }
     },
@@ -122,6 +124,7 @@ const EcommerceConfig: React.FC = () => {
     }
   }, [history.location.hash]);
 
+
   return (
     <ContentContainer
       title="SÀN THƯƠNG MẠI ĐIỆN TỬ"
@@ -160,6 +163,7 @@ const EcommerceConfig: React.FC = () => {
             onChange={(active) => {
               history.replace(`${history.location.pathname}#${active}`);
               reloadConfigData();
+              setConfigFromEcommerce(undefined)
             }}
           >
             <TabPane tab="Đồng bộ sàn" key="sync">
@@ -177,6 +181,9 @@ const EcommerceConfig: React.FC = () => {
                 configData={configData}
                 configToView={configToView}
                 reloadConfigData={reloadConfigData}
+                setConfigToView={setConfigToView}
+                configFromEcommerce={configFromEcommerce}
+                setConfigFromEcommerce={setConfigFromEcommerce}
               />
             </TabPane>
           </Tabs>
