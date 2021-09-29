@@ -162,8 +162,10 @@ const LoyaltyCardRelease = () => {
       <ErrorLogs
         visible={openErrorLogModal}
         onOk={closeErrorLogModal}
-        okText="Đóng"
+        okText="Thoát"
         errors={selectedLoyaltyRelease?.errors}
+        success={selectedLoyaltyRelease?.success || 0}
+        fail={selectedLoyaltyRelease?.fail || 0}
         onCancel={closeErrorLogModal}
       />
     </div>

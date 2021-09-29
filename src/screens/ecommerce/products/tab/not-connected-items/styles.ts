@@ -1,9 +1,12 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+  .ant-select {
+    width: 100%;
+  }
   .total-items-ecommerce {
     padding: 20px;
-    
+
     .filter {
       .ant-form {
         display: flex;
@@ -23,12 +26,12 @@ export const StyledComponent = styled.div`
       margin-right: 15px;
       width: 150px;
     }
-    
+
     .shoppe-search {
       margin-right: 15px;
       width: 230px;
     }
-    
+
     .yody-search {
       margin-right: 15px;
       width: 200px;

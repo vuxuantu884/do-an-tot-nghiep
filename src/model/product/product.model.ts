@@ -196,6 +196,7 @@ export interface VariantSearchQuery extends BaseQuery {
   main_color?:string,
   color?:string,
   supplier?:string
+  saleable?: boolean
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,
