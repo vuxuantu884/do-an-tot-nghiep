@@ -41,6 +41,7 @@ type ProcumentModalProps = {
   okText: string;
   cancelText: string;
   item?: PurchaseProcument | null;
+  isConfirmModal?: boolean;
   children(
     onQuantityChange: (quantity: any, index: number) => void,
     onRemove: (index: number) => void,
@@ -65,6 +66,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     item,
     type,
     isEdit,
+    isConfirmModal,
   } = props;
   const [form] = Form.useForm();
   const [data, setData] = useState<Array<PurchaseProcumentLineItem>>([]);
@@ -202,13 +204,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   };
   useEffect(() => {
     if (item) {
+      if(type === "inventory" ) {
+        item.procurement_items.forEach((item1) => {
+          item1.real_quantity = item1.quantity
+        })
+      }
       form.setFieldsValue(JSON.parse(JSON.stringify(item)));
     } else {
       form.setFieldsValue({
         procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
-  }, [form, item, allProcurementItems]);
+  }, [form, item, allProcurementItems, type]);
 
   const confirmDeletePhrase: string = useMemo(() => {
     if (!item) return "";
@@ -375,7 +382,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                     ]}
                     label="Kho nhận hàng"
                   >
-                    <Select showSearch showArrow optionFilterProp="children" placeholder="Chọn kho">
+                    <Select
+                      showSearch
+                      showArrow
+                      optionFilterProp="children"
+                      placeholder="Chọn kho"
+                    >
                       <Select.Option value="">Chọn kho nhận</Select.Option>
                       {stores.map((item) => (
                         <Select.Option key={item.id} value={item.id}>
@@ -405,48 +417,50 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
               </Fragment>
             )}
           </Row>
-          <Row>
-            <Input.Group style={{ flex: 1, marginRight: 20 }}>
-              <CustomAutoComplete
-                id="#product_procument_search"
-                dropdownClassName="product"
-                textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                onSearch={onSearch}
-                dropdownMatchSelectWidth={456}
-                style={{ width: "100%" }}
-                onSelect={onSelectProduct}
-                options={renderResult}
-              />
-            </Input.Group>
-            <Form.Item
-              noStyle
-              shouldUpdate={(prev, current) => {
-                return (
-                  prev[POProcumentField.procurement_items] !==
-                  current[POProcumentField.procurement_items]
-                );
-              }}
-            >
-              {({ getFieldValue }) => {
-                let checked = false;
-                let procurement_items: Array<PurchaseProcumentLineItem> =
-                  getFieldValue(POProcumentField.procurement_items);
-                checked =
-                  procurement_items.length === allProcurementItems.length;
-                return (
-                  <Checkbox
-                    checked={checked}
-                    onChange={(e) => {
-                      fillAll(e.target.checked);
-                    }}
-                  >
-                    Chọn tất cả sản phẩm
-                  </Checkbox>
-                );
-              }}
-            </Form.Item>
-          </Row>
+          {!isConfirmModal && (
+            <Row>
+              <Input.Group style={{ flex: 1, marginRight: 20 }}>
+                <CustomAutoComplete
+                  id="#product_procument_search"
+                  dropdownClassName="product"
+                  textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
+                  placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                  onSearch={onSearch}
+                  dropdownMatchSelectWidth={456}
+                  style={{ width: "100%" }}
+                  onSelect={onSelectProduct}
+                  options={renderResult}
+                />
+              </Input.Group>
+              <Form.Item
+                noStyle
+                shouldUpdate={(prev, current) => {
+                  return (
+                    prev[POProcumentField.procurement_items] !==
+                    current[POProcumentField.procurement_items]
+                  );
+                }}
+              >
+                {({ getFieldValue }) => {
+                  let checked = false;
+                  let procurement_items: Array<PurchaseProcumentLineItem> =
+                    getFieldValue(POProcumentField.procurement_items);
+                  checked =
+                    procurement_items.length === allProcurementItems.length;
+                  return (
+                    <Checkbox
+                      checked={checked}
+                      onChange={(e) => {
+                        fillAll(e.target.checked);
+                      }}
+                    >
+                      Chọn tất cả sản phẩm
+                    </Checkbox>
+                  );
+                }}
+              </Form.Item>
+            </Row>
+          )}
           <div className="margin-top-20">
             <Form.Item
               shouldUpdate={(prev, current) => {
