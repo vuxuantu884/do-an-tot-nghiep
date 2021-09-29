@@ -69,6 +69,7 @@ type CardShipmentProps = {
   onPayments: (value: Array<OrderPaymentRequest>) => void;
   fulfillments: FulFillmentResponse[];
   isCloneOrder: boolean;
+  totalAmountReturnProducts?: number;
 };
 
 type ShipmentButtonModel = {
@@ -96,6 +97,7 @@ function CardReturnShipment(props: CardShipmentProps) {
     payments,
     fulfillments,
     isCloneOrder,
+    totalAmountReturnProducts,
     setOfficeTime,
     setShippingFeeInformedCustomer,
     setPaymentMethod,
@@ -356,6 +358,7 @@ function CardReturnShipment(props: CardShipmentProps) {
               payments={payments}
               fulfillments={fulfillments}
               isCloneOrder={isCloneOrder}
+              totalAmountReturnProducts={totalAmountReturnProducts}
             />
           )}
 

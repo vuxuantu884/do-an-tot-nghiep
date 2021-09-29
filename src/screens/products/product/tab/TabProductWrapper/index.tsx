@@ -37,6 +37,7 @@ import { Link } from "react-router-dom";
 import { convertCategory, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
+import ImageProduct from "../../component/image-product.component";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -99,8 +100,8 @@ const TabProductWrapper: React.FC = () => {
   );
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
 
-  const [selected, setSelected] = useState<Array<ProductWrapperResponse>>([]);
-  const [rowkey, setRowkey] = useState<Array<any>>([]);
+  const [selected, setSelected] = useState<Array<ProductResponse>>([]);
+  const [rowKey, setRowKey] = useState<Array<any>>([]);
 
   const [data, setData] = useState<PageResponse<ProductResponse>>({
     metadata: {
@@ -116,30 +117,23 @@ const TabProductWrapper: React.FC = () => {
   let [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
   const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<ProductWrapperResponse>>
+    Array<ICustomTableColumType<ProductResponse>>
   >([
     {
       title: "Ảnh",
       fixed: "left",
       align: "center",
       width: 70,
-      render: (value: ProductWrapperResponse) => {
-        // let image = Products.findAvatar(value.variant_images);
-        return (
-          // <ImageProduct
-          //   path={image !== null ? image.url : null}
-          //   onClick={() => {
-          //     setVariant({
-          //       name: value.name,
-          //       sku: value.sku,
-          //       variant_images: value.variant_images,
-          //     });
-          //     ProductWrapperResponse = value;
-          //     setUploadVisible(true);
-          //   }}
-          // />
-          <div>ảnh</div>
-        );
+      render: (value: ProductResponse) => {
+        let url = null;
+        value.variants.forEach((item) => {
+          item.variant_images.forEach((item1) => {
+            if (item1.product_avatar) {
+              url = item1.url;
+            }
+          });
+        });
+        return <ImageProduct path={url} />;
       },
       visible: true,
     },
@@ -293,7 +287,7 @@ const TabProductWrapper: React.FC = () => {
     (result: ProductWrapperUpdateRequest) => {
       if (result) {
         setSelected([]);
-        setRowkey([]);
+        setRowKey([]);
         dispatch(searchProductWrapperRequestAction(params, setSearchResult));
         showSuccess("Cập nhật dữ liệu thành công");
       } else {
@@ -318,7 +312,7 @@ const TabProductWrapper: React.FC = () => {
   );
 
   const onInactive = useCallback(
-    (selected: ProductWrapperResponse) => {
+    (selected: ProductResponse) => {
       const request = {
         ...selected,
         status: "inactive",
@@ -355,7 +349,7 @@ const TabProductWrapper: React.FC = () => {
     [onActive, onInactive, selected]
   );
 
-  const onSelect = useCallback((selectedRow: Array<ProductWrapperResponse>) => {
+  const onSelect = useCallback((selectedRow: Array<ProductResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
@@ -377,7 +371,7 @@ const TabProductWrapper: React.FC = () => {
   return (
     <div className="padding-20">
       <ProductWrapperFilter
-        openColumn={() => setShowSettingColumn(true)}
+        onClickOpen={() => setShowSettingColumn(true)}
         onMenuClick={onMenuClick}
         actions={actions}
         onFilter={onFilter}
@@ -389,8 +383,8 @@ const TabProductWrapper: React.FC = () => {
         initValue={initQuery}
       />
       <CustomTable
-        selecedRowKey={rowkey}
-        onChangeRowkey={(rowkey) => setRowkey(rowkey)}
+        selectedRowKey={rowKey}
+        onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelect}

@@ -1,5 +1,5 @@
 import { Row, Col, Progress } from "antd";
-import { MinusCircleFilled } from "@ant-design/icons";
+import { MinusCircleFilled, PlusCircleOutlined } from "@ant-design/icons";
 import { ReactNode, useMemo } from "react";
 type POProgressViewProps = {
   receivedTitle: string;
@@ -57,9 +57,27 @@ const POProgressView: React.FC<POProgressViewProps> = (
           style={{ textAlign: "left", marginTop: 25 }}
         >
           <span>
-            <MinusCircleFilled style={{ color: "#E24343", marginRight: 4 }} />
-            {remainTitle}:{" "}
-            <span style={{ color: "#E24343" }}>{total - received}</span>
+            {total - received > 0 ? (
+              <>
+                <MinusCircleFilled
+                  style={{ color: "#E24343", marginRight: 4 }}
+                />
+                {`${remainTitle}: `} 
+                <span style={{ color: "#E24343" }}>
+                  {total - received}
+                </span>
+              </>
+            ) : (
+              <>
+                <PlusCircleOutlined
+                  style={{ color: "#27ae60", marginRight: 4 }}
+                />
+                {`${remainTitle}: `} 
+                <span style={{ color: "#27ae60" }}>
+                  {Math.abs(total - received)}
+                </span>
+              </>
+            )}
           </span>
         </div>
       </Col>

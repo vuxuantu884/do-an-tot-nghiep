@@ -1,4 +1,3 @@
-//#region Import
 import {
   Badge,
   Button,
@@ -7,7 +6,6 @@ import {
   Col,
   Collapse,
   DatePicker,
-  Divider,
   Form,
   FormInstance,
   Row,
@@ -34,8 +32,8 @@ import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
+  getFeesAction,
   getTrackingLogFulfillmentAction,
-  InfoGHTKAction,
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
@@ -44,7 +42,6 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  ShippingGHTKRequest,
   UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
@@ -54,7 +51,6 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderResponse,
-  ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
@@ -71,6 +67,7 @@ import {
   getShippingAddressDefault,
   InfoServiceDeliveryDetail,
   replaceFormatString,
+  SumWeight,
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
@@ -80,7 +77,6 @@ import {
   OrderStatus,
   PaymentMethodOption,
   ShipmentMethodOption,
-  TRANSPORTS,
 } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
@@ -88,6 +84,7 @@ import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
+import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -150,10 +147,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
   // const [errorLogFulfillment, setErrorLogFulfillment] =
   //   useState<Array<ErrorLogResponse> | null>(null);
-  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
-  const [feeGhtk, setFeeGhtk] = useState<number>(0);
+  const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
@@ -193,8 +189,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
 
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      getInfoDeliveryGHTK(TRANSPORTS.ROAD);
-      getInfoDeliveryGHTK(TRANSPORTS.FLY);
       setPaymentType(PaymentMethodOption.COD);
       props.setVisibleUpdatePayment(true);
     }
@@ -213,35 +207,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     props.shippingFeeInformedCustomer(value);
   };
 
-  const getInfoDeliveryGHTK = useCallback(
-    (type: string) => {
-      let request: ShippingGHTKRequest = {
-        pick_address: props.storeDetail?.address,
-        pick_province: props.storeDetail?.city_name,
-        pick_district: props.storeDetail?.district_name,
-        province: getShippingAddressDefault(props.customerDetail)?.city,
-        district: getShippingAddressDefault(props.customerDetail)?.district,
-        address: getShippingAddressDefault(props.customerDetail)?.full_address,
-        weight: props.OrderDetail && SumWeightResponse(props.OrderDetail.items),
-        value: props.OrderDetail?.total,
-        transport: "",
-      };
-
-      if (
-        request.pick_address &&
-        request.pick_district &&
-        request.pick_province &&
-        request.address &&
-        request.province &&
-        request.weight &&
-        request.district
-      ) {
-        dispatch(InfoGHTKAction(request, setInfoGHTK));
-      }
-    },
-    [dispatch, props.OrderDetail, props.customerDetail, props.storeDetail]
-  );
-
   const changeServiceType = (
     id: number,
     code: string,
@@ -250,7 +215,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   ) => {
     setHvc(id);
     setServiceType(item);
-    setFeeGhtk(fee);
+    setFee(fee);
   };
 
   //#endregion
@@ -584,7 +549,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.service = serviceType!;
         value.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
         if (hvc === 1) {
-          value.shipping_fee_paid_to_three_pls = feeGhtk;
+          value.shipping_fee_paid_to_three_pls = fee;
         } else {
           value.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE; //mặc định 20k
         }
@@ -650,6 +615,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   };
 
+  
   // shipment button action
   interface ShipmentButtonModel {
     name: string | null;
@@ -851,8 +817,51 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
-
+  const [infoFees, setInfoFees] = useState<Array<any>>([]);
+  const [addressError, setAddressError] = useState<string>("");
   // end
+  useEffect(() => {
+    if (!props.storeDetail) {
+      setAddressError("Thiếu thông tin địa chỉ cửa hàng")
+    }
+    if (props.customerDetail && props.storeDetail
+      && (getShippingAddressDefault(props.customerDetail)?.city_id || getShippingAddressDefault(props.customerDetail)?.district_id)
+      && getShippingAddressDefault(props.customerDetail)?.ward_id && getShippingAddressDefault(props.customerDetail)?.full_address) {
+      let request = {
+        from_city_id: props.storeDetail?.city_id,
+        from_city: props.storeDetail?.city_name,
+        from_district_id: props.storeDetail?.district_id,
+        from_district: props.storeDetail?.district_name,
+        from_ward_id: props.storeDetail?.ward_id,
+        to_country_id: getShippingAddressDefault(props.customerDetail)?.country_id,
+        to_city_id: getShippingAddressDefault(props.customerDetail)?.city_id,
+        to_city: getShippingAddressDefault(props.customerDetail)?.city,
+        to_district_id: getShippingAddressDefault(props.customerDetail)?.district_id,
+        to_district: getShippingAddressDefault(props.customerDetail)?.district,
+        to_ward_id: getShippingAddressDefault(props.customerDetail)?.ward_id,
+        from_address: props.storeDetail?.address,
+        to_address: getShippingAddressDefault(props.customerDetail)?.full_address,
+        price: OrderDetail?.total_line_amount_after_line_discount,
+        quantity: 1,
+        weight: SumWeight(OrderDetail?.items),
+        length: 0,
+        height: 0,
+        width: 0,
+        service_id: 0,
+        service: "",
+        option: "",
+        insurance: 0,
+        coupon: "",
+        cod: 0
+      };
+      console.log("request", request);
+      setAddressError("")
+      dispatch(getFeesAction(request, setInfoFees));
+    } else {
+      setAddressError("Thiếu thông tin địa chỉ khách hàng")
+    }
+  }, [props.customerDetail, dispatch, props.storeDetail, OrderDetail?.total_line_amount_after_line_discount, OrderDetail?.items]);
+
   useEffect(() => {
     getRequirementName();
   }, [getRequirementName]);
@@ -1486,7 +1495,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
             <Button
               type="primary"
-              style={{ marginLeft: "10px", padding: "0 25px" }}
+              style={{ margin: "0 10px", padding: "0 25px" }}
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => {
                 history.push(
@@ -1777,7 +1786,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               {/*--- Chuyển hãng vận chuyển ----*/}
               {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                 <>
-                  <Row gutter={24}>
+                  {/* <Row gutter={24}>
                     <Col md={12}>
                       <Form.Item label="Tiền thu hộ:">
                         <NumberInput
@@ -1824,161 +1833,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         />
                       </Form.Item>
                     </Col>
-                  </Row>
-                  <div className="ant-table ant-table-bordered custom-table">
-                    <div className="ant-table-container">
-                      <div className="ant-table-content">
-                        <table
-                          className="table-bordered"
-                          style={{ width: "100%", tableLayout: "auto" }}
-                        >
-                          <thead className="ant-table-thead">
-                            <tr>
-                              <th className="ant-table-cell">
-                                Hãng vận chuyển
-                              </th>
-                              <th className="ant-table-cell">
-                                Dịch vụ chuyển phát
-                              </th>
-                              <th
-                                className="ant-table-cell"
-                                style={{ textAlign: "right" }}
-                              >
-                                Cước phí
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="ant-table-tbody">
-                            {deliveryServices &&
-                              deliveryServices.map((single, index) => {
-                                return (
-                                  <React.Fragment key={index}>
-                                    <tr>
-                                      <td>
-                                        <img
-                                          src={single.logo ? single.logo : ""}
-                                          alt=""
-                                          style={{
-                                            width: "184px",
-                                            height: "41px",
-                                          }}
-                                        />
-                                      </td>
-                                      <td style={{ padding: 0 }}>
-                                        {single.code === "ghtk" ? (
-                                          <div>
-                                            <label className="radio-container">
-                                              <input
-                                                type="radio"
-                                                name="tt"
-                                                className="radio-delivery"
-                                                value="standard"
-                                                onChange={(e) =>
-                                                  changeServiceType(
-                                                    single.id,
-                                                    single.code,
-                                                    "standard",
-                                                    infoGHTK.length > 1
-                                                      ? infoGHTK[0].fee
-                                                      : 0
-                                                  )
-                                                }
-                                              />
-                                              <span className="checkmark"></span>
-                                              Đường bộ
-                                            </label>
-                                            <Divider
-                                              style={{ margin: "8px 0" }}
-                                            />
-                                            <label className="radio-container">
-                                              <input
-                                                type="radio"
-                                                name="tt"
-                                                className="radio-delivery"
-                                                value="express"
-                                                onChange={(e) =>
-                                                  changeServiceType(
-                                                    single.id,
-                                                    single.code,
-                                                    "express",
-                                                    infoGHTK.length > 1
-                                                      ? infoGHTK[1].fee
-                                                      : 0
-                                                  )
-                                                }
-                                              />
-                                              <span className="checkmark"></span>
-                                              Đường bay
-                                            </label>
-                                          </div>
-                                        ) : (
-                                          <label className="radio-container">
-                                            <input
-                                              type="radio"
-                                              name="tt"
-                                              className="radio-delivery"
-                                              value={`${single.code}_standard`}
-                                              onChange={(e) =>
-                                                changeServiceType(
-                                                  single.id,
-                                                  single.code,
-                                                  "standard",
-                                                  0
-                                                )
-                                              }
-                                            />
-                                            <span className="checkmark"></span>
-                                            Chuyển phát nhanh PDE
-                                          </label>
-                                        )}
-                                      </td>
-                                      <td
-                                        style={{
-                                          padding: 0,
-                                          textAlign: "right",
-                                        }}
-                                      >
-                                        {single.code === "ghtk" ? (
-                                          <div>
-                                            <div
-                                              style={{ padding: "8px 16px" }}
-                                              className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                            >
-                                              {infoGHTK && infoGHTK.length > 0
-                                                ? formatCurrency(
-                                                    infoGHTK[0].fee
-                                                  )
-                                                : 0}
-                                            </div>
-                                            <div
-                                              style={{ padding: "8px 16px" }}
-                                              className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                            >
-                                              {infoGHTK && infoGHTK.length > 1
-                                                ? formatCurrency(
-                                                    infoGHTK[1].fee
-                                                  )
-                                                : 0}
-                                            </div>
-                                          </div>
-                                        ) : (
-                                          <div
-                                            style={{ padding: "8px 16px" }}
-                                            className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                          >
-                                            100.000
-                                          </div>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  </React.Fragment>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
+                  </Row> */}
+                  {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+                    <ShipmentMethodDeliverPartner
+                      amount={OrderDetail?.total}
+                      changeServiceType={changeServiceType}
+                      // deliveryServices={deliveryServices}
+                      discountValue={OrderDetail?.total_discount}
+                      infoFees={infoFees}
+                      setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+                      shippingFeeCustomer={shippingFeeInformedCustomer}
+                      OrderDetail={OrderDetail}
+                      payments={OrderDetail?.payments}
+                      fulfillments={OrderDetail?.fulfillments}
+                      // isCloneOrder={isCloneOrder}
+                      addressError={addressError}
+                    />
+                  )}
 
                   <Col
                     md={24}

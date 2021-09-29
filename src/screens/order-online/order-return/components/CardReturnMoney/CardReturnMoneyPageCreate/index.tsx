@@ -34,7 +34,6 @@ type PropType = {
   isStepExchange: boolean;
   returnMoneyType?: string;
   setReturnMoneyType?: (value: string) => void;
-  setReturnMoneyAmount?: (value: number) => void;
 };
 
 /**

@@ -99,8 +99,6 @@ function LayoutEditAndDetail(props: PropType) {
   };
 
   useEffect(() => {
-    const fetchBusinesses = () => {};
-    fetchBusinesses();
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setList3rdPartyLogistic(response);

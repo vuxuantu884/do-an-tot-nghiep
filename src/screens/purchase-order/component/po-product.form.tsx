@@ -745,7 +745,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             textAlign: "right",
                           }}
                         >
-                          Thành tiền (%)
+                          VAT (%)
                         </div>
                       ),
                       width: 120,
@@ -1417,7 +1417,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       /> */}
       <PickManyProductModal
         onSave={onPickManyProduct}
-        onCancle={() => setVisibleManyProduct(false)}
+        selected={data}
+        onCancel={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
       />
     </React.Fragment>

@@ -20,16 +20,19 @@ import {
 } from "model/response/order/order.response";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { Type } from "config/type.config";
+import React from "react";
 //#endregion
 
 type ProductCardUpdateProps = {
   shippingFeeInformedCustomer: number | null;
   OrderDetail: OrderResponse | null;
   customerNeedToPayValue: any;
+  totalAmountReturnProducts?: number;
 };
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
+  const { totalAmountReturnProducts } = props;
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -402,11 +405,42 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần trả:</strong>
-              <strong className="text-success font-size-price ">
-                {formatCurrency(props.customerNeedToPayValue)}
-              </strong>
+              <span className="font-size-text">
+                {totalAmountReturnProducts
+                  ? "Tổng tiền hàng mua:"
+                  : "Khách cần trả:"}
+              </span>
+              <span>{formatCurrency(props.customerNeedToPayValue)}</span>
             </Row>
+            {totalAmountReturnProducts ? (
+              <Row className="payment-row" justify="space-between">
+                <span className="font-size-text">Tổng tiền hàng trả:</span>
+                <span>{formatCurrency(totalAmountReturnProducts)}</span>
+              </Row>
+            ) : null}
+            {totalAmountReturnProducts ? (
+              <React.Fragment>
+                <Divider
+                  className="margin-top-5 margin-bottom-5"
+                  style={{ height: "auto", margin: " 5px 0" }}
+                />
+                <Row className="payment-row" justify="space-between">
+                  <strong className="font-size-text">
+                    {props.customerNeedToPayValue - totalAmountReturnProducts <
+                    0
+                      ? "Cần trả khách:"
+                      : "Khách cần trả:"}
+                  </strong>
+                  <strong className="text-success font-size-price ">
+                    {formatCurrency(
+                      Math.abs(
+                        props.customerNeedToPayValue - totalAmountReturnProducts
+                      )
+                    )}
+                  </strong>
+                </Row>
+              </React.Fragment>
+            ) : null}
           </Col>
         </Row>
       </div>

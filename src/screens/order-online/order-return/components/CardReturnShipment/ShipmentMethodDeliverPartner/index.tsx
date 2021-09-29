@@ -21,6 +21,7 @@ type PropType = {
   infoFees: FeesResponse[];
   fulfillments: FulFillmentResponse[];
   isCloneOrder?: boolean;
+  totalAmountReturnProducts?: number;
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
 };
@@ -35,6 +36,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoFees,
     fulfillments,
     isCloneOrder,
+    totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
     changeServiceType,
   } = props;
@@ -105,7 +107,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       <div className="shipmentMethod__deliverPartner">
         <Row gutter={20}>
           <Col md={12}>
-            <Form.Item label="Tiền thu hộ:">
+            <Form.Item label="Tiền thu hộ: 4">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
@@ -115,7 +117,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
                   (discountValue ? discountValue : 0) -
                   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-                  totalAmountPaid()
+                  totalAmountPaid() -
+                  (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
                 }
                 className="formInputAmount"
                 maxLength={999999999999}

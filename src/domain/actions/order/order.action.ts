@@ -9,9 +9,9 @@ import {
   ShippingGHTKRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
-  UpdatePaymentRequest,
+  // UpdatePaymentRequest,
   VTPFeeRequest,
-  GetFeesRequest
+  GetFeesRequest,
 } from "model/request/order.request";
 import {
   ActionLogDetailResponse,
@@ -39,6 +39,14 @@ export const orderCreateAction = (
   setData: (data: OrderResponse) => void
 ) => {
   return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData });
+};
+
+export const orderUpdateAction = (
+  id: string,
+  request: OrderRequest,
+  setData: (data: OrderResponse) => void
+) => {
+  return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData });
 };
 
 export const orderFpageCreateAction = (
@@ -122,7 +130,8 @@ export const UpdateFulFillmentStatusAction = (
 };
 
 export const UpdatePaymentAction = (
-  request: UpdatePaymentRequest,
+  // request: UpdatePaymentRequest,
+  request: any,
   order_id: number | null,
   setData: (data: OrderResponse) => void
 ) => {
@@ -327,19 +336,15 @@ export const getListChannelRequest = (
 };
 
 export const getListReasonRequest = (
-  setData: (data: Array<{id: number; name: string}>) => void
+  setData: (data: Array<{ id: number; name: string }>) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };
 
-export const cancelOrderRequest = (
-  id: number | undefined
-) => {
+export const cancelOrderRequest = (id: number | undefined) => {
   return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id });
 };
 
-export const configOrderSaga = (
-  setData: (data: OrderConfig) => void
-) => {
+export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
