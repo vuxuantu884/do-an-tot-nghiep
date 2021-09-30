@@ -588,29 +588,6 @@ const OrderDetail = (props: PropType) => {
                 />
               )}
 
-              {/*--- shipment ---*/}
-              <UpdateShipmentCard
-                shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
-                setVisibleUpdatePayment={setVisibleUpdatePayment}
-                setShipmentMethod={setShipmentMethod}
-                setPaymentType={setPaymentType}
-                setOfficeTime={setOfficeTime}
-                setVisibleShipping={setVisibleShipping}
-                OrderDetail={OrderDetail}
-                customerDetail={customerDetail}
-                storeDetail={storeDetail}
-                stepsStatusValue={stepsStatusValue}
-                totalPaid={totalPaid}
-                officeTime={officeTime}
-                shipmentMethod={shipmentMethod}
-                isVisibleShipping={isVisibleShipping}
-                paymentType={paymentType}
-                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
-                orderSettings={orderSettings}
-              />
-
-              {/*--- end shipment ---*/}
-
               {/*--- payment ---*/}
               {OrderDetail !== null &&
                 OrderDetail?.payments &&
@@ -1070,6 +1047,29 @@ const OrderDetail = (props: PropType) => {
                 )}
 
               {/*--- end payment ---*/}
+
+              {/*--- shipment ---*/}
+              <UpdateShipmentCard
+                shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+                setVisibleUpdatePayment={setVisibleUpdatePayment}
+                setShipmentMethod={setShipmentMethod}
+                setPaymentType={setPaymentType}
+                setOfficeTime={setOfficeTime}
+                setVisibleShipping={setVisibleShipping}
+                OrderDetail={OrderDetail}
+                customerDetail={customerDetail}
+                storeDetail={storeDetail}
+                stepsStatusValue={stepsStatusValue}
+                totalPaid={totalPaid}
+                officeTime={officeTime}
+                shipmentMethod={shipmentMethod}
+                isVisibleShipping={isVisibleShipping}
+                paymentType={paymentType}
+                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+                orderSettings={orderSettings}
+              />
+
+              {/*--- end shipment ---*/}
             </Col>
 
             <Col md={6}>

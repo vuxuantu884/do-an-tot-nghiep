@@ -29,7 +29,6 @@ import {
   OrderRequest,
   ReturnRequest,
   ShipmentRequest,
-  ShippingAddress,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -47,6 +46,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import CardShipment from "screens/order-online/component/order-detail/CardShipment";
 import {
   formatCurrency,
   getAmountPaymentRequest,
@@ -71,7 +71,6 @@ import CardReturnMoneyPageCreateReturn from "../components/CardReturnMoney/CardR
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
-import CardReturnShipment from "../components/CardReturnShipment";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
@@ -111,9 +110,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [orderAmount] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [tags, setTag] = useState<string>("");
-  const [shippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
     null
   );
@@ -148,6 +145,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
+  console.log("paymentMethod", paymentMethod);
   const [listOrderReturnReason, setListOrderReturnReason] = useState<
     OrderReturnReasonModel[]
   >([]);
@@ -156,8 +154,10 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
+  console.log("serviceType", serviceType);
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
+  console.log("fee", fee);
   const [fulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [returnMoneyType, setReturnMoneyType] = useState(
     RETURN_MONEY_TYPE.return_later
@@ -495,12 +495,60 @@ const ScreenReturnCreate = (props: PropType) => {
 
           console.log("orderDetailResult", orderDetailResult);
 
-          dispatch(
-            actionCreateOrderReturn(orderDetailResult, (response) => {
-              order_return_id = response.id;
-              form.submit();
-            })
-          );
+          let values: ExchangeRequest = form.getFieldsValue();
+          let valuesResult = onFinish(values);
+          if (checkPointfocus(values)) {
+            if (!values.customer_id) {
+              showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+              const element: any = document.getElementById("search_customer");
+              element?.focus();
+            } else {
+              if (listExchangeProducts.length === 0) {
+                showError("Vui lòng chọn ít nhất 1 sản phẩm");
+                const element: any = document.getElementById("search_product");
+                element?.focus();
+              } else {
+                if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+                  if (valuesResult.delivery_service_provider_id === null) {
+                    showError("Vui lòng chọn đối tác giao hàng");
+                  } else {
+                    console.log("valuesResult", valuesResult);
+                    dispatch(
+                      actionCreateOrderReturn(orderDetailResult, (response) => {
+                        valuesResult.order_return_id = response.id;
+                        dispatch(
+                          actionCreateOrderExchange(
+                            valuesResult,
+                            createOrderExchangeCallback
+                          )
+                        );
+                      })
+                    );
+                  }
+                } else {
+                  if (
+                    shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+                    !serviceType
+                  ) {
+                    showError("Vui lòng chọn đơn vị vận chuyển");
+                  } else {
+                    console.log("valuesResult", valuesResult);
+                    dispatch(
+                      actionCreateOrderReturn(orderDetailResult, (response) => {
+                        valuesResult.order_return_id = response.id;
+                        dispatch(
+                          actionCreateOrderExchange(
+                            valuesResult,
+                            createOrderExchangeCallback
+                          )
+                        );
+                      })
+                    );
+                  }
+                }
+              }
+            }
+          }
         }
       })
       .catch((error) => {
@@ -515,6 +563,7 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const onFinish = (values: ExchangeRequest) => {
+    console.log("values", values);
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -538,7 +587,7 @@ const ScreenReturnCreate = (props: PropType) => {
     values.tags = tags;
     values.items = listExchangeProducts;
     values.discounts = lstDiscount;
-    values.shipping_address = shippingAddress;
+    values.shipping_address = OrderDetail?.shipping_address || null;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount =
@@ -550,42 +599,8 @@ const ScreenReturnCreate = (props: PropType) => {
     values.source_id = OrderDetail ? OrderDetail.source_id : null;
     values.order_return_id = order_return_id;
     console.log("values", values);
-    if (checkPointfocus(values)) {
-      if (!values.customer_id) {
-        showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
-        const element: any = document.getElementById("search_customer");
-        element?.focus();
-      } else {
-        if (listExchangeProducts.length === 0) {
-          showError("Vui lòng chọn ít nhất 1 sản phẩm");
-          const element: any = document.getElementById("search_product");
-          element?.focus();
-        } else {
-          if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-            if (values.delivery_service_provider_id === null) {
-              showError("Vui lòng chọn đối tác giao hàng");
-            } else {
-              console.log("values", values);
-              dispatch(
-                actionCreateOrderExchange(values, createOrderExchangeCallback)
-              );
-            }
-          } else {
-            if (
-              shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-              !serviceType
-            ) {
-              showError("Vui lòng chọn đơn vị vận chuyển");
-            } else {
-              console.log("values", values);
-              dispatch(
-                actionCreateOrderExchange(values, createOrderExchangeCallback)
-              );
-            }
-          }
-        }
-      }
-    }
+
+    return values;
   };
 
   const checkPointfocus = (value: any) => {
@@ -756,7 +771,9 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const createFulFillmentRequest = (value: OrderRequest) => {
+    console.log("value111", value);
     let shipmentRequest = createShipmentRequest(value);
+    console.log("shipmentRequest", shipmentRequest);
     let request: FulFillmentRequest = {
       store_id: value.store_id,
       account_code: userReducer.account?.code,
@@ -895,15 +912,15 @@ const ScreenReturnCreate = (props: PropType) => {
                   />
                 )}
                 {isExchange && isStepExchange && (
-                  <CardReturnShipment
-                    setShipmentMethod={setShipmentMethod}
+                  <CardShipment
+                    setShipmentMethodProps={setShipmentMethod}
                     shipmentMethod={shipmentMethod}
                     storeDetail={storeDetail}
                     setShippingFeeInformedCustomer={setShippingFeeCustomer}
                     setShippingFeeInformedCustomerHVC={
                       setShippingFeeInformedCustomerHVC
                     }
-                    amount={getTotalPrice(listExchangeProducts)}
+                    amount={orderAmount}
                     setPaymentMethod={setPaymentMethod}
                     paymentMethod={paymentMethod}
                     shippingFeeCustomer={shippingFeeCustomer}
@@ -920,8 +937,34 @@ const ScreenReturnCreate = (props: PropType) => {
                     onPayments={setPayments}
                     fulfillments={fulfillments}
                     isCloneOrder={false}
-                    totalAmountReturnProducts={totalAmountReturnProducts}
                   />
+                  // <CardReturnShipment
+                  //   setShipmentMethod={setShipmentMethod}
+                  //   shipmentMethod={shipmentMethod}
+                  //   storeDetail={storeDetail}
+                  //   setShippingFeeInformedCustomer={setShippingFeeCustomer}
+                  //   setShippingFeeInformedCustomerHVC={
+                  //     setShippingFeeInformedCustomerHVC
+                  //   }
+                  //   amount={getTotalPrice(listExchangeProducts)}
+                  //   setPaymentMethod={setPaymentMethod}
+                  //   paymentMethod={paymentMethod}
+                  //   shippingFeeCustomer={shippingFeeCustomer}
+                  //   shippingFeeCustomerHVC={shippingFeeInformedCustomerHVC}
+                  //   customerInfo={customer}
+                  //   items={listExchangeProducts}
+                  //   discountValue={discountValue}
+                  //   setOfficeTime={setOfficeTime}
+                  //   officeTime={officeTime}
+                  //   setServiceType={setServiceType}
+                  //   setHVC={setHvc}
+                  //   setFee={setFee}
+                  //   payments={payments}
+                  //   onPayments={setPayments}
+                  //   fulfillments={fulfillments}
+                  //   isCloneOrder={false}
+                  //   totalAmountReturnProducts={totalAmountReturnProducts}
+                  // />
                 )}
                 <CardReturnReceiveProducts
                   isDetailPage={false}

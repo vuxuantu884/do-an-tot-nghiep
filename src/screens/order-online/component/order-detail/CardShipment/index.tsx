@@ -54,8 +54,8 @@ type CardShipmentProps = {
   setPaymentMethod: (value: number) => void;
   setHVC: (value: number) => void;
   setOfficeTime: (value: boolean) => void;
-  serviceType?: string |null;
-  setServiceType: (value: string) => void;
+  serviceType?: string | null;
+  setServiceType: (value?: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
   paymentMethod: number;
@@ -101,7 +101,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
     onPayments,
     fulfillments,
     isCloneOrder,
-    levelOrder = 0
+    levelOrder = 0,
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
@@ -109,6 +109,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const [addressError, setAddressError] = useState<string>("");
 
   const ShipMethodOnChange = (value: number) => {
+    setServiceType(undefined);
     setShipmentMethodProps(value);
     setPaymentMethod(value);
     setShipmentMethodProps(value);
@@ -141,8 +142,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
     item: any,
     fee: number
   ) => {
-    console.log('changeServiceType', item);
-    
+    console.log("changeServiceType", item);
+
     setHVC(id);
     setServiceType(item);
     setFee(fee);
@@ -188,11 +189,16 @@ const CardShipment: React.FC<CardShipmentProps> = (
 
   useEffect(() => {
     if (!storeDetail) {
-      setAddressError("Thiếu thông tin địa chỉ cửa hàng")
+      setAddressError("Thiếu thông tin địa chỉ cửa hàng");
     }
-    if (customerInfo && storeDetail
-      && (getShippingAddressDefault(customerInfo)?.city_id || getShippingAddressDefault(customerInfo)?.district_id)
-      && getShippingAddressDefault(customerInfo)?.ward_id && getShippingAddressDefault(customerInfo)?.full_address) {
+    if (
+      customerInfo &&
+      storeDetail &&
+      (getShippingAddressDefault(customerInfo)?.city_id ||
+        getShippingAddressDefault(customerInfo)?.district_id) &&
+      getShippingAddressDefault(customerInfo)?.ward_id &&
+      getShippingAddressDefault(customerInfo)?.full_address
+    ) {
       let request = {
         from_city_id: storeDetail?.city_id,
         from_city: storeDetail?.city_name,
@@ -218,13 +224,13 @@ const CardShipment: React.FC<CardShipmentProps> = (
         option: "",
         insurance: 0,
         coupon: "",
-        cod: 0
+        cod: 0,
       };
       console.log("request", request);
-      setAddressError("")
+      setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      setAddressError("Thiếu thông tin địa chỉ khách hàng")
+      setAddressError("Thiếu thông tin địa chỉ khách hàng");
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
@@ -237,7 +243,9 @@ const CardShipment: React.FC<CardShipmentProps> = (
               <div
                 className="saleorder_shipment_button"
                 key={button.value}
-                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
+                onClick={() =>
+                  levelOrder < 4 && ShipMethodOnChange(button.value)
+                }
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
