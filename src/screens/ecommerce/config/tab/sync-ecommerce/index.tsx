@@ -11,6 +11,7 @@ import { useHistory } from "react-router-dom";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import moment from "moment";
 
+
 const iconMap: any = {
   shopee: shopeeIcon,
   lazada: lazadaIcon,
@@ -20,12 +21,14 @@ const iconMap: any = {
 type SyncEcommerceProps = {
   configData: any;
   setConfigToView: (value: EcommerceResponse) => void;
+  reloadConfigData: () => void;
+  showDeleteModal: (value: EcommerceResponse) => void
 };
 
 const SyncEcommerce: React.FC<SyncEcommerceProps> = (
   props: SyncEcommerceProps
 ) => {
-  const { configData, setConfigToView } = props;
+  const { configData, setConfigToView, showDeleteModal } = props;
   const history = useHistory();
   const [activatedBtn, setActivatedBtn] = React.useState({
     title: "",
@@ -34,12 +37,15 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     isActive: "",
     key: 1,
   });
+
   const handleUpdate = (item: any) => {
     setConfigToView(item);
     history.replace(`${history.location.pathname}#setting`);
   };
 
-  const handleDisconnect = () => {};
+  const handleShowDeleteModal = (item: EcommerceResponse) => {
+    showDeleteModal(item)
+  }
 
   const [columns] = useState<any>([
     {
@@ -97,7 +103,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
         return <span>{moment.unix(v.auth_time).format("DD/MM/YYYY HH:mm:ss")}</span>;
       },
     },
-    actionColumn(handleUpdate, handleDisconnect),
+    actionColumn(handleUpdate, handleShowDeleteModal),
   ]);
 
   const [buttons] = useState<Array<any>>([
