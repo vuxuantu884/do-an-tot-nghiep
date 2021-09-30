@@ -50,6 +50,7 @@ type PaymentCardUpdateProps = {
   showPartialPayment?: boolean;
   isVisibleUpdatePayment: boolean;
   amount: any;
+  disabled?: boolean;
 };
 
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
@@ -259,6 +260,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   value={props.paymentMethod}
                   onChange={(e) => changePaymentMethod(e.target.value)}
                   style={{ margin: "18px 0" }}
+                  disabled={props.disabled}
                 >
                   <Space size={20}>
                     <Radio value={PaymentMethodOption.COD}>COD</Radio>

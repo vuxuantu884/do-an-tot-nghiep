@@ -609,7 +609,7 @@ const ListOrderScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}/list?${queryParam}`);
+      history.replace(`${UrlConfig.ORDER}?${queryParam}`);
     },
     [history, params]
   );
@@ -619,8 +619,8 @@ const ListOrderScreen: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      // console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
-      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
+      // console.log("filter start", `${UrlConfig.ORDER}?${queryParam}`);
+      history.push(`${UrlConfig.ORDER}?${queryParam}`);
     },
     [history, params]
   );
