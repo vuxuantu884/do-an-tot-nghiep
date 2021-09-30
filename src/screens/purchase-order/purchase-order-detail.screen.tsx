@@ -244,7 +244,7 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
-    history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
+    history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
       params: poData,
       listCountries: listCountries,
       listDistrict: listDistrict,
@@ -270,7 +270,10 @@ const PODetailScreen: React.FC = () => {
       subTitle = "",
       okText = "Đồng ý",
       cancelText = "Hủy",
-      deleteFunc = onCancel;
+      deleteFunc = onCancel,
+      handleCancel= ()=>{setConfirmDelete(false);
+      };
+
     if (!poData) return;
     const { receipt_quantity, total_paid } = poData;
     if (!receipt_quantity && total_paid && total_paid > 0) {
@@ -279,20 +282,37 @@ const PODetailScreen: React.FC = () => {
       okText = "Tạo hoàn tiền";
       cancelText = "Hủy đơn hàng";
       deleteFunc = redirectToReturn;
+      handleCancel = () => {
+        onCancel();
+        setConfirmDelete(false);
+      };
     }
-
-    return (
-      <ModalDeleteConfirm
-        onCancel={() => setConfirmDelete(false)}
-        onOk={() => {
+    const footer = [
+      <Button key="back" onClick={handleCancel}>
+        {cancelText}
+      </Button>,
+      <Button
+        key="ok"
+        onClick={() => {
           setConfirmDelete(false);
           deleteFunc();
+        }}
+        type="primary"
+      >
+        {okText}
+      </Button>,
+    ];
+    return (
+      <ModalDeleteConfirm
+        onCancel={() => {
+          setConfirmDelete(false);
         }}
         okText={okText}
         cancelText={cancelText}
         title={title}
         subTitle={subTitle}
         visible={isConfirmDelete}
+        footer={footer}
       />
     );
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
