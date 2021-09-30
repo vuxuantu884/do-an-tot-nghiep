@@ -572,21 +572,44 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end product ---*/}
 
-              {customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
-                0 && (
-                <CardReturnMoney
-                  listPaymentMethods={listPaymentMethods}
-                  payments={[]}
-                  returnMoneyAmount={Math.abs(
-                    customerNeedToPayValue -
-                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-                  )}
-                  isShowPaymentMethod={true}
-                  setIsShowPaymentMethod={() => {}}
-                  handleReturnMoney={handleReturnMoney}
-                />
-              )}
+              {OrderDetail?.order_return_origin?.items &&
+                customerNeedToPayValue -
+                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                  0 && (
+                  <CardReturnMoney
+                    listPaymentMethods={listPaymentMethods}
+                    payments={[]}
+                    returnMoneyAmount={Math.abs(
+                      customerNeedToPayValue -
+                        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                    )}
+                    isShowPaymentMethod={true}
+                    setIsShowPaymentMethod={() => {}}
+                    handleReturnMoney={handleReturnMoney}
+                  />
+                )}
+
+              {/*--- shipment ---*/}
+              <UpdateShipmentCard
+                shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+                setVisibleUpdatePayment={setVisibleUpdatePayment}
+                setShipmentMethod={setShipmentMethod}
+                setPaymentType={setPaymentType}
+                setOfficeTime={setOfficeTime}
+                setVisibleShipping={setVisibleShipping}
+                OrderDetail={OrderDetail}
+                customerDetail={customerDetail}
+                storeDetail={storeDetail}
+                stepsStatusValue={stepsStatusValue}
+                totalPaid={totalPaid}
+                officeTime={officeTime}
+                shipmentMethod={shipmentMethod}
+                isVisibleShipping={isVisibleShipping}
+                paymentType={paymentType}
+                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+                orderSettings={orderSettings}
+              />
+              {/*--- end shipment ---*/}
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
@@ -1047,29 +1070,6 @@ const OrderDetail = (props: PropType) => {
                 )}
 
               {/*--- end payment ---*/}
-
-              {/*--- shipment ---*/}
-              <UpdateShipmentCard
-                shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
-                setVisibleUpdatePayment={setVisibleUpdatePayment}
-                setShipmentMethod={setShipmentMethod}
-                setPaymentType={setPaymentType}
-                setOfficeTime={setOfficeTime}
-                setVisibleShipping={setVisibleShipping}
-                OrderDetail={OrderDetail}
-                customerDetail={customerDetail}
-                storeDetail={storeDetail}
-                stepsStatusValue={stepsStatusValue}
-                totalPaid={totalPaid}
-                officeTime={officeTime}
-                shipmentMethod={shipmentMethod}
-                isVisibleShipping={isVisibleShipping}
-                paymentType={paymentType}
-                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
-                orderSettings={orderSettings}
-              />
-
-              {/*--- end shipment ---*/}
             </Col>
 
             <Col md={6}>

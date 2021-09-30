@@ -107,7 +107,7 @@ const ScreenReturnCreate = (props: PropType) => {
   );
 
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [orderAmount] = useState<number>(0);
+
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   const [tags, setTag] = useState<string>("");
@@ -224,6 +224,8 @@ const ScreenReturnCreate = (props: PropType) => {
     });
     return total;
   };
+
+  const orderAmount = getTotalPrice(listExchangeProducts);
 
   /**
    * if return > exchange: positive
@@ -358,6 +360,15 @@ const ScreenReturnCreate = (props: PropType) => {
     }
   };
 
+  const focusOnElement = (element: HTMLElement | null) => {
+    if (element) {
+      element?.focus();
+      const offsetY =
+        element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+      window.scrollTo({ top: offsetY, behavior: "smooth" });
+    }
+  };
+
   const onReturn = () => {
     let checkIfHasReturnProduct = listReturnProducts.some((single) => {
       return single.quantity > 0;
@@ -365,10 +376,7 @@ const ScreenReturnCreate = (props: PropType) => {
     if (!checkIfHasReturnProduct) {
       showError("Vui lòng chọn ít nhất 1 sản phẩm");
       const element: any = document.getElementById("search_product");
-      const offsetY =
-        element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-      window.scrollTo({ top: offsetY, behavior: "smooth" });
-      element?.focus();
+      focusOnElement(element);
       return;
     }
 
@@ -385,10 +393,7 @@ const ScreenReturnCreate = (props: PropType) => {
         const element: any = document.getElementById(
           error.errorFields[0].name.join("")
         );
-        element?.focus();
-        const offsetY =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-        window.scrollTo({ top: offsetY, behavior: "smooth" });
+        focusOnElement(element);
       });
   };
 
@@ -403,14 +408,13 @@ const ScreenReturnCreate = (props: PropType) => {
         if (!checkIfHasReturnProduct) {
           showError("Vui lòng chọn ít nhất 1 sản phẩm");
           const element: any = document.getElementById("search_product");
-          const offsetY =
-            element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-          window.scrollTo({ top: offsetY, behavior: "smooth" });
-          element?.focus();
+          focusOnElement(element);
           return;
         } else {
           if (isReceivedReturnProducts) {
             setIsStepExchange(value);
+            const element: any = document.getElementById("store_id");
+            focusOnElement(element);
           } else {
             setIsVisibleModalWarning(true);
           }
@@ -513,17 +517,17 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đối tác giao hàng");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    dispatch(
-                      actionCreateOrderReturn(orderDetailResult, (response) => {
-                        valuesResult.order_return_id = response.id;
-                        dispatch(
-                          actionCreateOrderExchange(
-                            valuesResult,
-                            createOrderExchangeCallback
-                          )
-                        );
-                      })
-                    );
+                    // dispatch(
+                    //   actionCreateOrderReturn(orderDetailResult, (response) => {
+                    //     valuesResult.order_return_id = response.id;
+                    //     dispatch(
+                    //       actionCreateOrderExchange(
+                    //         valuesResult,
+                    //         createOrderExchangeCallback
+                    //       )
+                    //     );
+                    //   })
+                    // );
                   }
                 } else {
                   if (
@@ -533,17 +537,17 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đơn vị vận chuyển");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    dispatch(
-                      actionCreateOrderReturn(orderDetailResult, (response) => {
-                        valuesResult.order_return_id = response.id;
-                        dispatch(
-                          actionCreateOrderExchange(
-                            valuesResult,
-                            createOrderExchangeCallback
-                          )
-                        );
-                      })
-                    );
+                    // dispatch(
+                    //   actionCreateOrderReturn(orderDetailResult, (response) => {
+                    //     valuesResult.order_return_id = response.id;
+                    //     dispatch(
+                    //       actionCreateOrderExchange(
+                    //         valuesResult,
+                    //         createOrderExchangeCallback
+                    //       )
+                    //     );
+                    //   })
+                    // );
                   }
                 }
               }
@@ -937,6 +941,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     onPayments={setPayments}
                     fulfillments={fulfillments}
                     isCloneOrder={false}
+                    totalAmountReturnProducts={totalAmountReturnProducts}
                   />
                   // <CardReturnShipment
                   //   setShipmentMethod={setShipmentMethod}
@@ -1005,6 +1010,8 @@ const ScreenReturnCreate = (props: PropType) => {
                 onReturnAndExchange();
               } else {
                 setIsStepExchange(true);
+                const element: any = document.getElementById("store_id");
+                focusOnElement(element);
               }
             }
             setIsVisibleModalWarning(false);
