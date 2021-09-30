@@ -654,17 +654,15 @@ export default function Order(props: PropType) {
                 newShipperCode =
                   response.fulfillments[0]?.shipment?.shipper_code;
               }
+              if (response.fulfillments[0].shipment?.cod) {
+                // setPaymentMethod(PaymentMethodOption.COD);
+              } else if (response.payments && response.payments?.length > 0) {
+                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
+                new_payments = response.payments;
+                setPayments(new_payments);
+              }
             }
-            if (
-              response.fulfillments &&
-              response.fulfillments[0].shipment?.cod
-            ) {
-              setPaymentMethod(PaymentMethodOption.COD);
-            } else if (response.payments && response.payments?.length > 0) {
-              setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-              new_payments = response.payments;
-              setPayments(new_payments);
-            }
+            
             setItems(responseItems);
             setOrderAmount(
               response.total -
