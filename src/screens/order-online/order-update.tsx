@@ -791,7 +791,7 @@ export default function Order(props: PropType) {
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 0
+        ? totalAmountPayable
         : (rank.limit_order_percent * totalAmountPayable) / 100;
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
