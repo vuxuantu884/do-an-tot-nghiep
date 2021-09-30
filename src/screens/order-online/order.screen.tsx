@@ -127,7 +127,8 @@ export default function Order() {
     cauHinhInNhieuLienHoaDon: 1,
   });
 
-  const [inventoryResponse,setInventoryResponse] = useState<Array<InventoryResponse>|null>(null);
+  const [inventoryResponse, setInventoryResponse] =
+    useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
   const queryParams = useQuery();
@@ -497,9 +498,9 @@ export default function Order() {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            if(checkInventory()){
-              let bolCheckPointfocus=checkPointfocus(values);
-              if(bolCheckPointfocus)
+            if (checkInventory()) {
+              let bolCheckPointfocus = checkPointfocus(values);
+              if (bolCheckPointfocus)
                 dispatch(orderCreateAction(values, createOrderCallback));
             }
           }
@@ -720,7 +721,7 @@ export default function Order() {
         setPayments([]);
         console.log("initialRequest", initialRequest);
         setInitialForm({
-          ...initialRequest
+          ...initialRequest,
         });
         setOfficeTime(false);
         setStoreId(null);
@@ -758,7 +759,11 @@ export default function Order() {
       );
 
       let rank = loyaltyUsageRules.find(
-        (x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id)
+        (x) =>
+          x.rank_id ===
+          (loyaltyPoint?.loyalty_level_id === null
+            ? 0
+            : loyaltyPoint?.loyalty_level_id)
       );
 
       let curenPoint = !loyaltyPoint
@@ -784,11 +789,8 @@ export default function Order() {
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
-      if(!loyaltyPoint || limitAmountPointFocus===0)
-      {
-        showError(
-          "Khách hàng đang không được áp dụng chương trình tiêu điểm"
-        );
+      if (!loyaltyPoint || limitAmountPointFocus === 0) {
+        showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
       if (
@@ -814,29 +816,42 @@ export default function Order() {
       }
       return true;
     },
-    [loyaltyPoint, loyaltyUsageRules, payments,discountValue,orderAmount,shippingFeeCustomer]
+    [
+      loyaltyPoint,
+      loyaltyUsageRules,
+      payments,
+      discountValue,
+      orderAmount,
+      shippingFeeCustomer,
+    ]
   );
 
-  const checkInventory=()=>{
-    let status=true;
-    if (inventoryResponse && inventoryResponse.length && items && items!=null) {
-      let productItem=null;
+  const checkInventory = () => {
+    let status = true;
+    if (
+      inventoryResponse &&
+      inventoryResponse.length &&
+      items &&
+      items != null
+    ) {
+      let productItem = null;
       let newData: Array<InventoryResponse> = [];
-      newData = inventoryResponse.filter((store) => store.store_id===storeId);
+      newData = inventoryResponse.filter((store) => store.store_id === storeId);
       newData.forEach(function (value) {
-         productItem = items.find(
-          (x: any) => x.variant_id === value.variant_id
-        );
-        if(((value.available?value.available:0)<=0 || (productItem?productItem?.quantity:0) > (value.available?value.available:0)) && configOrder?.sellable_inventory !== true )
-        {
-          status=false;
+        productItem = items.find((x: any) => x.variant_id === value.variant_id);
+        if (
+          ((value.available ? value.available : 0) <= 0 ||
+            (productItem ? productItem?.quantity : 0) >
+              (value.available ? value.available : 0)) &&
+          configOrder?.sellable_inventory !== true
+        ) {
+          status = false;
           showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
     }
     return status;
-  }
-
+  };
 
   useEffect(() => {
     formRef.current?.resetFields();
@@ -844,30 +859,36 @@ export default function Order() {
   }, [cloneIdParam, isCloneOrder]);
 
   useEffect(() => {
-    if(items && items!=null)
-    {
+    if (items && items != null) {
       let variant_id: Array<number> = [];
-      items.forEach(element => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsSaga(variant_id,null,setInventoryResponse));
+      items.forEach((element) => variant_id.push(element.variant_id));
+      dispatch(
+        inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse)
+      );
     }
-  }, [dispatch,items])
+  }, [dispatch, items]);
 
-  console.log(inventoryResponse)
+  console.log(inventoryResponse);
 
-  useEffect(()=>{
-    dispatch(configOrderSaga((data:OrderConfig)=>{
-        setConfigOrder(data)
-    }));
-},[dispatch]);
+  useEffect(() => {
+    dispatch(
+      configOrderSaga((data: OrderConfig) => {
+        setConfigOrder(data);
+      })
+    );
+  }, [dispatch]);
 
-const setStoreForm=useCallback((id:number|null)=>{
-  formRef.current?.setFieldsValue({ store_id: id});
-  // setInitialForm({
-  //   ...initialForm,
-  //   store_id: id
-  // });
-},[formRef]);
-  console.log(initialForm)
+  const setStoreForm = useCallback(
+    (id: number | null) => {
+      formRef.current?.setFieldsValue({ store_id: id });
+      // setInitialForm({
+      //   ...initialForm,
+      //   store_id: id
+      // });
+    },
+    [formRef]
+  );
+  console.log(initialForm);
   return (
     <React.Fragment>
       <ContentContainer
