@@ -146,7 +146,7 @@ const ListOrderScreen: React.FC = () => {
             // onClick={() => shipmentDetailModal(record)}
             className="name p-b-3" style={{ color: "#2A2A86" }}
           >
-            {record.code_order_return}
+            <Link target="_blank" to={`${UrlConfig.ORDERS_RETURN}/${record.id}`}>{record.code_order_return}</Link>
           </div>
           <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
         </div>
