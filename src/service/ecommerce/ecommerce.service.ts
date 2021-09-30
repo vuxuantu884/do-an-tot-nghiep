@@ -86,6 +86,12 @@ const ecommercePostSyncStockItemApi = (requestBody: any): Promise<BaseResponse<a
   return BaseAxios.post(link, requestBody);
 };
 
+const ecommerceGetCategoryListApi = (query: any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/categories?${params}`;
+  return BaseAxios.get(link);
+};
+
 
 export {
   ecommerceCreateApi,
@@ -100,5 +106,6 @@ export {
   ecommercePostVariantsApi,
   ecommerceDeleteItemApi,
   ecommerceDisconnectItemApi,
-  ecommercePostSyncStockItemApi
+  ecommercePostSyncStockItemApi,
+  ecommerceGetCategoryListApi
 };

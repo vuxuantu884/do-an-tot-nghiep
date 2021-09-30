@@ -26,8 +26,15 @@ export const StyledEcommerceList = styled.div`
       margin-right: 10px;
     }
   }
+
   .active-button {
     background-color: #f3f3ff;
     color: #222222;
   }
+
+  .icon-active-button {
+    margin-left: 5px;
+    margin-right: 0 !important;
+  }
+
 `;
