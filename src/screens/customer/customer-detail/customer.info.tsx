@@ -1,9 +1,8 @@
-import { Row, Col, Card, Collapse, Tag } from "antd";
+import { Row, Col, Card, Tag } from "antd";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-
-const { Panel } = Collapse;
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import arrowLeft from "assets/icon/arrow-left.svg";
 
 const genreEnum: any = {
   male: "Nam",
@@ -17,35 +16,35 @@ function CustomerInfo(props: any) {
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
   ) as any;
+  const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
       details = [
         {
-          name: "Họ tên khách hàng",
+          name: "Tên khách hàng",
           value: customer.full_name,
           position: "left",
-          key: "10",
+          key: "1",
         },
-
         {
-          name: "Giới tính",
-          value: genreEnum[customer.gender],
+          name: "Mã khách hàng",
+          value: customer.code,
           position: "right",
-          key: "11",
+          key: "2",
         },
         {
           name: "Số điện thoại",
           value: customer.phone,
           position: "left",
-          key: "12",
+          key: "3",
         },
         {
-          name: "Loại khách hàng",
-          value: customer.customer_type,
+          name: "Thẻ khách hàng",
+          value: customer.card_number,
           position: "right",
-          key: "13",
+          key: "4",
         },
         {
           name: "Ngày sinh",
@@ -53,13 +52,13 @@ function CustomerInfo(props: any) {
             ? ConvertUtcToLocalDate(customer.birthday, DATE_FORMAT.DDMMYYY)
             : null,
           position: "left",
-          key: "14",
+          key: "5",
         },
         {
-          name: "Nhóm khách hàng",
-          value: customer.customer_group,
+          name: "Giới tính",
+          value: genreEnum[customer.gender],
           position: "right",
-          key: "15",
+          key: "6",
         },
       ];
     }
@@ -69,10 +68,24 @@ function CustomerInfo(props: any) {
     let details: any = [];
     if (customer) {
       details = [
-        // {
-        //   name: "Giới tính",
-        //   value: customer.gender === "male" ? "Nam" : "Nữ",
-        // },
+        {
+          name: "Nhóm khách hàng",
+          value: customer.customer_group,
+          position: "left",
+          key: "11",
+        },
+        {
+          name: "Email",
+          value: customer.email,
+          position: "right",
+          key: "2",
+        },
+        {
+          name: "Loại khách hàng",
+          value: customer.customer_type,
+          position: "left",
+          key: "10",
+        },
         {
           name: "Nhân viên phụ trách",
           value: `${
@@ -85,18 +98,8 @@ function CustomerInfo(props: any) {
           position: "right",
           key: "1",
         },
-        {
-          name: "Email",
-          value: customer.email,
-          position: "left",
-          key: "2",
-        },
-        {
-          name: "Mã khách hàng",
-          value: customer.code,
-          position: "right",
-          key: "3",
-        },
+        
+        
         {
           name: "Ngày cưới",
           value: customer.wedding_date
@@ -146,19 +149,19 @@ function CustomerInfo(props: any) {
   }, [customer, setCustomerDetailCollapse]);
 
   const handleLinkClick = React.useCallback((detail: any) => {
-    let link = ""
-    if(!detail?.value.includes("https://")){
-      link = `https://${detail.value}`
-    }else{
-      link = `${detail.value}`
+    let link = "";
+    if (!detail?.value.includes("https://")) {
+      link = `https://${detail.value}`;
+    } else {
+      link = `${detail.value}`;
     }
     window.open(link, "_blank");
-  },[])
+  }, []);
   return (
     <Card
       className="customer-information-card"
       title={
-        <div  style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <span className="title-card">THÔNG TIN CÁ NHÂN</span>
           {customer && customer.status === "active" ? (
             <Tag
@@ -191,7 +194,11 @@ function CustomerInfo(props: any) {
           )}
         </div>
       }
-      extra={[<Link key={params.id} to={`/customers/${params.id}/edit`}>Cập nhật</Link>]}
+      extra={[
+        <Link key={params.id} to={`/customers/${params.id}/edit`}>
+          Cập nhật
+        </Link>,
+      ]}
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>
@@ -216,7 +223,7 @@ function CustomerInfo(props: any) {
                       padding: "0 4px 0 15px",
                     }}
                   >
-                    <span>{detail.name}</span>
+                    <span style={{color: "#666666"}}>{detail.name}</span>
                     <span style={{ fontWeight: 600 }}>:</span>
                   </Col>
                   <Col span={12} style={{ paddingLeft: 0 }}>
@@ -254,7 +261,7 @@ function CustomerInfo(props: any) {
                       padding: "0 4px 0 15px",
                     }}
                   >
-                    <span>{detail.name}</span>
+                    <span style={{color: "#666666"}}>{detail.name}</span>
                     <span style={{ fontWeight: 600 }}>:</span>
                   </Col>
                   <Col span={12} style={{ paddingLeft: 0 }}>
@@ -271,104 +278,148 @@ function CustomerInfo(props: any) {
               ))}
         </Col>
       </Row>
-      <Row style={{ marginBottom: 16 }}>
-        <Col span={24}>
-          <Collapse ghost>
-            <Panel
-              key="1"
-              header={[<span key="1" style={{ color: "#5656A1" }}>Xem thêm</span>]}
-            >
-              <Row gutter={30}>
-                <Col span={12}>
-                  {customerDetailCollapse &&
-                    customerDetailCollapse
-                      .filter((detail: any) => detail.position === "left")
-                      .map((detail: any, index: number) => (
-                        <Col
-                          key={detail.key}
-                          span={24}
-                          style={{
-                            display: "flex",
-                            marginBottom: 10,
-                            color: "#222222",
-                          }}
-                        >
-                          <Col
-                            span={12}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              padding: "0 4px 0 15px",
-                            }}
-                          >
-                            <span>{detail.name}</span>
-                            <span style={{ fontWeight: 600 }}>:</span>
-                          </Col>
-                          <Col span={12} style={{ paddingLeft: 0 }}>
+      {!showDetail && (
+        <Row gutter={30}>
+          <Col span={12}>
+            {customerDetailCollapse &&
+              customerDetailCollapse
+                .filter((detail: any) => detail.position === "left")
+                .map((detail: any, index: number) => (
+                  <Col
+                    key={detail.key}
+                    span={24}
+                    style={{
+                      display: "flex",
+                      marginBottom: 10,
+                      color: "#222222",
+                    }}
+                  >
+                    <Col
+                      span={12}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "0 4px 0 15px",
+                      }}
+                    >
+                      <span style={{color: "#666666"}}>{detail.name}</span>
+                      <span style={{ fontWeight: 600 }}>:</span>
+                    </Col>
+                    <Col span={12} style={{ paddingLeft: 0 }}>
+                      <span
+                        style={{
+                          wordWrap: "break-word",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {detail.value ? detail.value : "---"}
+                      </span>
+                    </Col>
+                  </Col>
+                ))}
+          </Col>
+          <Col span={12}>
+            {customerDetailCollapse &&
+              customerDetailCollapse
+                .filter((detail: any) => detail.position === "right")
+                .map((detail: any, index: number) => (
+                  <Col
+                    key={detail.key}
+                    span={24}
+                    style={{
+                      display: "flex",
+                      marginBottom: 10,
+                      color: "#222222",
+                    }}
+                  >
+                    <Col
+                      span={12}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "0 4px 0 15px",
+                      }}
+                    >
+                      <span style={{color: "#666666"}}>{detail.name}</span>
+                      <span style={{ fontWeight: 600 }}>:</span>
+                    </Col>
+                    <Col span={12} style={{ paddingLeft: 0 }}>
+                      <span
+                        style={{
+                          wordWrap: "break-word",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {detail.isWebsite ? (
+                          detail.value ? (
                             <span
-                              style={{
-                                wordWrap: "break-word",
-                                fontWeight: 500,
-                              }}
+                              style={{ color: "#2a2a86", cursor: "pointer" }}
+                              onClick={() => handleLinkClick(detail)}
                             >
-                              {detail.value ? detail.value : "---"}
+                              {detail.value}
                             </span>
-                          </Col>
-                        </Col>
-                      ))}
-                </Col>
-                <Col span={12}>
-                  {customerDetailCollapse &&
-                    customerDetailCollapse
-                      .filter((detail: any) => detail.position === "right")
-                      .map((detail: any, index: number) => (
-                        <Col
-                          key={detail.key}
-                          span={24}
-                          style={{
-                            display: "flex",
-                            marginBottom: 10,
-                            color: "#222222",
-                          }}
-                        >
-                          <Col
-                            span={12}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              padding: "0 4px 0 15px",
-                            }}
-                          >
-                            <span>{detail.name}</span>
-                            <span style={{ fontWeight: 600 }}>:</span>
-                          </Col>
-                          <Col span={12} style={{ paddingLeft: 0 }}>
-                            <span
-                              style={{
-                                wordWrap: "break-word",
-                                fontWeight: 500,
-                              }}
-                            >
-                              {detail.isWebsite ? (
-                                detail.value ? (
-                                  <span style={{ color: "#2a2a86", cursor: "pointer"}} onClick={() => handleLinkClick(detail)}>{detail.value}</span>
-                                ) : (
-                                  "---"
-                                )
-                              ) : detail.value ? (
-                                detail.value
-                              ) : (
-                                "---"
-                              )}
-                            </span>
-                          </Col>
-                        </Col>
-                      ))}
-                </Col>
-              </Row>
-            </Panel>
-          </Collapse>
+                          ) : (
+                            "---"
+                          )
+                        ) : detail.value ? (
+                          detail.value
+                        ) : (
+                          "---"
+                        )}
+                      </span>
+                    </Col>
+                  </Col>
+                ))}
+          </Col>
+        </Row>
+      )}
+
+      <Row
+        style={{
+          padding: "0px 30px 10px 30px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Col span={4} style={{ cursor: "pointer" }}>
+          <div
+            style={{ flex: 1 }}
+            onClick={() => {
+              setShowDetail(!showDetail);
+            }}
+          >
+            <img
+              alt="arrow down"
+              src={arrowLeft}
+              style={
+                !showDetail
+                  ? { marginBottom: "3px", transform: "rotate(270deg)" }
+                  : { marginBottom: "3px" }
+              }
+            ></img>
+            <span style={{ marginLeft: "15px", color: "#5656A2" }}>
+              {showDetail ? "Xem thêm" : "Thu gọn"}
+            </span>
+          </div>
         </Col>
+        {showDetail && <Col
+          span={20}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              height: 0,
+              borderBottom: "1px dashed #E5E5E5",
+            }}
+          ></div>
+        </Col>}
+        
       </Row>
     </Card>
   );
