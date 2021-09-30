@@ -275,6 +275,9 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                 <div className="shortInformation__column">
                   <span className="text-field margin-right-10">Diễn giải:</span>
                   <span>
+                    <Form.Item name={POField.payment_note} noStyle hidden>
+                      <Input />
+                    </Form.Item>
                     <Form.Item
                       noStyle
                       shouldUpdate={(prev, current) =>

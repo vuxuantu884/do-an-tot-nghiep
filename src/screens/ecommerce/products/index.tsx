@@ -12,13 +12,18 @@ import TotalItemsEcommerce from "./tab/total-items-ecommerce";
 import ConnectedItems from "./tab/connected-items";
 import NotConnectedItems from "./tab/not-connected-items";
 
-import { getShopEcommerceList, postProductEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import {
+  getShopEcommerceList,
+  postProductEcommerceList,
+  getCategoryList
+} from "domain/actions/ecommerce/ecommerce.actions";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import checkCircleIcon from "assets/icon/check-circle.svg";
+import successIcon from "assets/icon/success_2.svg";
 
 import { StyledComponent, StyledEcommerceList } from "./styles";
 
@@ -29,6 +34,7 @@ const { RangePicker } = DatePicker;
 const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
+  
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
   const [isShowResultGetItemModal, setIsShowResultGetItemModal] = React.useState(false);
   const [totalGetItem, setTotalGetItem] = React.useState(0);
@@ -38,6 +44,7 @@ const Products: React.FC = () => {
   const [isEcommerceSelected, setIsEcommerceSelected] = React.useState(false);
   const [ecommerceSelected, setEcommerceSelected] = React.useState(0);
   const [ecommerceShopList, setEcommerceShopList] = React.useState<Array<any>>([]);
+  const [categoryList, setCategoryList] = React.useState<Array<any>>([]);
 
   const [shopIdSelected, setShopIdSelected] = React.useState(null);
   const [startDate, setStartDate] = React.useState<any>();
@@ -51,6 +58,16 @@ const Products: React.FC = () => {
   });
 
   const dispatch = useDispatch();
+
+  const updateCategoryData = React.useCallback((result) => {
+    if (!!result && result.items) {
+      setCategoryList(result.items);
+    }    
+  }, []);
+
+  useEffect(() => {
+    dispatch(getCategoryList({}, updateCategoryData));
+  }, [dispatch, updateCategoryData]);
 
   useEffect(() => {
     if (history.location.hash) {
@@ -87,20 +104,33 @@ const Products: React.FC = () => {
     setIsEcommerceSelected(false);
   };
 
-  
-  const convertDateToTimestamp = (date: any) => {
+  const convertStartDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
-    var newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
+    let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
+  }
+  
+  const convertEndDateToTimestamp = (date: any) => {
+    const myDate = date.split("/");
+    const today = new Date();
+    let time = "23:59:59";
+
+    if ((Number(myDate[0]) === Number(today.getDate())) &&
+        (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
+        (Number(myDate[2]) === Number(today.getFullYear()))
+      ) {
+      time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    }
+
+    const newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
+    const dateTime = newDate + " " + time;
+    return moment(new Date(dateTime)).unix();
   }
 
   const onChangeDate = (dates: any, dateStrings: any) => {
-
-    const startDate = convertDateToTimestamp(dateStrings[0]);
-    // const startDate = moment(new Date(dateStrings[0])).unix();
+    const startDate = convertStartDateToTimestamp(dateStrings[0]);
     setStartDate(startDate);
-    // const endDate = moment(new Date(dateStrings[1])).unix();
-    const endDate = convertDateToTimestamp(dateStrings[1]);
+    const endDate = convertEndDateToTimestamp(dateStrings[1]);
     setEndDate(endDate);
   };
 
@@ -122,6 +152,7 @@ const Products: React.FC = () => {
       update_time_from: startDate || null,
       update_time_to: endDate || null
     }
+    
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
 
@@ -229,15 +260,15 @@ const Products: React.FC = () => {
               }}
             >
               <TabPane tab="Tất cả sản phẩm" key="total-item">
-                <TotalItemsEcommerce />
+                <TotalItemsEcommerce categoryList={categoryList} />
               </TabPane>
 
               <TabPane tab="Sản phẩm đã ghép" key="connected-item">
-                <ConnectedItems />
+                <ConnectedItems categoryList={categoryList} />
               </TabPane>
               
               <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
-                <NotConnectedItems />
+                <NotConnectedItems categoryList={categoryList} />
               </TabPane>
             </Tabs>
           </Card>
@@ -253,6 +284,7 @@ const Products: React.FC = () => {
         onCancel={cancelGetItemModal}
         onOk={getProductsFromEcommerce}
         okButtonProps={{disabled: isDisableGetItemOkButton()}}
+        maskClosable={false}
       >
         <div style={{margin: "20px 0"}}>
           <Form
@@ -266,14 +298,15 @@ const Products: React.FC = () => {
               {ecommerceList.map((item) => (
                 <Button
                   key={item.id}
-                  className={
-                    item.id === activatedBtn?.id ? "active-button" : ""
-                  }
+                  className={item.id === activatedBtn?.id ? "active-button" : ""}
                   icon={item.icon && <img src={item.icon} alt={item.id} />}
                   type="ghost"
                   onClick={() => selectEcommerce(item)}
                 >
                   {item.title}
+                  {item.id === activatedBtn?.id &&
+                    <img src={successIcon} className="icon-active-button" alt="" />
+                  }
                 </Button>
               ))}
             </StyledEcommerceList>

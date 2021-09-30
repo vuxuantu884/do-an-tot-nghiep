@@ -30,7 +30,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
               icon={<img style={{ marginRight: 12 }} alt="" src={lockIcon} />}
               type="text"
               className=""
-              onClick={handleDelete}
+              onClick={() => handleDelete(item)}
             >
               Ngắt kết nối
             </Button>

@@ -238,10 +238,10 @@ const TabProduct: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {...values, page: 1 };
       setPrams(newPrams);
     },
-    [params]
+    []
   );
 
   const onResultUpdateSaleable = useCallback(
@@ -332,6 +332,7 @@ const TabProduct: React.FC = () => {
         dispatch(
           variantUpdateAction(variantResponse.id, variantRequest, (result) => {
             dispatch(hideLoading());
+            console.log(result);
           })
         );
       }

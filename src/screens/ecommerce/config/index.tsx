@@ -25,6 +25,10 @@ import {
   ecommerceConnectAction,
   ecommerceConfigInfoAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
+import EcommerceModal from "screens/ecommerce/common/ecommerce-custom-modal";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import { showSuccess } from "utils/ToastUtils";
+import {ecommerceConfigDeleteAction} from "domain/actions/ecommerce/ecommerce.actions"
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
@@ -42,12 +46,42 @@ const EcommerceConfig: React.FC = () => {
   const [configData, setConfigData] = React.useState<Array<EcommerceResponse>>(
     []
   );
-  const [configToView, setConfigToView] = React.useState<EcommerceResponse>();
+  const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false)
+  const [configToView, setConfigToView] = React.useState<EcommerceResponse | undefined>();
   const [initQueryConnect] = React.useState<EcommerceSearchQuery>({
     shop_id: connectQuery.get("shop_id"),
     code: connectQuery.get("code"),
   });
   const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse  | undefined>() 
+  const [modalShopInfo, setModalShopInfo] = React.useState<EcommerceResponse>()
+
+  const reloadConfigData = React.useCallback(() => {
+    dispatch(ecommerceConfigGetAction(setConfigData))
+  }, [dispatch])
+
+  const handleShowDeleteModal = (item: any) => {
+    setModalShopInfo(item)
+    setIsShowDeleteModal(true)
+  }
+  const deleteCallback = React.useCallback((value: any) => {
+    if(value) {
+      showSuccess("Xóa gian hàng thành công")
+      reloadConfigData()
+      setConfigToView(undefined);
+      history.replace(`${history.location.pathname}#sync`);
+    }
+  },[reloadConfigData, history])
+
+  const onOkDeleteEcommerce = React.useCallback(() => {
+    setIsShowDeleteModal(false)
+    if(modalShopInfo) dispatch(ecommerceConfigDeleteAction(modalShopInfo?.id, deleteCallback))
+  },[deleteCallback, dispatch, modalShopInfo])
+
+
+  const storeChangeSearch = React.useCallback(() => {
+    
+  },[])
+
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -88,9 +122,7 @@ const EcommerceConfig: React.FC = () => {
   React.useEffect(() => {
     dispatch(ecommerceConfigGetAction(setConfigData));
   }, [dispatch]);
-  const reloadConfigData = () => {
-    dispatch(ecommerceConfigGetAction(setConfigData));
-  };
+  
   const accountChangeSearch = React.useCallback(
     (value) => {
       initQueryAccount.info = value;
@@ -170,6 +202,8 @@ const EcommerceConfig: React.FC = () => {
               <SyncEcommerce
                 configData={configData}
                 setConfigToView={setConfigToView}
+                reloadConfigData={reloadConfigData}
+                showDeleteModal={handleShowDeleteModal}
               />
             </TabPane>
             <TabPane tab="Cài đặt cấu hình" key="setting">
@@ -184,10 +218,22 @@ const EcommerceConfig: React.FC = () => {
                 setConfigToView={setConfigToView}
                 configFromEcommerce={configFromEcommerce}
                 setConfigFromEcommerce={setConfigFromEcommerce}
+                showDeleteModal={handleShowDeleteModal}
+                storeChangeSearch={storeChangeSearch}
               />
             </TabPane>
           </Tabs>
         </Card>
+        <EcommerceModal
+          onCancel={() => setIsShowDeleteModal(false)}
+          onOk={onOkDeleteEcommerce}
+          visible={isShowDeleteModal}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          title=""
+          text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
+          icon={DeleteIcon}
+        />
       </StyledComponent>
     </ContentContainer>
   );

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space, Dropdown, Menu } from "antd";
+import { SearchOutlined, DownOutlined } from "@ant-design/icons";
 
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
+import { formatCurrency } from "utils/AppUtils";
 import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
 import UrlConfig from "config/url.config";
 
@@ -33,7 +34,16 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent } from "./styles";
 
-const ConnectedItems = () => {
+  
+type ConnectedItemsProps = {
+  categoryList?: Array<any>
+};
+
+const ConnectedItems: React.FC<ConnectedItemsProps> = (
+  props: ConnectedItemsProps
+) => {
+
+  const { categoryList } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -261,7 +271,7 @@ const ConnectedItems = () => {
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_price || "-"}</span>
+          <span>{l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}</span>
         );
       },
     },
@@ -440,47 +450,11 @@ const ConnectedItems = () => {
     }
   ]
 
-  const ACTION_LIST = [
-    {
-      id: 1,
-      name: "Đồng bộ tồn kho lên sàn",
-      value: "syncStock"
-    },
-    {
-      id: 2,
-      name: "Xóa sản phẩm lấy về",
-      value: "deleteItem"
-    },
-    {
-      id: 3,
-      name: "Hủy liên kết",
-      value: "disconnectItem"
-    }
-  ]
-
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
+
   const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
-  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
-  
-  //thai fake data 
-  const CATEGORY = [
-    {
-      id: 1,
-      name: "category 1",
-      value: "category_1"
-    },
-    {
-      id: 2,
-      name: "category 2",
-      value: "category_2"
-    }
-  ]
-
-
-  
-  ////////////////////
 
   const onFilterClick = React.useCallback(() => {
     setVisibleFilter(false);
@@ -501,22 +475,6 @@ const ConnectedItems = () => {
     setVisibleFilter(false);
   }, []);
 
-
-  const selectAction = (value: any) => {
-    switch(value) {
-      case 'syncStock':
-        handleSyncStockItemsSelected();
-        break;
-      case 'deleteItem':
-        handleDeleteItemsSelected();
-        break;
-      case 'disconnectItem':
-        handleDisconnectItemsSelected();
-        break; 
-      default: break
-    }
-  }
-
   const onSelectTable = React.useCallback(
     (selectedRow: Array<any>) => {
       setSelected(selectedRow);
@@ -528,9 +486,26 @@ const ConnectedItems = () => {
     return selectedRow && selectedRow.length === 0;
   }
 
+  const actionList = (
+    <Menu>
+      <Menu.Item key="1" disabled={isDisableAction()}>
+        <span onClick={handleSyncStockItemsSelected}>Đồng bộ tồn kho lên sàn</span>
+      </Menu.Item>
+
+      <Menu.Item key="2" disabled={isDisableAction()}>
+        <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
+      </Menu.Item>
+
+      <Menu.Item key="3" disabled={isDisableAction()}>
+        <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
+      </Menu.Item>
+      
+    </Menu>
+  );
+
   return (
     <StyledComponent>
-      <div className="total-items-ecommerce">
+      <div className="connected-items">
         <div className="filter">
           <Form
             form={formAdvance}
@@ -538,20 +513,16 @@ const ConnectedItems = () => {
             initialValues={params}
           >
             <Form.Item name="action" className="action-dropdown">
-              <Select
-                showSearch
-                placeholder="Thao tác"
-                allowClear
-                onSelect={selectAction}
+
+              <Dropdown
+                overlay={actionList}
+                trigger={["click"]}
               >
-                {ACTION_LIST &&
-                  ACTION_LIST.map((action: any) => (
-                    <Option key={action.id} value={action.value} disabled={isDisableAction()}>
-                      {action.name}
-                    </Option>
-                  ))
-                }
-              </Select>
+                <Button className="action-button">
+                  <div style={{ marginRight: 10 }}>Thao tác</div>
+                  <DownOutlined />
+                </Button>
+              </Dropdown>
             </Form.Item>
 
             <Form.Item name="ecommerce_id" className="select-channel-dropdown">
@@ -733,6 +704,7 @@ const ConnectedItems = () => {
                 </Select>
               }
             </Form.Item>
+            
             <Form.Item
               name="category_id"
               label={<b>DANH MỤC</b>}
@@ -742,26 +714,9 @@ const ConnectedItems = () => {
                 placeholder="Chọn danh mục"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="connect_status"
-              label={<b>TRẠNG THÁI GHÉP NỐI</b>}
-            >
-              <Select
-                showSearch
-                placeholder="Chọn trạng thái ghép nối"
-                allowClear
-              >
-                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
-                  <Option key={item.value} value={item.value}>
-                    {item.name}
+                {categoryList && categoryList.map((item: any) => (
+                  <Option key={item.category_id} value={item.category_id}>
+                    {item.display_category_name}
                   </Option>
                 ))}
               </Select>

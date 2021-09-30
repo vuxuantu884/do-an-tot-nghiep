@@ -32,6 +32,7 @@ type PropType = {
   isCloneOrder?: boolean;
   addressError: string;
   levelOrder?: number;
+  totalAmountReturnProducts?: number;
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -48,12 +49,14 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     // fulfillments,
     // isCloneOrder,
     addressError,
-    levelOrder = 0
+    levelOrder = 0,
+    totalAmountReturnProducts,
   } = props;
 
-  console.log("propsShipmentmethod", props.serviceType);
+  console.log("propsShipmentmethod", props);
 
-  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
+  const [selectedShipmentMethod, setSelectedShipmentMethod] =
+    useState(serviceType);
 
   const totalAmountPaid = () => {
     let total = 0;
@@ -100,6 +103,17 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     };
   }, [infoFees]);
 
+  const totalAmountCustomerNeedToPaySelfDelivery = () => {
+    return (
+      (amount ? amount : 0) +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+      totalAmountPaid() -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+    );
+  };
+
   return (
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
@@ -109,7 +123,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </div>
         )}
         {levelOrder > 3 && (
-          <div style={{margin: '10px 0', color: '#ff4d4f' }}>Huỷ đơn giao để thực hiện các thay đổi giao hàng</div>
+          <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
+            Huỷ đơn giao để thực hiện các thay đổi giao hàng
+          </div>
         )}
         <Row gutter={20}>
           <Col md={12}>
@@ -119,11 +135,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  (amount? amount : 0) +
-                  (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                  (discountValue ? discountValue : 0) -
-                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-                  totalAmountPaid()
+                  totalAmountCustomerNeedToPaySelfDelivery() > 0
+                    ? totalAmountCustomerNeedToPaySelfDelivery()
+                    : 0
                 }
                 className="formInputAmount"
                 maxLength={999999999999}

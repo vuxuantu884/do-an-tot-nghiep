@@ -49,11 +49,11 @@ export const ecommerceConfigUpdateAction = (
 
 export const ecommerceConfigDeleteAction = (
   id: number,
-  deleteCallback: (result: boolean) => void
+  setData: (result: boolean) => void
 ) => {
   return BaseAction(EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST, {
     id,
-    deleteCallback,
+    setData,
   });
 };
 // connect to ecommerce
@@ -98,4 +98,8 @@ export const disconnectEcommerceItem = (ids: any, setData: (data: any) => void) 
 
 export const postSyncStockEcommerceProduct = (query: any, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.POST_SYNC_STOCK_ECOMMERCE_ITEM_REQUEST, { query, setData });
+}
+
+export const getCategoryList = (query: any, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_CATEGORY_REQUEST, { query, setData });
 }

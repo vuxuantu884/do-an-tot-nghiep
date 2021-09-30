@@ -7,6 +7,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
+import { formatCurrency } from "utils/AppUtils";
 import TotalItemActionColumn from "./TotalItemActionColumn";
 import UrlConfig from "config/url.config";
 
@@ -33,7 +34,16 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent } from "./styles";
 
-const TotalItemsEcommerce = () => {
+
+type TotalItemsEcommerceProps = {
+  categoryList?: Array<any>
+};
+
+const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
+  props: TotalItemsEcommerceProps
+) => {
+
+  const { categoryList } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -190,7 +200,7 @@ const TotalItemsEcommerce = () => {
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_price || "-"}</span>
+          <span>{l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}</span>
         );
       },
     },
@@ -267,17 +277,19 @@ const TotalItemsEcommerce = () => {
       render: (l: any, v: any, i: any) => {
         return (
           <div>
-            {l.stock === "done" &&
+            {l.sync_stock_status === "done" &&
               <Tooltip title={l.updated_date}>
                 <span style={{color: '#27AE60'}}>Thành công</span>
               </Tooltip>
             }
-            {l.stock === "error" &&
+
+            {l.sync_stock_status === "error" &&
               <Tooltip title="error">
                 <span style={{color: '#E24343'}}>Thất bại</span>
               </Tooltip>
             }
-            {(l.stock === "in_progress" || l.stock === null) &&
+
+            {(l.sync_stock_status === "in_progress" || l.stock === null) &&
               <span style={{color: '#FFA500'}}>Đang xử lý</span>
             }
           </div>
@@ -363,26 +375,10 @@ const TotalItemsEcommerce = () => {
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
+  
   const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
   const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
   
-  //thai fake data
-  const CATEGORY = [
-    {
-      id: 1,
-      name: "category 1",
-      value: "category_1"
-    },
-    {
-      id: 2,
-      name: "category 2",
-      value: "category_2"
-    }
-  ]
-
-  
-  ////////////////////
-
   const onFilterClick = React.useCallback(() => {
     setVisibleFilter(false);
     formAdvance.submit();
@@ -598,9 +594,9 @@ const TotalItemsEcommerce = () => {
                 placeholder="Chọn danh mục"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
-                    {item.name}
+                {categoryList && categoryList.map((item: any) => (
+                  <Option key={item.category_id} value={item.category_id}>
+                    {item.display_category_name}
                   </Option>
                 ))}
               </Select>
