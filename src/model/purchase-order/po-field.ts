@@ -12,6 +12,7 @@ const POField = {
   line_items: "line_items",
   line_return_items: "line_return_items",
   total: "total",
+  total_payment: "total_payment",
   total_paid: "total_paid",
   total_cost_line: "total_cost_line",
   untaxed_amount: "untaxed_amount",

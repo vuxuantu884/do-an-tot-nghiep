@@ -572,21 +572,22 @@ const OrderDetail = (props: PropType) => {
               />
               {/*--- end product ---*/}
 
-              {customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
-                0 && (
-                <CardReturnMoney
-                  listPaymentMethods={listPaymentMethods}
-                  payments={[]}
-                  returnMoneyAmount={Math.abs(
-                    customerNeedToPayValue -
-                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-                  )}
-                  isShowPaymentMethod={true}
-                  setIsShowPaymentMethod={() => {}}
-                  handleReturnMoney={handleReturnMoney}
-                />
-              )}
+              {OrderDetail?.order_return_origin?.items &&
+                customerNeedToPayValue -
+                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                  0 && (
+                  <CardReturnMoney
+                    listPaymentMethods={listPaymentMethods}
+                    payments={[]}
+                    returnMoneyAmount={Math.abs(
+                      customerNeedToPayValue -
+                        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                    )}
+                    isShowPaymentMethod={true}
+                    setIsShowPaymentMethod={() => {}}
+                    handleReturnMoney={handleReturnMoney}
+                  />
+                )}
 
               {/*--- shipment ---*/}
               <UpdateShipmentCard
@@ -608,7 +609,6 @@ const OrderDetail = (props: PropType) => {
                 OrderDetailAllFullfilment={OrderDetailAllFullfilment}
                 orderSettings={orderSettings}
               />
-
               {/*--- end shipment ---*/}
 
               {/*--- payment ---*/}
@@ -810,6 +810,7 @@ const OrderDetail = (props: PropType) => {
                                             ? OrderDetail?.discounts[0].amount
                                             : 0)
                                         }
+                                        disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
                                       />
                                     )}
                                 </Panel>
@@ -905,6 +906,7 @@ const OrderDetail = (props: PropType) => {
                               className="ant-btn-outline fixed-button"
                               onClick={() => setShowPaymentPartialPayment(true)}
                               style={{ marginTop: 10 }}
+                              disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
                             >
                               Thanh toán
                             </Button>
@@ -1066,6 +1068,7 @@ const OrderDetail = (props: PropType) => {
                     setTotalPaid={setTotalPaid}
                     isVisibleUpdatePayment={isVisibleUpdatePayment}
                     setVisibleUpdatePayment={setVisibleUpdatePayment}
+                    disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
                   />
                 )}
 

@@ -7,11 +7,11 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 const statusToStep = {
   [POStatus.DRAFT]: 0,
   [POStatus.FINALIZED]: 1,
-  [POStatus.DRAFTPO]: 2,
-  [POStatus.STORED]: 3,
-  [POStatus.COMPLETED]: 4,
-  [POStatus.FINISHED]: 5,
-  [POStatus.CANCELLED]: 6,
+  // [POStatus.DRAFTPO]: 2,
+  [POStatus.STORED]: 2,
+  [POStatus.COMPLETED]: 3,
+  [POStatus.FINISHED]: 4,
+  [POStatus.CANCELLED]: 5,
 };
 
 // DRAFT("draft", "Nháp"), //Đặt hàng
@@ -37,33 +37,44 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   } = poData;
   const getDescription = (step: number) => {
     let currentStep = statusToStep[poStatus];
+    let updatedDate =
+      procurements &&
+      procurements.length > 0 &&
+      procurements[procurements.length - 1].updated_date;
     switch (step) {
       case 0:
         if (currentStep >= 0 && order_date !== null)
           return ConvertUtcToLocalDate(order_date);
         return null;
       case 1:
-        if (currentStep >= 1 && activated_date !== null)
+        if (
+          currentStep >= statusToStep[POStatus.FINALIZED] &&
+          activated_date !== null
+        ) {
           return ConvertUtcToLocalDate(activated_date);
+        } else if (
+          currentStep >= statusToStep[POStatus.FINALIZED] &&
+          updatedDate
+        ) {
+          return ConvertUtcToLocalDate(updatedDate);
+        } else {
+          return null;
+        }
+      case 2:
+        if (currentStep >= statusToStep[POStatus.STORED] && updatedDate)
+          return ConvertUtcToLocalDate(updatedDate);
         return null;
-      case 3:
-        let date =
-          procurements &&
-          procurements.length > 0 &&
-          procurements[procurements.length - 1].updated_date;
-        if (currentStep >= 3 && date) return ConvertUtcToLocalDate(date);
-        return null;
-      case 4:
-        if (currentStep === 6 && cancelled_date) {
+      default:
+        if (
+          currentStep === statusToStep[POStatus.CANCELLED] &&
+          cancelled_date
+        ) {
           return ConvertUtcToLocalDate(cancelled_date);
         } else if (completed_date) {
           return ConvertUtcToLocalDate(completed_date);
         } else {
           return null;
         }
-
-      default:
-        return null;
     }
   };
   const getLastStepName = () => {

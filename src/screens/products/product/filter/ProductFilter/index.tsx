@@ -2,7 +2,6 @@ import {
   Button,
   Collapse,
   Form,
-  FormInstance,
   Input,
   Select,
   Space,
@@ -10,7 +9,7 @@ import {
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { createRef, useCallback, useState } from "react";
+import {useCallback, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import { SizeResponse } from "model/product/size.model";
@@ -54,6 +53,7 @@ const { Option } = Select;
 const ProductFilter: React.FC<ProductFilterProps> = (
   props: ProductFilterProps
 ) => {
+  const[formAvd] = Form.useForm();
   const {
     params,
     listStatus,
@@ -71,7 +71,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
-  const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
@@ -83,8 +82,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (
       setAdvanceFilters(values);
       if (values.created_date) {
         const [from_created_date, to_created_date] = values.created_date;
-        values.from_created_date = from_created_date;
-        values.to_created_date = to_created_date;
+        values.from_created_date = values.created_date ? from_created_date : undefined;
+        values.to_created_date = values.created_date ? to_created_date : undefined;
       }
       onFilter && onFilter(values);
     },
@@ -92,8 +91,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   );
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
+    formAvd.submit();
+  }, [formAvd]);
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
@@ -107,19 +106,20 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     [onMenuClick]
   );
   const onClearFilterClick = useCallback(() => {
-    formRef.current?.resetFields();
-    formRef.current?.submit();
+    formAvd.resetFields();
+    formAvd.submit();
     setVisible(false);
-  }, [formRef]);
+  }, [formAvd]);
   const resetField = useCallback(
     (field: string) => {
-      formRef.current?.setFieldsValue({
-        ...formRef.current?.getFieldsValue(true),
+      console.log(field);
+      formAvd.setFieldsValue({
+        ...formAvd.getFieldsValue(true),
         [field]: undefined,
       });
-      formRef.current?.submit();
+      formAvd.submit();
     },
-    [formRef]
+    [formAvd]
   );
   return (
     <StyledComponent>
@@ -165,7 +165,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
         >
           <Form
             onFinish={onFinishAvd}
-            ref={formRef}
+            form={formAvd}
             initialValues={{}}
             layout="vertical"
           >

@@ -14,6 +14,7 @@ type PropType = {
   shippingFeeCustomer: number | null;
   discountValue: number | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
+  totalAmountReturnProducts?: number;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -22,8 +23,19 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     paymentMethod,
     shippingFeeCustomer,
     discountValue,
+    totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
   } = props;
+
+  const totalAmountCustomerNeedToPayShipper = () => {
+    return (
+      amount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+    );
+  };
+
   return (
     <StyledComponent>
       <div>
@@ -75,9 +87,9 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="0"
                   value={
-                    amount +
-                    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                    (discountValue ? discountValue : 0)
+                    totalAmountCustomerNeedToPayShipper() > 0
+                      ? totalAmountCustomerNeedToPayShipper()
+                      : 0
                   }
                   style={{
                     textAlign: "right",

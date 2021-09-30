@@ -95,7 +95,7 @@ const POUtils = {
       });
 
       if (planned_quantity && totalOrdered >= planned_quantity)
-        return POStatus.DRAFTPO;
+        return POStatus.FINALIZED;
     }
 
     //truong hop update payment
