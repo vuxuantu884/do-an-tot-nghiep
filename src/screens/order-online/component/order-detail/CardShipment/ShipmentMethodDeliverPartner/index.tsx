@@ -129,7 +129,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         )}
         <Row gutter={20}>
           <Col md={12}>
-            <Form.Item label="Tiền thu hộ: 3">
+            <Form.Item label="Tiền thu hộ:">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
