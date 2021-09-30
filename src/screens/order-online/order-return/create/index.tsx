@@ -909,18 +909,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setReturnMoneyType={setReturnMoneyType}
                   />
                 )}
-                {isExchange && (
-                  <CardReturnMoneyPageCreate
-                    listPaymentMethods={listPaymentMethods}
-                    payments={payments}
-                    handlePayments={setPayments}
-                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                    isExchange={isExchange}
-                    isStepExchange={isStepExchange}
-                    returnMoneyType={returnMoneyType}
-                    setReturnMoneyType={setReturnMoneyType}
-                  />
-                )}
+
                 {isExchange && isStepExchange && (
                   <CardShipment
                     setShipmentMethodProps={setShipmentMethod}
@@ -976,6 +965,18 @@ const ScreenReturnCreate = (props: PropType) => {
                   //   isCloneOrder={false}
                   //   totalAmountReturnProducts={totalAmountReturnProducts}
                   // />
+                )}
+                {isExchange && (
+                  <CardReturnMoneyPageCreate
+                    listPaymentMethods={listPaymentMethods}
+                    payments={payments}
+                    handlePayments={setPayments}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    isExchange={isExchange}
+                    isStepExchange={isStepExchange}
+                    returnMoneyType={returnMoneyType}
+                    setReturnMoneyType={setReturnMoneyType}
+                  />
                 )}
                 <CardReturnReceiveProducts
                   isDetailPage={false}
