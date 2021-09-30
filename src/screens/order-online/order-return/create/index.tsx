@@ -362,6 +362,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const focusOnElement = (element: HTMLElement | null) => {
     if (element) {
+      console.log("element", element);
       element?.focus();
       const offsetY =
         element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
@@ -413,8 +414,10 @@ const ScreenReturnCreate = (props: PropType) => {
         } else {
           if (isReceivedReturnProducts) {
             setIsStepExchange(value);
-            const element: any = document.getElementById("store_id");
-            focusOnElement(element);
+            setTimeout(() => {
+              const element: any = document.getElementById("store_id");
+              focusOnElement(element);
+            }, 500);
           } else {
             setIsVisibleModalWarning(true);
           }
@@ -517,17 +520,17 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đối tác giao hàng");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    // dispatch(
-                    //   actionCreateOrderReturn(orderDetailResult, (response) => {
-                    //     valuesResult.order_return_id = response.id;
-                    //     dispatch(
-                    //       actionCreateOrderExchange(
-                    //         valuesResult,
-                    //         createOrderExchangeCallback
-                    //       )
-                    //     );
-                    //   })
-                    // );
+                    dispatch(
+                      actionCreateOrderReturn(orderDetailResult, (response) => {
+                        valuesResult.order_return_id = response.id;
+                        dispatch(
+                          actionCreateOrderExchange(
+                            valuesResult,
+                            createOrderExchangeCallback
+                          )
+                        );
+                      })
+                    );
                   }
                 } else {
                   if (
@@ -537,17 +540,17 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đơn vị vận chuyển");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    // dispatch(
-                    //   actionCreateOrderReturn(orderDetailResult, (response) => {
-                    //     valuesResult.order_return_id = response.id;
-                    //     dispatch(
-                    //       actionCreateOrderExchange(
-                    //         valuesResult,
-                    //         createOrderExchangeCallback
-                    //       )
-                    //     );
-                    //   })
-                    // );
+                    dispatch(
+                      actionCreateOrderReturn(orderDetailResult, (response) => {
+                        valuesResult.order_return_id = response.id;
+                        dispatch(
+                          actionCreateOrderExchange(
+                            valuesResult,
+                            createOrderExchangeCallback
+                          )
+                        );
+                      })
+                    );
                   }
                 }
               }
@@ -582,11 +585,14 @@ const ScreenReturnCreate = (props: PropType) => {
       values.fulfillments.length > 0 &&
       values.fulfillments[0].shipment
     ) {
-      values.fulfillments[0].shipment.cod =
+      let priceToShipper =
         orderAmount +
         (shippingFeeCustomer ? shippingFeeCustomer : 0) -
         getAmountPaymentRequest(payments) -
-        discountValue;
+        discountValue -
+        (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
+      values.fulfillments[0].shipment.cod =
+        priceToShipper > 0 ? priceToShipper : 0;
     }
     values.tags = tags;
     values.items = listExchangeProducts;
@@ -1010,8 +1016,10 @@ const ScreenReturnCreate = (props: PropType) => {
                 onReturnAndExchange();
               } else {
                 setIsStepExchange(true);
-                const element: any = document.getElementById("store_id");
-                focusOnElement(element);
+                setTimeout(() => {
+                  const element: any = document.getElementById("store_id");
+                  focusOnElement(element);
+                }, 500);
               }
             }
             setIsVisibleModalWarning(false);
