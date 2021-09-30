@@ -15,6 +15,7 @@ import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
 import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
+import NumberFormat from "react-number-format";
 
 type PropType = {
   amount: number | undefined;
@@ -234,7 +235,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           style={{ padding: "8px 16px" }}
                                           className="custom-table__has-border-bottom custom-table__has-select-radio"
                                         >
-                                          {service.total_fee}
+                                          {/* {service.total_fee} */}
+                                          <NumberFormat
+                                            value={service.total_fee}
+                                            className="foo"
+                                            displayType={"text"}
+                                            thousandSeparator={true}
+                                          />
                                         </div>
                                       </>
                                     );
