@@ -34,6 +34,7 @@ const { RangePicker } = DatePicker;
 const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
+  
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
   const [isShowResultGetItemModal, setIsShowResultGetItemModal] = React.useState(false);
   const [totalGetItem, setTotalGetItem] = React.useState(0);
@@ -103,17 +104,33 @@ const Products: React.FC = () => {
     setIsEcommerceSelected(false);
   };
 
-  
-  const convertDateToTimestamp = (date: any) => {
+  const convertStartDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
-    var newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
+    let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
+  }
+  
+  const convertEndDateToTimestamp = (date: any) => {
+    const myDate = date.split("/");
+    const today = new Date();
+    let time = "23:59:59";
+
+    if ((Number(myDate[0]) === Number(today.getDate())) &&
+        (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
+        (Number(myDate[2]) === Number(today.getFullYear()))
+      ) {
+      time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    }
+
+    const newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
+    const dateTime = newDate + " " + time;
+    return moment(new Date(dateTime)).unix();
   }
 
   const onChangeDate = (dates: any, dateStrings: any) => {
-    const startDate = convertDateToTimestamp(dateStrings[0]);
+    const startDate = convertStartDateToTimestamp(dateStrings[0]);
     setStartDate(startDate);
-    const endDate = convertDateToTimestamp(dateStrings[1]);
+    const endDate = convertEndDateToTimestamp(dateStrings[1]);
     setEndDate(endDate);
   };
 
@@ -135,6 +152,7 @@ const Products: React.FC = () => {
       update_time_from: startDate || null,
       update_time_to: endDate || null
     }
+    
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
 
