@@ -73,6 +73,7 @@ type CardShipmentProps = {
   isCloneOrder: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
+  totalAmountReturnProducts?: number;
 };
 
 const CardShipment: React.FC<CardShipmentProps> = (
@@ -102,6 +103,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
     fulfillments,
     isCloneOrder,
     levelOrder = 0,
+    totalAmountReturnProducts,
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
@@ -371,6 +373,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               isCloneOrder={isCloneOrder}
               addressError={addressError}
               levelOrder={levelOrder}
+              totalAmountReturnProducts={totalAmountReturnProducts}
             />
           )}
 
@@ -382,6 +385,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
               shipper={shipper}
               shippingFeeCustomer={shippingFeeCustomer}
+              totalAmountReturnProducts={totalAmountReturnProducts}
             />
           )}
 

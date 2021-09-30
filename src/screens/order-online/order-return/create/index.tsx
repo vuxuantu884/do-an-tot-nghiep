@@ -107,7 +107,7 @@ const ScreenReturnCreate = (props: PropType) => {
   );
 
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [orderAmount] = useState<number>(0);
+
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   const [tags, setTag] = useState<string>("");
@@ -224,6 +224,8 @@ const ScreenReturnCreate = (props: PropType) => {
     });
     return total;
   };
+
+  const orderAmount = getTotalPrice(listExchangeProducts);
 
   /**
    * if return > exchange: positive
@@ -358,6 +360,16 @@ const ScreenReturnCreate = (props: PropType) => {
     }
   };
 
+  const focusOnElement = (element: HTMLElement | null) => {
+    if (element) {
+      console.log("element", element);
+      element?.focus();
+      const offsetY =
+        element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+      window.scrollTo({ top: offsetY, behavior: "smooth" });
+    }
+  };
+
   const onReturn = () => {
     let checkIfHasReturnProduct = listReturnProducts.some((single) => {
       return single.quantity > 0;
@@ -365,10 +377,7 @@ const ScreenReturnCreate = (props: PropType) => {
     if (!checkIfHasReturnProduct) {
       showError("Vui lòng chọn ít nhất 1 sản phẩm");
       const element: any = document.getElementById("search_product");
-      const offsetY =
-        element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-      window.scrollTo({ top: offsetY, behavior: "smooth" });
-      element?.focus();
+      focusOnElement(element);
       return;
     }
 
@@ -385,10 +394,7 @@ const ScreenReturnCreate = (props: PropType) => {
         const element: any = document.getElementById(
           error.errorFields[0].name.join("")
         );
-        element?.focus();
-        const offsetY =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-        window.scrollTo({ top: offsetY, behavior: "smooth" });
+        focusOnElement(element);
       });
   };
 
@@ -403,14 +409,15 @@ const ScreenReturnCreate = (props: PropType) => {
         if (!checkIfHasReturnProduct) {
           showError("Vui lòng chọn ít nhất 1 sản phẩm");
           const element: any = document.getElementById("search_product");
-          const offsetY =
-            element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-          window.scrollTo({ top: offsetY, behavior: "smooth" });
-          element?.focus();
+          focusOnElement(element);
           return;
         } else {
           if (isReceivedReturnProducts) {
             setIsStepExchange(value);
+            setTimeout(() => {
+              const element: any = document.getElementById("store_id");
+              focusOnElement(element);
+            }, 500);
           } else {
             setIsVisibleModalWarning(true);
           }
@@ -578,11 +585,14 @@ const ScreenReturnCreate = (props: PropType) => {
       values.fulfillments.length > 0 &&
       values.fulfillments[0].shipment
     ) {
-      values.fulfillments[0].shipment.cod =
+      let priceToShipper =
         orderAmount +
         (shippingFeeCustomer ? shippingFeeCustomer : 0) -
         getAmountPaymentRequest(payments) -
-        discountValue;
+        discountValue -
+        (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
+      values.fulfillments[0].shipment.cod =
+        priceToShipper > 0 ? priceToShipper : 0;
     }
     values.tags = tags;
     values.items = listExchangeProducts;
@@ -937,6 +947,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     onPayments={setPayments}
                     fulfillments={fulfillments}
                     isCloneOrder={false}
+                    totalAmountReturnProducts={totalAmountReturnProducts}
                   />
                   // <CardReturnShipment
                   //   setShipmentMethod={setShipmentMethod}
@@ -1005,6 +1016,10 @@ const ScreenReturnCreate = (props: PropType) => {
                 onReturnAndExchange();
               } else {
                 setIsStepExchange(true);
+                setTimeout(() => {
+                  const element: any = document.getElementById("store_id");
+                  focusOnElement(element);
+                }, 500);
               }
             }
             setIsVisibleModalWarning(false);
