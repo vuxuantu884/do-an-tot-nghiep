@@ -99,18 +99,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     [allProcurementItems, setData]
   );
   const onSelectProduct = useCallback(
-    (lineItemId: string) => {
+    (sku: string) => {
       let procurement_items = form.getFieldValue(
         POProcumentField.procurement_items
       );
       let newProcumentItem = procurement_items.find(
         (item: PurchaseProcumentLineItem) =>
-          item.line_item_id === parseInt(lineItemId)
+          item.sku === (sku)
       );
       if (!newProcumentItem) {
         newProcumentItem = allProcurementItems.find(
           (item: PurchaseProcumentLineItem) =>
-            item.line_item_id === parseInt(lineItemId)
+            item.sku === (sku)
         );
         if (newProcumentItem) {
           procurement_items = [
@@ -183,22 +183,22 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       let currentProcument = form.getFieldValue(
         POProcumentField.procurement_items
       );
-      let allLineId: Array<number> = [],
+      let allLineId: Array<number| any> = [],
         lineIdMapping: any = {};
       allProcurementItems.forEach((item) => {
-        allLineId.push(item.line_item_id);
+        allLineId.push(item.sku);
         lineIdMapping = {
           ...lineIdMapping,
-          [item.line_item_id]: item,
+          [item.sku]: item,
         };
       });
       currentProcument.forEach((item: PurchaseProcumentLineItem) => {
-        const index = allLineId.indexOf(item.line_item_id);
+        const index = allLineId.indexOf(item.sku);
         if (index > -1) allLineId.splice(index, 1);
       });
 
-      allLineId.forEach((line_item_id) => {
-        onSelectProduct(line_item_id.toString());
+      allLineId.forEach((sku) => {
+        onSelectProduct(sku.toString());
       });
     }
   };

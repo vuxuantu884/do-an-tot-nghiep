@@ -453,6 +453,7 @@ export default function Order(props: PropType) {
     }
   };
   const onFinish = (values: OrderRequest) => {
+    console.log('onFinish onFinish', values)
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -654,17 +655,15 @@ export default function Order(props: PropType) {
                 newShipperCode =
                   response.fulfillments[0]?.shipment?.shipper_code;
               }
+              if (response.fulfillments[0].shipment?.cod) {
+                // setPaymentMethod(PaymentMethodOption.COD);
+              } else if (response.payments && response.payments?.length > 0) {
+                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
+                new_payments = response.payments;
+                setPayments(new_payments);
+              }
             }
-            if (
-              response.fulfillments &&
-              response.fulfillments[0].shipment?.cod
-            ) {
-              setPaymentMethod(PaymentMethodOption.COD);
-            } else if (response.payments && response.payments?.length > 0) {
-              setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-              new_payments = response.payments;
-              setPayments(new_payments);
-            }
+            
             setItems(responseItems);
             setOrderAmount(
               response.total -
@@ -791,7 +790,7 @@ export default function Order(props: PropType) {
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 0
+        ? totalAmountPayable
         : (rank.limit_order_percent * totalAmountPayable) / 100;
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
