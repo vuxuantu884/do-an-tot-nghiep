@@ -35,6 +35,7 @@ const { Option } = Select;
 
 type SettingConfigProps = {
   listStores: Array<StoreResponse>;
+  storeChangeSearch: (value: string) => void;
   accounts: Array<AccountResponse>;
   form: any;
   configData: Array<EcommerceResponse>;
@@ -44,6 +45,7 @@ type SettingConfigProps = {
   setConfigToView: (value: any) => void;
   configFromEcommerce: any | undefined;
   setConfigFromEcommerce: (value: any) => void;
+  showDeleteModal: (value: EcommerceResponse) => void;
 };
 const SettingConfig: React.FC<SettingConfigProps> = (
   props: SettingConfigProps
@@ -59,6 +61,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     setConfigToView,
     configFromEcommerce,
     setConfigFromEcommerce,
+    showDeleteModal, storeChangeSearch
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
@@ -144,7 +147,10 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       configData,
     ]
   );
-  const handleDisconnectEcommerce = () => {};
+
+  const handleDisconnectEcommerce = () => {
+    if(configToView) showDeleteModal(configToView)
+  };
 
   const handleStoreChange = (event: any) => {
     let _inventories = [];
@@ -285,7 +291,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 <Col span={5}>Tên Shop</Col>
                 <Col span={19}>
                   <span className="fw-500">
-                    : {configDetail?.name || "---"}
+                    : {configDetail?.ecommerce_shop || "---"}
                   </span>
                 </Col>
               </Row>
@@ -364,8 +370,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               ]}
             >
               <Select
+              showSearch
                 placeholder="Chọn cửa hàng"
                 disabled={configDetail ? false : true}
+                allowClear
+                  optionFilterProp="children"
+                  onSearch={(value) => storeChangeSearch(value)}
               >
                 {listStores &&
                   listStores?.map((item, index) => (
@@ -537,7 +547,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             icon={<img src={disconnectIcon} alt="" />}
             style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
             type="ghost"
-            onClick={handleDisconnectEcommerce}
+            onClick={() => handleDisconnectEcommerce()}
           >
             Ngắt kết nối
           </Button>

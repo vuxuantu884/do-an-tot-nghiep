@@ -49,11 +49,11 @@ export const ecommerceConfigUpdateAction = (
 
 export const ecommerceConfigDeleteAction = (
   id: number,
-  deleteCallback: (result: boolean) => void
+  setData: (result: boolean) => void
 ) => {
   return BaseAction(EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST, {
     id,
-    deleteCallback,
+    setData,
   });
 };
 // connect to ecommerce
