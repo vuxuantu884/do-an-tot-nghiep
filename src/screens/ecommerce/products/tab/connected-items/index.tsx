@@ -103,8 +103,17 @@ const ConnectedItems = () => {
 
   //handle sync stock
   const handleSyncStock = (item: any) => {
-    setIsShowSyncStockModal(true);
-    setIdsItemSelected([item.id]);
+    const requestSyncStock = {
+      variant_ids: [item.id],
+      all: false
+    }
+
+    dispatch(postSyncStockEcommerceProduct(requestSyncStock, (result) => {
+      if (result) {
+        showSuccess("Đồng bộ tồn kho sản phẩm thành công");
+        reloadPage();
+      }
+    }));
   };
 
   const handleSyncStockItemsSelected = () => {

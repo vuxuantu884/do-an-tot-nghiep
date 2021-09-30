@@ -126,7 +126,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   const history = useHistory();
   // node dom
-  const formRef = createRef<FormInstance>();
+  const formRefShipment = createRef<FormInstance>();
   // action
   const dispatch = useDispatch();
 
@@ -1637,6 +1637,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   padding: "0 25px",
                 }}
                 onClick={ShowShipping}
+                disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
               >
                 Giao hàng
               </Button>
@@ -1646,7 +1647,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           <div className="padding-24">
             <Form
               initialValues={initialFormUpdateShipment}
-              ref={formRef}
+              ref={formRefShipment}
               onFinishFailed={({ errorFields }: any) => {
                 const element: any = document.getElementById(
                   errorFields[0].name.join("")
@@ -1859,7 +1860,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           padding: "0 25px",
                           letterSpacing: "0.2px",
                         }}
-                        htmlType="submit"
+                        // htmlType="submit"
+                        onClick={() => formRefShipment.current?.submit()}
+                        disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
                       >
                         Tạo đơn giao hàng 1
                       </Button>
@@ -1987,7 +1990,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           type="primary"
                           className="create-button-custom"
                           style={{ float: "right" }}
-                          htmlType="submit"
+                          // htmlType="submit"
+                          onClick={() => formRefShipment.current?.submit()}
+                          disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
+
                         >
                           Tạo đơn giao hàng 2
                         </Button>
@@ -2048,7 +2054,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           type="primary"
                           className="create-button-custom"
                           style={{ float: "right" }}
-                          htmlType="submit"
+                          // htmlType="submit"
+                          onClick={() => formRefShipment.current?.submit()}
+                          disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
                         >
                           Tạo đơn giao hàng 3
                         </Button>

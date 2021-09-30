@@ -10,12 +10,12 @@ import {
   Input,
   FormInstance,
   Checkbox,
-  Select
+  Select,
+  DatePicker
 } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
 import { Fragment, useState, useEffect } from "react";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import POProgressView from "./po-progress-view";
 import {
   PurchaseOrderLineReturnItem,
@@ -135,9 +135,6 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                       // const expected_store = getFieldValue(
                       //   POField.expect_store
                       // );
-                      const expect_import_date = getFieldValue(
-                        POField.expect_import_date
-                      );
                       const receipt_quantity = getFieldValue(
                         POField.receipt_quantity
                       );
@@ -179,21 +176,17 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               </Form.Item>
                             </Col>
                             <Col span={24} md={12}>
-                              <Space
-                                direction="horizontal"
-                                size="large"
-                                split={<i className="icon-dot" />}
+                              <Form.Item
+                                name={POProcumentField.expect_receipt_date}
+                                label={"Ngày nhận dự kiến:"}
+                                rules={[{ required: true, message: "Vui lòng chọn ngày nhận" }]}
                               >
-                                <div>
-                                  Ngày nhận dự kiến:{" "}
-                                  <strong>
-                                    {ConvertUtcToLocalDate(
-                                      expect_import_date,
-                                      DATE_FORMAT.DDMMYYY
-                                    )}
-                                  </strong>
-                                </div>
-                              </Space>
+                                <DatePicker
+                                  style={{ width: "100%" }}
+                                  placeholder="Chọn ngày nhận"
+                                  format={"DD/MM/YYYY"}
+                                />
+                              </Form.Item>
                             </Col>
                           </Row>
                           <POProgressView
