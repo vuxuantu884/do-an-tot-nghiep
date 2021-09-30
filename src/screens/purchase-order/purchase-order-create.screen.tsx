@@ -62,7 +62,7 @@ const POCreateScreen: React.FC = () => {
     tax_lines: [],
     supplier_id: 0,
     expect_import_date: ConvertDateToUtc(moment()),
-    order_date: ConvertDateToUtc(now),
+    order_date: null,
     status: POStatus.DRAFT,
     receive_status: ProcumentStatus.DRAFT,
     activated_date: null,
