@@ -453,6 +453,7 @@ export default function Order(props: PropType) {
     }
   };
   const onFinish = (values: OrderRequest) => {
+    console.log('onFinish onFinish', values)
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);

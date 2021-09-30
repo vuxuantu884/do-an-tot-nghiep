@@ -458,7 +458,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 >
                   {customer.full_name}
                 </Link>{" "}
-                {levelOrder < 2 &&
+                {levelOrder < 3 &&
                 <CloseOutlined
                   onClick={CustomerDeleteInfo}
                   style={{ marginRight: "5px" }}
