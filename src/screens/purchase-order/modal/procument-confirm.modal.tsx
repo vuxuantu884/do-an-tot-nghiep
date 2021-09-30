@@ -115,7 +115,11 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   render: (value) => (
                     <div className="product-item-image">
                       <img
-                        src={value === null ? imgDefIcon : value}
+                        src={
+                          !value || !value.toString().startsWith("http")
+                            ? imgDefIcon
+                            : value
+                        }
                         alt=""
                         className=""
                       />
