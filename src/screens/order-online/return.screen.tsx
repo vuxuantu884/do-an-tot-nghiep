@@ -143,7 +143,6 @@ const ListOrderScreen: React.FC = () => {
       render: (record: ReturnModel) => (
         <div>
           <div
-            // onClick={() => shipmentDetailModal(record)}
             className="name p-b-3" style={{ color: "#2A2A86" }}
           >
             <Link target="_blank" to={`${UrlConfig.ORDERS_RETURN}/${record.id}`}>{record.code_order_return}</Link>

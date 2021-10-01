@@ -52,6 +52,7 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import {
+  FulFillmentStatus,
   MoneyPayThreePls,
   OrderStatus,
   PaymentMethodOption,
@@ -211,6 +212,9 @@ export default function Order(props: PropType) {
             return 3
           }
         }  else {
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED) {
+            return 1
+          }
           return 4
         }
       default: return undefined;

@@ -424,6 +424,9 @@ const OrderDetail = (props: PropType) => {
         case "update":
           history.push(`${UrlConfig.ORDER}/${id}/update`);
           break;
+        case "clone":
+          history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          break;
         default:
           break;
       }
