@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
+import { createRef, useCallback, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import {
@@ -125,11 +125,6 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     },
     [formRef]
   );
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
-    }
-  }, [formRef, visible]);
 
   return (
     <StyledComponent>
