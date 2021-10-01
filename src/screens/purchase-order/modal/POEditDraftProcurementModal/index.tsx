@@ -164,6 +164,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
                   }}
                   disabledDate={(date) => date <= moment().startOf("days")}
                   format={DATE_FORMAT.DDMMYYY}
+                  allowClear={false}
                 />
               </Col>
               <Col span={24}>
