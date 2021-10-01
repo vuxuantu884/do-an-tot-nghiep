@@ -193,9 +193,6 @@ console.log(customer)
         {
           name: "Chi tiết khách hàng",
         },
-        {
-          name: `${customer ? customer?.full_name : ""}`,
-        },
       ]}
     >
       <Row gutter={24} className="customer-info-detail">
