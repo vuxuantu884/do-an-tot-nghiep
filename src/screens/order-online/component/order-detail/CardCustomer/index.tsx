@@ -278,7 +278,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
+    return listSource.filter((item) => item.code !== "POS");
   }, [listSource]);
 
   useEffect(() => {
