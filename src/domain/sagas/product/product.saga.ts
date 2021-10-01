@@ -20,7 +20,7 @@ import {
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { updateVariantApi } from "service/product/variant.service";
+import { deleteVariantApi, updateVariantApi } from "service/product/variant.service";
 import { ProductUploadModel } from "model/product/product-upload.model";
 
 function* searchVariantSaga(action: YodyAction) {
@@ -405,6 +405,29 @@ function* variantUpdateSaleableSaga(action: YodyAction) {
   }
 }
 
+function* variantDeleteSaga(action: YodyAction) {
+  const { variants, onResult } = action.payload;
+  try {
+    for(let i = 0 ; i< variants.length; i++) {
+      let response: BaseResponse<VariantResponse> =yield call(deleteVariantApi,
+        variants[i].product_id,
+        variants[i].variant_id);
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+        default:
+          break;
+      }
+    }
+    onResult(false);
+  } catch (error) {
+    onResult(true);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
@@ -432,4 +455,5 @@ export function* productSaga() {
   yield takeLatest(ProductType.PRODUCT_BARCODE, createProductBarcode)
   yield takeLatest(ProductType.PRODUCT_IMPORT, importProductSaga)
   yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga)
+  yield takeLatest(ProductType.VARIANT_DELETE, variantDeleteSaga)
 }
