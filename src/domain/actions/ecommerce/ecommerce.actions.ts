@@ -103,3 +103,7 @@ export const postSyncStockEcommerceProduct = (query: any, setData: (data: any) =
 export const getCategoryList = (query: any, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_CATEGORY_REQUEST, { query, setData });
 }
+
+export const putConnectEcommerceItem = (query: any, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.PUT_CONNECT_ECOMMERCE_ITEM_REQUEST, { query, setData });
+}
