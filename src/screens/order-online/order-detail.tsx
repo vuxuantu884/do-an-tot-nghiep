@@ -21,6 +21,7 @@ import {
   getLoyaltyPoint,
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
+import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
   OrderDetailAction,
@@ -72,6 +73,7 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
+import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 const { Panel } = Collapse;
 
@@ -127,6 +129,8 @@ const OrderDetail = (props: PropType) => {
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
     useState<number>(0);
   console.log("totalAmountReturnProducts", totalAmountReturnProducts);
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
+    useState(false);
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -289,6 +293,20 @@ const OrderDetail = (props: PropType) => {
     cauHinhInNhieuLienHoaDon: 1,
   });
 
+  const handleReceivedReturnProducts = () => {
+    setIsReceivedReturnProducts(true);
+    if (OrderDetail?.order_return_origin?.id) {
+      dispatch(
+        actionSetIsReceivedOrderReturn(
+          OrderDetail?.order_return_origin?.id,
+          () => {
+            dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
+          }
+        )
+      );
+    }
+  };
+
   let stepsStatusValue = stepsStatus();
 
   const setDataAccounts = useCallback(
@@ -314,6 +332,9 @@ const OrderDetail = (props: PropType) => {
       );
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
+      setIsReceivedReturnProducts(
+        _data.order_return_origin?.received ? true : false
+      );
     }
   }, []);
 
@@ -810,7 +831,12 @@ const OrderDetail = (props: PropType) => {
                                             ? OrderDetail?.discounts[0].amount
                                             : 0)
                                         }
-                                        disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
+                                        disabled={
+                                          stepsStatusValue ===
+                                            OrderStatus.CANCELLED ||
+                                          stepsStatusValue ===
+                                            FulFillmentStatus.SHIPPED
+                                        }
                                       />
                                     )}
                                 </Panel>
@@ -906,7 +932,10 @@ const OrderDetail = (props: PropType) => {
                               className="ant-btn-outline fixed-button"
                               onClick={() => setShowPaymentPartialPayment(true)}
                               style={{ marginTop: 10 }}
-                              disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
+                              disabled={
+                                stepsStatusValue === OrderStatus.CANCELLED ||
+                                stepsStatusValue === FulFillmentStatus.SHIPPED
+                              }
                             >
                               Thanh toán
                             </Button>
@@ -1068,11 +1097,22 @@ const OrderDetail = (props: PropType) => {
                     setTotalPaid={setTotalPaid}
                     isVisibleUpdatePayment={isVisibleUpdatePayment}
                     setVisibleUpdatePayment={setVisibleUpdatePayment}
-                    disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
+                    disabled={
+                      stepsStatusValue === OrderStatus.CANCELLED ||
+                      stepsStatusValue === FulFillmentStatus.SHIPPED
+                    }
                   />
                 )}
 
               {/*--- end payment ---*/}
+
+              {OrderDetail?.order_return_origin?.items && (
+                <CardReturnReceiveProducts
+                  handleReceivedReturnProducts={handleReceivedReturnProducts}
+                  isReceivedReturnProducts={isReceivedReturnProducts}
+                  isDetailPage
+                />
+              )}
             </Col>
 
             <Col md={6}>

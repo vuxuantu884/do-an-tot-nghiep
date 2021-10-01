@@ -48,7 +48,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CardShipment from "screens/order-online/component/order-detail/CardShipment";
 import {
-  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -505,6 +504,21 @@ const ScreenReturnCreate = (props: PropType) => {
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
           if (checkPointfocus(values)) {
+            const handleCreateOrderExchangeByValue = (
+              valuesResult: ExchangeRequest
+            ) => {
+              dispatch(
+                actionCreateOrderReturn(orderDetailResult, (response) => {
+                  valuesResult.order_return_id = response.id;
+                  dispatch(
+                    actionCreateOrderExchange(
+                      valuesResult,
+                      createOrderExchangeCallback
+                    )
+                  );
+                })
+              );
+            };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
               const element: any = document.getElementById("search_customer");
@@ -520,17 +534,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đối tác giao hàng");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    dispatch(
-                      actionCreateOrderReturn(orderDetailResult, (response) => {
-                        valuesResult.order_return_id = response.id;
-                        dispatch(
-                          actionCreateOrderExchange(
-                            valuesResult,
-                            createOrderExchangeCallback
-                          )
-                        );
-                      })
-                    );
+                    handleCreateOrderExchangeByValue(valuesResult);
                   }
                 } else {
                   if (
@@ -540,17 +544,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đơn vị vận chuyển");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    dispatch(
-                      actionCreateOrderReturn(orderDetailResult, (response) => {
-                        valuesResult.order_return_id = response.id;
-                        dispatch(
-                          actionCreateOrderExchange(
-                            valuesResult,
-                            createOrderExchangeCallback
-                          )
-                        );
-                      })
-                    );
+                    handleCreateOrderExchangeByValue(valuesResult);
                   }
                 }
               }
@@ -559,9 +553,11 @@ const ScreenReturnCreate = (props: PropType) => {
         }
       })
       .catch((error) => {
-        const element: any = document.getElementById(
-          error.errorFields[0].name.join("")
-        );
+        console.log("error", error);
+        const element: any =
+          document.getElementById(error.errorFields[0].name.join("")) ||
+          document.getElementById(error.errorFields[0].name.join("_"));
+        console.log("element", element);
         element?.focus();
         const offsetY =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
@@ -674,7 +670,6 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
-      console.log("value22", value);
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
     [history]

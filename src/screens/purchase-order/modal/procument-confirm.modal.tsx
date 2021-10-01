@@ -81,6 +81,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         onOk={onOk}
         onDelete={onDelete}
         loading={loading}
+        isConfirmModal={isEdit}
         title={
           <div>
             {isEdit ? "Sửa phiếu duyệt " : "Duyệt phiếu nháp "}
@@ -245,9 +246,10 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                 },
                 {
                   title: "",
-                  width: 40,
-                  render: (value: string, item, index: number) => (
-                    <Button
+                  width: isEdit ? 0: 40,
+                  render: (value: string, item, index: number) =>{
+                    return isEdit ? <Fragment/>
+                     :<Button
                       type="link"
                       onClick={() => {
                         handleRemoveLineItem(item, index);
@@ -255,7 +257,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     >
                       x
                     </Button>
-                  ),
+                  } ,
                 },
                 {
                   title: "",
@@ -265,15 +267,14 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
               ]}
               summary={(data) => {
                 let ordered_quantity = 0;
-                let accepted_quantity = 0;
+                let real_quantity = 0;
                 let planned_quantity = 0;
                 let quantity = 0;
                 data.forEach((item) => {
-                  ordered_quantity = ordered_quantity + item.ordered_quantity;
-                  accepted_quantity =
-                    accepted_quantity + item.accepted_quantity;
-                  planned_quantity = planned_quantity + item.planned_quantity;
-                  quantity = quantity + item.quantity;
+                  ordered_quantity += item.ordered_quantity;
+                  real_quantity += item.real_quantity;
+                  planned_quantity += item.planned_quantity;
+                  quantity += item.quantity;
                 });
                 return (
                   <Table.Summary>
@@ -288,7 +289,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={2}>
                         <div style={{ fontWeight: 700 }}>
-                          {accepted_quantity}
+                          {real_quantity}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={3}>

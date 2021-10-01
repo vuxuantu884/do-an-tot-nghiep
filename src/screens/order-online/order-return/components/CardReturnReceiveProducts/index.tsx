@@ -51,7 +51,7 @@ function CardReturnReceiveProducts(props: PropType) {
             handleReceivedReturnProducts(e.target.checked);
           }}
         >
-          {!isDetailPage ? "Đã nhận hàng trả lại" : "Đã nhận hàng trả lại"}
+          Đã nhận hàng trả lại
         </Checkbox>
         {isDetailPage && <Button>Nhận hàng</Button>}
       </div>
