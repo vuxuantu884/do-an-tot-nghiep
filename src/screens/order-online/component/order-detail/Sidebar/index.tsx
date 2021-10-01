@@ -28,7 +28,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
       >
         <div className="padding-24">
           <Form.Item
-            label="Nhân viên bán hàng 2"
+            label="Nhân viên bán hàng"
             name="assignee_code"
             rules={[
               {
@@ -99,7 +99,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         <div className="padding-24">
           <Form.Item
             name="note"
-            label="Ghi chú nội bộ 3"
+            label="Ghi chú nội bộ"
             tooltip={{
               title: "Thêm thông tin ghi chú chăm sóc khách hàng",
               icon: <InfoCircleOutlined />,

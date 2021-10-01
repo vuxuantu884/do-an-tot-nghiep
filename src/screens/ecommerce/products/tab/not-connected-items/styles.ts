@@ -1,10 +1,7 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .ant-select {
-    width: 100%;
-  }
-  .total-items-ecommerce {
+  .not-connected-items {
     padding: 20px;
 
     .filter {
@@ -49,6 +46,7 @@ export const StyledComponent = styled.div`
       border: 1px solid #5c5c5c;
     }
   }
+
 `;
 
 export const StyledYodyProductColumn = styled.div`

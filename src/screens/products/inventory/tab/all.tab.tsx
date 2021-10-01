@@ -12,7 +12,7 @@ import {
 } from "model/inventory";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import { TabProps } from "./tab.props";
 import {
@@ -21,6 +21,7 @@ import {
 } from "react-icons/hi";
 import AllInventoryFilter from "../filter/all.filter";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { AppConfig } from "config/app.config";
 
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
@@ -76,7 +77,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     [history, params]
   );
 
-  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([
+  let [columns, setColumns] = useState<
+    Array<ICustomTableColumType<InventoryResponse>>
+  >([
     {
       width: 100,
       title: "Ảnh",
@@ -96,7 +99,11 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
       render: (value, record, index) => (
         <div>
-          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>{value}</Link>
+          <Link
+            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
+          >
+            {value}
+          </Link>
         </div>
       ),
     },
@@ -111,15 +118,21 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       title: "Giá nhập",
       visible: true,
       align: "right",
-      dataIndex: "import_price",
-      render: (value, record, index) => formatCurrency(value),
+      dataIndex: "prices",
+      render: (value, record, index) => {
+        let price = Products.findPrice(value, AppConfig.currency);
+        return formatCurrency(price ? price.import_price : 0);
+      },
     },
     {
       title: "Giá bán",
       visible: true,
-      dataIndex: "retail_price",
+      dataIndex: "prices",
       align: "right",
-      render: (value, record, index) => formatCurrency(value),
+      render: (value, record, index) => {
+        let price = Products.findPrice(value, AppConfig.currency);
+        return formatCurrency(price ? price.retail_price : 0);
+      },
     },
     {
       title: "Tồn theo trạng thái",
@@ -133,7 +146,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     setShowSettingColumn(true);
   }, []);
 
-  const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns])
+  const columnsFinal = useMemo(
+    () => columns.filter((item) => item.visible),
+    [columns]
+  );
 
   useEffect(() => {
     setLoading(true);

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,} from "utils/ToastUtils";
+import { formatCurrency } from "utils/AppUtils";
 
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -28,7 +28,16 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent, StyledYodyProductColumn } from "./styles";
 
-const NotConnectedItems = () => {
+  
+type NotConnectedItemsProps = {
+  categoryList?: Array<any>
+};
+
+const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
+  props: NotConnectedItemsProps
+) => {
+
+  const { categoryList } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -162,7 +171,7 @@ const NotConnectedItems = () => {
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_price || "-"}</span>
+          <span>{l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}</span>
         );
       },
     },
@@ -330,30 +339,6 @@ const NotConnectedItems = () => {
     }
   ]
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-  const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
-  const CONNECT_STATUS = bootstrapReducer.data?.connect_product_status;
-  
-  //thai fake data
-  const CATEGORY = [
-    {
-      id: 1,
-      name: "category 1",
-      value: "category_1"
-    },
-    {
-      id: 2,
-      name: "category 2",
-      value: "category_2"
-    }
-  ]
-
-
-  
-  ////////////////////
-
   const onFilterClick = React.useCallback(() => {
     setVisibleFilter(false);
     formAdvance.submit();
@@ -379,7 +364,7 @@ const NotConnectedItems = () => {
 
   return (
     <StyledComponent>
-      <div className="total-items-ecommerce">
+      <div className="not-connected-items">
         <div className="filter">
           <Form
             form={formAdvance}
@@ -577,48 +562,13 @@ const NotConnectedItems = () => {
                 placeholder="Chọn danh mục"
                 allowClear
               >
-                {CATEGORY.map((item) => (
-                  <Option key={item.id} value={item.value}>
-                    {item.name}
+                {categoryList && categoryList.map((item: any) => (
+                  <Option key={item.category_id} value={item.category_id}>
+                    {item.display_category_name}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
-
-            <Form.Item
-              name="connect_status"
-              label={<b>TRẠNG THÁI GHÉP NỐI</b>}
-            >
-              <Select
-                showSearch
-                placeholder="Chọn trạng thái ghép nối"
-                allowClear
-              >
-                {CONNECT_STATUS && CONNECT_STATUS.map((item) => (
-                  <Option key={item.value} value={item.value}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="update_stock_status"
-              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
-            >
-              <Select
-                showSearch
-                placeholder="Chọn trạng thái đồng bộ tồn kho"
-                allowClear
-              >
-                {STOCK_STATUS && STOCK_STATUS.map((item) => (
-                  <Option key={item.value} value={item.value}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
           </Form>
         </BaseFilter>
 

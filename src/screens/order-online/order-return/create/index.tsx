@@ -639,19 +639,17 @@ const ScreenReturnCreate = (props: PropType) => {
       ? 0
       : Pointfocus.point;
 
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
-    let limitAmountPointFocus = !rank
-      ? 0
-      : !rank.limit_order_percent
-      ? totalAmountPayable
-      : (rank.limit_order_percent * totalAmountPayable) / 100;
-    //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
-    limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+    // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
+    // let limitAmountPointFocus = !rank
+    //   ? 0
+    //   : !rank.limit_order_percent
+    //   ? totalAmountPayable
+    //   : (rank.limit_order_percent * totalAmountPayable) / 100;
+    // //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
+    // limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
-    if (!loyaltyPoint || limitAmountPointFocus === 0) {
-      showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
+    if (!loyaltyPoint) {
+      showError("Khách hàng chưa tồn tại trên hệ thống Loyalty");
       return false;
     }
     if (
@@ -660,13 +658,6 @@ const ScreenReturnCreate = (props: PropType) => {
     ) {
       showError(
         "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
-      );
-      return false;
-    }
-
-    if (point > limitAmountPointFocus) {
-      showError(
-        `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
       );
       return false;
     }
