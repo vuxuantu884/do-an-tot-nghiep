@@ -372,12 +372,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
               <li>
                 <b>SKU: </b>
-                <span>{productSelected.sku}</span>
+                <span style={{color: "#737373"}}>{productSelected.sku}</span>
               </li>
               
               <li>
                 <b>Giá bán: </b>
-                <span>{productSelected.retail_price}</span>
+                <span>{formatCurrency(productSelected.retail_price)}</span>
               </li>
             </ul>
 
@@ -404,7 +404,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
       },
     },
     {
@@ -412,7 +412,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <span>{l.ecommerce_sku || l.ecommerce_product_id || "-"}</span>
+        return (
+          <div>
+            <div>{l.ecommerce_sku}</div>
+            <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
+            <div style={{color: "#737373"}}>({l.ecommerce_variant_id})</div>
+            <div style={{color: "#2a2a86"}}>(YODY Việt Nam)</div>
+          </div>
+        )
       },
     },
     {
@@ -420,7 +427,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_variant || "-"}</span>
+          <div>
+            <div>{l.ecommerce_variant}</div>
+            <div>{l.ecommerce_sku}</div>
+          </div>
         );
       },
     },

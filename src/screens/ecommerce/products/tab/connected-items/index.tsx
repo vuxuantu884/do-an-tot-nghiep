@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space, Dropdown, Menu } from "antd";
 import { SearchOutlined, DownOutlined } from "@ant-design/icons";
 
@@ -9,7 +8,6 @@ import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
-import UrlConfig from "config/url.config";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
@@ -245,7 +243,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
       },
     },
     {
@@ -253,7 +251,13 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <span>{l.ecommerce_sku || l.ecommerce_product_id || "-"}</span>
+        return (
+          <div>
+            <div>{l.ecommerce_sku}</div>
+            <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
+            <div style={{color: "#2a2a86"}}>(YODY Việt Nam)</div>
+          </div>
+        )
       },
     },
     {
@@ -261,7 +265,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_variant || "-"}</span>
+          <div>
+            <div>{l.ecommerce_variant}</div>
+            <div>{l.ecommerce_sku}</div>
+          </div>
         );
       },
     },
@@ -281,14 +288,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       render: (l: any, v: any, i: any) => {
         return (
           <div>
-            {l.core_variant &&
-              <Link to={`${UrlConfig.PRODUCT}/${l.ecommerce_id}/variants/${l.id}`}>
-                {l.core_variant}
-              </Link>
-            }
-            {!l.core_variant &&
-              <span>-</span>
-            }
+            <div>{l.core_variant}</div>
+            <div>{l.core_sku}</div>
           </div>
         );
       },
@@ -299,7 +300,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.core_price || "-"}</span>
+          <span>{formatCurrency(l.core_price)}</span>
         );
       },
     },
@@ -610,6 +611,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
           onSelectedChange={onSelectTable}
           columns={columnFinal}
           dataSource={variantConnectedItem}
+          scroll={{ x: 1500 }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantConnectedItem && variantConnectedItem.length,
