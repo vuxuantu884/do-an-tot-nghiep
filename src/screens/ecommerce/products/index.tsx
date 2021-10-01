@@ -355,6 +355,8 @@ const Products: React.FC = () => {
                 onChange={onChangeDate}
               />
             </Form.Item>
+          
+            <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
           </Form>
         </div>
       </Modal>
