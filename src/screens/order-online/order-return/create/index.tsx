@@ -48,7 +48,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CardShipment from "screens/order-online/component/order-detail/CardShipment";
 import {
-  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
