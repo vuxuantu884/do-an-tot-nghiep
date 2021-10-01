@@ -132,3 +132,7 @@ export const productImportAction = (file: File, isCreate: string, onResult: (res
 export const variantUpdateManyAction = (variants: Array<VariantUpdateRequest>, onResult: (success: Array<VariantResponse>, error: Array<VariantResponse>, exception: boolean) => void) => {
   return BaseAction(ProductType.VARIANT_UPDATE_SALEABLE, {variants, onResult});
 }
+
+export const variantDeleteManyAction = (variants: Array<any>, onResult: (exception: boolean) => void) => {
+  return BaseAction(ProductType.VARIANT_DELETE, {variants, onResult});
+}

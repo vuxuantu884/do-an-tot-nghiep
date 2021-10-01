@@ -48,7 +48,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CardShipment from "screens/order-online/component/order-detail/CardShipment";
 import {
-  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -505,6 +504,21 @@ const ScreenReturnCreate = (props: PropType) => {
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
           if (checkPointfocus(values)) {
+            const handleCreateOrderExchangeByValue = (
+              valuesResult: ExchangeRequest
+            ) => {
+              dispatch(
+                actionCreateOrderReturn(orderDetailResult, (response) => {
+                  valuesResult.order_return_id = response.id;
+                  dispatch(
+                    actionCreateOrderExchange(
+                      valuesResult,
+                      createOrderExchangeCallback
+                    )
+                  );
+                })
+              );
+            };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
               const element: any = document.getElementById("search_customer");
@@ -520,17 +534,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đối tác giao hàng");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    dispatch(
-                      actionCreateOrderReturn(orderDetailResult, (response) => {
-                        valuesResult.order_return_id = response.id;
-                        dispatch(
-                          actionCreateOrderExchange(
-                            valuesResult,
-                            createOrderExchangeCallback
-                          )
-                        );
-                      })
-                    );
+                    handleCreateOrderExchangeByValue(valuesResult);
                   }
                 } else {
                   if (
@@ -540,17 +544,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     showError("Vui lòng chọn đơn vị vận chuyển");
                   } else {
                     console.log("valuesResult", valuesResult);
-                    dispatch(
-                      actionCreateOrderReturn(orderDetailResult, (response) => {
-                        valuesResult.order_return_id = response.id;
-                        dispatch(
-                          actionCreateOrderExchange(
-                            valuesResult,
-                            createOrderExchangeCallback
-                          )
-                        );
-                      })
-                    );
+                    handleCreateOrderExchangeByValue(valuesResult);
                   }
                 }
               }
@@ -559,9 +553,11 @@ const ScreenReturnCreate = (props: PropType) => {
         }
       })
       .catch((error) => {
-        const element: any = document.getElementById(
-          error.errorFields[0].name.join("")
-        );
+        console.log("error", error);
+        const element: any =
+          document.getElementById(error.errorFields[0].name.join("")) ||
+          document.getElementById(error.errorFields[0].name.join("_"));
+        console.log("element", element);
         element?.focus();
         const offsetY =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
@@ -642,19 +638,17 @@ const ScreenReturnCreate = (props: PropType) => {
       ? 0
       : Pointfocus.point;
 
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
-    let limitAmountPointFocus = !rank
-      ? 0
-      : !rank.limit_order_percent
-      ? totalAmountPayable
-      : (rank.limit_order_percent * totalAmountPayable) / 100;
-    //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
-    limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+    // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
+    // let limitAmountPointFocus = !rank
+    //   ? 0
+    //   : !rank.limit_order_percent
+    //   ? totalAmountPayable
+    //   : (rank.limit_order_percent * totalAmountPayable) / 100;
+    // //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
+    // limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
-    if (!loyaltyPoint || limitAmountPointFocus === 0) {
-      showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
+    if (!loyaltyPoint) {
+      showError("Khách hàng chưa tồn tại trên hệ thống Loyalty");
       return false;
     }
     if (
@@ -663,13 +657,6 @@ const ScreenReturnCreate = (props: PropType) => {
     ) {
       showError(
         "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
-      );
-      return false;
-    }
-
-    if (point > limitAmountPointFocus) {
-      showError(
-        `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
       );
       return false;
     }
@@ -683,7 +670,6 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const createOrderExchangeCallback = useCallback(
     (value: OrderResponse) => {
-      console.log("value22", value);
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
     [history]

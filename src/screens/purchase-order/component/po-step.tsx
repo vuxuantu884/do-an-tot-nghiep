@@ -80,9 +80,9 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   const getLastStepName = () => {
     const currentStep = statusToStep[poStatus];
     switch (currentStep) {
-      case 5:
+      case 4:
         return "Kết thúc";
-      case 6:
+      case 5:
         return "Huỷ";
       default:
         return "Hoàn thành";
@@ -100,8 +100,8 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     >
       <Steps.Step title="Đặt hàng" description={getDescription(0)} />
       <Steps.Step title="Xác nhận" description={getDescription(1)} />
-      <Steps.Step title="Nhập kho" description={getDescription(3)} />
-      <Steps.Step title={getLastStepName()} description={getDescription(4)} />
+      <Steps.Step title="Nhập kho" description={getDescription(2)} />
+      <Steps.Step title={getLastStepName()} description={getDescription(3)} />
     </Steps>
   );
 };

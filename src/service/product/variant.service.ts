@@ -18,7 +18,8 @@ export const updateVariantApi = (id: string, request: VariantUpdateRequest): Pro
   return BaseAxios.put(`${ApiConfig.PRODUCT}/products/${request.product_id}/variants/${id}`, request);
 }
 
-
-
+export const deleteVariantApi = (productId: number, variantId: number): Promise<BaseResponse<VariantResponse>> => {
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/products/${productId}/variants/${variantId}`);
+}
 
 // export {getVariants, getVariantByBarcode};

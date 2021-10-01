@@ -63,7 +63,7 @@ export interface OrderResponse extends BaseObject {
   receive_date?: string;
   order_code?: string;
   order_id?: number;
-  order_return_origin?: OrderResponse;
+  order_return_origin?: OrderReturnModel;
 }
 
 export interface OrderLineItemResponse {

@@ -188,7 +188,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                       isFloat={false}
                       value={value}
                       min={0}
-                      max={item.quantity}
+                      // max={item.quantity}
                       default={0}
                       maxLength={6}
                       onChange={(quantity: number | null) => {

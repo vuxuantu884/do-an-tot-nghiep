@@ -1,3 +1,4 @@
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
@@ -12,6 +13,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { listColorAction } from "domain/actions/product/color.action";
 import {
   searchVariantsRequestAction,
+  variantDeleteManyAction,
   variantUpdateAction,
   variantUpdateManyAction,
 } from "domain/actions/product/products.action";
@@ -123,6 +125,7 @@ const TabProduct: React.FC = () => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
+  let [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [data, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 30,
@@ -131,7 +134,7 @@ const TabProduct: React.FC = () => {
     },
     items: [],
   });
-
+  const [rowKey, setRowKey] = useState<Array<any>>([]);
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<VariantResponse>>
   >([
@@ -175,56 +178,58 @@ const TabProduct: React.FC = () => {
     {
       title: "Giá bán",
       dataIndex: "variant_prices",
-      align: 'right',
+      align: "right",
       visible: true,
       render: (value) => {
-        let prices: VariantPricesResponse|null = Products.findPrice(value, AppConfig.currency);
-        if(prices !== null) {
+        let prices: VariantPricesResponse | null = Products.findPrice(
+          value,
+          AppConfig.currency
+        );
+        if (prices !== null) {
           return formatCurrency(prices.retail_price);
         }
         return 0;
-      }
+      },
     },
     {
       title: "Nhà thiết kế",
       render: (value: VariantResponse) => <div> {value.product.designer}</div>,
       visible: true,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Merchandiser",
       render: (value: VariantResponse) => (
         <div> {value.product.merchandiser}</div>
       ),
-      align: 'center',
+      align: "center",
       visible: true,
     },
     {
       title: "Có thể bán",
       dataIndex: "inventory",
       visible: true,
-      align: 'right',
+      align: "right",
     },
-    
+
     {
       title: "Trạng thái",
       dataIndex: "saleable",
       render: (value: string, row: VariantResponse) => (
-        <div
-          className={value ? "text-success" : "text-error"}
-        >
+        <div className={value ? "text-success" : "text-error"}>
           {value ? "Cho phép bán" : "Ngừng  bán"}
         </div>
       ),
       visible: true,
-      align: 'center',
+      align: "center",
     },
     {
       title: "Ngày khởi tạo",
       dataIndex: "created_date",
       visible: true,
-      align: 'center',
-      render: (value, record) => ConvertUtcToLocalDate(record.product.created_date)
+      align: "center",
+      render: (value, record) =>
+        ConvertUtcToLocalDate(record.product.created_date),
     },
   ]);
 
@@ -236,10 +241,17 @@ const TabProduct: React.FC = () => {
     },
     [params]
   );
-  const onFilter = useCallback(
-    (values) => {
-      let newPrams = {...values, page: 1 };
-      setPrams(newPrams);
+  const onFilter = useCallback((values) => {
+    let newPrams = { ...values, page: 1 };
+    setPrams(newPrams);
+  }, []);
+
+  const setSearchResult = useCallback(
+    (result: PageResponse<VariantResponse> | false) => {
+      setTableLoading(false);
+      if (!!result) {
+        setData(result);
+      }
     },
     []
   );
@@ -259,11 +271,12 @@ const TabProduct: React.FC = () => {
           }
         });
         setData({ ...data, items: [...data.items] });
+        dispatch(searchVariantsRequestAction(params, setSearchResult));
         showSuccess("Cập nhật thông tin thành công");
-        setSelected([]);
+        setRowKey([])
       }
     },
-    [data, dispatch]
+    [data, dispatch, params, setSearchResult]
   );
 
   const onActive = useCallback(() => {
@@ -294,11 +307,37 @@ const TabProduct: React.FC = () => {
     }
   }, [dispatch, onResultUpdateSaleable, selected]);
 
+  const onResultDelete = useCallback(
+    (
+      isException
+    ) => {
+      dispatch(hideLoading());
+      if (!isException) {
+        dispatch(searchVariantsRequestAction(params, setSearchResult));
+        showSuccess("Cập nhật thông tin thành công");
+        setRowKey([]);
+        setSelected([]);
+      }
+    },
+    [dispatch, params, setSearchResult]
+  );
+
+  const onDelete = useCallback(() => {
+    if (selected.length > 0) {
+      dispatch(showLoading());
+      let request: Array<any> = [];
+      selected.forEach((value) => {
+        request.push({product_id: value.product_id, variant_id: value.id});
+      });
+      dispatch(variantDeleteManyAction(request, onResultDelete));
+    }
+  }, [dispatch, onResultDelete, selected])
+
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.PRINT_BAR_CODE:
-          history.push(`${UrlConfig.PRODUCT}/barcode`, {selected: selected});
+          history.push(`${UrlConfig.PRODUCT}/barcode`, { selected: selected });
           break;
         case ACTIONS_INDEX.ACTIVE:
           onActive();
@@ -306,19 +345,12 @@ const TabProduct: React.FC = () => {
         case ACTIONS_INDEX.INACTIVE:
           onInActive();
           break;
+        case ACTIONS_INDEX.DELETE:
+          setConfirmDelete(true);
+          break;
       }
     },
     [history, onActive, onInActive, selected]
-  );
-
-  const setSearchResult = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
   );
 
   const onSave = useCallback(
@@ -332,12 +364,13 @@ const TabProduct: React.FC = () => {
         dispatch(
           variantUpdateAction(variantResponse.id, variantRequest, (result) => {
             dispatch(hideLoading());
-            console.log(result);
+            setTableLoading(true);
+            dispatch(searchVariantsRequestAction(params, setSearchResult));
           })
         );
       }
     },
-    [dispatch]
+    [dispatch, params, setSearchResult]
   );
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -353,18 +386,18 @@ const TabProduct: React.FC = () => {
   }, []);
 
   useEffect(() => {
-      dispatch(CountryGetAllAction(setCountry));
-      dispatch(listColorAction(initMainColorQuery, setMainColor));
-      dispatch(listColorAction(initColorQuery, setColor));
-      dispatch(sizeGetAll(setSize));
-      dispatch(SupplierGetAllAction(setSupplier));
-      dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
-      setTableLoading(true);
+    dispatch(CountryGetAllAction(setCountry));
+    dispatch(listColorAction(initMainColorQuery, setMainColor));
+    dispatch(listColorAction(initColorQuery, setColor));
+    dispatch(sizeGetAll(setSize));
+    dispatch(SupplierGetAllAction(setSupplier));
+    dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
+    setTableLoading(true);
   }, [dispatch]);
   useEffect(() => {
     setTableLoading(true);
     dispatch(searchVariantsRequestAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult])
+  }, [dispatch, params, setSearchResult]);
   return (
     <div className="padding-20">
       <ProductFilter
@@ -383,6 +416,8 @@ const TabProduct: React.FC = () => {
         onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
+        selectedRowKey={rowKey}
+        onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
         scroll={{ x: 1300 }}
@@ -415,6 +450,17 @@ const TabProduct: React.FC = () => {
           setColumn(data);
         }}
         data={columns}
+      />
+      <ModalDeleteConfirm
+        onCancel={() => setConfirmDelete(false)}
+        onOk={() => {
+          setConfirmDelete(false);
+          dispatch(showLoading());
+          onDelete();
+        }}
+        title="Bạn chắc chắn xóa sản phẩm này?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isConfirmDelete}
       />
     </div>
   );
