@@ -278,7 +278,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
+    return listSource.filter((item) => item.code !== "POS");
   }, [listSource]);
 
   useEffect(() => {
@@ -301,7 +301,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   useEffect(() => {
     if (customer && customer.shipping_addresses[0]) {
-      setShippingAddress(customer.shipping_addresses[0]);
+      const addressDefault = customer.shipping_addresses.filter(item => item.default)
+      setShippingAddress(addressDefault.length ? addressDefault[0] : customer.shipping_addresses[0]);
     }
   }, [customer]);
 

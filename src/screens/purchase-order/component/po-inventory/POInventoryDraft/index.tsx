@@ -20,6 +20,7 @@ import {
 } from "model/purchase-order/purchase-procument";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import POEditDraftProcurementModal from "screens/purchase-order/modal/POEditDraftProcurementModal";
+import { showError } from "utils/ToastUtils";
 
 type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
@@ -301,13 +302,13 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                     <Form.Item name={POField.expect_import_date} noStyle hidden>
                       <Input />
                     </Form.Item>
-                    <DatePicker
+                    <DatePicker  
                       placeholder="dd/mm/yyyy"
                       onChange={(value) => {
-                        value && onChangeValueDate(value, index);
+                        value &&  onChangeValueDate(value, index);
                       }}
                       disabledDate={(date) => date <= moment().startOf("days")}
-                      format={DATE_FORMAT.DDMMYYY}
+                      format={DATE_FORMAT.DDMMYYY}                      
                     />
                   </Col>
                   <Col span={24}>
@@ -429,6 +430,19 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataProcurement, procurementDataState]);
 
+  const handleSaveDraft = (listDraft: PurchaseProcurementViewDraft[]) => {
+   
+    const notValidDateAndStore = listDraft.some((element) => {
+      return !element.expect_receipt_date || !element.store_id;
+    });
+    if (notValidDateAndStore) {
+      showError("Vui lòng chọn đủ ngày nhận dự kiến và kho");
+    } else { 
+      onCancelPU && onCancelPU();
+      setProcurementDataState(listDraft);
+    }
+  };
+
   if (!isEdit) {
     return (
       <>
@@ -466,8 +480,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             setProcurementDataState(value);
           }}
           onOk={(value) => {
-            onCancelPU && onCancelPU();
-            setProcurementDataState(value);
+            handleSaveDraft(value)
           }}
         />
       </Row>

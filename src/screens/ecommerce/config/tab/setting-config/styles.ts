@@ -33,11 +33,21 @@ export const StyledConfig = styled.div`
     color: #222222;
   }
   .description {
-    display: block;
-    height: 38px;
     font-weight: 400;
     font-size: 13px;
     color: #666666;
+    position: relative;
+    padding: 0 20px ;
+    &> li {
+      span{
+        padding: 0 10px
+      }
+    }
+    &> li::marker{
+      content: "•";
+      font-size: 12px;
+      color: #666666;
+    }
   }
   .customer-bottom-button{
     margin-left: -50px;

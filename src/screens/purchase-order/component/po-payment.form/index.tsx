@@ -273,15 +273,15 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       shouldUpdate={(prev, current) =>
                         prev[POField.total_paid] !==
                           current[POField.total_paid] ||
-                        prev[POField.total] !== current[POField.total]
+                        prev[POField.total_payment] !== current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
-                        let total = getFieldValue(POField.total);
+                        let total_payment = getFieldValue(POField.total_payment);
                         let percent = 0;
-                        if (total_paid && total) {
-                          percent = Math.round((total_paid / total) * 100);
+                        if (total_paid && total_payment) {
+                          percent = Math.round((total_paid / total_payment) * 100);
                         }
 
                         return (
@@ -337,7 +337,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       shouldUpdate={(prev, current) =>
                         prev[POField.total_paid] !==
                           current[POField.total_paid] ||
-                        prev[POField.total] !== current[POField.total]
+                        prev[POField.total_payment] !== current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
@@ -523,13 +523,13 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         noStyle
         shouldUpdate={(prev, current) =>
           prev[POField.total_paid] !== current[POField.total_paid] ||
-          prev[POField.total] !== current[POField.total]
+          prev[POField.total_payment] !== current[POField.total_payment]
         }
       >
         {({ getFieldValue }) => {
           let total_paid = getFieldValue(POField.total_paid);
-          let total = getFieldValue(POField.total);
-          let remainPayment = total - total_paid;
+          let total_payment = getFieldValue(POField.total_payment);
+          let remainPayment = total_payment - total_paid;
           return (
             <PaymentModal
               poData={poData}

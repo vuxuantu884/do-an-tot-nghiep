@@ -21,4 +21,6 @@ export interface EcommerceResponse extends BaseObject {
   auth_time: String; // thời gian bắt đầu kết nối
   expire_time: String; // thời gian hết hạn
   inventories: Array<EcommerceShopInventoryDto>; // danh sách kho
+  source: String; // nguồn
+  source_id: number; // id nguồn
 }
