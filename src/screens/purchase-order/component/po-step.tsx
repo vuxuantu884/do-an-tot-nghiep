@@ -80,9 +80,9 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   const getLastStepName = () => {
     const currentStep = statusToStep[poStatus];
     switch (currentStep) {
-      case 5:
+      case 4:
         return "Kết thúc";
-      case 6:
+      case 5:
         return "Huỷ";
       default:
         return "Hoàn thành";
