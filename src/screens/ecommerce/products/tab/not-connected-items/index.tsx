@@ -1,20 +1,38 @@
-import React, { useState, useEffect, useMemo } from "react";
+/* eslint-disable react-hooks/rules-of-hooks */
+import React, { useState, useEffect, useMemo, createRef } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Form, Select, Input, Modal, Tooltip } from "antd";
+import { Link, useHistory } from "react-router-dom";
+import { RefSelectProps } from "antd/lib/select";
+import { Button, Form, Select, Input, Modal, Tooltip, AutoComplete } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+
+import UrlConfig from "config/url.config";
+import { AppConfig } from "config/app.config";
 
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
-import { showSuccess,} from "utils/ToastUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { showError, showSuccess,} from "utils/ToastUtils";
+import {
+  findAvatar,
+  findPrice,
+  formatCurrency
+} from "utils/AppUtils";
 
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
+
+import {
   getProductEcommerceList,
   getShopEcommerceList,
   deleteEcommerceItem,
+  putConnectEcommerceItem
  } from "domain/actions/ecommerce/ecommerce.actions";
+
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
 import circleDeleteIcon from "assets/icon/circle-delete.svg"
 import filterIcon from "assets/icon/filter.svg"
@@ -25,8 +43,9 @@ import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
+import imgdefault from "assets/icon/img-default.svg";
 
-import { StyledComponent, StyledYodyProductColumn } from "./styles";
+import { StyledComponent, StyledProductListDropdown, StyledYodyProductColumn } from "./styles";
 
   
 type NotConnectedItemsProps = {
@@ -41,6 +60,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
+  const history = useHistory();
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
@@ -58,6 +78,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState(null);
+
+  const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -100,20 +122,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     dispatch(getProductEcommerceList(query, setVariantData));
   }
 
-  const searchYodyProduct = (e: any) => {
-    e.preventDefault();
-    console.log("searchYodyProduct e.target.value: ", e.target.value);
-
-    // dispatch(searchVariantsRequestAction(params, setSearchResult));
-  }
-
-  const saveYodyProduct = () => {
-    console.log("saveYodyProduct: ");
-  }
-  
-  const cancelYodyProduct = () => {
-    console.log("cancelYodyProduct: ");
-  }
 
   //handle delete item
   const handleDeleteItem = (item: any) => {
@@ -137,8 +145,259 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       }));
     }
   };
+
+
+  const renderProductColumn = (item: any, connectItemList: Array<any>, setConnectItemList: Function) => {
+    const autoCompleteRef = createRef<RefSelectProps>();
+
+    const [keySearchVariant, setKeySearchVariant] = React.useState("");
+    const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
+    const [productSelected, setProductSelected] = useState<any>();
+    
+
+    const saveYodyProduct = (itemId: any) => {  
+      const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
+        return item.core_variant_id !== itemId;
+      });
+
+      const connectProductSelected = {
+        id: item.id,
+        core_variant_id: productSelected.id,
+        core_sku: productSelected.sku,
+        core_variant: productSelected.name,
+        core_price: productSelected.retail_price,
+        ecommerce_correspond_to_core: 1,
+      }
   
-  //thai need todo
+      setProductSelected(null);
+      setConnectItemList(newConnectItemList);
+      const request = {
+        variants: [connectProductSelected]
+      }
+
+      dispatch(
+        putConnectEcommerceItem(request, (result) => {
+          if (result) {
+            showSuccess("Ghép nối sản phẩm thành công");
+            reloadPage();
+            history.replace(`${history.location.pathname}#connected-item`)
+          } else {
+            showError("Ghép nối sản phẩm thất bại");
+          }
+        })
+      );
+    }
+    
+    const cancelYodyProduct = (itemId: any) => {
+      const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
+        return item.core_variant_id !== itemId;
+      });
+  
+      setConnectItemList(newConnectItemList);
+      setProductSelected(null);
+    }
+
+    const onInputSearchProductFocus = () => {
+      setIsInputSearchProductFocus(true);
+    };
+
+    const onInputSearchProductBlur = () => {
+      setIsInputSearchProductFocus(false);
+    };
+
+    const initQueryVariant: VariantSearchQuery = {
+      limit: 10,
+      page: 1,
+      status: "active",
+      saleable: true,
+    };
+
+    const [resultSearchVariant, setResultSearchVariant] = React.useState<
+      PageResponse<VariantResponse>
+    >({
+      metadata: {
+        limit: 0,
+        page: 1,
+        total: 0,
+      },
+      items: [],
+    });
+
+    const updateProductResult = (result: any) => {
+      setResultSearchVariant(result);
+    };
+
+    const onChangeProductSearch = (value: string) => {
+      setKeySearchVariant(value);
+      initQueryVariant.info = value;
+      dispatch(
+        searchVariantsOrderRequestAction(initQueryVariant, updateProductResult)
+      );
+    };
+ 
+    const onSearchVariantSelect = (idItemSelected: any) => {
+        const itemSelected = resultSearchVariant && resultSearchVariant.items && resultSearchVariant.items.find(item => item.id === idItemSelected);
+
+        const productSelectedData = {
+          name: itemSelected && itemSelected.name,
+          sku: itemSelected && itemSelected.sku,
+          retail_price: itemSelected && itemSelected.variant_prices && itemSelected.variant_prices[0] && itemSelected.variant_prices[0].retail_price,
+          id: itemSelected && itemSelected.id,
+          product_id: itemSelected && itemSelected.product_id,
+        }
+
+        setProductSelected(productSelectedData);
+
+        const connectItem = {
+          id: item.id,
+          core_variant_id: productSelectedData.id,
+          core_sku: productSelectedData.sku,
+          core_variant: productSelectedData.name,
+          core_price: productSelectedData.retail_price,
+          ecommerce_correspond_to_core: 1,
+        }
+
+        const newConnectItems = [...connectItemList];
+        newConnectItems.push(connectItem);
+        
+        setConnectItemList(newConnectItems);
+        setIsInputSearchProductFocus(false);
+        setKeySearchVariant("");
+        autoCompleteRef.current?.blur();
+      }
+
+    const renderSearchVariant = (item: VariantResponse) => {
+      let avatar = findAvatar(item.variant_images);
+      return (
+        <StyledProductListDropdown>
+          <div className="item-searched-list">
+              <div className="item-img">
+                <img
+                  src={avatar === "" ? imgdefault : avatar}
+                  alt="anh"
+                  placeholder={imgdefault}
+                  style={{ width: "40px", height: "40px", borderRadius: 5 }}
+                />
+              </div>
+
+              <div className="item-info">
+                <div className="name-and-price">
+                  <span className="item-name">
+                    {item.name}
+                  </span>
+
+                  <span>
+                    {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+                    <span className="item-price-unit">đ</span>
+                  </span>
+
+                </div>
+
+                <div className="sku-and-stock">
+                  <span className="item-sku">
+                    {item.sku}
+                  </span>
+
+                  <span className="item-inventory">
+                    {"Có thể bán: "}
+                    <span style={{color: item.inventory > 0 ? "#2A2A86" : "red"}}>
+                      {item.inventory || "0"}
+                    </span>
+                  </span>
+                </div>
+
+              </div>
+          </div>
+        </StyledProductListDropdown>
+      );
+    };
+
+    const convertResultSearchVariant = useMemo(() => {
+      let options: any[] = [];
+      resultSearchVariant.items.forEach(
+        (item: VariantResponse, index: number) => {
+          options.push({
+            label: renderSearchVariant(item),
+            value: item.id,
+          });
+        }
+      );
+      return options;
+    }, [resultSearchVariant]);
+
+    return (
+      <StyledYodyProductColumn>
+        {(!productSelected || !productSelected.id) &&
+          <AutoComplete
+            notFoundContent={
+              keySearchVariant.length >= 3
+                ? "Không tìm thấy sản phẩm"
+                : undefined
+            }
+            id="search_product"
+            value={keySearchVariant}
+            ref={autoCompleteRef}
+            onSelect={onSearchVariantSelect}
+            dropdownClassName="search-layout dropdown-search-header"
+            dropdownMatchSelectWidth={360}
+            onSearch={onChangeProductSearch}
+            options={convertResultSearchVariant}
+            maxLength={255}
+            open={isInputSearchProductFocus}
+            onFocus={onInputSearchProductFocus}
+            onBlur={onInputSearchProductBlur}
+            dropdownRender={(menu) => (
+              <div>
+                {menu}
+              </div>
+            )}
+          >
+            <Input
+              style={{ width: 230 }}
+              placeholder="SKU, tên sản phẩm Yody"
+              prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+            />
+          </AutoComplete>
+        }
+
+        {productSelected && productSelected.id &&
+          <div>
+            <ul>
+              <li>
+                <b>Tên sản phẩm: </b>
+                <Link to={`${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`}>
+                  {productSelected.name}
+                </Link>
+              </li>
+
+              <li>
+                <b>SKU: </b>
+                <span>{productSelected.sku}</span>
+              </li>
+              
+              <li>
+                <b>Giá bán: </b>
+                <span>{productSelected.retail_price}</span>
+              </li>
+            </ul>
+
+            <div className="button">
+              <Button type="primary" onClick={() => saveYodyProduct(productSelected.id)}>
+                Lưu
+              </Button>
+
+              <Button onClick={() => cancelYodyProduct(productSelected.id)}>
+                Hủy          
+              </Button>
+            </div>
+          </div>
+        }
+        
+      </StyledYodyProductColumn>
+    );
+  }
+  
+
   const [columns] = useState<any>([
     {
       title: "Ảnh",
@@ -178,55 +437,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Sản phẩm (YODY)",
       visible: true,
-      render: (l: any, v: any, i: any) => {
-        return (
-          <StyledYodyProductColumn>
-            {l.core_variant &&
-              <div>
-                <ul>
-                  <li>
-                    <b>Tên sản phẩm: </b>
-                    <span>tên sản phẩm yody nè</span>
-                  </li>
-
-                  <li>
-                    <b>SKU: </b>
-                    <span>SKU yody nè</span>
-                  </li>
-                  
-                  <li>
-                    <b>Giá bán: </b>
-                    <span>Giá bán yody nè</span>
-                  </li>
-                </ul>
-
-                <div className="button">
-                  <Button type="primary" onClick={saveYodyProduct}>
-                    Lưu
-                  </Button>
-
-                  <Button onClick={cancelYodyProduct}>
-                    Hủy          
-                  </Button>
-                </div>
-              </div>
-            }
-
-            {!l.core_variant &&
-              <div>
-                <Input
-                  size="middle"
-                  className="yody-search"
-                  placeholder="Tên/Mã sản phẩm"
-                  prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  onPressEnter={(e) => searchYodyProduct(e)}
-                />
-              </div>
-            }
-
-          </StyledYodyProductColumn>
-        );
-      },
+      render: (l: any, v: any, i: any) => renderProductColumn(l, connectItemList, setConnectItemList)
     },
     {
       title: "Ghép nối",
@@ -358,8 +569,21 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setVisibleFilter(false);
   }, []);
 
-  const savePairing = () => {
-    showSuccess("Lưu các cặp đã ghép thành công");
+  const savePairingConnectItems = () => {
+    const request = {
+      variants: connectItemList
+    }
+    dispatch(
+      putConnectEcommerceItem(request, (result) => {
+        if (result) {
+          setConnectItemList([]);
+          showSuccess("Ghép nối sản phẩm thành công");
+          history.replace(`${history.location.pathname}#connected-item`)
+        } else {
+          showError("Ghép nối sản phẩm thất bại");
+        }
+      })
+    );
   }
 
   return (
@@ -462,7 +686,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         <Button
           className="save-pairing-button"
           type="primary"
-          onClick={(e) => {savePairing()}}
+          onClick={savePairingConnectItems}
+          disabled={connectItemList.length === 0}
           size="large"
           icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
         >
