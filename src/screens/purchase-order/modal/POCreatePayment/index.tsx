@@ -253,7 +253,6 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                   }
                   replace={(a: string) => replaceFormatString(a)}
                   min={0}
-                  max={remainPaymentNumber}
                   default={0}
                   placeholder="Nhập số tiền cần thanh toán"
                 />
