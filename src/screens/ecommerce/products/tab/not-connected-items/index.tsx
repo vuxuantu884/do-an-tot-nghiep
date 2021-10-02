@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useMemo, createRef } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
 import { Button, Form, Select, Input, Modal, Tooltip, AutoComplete, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -340,6 +340,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       return options;
     }, [resultSearchVariant]);
 
+    const gotoProductDetail = () => {
+      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`;
+      window.open(link, "_blank");
+    }
+
     return (
       <StyledYodyProductColumn>
         {(!productSelected || !productSelected.id) &&
@@ -380,9 +385,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <ul>
               <li>
                 <b>Tên sản phẩm: </b>
-                <Link to={`${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`}>
-                  {productSelected.name}
-                </Link>
+                <span onClick={gotoProductDetail} className="link">{productSelected.name}</span>
               </li>
 
               <li>

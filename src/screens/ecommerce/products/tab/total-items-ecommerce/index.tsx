@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Select, Input, Modal, Tooltip, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
+import UrlConfig from "config/url.config";
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
@@ -228,9 +229,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
+        const link = `${UrlConfig.PRODUCT}/${l.id}/variants/${l.core_variant_id}`;
         return (
           <div>
-            <div>{l.core_variant}</div>
+            <div onClick={() => window.open(link, "_blank")} className="link">{l.core_variant}</div>
             <div>{l.core_sku}</div>
           </div>
         );

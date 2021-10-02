@@ -52,5 +52,18 @@ export const StyledComponent = styled.div`
       }
     }
   }
+
+  .link {
+    color: #2a2a86;
+    text-decoration: none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+    transition: color .3s;
+    &:hover {
+      color: #1890ff;
+      text-decoration: underline;
+    }
+  }
   
 `;
