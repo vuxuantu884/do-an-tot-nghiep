@@ -47,12 +47,19 @@ type CardPaymentsProps = {
   isCloneOrder: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
-  loyaltyRate?:LoyaltyRateResponse| null;
+  loyaltyRate?: LoyaltyRateResponse | null;
 };
 
 function CardPayments(props: CardPaymentsProps) {
-  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod, levelOrder = 0,loyaltyRate } =
-    props;
+  const {
+    paymentMethod,
+    payments,
+    isCloneOrder,
+    setPayments,
+    shipmentMethod,
+    levelOrder = 0,
+    loyaltyRate,
+  } = props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
@@ -73,10 +80,13 @@ function CardPayments(props: CardPaymentsProps) {
     );
   }, [listPaymentMethod]);
 
-  const usageRate= useMemo(()=>{
-    let usageRate= loyaltyRate===null|| loyaltyRate===undefined? 0 : loyaltyRate.usage_rate;
-    return usageRate
-  },[loyaltyRate]);
+  const usageRate = useMemo(() => {
+    let usageRate =
+      loyaltyRate === null || loyaltyRate === undefined
+        ? 0
+        : loyaltyRate.usage_rate;
+    return usageRate;
+  }, [loyaltyRate]);
 
   const handleInputPoint = (index: number, point: number) => {
     payments[index].point = point;
@@ -95,8 +105,6 @@ function CardPayments(props: CardPaymentsProps) {
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-
-
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find(
@@ -132,7 +140,6 @@ function CardPayments(props: CardPaymentsProps) {
   console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
-      
       payments[index].point = amount;
       payments[index].amount = amount * usageRate;
       payments[index].paid_amount = amount * usageRate;
@@ -164,8 +171,8 @@ function CardPayments(props: CardPaymentsProps) {
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  console.log('levelOrder', levelOrder);
-  
+  console.log("levelOrder", levelOrder);
+
   // useEffect(() => {
   //   if (isCloneOrder && paymentMethod === 2) {
   //     handlePickPaymentMethod(paymentMethod);
@@ -442,7 +449,8 @@ function CardPayments(props: CardPaymentsProps) {
                                       }
                                       min={0}
                                       max={
-                                        calculateMax(props.amount, index) / usageRate
+                                        calculateMax(props.amount, index) /
+                                        usageRate
                                       }
                                       onChange={(value) => {
                                         handleInputPoint(index, value);
@@ -484,10 +492,11 @@ function CardPayments(props: CardPaymentsProps) {
                                 <InputNumber
                                   size="middle"
                                   min={0}
-                                  // max={calculateMax(props.amount, index)}
+                                  max={calculateMax(props.amount, index)}
                                   value={method.amount}
                                   disabled={
-                                    method.code === PaymentMethodCode.POINT || levelOrder > 2
+                                    method.code === PaymentMethodCode.POINT ||
+                                    levelOrder > 2
                                   }
                                   className="yody-payment-input hide-number-handle"
                                   formatter={(value) =>
