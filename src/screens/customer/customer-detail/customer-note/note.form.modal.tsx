@@ -43,6 +43,7 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
         <Row gutter={20}>
           <Col span={24}>
             <CustomInput
+              type="textarea"
               name="content"
               label="Ghi chú:"
               form={form}

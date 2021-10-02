@@ -10,6 +10,7 @@ import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
+  getLoyaltyRate,
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -34,6 +35,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
@@ -47,7 +49,6 @@ import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -97,6 +98,7 @@ export default function Order() {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
+  const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
@@ -745,6 +747,7 @@ export default function Order() {
       setLoyaltyPoint(null);
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(getLoyaltyRate(setLoyaltyRate));
   }, [dispatch, customer]);
 
   const checkPointfocus = useCallback(
@@ -777,19 +780,27 @@ export default function Order() {
         ? 0
         : Pointfocus.point;
 
-      let totalAmountPayable =
-        orderAmount +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-        discountValue; //tổng tiền phải trả
-      let limitAmountPointFocus = !rank
-        ? 0
-        : !rank.limit_order_percent
-        ? totalAmountPayable
-        : (rank.limit_order_percent * totalAmountPayable) / 100;
-      //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
-      limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+     let totalAmountPayable =
+     orderAmount +
+     (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+     discountValue; //tổng tiền phải trả
 
-      if (!loyaltyPoint || limitAmountPointFocus === 0) {
+      let usageRate= loyaltyRate===null|| loyaltyRate===undefined? 0 : loyaltyRate.usage_rate;
+
+      let enableUsingPoint=loyaltyRate===null|| loyaltyRate===undefined? false : loyaltyRate.enable_using_point;
+
+      let limitOrderPercent=!rank? 0 : !rank.limit_order_percent ? 100 : rank.limit_order_percent;// % tối đa giá trị đơn hàng.
+
+      let limitAmount=point * usageRate;
+
+      let amountLimitOrderPercent= (totalAmountPayable * limitOrderPercent)/100
+
+      if(enableUsingPoint===false){
+        showError("Chương trình tiêu điểm đang tạm dừng hoạt động");
+          return false;
+      }
+
+      if (!loyaltyPoint || limitOrderPercent === 0) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
@@ -803,11 +814,10 @@ export default function Order() {
         return false;
       }
 
-      if (point > limitAmountPointFocus) {
-        showError(
-          `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
-        );
-        return false;
+      if(limitAmount > amountLimitOrderPercent)
+      {
+          showError(`Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`);
+          return false;
       }
 
       if (point > curenPoint) {
@@ -823,6 +833,7 @@ export default function Order() {
       discountValue,
       orderAmount,
       shippingFeeCustomer,
+      loyaltyRate
     ]
   );
 
@@ -1006,6 +1017,7 @@ export default function Order() {
                       discountValue
                     }
                     isCloneOrder={isCloneOrder}
+                    loyaltyRate={loyaltyRate}
                   />
                 </Col>
                 <Col md={6}>

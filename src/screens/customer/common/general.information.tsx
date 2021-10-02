@@ -62,7 +62,7 @@ const GeneralInformation = (props: any) => {
           ]}
         >
           <Row gutter={30} style={{ padding: "16px 30px" }}>
-            <Col span={24}>
+            <Col span={12}>
               <CustomInput
                 name="full_name"
                 label={<b>Họ tên khách hàng:</b>}
@@ -72,6 +72,20 @@ const GeneralInformation = (props: any) => {
                 isRequired={true}
                 maxLength={255}
               />
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<b>Thẻ khách hàng:</b>}
+                name="card_number"
+                rules={[
+                  {
+                    pattern: RegUtil.NUMBERREG,
+                    message: "Thẻ khách hàng chỉ được phép nhập số",
+                  },
+                ]}
+              >
+                <Input maxLength={255} placeholder="Nhập thẻ khách hàng" />
+              </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
@@ -182,7 +196,7 @@ const GeneralInformation = (props: any) => {
                     <Input maxLength={255} placeholder="Mã số thuế" />
                   </Form.Item>
                 </Col>
-                <Col span={8}>
+                <Col span={12}>
                   <Form.Item
                     label={<b>Quốc gia:</b>}
                     name="country_id"
@@ -204,7 +218,7 @@ const GeneralInformation = (props: any) => {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={8}>
+                <Col span={12}>
                   <Form.Item
                     label={<b>Khu vực:</b>}
                     name="district_id"
@@ -233,7 +247,7 @@ const GeneralInformation = (props: any) => {
                 <Form.Item label="city" name="city_id" hidden>
                   <Input />
                 </Form.Item>
-                <Col span={8}>
+                <Col span={12}>
                   <Form.Item
                     label={<b>Phường/ Xã:</b>}
                     name="ward_id"
@@ -259,22 +273,7 @@ const GeneralInformation = (props: any) => {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={24}>
-                  {/* <Form.Item
-                    label={<b>Địa chỉ chi tiết:</b>}
-                    name="full_address"
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Vui lòng nhập địa chỉ",
-                    //   },
-                    // ]}
-                  >
-                    <Input
-                      maxLength={500}
-                      placeholder="Nhập địa chỉ chi tiết"
-                    />
-                  </Form.Item> */}
+                <Col span={12}>
                   <CustomInput
                     name="full_address"
                     label={<b>Địa chỉ chi tiết:</b>}
@@ -299,20 +298,6 @@ const GeneralInformation = (props: any) => {
           }
         >
           <Row gutter={12} style={{ padding: "16px" }}>
-            <Col span={24}>
-              <Form.Item
-                label={<b>Thẻ khách hàng:</b>}
-                name="card_number"
-                rules={[
-                  {
-                    pattern: RegUtil.NUMBERREG,
-                    message: "Thẻ khách hàng chỉ được phép nhập số",
-                  },
-                ]}
-              >
-                <Input maxLength={255} placeholder="Nhập thẻ khách hàng" />
-              </Form.Item>
-            </Col>
             <Col span={24}>
               <Form.Item
                 name="customer_type_id"

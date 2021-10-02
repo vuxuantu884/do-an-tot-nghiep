@@ -18,8 +18,8 @@ interface BaseObject {
     }
   export interface EcommerceRequest extends BaseObject {
     name: String;
-    store_id: String;
-    store: number;
+    store_id: number;
+    store: String;
     assign_account_code: String;
     assign_account: String;
     status: String;
@@ -27,6 +27,8 @@ interface BaseObject {
     order_sync: boolean;
     product_sync: String;
     inventories: Array<EcommerceShopInventoryDto>;
+    source: String;
+    source_id: number
   }
 
   export interface EcommerceConnectRequest {

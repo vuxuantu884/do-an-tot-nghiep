@@ -92,6 +92,10 @@ const ecommerceGetCategoryListApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
+const ecommercePutConnectItemApi = (requestBody: any) => {
+  let link = `${ApiConfig.ECOMMERCE}/variants`;
+  return BaseAxios.put(link, requestBody);
+};
 
 export {
   ecommerceCreateApi,
@@ -107,5 +111,6 @@ export {
   ecommerceDeleteItemApi,
   ecommerceDisconnectItemApi,
   ecommercePostSyncStockItemApi,
-  ecommerceGetCategoryListApi
+  ecommerceGetCategoryListApi,
+  ecommercePutConnectItemApi
 };

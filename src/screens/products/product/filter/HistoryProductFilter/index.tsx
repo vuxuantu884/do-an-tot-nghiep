@@ -5,14 +5,13 @@ import { useCallback } from "react";
 import search from "assets/img/search.svg";
 import { StyledComponent } from "./styles";
 import ButtonSetting from "component/table/ButtonSetting";
-import { FilterOutlined } from "@ant-design/icons";
 import { ProductHistoryQuery } from "model/product/product.model";
+import CustomDatePicker from "component/custom/date-picker.custom";
 
 interface HistoryProductFilterProps {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onShowColumnSetting?: () => void;
-  openFilter?: () => void;
   onFinish: (value: ProductHistoryQuery) => void
 }
 
@@ -21,7 +20,7 @@ const { Item } = Form;
 const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
   props: HistoryProductFilterProps
 ) => {
-  const { actions, onMenuClick, onShowColumnSetting, openFilter, onFinish } = props;
+  const { actions, onMenuClick, onShowColumnSetting, onFinish } = props;
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -45,14 +44,15 @@ const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
               />
             </Item>
+            <Item name="from_action_date" className="date">
+              <CustomDatePicker placeholder="Thời gian từ" style={{width: '100%'}} />
+            </Item>
+            <Item name="to_action_date" className="date">
+              <CustomDatePicker placeholder="Thời gian dến" style={{width: '100%'}} />
+            </Item>
             <Item>
               <Button type="primary" htmlType="submit">
                 Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>
-                Thêm bộ lọc
               </Button>
             </Item>
             <Item>

@@ -22,6 +22,7 @@ import {
 import AllInventoryFilter from "../filter/all.filter";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
+import ImageProduct from "screens/products/product/component/image-product.component";
 
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
@@ -85,7 +86,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       title: "Ảnh",
       visible: true,
       align: "center",
-      dataIndex: "",
+      dataIndex: "url",
+      render: (value) => <ImageProduct path={value} isUpload={false} />,
     },
     {
       title: "Barcode",

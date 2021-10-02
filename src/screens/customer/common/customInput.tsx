@@ -12,6 +12,7 @@ function CustomInput(props: any) {
     maxLength,
     isRequired,
     disabled,
+    type
   } = props;
   const [value, setValue] = useState<string>("");
 
@@ -38,13 +39,24 @@ function CustomInput(props: any) {
       label={<div>{label}</div>}
       rules={[{ required: isRequired, message: `${message}` }]}
     >
-      <Input
-        disabled={disabled}
-        maxLength={maxLength}
-        placeholder={`${placeholder}`}
-        onBlur={(value) => handleBlur(value.target.value)}
-        onChange={(value) => handleChange(value.target.value)}
-      ></Input>
+      {type === "textarea" ? (
+        <Input.TextArea
+          style={{minHeight: 150}}
+          disabled={disabled}
+          maxLength={maxLength}
+          placeholder={`${placeholder}`}
+          onBlur={(value) => handleBlur(value.target.value)}
+          onChange={(value) => handleChange(value.target.value)}
+        />
+      ) : (
+        <Input
+          disabled={disabled}
+          maxLength={maxLength}
+          placeholder={`${placeholder}`}
+          onBlur={(value) => handleBlur(value.target.value)}
+          onChange={(value) => handleChange(value.target.value)}
+        />
+      )}
     </Form.Item>
   );
 }

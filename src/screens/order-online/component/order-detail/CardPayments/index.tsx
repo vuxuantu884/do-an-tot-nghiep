@@ -26,7 +26,6 @@ import { useDispatch } from "react-redux";
 import {
   PaymentMethodCode,
   PaymentMethodOption,
-  PointConfig,
   ShipmentMethodOption,
 } from "utils/Constants";
 import {
@@ -35,6 +34,7 @@ import {
   replaceFormat,
 } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
@@ -47,10 +47,11 @@ type CardPaymentsProps = {
   isCloneOrder: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
+  loyaltyRate?:LoyaltyRateResponse| null;
 };
 
 function CardPayments(props: CardPaymentsProps) {
-  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod, levelOrder = 0 } =
+  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod, levelOrder = 0,loyaltyRate } =
     props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
@@ -72,10 +73,15 @@ function CardPayments(props: CardPaymentsProps) {
     );
   }, [listPaymentMethod]);
 
+  const usageRate= useMemo(()=>{
+    let usageRate= loyaltyRate===null|| loyaltyRate===undefined? 0 : loyaltyRate.usage_rate;
+    return usageRate
+  },[loyaltyRate]);
+
   const handleInputPoint = (index: number, point: number) => {
     payments[index].point = point;
-    payments[index].amount = point * PointConfig.VALUE;
-    payments[index].paid_amount = point * PointConfig.VALUE;
+    payments[index].amount = point * usageRate;
+    payments[index].paid_amount = point * usageRate;
     setPayments([...payments]);
     // props.setPayments([...paymentData]);
   };
@@ -89,6 +95,8 @@ function CardPayments(props: CardPaymentsProps) {
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
+
+
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find(
@@ -124,9 +132,10 @@ function CardPayments(props: CardPaymentsProps) {
   console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
+      
       payments[index].point = amount;
-      payments[index].amount = amount * PointConfig.VALUE;
-      payments[index].paid_amount = amount * PointConfig.VALUE;
+      payments[index].amount = amount * usageRate;
+      payments[index].paid_amount = amount * usageRate;
     } else {
       payments[index].amount = amount;
       payments[index].paid_amount = amount;
@@ -409,13 +418,13 @@ function CardPayments(props: CardPaymentsProps) {
                                       }}
                                     >
                                       {" "}
-                                      (1 điểm = 1,000₫)
+                                      (1 điểm = {formatCurrency(usageRate)}₫)
                                     </span>
                                     <InputNumber
                                       value={
                                         // method.point
                                         isCloneOrder
-                                          ? method.amount / 1000
+                                          ? method.amount / usageRate
                                           : method.point
                                       }
                                       style={{
@@ -433,7 +442,7 @@ function CardPayments(props: CardPaymentsProps) {
                                       }
                                       min={0}
                                       max={
-                                        calculateMax(props.amount, index) / 1000
+                                        calculateMax(props.amount, index) / usageRate
                                       }
                                       onChange={(value) => {
                                         handleInputPoint(index, value);

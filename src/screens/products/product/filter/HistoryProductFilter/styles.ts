@@ -14,7 +14,10 @@ export const StyledComponent = styled.div`
               display: flex;
               width: 100%;
               .search {
-                flex: 1;
+                flex: 4;
+              }
+              .date {
+                flex: 1
               }
             }
           }

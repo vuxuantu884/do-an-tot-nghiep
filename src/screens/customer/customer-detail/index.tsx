@@ -27,12 +27,20 @@ import {
   getLoyaltyPoint,
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
+import {LoyaltyCardSearch} from "domain/actions/loyalty/card/loyalty-card.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { LoyaltyCardResponse } from 'model/response/loyalty/card/loyalty-card.response';
 import { formatCurrency } from "utils/AppUtils";
+import {BaseQuery} from "model/base/base.query"
 // import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const { TabPane } = Tabs;
+
+const cardQuery: BaseQuery = {
+  page: 1,
+  limit: 30
+}
 
 const CustomerDetailIndex = () => {
   const [activeTab, setActiveTab] = React.useState<string>("history");
@@ -44,6 +52,7 @@ const CustomerDetailIndex = () => {
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
     const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
+    const [loyaltyCard, setLoyaltyCard] = React.useState<PageResponse<LoyaltyCardResponse>>();
     const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>([]);
     const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
   const [queryParams, setQueryParams] = React.useState<any>({
@@ -59,10 +68,11 @@ const CustomerDetailIndex = () => {
     },
     items: [],
   });
-  
+  console.log(loyaltyCard)
   React.useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      dispatch(LoyaltyCardSearch(cardQuery, setLoyaltyCard))
     } else {
       setLoyaltyPoint(null);
     }
@@ -99,7 +109,11 @@ console.log(customer)
           value: formatCurrency(loyaltyPoint?.total_money_spend ? loyaltyPoint?.total_money_spend : "" ),
         },
         {
-          name: "Ngày đầu tiên mua hàng",
+          name: "Ngày mua đầu",
+          value: null,
+        },
+        {
+          name: "Ngày mua cuối",
           value: null,
         },
         {
@@ -107,7 +121,11 @@ console.log(customer)
           value: loyaltyPoint?.total_order_count,
         },
         {
-          name: "Ngày cuối cùng mua hàng",
+          name: "Tại cửa hàng",
+          value: null,
+        },
+        {
+          name: "Tại cửa hàng",
           value: null,
         },
       ]
@@ -141,24 +159,15 @@ console.log(customer)
     const _detail = [
       { name: "Điểm hiện tại", value: loyaltyPoint?.point || null },
       {
-        name: "Hạng thẻ hiện tại",
+        name: "Hạng thẻ",
         value: loyaltyUsageRules?.find((item) => item.rank_id === loyaltyPoint?.loyalty_level_id)?.rank_name || null,
       },
       {
-        name: "Mã số thẻ",
-        value: customer?.card_number || null,
-      },
-
-      {
-        name: "Ngày kích hoạt",
+        name: "Ngày gắn thẻ",
         value: null,
       },
       {
-        name: "Ngày hết hạn",
-        value: null,
-      },
-      {
-        name: "Cửa hàng kích hoạt",
+        name: "CH gắn thẻ",
         value: null,
       },
     ];
@@ -184,9 +193,6 @@ console.log(customer)
         {
           name: "Chi tiết khách hàng",
         },
-        {
-          name: `${customer ? customer?.full_name : ""}`,
-        },
       ]}
     >
       <Row gutter={24} className="customer-info-detail">
@@ -210,17 +216,17 @@ console.log(customer)
                 customerSpendDetail.map((info: any, index: number) => (
                   <Col
                     key={index}
-                    span={12}
+                    span={8}
                     style={{
                       display: "flex",
                       marginBottom: 10,
                       color: "#222222",
                     }}
                   >
-                    <Col span={14}>
+                    <Col span={12} style={{padding: "0 0 0 15px"}}>
                       <span>{info.name}</span>
                     </Col>
-                    <Col span={10}>
+                    <Col span={12}>
                       <b>: {info.value ? info.value : "---"}</b>
                     </Col>
                   </Col>
@@ -250,10 +256,10 @@ console.log(customer)
                       color: "#222222",
                     }}
                   >
-                    <Col span={10}>
+                    <Col span={12} style={{padding: "0 0 0 15px"}}>
                       <span>{detail.name}</span>
                     </Col>
-                    <Col span={14}>
+                    <Col span={12} >
                       <b>: {detail.value ? detail.value : "---"}</b>
                     </Col>
                   </Col>

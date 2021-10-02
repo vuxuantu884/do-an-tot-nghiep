@@ -4,7 +4,7 @@ import {
   POProcumentField,
   PurchaseProcument,
 } from "model/purchase-order/purchase-procument";
-import { ProcumentStatus } from "utils/Constants";
+import { POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
@@ -108,12 +108,16 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                 dataIndex: POProcumentField.status,
                 render: (value, item, index: number) => (
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button
-                      onClick={() => confirmInventory(item, false)}
-                      type="primary"
-                    >
-                      Xác nhận nhập
-                    </Button>
+                    {item.status === POStatus.CANCELLED ? (
+                      <Button disabled>Đã huỷ</Button>
+                    ) : (
+                      <Button
+                        onClick={() => confirmInventory(item, false)}
+                        type="primary"
+                      >
+                        Xác nhận nhập
+                      </Button>
+                    )}
                   </div>
                 ),
               },
