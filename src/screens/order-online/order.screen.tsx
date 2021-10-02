@@ -45,11 +45,10 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-  formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
