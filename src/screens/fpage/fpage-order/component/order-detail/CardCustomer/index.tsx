@@ -363,6 +363,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   return (
     <Card
+      className="padding-12"
       extra={
         <div>
           <Form.Item
@@ -408,43 +409,41 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     >
       {customer === null && (
-        <div className="padding-lef-right">
-          <div>
-            <AutoComplete
-              notFoundContent={
-                keySearchCustomer.length >= 3
-                  ? "Không tìm thấy khách hàng"
-                  : undefined
-              }
-              id="search_customer"
-              value={keySearchCustomer}
-              ref={autoCompleteRef}
-              onSelect={SearchCustomerSelect}
-              dropdownClassName="search-layout-customer dropdown-search-header"
-              dropdownMatchSelectWidth={456}
-              style={{ width: "100%" }}
-              onSearch={CustomerChangeSearch}
-              options={CustomerConvertResultSearch}
-              dropdownRender={(menu) => (
-                <div className="dropdown-custom">
-                  <Button
-                    icon={<AiOutlinePlusCircle size={24} />}
-                    className="dropdown-custom-add-new"
-                    type="link"
-                    onClick={() => OkConfirmCustomerCreate()}
-                  >
-                    Thêm mới khách hàng
-                  </Button>
-                  {menu}
-                </div>
-              )}
-            >
-              <Input
-                placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              />
-            </AutoComplete>
-          </div>
+        <div>
+          <AutoComplete
+            notFoundContent={
+              keySearchCustomer.length >= 3
+                ? "Không tìm thấy khách hàng"
+                : undefined
+            }
+            id="search_customer"
+            value={keySearchCustomer}
+            ref={autoCompleteRef}
+            onSelect={SearchCustomerSelect}
+            dropdownClassName="search-layout-customer dropdown-search-header"
+            dropdownMatchSelectWidth={456}
+            style={{ width: "100%" }}
+            onSearch={CustomerChangeSearch}
+            options={CustomerConvertResultSearch}
+            dropdownRender={(menu) => (
+              <div className="dropdown-custom">
+                <Button
+                  icon={<AiOutlinePlusCircle size={24} />}
+                  className="dropdown-custom-add-new"
+                  type="link"
+                  onClick={() => OkConfirmCustomerCreate()}
+                >
+                  Thêm mới khách hàng
+                </Button>
+                {menu}
+              </div>
+            )}
+          >
+            <Input
+              placeholder="Tìm hoặc thêm khách hàng... (F4)"
+              prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+            />
+          </AutoComplete>
         </div>
       )}
       <div>
@@ -453,7 +452,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             <Row
               align="middle"
               justify="space-between"
-              className="row-customer-detail padding-custom"
+              className="row-customer-detail"
+              style={{ margin: "10px 0"}}
             >
               <Col style={{ display: "flex", alignItems: "center" }}>
                 <div className="fpage-order-avatar-customer">
@@ -495,11 +495,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 )}
               </Col>
             </Row>
-            <Row
-              align="middle"
-              justify="space-between"
-              style={{ padding: "0 24px" }}
-            >
+            <Divider style={{ padding: 0, margin: 0 }} />
+            <Row align="middle" justify="space-between">
               <Col className="customer-detail-point">
                 <span className="customer-detail-icon">
                   <img src={pointIcon} alt="" />
@@ -549,7 +546,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             </Row>
             <Divider style={{ padding: 0, margin: 0 }} />
 
-            <div className="padding-lef-right">
+            <div>
               {customer.shipping_addresses !== undefined && (
                 <Row gutter={24} style={{ paddingTop: 10 }}>
                   <Col

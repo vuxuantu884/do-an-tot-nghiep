@@ -17,7 +17,6 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import Calculate from "assets/icon/caculate.svg";
 
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -26,8 +25,6 @@ import { useDispatch } from "react-redux";
 import {
   PaymentMethodCode,
   PaymentMethodOption,
-  PointConfig,
-  ShipmentMethodOption,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -48,12 +45,18 @@ type CardPaymentsProps = {
   isCloneOrder: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
-  loyaltyRate?:LoyaltyRateResponse| null;
+  loyaltyRate?: LoyaltyRateResponse | null;
 };
 
 function CardPayments(props: CardPaymentsProps) {
-  const { paymentMethod, payments, isCloneOrder, setPayments, shipmentMethod, levelOrder = 0,loyaltyRate } =
-    props;
+  const {
+    paymentMethod,
+    payments,
+    isCloneOrder,
+    setPayments,
+    levelOrder = 0,
+    loyaltyRate,
+  } = props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
@@ -74,10 +77,13 @@ function CardPayments(props: CardPaymentsProps) {
     );
   }, [listPaymentMethod]);
 
-  const usageRate= useMemo(()=>{
-    let usageRate= loyaltyRate===null|| loyaltyRate===undefined? 0 : loyaltyRate.usage_rate;
-    return usageRate
-  },[loyaltyRate]);
+  const usageRate = useMemo(() => {
+    let usageRate =
+      loyaltyRate === null || loyaltyRate === undefined
+        ? 0
+        : loyaltyRate.usage_rate;
+    return usageRate;
+  }, [loyaltyRate]);
 
   const handleInputPoint = (index: number, point: number) => {
     payments[index].point = point;
@@ -96,8 +102,6 @@ function CardPayments(props: CardPaymentsProps) {
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-
-
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find(
@@ -133,7 +137,6 @@ function CardPayments(props: CardPaymentsProps) {
   console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
-      
       payments[index].point = amount;
       payments[index].amount = amount * usageRate;
       payments[index].paid_amount = amount * usageRate;
@@ -165,8 +168,8 @@ function CardPayments(props: CardPaymentsProps) {
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  console.log('levelOrder', levelOrder);
-  
+  console.log("levelOrder", levelOrder);
+
   // useEffect(() => {
   //   if (isCloneOrder && paymentMethod === 2) {
   //     handlePickPaymentMethod(paymentMethod);
@@ -175,15 +178,8 @@ function CardPayments(props: CardPaymentsProps) {
   // }, [paymentMethod]);
 
   return (
-    <Card
-      className="margin-top-20"
-      title={
-        <div className="d-flex">
-          <span className="title-card">THANH TOÁN</span>
-        </div>
-      }
-    >
-      <div className="padding-20 create-order-payment">
+    <Card className="create-order-payment padding-12">
+      <div  style={{paddingLeft: 12}} >
         <Form.Item
         // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
         // required
@@ -191,7 +187,6 @@ function CardPayments(props: CardPaymentsProps) {
           <Radio.Group
             value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
-            style={{ margin: "18px 0" }}
             disabled={levelOrder > 2}
           >
             <Space size={20}>
@@ -204,7 +199,7 @@ function CardPayments(props: CardPaymentsProps) {
               </Radio>
             </Space>
           </Radio.Group>
-          {paymentMethod === PaymentMethodOption.COD &&
+          {/* {paymentMethod === PaymentMethodOption.COD &&
             shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
@@ -236,14 +231,14 @@ function CardPayments(props: CardPaymentsProps) {
                   <span>Khách hàng sẽ thanh toán tại quầy!</span>
                 </span>
               </div>
-            )}
+            )} */}
         </Form.Item>
 
         <Row
           gutter={24}
           hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
         >
-          <div style={{ padding: "0 24px", maxWidth: "100%" }}>
+          <div style={{ maxWidth: "100%" }}>
             <Collapse
               className="orders-timeline"
               defaultActiveKey={["1"]}
@@ -443,7 +438,8 @@ function CardPayments(props: CardPaymentsProps) {
                                       }
                                       min={0}
                                       max={
-                                        calculateMax(props.amount, index) / usageRate
+                                        calculateMax(props.amount, index) /
+                                        usageRate
                                       }
                                       onChange={(value) => {
                                         handleInputPoint(index, value);
@@ -488,7 +484,8 @@ function CardPayments(props: CardPaymentsProps) {
                                   // max={calculateMax(props.amount, index)}
                                   value={method.amount}
                                   disabled={
-                                    method.code === PaymentMethodCode.POINT || levelOrder > 2
+                                    method.code === PaymentMethodCode.POINT ||
+                                    levelOrder > 2
                                   }
                                   className="yody-payment-input hide-number-handle"
                                   formatter={(value) =>

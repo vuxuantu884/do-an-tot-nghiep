@@ -19,14 +19,8 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <Card
-        title={
-          <div className="d-flex">
-            <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-          </div>
-        }
-      >
-        <div className="padding-24">
+      <Card className="padding-12">
+        <div>
           <Form.Item
             label="Nhân viên bán hàng"
             name="assignee_code"
@@ -88,15 +82,8 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           </Form.Item>
         </div>
       </Card>
-      <Card
-        className="margin-top-20"
-        title={
-          <div className="d-flex">
-            <span className="title-card">THÔNG TIN BỔ SUNG</span>
-          </div>
-        }
-      >
-        <div className="padding-24">
+      <Card className="padding-12">
+        <div>
           <Form.Item
             name="note"
             label="Ghi chú nội bộ"
@@ -119,9 +106,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             }}
             // name="tags"
           >
-            <CustomerInputTags
-              onChangeTag={onChangeTag}
-            />
+            <CustomerInputTags onChangeTag={onChangeTag} />
           </Form.Item>
         </div>
       </Card>

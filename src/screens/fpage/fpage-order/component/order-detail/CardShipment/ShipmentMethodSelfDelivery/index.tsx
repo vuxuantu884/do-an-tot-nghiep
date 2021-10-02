@@ -40,9 +40,9 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     <StyledComponent>
       <div>
         <Row gutter={20}>
-          <Col md={12}>
+        <Col span={24}>
             <Form.Item
-              label="Đối tác giao hàng"
+              label="Đối tác giao hàng:"
               name="shipper_code"
               rules={[
                 {
@@ -81,7 +81,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
 
             {paymentMethod === PaymentMethodOption.COD && (
-              <Form.Item label="Tiền thu hộ">
+              <Form.Item label="Tiền thu hộ:">
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
@@ -102,10 +102,10 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               </Form.Item>
             )}
           </Col>
-          <Col md={12}>
+          <Col span={24}>
             <Form.Item
               name="shipping_fee_paid_to_three_pls"
-              label="Phí ship trả đối tác giao hàng"
+              label="Phí ship trả đối tác:"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
@@ -122,7 +122,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
             <Form.Item
               name="shipping_fee_informed_to_customer"
-              label="Phí ship báo khách"
+              label="Phí ship báo khách:"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}

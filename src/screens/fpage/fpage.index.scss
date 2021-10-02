@@ -7,8 +7,8 @@
   .ant-tabs-nav {
     padding: 0;
   }
-  .padding-lef-right{
-    padding: 0 24px 10px 24px
+  .padding-lef-right {
+    padding: 0 24px 10px 24px;
   }
   .fpage-order-avatar-customer {
     border-radius: 50%;
@@ -51,8 +51,6 @@
   }
   .point-spending {
     padding: 0 !important;
-    .ant-input-number-input {
-    }
   }
   .orders-shipment {
     .radio-container {
@@ -106,7 +104,9 @@
       }
     }
   }
-
+  .padding-12 {
+    padding: 12px;
+  }
   .saleorder-product-modal {
     .ant-table-wrapper {
       padding: 0;
@@ -124,9 +124,6 @@
   }
   .ant-layout-content {
     padding: 0;
-  }
-  .ant-table-wrapper {
-    padding: 0 24px;
   }
   .page-header {
     padding: 0;
@@ -148,23 +145,21 @@
   .header-right {
     display: none !important;
   }
-  .orders {
-    .ant-card-head {
-      padding: 10px 24px;
+  .ant-card-head {
+    padding: 0 !important;
+  }
+  .ant-card-head-wrapper {
+    display: block !important;
+    .ant-card-head-title {
+      width: 100%;
+      padding: 6px 0 0 0;
     }
-    .ant-card-head-wrapper {
-      display: block !important;
-      .ant-card-head-title {
-        width: 100%;
-        padding: 6px 0 0 0;
-      }
-      .ant-card-extra {
-        width: 100%;
-      }
+    .ant-card-extra {
+      width: 100%;
     }
-    .ant-select {
-      width: 100% !important;
-    }
+  }
+  .ant-select {
+    width: 100% !important;
   }
   .ant-table-cell {
     padding: 4px 10px !important;
@@ -181,15 +176,6 @@
       padding: 0 !important;
     }
   }
-  .ant-row {
-  }
-  .ant-select-dropdown {
-    // left: 0 !important;
-    width: 100% !important;
-  }
-  .search-layout {
-    left: 0 !important;
-  }
   .login {
     width: 400px !important;
   }
@@ -198,7 +184,7 @@
   }
   .ant-form-item {
     flex-direction: row !important;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
   .ant-form-item-control {
     width: 100%;
@@ -227,7 +213,7 @@
     .ant-space-align-center {
       display: flex;
       justify-content: space-between;
-      padding: 0 24px;
+      // padding: 0 24px;
     }
     .btn-list-method {
       padding: 0;
@@ -284,8 +270,6 @@
 }
 
 .fpage-order {
-  .ant-table-cell {
-  }
   .ant-space-horizontal {
     width: 100%;
     justify-content: space-between;
@@ -312,22 +296,7 @@
     .product-content {
       padding: 12px 24px 0px;
     }
-    .product-table {
-      .total-text {
-        width: 40%;
-        float: left;
-        font-weight: 700;
-      }
-      .total-value-1 {
-        width: 40%;
-        text-align: center;
-      }
-      .total-value-2 {
-        width: 20%;
-        text-align: center;
-        font-weight: 700;
-      }
-    }
+    
     .product-payment {
       padding: 12px 24px;
       .payment-style {
@@ -335,7 +304,25 @@
       }
     }
   }
-
+  .product-table {
+    .total-text {
+      width: 40%;
+      float: left;
+      font-weight: 700;
+    }
+    .total-value-1 {
+      width: 40%;
+      text-align: center;
+    }
+    .total-value-2 {
+      width: 20%;
+      text-align: center;
+      font-weight: 700;
+    }
+  }
+  .payment-style {
+    justify-content: space-between;
+  }
   .note-input {
     min-height: 130px;
   }

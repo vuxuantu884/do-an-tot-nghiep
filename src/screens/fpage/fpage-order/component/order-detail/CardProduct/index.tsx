@@ -19,12 +19,11 @@ import {
   Tag,
   Tooltip,
   Typography,
+  Modal,
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
-import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
-import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
@@ -68,7 +67,6 @@ import {
   formatCurrency,
   getTotalAmount,
   getTotalAmountAfferDiscount,
-  getTotalDiscount,
   getTotalQuantity,
   haveAccess,
   replaceFormatString,
@@ -119,7 +117,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     selectStore,
     inventoryResponse,
     setStoreForm,
-    levelOrder = 0
+    levelOrder = 0,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -342,7 +340,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
-    width: "30%",
+    width: "18%",
     className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -422,7 +420,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "12%",
+    width: "10%",
     align: "right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -450,87 +448,59 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-price text-right",
-    width: "17%",
+    width: "20%",
     align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div>
-          <NumberInput
-            format={(a: string) => formatCurrency(a)}
-            replace={(a: string) => replaceFormatString(a)}
-            placeholder="VD: 100,000"
-            style={{
-              textAlign: "right",
-              width: "100%",
-              fontWeight: 500,
-              color: "#222222",
-            }}
-            maxLength={14}
-            minLength={0}
-            value={l.price}
-            onChange={(value) => onChangePrice(value, index)}
-            disabled={levelOrder > 3}
-          />
-        </div>
+        <>
+          <div>
+            <NumberInput
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              placeholder="VD: 100,000"
+              style={{
+                textAlign: "right",
+                width: "100%",
+                fontWeight: 500,
+                color: "#222222",
+                marginTop: 22,
+              }}
+              maxLength={14}
+              minLength={0}
+              value={l.price}
+              onChange={(value) => onChangePrice(value, index)}
+              disabled={levelOrder > 3}
+            />
+          </div>
+          <span style={{ fontSize: "12px", color: "red" }}>
+            {formatCurrency(items ? items[index].discount_amount : 0)}
+          </span>
+        </>
       );
     },
   };
 
-  const DiscountColumnt = {
-    title: () => (
-      <div className="text-center">
-        <div>Chiết khấu</div>
-      </div>
-    ),
-    align: "center",
-    width: "22%",
-    className: "yody-table-discount text-right",
-    render: (l: OrderLineItemRequest, item: any, index: number) => {
-      return (
-        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
-          <DiscountGroup
-            price={l.price}
-            index={index}
-            discountRate={l.discount_items[0].rate}
-            discountValue={l.discount_items[0].value}
-            totalAmount={l.discount_items[0].amount}
-            items={items}
-            handleCardItems={onDiscountItem}
-            disabled={levelOrder > 3}
-          />
-        </div>
-      );
-    },
-  };
+  const [isShowAddDiscountItemModal, showAddDiscountItemModal] =
+    useState<boolean>(false);
+  const [discountLineItemIndex, setDiscountLineItemIndex] =
+    useState<number>(-1);
+  const [discountLineItem, setDiscountLineItem] =
+    useState<OrderLineItemRequest | null>(null);
 
-  const TotalPriceColumn = {
-    title: () => (
-      <div className="text-center">
-        <span style={{ color: "#222222" }}>Tổng tiền</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
-      </div>
-    ),
-    align: "right",
-    className: "yody-table-total-money text-right",
-    width: "14%",
-    render: (l: OrderLineItemRequest, item: any, index: number) => {
-      return (
-        <div className="yody-pos-varian-name">
-          {formatCurrency(Math.round(l.line_amount_after_line_discount))}
-        </div>
-      );
-    },
+  const handleAddDiscountItemModal = () => {
+    showAddDiscountItemModal(false);
   };
-
+  const handleCancelDiscountItemModal = () => {
+    showAddDiscountItemModal(false);
+  };
   const ActionColumn = {
     title: () => (
       <div className="text-center">
-        <div>Thao tác</div>
+        <div>Thêm</div>
       </div>
     ),
-    width: "12%",
+    width: "10%",
+    align: "center",
     className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
@@ -538,18 +508,21 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           <Menu.Item key="1">
             <Button
               type="text"
-              onClick={() => showAddGiftModal(index)}
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
+              onClick={() => {
+                showAddDiscountItemModal(true);
+                setDiscountLineItemIndex(index);
+                setDiscountLineItem(l);
               }}
             >
-              Thêm quà tặng
+              Thêm chiết khấu
             </Button>
           </Menu.Item>
           <Menu.Item key="2">
+            <Button type="text" onClick={() => showAddGiftModal(index)}>
+              Thêm quà tặng
+            </Button>
+          </Menu.Item>
+          <Menu.Item key="3">
             <Button
               type="text"
               onClick={() => {
@@ -570,16 +543,21 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               Thêm ghi chú
             </Button>
           </Menu.Item>
+          <Menu.Item key="4">
+            <Button
+              type="text"
+              onClick={() => onDeleteItem(index)}
+              style={{
+                color: "red",
+              }}
+            >
+              Xóa sản phẩm
+            </Button>
+          </Menu.Item>
         </Menu>
       );
       return (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "0 4px",
-          }}
-        >
+        <div>
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
@@ -590,23 +568,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               overlay={menu}
               trigger={["click"]}
               placement="bottomRight"
-              disabled={levelOrder > 3}
             >
               <Button type="text" className="p-0 ant-btn-custom">
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
-          </div>
-          <div className="saleorder-close-btn">
-            <Button
-              style={{ background: "transparent" }}
-              type="text"
-              className="p-0 ant-btn-custom"
-              onClick={() => onDeleteItem(index)}
-              disabled={levelOrder > 3}
-            >
-              <img src={XCloseBtn} alt="" style={{ width: 22 }} />
-            </Button>
           </div>
         </div>
       );
@@ -617,8 +583,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     ProductColumn,
     AmountColumnt,
     PriceColumnt,
-    DiscountColumnt,
-    TotalPriceColumn,
     ActionColumn,
   ];
 
@@ -826,8 +790,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-      console.log('listStores listStores', listStores);
-      
+      console.log("listStores listStores", listStores);
+
       newData = listStores.filter(
         // tạm thời bỏ điều kiện để show cửa hàng
         (store) =>
@@ -889,19 +853,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   return (
     <Card
-      className="margin-top-20"
-      title={
-        <div className="d-flex">
-          <span className="title-card">SẢN PHẨM</span>
-        </div>
-      }
+      className="fpage-order padding-12"
       extra={
         <Space size={20}>
           <Checkbox onChange={() => setSplitLine(!splitLine)}>
             Tách dòng
           </Checkbox>
-          <span>Chính sách giá:</span>
-          <Form.Item name="price_type" style={{ margin: "0px" }}>
+          <Form.Item
+            hidden
+            label="Chính sách giá"
+            name="price_type"
+            style={{ margin: "0px" }}
+          >
             <Select
               style={{ minWidth: 145, height: 38 }}
               placeholder="Chính sách giá"
@@ -924,16 +887,16 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Space>
       }
     >
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div>
         <Row gutter={24}>
-          <Col md={8}>
+          <Col span={24} style={{ marginTop: 10 }}>
             <Form.Item
               label="Cửa hàng"
               name="store_id"
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn cửa hàng 3",
+                  message: "Vui lòng chọn cửa hàng",
                 },
               ]}
             >
@@ -972,7 +935,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </Select>
             </Form.Item>
           </Col>
-          <Col md={16}>
+          <Col span={24}>
             <Form.Item label="Sản phẩm">
               <AutoComplete
                 notFoundContent={
@@ -1043,27 +1006,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         visible={isVisibleGift}
       />
       <Table
-        locale={{
-          emptyText: (
-            <div className="sale_order_empty_product">
-              <img src={emptyProduct} alt="empty product"></img>
-              <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-              <Button
-                type="text"
-                className="font-weight-500"
-                style={{
-                  background: "rgba(42,42,134,0.05)",
-                }}
-                onClick={() => {
-                  autoCompleteRef.current?.focus();
-                }}
-                disabled={levelOrder > 3}
-              >
-                Thêm sản phẩm ngay (F3)
-              </Button>
-            </div>
-          ),
-        }}
         rowKey={(record) => record.id}
         columns={columns}
         dataSource={items}
@@ -1074,49 +1016,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         sticky
         footer={() =>
           items && items.length > 0 ? (
-            <div className="row-footer-custom">
-              <div
-                className="yody-foot-total-text"
-                style={{
-                  width: "37%",
-                  float: "left",
-                  fontWeight: 700,
-                }}
-              >
-                TỔNG
-              </div>
+            <div className="row-footer-custom product-table">
+              <div className="total-text">TỔNG</div>
 
-              <div
-                style={{
-                  width: "16%",
-                  float: "left",
-                  textAlign: "right",
-                  fontWeight: 400,
-                }}
-              >
+              <div className="total-value-1">
                 {formatCurrency(getTotalAmount(items))}
               </div>
 
-              <div
-                style={{
-                  width: "21%",
-                  float: "left",
-                  textAlign: "right",
-                  fontWeight: 400,
-                }}
-              >
-                {formatCurrency(getTotalDiscount(items))}
-              </div>
-
-              <div
-                style={{
-                  width: "14.5%",
-                  float: "left",
-                  textAlign: "right",
-                  color: "#000000",
-                  fontWeight: 700,
-                }}
-              >
+              <div className="total-value-2">
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
               </div>
             </div>
@@ -1125,37 +1032,26 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         }
       />
-      <div className="padding-24" style={{ paddingTop: "30px" }}>
-        <Row className="sale-product-box-payment" gutter={24}>
-          <Col xs={24} lg={11}>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-                Bỏ chiết khấu tự động
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-                Không tính thuế VAT
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-                Bỏ tích điểm tự động
-              </Checkbox>
-            </div>
+      <Row style={{marginTop: 10 }}>
+        <Col span={12}>
+          <Col span={24}>
+            <Checkbox disabled={levelOrder > 3}>Bỏ chiết khấu tự động</Checkbox>
           </Col>
+          <Col span={24}>
+            <Checkbox disabled={levelOrder > 3}>Không tính thuế VAT</Checkbox>
+          </Col>
+          <Col span={24}>
+            <Checkbox disabled={levelOrder > 3}>Bỏ tích điểm tự động</Checkbox>
+          </Col>
+        </Col>
+        <Col span={12}>
           <Col xs={24} lg={10}>
-            <Row
-              className="payment-row"
-              style={{ justifyContent: "space-between" }}
-            >
+            <Row className="payment-style">
               <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                {formatCurrency(amount)}
-              </div>
+              <div className="font-weight-500">{formatCurrency(amount)}</div>
             </Row>
 
-            <Row className="payment-row" justify="space-between" align="middle">
+            <Row className="payment-style" align="middle">
               <Space align="center">
                 {items && items.length > 0 ? (
                   <Typography.Link
@@ -1170,7 +1066,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     Chiết khấu:
                   </Typography.Link>
                 ) : (
-                  <div>Chiết khấu</div>
+                  <div>Chiết khấu:</div>
                 )}
 
                 {discountRate !== 0 && items && (
@@ -1212,7 +1108,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     Mã giảm giá:
                   </Typography.Link>
                 ) : (
-                  <div>Mã giảm giá</div>
+                  <div>Mã giảm giá:</div>
                 )}
 
                 {coupon !== "" && (
@@ -1244,24 +1140,23 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   : "-"}
               </div>
             </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
+            <Divider style={{margin: "10px 0"}} />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả:</strong>
-              <strong className="text-success font-size-price">
+              <b style={{lineHeight: "29px"}} className="font-size-text">Khách cần phải trả:</b>
+              <b className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(
                       changeMoney +
                         (props.shippingFeeCustomer
                           ? props.shippingFeeCustomer
-                          : 0) -
-                        discountValue
+                          : 0)
                     )
                   : "-"}
-              </strong>
+              </b>
             </Row>
           </Col>
-        </Row>
-      </div>
+        </Col>
+      </Row>
 
       <PickDiscountModal
         amount={amount}
@@ -1285,6 +1180,35 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         handleCancel={handleInventoryCancel}
         setStoreForm={setStoreForm}
       />
+      <Modal
+        title="Thêm giảm giá"
+        width={600}
+        onCancel={handleCancelDiscountItemModal}
+        onOk={handleAddDiscountItemModal}
+        visible={isShowAddDiscountItemModal}
+        cancelText="Hủy"
+        okText="Lưu"
+        className="saleorder-product-modal"
+        cancelButtonProps={{ style: { display: "none" } }}
+        okButtonProps={{ style: { display: "none" } }}
+      >
+        <DiscountGroup
+          price={discountLineItem ? discountLineItem.price : 0}
+          index={discountLineItemIndex}
+          discountRate={
+            discountLineItem ? discountLineItem.discount_items[0].rate : 0
+          }
+          discountValue={
+            discountLineItem ? discountLineItem.discount_items[0].value : 0
+          }
+          totalAmount={
+            discountLineItem ? discountLineItem.discount_items[0].amount : 0
+          }
+          items={items}
+          handleCardItems={onDiscountItem}
+          disabled={levelOrder > 3}
+        />
+      </Modal>
     </Card>
   );
 };

@@ -7,7 +7,8 @@ import {
   Form,
   Row,
   Select,
-  Space,
+  Divider,
+  Tabs,
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
@@ -45,6 +46,8 @@ import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtHome from "./ShipmentMethodReceiveAtHome";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
+
+const { TabPane } = Tabs;
 
 type CardShipmentProps = {
   shipmentMethod: number;
@@ -111,6 +114,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const [addressError, setAddressError] = useState<string>("");
 
   const ShipMethodOnChange = (value: number) => {
+    console.log(value)
     setServiceType(undefined);
     setShipmentMethodProps(value);
     setPaymentMethod(value);
@@ -236,56 +240,15 @@ const CardShipment: React.FC<CardShipmentProps> = (
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
-  const renderShipmentTabHeader = () => {
-    return (
-      <React.Fragment>
-        {shipmentButton.map((button) => (
-          <div key={button.value}>
-            {shipmentMethod !== button.value ? (
-              <div
-                className="saleorder_shipment_button"
-                key={button.value}
-                onClick={() =>
-                  levelOrder < 4 && ShipMethodOnChange(button.value)
-                }
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            ) : (
-              <div
-                className={
-                  shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                    ? "saleorder_shipment_button saleorder_shipment_button_border"
-                    : "saleorder_shipment_button_active"
-                }
-                key={button.value}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </React.Fragment>
-    );
-  };
 
   return (
     <StyledComponent>
       <Card
-        className="margin-top-20"
-        title={
-          <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
-          </div>
-        }
       >
-        <div className="padding-24 orders-shipment">
-          <Row gutter={24}>
-            <Col md={9}>
-              <span className="orders-shipment__dateLabel">Hẹn giao:</span>
-              <Form.Item name="dating_ship">
+        <div className="padding-12 orders-shipment">
+        <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item name="dating_ship" label="Hẹn giao:">
                 <DatePicker
                   format="DD/MM/YYYY"
                   style={{ width: "100%" }}
@@ -297,102 +260,111 @@ const CardShipment: React.FC<CardShipmentProps> = (
                 />
               </Form.Item>
             </Col>
-
-            <Col md={6}>
-              <Form.Item name="office_time">
+            <Col span={24}>
+              <Form.Item name="office_time" label="Giờ hành chính:">
                 <Checkbox
                   checked={officeTime}
                   onChange={(e) => setOfficeTime(e.target.checked)}
                   style={{ marginTop: "8px" }}
-                >
-                  Giờ hành chính
-                </Checkbox>
+                ></Checkbox>
               </Form.Item>
             </Col>
-            <Col md={9}>
-              <span className="orders-shipment__dateLabel">Yêu cầu:</span>
-              <Form.Item name="requirements">
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  showArrow
-                  notFoundContent="Không tìm thấy kết quả"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn yêu cầu"
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {shipping_requirements?.map((item, index) => (
-                    <Select.Option
-                      style={{ width: "100%" }}
-                      key={index.toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+            <Col span={24}>
+            <Form.Item name="requirements" label="Yêu cầu:">
+              <Select
+                className="select-with-search"
+                showSearch
+                showArrow
+                notFoundContent="Không tìm thấy kết quả"
+                style={{ width: "100%" }}
+                placeholder="Chọn yêu cầu"
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipping_requirements?.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.value}
+                  >
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
           </Row>
-
-          <Row>
-            <div
-              className="saleorder_shipment_method_btn"
-              style={
-                shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                  ? { border: "none" }
-                  : { borderBottom: "1px solid #2A2A86" }
-              }
-            >
-              <Space size={10}>{renderShipmentTabHeader()}</Space>
-            </div>
+          <Divider style={{margin: 0}}/>
+          <Row style={{ justifyContent: "center" }}>
+            <Tabs defaultActiveKey="1" centered onChange={(value) => ShipMethodOnChange(parseInt(value))}>
+              <TabPane
+                key="1"
+                tab={
+                  <div>
+                    <img
+                      style={{ marginRight: 10 }}
+                      src={IconDelivery}
+                      alt=""
+                    />
+                    Chuyển hãng vận chuyển
+                  </div>
+                }
+              >
+                <ShipmentMethodDeliverPartner
+                  amount={amount}
+                  serviceType={serviceType}
+                  changeServiceType={changeServiceType}
+                  // deliveryServices={deliveryServices}
+                  discountValue={discountValue}
+                  infoFees={infoFees}
+                  setShippingFeeInformedCustomer={
+                    setShippingFeeInformedCustomer
+                  }
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  OrderDetail={OrderDetail}
+                  payments={payments}
+                  fulfillments={fulfillments}
+                  isCloneOrder={isCloneOrder}
+                  addressError={addressError}
+                  levelOrder={levelOrder}
+                  totalAmountReturnProducts={totalAmountReturnProducts}
+                />
+              </TabPane>
+              <TabPane
+                key="2"
+                tab={
+                  <div>
+                    <img
+                      style={{ marginRight: 10 }}
+                      src={IconSelfDelivery}
+                      alt=""
+                    />
+                   Tự giao hàng
+                  </div>
+                }
+              >
+                <ShipmentMethodSelfDelivery
+                  amount={amount}
+                  discountValue={discountValue}
+                  paymentMethod={paymentMethod}
+                  setShippingFeeInformedCustomer={
+                    setShippingFeeInformedCustomer
+                  }
+                  shipper={shipper}
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  totalAmountReturnProducts={totalAmountReturnProducts}
+                />
+              </TabPane>
+            </Tabs>
           </Row>
-          {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
-            <ShipmentMethodDeliverPartner
-              amount={amount}
-              serviceType={serviceType}
-              changeServiceType={changeServiceType}
-              // deliveryServices={deliveryServices}
-              discountValue={discountValue}
-              infoFees={infoFees}
-              setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-              shippingFeeCustomer={shippingFeeCustomer}
-              OrderDetail={OrderDetail}
-              payments={payments}
-              fulfillments={fulfillments}
-              isCloneOrder={isCloneOrder}
-              addressError={addressError}
-              levelOrder={levelOrder}
-              totalAmountReturnProducts={totalAmountReturnProducts}
-            />
-          )}
-
-          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
-            <ShipmentMethodSelfDelivery
-              amount={amount}
-              discountValue={discountValue}
-              paymentMethod={paymentMethod}
-              setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-              shipper={shipper}
-              shippingFeeCustomer={shippingFeeCustomer}
-              totalAmountReturnProducts={totalAmountReturnProducts}
-            />
-          )}
-
-          {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-            <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
-          )}
         </div>
       </Card>
     </StyledComponent>
