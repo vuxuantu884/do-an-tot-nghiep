@@ -520,8 +520,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.order_sub_status.length) {
       let textStatus = ""
       
-      initialValues.order_sub_status.forEach(i => {
-        const findStatus = subStatus?.find(item => item.id.toString() === i)
+      initialValues.order_sub_status.forEach((i: any) => {
+        const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
       })
       list.push({
