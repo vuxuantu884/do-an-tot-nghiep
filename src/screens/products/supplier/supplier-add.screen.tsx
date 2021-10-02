@@ -144,7 +144,9 @@ const CreateSupplierScreen: React.FC = () => {
     },
     [formSupplier, listDistrict]
   );
-  const onCreateSuccess = useCallback(() => {
+  const onCreateSuccess = useCallback((data) => {
+    if (!data) return;
+    
     history.push(`${UrlConfig.SUPPLIERS}`);
   }, [history]);
   const onFinish = useCallback(
