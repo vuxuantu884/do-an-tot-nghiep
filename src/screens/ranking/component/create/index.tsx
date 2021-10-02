@@ -95,8 +95,8 @@ const CreateCustomerRanking = () => {
         ref={formRef}
         className="create-customer-ranking"
       >
-        <Row>
-          <Col span={16} style={{marginRight: '10px'}}>
+        <Row style={{flexFlow: 'row'}}>
+          <Col span={16} style={{marginRight: '10px', flex: '1'}}>
             <Card
               title={
                 <div className="d-flex">
@@ -174,7 +174,7 @@ const CreateCustomerRanking = () => {
               </div>
             </Card>
           </Col>
-          <Col span={7} style={{marginLeft: '10px'}}>
+          <Col style={{marginLeft: '10px', width: '100%'}}>
             <Card
               title={
                 <div className="d-flex">
@@ -215,13 +215,13 @@ const CreateCustomerRanking = () => {
             marginLeft: "-30px",
           }}
         >
-          <Col span={6} className="back">
+          <Col span={8} className="back">
             <Link to={`${UrlConfig.CUSTOMER}/rankings`}>
               <img src={IconBack} alt="" style={{ marginRight: 10 }} />
               <span>Quay lại danh sách hạng khách hàng</span>
             </Link>
           </Col>
-          <Col span={18} className="action-group">
+          <Col span={16} className="action-group">
             <Button
               type="primary"
               className="save-btn"
