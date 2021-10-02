@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo, createRef } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
-import { Button, Form, Select, Input, Modal, Tooltip, AutoComplete } from "antd";
+import { Button, Form, Select, Input, Modal, Tooltip, AutoComplete, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -75,9 +75,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     items: [],
   });
 
-  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
-  const [shopIdSelected, setShopIdSelected] = useState(null);
+  const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
 
@@ -86,7 +85,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       page: 1,
       limit: 30,
       ecommerce_id: null,
-      shop_id: null,
+      shop_id: [],
       category_id: null,
       connect_status: null,
       update_stock_status: null,
@@ -100,7 +99,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     page: 1,
     limit: 30,
     ecommerce_id: null,
-    shop_id: null,
+    shop_id: [],
     category_id: null,
     connect_status: null,
     update_stock_status: null,
@@ -113,10 +112,27 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       setVariantData(result);
     }
   }, []);
+  
+  const updateEcommerceShopList = React.useCallback((result) => {
+    const shopList: any[] = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false
+        });
+      });
+    }
+    setEcommerceShopList(shopList);
+
+  }, []);
+  
 
   useEffect(() => {
     dispatch(getProductEcommerceList(query, updateVariantData));
-  }, [dispatch, query, updateVariantData]);
+    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
+  }, [dispatch, query, updateVariantData, updateEcommerceShopList]);
  
   const reloadPage = () => {
     dispatch(getProductEcommerceList(query, updateVariantData));
@@ -499,25 +515,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },[query]
   );
 
-  const updateEcommerceShopList = React.useCallback((result) => {
-    setIsEcommerceSelected(true);
-    setEcommerceShopList(result);
-  }, []);
 
   const getShopEcommerce = (ecommerceId: any) => {
-    setShopIdSelected(null);
-
-    setIsEcommerceSelected(false);
+    setShopIdSelected([]);
     dispatch(getShopEcommerceList({ecommerce_id: ecommerceId}, updateEcommerceShopList));
   }
 
   const removeEcommerce = () => {
-    setEcommerceShopList([]);
-    setIsEcommerceSelected(false);
-  }
-
-  const selectShopEcommerce = (shop_id: any) => {
-    setShopIdSelected(shop_id);
+    setShopIdSelected([]);
+    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
   }
 
   const ECOMMERCE_LIST = [
@@ -585,6 +591,68 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     );
   }
 
+  //select shop  
+  const getPlaceholderSelectShop = () => {
+    if (shopIdSelected && shopIdSelected.length > 0) {
+      return (`Đã chọn: ${shopIdSelected.length} gian hàng`)
+    } else {
+      return ("Chọn gian hàng")
+    }
+  }
+
+  const onCheckedChange = (shop: any, e: any) => {
+    if (e.target.checked) {
+      shop.isSelected = true;
+      const shopSelected = [...shopIdSelected];
+      shopSelected.push(shop.id);
+      setShopIdSelected(shopSelected);
+    } else {
+      shop.isSelected = false;
+      const shopSelected = shopIdSelected && shopIdSelected.filter((item: any) => {
+        return item !== shop.id;
+      });
+      setShopIdSelected(shopSelected);
+    }
+  }
+
+  const renderShopList = (isNewFilter: any) => {
+    return (
+      <StyledComponent>
+        <div className="render-shop-list">
+          {ecommerceShopList.map((item: any) => (
+            <div key={item.id}  className="shop-name">
+              <Checkbox onChange={(e) => onCheckedChange(item, e)} checked={item.isSelected} >
+                <span className="check-box-name">
+                  <span>
+                    <img src={shopeeIcon} alt={item.id} style={{marginRight: "5px", height: "16px"}} />
+                  </span>
+                  <Tooltip title={item.name} color="#1890ff" placement="right">
+                    <span className="name" style={isNewFilter ? {width: 270} : {width: 130}}>{item.name}</span>
+                  </Tooltip>
+                </span>
+              </Checkbox>
+            </div>
+          ))}
+
+          {ecommerceShopList.length === 0 &&
+            <div style={{color: "#737373", padding: 10}}>Không có dữ liệu</div>
+          }
+        </div>
+      </StyledComponent>
+    )
+  }
+    
+  const removeSelectedShop = () => {
+    const copyEcommerceShopList = [...ecommerceShopList];
+    copyEcommerceShopList.forEach((item: any) => {
+      item.isSelected = false;
+    });
+
+    setEcommerceShopList(copyEcommerceShopList);
+    setShopIdSelected([]);
+  }
+
+
   return (
     <StyledComponent>
       <div className="not-connected-items">
@@ -616,33 +684,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </Form.Item>
 
             <Form.Item name="shop_id" className="select-store-dropdown">
-               {!isEcommerceSelected &&
-                <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
-                  <Select
-                    showSearch
-                    placeholder="Chọn gian hàng"
-                    allowClear
-                    disabled={true}
-                  />
-                </Tooltip>
-              }
-
-              {isEcommerceSelected &&
-                <Select
-                  showSearch
-                  placeholder="Chọn gian hàng"
-                  allowClear
-                  onSelect={(value) => selectShopEcommerce(value)}
-                >
-                  {ecommerceShopList &&
-                    ecommerceShopList.map((shop: any) => (
-                      <Option key={shop.id} value={shop.id}>
-                        {shop.name}
-                      </Option>
-                    ))
-                  }
-                </Select>
-              }
+              <Select
+                showSearch
+                placeholder={getPlaceholderSelectShop()}
+                allowClear={shopIdSelected && shopIdSelected.length > 0}
+                dropdownRender={() => renderShopList(false)}
+                onClear={removeSelectedShop}
+              />
             </Form.Item>
 
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
@@ -748,33 +796,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               className="select-store-dropdown"
               label={<b>CHỌN GIAN HÀNG</b>}
             >
-              {!isEcommerceSelected &&
-                <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
-                  <Select
-                    showSearch
-                    placeholder="Chọn gian hàng"
-                    allowClear
-                    disabled={true}
-                  />
-                </Tooltip>
-              }
-
-              {isEcommerceSelected &&
-                <Select
-                  showSearch
-                  placeholder="Chọn gian hàng"
-                  allowClear
-                  onSelect={(value) => selectShopEcommerce(value)}
-                >
-                  {ecommerceShopList &&
-                    ecommerceShopList.map((shop: any) => (
-                      <Option key={shop.id} value={shop.id}>
-                        {shop.name}
-                      </Option>
-                    ))
-                  }
-                </Select>
-              }
+              <Select
+                showSearch
+                placeholder={getPlaceholderSelectShop()}
+                allowClear={shopIdSelected && shopIdSelected.length > 0}
+                dropdownRender={() => renderShopList(true)}
+                onClear={removeSelectedShop}
+              />
             </Form.Item>
 
             <Form.Item

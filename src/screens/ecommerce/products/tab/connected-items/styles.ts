@@ -28,7 +28,7 @@ export const StyledComponent = styled.div`
 
     .select-store-dropdown {
       margin-right: 10px;
-      width: 150px;
+      width: 200px;
     }
     
     .shoppe-search {
@@ -68,6 +68,24 @@ export const StyledComponent = styled.div`
     }
     &.ant-btn-primary {
       color: white;
+    }
+  }
+
+  .render-shop-list {
+    .shop-name {
+      padding: 5px 10px;
+      white-space: nowrap;
+      &:hover{
+        background-color: #f4f4f7;
+      }
+      .check-box-name {
+        display: flex;
+        .name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+      }
     }
   }
 
