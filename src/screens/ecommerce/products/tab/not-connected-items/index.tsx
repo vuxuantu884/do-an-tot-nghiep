@@ -119,7 +119,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   }, [dispatch, query, updateVariantData]);
  
   const reloadPage = () => {
-    dispatch(getProductEcommerceList(query, setVariantData));
+    dispatch(getProductEcommerceList(query, updateVariantData));
   }
 
 
@@ -155,7 +155,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const [productSelected, setProductSelected] = useState<any>();
     
 
-    const saveYodyProduct = (itemId: any) => {  
+    const saveConnectYodyProduct = (itemId: any) => {  
       const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
@@ -180,7 +180,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           if (result) {
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
-            history.replace(`${history.location.pathname}#connected-item`)
           } else {
             showError("Ghép nối sản phẩm thất bại");
           }
@@ -188,7 +187,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       );
     }
     
-    const cancelYodyProduct = (itemId: any) => {
+    const cancelConnectYodyProduct = (itemId: any) => {
       const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
@@ -382,11 +381,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </ul>
 
             <div className="button">
-              <Button type="primary" onClick={() => saveYodyProduct(productSelected.id)}>
+              <Button type="primary" onClick={() => saveConnectYodyProduct(productSelected.id)}>
                 Lưu
               </Button>
 
-              <Button onClick={() => cancelYodyProduct(productSelected.id)}>
+              <Button onClick={() => cancelConnectYodyProduct(productSelected.id)}>
                 Hủy          
               </Button>
             </div>
@@ -568,7 +567,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setVisibleFilter(false);
   }, []);
 
-  const savePairingConnectItems = () => {
+  const saveConnectedYodyProduct = () => {
     const request = {
       variants: connectItemList
     }
@@ -577,6 +576,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         if (result) {
           setConnectItemList([]);
           showSuccess("Ghép nối sản phẩm thành công");
+          reloadPage();
           history.replace(`${history.location.pathname}#connected-item`)
         } else {
           showError("Ghép nối sản phẩm thất bại");
@@ -685,7 +685,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         <Button
           className="save-pairing-button"
           type="primary"
-          onClick={savePairingConnectItems}
+          onClick={saveConnectedYodyProduct}
           disabled={connectItemList.length === 0}
           size="large"
           icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
