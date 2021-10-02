@@ -15,6 +15,7 @@ type PropType = {
   discountValue: number | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   totalAmountReturnProducts?: number;
+  levelOrder?: number;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -25,6 +26,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     discountValue,
     totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
+    levelOrder = 0
   } = props;
 
   const totalAmountCustomerNeedToPayShipper = () => {
@@ -67,6 +69,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                   }
                   return false;
                 }}
+                disabled={levelOrder > 3}
               >
                 {shipper?.map((item, index) => (
                   <CustomSelect.Option
@@ -98,6 +101,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                   }}
                   maxLength={999999999999}
                   minLength={0}
+                  disabled={levelOrder > 3}
                 />
               </Form.Item>
             )}
@@ -118,6 +122,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 }}
                 maxLength={15}
                 minLength={0}
+                disabled={levelOrder > 3}
               />
             </Form.Item>
             <Form.Item
@@ -136,6 +141,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 maxLength={15}
                 minLength={0}
                 onChange={setShippingFeeInformedCustomer}
+                disabled={levelOrder > 3}
               />
             </Form.Item>
           </Col>
