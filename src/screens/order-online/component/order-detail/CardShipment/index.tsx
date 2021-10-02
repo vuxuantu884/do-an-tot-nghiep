@@ -386,6 +386,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               shipper={shipper}
               shippingFeeCustomer={shippingFeeCustomer}
               totalAmountReturnProducts={totalAmountReturnProducts}
+              levelOrder={levelOrder}
             />
           )}
 
