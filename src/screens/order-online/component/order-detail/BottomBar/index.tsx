@@ -122,7 +122,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   <Menu.Item
                     key="update"
                     onClick={() => orderActionsClick && orderActionsClick('update')}
-                    // disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED}
+                    disabled={stepsStatusValue === OrderStatus.CANCELLED || stepsStatusValue === FulFillmentStatus.SHIPPED || stepsStatusValue === FulFillmentStatus.SHIPPING}
                   >
                     Sửa đơn hàng
                   </Menu.Item>

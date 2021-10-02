@@ -230,7 +230,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                                 service.total_fee
                                               );
                                             }}
-                                            disabled={service.total_fee === 0}
+                                            disabled={service.total_fee === 0 || levelOrder >3}
                                           />
                                           <span className="checkmark"></span>
                                           {service.transport_type_name}
