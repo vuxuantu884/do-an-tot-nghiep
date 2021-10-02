@@ -452,16 +452,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       render: (l: any, v: any, i: any) => {
         return (
           <div>
-            {l.connect_status === "connected" &&
-              <span style={{color: '#27AE60'}}>Thành công</span>
-            }
-            {l.connect_status === "error" &&
-              <Tooltip title="error">
-                <span style={{color: '#E24343'}}>Thất bại</span>
-              </Tooltip>
-            }
             {l.connect_status === "waiting" &&
-              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+              <span style={{color: '#FFA500'}}>Chưa ghép nối</span>
             }
           </div>
         );
