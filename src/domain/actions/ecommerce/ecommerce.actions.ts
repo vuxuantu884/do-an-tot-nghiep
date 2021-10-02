@@ -4,7 +4,6 @@ import { EcommerceType } from "domain/types/ecommerce.type";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import {
   ProductEcommerceQuery,
-  ShopEcommerceQuery,
   PostProductEcommerceQuery,
 } from "model/query/ecommerce.query";
 
@@ -80,7 +79,7 @@ export const getProductEcommerceList = (query: ProductEcommerceQuery, setData: (
   return BaseAction(EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST, { query, setData });
 }
 
-export const getShopEcommerceList = (query: ShopEcommerceQuery, setData: (data: any) => void) => {
+export const getShopEcommerceList = (query: any, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.GET_ECOMMERCE_SHOP_REQUEST, { query, setData });
 }
 
