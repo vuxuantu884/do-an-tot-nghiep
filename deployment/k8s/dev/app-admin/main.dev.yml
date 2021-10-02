@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: $SERVICE_NAME
 spec:
-  replicas: 2
   progressDeadlineSeconds: 600
   strategy:
     type: RollingUpdate
