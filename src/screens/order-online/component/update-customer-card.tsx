@@ -31,15 +31,14 @@ import UrlConfig from "config/url.config";
 type CustomerCardUpdateProps = {
   OrderDetail: OrderResponse | null;
   customerDetail: CustomerResponse | null;
-  loyaltyPoint:LoyaltyPoint|null;
-  loyaltyUsageRules:Array<LoyaltyUsageResponse>;
+  loyaltyPoint: LoyaltyPoint | null;
+  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
 };
 
 const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   props: CustomerCardUpdateProps
 ) => {
-
-  const {loyaltyPoint,loyaltyUsageRules} =props;
+  const { loyaltyPoint, loyaltyUsageRules } = props;
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
@@ -77,7 +76,13 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
     "DD/MM/YYYY"
   );
 
-  const rankName =loyaltyUsageRules.find((x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id))?.rank_name;
+  const rankName = loyaltyUsageRules.find(
+    (x) =>
+      x.rank_id ===
+      (loyaltyPoint?.loyalty_level_id === null
+        ? 0
+        : loyaltyPoint?.loyalty_level_id)
+  )?.rank_name;
 
   return (
     <Card
@@ -111,14 +116,14 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         >
           <Space>
             <Avatar size={32}>A</Avatar>
-            <Link 
-            target='_blank' 
-            to={`${UrlConfig.CUSTOMER}/${props.customerDetail?.id}`}
-            >{
-              props.customerDetail?.full_name}
+            <Link
+              target="_blank"
+              to={`${UrlConfig.CUSTOMER}/${props.customerDetail?.id}`}
+            >
+              {props.customerDetail?.full_name}
             </Link>
             <Tag className="orders-tag orders-tag-vip">
-              <b>{!rankName?"Default":rankName}</b>
+              <b>{!rankName ? "Default" : rankName}</b>
             </Tag>
           </Space>
           <Space className="customer-detail-phone">
@@ -141,23 +146,18 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 style={{ color: "#0080FF" }}
                 strong
               >
-                {loyaltyPoint?.point === undefined
-                      ? "0"
-                      : loyaltyPoint?.point}
+                {loyaltyPoint?.point === undefined ? "0" : loyaltyPoint?.point}
               </Typography.Text>
             </span>
           </Space>
-          {
-            (props.customerDetail?.birthday!==null) &&(
-              <Space className="customer-detail-birthday">
-                  <span className="customer-detail-icon">
-                      <img src={bithdayIcon} alt="" />
-                  </span>
-                  <span className="customer-detail-text">{customerBirthday}</span>
-              </Space>
-            )
-          }
-                    
+          {props.customerDetail?.birthday !== null && (
+            <Space className="customer-detail-birthday">
+              <span className="customer-detail-icon">
+                <img src={bithdayIcon} alt="" />
+              </span>
+              <span className="customer-detail-text">{customerBirthday}</span>
+            </Space>
+          )}
         </Row>
         <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
         <div className="padding-lef-right">
@@ -256,7 +256,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                         marginRight: "10px",
                       }}
                     />
-                    Ghi chú của khách: 3
+                    Ghi chú của khách:
                   </label>
                 </div>
                 <div style={{ marginTop: "10px", wordWrap: "break-word" }}>
