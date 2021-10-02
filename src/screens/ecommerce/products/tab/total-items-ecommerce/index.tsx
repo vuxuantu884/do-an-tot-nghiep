@@ -176,7 +176,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       },
     },
     {
-      title: "Sku/ itemID (Shopee)",
+      title: "Sku/ itemID (Sàn)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
@@ -184,25 +184,22 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
           <div>
             <div>{l.ecommerce_sku}</div>
             <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
-            <div style={{color: "#2a2a86"}}>(YODY Việt Nam)</div>
+            <div style={{color: "#2a2a86"}}>({l.shop})</div>
           </div>
         )
       },
     },
     {
-      title: "Sản phẩm (Shopee)",
+      title: "Sản phẩm (Sàn)",
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <div>
-            <div>{l.ecommerce_variant}</div>
-            <div>{l.ecommerce_sku}</div>
-          </div>
+          <div>{l.ecommerce_variant}</div>
         );
       },
     },
     {
-      title: "Giá bán (Shopee)",
+      title: "Giá bán (Sàn)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
@@ -212,7 +209,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       },
     },
     {
-      title: "Sản phẩm (YODY)",
+      title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
@@ -224,7 +221,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       },
     },
     {
-      title: "Giá bán (YODY)",
+      title: "Giá bán (Yody)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
@@ -462,14 +459,14 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, tên sản phẩm Shopee"
+                placeholder="SKU, tên sản phẩm sàn"
               />
             </Form.Item>
 
             <Form.Item name="sku_or_name_core" className="yody-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, Sản phẩm YODY"
+                placeholder="SKU, Sản phẩm Yody"
               />
             </Form.Item>
 
