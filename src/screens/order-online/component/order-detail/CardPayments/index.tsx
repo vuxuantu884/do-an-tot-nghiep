@@ -26,7 +26,6 @@ import { useDispatch } from "react-redux";
 import {
   PaymentMethodCode,
   PaymentMethodOption,
-  PointConfig,
   ShipmentMethodOption,
 } from "utils/Constants";
 import {
