@@ -1,0 +1,72 @@
+
+@import "assets/css/variable";
+.order-list {
+  .txt-muted {
+    color: $text-muted;
+  }
+  .icon {
+    @mixin round {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border-color: rgb(42, 42, 134);
+      border-width: 1px;
+      border-style: solid;
+    }
+
+    &-full {
+      @include round;
+      background-color: rgb(42, 42, 134);
+    }
+    &-partial {
+      @include round;
+      background-image: linear-gradient(to right, rgb(42, 42, 134) 50%, $white 50%);
+    }
+    &-blank {
+      @include round;
+      background-color: $white;
+    }
+  }
+  .tag-custom {
+    width: 120px;
+    text-align: center;
+    white-space: unset;
+  }
+  
+  .ant-table-content{
+    .ant-table-tbody {
+      .ant-table-row {
+        
+        .ant-table-cell{
+
+          .items {
+            .item {
+              display: flex;
+              border-bottom: 1px solid #5252;
+              .item-sku {
+                width: 80%
+              }
+              .item-quantity {
+                width: 20%;
+              }
+            }
+            .item:last-child {
+              border-bottom: none;
+            }
+          }
+          .customer {
+            .name {
+              color: #2A2A86;
+            }
+          }
+        }
+        
+      }
+      .ant-table-row-selected {
+        background-color: #c45dbb !important;
+      }
+    }
+  }
+}
+
