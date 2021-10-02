@@ -1,98 +1,77 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
-import React, { useState } from "react";
+import { actionGetActionLogDetail } from "domain/actions/order/order.action";
+import purify from "dompurify";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
+import moment from "moment";
 
 type PropType = {
   isModalVisible: boolean;
+  actionId?: number;
   onCancel: () => void;
 };
 
-function ActionHistoryModal(props: PropType) {
-  const FAKE_LOG_SHORTEN = [
-    {
-      key: "1",
-      title: "Code",
-      before: null,
-      after: 200,
-    },
-    {
-      key: "2",
-      title: "Data",
-      before: "Mảng dữ liệu",
-      after: "	Mảng dữ liệu",
-    },
-    {
-      key: "3",
-      title: "Message",
-      before: null,
-      after:
-        "Do diễn biến phức tạp của dịch Covid-19, thời gian giao hàng có thể dài hơn dự kiến từ 1-5 ngày.",
-    },
-  ];
+type SingleLogType = {
+  key: string;
+  title: string;
+  type?: string;
+  before: any;
+  current: any;
+};
 
-  const FAKE_LOG_SHORTEN_COLUMN = [
+function ActionHistoryModal(props: PropType) {
+  const dateFormat = "HH:mm DD/MM/YYYY";
+
+  const dispatch = useDispatch();
+  const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
+  const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
+
+  const renderRow = (value: string, row: any) => {
+    if (row.type === "html") {
+      let doc = new DOMParser().parseFromString(value, "text/html");
+      let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
+      return (
+        <div
+          className="orderDetails"
+          dangerouslySetInnerHTML={{
+            __html: purify.sanitize(htmlInner),
+          }}
+        ></div>
+      );
+    }
+    return value;
+  };
+
+  const ACTION_LOG_SHORTEN_COLUMN = [
     {
       title: "Nội dung thay đổi",
       dataIndex: "title",
       key: "title",
-      width: "30%",
+      width: "20%",
     },
     {
       title: "Trước",
       dataIndex: "before",
       key: "before",
-      width: "30%",
+      width: "40%",
+      render: (value: string, row: any) => {
+        return renderRow(value, row);
+      },
     },
     {
       title: "Sau",
-      dataIndex: "after",
-      key: "after",
+      dataIndex: "current",
+      key: "current",
+      width: "40%",
+      render: (value: string, row: any) => {
+        return renderRow(value, row);
+      },
     },
   ];
 
-  const FAKE_LOG_DETAIL = [
-    {
-      key: "1",
-      before: `
-      {
-        Array
-        (
-            [requestCarrier] => Array
-                (
-                    [to_name] => c La
-                    [to_phone] => 0915622182
-                    [to_address] => ĐÀO THỊ THÚY LA THON GỐM XÃ THỤY LÔI HUYỆN KIM BẢNG TỈNH HÀ NAM
-                    [to_ward_code] => 240316
-                    [to_district_id] => 1952
-                    [return_phone] => 02499966668
-                    [return_address] => 151 Nguyễn Du, Vị 
-        
-        }
-      `,
-      after: `
-      {
-        {
-        Array
-        (
-            [requestCarrier] => Array
-                (
-                    [to_name] => c La
-                    [to_phone] => 0915622182
-                    [to_address] => ĐÀO THỊ THÚY LA THON GỐM XÃ THỤY LÔI HUYỆN KIM BẢNG TỈNH HÀ NAM
-                    [to_ward_code] => 240316
-                    [to_district_id] => 1952
-                    [return_phone] => 02499966668
-                    [return_address] => 151 Nguyễn Du, Vị 
-        
-        }
-        
-        }
-      `,
-    },
-  ];
-
-  const FAKE_LOG_DETAIL_COLUMN = [
+  const ACTION_LOG_DETAIL_COLUMN = [
     {
       title: "Trước",
       dataIndex: "before",
@@ -101,18 +80,128 @@ function ActionHistoryModal(props: PropType) {
     },
     {
       title: "Sau",
-      dataIndex: "after",
-      key: "after",
+      dataIndex: "current",
+      key: "current",
       width: "50%",
+      render: (text: string) => {
+        return text;
+      },
     },
   ];
 
-  const { onCancel, isModalVisible } = props;
+  const { onCancel, isModalVisible, actionId } = props;
   const [isShowLogDetail, setIsShowLogDetail] = useState(false);
 
   const handleCancel = () => {
     onCancel();
+    setIsShowLogDetail(false);
   };
+
+  useEffect(() => {
+    const convertActionLogDetailToText = (data?: string) => {
+      let result = "";
+      if (data) {
+        let dataJson = JSON.parse(data);
+        console.log("dataJson", dataJson);
+        result = `
+        <span style="color:red">Thông tin đơn hàng: </span><br/> 
+        - Nhân viên: ${dataJson.created_name}<br/>
+        - Trạng thái : ${dataJson.status_after}<br/>
+        - Nguồn : ${dataJson.source}<br/>
+        - Cửa hàng : ${dataJson.store}<br/>
+        - Địa chỉ cửa hàng : ${dataJson.store_full_address}<br/>
+        - Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}<br/>
+        - Ghi chú: ${dataJson.note} <br/>
+        <br/>
+        <span style="color:red">Sản phẩm: </span><br/> 
+        ${dataJson.items
+          .map((singleItem: any, index: any) => {
+            return `
+        - Sản phẩm ${index + 1}: ${singleItem.product} <br/>
+          + Đơn giá: ${singleItem.price} <br/>
+          + Số lượng: ${singleItem.quantity} <br/>
+          + Thuế : ${singleItem.tax_rate || 0} <br/>
+          + Chiết khấu sản phẩm: ${singleItem.discount_value || 0} <br/>
+          + Thành tiền: ${singleItem.amount} <br/>
+          `;
+          })
+          .join("<br/>")}
+        <br/>
+        <span style="color:red">Phiếu đóng gói: </span><br/> 
+        - Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+        - Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+        - Phương thức giao hàng: ${
+          dataJson.fulfillments[0].shipment.delivery_service_provider
+        } <br/>
+        - Trạng thái: ${dataJson.fulfillments[0].status} <br/>
+        <br/>
+        <span style="color:red">Thanh toán: </span><br/>  
+        ${
+          dataJson.payments.length <= 0
+            ? `-Chưa thanh toán`
+            : dataJson.payments
+                .map((singlePayment: any, index: number) => {
+                  return `
+                  - ${singlePayment.payment_method}: ${singlePayment.paid_amount}
+                `;
+                })
+                .join("<br/>")
+        }
+        `;
+      }
+      return result;
+    };
+    if (actionId) {
+      dispatch(
+        actionGetActionLogDetail(actionId, (response) => {
+          let detailToTextBefore = convertActionLogDetailToText(
+            response.before?.data
+          );
+          let detailToTextCurrent = convertActionLogDetailToText(
+            response.current?.data
+          );
+          setSingleLogDetail([
+            {
+              key: "1",
+              title: "detail",
+              before: response.before?.data || "",
+              current: response.current?.data || "",
+            },
+          ]);
+          setSingleLogShorten([
+            {
+              key: "1",
+              type: "text",
+              title: "Code",
+              before: response.before?.code || "",
+              current: response.current?.code || "",
+            },
+            {
+              key: "2",
+              type: "html",
+              title: "Data",
+              before: detailToTextBefore,
+              current: detailToTextCurrent,
+            },
+            {
+              key: "3",
+              type: "text",
+              title: "IP",
+              before: response.before?.ip_address || "",
+              current: response.current?.ip_address || "",
+            },
+            {
+              key: "4",
+              type: "text",
+              title: "Thiết bị",
+              before: response.before?.device || "",
+              current: response.current?.device || "",
+            },
+          ]);
+        })
+      );
+    }
+  }, [actionId, dispatch]);
 
   return (
     <Modal
@@ -120,7 +209,7 @@ function ActionHistoryModal(props: PropType) {
       visible={isModalVisible}
       footer={false}
       onCancel={handleCancel}
-      width="814px"
+      width="1200px"
     >
       <StyledComponent>
         <div className="sectionButton">
@@ -136,14 +225,14 @@ function ActionHistoryModal(props: PropType) {
         </div>
         {isShowLogDetail ? (
           <Table
-            dataSource={FAKE_LOG_DETAIL}
-            columns={FAKE_LOG_DETAIL_COLUMN}
+            dataSource={singleLogDetail}
+            columns={ACTION_LOG_DETAIL_COLUMN}
             pagination={false}
           />
         ) : (
           <Table
-            dataSource={FAKE_LOG_SHORTEN}
-            columns={FAKE_LOG_SHORTEN_COLUMN}
+            dataSource={singleLogShorten}
+            columns={ACTION_LOG_SHORTEN_COLUMN}
             pagination={false}
           />
         )}

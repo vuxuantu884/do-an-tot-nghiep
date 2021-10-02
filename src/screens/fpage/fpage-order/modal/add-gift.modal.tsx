@@ -121,7 +121,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
 
   const columns = [
     {
-      title: "Sản phẩm", width: 200,
+      title: "Sản phẩm",
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
           <div className="yody-pos-sku">
@@ -132,7 +132,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       ),
     },
     {
-      title: "Số lượng", width: 100,
+      title: "Số lượng",
       render: (a: OrderItemModel, b: any, index: number) => (
         <div>
           <Input
@@ -160,7 +160,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     //   render: (a: OrderItemModel) => formatCurrency(a.price),
     // },
     {
-      title: "",width: 100,
+      title: "",
       render: (a: any, b: any, index: number) => {
         return (
           <div style={{ textAlign: "center" }}>

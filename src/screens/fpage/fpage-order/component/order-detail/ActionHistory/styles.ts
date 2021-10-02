@@ -6,18 +6,31 @@ export const StyledComponent = styled.div`
   }
   .cardTitle {
     color: #5d5d8a;
+    font-size: 14px;
     padding-left: 30px;
     position: relative;
     img {
-      position: absolute;
-      z-index: 1;
       left: 0;
-      top: 3px;
+      position: absolute;
+      top: 1px;
+      z-index: 1;
     }
   }
   .singleActionHistory {
+    padding-bottom: 8px;
+    padding-top: 10px;
+    &:hover {
+      cursor: pointer;
+      .singleActionHistory__mainStatus,
+      .singleActionHistory__title {
+        text-decoration: underline;
+      }
+    }
+    &:first-child {
+      padding-top: 0;
+    }
     &:not(:last-child) {
-      margin-bottom: 15px;
+      border-bottom: 1px solid #e5e5e5;
     }
     &__title {
       font-size: 1em;

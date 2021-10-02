@@ -14,6 +14,7 @@ type PropType = {
   shippingFeeCustomer: number | null;
   discountValue: number | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
+  totalAmountReturnProducts?: number;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -22,13 +23,24 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     paymentMethod,
     shippingFeeCustomer,
     discountValue,
+    totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
   } = props;
+
+  const totalAmountCustomerNeedToPayShipper = () => {
+    return (
+      amount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+    );
+  };
+
   return (
     <StyledComponent>
       <div>
         <Row gutter={20}>
-          <Col span={24}>
+          <Col md={12}>
             <Form.Item
               label="Đối tác giao hàng"
               name="shipper_code"
@@ -75,9 +87,9 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="0"
                   value={
-                    amount +
-                    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                    (discountValue ? discountValue : 0)
+                    totalAmountCustomerNeedToPayShipper() > 0
+                      ? totalAmountCustomerNeedToPayShipper()
+                      : 0
                   }
                   style={{
                     textAlign: "right",
@@ -90,7 +102,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               </Form.Item>
             )}
           </Col>
-          <Col span={24}>
+          <Col md={12}>
             <Form.Item
               name="shipping_fee_paid_to_three_pls"
               label="Phí ship trả đối tác giao hàng"
