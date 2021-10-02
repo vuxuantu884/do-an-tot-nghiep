@@ -1,4 +1,4 @@
-import { Col, Form, FormInstance, Input, Row } from "antd";
+import { Col, Form, FormInstance, Input, Row, Button } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -45,7 +45,13 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
@@ -781,24 +787,35 @@ export default function FpageOrders(props: any) {
         ? 0
         : Pointfocus.point;
 
-     let totalAmountPayable =
-     orderAmount +
-     (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-     discountValue; //tổng tiền phải trả
+      let totalAmountPayable =
+        orderAmount +
+        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        discountValue; //tổng tiền phải trả
 
-      let usageRate= loyaltyRate===null|| loyaltyRate===undefined? 0 : loyaltyRate.usage_rate;
+      let usageRate =
+        loyaltyRate === null || loyaltyRate === undefined
+          ? 0
+          : loyaltyRate.usage_rate;
 
-      let enableUsingPoint=loyaltyRate===null|| loyaltyRate===undefined? false : loyaltyRate.enable_using_point;
+      let enableUsingPoint =
+        loyaltyRate === null || loyaltyRate === undefined
+          ? false
+          : loyaltyRate.enable_using_point;
 
-      let limitOrderPercent=!rank? 0 : !rank.limit_order_percent ? 100 : rank.limit_order_percent;// % tối đa giá trị đơn hàng.
+      let limitOrderPercent = !rank
+        ? 0
+        : !rank.limit_order_percent
+        ? 100
+        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
-      let limitAmount=point * usageRate;
+      let limitAmount = point * usageRate;
 
-      let amountLimitOrderPercent= (totalAmountPayable * limitOrderPercent)/100
+      let amountLimitOrderPercent =
+        (totalAmountPayable * limitOrderPercent) / 100;
 
-      if(enableUsingPoint===false){
+      if (enableUsingPoint === false) {
         showError("Chương trình tiêu điểm đang tạm dừng hoạt động");
-          return false;
+        return false;
       }
 
       if (!loyaltyPoint || limitOrderPercent === 0) {
@@ -815,10 +832,11 @@ export default function FpageOrders(props: any) {
         return false;
       }
 
-      if(limitAmount > amountLimitOrderPercent)
-      {
-          showError(`Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`);
-          return false;
+      if (limitAmount > amountLimitOrderPercent) {
+        showError(
+          `Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`
+        );
+        return false;
       }
 
       if (point > curenPoint) {
@@ -834,7 +852,7 @@ export default function FpageOrders(props: any) {
       discountValue,
       orderAmount,
       shippingFeeCustomer,
-      loyaltyRate
+      loyaltyRate,
     ]
   );
 
@@ -905,21 +923,8 @@ export default function FpageOrders(props: any) {
     <React.Fragment>
       <ContentContainer
         title="Tạo mới đơn hàng"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: "/",
-          },
-          {
-            name: "Đơn hàng",
-          },
-          {
-            name: "Tạo mới đơn hàng",
-          },
-        ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
       >
-        <div className="orders">
+        <div className="fpage-order">
           {isLoadForm && (
             <Form
               layout="vertical"
@@ -954,7 +959,7 @@ export default function FpageOrders(props: any) {
                 <Input />
               </Form.Item>
               <Row gutter={20} style={{ marginBottom: "70px" }}>
-                <Col md={18}>
+              <Col span={24}>
                   <CardCustomer
                     customer={customer}
                     handleCustomer={handleCustomer}
@@ -1021,7 +1026,7 @@ export default function FpageOrders(props: any) {
                     loyaltyRate={loyaltyRate}
                   />
                 </Col>
-                <Col md={6}>
+                <Col span={24}>
                   <OrderDetailSidebar
                     accounts={accounts}
                     tags={tags}
@@ -1030,27 +1035,36 @@ export default function FpageOrders(props: any) {
                   />
                 </Col>
               </Row>
-              {isShowBillStep && (
-                <OrderDetailBottomBar
-                  formRef={formRef}
-                  handleTypeButton={handleTypeButton}
-                  isVisibleGroupButtons={true}
-                  showSaveAndConfirmModal={showSaveAndConfirmModal}
-                />
-              )}
+              <Row className="footer" gutter={24}>
+                <Col className="order-step" md={12}>
+                  <CreateBillStep status="draff" orderDetail={null} />
+                </Col>
+
+                <Col className="customer-bottom-button" md={8}>
+                  <Button
+                    className="order-button-width"
+                    onClick={() => window.location.reload()}
+                  >
+                    Hủy
+                  </Button>
+
+                  <Button
+                    // disabled={isDisableSubmitBtn}
+                    type="primary"
+                    className="order-button-width"
+                    id="save-and-confirm"
+                    onClick={() => {
+                      typeButton = OrderStatus.FINALIZED;
+                      formRef.current?.submit();
+                    }}
+                  >
+                    Tạo đơn hàng
+                  </Button>
+                </Col>
+              </Row>
             </Form>
           )}
         </div>
-        <SaveAndConfirmOrder
-          onCancel={onCancelSaveAndConfirm}
-          onOk={onOkSaveAndConfirm}
-          visible={isVisibleSaveAndConfirm}
-          okText="Đồng ý"
-          cancelText="Hủy"
-          title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
-          text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
-          icon={WarningIcon}
-        />
       </ContentContainer>
     </React.Fragment>
   );

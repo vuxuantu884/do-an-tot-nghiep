@@ -121,8 +121,6 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           >
             <CustomerInputTags
               onChangeTag={onChangeTag}
-              tags={tags}
-              isCloneOrder={isCloneOrder}
             />
           </Form.Item>
         </div>

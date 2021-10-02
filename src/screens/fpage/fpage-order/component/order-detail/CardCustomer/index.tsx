@@ -24,6 +24,7 @@ import callIcon from "assets/img/call.svg";
 import editBlueIcon from "assets/img/edit_icon.svg";
 import noteCustomer from "assets/img/note-customer.svg";
 import pointIcon from "assets/img/point.svg";
+import logoMobile from "assets/icon/logoMobile.svg";
 import addressIcon from "assets/img/user-pin.svg";
 import CustomSelect from "component/custom/select.custom";
 import {
@@ -75,8 +76,8 @@ type CustomerCardProps = {
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
   customer: CustomerResponse | null;
-  loyaltyPoint:LoyaltyPoint|null;
-  loyaltyUsageRules:Array<LoyaltyUsageResponse>;
+  loyaltyPoint: LoyaltyPoint | null;
+  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
 };
@@ -101,10 +102,16 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customer, handleCustomer,loyaltyPoint,loyaltyUsageRules, levelOrder = 0  } = props;
+  const {
+    customer,
+    handleCustomer,
+    loyaltyPoint,
+    loyaltyUsageRules,
+    levelOrder = 0,
+  } = props;
   //State
-  console.log('customer customer', customer);
-  
+  console.log("customer customer", customer);
+
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
@@ -301,8 +308,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   useEffect(() => {
     if (customer && customer.shipping_addresses[0]) {
-      const addressDefault = customer.shipping_addresses.filter(item => item.default)
-      setShippingAddress(addressDefault.length ? addressDefault[0] : customer.shipping_addresses[0]);
+      const addressDefault = customer.shipping_addresses.filter(
+        (item) => item.default
+      );
+      setShippingAddress(
+        addressDefault.length
+          ? addressDefault[0]
+          : customer.shipping_addresses[0]
+      );
     }
   }, [customer]);
 
@@ -340,27 +353,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const rankName =loyaltyUsageRules.find((x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id))?.rank_name;
+  const rankName = loyaltyUsageRules.find(
+    (x) =>
+      x.rank_id ===
+      (loyaltyPoint?.loyalty_level_id === null
+        ? 0
+        : loyaltyPoint?.loyalty_level_id)
+  )?.rank_name;
 
   return (
     <Card
-      title={
-        <div className="d-flex">
-          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
-        </div>
-      }
       extra={
         <div>
-          <span
-            style={{
-              float: "left",
-              lineHeight: "40px",
-              marginRight: "10px",
-            }}
-          >
-            Nguồn <span className="text-error">*</span>
-          </span>
           <Form.Item
+            className="order-source-selected"
             name="source_id"
             style={{ margin: "10px 0px" }}
             rules={[
@@ -371,7 +377,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             ]}
           >
             <CustomSelect
-              style={{ width: 300, borderRadius: "6px" }}
+              style={{ width: "100%", borderRadius: "6px" }}
               showArrow
               showSearch
               placeholder="Nguồn đơn hàng"
@@ -402,7 +408,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     >
       {customer === null && (
-        <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
+        <div className="padding-lef-right">
           <div>
             <AutoComplete
               notFoundContent={
@@ -449,37 +455,52 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               justify="space-between"
               className="row-customer-detail padding-custom"
             >
-              <Space>
-                <Avatar size={32}>A</Avatar>
+              <Col style={{ display: "flex", alignItems: "center" }}>
+                <div className="fpage-order-avatar-customer">
+                  <img
+                    style={{ width: 34, height: 34 }}
+                    src={logoMobile}
+                    alt="logo"
+                  />
+                </div>
                 <Link
-                  target='_blank' 
+                  target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer.id}`}
                   className="primary"
-                  style={{ fontSize: "16px" }}
+                  style={{ fontSize: "16px", margin: "0 10px" }}
                 >
                   {customer.full_name}
                 </Link>{" "}
-                {levelOrder < 3 &&
-                <CloseOutlined
-                  onClick={CustomerDeleteInfo}
-                  style={{ marginRight: "5px" }}
-                />}
                 <Tag className="orders-tag orders-tag-vip">
-                  <b>{!rankName?"Default":rankName}</b>
+                  <b>{!rankName ? "Default" : rankName}</b>
                 </Tag>
-              </Space>
-              <Space className="customer-detail-phone">
+              </Col>
+              <Col style={{ display: "flex", alignItems: "center" }}>
                 <span className="customer-detail-icon">
-                  <img src={callIcon} alt="" className="icon-customer-info" />
+                  <img src={callIcon} alt="" />
                 </span>
-                <span className="customer-detail-text text-body">
+                <span
+                  className="customer-detail-text text-body"
+                  style={{ marginRight: "10px" }}
+                >
                   {customer?.phone === undefined
                     ? "0987654321"
                     : customer?.phone}
                 </span>
-              </Space>
-
-              <Space className="customer-detail-point">
+                {levelOrder < 3 && (
+                  <CloseOutlined
+                    style={{ color: "red" }}
+                    onClick={CustomerDeleteInfo}
+                  />
+                )}
+              </Col>
+            </Row>
+            <Row
+              align="middle"
+              justify="space-between"
+              style={{ padding: "0 24px" }}
+            >
+              <Col className="customer-detail-point">
                 <span className="customer-detail-icon">
                   <img src={pointIcon} alt="" />
                 </span>
@@ -495,25 +516,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       : loyaltyPoint?.point}
                   </Typography.Text>
                 </span>
-              </Space>
+              </Col>
 
-            {
-              (customer?.birthday!==null) &&(
-                <Space className="customer-detail-birthday">
-                <span className="customer-detail-icon">
-                  <img
-                    src={birthdayIcon}
-                    alt=""
-                    className="icon-customer-info"
-                  />
-                </span>
-                <span className="customer-detail-text">{customerBirthday}</span>
-              </Space>
-              )
-            }
-             
+              {customer?.birthday !== null && (
+                <Col className="customer-detail-birthday">
+                  <span className="customer-detail-icon">
+                    <img
+                      src={birthdayIcon}
+                      alt=""
+                      className="icon-customer-info"
+                    />
+                  </span>
+                  <span className="customer-detail-text">
+                    {customerBirthday}
+                  </span>
+                </Col>
+              )}
 
-              <Space className="customer-detail-action">
+              <Col className="customer-detail-action">
                 <Button
                   type="text"
                   className="p-0 ant-btn-custom"
@@ -525,22 +545,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     style={{ width: "24px", height: "24px" }}
                   />
                 </Button>
-              </Space>
+              </Col>
             </Row>
-            <Divider
-              className="margin-0"
-              style={{ padding: 0, marginBottom: 0 }}
-            />
+            <Divider style={{ padding: 0, margin: 0 }} />
 
             <div className="padding-lef-right">
               {customer.shipping_addresses !== undefined && (
-                <Row gutter={24}>
+                <Row gutter={24} style={{ paddingTop: 10 }}>
                   <Col
-                    xs={24}
-                    lg={12}
+                    span={12}
                     style={{
                       borderRight: "1px solid #E5E5E5",
-                      paddingTop: "14px",
                     }}
                     className="font-weight-500 customer-info-left"
                   >
@@ -554,16 +569,21 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           marginRight: "10px",
                         }}
                       />
-                      Địa chỉ giao hàng 2:
+                      Địa chỉ giao hàng:
                     </div>
                     <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right">Họ tên:</span>
                       <span>{shippingAddress?.name}</span>
                     </Row>
                     <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right">Số ĐT:</span>
                       <span>{shippingAddress?.phone}</span>
                     </Row>
                     <Row className="customer-row-info">
-                      <span>{shippingAddress?.full_address}</span>
+                      <span className="font-weight-500 pd-right">Địa chỉ:</span>
+                      <span className="break-word">
+                        {shippingAddress?.full_address}
+                      </span>
                     </Row>
                     <Row>
                       <Popover
@@ -634,18 +654,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         trigger="click"
                         className="change-shipping-address"
                       >
-                        <Button type="link" className="btn-style" disabled={levelOrder > 3}>
+                        <Button
+                          type="link"
+                          className="btn-style"
+                          disabled={levelOrder > 3}
+                        >
                           Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
                     </Row>
                   </Col>
-                  <Col
-                    xs={24}
-                    lg={12}
-                    className="font-weight-500"
-                    style={{ paddingLeft: "34px", marginTop: "14px" }}
-                  >
+                  <Col span={12} className="font-weight-500 note-customer">
                     <div>
                       <img
                         src={noteCustomer}
@@ -673,7 +692,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Divider style={{ padding: 0, margin: 0 }} />
 
               <div className="send-order-box">
-                <Row style={{ marginTop: 15 }}>
+                <Row style={{ marginTop: 4 }}>
                   <Checkbox
                     className="checkbox-style"
                     onChange={ShowBillingAddress}
@@ -685,13 +704,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
-                  <Row gutter={24} hidden={!isVisibleBilling}>
+                  <Row
+                    gutter={24}
+                    hidden={!isVisibleBilling}
+                    style={{
+                      paddingTop: "10px",
+                    }}
+                  >
                     <Col
-                      xs={24}
-                      lg={12}
+                      span={12}
                       style={{
                         borderRight: "1px solid #E5E5E5",
-                        paddingTop: "14px",
                       }}
                       className="font-weight-500 customer-info-left"
                     >
@@ -708,12 +731,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         Địa chỉ nhận hóa đơn:
                       </div>
                       <Row className="customer-row-info">
+                        <span className="font-weight-500 pd-right">
+                          Họ tên:
+                        </span>
                         <span>{shippingAddress?.name}</span>
                       </Row>
                       <Row className="customer-row-info">
+                        <span className="font-weight-500 pd-right">Số ĐT:</span>
                         <span>{shippingAddress?.phone}</span>
                       </Row>
                       <Row className="customer-row-info">
+                        <span className="font-weight-500 pd-right break-word">
+                          Địa chỉ:
+                        </span>
                         <span>{shippingAddress?.full_address}</span>
                       </Row>
                       <Row>
@@ -794,10 +824,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       </Row>
                     </Col>
                     <Col
-                      xs={24}
-                      lg={12}
-                      className="font-weight-500"
-                      style={{ paddingLeft: "34px", marginTop: "14px" }}
+                      span={12}
+                      className="font-weight-500 fpage-order-email"
+                      style={{ padding: "0 12px" }}
                     >
                       <div>
                         <img
