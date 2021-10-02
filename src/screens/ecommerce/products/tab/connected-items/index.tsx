@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space, Dropdown, Menu, Checkbox } from "antd";
 import { SearchOutlined, DownOutlined } from "@ant-design/icons";
 
+import UrlConfig from "config/url.config";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
@@ -255,7 +256,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     }
   };
 
-  //thai need todo
+
   const [columns] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -304,9 +305,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
+        const link = `${UrlConfig.PRODUCT}/${l.id}/variants/${l.core_variant_id}`;
         return (
           <div>
-            <div>{l.core_variant}</div>
+            <div onClick={() => window.open(link, "_blank")} className="link">{l.core_variant}</div>
             <div>{l.core_sku}</div>
           </div>
         );

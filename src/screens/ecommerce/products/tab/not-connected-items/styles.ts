@@ -72,6 +72,20 @@ export const StyledYodyProductColumn = styled.div`
     display: flex;
     justify-content: space-evenly;
   }
+
+  .link {
+    color: #2a2a86;
+    text-decoration: none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+    transition: color .3s;
+    &:hover {
+      color: #1890ff;
+      text-decoration: underline;
+    }
+  }
+
 `;
 
 export const StyledProductListDropdown = styled.div`
