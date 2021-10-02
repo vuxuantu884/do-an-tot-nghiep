@@ -320,12 +320,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             {l.connect_status === "connected" &&
               <span style={{color: '#27AE60'}}>Thành công</span>
             }
-            {l.connect_status === "error" &&
-              <span style={{color: '#E24343'}}>Thất bại</span>
-            }
-            {l.connect_status === "waiting" &&
-              <span style={{color: '#FFA500'}}>Đang xử lý</span>
-            }
           </div>
         );
       },
