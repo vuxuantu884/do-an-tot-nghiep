@@ -256,6 +256,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         const productSelectedData = {
           name: itemSelected && itemSelected.name,
           sku: itemSelected && itemSelected.sku,
+          variant_prices: itemSelected && itemSelected.variant_prices,
           retail_price: itemSelected && itemSelected.variant_prices && itemSelected.variant_prices[0] && itemSelected.variant_prices[0].retail_price,
           id: itemSelected && itemSelected.id,
           product_id: itemSelected && itemSelected.product_id,
@@ -395,7 +396,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               
               <li>
                 <b>Giá bán: </b>
-                <span>{formatCurrency(productSelected.retail_price)}</span>
+                <span>
+                  {`${findPrice(productSelected.variant_prices, AppConfig.currency)} `}
+                  <span className="item-price-unit">đ</span>
+                </span>
               </li>
             </ul>
 

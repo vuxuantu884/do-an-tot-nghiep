@@ -86,6 +86,12 @@ export const StyledYodyProductColumn = styled.div`
     }
   }
 
+  .item-price-unit {
+    text-decoration: underline;
+    text-decoration-color: #737373;
+    color: #737373;
+  }
+
 `;
 
 export const StyledProductListDropdown = styled.div`
