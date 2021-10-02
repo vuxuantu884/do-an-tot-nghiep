@@ -50,7 +50,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
-  const [syncStockAll, setSyncStockAll] = useState(null);
+  const [syncStockAll, setSyncStockAll] = useState(true);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
   
   const [selectedRow, setSelected] = useState<Array<any>>([]);
@@ -126,10 +126,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const handleSyncStockItemsSelected = () => {
     const itemSelected: any[] = [];
-    if (selectedRow) {
+    if (selectedRow && selectedRow.length > 0) {
       selectedRow.forEach((item) => {
         itemSelected.push(item.id);
       });
+      setSyncStockAll(false);
     }
     setIdsItemSelected(itemSelected);
     setIsShowSyncStockModal(true);
@@ -141,12 +142,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    setSyncStockAll(null);
+    setSyncStockAll(true);
   };
 
   const okSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    setSyncStockAll(null);
+    setSyncStockAll(true);
 
     const requestSyncStock = {
       variant_ids: idsItemSelected,
@@ -161,10 +162,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     }));
   };
 
-  const isDisableSyncStockOkButton = () => {
-    return syncStockAll === null;
-  }
-
   //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
@@ -172,6 +169,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   };
 
   const handleDeleteItemsSelected = () => {
+    if (isDisableAction()) {
+      return;
+    }
+
     const itemSelected: any[] = [];
     if (selectedRow) {
       selectedRow.forEach((item) => {
@@ -207,6 +208,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   };
 
   const handleDisconnectItemsSelected = () => {
+    if (isDisableAction()) {
+      return;
+    }
+
     const itemSelected: any[] = [];
     if (selectedRow) {
       selectedRow.forEach((item) => {
@@ -475,12 +480,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   );
 
   const isDisableAction = () => {
-    return selectedRow && selectedRow.length === 0;
+    return !selectedRow || selectedRow.length === 0;
   }
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1" disabled={isDisableAction()}>
+      <Menu.Item key="1">
         <span onClick={handleSyncStockItemsSelected}>Đồng bộ tồn kho lên sàn</span>
       </Menu.Item>
 
@@ -771,7 +776,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
           cancelText="Hủy"
           onCancel={cancelSyncStockModal}
           onOk={okSyncStockModal}
-          okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
           <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
             <Space direction="vertical">

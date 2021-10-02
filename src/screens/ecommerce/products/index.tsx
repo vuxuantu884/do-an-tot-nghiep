@@ -35,6 +35,7 @@ const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
   
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
   const [isShowResultGetItemModal, setIsShowResultGetItemModal] = React.useState(false);
   const [totalGetItem, setTotalGetItem] = React.useState(0);
@@ -135,7 +136,9 @@ const Products: React.FC = () => {
   };
 
   const updateEcommerceList = React.useCallback((data) => {
+    setIsLoading(false);
     if (data) {
+      setIsShowGetItemModal(false);
       setIsShowResultGetItemModal(true);
 
       setTotalGetItem(data.total);
@@ -145,7 +148,7 @@ const Products: React.FC = () => {
   }, []);
 
   const getProductsFromEcommerce = () => {
-    setIsShowGetItemModal(false);
+
     const params = {
       ecommerce_id: ecommerceSelected || null,
       shop_id: shopIdSelected || null,
@@ -153,6 +156,7 @@ const Products: React.FC = () => {
       update_time_to: endDate || null
     }
     
+    setIsLoading(true);
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
 
@@ -168,6 +172,7 @@ const Products: React.FC = () => {
 
   const cancelResultGetItemModal = () => {
     setIsShowResultGetItemModal(false);
+    setIsLoading(false);
   };
 
   const [ecommerceList] = useState<Array<any>>([
@@ -285,6 +290,7 @@ const Products: React.FC = () => {
         onOk={getProductsFromEcommerce}
         okButtonProps={{disabled: isDisableGetItemOkButton()}}
         maskClosable={false}
+        confirmLoading={isLoading}
       >
         <div style={{margin: "20px 0"}}>
           <Form
@@ -302,6 +308,7 @@ const Products: React.FC = () => {
                   icon={item.icon && <img src={item.icon} alt={item.id} />}
                   type="ghost"
                   onClick={() => selectEcommerce(item)}
+                  disabled={isLoading}
                 >
                   {item.title}
                   {item.id === activatedBtn?.id &&
@@ -332,6 +339,7 @@ const Products: React.FC = () => {
                   placeholder="Chọn gian hàng"
                   allowClear
                   onSelect={(value) => selectShopEcommerce(value)}
+                  disabled={isLoading}
                 >
                   {ecommerceShopList &&
                     ecommerceShopList.map((shop: any) => (
@@ -346,6 +354,7 @@ const Products: React.FC = () => {
           
             <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>            
               <RangePicker
+                disabled={isLoading}
                 placeholder={["Từ ngày", "Đến ngày"]}
                 style={{width: "100%"}}
                 ranges={{
