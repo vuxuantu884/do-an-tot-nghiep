@@ -615,7 +615,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   };
 
-  
   // shipment button action
   interface ShipmentButtonModel {
     name: string | null;
@@ -822,25 +821,33 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   // end
   useEffect(() => {
     if (!props.storeDetail) {
-      setAddressError("Thiếu thông tin địa chỉ cửa hàng")
+      setAddressError("Thiếu thông tin địa chỉ cửa hàng");
     }
-    if (props.customerDetail && props.storeDetail
-      && (getShippingAddressDefault(props.customerDetail)?.city_id || getShippingAddressDefault(props.customerDetail)?.district_id)
-      && getShippingAddressDefault(props.customerDetail)?.ward_id && getShippingAddressDefault(props.customerDetail)?.full_address) {
+    if (
+      props.customerDetail &&
+      props.storeDetail &&
+      (getShippingAddressDefault(props.customerDetail)?.city_id ||
+        getShippingAddressDefault(props.customerDetail)?.district_id) &&
+      getShippingAddressDefault(props.customerDetail)?.ward_id &&
+      getShippingAddressDefault(props.customerDetail)?.full_address
+    ) {
       let request = {
         from_city_id: props.storeDetail?.city_id,
         from_city: props.storeDetail?.city_name,
         from_district_id: props.storeDetail?.district_id,
         from_district: props.storeDetail?.district_name,
         from_ward_id: props.storeDetail?.ward_id,
-        to_country_id: getShippingAddressDefault(props.customerDetail)?.country_id,
+        to_country_id: getShippingAddressDefault(props.customerDetail)
+          ?.country_id,
         to_city_id: getShippingAddressDefault(props.customerDetail)?.city_id,
         to_city: getShippingAddressDefault(props.customerDetail)?.city,
-        to_district_id: getShippingAddressDefault(props.customerDetail)?.district_id,
+        to_district_id: getShippingAddressDefault(props.customerDetail)
+          ?.district_id,
         to_district: getShippingAddressDefault(props.customerDetail)?.district,
         to_ward_id: getShippingAddressDefault(props.customerDetail)?.ward_id,
         from_address: props.storeDetail?.address,
-        to_address: getShippingAddressDefault(props.customerDetail)?.full_address,
+        to_address: getShippingAddressDefault(props.customerDetail)
+          ?.full_address,
         price: OrderDetail?.total_line_amount_after_line_discount,
         quantity: 1,
         weight: SumWeight(OrderDetail?.items),
@@ -852,15 +859,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         option: "",
         insurance: 0,
         coupon: "",
-        cod: 0
+        cod: 0,
       };
       console.log("request", request);
-      setAddressError("")
+      setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      setAddressError("Thiếu thông tin địa chỉ khách hàng")
+      setAddressError("Thiếu thông tin địa chỉ khách hàng");
     }
-  }, [props.customerDetail, dispatch, props.storeDetail, OrderDetail?.total_line_amount_after_line_discount, OrderDetail?.items]);
+  }, [
+    props.customerDetail,
+    dispatch,
+    props.storeDetail,
+    OrderDetail?.total_line_amount_after_line_discount,
+    OrderDetail?.items,
+  ]);
 
   useEffect(() => {
     getRequirementName();
@@ -1094,9 +1107,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Row gutter={24}>
                           <Col md={5}>
                             <Col span={24}>
-                              <p className="text-field">
-                                Đối tác giao hàng: 33
-                              </p>
+                              <p className="text-field">Đối tác giao hàng:</p>
                             </Col>
                             <Col span={24}>
                               <b>
@@ -1637,7 +1648,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   padding: "0 25px",
                 }}
                 onClick={ShowShipping}
-                disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
+                disabled={
+                  props.stepsStatusValue === OrderStatus.CANCELLED ||
+                  props.stepsStatusValue === FulFillmentStatus.SHIPPED
+                }
               >
                 Giao hàng
               </Button>
@@ -1837,7 +1851,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       // deliveryServices={deliveryServices}
                       discountValue={OrderDetail?.total_discount}
                       infoFees={infoFees}
-                      setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+                      setShippingFeeInformedCustomer={
+                        changeShippingFeeInformedCustomer
+                      }
                       shippingFeeCustomer={shippingFeeInformedCustomer}
                       OrderDetail={OrderDetail}
                       payments={OrderDetail?.payments}
@@ -1862,7 +1878,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         }}
                         // htmlType="submit"
                         onClick={() => formRefShipment.current?.submit()}
-                        disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
+                        disabled={
+                          props.stepsStatusValue === OrderStatus.CANCELLED ||
+                          props.stepsStatusValue === FulFillmentStatus.SHIPPED
+                        }
                       >
                         Tạo đơn giao hàng 1
                       </Button>
@@ -1992,8 +2011,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           // htmlType="submit"
                           onClick={() => formRefShipment.current?.submit()}
-                          disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
-
+                          disabled={
+                            props.stepsStatusValue === OrderStatus.CANCELLED ||
+                            props.stepsStatusValue === FulFillmentStatus.SHIPPED
+                          }
                         >
                           Tạo đơn giao hàng 2
                         </Button>
@@ -2056,7 +2077,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           // htmlType="submit"
                           onClick={() => formRefShipment.current?.submit()}
-                          disabled={props.stepsStatusValue === OrderStatus.CANCELLED || props.stepsStatusValue === FulFillmentStatus.SHIPPED}
+                          disabled={
+                            props.stepsStatusValue === OrderStatus.CANCELLED ||
+                            props.stepsStatusValue === FulFillmentStatus.SHIPPED
+                          }
                         >
                           Tạo đơn giao hàng 3
                         </Button>

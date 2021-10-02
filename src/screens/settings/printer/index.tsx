@@ -133,7 +133,8 @@ const SettingPrinter: React.FC = () => {
       },
     },
     {
-      title: "Mặc định",
+      // title: "Mặc định",
+      title: "Áp dụng",
       dataIndex: "is_default",
       visible: true,
       width: "15%",

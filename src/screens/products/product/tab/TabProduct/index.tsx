@@ -193,14 +193,14 @@ const TabProduct: React.FC = () => {
     },
     {
       title: "Nhà thiết kế",
-      render: (value: VariantResponse) => <div> {value.product.designer}</div>,
+      render: (value: VariantResponse) => <div> {value?.product?.designer}</div>,
       visible: true,
       align: "center",
     },
     {
       title: "Merchandiser",
       render: (value: VariantResponse) => (
-        <div> {value.product.merchandiser}</div>
+        <div> {value?.product?.merchandiser}</div>
       ),
       align: "center",
       visible: true,
@@ -229,7 +229,7 @@ const TabProduct: React.FC = () => {
       visible: true,
       align: "center",
       render: (value, record) =>
-        ConvertUtcToLocalDate(record.product.created_date),
+        ConvertUtcToLocalDate(record?.product?.created_date),
     },
   ]);
 

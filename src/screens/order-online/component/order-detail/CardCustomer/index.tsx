@@ -75,8 +75,8 @@ type CustomerCardProps = {
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
   customer: CustomerResponse | null;
-  loyaltyPoint:LoyaltyPoint|null;
-  loyaltyUsageRules:Array<LoyaltyUsageResponse>;
+  loyaltyPoint: LoyaltyPoint | null;
+  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
 };
@@ -101,10 +101,16 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customer, handleCustomer,loyaltyPoint,loyaltyUsageRules, levelOrder = 0  } = props;
+  const {
+    customer,
+    handleCustomer,
+    loyaltyPoint,
+    loyaltyUsageRules,
+    levelOrder = 0,
+  } = props;
   //State
-  console.log('customer customer', customer);
-  
+  console.log("customer customer", customer);
+
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
@@ -301,8 +307,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   useEffect(() => {
     if (customer && customer.shipping_addresses[0]) {
-      const addressDefault = customer.shipping_addresses.filter(item => item.default)
-      setShippingAddress(addressDefault.length ? addressDefault[0] : customer.shipping_addresses[0]);
+      const addressDefault = customer.shipping_addresses.filter(
+        (item) => item.default
+      );
+      setShippingAddress(
+        addressDefault.length
+          ? addressDefault[0]
+          : customer.shipping_addresses[0]
+      );
     }
   }, [customer]);
 
@@ -340,7 +352,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const rankName =loyaltyUsageRules.find((x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id))?.rank_name;
+  const rankName = loyaltyUsageRules.find(
+    (x) =>
+      x.rank_id ===
+      (loyaltyPoint?.loyalty_level_id === null
+        ? 0
+        : loyaltyPoint?.loyalty_level_id)
+  )?.rank_name;
 
   return (
     <Card
@@ -452,20 +470,21 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Space>
                 <Avatar size={32}>A</Avatar>
                 <Link
-                  target='_blank' 
+                  target="_blank"
                   to={`${UrlConfig.CUSTOMER}/${customer.id}`}
                   className="primary"
                   style={{ fontSize: "16px" }}
                 >
                   {customer.full_name}
                 </Link>{" "}
-                {levelOrder < 3 &&
-                <CloseOutlined
-                  onClick={CustomerDeleteInfo}
-                  style={{ marginRight: "5px" }}
-                />}
+                {levelOrder < 3 && (
+                  <CloseOutlined
+                    onClick={CustomerDeleteInfo}
+                    style={{ marginRight: "5px" }}
+                  />
+                )}
                 <Tag className="orders-tag orders-tag-vip">
-                  <b>{!rankName?"Default":rankName}</b>
+                  <b>{!rankName ? "Default" : rankName}</b>
                 </Tag>
               </Space>
               <Space className="customer-detail-phone">
@@ -497,21 +516,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-            {
-              (customer?.birthday!==null) &&(
+              {customer?.birthday !== null && (
                 <Space className="customer-detail-birthday">
-                <span className="customer-detail-icon">
-                  <img
-                    src={birthdayIcon}
-                    alt=""
-                    className="icon-customer-info"
-                  />
-                </span>
-                <span className="customer-detail-text">{customerBirthday}</span>
-              </Space>
-              )
-            }
-             
+                  <span className="customer-detail-icon">
+                    <img
+                      src={birthdayIcon}
+                      alt=""
+                      className="icon-customer-info"
+                    />
+                  </span>
+                  <span className="customer-detail-text">
+                    {customerBirthday}
+                  </span>
+                </Space>
+              )}
 
               <Space className="customer-detail-action">
                 <Button
@@ -554,7 +572,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           marginRight: "10px",
                         }}
                       />
-                      Địa chỉ giao hàng 2:
+                      Địa chỉ giao hàng:
                     </div>
                     <Row className="customer-row-info">
                       <span>{shippingAddress?.name}</span>
@@ -634,7 +652,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         trigger="click"
                         className="change-shipping-address"
                       >
-                        <Button type="link" className="btn-style" disabled={levelOrder > 3}>
+                        <Button
+                          type="link"
+                          className="btn-style"
+                          disabled={levelOrder > 3}
+                        >
                           Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
