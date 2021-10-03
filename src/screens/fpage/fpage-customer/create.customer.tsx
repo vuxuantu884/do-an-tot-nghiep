@@ -24,7 +24,6 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
-import ContentContainer from "component/container/content.container";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -50,8 +49,10 @@ const FpageCustomerDetail = (props: any) => {
     setIsClearOrderField,
     deletePhone,
     metaData,
-    onPageChange,customerFbName, loyaltyPoint,
-    loyaltyUsageRules
+    onPageChange,
+    customerFbName,
+    loyaltyPoint,
+    loyaltyUsageRules,
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -66,7 +67,7 @@ const FpageCustomerDetail = (props: any) => {
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
   const customerId = customer && customer.id;
-  const [notes, setNotes] = React.useState<any>([])
+  const [notes, setNotes] = React.useState<any>([]);
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -233,15 +234,13 @@ const FpageCustomerDetail = (props: any) => {
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    customerForm.setFieldsValue({ ...new CustomerModel()});
+    customerForm.setFieldsValue({ ...new CustomerModel() });
   }, [customerForm]);
   React.useEffect(() => {
     if (customer) {
       const field = {
         full_name: customer.full_name,
-        birthday: customer.birthday
-          ? moment(customer.birthday)
-          : "",
+        birthday: customer.birthday ? moment(customer.birthday) : "",
         phone: customer.phone,
         email: customer.email,
         gender: customer.gender,
@@ -250,7 +249,7 @@ const FpageCustomerDetail = (props: any) => {
         full_address: customer.full_address,
         city_id: customer.city_id,
       };
-      setNotes(customer.notes?.reverse())
+      setNotes(customer.notes?.reverse());
       customerForm.setFieldsValue(field);
     } else {
       const field = {
@@ -264,7 +263,7 @@ const FpageCustomerDetail = (props: any) => {
       };
       customerForm.setFieldsValue(field);
     }
-  }, [customer, customerForm,customerFbName]);
+  }, [customer, customerForm, customerFbName]);
   const setResultUpdate = React.useCallback(
     (result) => {
       if (result) {
@@ -347,8 +346,7 @@ const FpageCustomerDetail = (props: any) => {
     };
     dispatch(UpdateCustomer(customer.id, processValue, setResultUpdate));
   };
-  const handleSubmitFail = (errorInfo: any) => {
-  };
+  const handleSubmitFail = (errorInfo: any) => {};
 
   const reloadPage = () => {
     getCustomerWhenPhoneChange(customer.phone);
@@ -358,18 +356,14 @@ const FpageCustomerDetail = (props: any) => {
     create: (noteContent: any) => {
       if (noteContent && customer) {
         dispatch(
-          CreateNote(
-            customer.id,
-            { content: noteContent },
-            (data: any) => {
-              if (data) {
-                showSuccess("Thêm mới ghi chú thành công");
-                reloadPage();
-              } else {
-                showError("Thêm mới ghi chú thất bại");
-              }
+          CreateNote(customer.id, { content: noteContent }, (data: any) => {
+            if (data) {
+              showSuccess("Thêm mới ghi chú thành công");
+              reloadPage();
+            } else {
+              showError("Thêm mới ghi chú thất bại");
             }
-          )
+          })
         );
       }
     },
@@ -408,9 +402,7 @@ const FpageCustomerDetail = (props: any) => {
   // }, [dispatch, customerPhone, searchByPhoneCallback]);
 
   return (
-    <ContentContainer
-      title=""
-    >
+    <div style={{ marginTop: 56 }}>
       <Form
         form={customerForm}
         name="customer_add"
@@ -490,7 +482,7 @@ const FpageCustomerDetail = (props: any) => {
           )}
         </div>
       </Form>
-    </ContentContainer>
+    </div>
   );
 };
 

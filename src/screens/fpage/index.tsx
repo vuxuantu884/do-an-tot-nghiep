@@ -30,11 +30,9 @@ const initQueryCustomer: FpageCustomerSearchQuery = {
 function FpageCRM() {
   let queryString = useQuery();
   const dispatch = useDispatch();
-  const [isButtonSelected, setIsButtonSelected] = React.useState<number>(1);
+  const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
   const [customer, setCustomer] = React.useState<CustomerResponse | null>();
-  const [isClearOrderField, setIsClearOrderField] =
-    React.useState<boolean>(true);
-  const [isCustomerReload, setIsCustomerReload] = React.useState<boolean>(true);
+  const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [customerPhone, setCustomerPhone] = React.useState<string | null>("");
   const [customerPhoneList, setCustomerPhoneList] = React.useState<
     Array<string>
@@ -132,50 +130,28 @@ function FpageCRM() {
     [dispatch]
   );
   //Render result search
+  const handleOnchangeTabs = React.useCallback((value: string) => {
+    setActiveTabKey(value);
+    setIsClearOrderTab(false);
+  }, []);
+
   return (
     <div className="fpage-customer-relationship">
-      <div className="fpage-customer-head-btn">
-        <div
-          onClick={() => {
-            setIsButtonSelected(1);
-            setIsCustomerReload(true);
-          }}
-          className={
-            isButtonSelected === 1
-              ? "fpage-customer-btn fpage-btn-active"
-              : "fpage-customer-btn"
-          }
-        >
-          KHÁCH HÀNG
-        </div>
-        <div
-          onClick={() => {
-            setIsButtonSelected(2);
-            setIsClearOrderField(true);
-            setIsCustomerReload(false);
-          }}
-          className={
-            isButtonSelected === 2
-              ? "fpage-customer-btn fpage-btn-active"
-              : "fpage-customer-btn"
-          }
-        >
-          TẠO ĐƠN
-        </div>
-      </div>
-      <Divider />
-
-      <div style={{ display: isButtonSelected === 1 ? "block" : "none" }}>
-        {isCustomerReload && (
+      <Tabs
+        className="custom-fpage-tabs"
+        destroyInactiveTabPane={isClearOrderTab}
+        centered
+        activeKey={activeTabKey}
+        onChange={(value: string) => handleOnchangeTabs(value)}
+      >
+        <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
           <FpageCustomer
             customer={customer}
             setCustomer={setCustomer}
-            setIsButtonSelected={setIsButtonSelected}
             customerPhoneList={customerPhoneList}
             setCustomerPhoneList={setCustomerPhoneList}
             getCustomerWhenPhoneChange={getCustomerWhenChoicePhone}
             orderHistory={orderHistory}
-            setIsClearOrderField={setIsClearOrderField}
             customerPhone={customerPhone}
             deletePhone={deletePhone}
             metaData={metaData}
@@ -184,35 +160,24 @@ function FpageCRM() {
             loyaltyPoint={loyaltyPoint}
             loyaltyUsageRules={loyaltyUsageRules}
           />
-        )}
-      </div>
-      <div style={{ display: isButtonSelected === 2 ? "block" : "none" }}>
-        {isClearOrderField && (
+        </TabPane>
+        <TabPane
+          key="2"
+          tab={<div>TẠO ĐƠN</div>}
+          forceRender={!isClearOrderTab}
+        >
           <FpageOrders
             customer={customer}
             setCustomer={setCustomer}
-            setIsButtonSelected={setIsButtonSelected}
-            setIsClearOrderField={setIsClearOrderField}
-            setIsCustomerReload={setIsCustomerReload}
+            setActiveTabKey={setActiveTabKey}
+            setIsClearOrderTab={setIsClearOrderTab}
             setCustomerPhone={setCustomerPhone}
             setOrderHistory={setOrderHistory}
             getCustomerByPhone={getCustomerWhenChoicePhone}
             loyaltyPoint={loyaltyPoint}
             loyaltyUsageRules={loyaltyUsageRules}
           />
-        )}
-      </div>
-      <Tabs
-        className="custom-fpage-tabs"
-        destroyInactiveTabPane={true}
-        defaultActiveKey="2"
-        centered
-        size="large"
-        tabPosition="top"
-        // onChange={(value) => ShipMethodOnChange(parseInt(value))}
-      >
-        <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}></TabPane>
-        <TabPane key="2" tab={<div>TẠO ĐƠN</div>}></TabPane>
+        </TabPane>
       </Tabs>
     </div>
   );

@@ -42,7 +42,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
         <Row gutter={20}>
         <Col span={24}>
             <Form.Item
-              label="Đối tác giao hàng:"
+              label="Đối tác GH:"
               name="shipper_code"
               rules={[
                 {

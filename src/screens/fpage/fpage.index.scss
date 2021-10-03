@@ -4,11 +4,16 @@
     overflow-x: hidden !important;
     overflow-y: scroll;
   }
-  .custom-fpage-tabs{
-    .ant-tabs-nav-list{
+  .custom-fpage-tabs {
+    .ant-tabs-nav {
+      position: fixed;
+      z-index: 999;
       width: 100%;
     }
-    .ant-tabs-tab{
+    .ant-tabs-nav-list {
+      width: 100%;
+    }
+    .ant-tabs-tab {
       width: 100%;
       justify-content: center;
     }
@@ -318,10 +323,6 @@
       justify-content: flex-end;
     }
   }
-  .ant-card {
-    margin-top: 5px;
-  }
-
   .card-body {
     padding: 12px 24px;
   }
@@ -337,7 +338,7 @@
     .product-content {
       padding: 12px 24px 0px;
     }
-    
+
     .product-payment {
       padding: 12px 24px;
       .payment-style {
