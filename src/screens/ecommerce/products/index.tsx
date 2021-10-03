@@ -105,6 +105,32 @@ const Products: React.FC = () => {
     setIsEcommerceSelected(false);
   };
 
+  //handle select date
+
+  // check disable select date
+  const [dates, setDates] = useState<any>([]);
+  const [hackValue, setHackValue] = useState<any>();
+  const [value, setValue] = useState<any>();
+
+  const disabledDate = (current: any) => {
+    if (!dates || dates.length === 0) {
+      return false;
+    }
+    const tooLate = dates[0] && current.diff(dates[0], 'days') > 14;
+    const tooEarly = dates[1] && dates[1].diff(current, 'days') > 14;
+    return tooEarly || tooLate;
+  };
+
+  const onOpenChange = (open: any) => {
+    if (open) {
+      setHackValue([]);
+      setDates([]);
+    } else {
+      setHackValue(undefined);
+    }
+  };
+
+
   const convertStartDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
@@ -133,7 +159,11 @@ const Products: React.FC = () => {
     setStartDate(startDate);
     const endDate = convertEndDateToTimestamp(dateStrings[1]);
     setEndDate(endDate);
+
+    setValue(dates);
   };
+  
+  //end handle date
 
   const updateEcommerceList = React.useCallback((data) => {
     setIsLoading(false);
@@ -352,16 +382,17 @@ const Products: React.FC = () => {
               }
             </Form.Item>
           
-            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>            
+            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>
               <RangePicker
                 disabled={isLoading}
                 placeholder={["Từ ngày", "Đến ngày"]}
                 style={{width: "100%"}}
-                ranges={{
-                  'Tháng này': [moment().startOf('month'), moment().endOf('month')],
-                }}
                 format={DATE_FORMAT.DDMMYYY}
+                value={hackValue || value}
+                disabledDate={disabledDate}
+                onCalendarChange={val => setDates(val)}
                 onChange={onChangeDate}
+                onOpenChange={onOpenChange}
               />
             </Form.Item>
           
