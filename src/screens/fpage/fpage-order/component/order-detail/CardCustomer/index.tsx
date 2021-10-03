@@ -3,7 +3,6 @@
 import { CloseOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
-  Avatar,
   Button,
   Card,
   Checkbox,
@@ -13,7 +12,6 @@ import {
   Input,
   Popover,
   Row,
-  Space,
   Tag,
   Typography,
 } from "antd";
@@ -110,7 +108,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     levelOrder = 0,
   } = props;
   //State
-  console.log("customer customer", customer);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);

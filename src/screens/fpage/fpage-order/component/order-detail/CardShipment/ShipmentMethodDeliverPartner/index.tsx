@@ -1,4 +1,4 @@
-import { Col, Row, Form } from "antd";
+import { Col, Row, Form, Table, Radio } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { OrderPaymentRequest } from "model/request/order.request";
 import {
@@ -15,7 +15,7 @@ import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
 import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
-import NumberFormat from "react-number-format";
+// import NumberFormat from "react-number-format";
 
 type PropType = {
   amount: number | undefined;
@@ -53,8 +53,6 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     totalAmountReturnProducts,
   } = props;
 
-  console.log("propsShipmentmethod", props);
-
   const [selectedShipmentMethod, setSelectedShipmentMethod] =
     useState(serviceType);
 
@@ -66,7 +64,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     return total;
   };
 
-  const deliveryService = useMemo(() => {
+  const deliveryService: any = useMemo(() => {
     return {
       ghtk: {
         code: "ghtk",
@@ -94,15 +92,96 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       },
     };
   }, []);
-  const sercivesFee = useMemo(() => {
-    return {
-      ghtk: infoFees.filter((item) => item.delivery_service_code === "ghtk"),
-      ghn: infoFees.filter((item) => item.delivery_service_code === "ghn"),
-      vtp: infoFees.filter((item) => item.delivery_service_code === "vtp"),
-      dhl: infoFees.filter((item) => item.delivery_service_code === "dhl"),
-    };
+  // const sercivesFee = useMemo(() => {
+  //   return {
+  //     ghtk: infoFees.filter((item) => item.delivery_service_code === "ghtk"),
+  //     ghn: infoFees.filter((item) => item.delivery_service_code === "ghn"),
+  //     vtp: infoFees.filter((item) => item.delivery_service_code === "vtp"),
+  //     dhl: infoFees.filter((item) => item.delivery_service_code === "dhl"),
+  //   };
+  // }, [infoFees]);
+
+  const handleMapService = useMemo(() => {
+    let serviceArray = [];
+    let obj: any = infoFees?.reduce((res: any, curr: any) => {
+      if (res[curr.delivery_service_code])
+        res[curr.delivery_service_code].push(curr);
+      else Object.assign(res, { [curr.delivery_service_code]: [curr] });
+      return res;
+    }, []);
+    for (let key in obj) {
+      serviceArray.push({
+        method: key,
+        services: obj[key],
+      });
+    }
+    return serviceArray;
   }, [infoFees]);
 
+  const columns = [
+    {
+      title: "Hãng VC",
+      dataIndex: "",
+      key: "1",
+      width: "20%",
+      render: (l: any, v: any, i: any) => {
+        return (
+          <img
+            src={deliveryService[v.method].logo}
+            alt=""
+            className="logoHVC"
+          />
+        );
+      },
+    },
+    {
+      title: "Dịch vụ chuyển phát",
+      dataIndex: "",
+      key: "2",width: "60%",
+      render: (l: any, v: any, i: any) => {
+        return (
+          <div key={v.method}>
+            <Radio.Group value={selectedShipmentMethod}>
+              {v.services?.map((item: any) => (
+                <Radio key={item.transport_type} value={item.transport_type} checked={
+                  selectedShipmentMethod ===
+                  item.transport_type
+                }
+                onChange={(e) => {
+                  setSelectedShipmentMethod(
+                    item.transport_type
+                  );
+                  changeServiceType(
+                    deliveryService[v.method].id,
+                    v.method,
+                    item.transport_type,
+                    item.total_fee
+                  );
+                }}
+                disabled={item.total_fee === 0}>
+                  {item.transport_type_name}
+                </Radio>
+              ))}
+            </Radio.Group>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Cước phí",
+      dataIndex: "",
+      key: "3",width: "20%",
+      render: (l: any, v: any, i: any) => {
+        return (
+          <div>
+            {v.services?.map((item: any) => (
+              <div key={item.transport_type}>{formatCurrency(item.total_fee)}</div>
+            ))}
+          </div>
+        );
+      },
+    },
+  ];
   const totalAmountCustomerNeedToPaySelfDelivery = () => {
     return (
       (amount ? amount : 0) +
@@ -162,7 +241,15 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             </Form.Item>
           </Col>
         </Row>
-        <div className="ant-table ant-table-bordered custom-table">
+        <Table
+          style={{ padding: 0 }}
+          dataSource={handleMapService}
+          columns={columns}
+          pagination={false}
+          rowKey={(data: any) => data.method }
+        />
+
+        {/* <div className="ant-table ant-table-bordered custom-table">
           <div className="ant-table-container">
             <div className="ant-table-content">
               <table
@@ -249,7 +336,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           style={{ padding: "8px 16px" }}
                                           className="custom-table__has-border-bottom custom-table__has-select-radio"
                                         >
-                                          {/* {service.total_fee} */}
+                                         
                                           <NumberFormat
                                             value={service.total_fee}
                                             className="foo"
@@ -273,7 +360,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               </table>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </StyledComponent>
   );

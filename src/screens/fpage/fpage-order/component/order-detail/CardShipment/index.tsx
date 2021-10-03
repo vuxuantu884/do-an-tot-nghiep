@@ -120,7 +120,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     }
 
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      console.log("start request fees");
       // getInfoDeliveryFees();
       setPaymentMethod(PaymentMethodOption.COD);
       //reset payment
@@ -142,8 +141,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     item: any,
     fee: number
   ) => {
-    console.log("changeServiceType", item);
-
     setHVC(id);
     setServiceType(item);
     setFee(fee);
@@ -196,7 +193,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {

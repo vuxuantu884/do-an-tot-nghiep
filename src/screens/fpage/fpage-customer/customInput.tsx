@@ -63,9 +63,7 @@ function CustomInput(props: CustomInputProps) {
         suffix={
           customerDetail ? (
             <span style={{ backgroundColor: `${color[rankLvl()]}` }}>
-              {`${
-                rankLvl() || "Không xác định"
-              }: ${loyaltyPoint?.point} điểm`}
+              {rankLvl() && `${rankLvl() || ""}: ${loyaltyPoint?.point || 0} điểm`}
             </span>
           ) : null
         }

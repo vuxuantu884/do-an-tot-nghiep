@@ -30,7 +30,6 @@ import {
 } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { textAlign } from "html2canvas/dist/types/css/property-descriptors/text-align";
 
 const { Panel } = Collapse;
 
@@ -106,8 +105,6 @@ function CardPayments(props: CardPaymentsProps) {
     let paymentMaster = ListPaymentMethods.find(
       (p) => payment_method_id === p.id
     );
-    console.log("payment_method_id", payment_method_id);
-    console.log("paymentMaster", paymentMaster);
     if (!paymentMaster) return;
     let indexPayment = payments.findIndex(
       (p) => p.payment_method_id === payment_method_id
@@ -133,7 +130,6 @@ function CardPayments(props: CardPaymentsProps) {
     }
     setPayments([...payments]);
   };
-  console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -167,7 +163,6 @@ function CardPayments(props: CardPaymentsProps) {
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  console.log("levelOrder", levelOrder);
 
   // useEffect(() => {
   //   if (isCloneOrder && paymentMethod === 2) {
@@ -255,8 +250,6 @@ function CardPayments(props: CardPaymentsProps) {
                         style={{ marginLeft: 0, marginRight: 0 }}
                       >
                         {ListPaymentMethods.map((method, index) => {
-                          // console.log("method", method);
-                          // console.log("paymentData", paymentData);
                           let icon = null;
                           switch (method.code) {
                             case PaymentMethodCode.CASH:
@@ -349,8 +342,6 @@ function CardPayments(props: CardPaymentsProps) {
                         </Col>
                       </Row>
                       {payments.map((method, index) => {
-                        // console.log("paymentData", paymentData);
-                        // console.log("method", method);
                         return (
                           <Row
                             gutter={20}
@@ -380,7 +371,7 @@ function CardPayments(props: CardPaymentsProps) {
                                 )}
                               </Col>
                               {method.code === PaymentMethodCode.POINT ? (
-                                <Col span={12}>
+                                <Col span={14}>
                                   <InputNumber
                                     value={
                                       // method.point
@@ -415,7 +406,7 @@ function CardPayments(props: CardPaymentsProps) {
 
                               {method.code ===
                               PaymentMethodCode.BANK_TRANSFER ? (
-                                <Col span={12}>
+                                <Col span={14}>
                                   <Input
                                     placeholder="Tham chiếu"
                                     onChange={(e: any) =>

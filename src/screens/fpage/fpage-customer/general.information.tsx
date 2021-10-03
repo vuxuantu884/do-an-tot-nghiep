@@ -42,7 +42,7 @@ const GeneralInformation = (props: any) => {
   return (
     <Row gutter={24}>
       <Col span={24}>
-        <Card style={{ padding: "12px" }}>
+        <Card style={{ padding: "12px 0" }}>
           <Col span={24}>
             <CustomInput
               name="full_name"
@@ -104,7 +104,7 @@ const GeneralInformation = (props: any) => {
                   marginBottom: 10,
                 }}
               >
-                <Col span={16}>
+                <Col span={20}>
                   {phones &&
                     phones.map((p: any, index: any) => (
                       <Tag

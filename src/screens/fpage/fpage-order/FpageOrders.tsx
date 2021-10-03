@@ -237,7 +237,6 @@ export default function FpageOrders(props: any) {
   if (actionParam === "clone" && cloneIdParam) {
     isCloneOrder = true;
   }
-console.log(shipmentMethod)
   const onChangeTag = useCallback(
     (value: []) => {
       const strTag = value.join(", ");
@@ -713,7 +712,6 @@ console.log(shipmentMethod)
         setItems([]);
         setItemGifts([]);
         setPayments([]);
-        console.log("initialRequest", initialRequest);
         setInitialForm({
           ...initialRequest,
         });
@@ -882,9 +880,7 @@ console.log(shipmentMethod)
       );
     }
   }, [dispatch, items]);
-
-  console.log(inventoryResponse);
-
+  
   useEffect(() => {
     dispatch(
       configOrderSaga((data: OrderConfig) => {
@@ -903,7 +899,6 @@ console.log(shipmentMethod)
     },
     [formRef]
   );
-  console.log(initialForm);
   return (
     <React.Fragment>
       <ContentContainer

@@ -102,7 +102,6 @@ function ActionHistoryModal(props: PropType) {
       let result = "";
       if (data) {
         let dataJson = JSON.parse(data);
-        console.log("dataJson", dataJson);
         result = `
         <span style="color:red">Thông tin đơn hàng: </span><br/> 
         - Nhân viên: ${dataJson.created_name}<br/>

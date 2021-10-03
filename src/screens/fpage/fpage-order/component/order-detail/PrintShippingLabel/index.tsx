@@ -68,7 +68,6 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
   };
 
   const renderHtml = (text: string) => {
-    console.log("text", text);
     if (text === "") {
       return "";
     }

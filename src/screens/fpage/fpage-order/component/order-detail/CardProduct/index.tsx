@@ -158,8 +158,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     useState<Array<StoreResponse> | null>([]);
   //Function
 
-  console.log("changeMoney", changeMoney);
-
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       if (!items) {
@@ -790,8 +788,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-      console.log("listStores listStores", listStores);
-
       newData = listStores.filter(
         // tạm thời bỏ điều kiện để show cửa hàng
         (store) =>

@@ -447,8 +447,6 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "items",
       key: "item.quantity.total",
       render: (items) => {
-        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-        
         return items.reduce((total: number, item: any) => total + item.quantity, 0)
       },
       visible: true,
@@ -615,11 +613,9 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      // console.log("filter start", `${UrlConfig.ORDER}?${queryParam}`);
       history.push(`${UrlConfig.ORDER}?${queryParam}`);
     },
     [history, params]
@@ -632,7 +628,6 @@ const ListOrderScreen: React.FC = () => {
       'print-dialog': true
     }
     const queryParam = generateQuery(params)
-    console.log(queryParam);
     switch (index) {
       case 1:
         break

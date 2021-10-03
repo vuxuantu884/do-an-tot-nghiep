@@ -25,7 +25,6 @@ import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -100,7 +99,6 @@ const CustomerAdd = (props: any) => {
       dispatch(WardGetByDistrictAction(customerDetail.district_id, setWards));
     }
   }, [dispatch, customerDetail]);
-console.log("till kept",orderHistory)
   const status_order = [
     {
       name: "Nháp",
@@ -421,19 +419,6 @@ console.log("till kept",orderHistory)
   return (
     <ContentContainer
       title=""
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Khách hàng",
-          path: `/customer`,
-        },
-        {
-          name: "Thêm khách hàng",
-        },
-      ]}
     >
       <Form
         form={customerForm}
@@ -471,6 +456,7 @@ console.log("till kept",orderHistory)
           </Col>
         </Row>
         <Card
+          className="padding-12"
           title={
             <div>
               <span style={{ fontWeight: 500 }} className="title-card">

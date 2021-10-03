@@ -128,7 +128,6 @@ const OrderDetail = (props: PropType) => {
   // đổi hàng
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
     useState<number>(0);
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
 
@@ -216,7 +215,6 @@ const OrderDetail = (props: PropType) => {
         payments: payments,
         fulfillments: fulfillment,
       };
-      console.log("request", request);
       if (OrderDetail?.id) {
         dispatch(
           UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess)
@@ -351,7 +349,6 @@ const OrderDetail = (props: PropType) => {
 
   const cancelModal = useCallback(
     (type) => {
-      console.log("OrderDetail", OrderDetail);
       switch (type) {
         case 1:
           Modal.confirm({
