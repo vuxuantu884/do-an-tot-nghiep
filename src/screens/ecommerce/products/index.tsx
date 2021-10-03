@@ -237,7 +237,7 @@ const Products: React.FC = () => {
 
   const redirectToNotConnectedItems = () => {
     setIsShowResultGetItemModal(false);
-    history.replace(`${history.location.pathname}#not-connected-item`);
+    handleOnchangeTab("not-connected-item");
     setActiveTab("not-connected-item");
   };
 
