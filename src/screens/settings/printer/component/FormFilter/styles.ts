@@ -34,4 +34,7 @@ export const StyledComponent = styled.div`
   .ant-input[disabled] {
     color: inherit;
   }
+  .ant-checkbox-disabled.ant-checkbox-checked .ant-checkbox-inner:after {
+    border-color: #f5f5f5;
+  }
 `;

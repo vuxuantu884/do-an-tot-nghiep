@@ -35,6 +35,7 @@ const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
   
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
   const [isShowResultGetItemModal, setIsShowResultGetItemModal] = React.useState(false);
   const [totalGetItem, setTotalGetItem] = React.useState(0);
@@ -104,6 +105,32 @@ const Products: React.FC = () => {
     setIsEcommerceSelected(false);
   };
 
+  //handle select date
+
+  // check disable select date
+  const [dates, setDates] = useState<any>([]);
+  const [hackValue, setHackValue] = useState<any>();
+  const [value, setValue] = useState<any>();
+
+  const disabledDate = (current: any) => {
+    if (!dates || dates.length === 0) {
+      return false;
+    }
+    const tooLate = dates[0] && current.diff(dates[0], 'days') > 14;
+    const tooEarly = dates[1] && dates[1].diff(current, 'days') > 14;
+    return tooEarly || tooLate;
+  };
+
+  const onOpenChange = (open: any) => {
+    if (open) {
+      setHackValue([]);
+      setDates([]);
+    } else {
+      setHackValue(undefined);
+    }
+  };
+
+
   const convertStartDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
@@ -132,10 +159,16 @@ const Products: React.FC = () => {
     setStartDate(startDate);
     const endDate = convertEndDateToTimestamp(dateStrings[1]);
     setEndDate(endDate);
+
+    setValue(dates);
   };
+  
+  //end handle date
 
   const updateEcommerceList = React.useCallback((data) => {
+    setIsLoading(false);
     if (data) {
+      setIsShowGetItemModal(false);
       setIsShowResultGetItemModal(true);
 
       setTotalGetItem(data.total);
@@ -145,7 +178,7 @@ const Products: React.FC = () => {
   }, []);
 
   const getProductsFromEcommerce = () => {
-    setIsShowGetItemModal(false);
+
     const params = {
       ecommerce_id: ecommerceSelected || null,
       shop_id: shopIdSelected || null,
@@ -153,6 +186,7 @@ const Products: React.FC = () => {
       update_time_to: endDate || null
     }
     
+    setIsLoading(true);
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
 
@@ -168,6 +202,7 @@ const Products: React.FC = () => {
 
   const cancelResultGetItemModal = () => {
     setIsShowResultGetItemModal(false);
+    setIsLoading(false);
   };
 
   const [ecommerceList] = useState<Array<any>>([
@@ -285,6 +320,7 @@ const Products: React.FC = () => {
         onOk={getProductsFromEcommerce}
         okButtonProps={{disabled: isDisableGetItemOkButton()}}
         maskClosable={false}
+        confirmLoading={isLoading}
       >
         <div style={{margin: "20px 0"}}>
           <Form
@@ -302,6 +338,7 @@ const Products: React.FC = () => {
                   icon={item.icon && <img src={item.icon} alt={item.id} />}
                   type="ghost"
                   onClick={() => selectEcommerce(item)}
+                  disabled={isLoading}
                 >
                   {item.title}
                   {item.id === activatedBtn?.id &&
@@ -332,6 +369,7 @@ const Products: React.FC = () => {
                   placeholder="Chọn gian hàng"
                   allowClear
                   onSelect={(value) => selectShopEcommerce(value)}
+                  disabled={isLoading}
                 >
                   {ecommerceShopList &&
                     ecommerceShopList.map((shop: any) => (
@@ -344,17 +382,21 @@ const Products: React.FC = () => {
               }
             </Form.Item>
           
-            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>            
+            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>
               <RangePicker
+                disabled={isLoading}
                 placeholder={["Từ ngày", "Đến ngày"]}
                 style={{width: "100%"}}
-                ranges={{
-                  'Tháng này': [moment().startOf('month'), moment().endOf('month')],
-                }}
                 format={DATE_FORMAT.DDMMYYY}
+                value={hackValue || value}
+                disabledDate={disabledDate}
+                onCalendarChange={val => setDates(val)}
                 onChange={onChangeDate}
+                onOpenChange={onOpenChange}
               />
             </Form.Item>
+          
+            <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
           </Form>
         </div>
       </Modal>

@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: $SERVICE_NAME
 spec:
-  replicas: 2
   progressDeadlineSeconds: 600
   strategy:
     type: RollingUpdate
@@ -22,6 +21,10 @@ spec:
       containers:
         - name: $SERVICE_NAME
           image: $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$IMAGE_TAG
+          resources:
+            limits:
+              memory: "100Mi"
+              cpu: "0.1"
           imagePullPolicy: Always
           ports:
             - name: http
