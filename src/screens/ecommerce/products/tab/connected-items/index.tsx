@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space, Dropdown, Menu, Checkbox } from "antd";
 import { SearchOutlined, DownOutlined } from "@ant-design/icons";
 
-import UrlConfig from "config/url.config";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
