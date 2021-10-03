@@ -22,7 +22,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
       <Card className="padding-12">
         <div>
           <Form.Item
-            label="Nhân viên bán hàng"
+            label="Nhân viên BH"
             name="assignee_code"
             rules={[
               {

@@ -12,8 +12,6 @@ import {
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
-import IconShoppingBag from "assets/icon/shopping_bag.svg";
-import IconWallClock from "assets/icon/wall_clock.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   // DeliveryServicesGetList,
@@ -43,7 +41,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
-import ShipmentMethodReceiveAtHome from "./ShipmentMethodReceiveAtHome";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
 
@@ -100,7 +97,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     shippingFeeCustomer,
     officeTime,
     setOfficeTime,
-    shipmentMethod,
     payments,
     onPayments,
     fulfillments,
@@ -114,11 +110,9 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const [addressError, setAddressError] = useState<string>("");
 
   const ShipMethodOnChange = (value: number) => {
-    console.log(value)
     setServiceType(undefined);
     setShipmentMethodProps(value);
     setPaymentMethod(value);
-    setShipmentMethodProps(value);
     if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
       if (value === ShipmentMethodOption.SELF_DELIVER) {
         setPaymentMethod(PaymentMethodOption.COD);
@@ -162,36 +156,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
   useLayoutEffect(() => {
     // dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
-
-  // shipment button action
-  interface ShipmentButtonModel {
-    name: string | null;
-    value: number;
-    icon: string | undefined;
-  }
-
-  const shipmentButton: Array<ShipmentButtonModel> = [
-    {
-      name: "Chuyển hãng vận chuyển",
-      value: 1,
-      icon: IconDelivery,
-    },
-    {
-      name: "Tự giao hàng",
-      value: 2,
-      icon: IconSelfDelivery,
-    },
-    {
-      name: "Nhận tại cửa hàng",
-      value: 3,
-      icon: IconShoppingBag,
-    },
-    {
-      name: "Giao hàng sau",
-      value: 4,
-      icon: IconWallClock,
-    },
-  ];
 
   useEffect(() => {
     if (!storeDetail) {
@@ -240,13 +204,11 @@ const CardShipment: React.FC<CardShipmentProps> = (
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
-
   return (
     <StyledComponent>
-      <Card
-      >
+      <Card>
         <div className="padding-12 orders-shipment">
-        <Row gutter={24}>
+          <Row gutter={24}>
             <Col span={24}>
               <Form.Item name="dating_ship" label="Hẹn giao:">
                 <DatePicker
@@ -270,41 +232,46 @@ const CardShipment: React.FC<CardShipmentProps> = (
               </Form.Item>
             </Col>
             <Col span={24}>
-            <Form.Item name="requirements" label="Yêu cầu:">
-              <Select
-                className="select-with-search"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: "100%" }}
-                placeholder="Chọn yêu cầu"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-              >
-                {shipping_requirements?.map((item, index) => (
-                  <Select.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.value}
-                  >
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
+              <Form.Item name="requirements" label="Yêu cầu:">
+                <Select
+                  className="select-with-search"
+                  showSearch
+                  showArrow
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{ width: "100%" }}
+                  placeholder="Chọn yêu cầu"
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return (
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }
+                    return false;
+                  }}
+                >
+                  {shipping_requirements?.map((item, index) => (
+                    <Select.Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item.value}
+                    >
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
           </Row>
-          <Divider style={{margin: 0}}/>
+          <Divider style={{ margin: 0 }} />
           <Row style={{ justifyContent: "center" }}>
-            <Tabs defaultActiveKey="1" centered onChange={(value) => ShipMethodOnChange(parseInt(value))}>
+            <Tabs
+              destroyInactiveTabPane={true}
+              defaultActiveKey="2"
+              centered
+              onChange={(value) => ShipMethodOnChange(parseInt(value))}
+            >
               <TabPane
                 key="1"
                 tab={
@@ -347,7 +314,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
                       src={IconSelfDelivery}
                       alt=""
                     />
-                   Tự giao hàng
+                    Tự giao hàng
                   </div>
                 }
               >

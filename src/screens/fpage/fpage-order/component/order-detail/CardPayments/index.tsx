@@ -22,10 +22,7 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  PaymentMethodCode,
-  PaymentMethodOption,
-} from "utils/Constants";
+import { PaymentMethodCode, PaymentMethodOption } from "utils/Constants";
 import {
   formatCurrency,
   formatSuffixPoint,
@@ -33,6 +30,8 @@ import {
 } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { textAlign } from "html2canvas/dist/types/css/property-descriptors/text-align";
+
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
@@ -179,7 +178,7 @@ function CardPayments(props: CardPaymentsProps) {
 
   return (
     <Card className="create-order-payment padding-12">
-      <div  style={{paddingLeft: 12}} >
+      <div style={{ paddingLeft: 12 }}>
         <Form.Item
         // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
         // required
@@ -199,39 +198,6 @@ function CardPayments(props: CardPaymentsProps) {
               </Radio>
             </Space>
           </Radio.Group>
-          {/* {paymentMethod === PaymentMethodOption.COD &&
-            shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
-          {paymentMethod === PaymentMethodOption.COD &&
-            shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
-          {paymentMethod === PaymentMethodOption.COD &&
-            shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-              <div className="order-cod-payment-footer" style={{ height: 83 }}>
-                <div>
-                  <div>
-                    <div>
-                      <img src={Calculate} alt=""></img>
-                    </div>
-                  </div>
-                </div>
-                <span>
-                  <span>Khách hàng sẽ thanh toán tại quầy!</span>
-                </span>
-              </div>
-            )} */}
         </Form.Item>
 
         <Row
@@ -281,7 +247,7 @@ function CardPayments(props: CardPaymentsProps) {
                       </div>
                     </Col>
                     <Divider style={{ margin: "10px 0" }} />
-                    <Col xs={24} lg={24}>
+                    <Col span={24}>
                       <Row
                         className="btn-list-method"
                         gutter={5}
@@ -361,24 +327,16 @@ function CardPayments(props: CardPaymentsProps) {
                       </Row>
                     </Col>
 
-                    <Col span={20} xs={20}>
+                    <Col span={24}>
                       <Row
                         gutter={24}
-                        className="row-price"
-                        style={{ height: 38, margin: "10px 0" }}
+                        style={{ margin: "10px 0", alignItems: "center" }}
                       >
-                        <Col
-                          lg={15}
-                          xxl={9}
-                          className="row-large-title"
-                          style={{ padding: "8px 0", marginLeft: 2 }}
-                        >
+                        <Col span={10} style={{padding: "0 12px"}}>
                           <b>Khách cần trả:</b>
                         </Col>
                         <Col
-                          className="lbl-money"
-                          lg={6}
-                          xxl={6}
+                          span={14}
                           style={{
                             textAlign: "right",
                             fontWeight: 500,
@@ -396,88 +354,84 @@ function CardPayments(props: CardPaymentsProps) {
                         return (
                           <Row
                             gutter={20}
-                            className="row-price"
                             key={index}
-                            style={{ margin: "10px 0" }}
+                            style={{
+                              width: "100%",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              margin: "4px 0",
+                            }}
                           >
-                            <Col lg={15} xxl={9} style={{ padding: "0" }}>
-                              <Row align="middle">
-                                <b style={{ padding: "8px 0" }}>
-                                  {method.payment_method}:
-                                </b>
-                                {method.code === PaymentMethodCode.POINT ? (
-                                  <Col className="point-spending">
-                                    <span
-                                      style={{
-                                        fontSize: 14,
-                                        marginLeft: 5,
-                                      }}
-                                    >
-                                      {" "}
-                                      (1 điểm = {formatCurrency(usageRate)}₫)
-                                    </span>
-                                    <InputNumber
-                                      value={
-                                        // method.point
-                                        isCloneOrder
-                                          ? method.amount / usageRate
-                                          : method.point
-                                      }
-                                      style={{
-                                        width: 110,
-                                        marginLeft: 12,
-                                        borderRadius: 5,
-                                      }}
-                                      className="hide-number-handle"
-                                      onFocus={(e) => e.target.select()}
-                                      formatter={(value) =>
-                                        formatSuffixPoint(value ? value : "0")
-                                      }
-                                      parser={(value) =>
-                                        replaceFormat(value ? value : "0")
-                                      }
-                                      min={0}
-                                      max={
-                                        calculateMax(props.amount, index) /
-                                        usageRate
-                                      }
-                                      onChange={(value) => {
-                                        handleInputPoint(index, value);
-                                      }}
-                                      disabled={levelOrder > 2}
-                                    />
-                                  </Col>
-                                ) : null}
-
-                                {method.code ===
-                                PaymentMethodCode.BANK_TRANSFER ? (
-                                  <Col
-                                    className="point-spending"
-                                    style={{ marginLeft: 12 }}
-                                    lg={14}
-                                    xxl={14}
+                            <Col
+                              span={16}
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              <Col span={10} style={{ padding: 0 }}>
+                                <div style={{ fontWeight: 500, color: "#2a2a86" }}>{method.payment_method}:</div>
+                                {method.code === PaymentMethodCode.POINT && (
+                                  <i
+                                    style={{
+                                      fontSize: 12,
+                                      color: "#2a2a86",
+                                    }}
                                   >
-                                    <Input
-                                      placeholder="Tham chiếu"
-                                      onChange={(e: any) =>
-                                        handleTransferReference(
-                                          index,
-                                          e.target.value
-                                        )
-                                      }
-                                      disabled={levelOrder > 2}
-                                    />
-                                  </Col>
-                                ) : null}
-                              </Row>
+                                    (1 điểm = {formatCurrency(usageRate)}₫)
+                                  </i>
+                                )}
+                              </Col>
+                              {method.code === PaymentMethodCode.POINT ? (
+                                <Col span={12}>
+                                  <InputNumber
+                                    value={
+                                      // method.point
+                                      isCloneOrder
+                                        ? method.amount / usageRate
+                                        : method.point
+                                    }
+                                    style={{
+                                      borderRadius: 5,
+                                      width: "100%",
+                                    }}
+                                    className="hide-number-handle"
+                                    onFocus={(e) => e.target.select()}
+                                    formatter={(value) =>
+                                      formatSuffixPoint(value ? value : "0")
+                                    }
+                                    parser={(value) =>
+                                      replaceFormat(value ? value : "0")
+                                    }
+                                    min={0}
+                                    max={
+                                      calculateMax(props.amount, index) /
+                                      usageRate
+                                    }
+                                    onChange={(value) => {
+                                      handleInputPoint(index, value);
+                                    }}
+                                    disabled={levelOrder > 2}
+                                  />
+                                </Col>
+                              ) : null}
+
+                              {method.code ===
+                              PaymentMethodCode.BANK_TRANSFER ? (
+                                <Col span={12}>
+                                  <Input
+                                    placeholder="Tham chiếu"
+                                    onChange={(e: any) =>
+                                      handleTransferReference(
+                                        index,
+                                        e.target.value
+                                      )
+                                    }
+                                    disabled={levelOrder > 2}
+                                  />
+                                </Col>
+                              ) : null}
                             </Col>
+
                             {method.code !== PaymentMethodCode.POINT ? (
-                              <Col
-                                className="lbl-money"
-                                lg={6}
-                                xxl={6}
-                                style={{ marginLeft: 10 }}
-                              >
+                              <Col span={8}>
                                 <InputNumber
                                   size="middle"
                                   min={0}
@@ -505,37 +459,35 @@ function CardPayments(props: CardPaymentsProps) {
                               </Col>
                             ) : (
                               <Col
-                                className="lbl-money"
-                                lg={6}
-                                xxl={6}
+                                span={8}
                                 style={{
-                                  padding: 8,
-                                  textAlign: "right",
-                                  marginLeft: 10,
+                                  display: "flex",
+                                  alignItems: "center",
                                 }}
                               >
-                                <span
-                                  style={{ padding: "14px", lineHeight: 1 }}
+                                <div
+                                  style={{
+                                    padding: "0 11px",
+                                    width: "100%",
+                                    textAlign: "right",
+                                  }}
                                 >
                                   {formatCurrency(method.amount)}
-                                </span>
+                                </div>
                               </Col>
                             )}
                           </Row>
                         );
                       })}
                       <Row
-                        gutter={20}
-                        className="row-price"
-                        style={{ height: 38, margin: "10px 0 0 0" }}
+                        gutter={24}
+                        style={{ margin: "10px 0", alignItems: "center" }}
                       >
-                        <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
+                        <Col span={10}>
                           <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                         </Col>
                         <Col
-                          className="lbl-money"
-                          lg={6}
-                          xxl={6}
+                          span={14}
                           style={{
                             textAlign: "right",
                             fontWeight: 500,

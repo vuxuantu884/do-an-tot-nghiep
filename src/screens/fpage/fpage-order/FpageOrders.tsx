@@ -95,7 +95,7 @@ export default function FpageOrders(props: any) {
   const [storeId, setStoreId] = useState<number | null>(null);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
-    ShipmentMethodOption.DELIVER_LATER
+    ShipmentMethodOption.SELF_DELIVER
   );
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
@@ -237,7 +237,7 @@ export default function FpageOrders(props: any) {
   if (actionParam === "clone" && cloneIdParam) {
     isCloneOrder = true;
   }
-
+console.log(shipmentMethod)
   const onChangeTag = useCallback(
     (value: []) => {
       const strTag = value.join(", ");
@@ -527,13 +527,6 @@ export default function FpageOrders(props: any) {
     },
     []
   );
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
 
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
@@ -548,14 +541,6 @@ export default function FpageOrders(props: any) {
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-
-  //windows offset
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
 
   /**
    * orderSettings
@@ -740,7 +725,7 @@ export default function FpageOrders(props: any) {
         setDiscountRate(0);
         setDiscountValue(0);
         setOfficeTime(false);
-        setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
+        setShipmentMethod(ShipmentMethodOption.SELF_DELIVER);
       }
     };
     fetchData();
