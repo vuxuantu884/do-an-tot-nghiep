@@ -329,7 +329,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }, [resultSearchVariant]);
 
     const gotoProductDetail = () => {
-      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`;
+      const link = `https://dev.yody.io/unicorn/admin/products/${productSelected.product_id}/variants/${productSelected.id}`;
       window.open(link, "_blank");
     }
 

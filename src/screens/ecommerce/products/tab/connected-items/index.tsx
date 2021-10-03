@@ -291,7 +291,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        const link = `${UrlConfig.PRODUCT}/${l.id}/variants/${l.core_variant_id}`;
+        const link = `https://dev.yody.io/unicorn/admin/products/${l.id}/variants/${l.core_variant_id}`;
         return (
           <div>
             <div onClick={() => window.open(link, "_blank")} className="link">{l.core_variant}</div>

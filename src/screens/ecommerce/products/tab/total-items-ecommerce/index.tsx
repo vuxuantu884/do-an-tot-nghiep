@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { Button, Form, Select, Input, Modal, Tooltip, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -45,6 +46,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   const { categoryList, variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
+  const history = useHistory();
   const dispatch = useDispatch();
   const { Option } = Select;
 
@@ -215,7 +217,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        const link = `${UrlConfig.PRODUCT}/${l.id}/variants/${l.core_variant_id}`;
+        const link = `https://dev.yody.io/unicorn/admin/products/${l.id}/variants/${l.core_variant_id}`;
         return (
           <div>
             <div onClick={() => window.open(link, "_blank")} className="link">{l.core_variant}</div>
