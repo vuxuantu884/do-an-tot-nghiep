@@ -2,13 +2,7 @@
 import { Button, Card, Row, Space, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -36,9 +30,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import {
-  getListOrderAction,
-} from "domain/actions/order/order.action";
+import { getListOrderAction } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
 
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -58,7 +50,6 @@ import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
 import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
-
 
 const actions: Array<MenuAction> = [
   {
@@ -209,7 +200,14 @@ const ListOrderScreen: React.FC = () => {
         record.shipping_address ? (
           <div className="customer custom-td">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {record.shipping_address.name}
+              <Link
+                target="_blank"
+                to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+                className="primary"
+                style={{ fontSize: "16px" }}
+              >
+                {record.shipping_address.name}
+              </Link>{" "}
             </div>
             <div className="p-b-3">{record.shipping_address.phone}</div>
             <div className="p-b-3">{record.shipping_address.full_address}</div>
@@ -235,7 +233,12 @@ const ListOrderScreen: React.FC = () => {
           {items.map((item, i) => {
             return (
               <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-sku">{item.variant}</div>
+                <Link
+                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                >
+                  {item.variant}
+                </Link>
+                <p>{item.sku}</p>
               </div>
             );
           })}
@@ -319,7 +322,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       width: "3.5%",
-      align:"center"
+      align: "center",
     },
     {
       title: "Trạng thái đơn",
@@ -329,7 +332,17 @@ const ListOrderScreen: React.FC = () => {
         const status = status_order.find(
           (status) => status.value === status_value
         );
-        return <div style={{background:"rgba(42, 42, 134, 0.1)", borderRadius:"100px", color:"#2A2A86"}}>{status?.name}</div>;
+        return (
+          <div
+            style={{
+              background: "rgba(42, 42, 134, 0.1)",
+              borderRadius: "100px",
+              color: "#2A2A86",
+            }}
+          >
+            {status?.name}
+          </div>
+        );
       },
       visible: true,
       align: "center",
@@ -448,8 +461,11 @@ const ListOrderScreen: React.FC = () => {
       key: "item.quantity.total",
       render: (items) => {
         // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-        
-        return items.reduce((total: number, item: any) => total + item.quantity, 0)
+
+        return items.reduce(
+          (total: number, item: any) => total + item.quantity,
+          0
+        );
       },
       visible: true,
       align: "center",
@@ -458,12 +474,17 @@ const ListOrderScreen: React.FC = () => {
       title: "Khu vực",
       dataIndex: "shipping_address",
       render: (shipping_address: any) => {
-        const ward = shipping_address?.ward ? shipping_address.ward + "," : ""
-        const district = shipping_address?.district ? shipping_address.district + "," : ""
-        const city = shipping_address?.city ? shipping_address.city + "," : ""
-        return shipping_address && (
-          <div className="name">{`${ward} ${district} ${city}`}</div>
-        )},
+        const ward = shipping_address?.ward ? shipping_address.ward + "," : "";
+        const district = shipping_address?.district
+          ? shipping_address.district + ","
+          : "";
+        const city = shipping_address?.city ? shipping_address.city + "," : "";
+        return (
+          shipping_address && (
+            <div className="name">{`${ward} ${district} ${city}`}</div>
+          )
+        );
+      },
       key: "area",
       visible: true,
       width: "300px",
@@ -535,14 +556,18 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên bán hàng",
-      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
+      render: (record) => (
+        <div>{`${record.assignee} - ${record.assignee_code}`}</div>
+      ),
       key: "assignee",
       visible: true,
       align: "center",
     },
     {
       title: "Nhân viên tạo đơn",
-      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
+      render: (record) => (
+        <div>{`${record.account} - ${record.account_code}`}</div>
+      ),
       key: "account",
       visible: true,
       align: "center",
@@ -595,13 +620,10 @@ const ListOrderScreen: React.FC = () => {
   ]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  const onSelectedChange = useCallback(
-    (selectedRow) => {
-      const selectedRowKeys = selectedRow.map((row: any) => row.id)
-      setSelectedRowKeys(selectedRowKeys)
-    },
-    []
-  );
+  const onSelectedChange = useCallback((selectedRow) => {
+    const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    setSelectedRowKeys(selectedRowKeys);
+  }, []);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -624,31 +646,35 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, params]
   );
-  const onMenuClick = useCallback((index: number) => {
-    let params = {
-      action: 'print',
-      ids: selectedRowKeys,
-      'print-type': index === 4 ? 'shipment' : 'stock_export',
-      'print-dialog': true
-    }
-    const queryParam = generateQuery(params)
-    console.log(queryParam);
-    switch (index) {
-      case 1:
-        break
-      case 2:
-        break  
-      case 3:
-        break
-      case 4:
-        history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`)
-        break
-      case 5:
-        history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`)
-        break
-      default: break  
-    }
-  }, [history, selectedRowKeys]);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      let params = {
+        action: "print",
+        ids: selectedRowKeys,
+        "print-type": index === 4 ? "shipment" : "stock_export",
+        "print-dialog": true,
+      };
+      const queryParam = generateQuery(params);
+      console.log(queryParam);
+      switch (index) {
+        case 1:
+          break;
+        case 2:
+          break;
+        case 3:
+          break;
+        case 4:
+          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+          break;
+        case 5:
+          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
+          break;
+        default:
+          break;
+      }
+    },
+    [history, selectedRowKeys]
+  );
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
@@ -659,8 +685,6 @@ const ListOrderScreen: React.FC = () => {
     },
     []
   );
-
-  
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
