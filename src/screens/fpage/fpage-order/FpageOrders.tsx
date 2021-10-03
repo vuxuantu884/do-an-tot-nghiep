@@ -1,17 +1,18 @@
 import { Col, Form, FormInstance, Input, Row, Button } from "antd";
-import ContentContainer from "component/container/content.container";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  // useMemo,
+  useState,
+} from "react";
 import CreateBillStep from "component/header/create-bill-step";
 import { Type } from "config/type.config";
-import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
-import {
-  getLoyaltyPoint,
-  getLoyaltyRate,
-  getLoyaltyUsage,
-} from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
   orderCreateAction,
@@ -32,10 +33,7 @@ import {
   ShipmentRequest,
   ShippingAddress,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
   OrderConfig,
@@ -44,15 +42,8 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  // useMemo,
-  useState,
-} from "react";
+
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
 import {
   // formatCurrency,
   getAmountPaymentRequest,
@@ -84,21 +75,15 @@ export default function FpageOrders(props: any) {
     setCustomer,
     setActiveTabKey,
     setIsClearOrderTab,
-    setIsCustomerReload,
-    setCustomerPhone,
-    setOrderHistory,
-    getCustomerByPhone,
     loyaltyPoint,
     loyaltyUsageRules,
   } = props;
 
   const dispatch = useDispatch();
-  const history = useHistory();
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
-    null
-  );
+  const [billingAddress, setBillingAddress] =
+    React.useState<BillingAddress | null>(null);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
@@ -141,11 +126,11 @@ export default function FpageOrders(props: any) {
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
-
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
-
+  const [loadingCreateButton, setLoadingCreateButton] =
+    useState<boolean>(false);
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
@@ -404,9 +389,10 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setLoadingCreateButton(false);
       if (value) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setIsClearOrderTab(true)
+        setIsClearOrderTab(true);
         setActiveTabKey("1");
       } else {
         showError("Tạo đơn hàng thất bại");
@@ -415,32 +401,6 @@ export default function FpageOrders(props: any) {
     [setActiveTabKey, setIsClearOrderTab]
   );
 
-  // const handleTypeButton = (type: string) => {
-  //   typeButton = type;
-  // };
-
-  // //show modal save and confirm order ?
-  // const onCancelSaveAndConfirm = () => {
-  //   setIsVisibleSaveAndConfirm(false);
-  // };
-
-  // const onOkSaveAndConfirm = () => {
-  //   typeButton = OrderStatus.DRAFT;
-  //   formRef.current?.submit();
-  //   setIsVisibleSaveAndConfirm(false);
-  // };
-
-  // const showSaveAndConfirmModal = () => {
-  //   if (
-  //     shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ||
-  //     paymentMethod !== 3
-  //   ) {
-  //     setIsVisibleSaveAndConfirm(true);
-  //   } else {
-  //     typeButton = OrderStatus.DRAFT;
-  //     formRef.current?.submit();
-  //   }
-  // };
   const onFinish = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -500,6 +460,7 @@ export default function FpageOrders(props: any) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
+            setLoadingCreateButton(true);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -511,8 +472,10 @@ export default function FpageOrders(props: any) {
           } else {
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus)
+              if (bolCheckPointfocus) {
+                setLoadingCreateButton(true);
                 dispatch(orderCreateAction(values, createOrderCallback));
+              }
             }
           }
         }
@@ -895,7 +858,7 @@ export default function FpageOrders(props: any) {
     [formRef]
   );
   return (
-    <div className="fpage-order" style={{marginTop: 56}}>
+    <div className="fpage-order" style={{ marginTop: 56 }}>
       {isLoadForm && (
         <Form
           layout="vertical"
@@ -1016,7 +979,7 @@ export default function FpageOrders(props: any) {
               </Button>
 
               <Button
-                // disabled={isDisableSubmitBtn}
+                loading={loadingCreateButton}
                 type="primary"
                 className="order-button-width"
                 id="save-and-confirm"
