@@ -5,7 +5,6 @@ import { RefSelectProps } from "antd/lib/select";
 import { Button, Form, Select, Input, Modal, Tooltip, AutoComplete, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
-import UrlConfig from "config/url.config";
 import { AppConfig } from "config/app.config";
 
 import CustomTable from "component/table/CustomTable";
@@ -70,8 +69,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
+  let tempConnectItemList: any[] = [];
+  let notMatchConnectItemList: any[] = [];
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
-  const [selectedRow, setSelected] = useState<Array<any>>([]);
+  let notMatchSelectedRow: any[] = [];
+  const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -149,8 +151,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
   };
 
+  //handle update connectItemList
+  const updateConnectItemList = (newConnectItemList: any) => {
+    tempConnectItemList = newConnectItemList;
 
-  const RenderProductColumn = (item: any, connectItemList: Array<any>, setConnectItemList: Function) => {
+    setConnectItemList(newConnectItemList);
+  };
+
+
+  const RenderProductColumn = (item: any, copyConnectItemList: any, updateConnectItemList: any) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
@@ -159,7 +168,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     
 
     const saveConnectYodyProduct = (itemId: any) => {  
-      const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
+      const newConnectItemList = copyConnectItemList && copyConnectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
 
@@ -173,7 +182,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       }
   
       setProductSelected(null);
-      setConnectItemList(newConnectItemList);
+      updateConnectItemList(newConnectItemList);
       const request = {
         variants: [connectProductSelected]
       }
@@ -191,11 +200,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
     
     const cancelConnectYodyProduct = (itemId: any) => {
-      const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
+      const newConnectItemList = copyConnectItemList && copyConnectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
   
-      setConnectItemList(newConnectItemList);
+      updateConnectItemList(newConnectItemList);
       setProductSelected(null);
     }
 
@@ -260,10 +269,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           ecommerce_correspond_to_core: 1,
         }
 
-        const newConnectItems = [...connectItemList];
+        const newConnectItems = [...copyConnectItemList];
         newConnectItems.push(connectItem);
         
-        setConnectItemList(newConnectItems);
+        updateConnectItemList(newConnectItems);
         setIsInputSearchProductFocus(false);
         setKeySearchVariant("");
         autoCompleteRef.current?.blur();
@@ -453,7 +462,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Sản phẩm (Yody)",
       visible: true,
-      render: (l: any, v: any, i: any) => RenderProductColumn(l, connectItemList, setConnectItemList)
+      render: (l: any, v: any, i: any) => RenderProductColumn(l, [...tempConnectItemList], updateConnectItemList)
     },
     {
       title: "Ghép nối",
@@ -576,16 +585,34 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const saveConnectedYodyProduct = () => {
     const yodyProductConnectCheck: any[] = [];
     let isSaveAble = true;
-    if (selectedRow.length === 0) {
+
+    let tempSelectedRow: any[] = [];
+    selectedRow.forEach((rowData) => {
+      if (!!rowData) {
+        tempSelectedRow.push(rowData);
+      }
+    });
+
+    if (tempSelectedRow.length === 0) {
       showError("Vui lòng chọn ít nhất 1 sản phẩm để ghép nối");
       isSaveAble = false;
     } else {
       connectItemList.forEach((item) => {
-        const itemMatch = selectedRow.find(rowData => rowData.id === item.id)
+        const itemMatch = tempSelectedRow.find(rowData => rowData.id === item.id)
         if (itemMatch) {
           yodyProductConnectCheck.push(item);
+        } else {
+          notMatchConnectItemList.push(item);
         }
       });
+
+      tempSelectedRow.forEach((rowData) => {
+        const rowMatch = yodyProductConnectCheck.find(item => item.id !== rowData.id);
+        if (rowMatch) {
+          notMatchSelectedRow.push(rowData);
+        }
+      });
+
     }
 
     if (isSaveAble && yodyProductConnectCheck.length === 0) {
@@ -601,7 +628,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       dispatch(
         putConnectEcommerceItem(request, (result) => {
           if (result) {
-            setConnectItemList([]);
+            setConnectItemList(notMatchConnectItemList);
+            tempConnectItemList = notMatchConnectItemList;
+            setSelectedRow(notMatchSelectedRow);
+
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
             history.replace(`${history.location.pathname}#connected-item`)
@@ -678,7 +708,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   //select row table
   const onSelectTable = React.useCallback(
     (selectedRow: Array<any>) => {
-      setSelected(selectedRow);
+      setSelectedRow(selectedRow);
     },
     []
   );

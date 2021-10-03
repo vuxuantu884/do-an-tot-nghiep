@@ -1,10 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
 import { Button, Form, Select, Input, Modal, Tooltip, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
-import UrlConfig from "config/url.config";
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
@@ -46,7 +44,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   const { categoryList, variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
-  const history = useHistory();
   const dispatch = useDispatch();
   const { Option } = Select;
 
