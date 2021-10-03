@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, createRef } from "react";
+import React, { useState, useMemo, createRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
@@ -25,7 +25,6 @@ import {
 } from "model/product/product.model";
 
 import {
-  getProductEcommerceList,
   getShopEcommerceList,
   deleteEcommerceItem,
   putConnectEcommerceItem
@@ -49,13 +48,16 @@ import { StyledComponent, StyledProductListDropdown, StyledYodyProductColumn } f
   
 type NotConnectedItemsProps = {
   categoryList?: Array<any>
+  variantData: any
+  getProductUpdated: any
+  tableLoading: any
 };
 
 const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   props: NotConnectedItemsProps
 ) => {
 
-  const { categoryList } = props;
+  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -65,15 +67,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
    
-  const [variantData, setVariantData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
@@ -107,11 +100,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     sku_or_name_ecommerce: "",
   });
 
-  const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
-    if (!!result) {
-      setVariantData(result);
-    }
-  }, []);
   
   const updateEcommerceShopList = React.useCallback((result) => {
     const shopList: any[] = [];
@@ -130,12 +118,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   
 
   useEffect(() => {
-    dispatch(getProductEcommerceList(query, updateVariantData));
     dispatch(getShopEcommerceList({}, updateEcommerceShopList));
-  }, [dispatch, query, updateVariantData, updateEcommerceShopList]);
+  }, [dispatch, updateEcommerceShopList]);
  
   const reloadPage = () => {
-    dispatch(getProductEcommerceList(query, updateVariantData));
+    getProductUpdated(query);
   }
 
 
@@ -513,7 +500,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
     
     const querySearch: ProductEcommerceQuery = value;
-    dispatch(getProductEcommerceList(querySearch, setVariantData));
+    getProductUpdated(querySearch);
   };
 
   const onPageChange = React.useCallback(
@@ -709,6 +696,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <Form.Item name="ecommerce_id" className="select-channel-dropdown">
               <Select
                 showSearch
+                disabled={tableLoading}
                 placeholder="Chọn sàn"
                 allowClear
                 onSelect={(value) => getShopEcommerce(value)}
@@ -730,6 +718,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <Form.Item name="shop_id" className="select-store-dropdown">
               <Select
                 showSearch
+                disabled={tableLoading}
                 placeholder={getPlaceholderSelectShop()}
                 allowClear={shopIdSelected && shopIdSelected.length > 0}
                 dropdownRender={() => renderShopList(false)}
@@ -739,19 +728,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
+                disabled={tableLoading}
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, tên sản phẩm sàn"
               />
             </Form.Item>
 
             <Form.Item className="filter-item">
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" disabled={tableLoading}>
                 Lọc
               </Button>
             </Form.Item>
 
             <Form.Item className="filter-item">
-              <Button onClick={openFilter}>
+              <Button onClick={openFilter} disabled={tableLoading}>
                 <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                 <span>Thêm bộ lọc</span>
               </Button>
@@ -761,6 +751,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
         <CustomTable
           isRowSelection
+          isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
           dataSource={variantNotConnectedItem}
