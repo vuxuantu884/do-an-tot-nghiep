@@ -295,13 +295,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let expect_store_id: number = getFieldValue(
               POField.expect_store_id
             );
-            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-              POField.line_items
-            );
             let receive_status: string = getFieldValue(POField.receive_status);
-            
-            setPOItem(line_items);
-            
             if ((receive_status || status) === ProcumentStatus.DRAFT && props.isEdit) {
               return (
                 <Button
@@ -382,10 +376,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           />
         ) : (
           <POInventoryDraft
-            poData={poData}
-            formMainEdit={formMainEdit}
             formMain={formMain}
-            isEdit={props.isEdit}
+            isEdit={isEdit}
             stores={stores}
             onCancelPU={() => {
               setVisibleEditProcurement(false);

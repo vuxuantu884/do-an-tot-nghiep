@@ -52,7 +52,21 @@ const POCreateScreen: React.FC = () => {
     trade_discount_amount: 0,
     designer_code: null,
     payments: [],
-    procurements: [],
+    procurements: [
+      {
+        reference: "",
+        store_id: null,
+        expect_receipt_date: "",
+        procurement_items: [],
+        status: "",
+        status_po: "",
+        note: "",
+        actived_date: "",
+        actived_by: "",
+        stock_in_date: "",
+        stock_in_by: "",
+      },
+    ],
     payment_discount_rate: null,
     payment_discount_value: null,
     payment_discount_amount: 0,
@@ -158,7 +172,7 @@ const POCreateScreen: React.FC = () => {
           isValidReceiptDateAndStore = false;
         }
       });
-      if (isValidReceiptDateAndStore && dataClone.procurements.length>0) {
+      if (isValidReceiptDateAndStore && dataClone.procurements.length > 0) {
         switch (dataClone.status) {
           case POStatus.DRAFT:
             setLoadingDraftButton(true);
@@ -284,7 +298,7 @@ const POCreateScreen: React.FC = () => {
           className="margin-top-10 "
           style={{
             position: "fixed",
-            zIndex:5,
+            zIndex: 5,
             textAlign: "right",
             width: "100%",
             height: "55px",
@@ -335,8 +349,8 @@ const POCreateScreen: React.FC = () => {
               className="create-button-custom ant-btn-outline fixed-button"
               loading={loadingDraftButton}
               onClick={() => {
-                setStatusAction(POStatus.DRAFT)
-                formMain.submit()
+                setStatusAction(POStatus.DRAFT);
+                formMain.submit();
               }}
             >
               Lưu nháp
@@ -347,8 +361,8 @@ const POCreateScreen: React.FC = () => {
               className="create-button-custom"
               loading={loadingSaveButton}
               onClick={() => {
-                setStatusAction(POStatus.FINALIZED)
-                formMain.submit()
+                setStatusAction(POStatus.FINALIZED);
+                formMain.submit();
               }}
             >
               Lưu và duyệt

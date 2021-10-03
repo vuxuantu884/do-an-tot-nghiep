@@ -1,458 +1,236 @@
-import { Col, DatePicker, Form, Input, Row, Select, Space, Table } from "antd";
+import { Button, Col, Form, Row, Select, Table } from "antd";
 import { StoreResponse } from "model/core/store.model";
-import imgDefIcon from "assets/img/img-def.svg";
 import { POField } from "model/purchase-order/po-field";
-import moment, { Moment } from "moment";
-import {
-  ConvertDateToUtc,
-  ConvertUtcToLocalDate,
-  DATE_FORMAT,
-} from "utils/DateUtils";
-import { ActionsTableColumn, POInventoryDraftTable } from "./styles";
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+
+import { POInventoryDraftTable } from "./styles";
 import NumberInput from "component/custom/number-input.custom";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
-  PurchaseProcumentPOCreateLineItem,
-  PurchaseProcurementPOCreate,
+  PurchaseProcumentLineItem,
   PurchaseProcurementViewDraft,
 } from "model/purchase-order/purchase-procument";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import POEditDraftProcurementModal from "screens/purchase-order/modal/POEditDraftProcurementModal";
-import { showError } from "utils/ToastUtils";
+import { ICustomTableColumType } from "component/table/CustomTable";
+import { AiOutlineClose } from "react-icons/ai";
+import CustomDatePicker from "component/custom/date-picker.custom";
+import { PlusOutlined } from "@ant-design/icons";
+import { useCallback } from "react";
+import moment from "moment";
+import { DATE_FORMAT } from "utils/DateUtils";
 
 type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
   isEdit: boolean;
-  formMain?: any;
+  formMain: any;
   poData?: PurchaseOrder;
   onCancelPU?: () => void;
   visible?: boolean;
-  formMainEdit?: any;
 };
-
-const initDataProcurement = [
-  {
-    store_id: "",
-    expect_receipt_date: "",
-    procurement_items: [],
-    status: "draft",
-    status_po: "draftpo",
-  },
-];
-
-const QUANTITY_INVENTORY_COLUMNS_DRAFT = 7;
 
 const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   props: POInventoryDraftProps
 ) => {
-  const {
-    stores,
-    isEdit,
-    formMain,
-    poData,
-    onCancelPU,
-    visible,
-    formMainEdit,
-  } = props;
-
-  const [columns, setColumns] = useState<any>([]);
-  const [columnsDraft, setColumnsDraft] = useState<any>([]);
-  const [dataProcurement, setDataProcurement] =
-    useState<Array<PurchaseProcurementPOCreate>>(initDataProcurement);
-  const [procurementDataState, setProcurementDataState] = useState<
-    Array<PurchaseProcurementViewDraft>
-  >([]);
-
-  const columnsDraftDefault = [
-    {
-      title: "STT",
-      align: "center",
-      fixed: "left",
-      width: 60,
-      render: (value: any, record: any, index: number) => index + 1,
-    },
-    {
-      title: "Ảnh",
-      width: 60,
-      fixed: "left",
-      dataIndex: "variant_image",
-      render: (value: any) => (
-        <div className="product-item-image">
-          <img src={value === null ? imgDefIcon : value} alt="" className="" />
-        </div>
-      ),
-    },
-    {
-      title: "Sản phẩm",
-      width: 250,
-      fixed: "left",
-      className: "ant-col-info",
-
-      dataIndex: "variant",
-      render: (value: string, item: PurchaseOrderLineItem, index: number) => (
-        <div>
-          <div>
-            <div className="product-item-sku">{item.sku}</div>
-            <div className="product-item-name">
-              <span className="product-item-name-detail">{value}</span>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Đơn vị",
-      align: "center",
-      width: 100,
-      render: () => "Cái",
-    },
-    {
-      title: "Số lượng trên PO",
-      align: "center",
-      width: 200,
-      dataIndex: "quantity",
-      render: (value: any) => value,
-    },
-  ];
-
-  const columnsDefault = [
-    {
-      title: "STT",
-      align: "center",
-      fixed: "left",
-      width: 60,
-      render: (value: any, record: any, index: number) => index + 1,
-    },
-    {
-      title: "Ảnh",
-      width: 60,
-      fixed: "left",
-      dataIndex: "variant_image",
-      render: (value: any) => (
-        <div className="product-item-image">
-          <img src={value === null ? imgDefIcon : value} alt="" className="" />
-        </div>
-      ),
-    },
-    {
-      title: "Sản phẩm",
-      width: 250,
-      fixed: "left",
-      className: "ant-col-info",
-
-      dataIndex: "variant",
-      render: (value: string, item: PurchaseOrderLineItem, index: number) => (
-        <div>
-          <div>
-            <div className="product-item-sku">{item.sku}</div>
-            <div className="product-item-name">
-              <span className="product-item-name-detail">{value}</span>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Đơn vị",
-      align: "center",
-      width: 100,
-      render: () => "Cái",
-    },
-    {
-      title: "Số lượng trên PO",
-      align: "center",
-      width: 200,
-      dataIndex: "quantity",
-      render: (value: any) => value,
-    },
-  ];
-
-  const dataLineItems = formMain?.getFieldValue(POField.line_items);
-  const dataLineItemsDraft = formMainEdit?.getFieldValue(POField.line_items);
-
-  const addColumnNumber = () => {
-    const newDataProcurement = [...dataProcurement];
-    const procurementItemsDefault: Array<PurchaseProcumentPOCreateLineItem> =
-      dataLineItems?.map((item: PurchaseOrderLineItem, index: number) => {
-        const newDataProcurement1 = JSON.parse(JSON.stringify(dataProcurement));
-        let total = 0;
-        newDataProcurement.forEach((item1) => {
-          item1.procurement_items.forEach((item2) => {
-            if (item2.sku === item.sku) {
-              total = total + item2.quantity;
-            }
-          });
-        });
-        return (newDataProcurement1[0].procurement_items[index] = {
-          accepted_quantity: 0,
-          code: item.code,
-          line_item_id: item.id,
-          note: "",
-          ordered_quantity: item.quantity,
-          planned_quantity: 0,
-          quantity: item.quantity - total > 0 ? item.quantity - total : 0,
-          real_quantity: 0,
-          sku: item.sku,
-          variant: item.variant,
-          variant_image: item.variant,
-        });
-      });
-    newDataProcurement.push({
-      ...dataProcurement[0],
-      procurement_items: procurementItemsDefault,
-    });
-    setDataProcurement(newDataProcurement);
-  };
-
-  const removeColumnNumber = () => {
-    const newDataProcurement = [...dataProcurement];
-    newDataProcurement.pop();
-    setDataProcurement(newDataProcurement);
-  };
-
-  const onChangeValueDate = (value: Moment, index: number) => {
-    const newProcurement = JSON.parse(JSON.stringify(dataProcurement));
-    newProcurement[index].expect_receipt_date = ConvertDateToUtc(value);
-    setDataProcurement(newProcurement);
-    formMain.setFieldsValue({
-      procurements: newProcurement,
-    });
-  };
-
-  const onChangeValueStore = (value: string, index: number) => {
-    const newProcurement = JSON.parse(JSON.stringify(dataProcurement));
-    newProcurement[index].store_id = value;
-    setDataProcurement(newProcurement);
-    formMain.setFieldsValue({
-      procurements: newProcurement,
-    });
-  };
-
-  const onChangeValueLineItem = (
-    value: number | null,
-    index: number,
-    indexLineItem: number
-  ) => {
-    const newProcurement = JSON.parse(JSON.stringify(dataProcurement));
-
-    if (!value) {
-      newProcurement[index].procurement_items[indexLineItem].quantity = 0;
-      setDataProcurement(newProcurement);
-      formMain.setFieldsValue({
-        procurements: newProcurement,
-      });
-    } else {
-      newProcurement[index].procurement_items[indexLineItem].quantity = value;
-      setDataProcurement(newProcurement);
-      formMain.setFieldsValue({
-        procurements: newProcurement,
-      });
-    }
-  };
-
-  // init
-  useEffect(() => {
-    //edit);
-
-    const procurementItemsDefault: Array<PurchaseProcumentPOCreateLineItem> =
-      dataLineItems?.map((item: PurchaseOrderLineItem, index: number) => {
-        const newDataProcurement = JSON.parse(JSON.stringify(dataProcurement));
-        return (newDataProcurement[0].procurement_items[index] = {
-          accepted_quantity: 0,
-          code: item.code,
-          line_item_id: item.id,
-          note: "",
-          ordered_quantity: item.quantity,
-          planned_quantity: 0,
-          quantity: item.quantity,
-          real_quantity: 0,
-          sku: item.sku,
-          variant: item.variant,
-          variant_image: item.variant,
-        });
-      });
-
-    const newDataProcurement: Array<PurchaseProcurementPOCreate> = [
-      { ...initDataProcurement[0], procurement_items: procurementItemsDefault },
-    ];
-
-    setDataProcurement(newDataProcurement);
-    //isView
-    const procurementsData = formMainEdit?.getFieldValue("procurements");
-
-    if (procurementsData) {
-      setProcurementDataState(procurementsData);
-    } else {
-      setColumnsDraft([...columnsDraftDefault]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataLineItems, poData]);
-
-  useEffect(() => {
-    const columnProcurementItemsDefault = dataProcurement?.map(
-      (item, index) => {
-        return {
-          title: (
-            <>
-              <Row>
-                <Space style={{ width: "100%" }} direction="vertical">
-                  <Col span={24}>
-                    <Form.Item name={POField.expect_import_date} noStyle hidden>
-                      <Input />
-                    </Form.Item>
-                    <DatePicker  
-                      placeholder="dd/mm/yyyy"
-                      onChange={(value) => {
-                        value &&  onChangeValueDate(value, index);
-                      }}
-                      disabledDate={(date) => date <= moment().startOf("days")}
-                      format={DATE_FORMAT.DDMMYYY}                      
-                    />
-                  </Col>
-                  <Col span={24}>
-                    <Form.Item name={POField.expect_store_id} noStyle hidden>
-                      <Input />
-                    </Form.Item>
-                    <Select
-                      placeholder="Chọn kho"
-                      showSearch
-                      optionFilterProp="children"
-                      onChange={(value: string) => {
-                        value && onChangeValueStore(value, index);
-                      }}
-                    >
-                      {stores.map((item) => (
-                        <Select.Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Col>
-                </Space>
-              </Row>
-            </>
-          ),
-          width: 200,
-          align: "center",
-          render: (value: number, item1: any, indexLineItems: number) => {
-            let maxValue = item1.quantity;
-            if (dataProcurement?.length > 1) {
-              dataProcurement?.forEach((item, index) => {
-                if (index > 0) {
-                  return;
-                } else {
-                  maxValue -= item?.procurement_items[indexLineItems]?.quantity;
-                }
-              });
-            }
-
-            return (
-              <NumberInput
-                isFloat={false}
-                max={maxValue}
-                min={0}
-                maxLength={6}
-                value={item?.procurement_items[indexLineItems]?.quantity}
-                onChange={(value: number | null) => {
-                  onChangeValueLineItem(value, index, indexLineItems);
-                }}
-              />
-            );
-          },
-        };
-      }
+  const { stores, isEdit, formMain, } = props;
+  const onAdd = useCallback(() => {
+    let procument_items: Array<PurchaseProcurementViewDraft> =
+      formMain.getFieldValue(POField.procurements);
+    let line_items: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+      POField.line_items
     );
-
-    const isHaveManyColumn = columns.length > QUANTITY_INVENTORY_COLUMNS_DRAFT;
-
-    const columnFixed = [
-      {
-        title: () => (
-          <ActionsTableColumn
-            className={isHaveManyColumn ? "group_actions" : ""}
-          >
-            <PlusOutlined
-              style={{ fontSize: 25, color: "#2a2a86" }}
-              onClick={addColumnNumber}
-            />
-            {isHaveManyColumn && (
-              <MinusOutlined
-                style={{ fontSize: 25, color: "#ff4d4f" }}
-                onClick={removeColumnNumber}
-              />
-            )}
-          </ActionsTableColumn>
-        ),
-        width: 100,
-        fixed: "right",
-      },
-    ];
-
-    setColumns([
-      ...columnsDefault,
-      ...columnProcurementItemsDefault,
-      ...columnFixed,
-    ]);
-
-    //viewDraft
-    if (procurementDataState) {
-      const columnsProcurementDraft = procurementDataState?.map(
-        (itemProcurement) => {
-          return {
-            title: (
-              <>
-                <Row>
-                  <Col span={24}>
-                    {ConvertUtcToLocalDate(
-                      itemProcurement.expect_receipt_date,
-                      DATE_FORMAT.DDMMYYY
-                    )}
-                  </Col>
-                  <Col span={24}>{itemProcurement.store}</Col>
-                </Row>
-              </>
-            ),
-            width: 200,
-            align: "center",
-            render: (value: number, itemRender: any, index: number) => {
-              if (!itemProcurement.procurement_items[index]) {
-                return "";
-              }
-              return `${itemProcurement.procurement_items[index].quantity}`;
-            },
-          };
-        }
-      );
-      setColumnsDraft([...columnsDraftDefault, ...columnsProcurementDraft]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataProcurement, procurementDataState]);
-
-  const handleSaveDraft = (listDraft: PurchaseProcurementViewDraft[]) => {
-   
-    const notValidDateAndStore = listDraft.some((element) => {
-      return !element.expect_receipt_date || !element.store_id;
+    let newProcumentLineItem: Array<PurchaseProcumentLineItem> = [];
+    line_items.forEach((item) => {
+      let total = 0;
+      procument_items.forEach((item1) => {
+        item1.procurement_items.forEach((procument_item) => {
+          if (procument_item.line_item_id === item.position) {
+            total = total + procument_item.quantity;
+          }
+        });
+      });
+      newProcumentLineItem.push({
+        accepted_quantity: 0,
+        code: item.code,
+        line_item_id: item.position,
+        note: "",
+        ordered_quantity: item.quantity,
+        planned_quantity: 0,
+        quantity: item.quantity - total > 0 ? item.quantity - total : 0,
+        real_quantity: 0,
+        sku: item.sku,
+        variant: item.variant,
+        variant_image: item.variant,
+      });
     });
-    if (notValidDateAndStore) {
-      showError("Vui lòng chọn đủ ngày nhận dự kiến và kho");
-    } else { 
-      onCancelPU && onCancelPU();
-      setProcurementDataState(listDraft);
-    }
-  };
+    procument_items.push({
+      reference: "",
+      store_id: procument_items[procument_items.length - 1].store_id,
+      expect_receipt_date:
+        procument_items[procument_items.length - 1].expect_receipt_date,
+      procurement_items: newProcumentLineItem,
+      status: "draft",
+      status_po: "draftpo",
+      note: "",
+      fake_id: 1,
+    });
+    formMain.setFieldsValue({
+      [POField.procurements]: [...procument_items],
+    });
+  }, [formMain]);
+
+  const onChangeDate = useCallback(
+    (value: string | undefined, index1: number) => {
+      let procument_items: Array<PurchaseProcurementViewDraft> =
+        formMain.getFieldValue(POField.procurements);
+      procument_items[index1].expect_receipt_date = value ? value : "";
+      formMain.setFieldsValue({
+        [POField.procurements]: [...procument_items],
+      });
+    },
+    [formMain]
+  );
+
+  const onChangeStore = useCallback(
+    (value: number, index1: number) => {
+      let procument_items: Array<PurchaseProcurementViewDraft> =
+        formMain.getFieldValue(POField.procurements);
+      procument_items[index1].store_id = value;
+      formMain.setFieldsValue({
+        [POField.procurements]: [...procument_items],
+      });
+    },
+    [formMain]
+  );
+
+  const defaultColumns: Array<
+    ICustomTableColumType<PurchaseProcurementViewDraft>
+  > = [
+    {
+      width: 50,
+      title: "Stt",
+      align: "center",
+      render: (value, record, index) => index + 1,
+    },
+    {
+      width: 150,
+      title: "Ngày nhận dự kiến",
+      dataIndex: "expect_receipt_date",
+      render: (value, record, index: number) => (
+        <CustomDatePicker
+          value={value}
+          disableDate={(date) => date <= moment().startOf("days")}
+          format={DATE_FORMAT.DDMMYYY}
+          onChange={(value1) => onChangeDate(value1, index)}
+        />
+      ),
+    },
+    {
+      width: 250,
+      title: "Cửa hàng nhận",
+      dataIndex: "store_id",
+      render: (value, record, index) => (
+        <Select
+          onChange={(value1: number) => onChangeStore(value1, index)}
+          value={value}
+          showSearch
+          showArrow
+          placeholder="Chọn kho nhận"
+          optionFilterProp="children"
+        >
+          {stores.map((item) => (
+            <Select.Option key={item.id} value={item.id}>
+              {item.name}
+            </Select.Option>
+          ))}
+        </Select>
+      ),
+    },
+  ];
 
   if (!isEdit) {
     return (
       <>
         <POInventoryDraftTable>
-          <Table
-            columns={columns}
-            pagination={false}
-            dataSource={dataLineItems}
-            scroll={{ y: 300, x: 1000 }}
-          />
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, current) =>
+              prev[POField.line_items] !== current[POField.line_items] ||
+              prev[POField.procurements] !== current[POField.procurements]
+            }
+          >
+            {({ getFieldValue }) => {
+              let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
+                POField.line_items
+              );
+              let procument_items: Array<PurchaseProcurementViewDraft> =
+                getFieldValue(POField.procurements);
+              let columns: Array<
+                ICustomTableColumType<PurchaseProcurementViewDraft>
+              > = [];
+              line_items.forEach((item, indexLineItem) => {
+                columns.push({
+                  width: 100,
+                  title: () => (
+                    <div style={{ textAlign: "center" }}>
+                      <div>{item.sku}</div>
+                      <div>(SL: {item.quantity})</div>
+                    </div>
+                  ),
+                  dataIndex: "procurement_items",
+                  render: (value: Array<PurchaseProcumentLineItem>) => (
+                    <NumberInput
+                      placeholder="Số lượng"
+                      value={value[indexLineItem].quantity}
+                      onChange={() => {}}
+                    />
+                  ),
+                });
+              });
+              return (
+                <Table
+                  className="product-table"
+                  pagination={false}
+                  scroll={{ y: 300, x: 950 }}
+                  rowKey={(item) => item.fake_id}
+                  columns={[
+                    ...defaultColumns,
+                    ...columns,
+                    {
+                      title: "",
+                      fixed: procument_items.length > 1 && "right",
+                      width: 40,
+                      render: (value: string, item, index: number) =>
+                        procument_items.length > 1 && (
+                          <Button
+                            onClick={() => {}}
+                            className="product-item-delete"
+                            icon={<AiOutlineClose />}
+                          />
+                        ),
+                    },
+                  ]}
+                  dataSource={procument_items}
+                  summary={(data) => (
+                    <Table.Summary>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          index={1}
+                          colSpan={4 + line_items.length}
+                        >
+                          <Button
+                            onClick={onAdd}
+                            icon={<PlusOutlined />}
+                            type="link"
+                          >
+                            Thêm kế hoạch
+                          </Button>
+                        </Table.Summary.Cell>
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  )}
+                />
+              );
+            }}
+          </Form.Item>
         </POInventoryDraftTable>
       </>
     );
@@ -461,28 +239,8 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     <POInventoryDraftTable>
       <Row>
         <Col span={24}>
-          <Table
-            columns={columnsDraft}
-            pagination={false}
-            dataSource={dataLineItemsDraft}
-            scroll={{ y: 300, x: 1000 }}
-          />
+          <Table pagination={false} scroll={{ y: 300, x: 1000 }} />
         </Col>
-        <POEditDraftProcurementModal
-          onCancel={onCancelPU}
-          visible={visible}
-          formMain={formMainEdit}
-          stores={stores}
-          columnsDefault={columnsDefault}
-          procurementDataState={procurementDataState}
-          dataSource={dataLineItemsDraft}
-          changeColumnPO={(value) => {
-            setProcurementDataState(value);
-          }}
-          onOk={(value) => {
-            handleSaveDraft(value)
-          }}
-        />
       </Row>
     </POInventoryDraftTable>
   );
