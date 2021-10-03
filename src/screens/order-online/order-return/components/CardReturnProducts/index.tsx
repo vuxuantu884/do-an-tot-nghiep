@@ -574,7 +574,11 @@ function CardReturnProducts(props: PropType) {
               </span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền trả khách:</strong>
+              <strong className="font-size-text">Điểm đã tiêu: </strong>
+              <strong>Cần tính</strong>
+            </Row>
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Tổng tiền trả khách 2:</strong>
               <strong>
                 {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
               </strong>
