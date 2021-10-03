@@ -119,7 +119,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   }, [dispatch, query, updateVariantData]);
  
   const reloadPage = () => {
-    dispatch(getProductEcommerceList(query, setVariantData));
+    dispatch(getProductEcommerceList(query, updateVariantData));
   }
 
 
@@ -155,7 +155,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const [productSelected, setProductSelected] = useState<any>();
     
 
-    const saveYodyProduct = (itemId: any) => {  
+    const saveConnectYodyProduct = (itemId: any) => {  
       const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
@@ -180,7 +180,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           if (result) {
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
-            history.replace(`${history.location.pathname}#connected-item`)
           } else {
             showError("Ghép nối sản phẩm thất bại");
           }
@@ -188,7 +187,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       );
     }
     
-    const cancelYodyProduct = (itemId: any) => {
+    const cancelConnectYodyProduct = (itemId: any) => {
       const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
@@ -372,21 +371,21 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
               <li>
                 <b>SKU: </b>
-                <span>{productSelected.sku}</span>
+                <span style={{color: "#737373"}}>{productSelected.sku}</span>
               </li>
               
               <li>
                 <b>Giá bán: </b>
-                <span>{productSelected.retail_price}</span>
+                <span>{formatCurrency(productSelected.retail_price)}</span>
               </li>
             </ul>
 
             <div className="button">
-              <Button type="primary" onClick={() => saveYodyProduct(productSelected.id)}>
+              <Button type="primary" onClick={() => saveConnectYodyProduct(productSelected.id)}>
                 Lưu
               </Button>
 
-              <Button onClick={() => cancelYodyProduct(productSelected.id)}>
+              <Button onClick={() => cancelConnectYodyProduct(productSelected.id)}>
                 Hủy          
               </Button>
             </div>
@@ -404,28 +403,35 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
       },
     },
     {
-      title: "Sku/ itemID (Shopee)",
+      title: "Sku/ itemID (Sàn)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <span>{l.ecommerce_sku || l.ecommerce_product_id || "-"}</span>
+        return (
+          <div>
+            <div>{l.ecommerce_sku}</div>
+            <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
+            <div style={{color: "#737373"}}>({l.ecommerce_variant_id})</div>
+            <div style={{color: "#2a2a86"}}>({l.shop})</div>
+          </div>
+        )
       },
     },
     {
-      title: "Sản phẩm (Shopee)",
+      title: "Sản phẩm (Sàn)",
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_variant || "-"}</span>
+          <div>{l.ecommerce_variant}</div>
         );
       },
     },
     {
-      title: "Giá bán (Shopee)",
+      title: "Giá bán (Sàn)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
@@ -435,7 +441,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       },
     },
     {
-      title: "Sản phẩm (YODY)",
+      title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => renderProductColumn(l, connectItemList, setConnectItemList)
     },
@@ -445,16 +451,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       render: (l: any, v: any, i: any) => {
         return (
           <div>
-            {l.connect_status === "connected" &&
-              <span style={{color: '#27AE60'}}>Thành công</span>
-            }
-            {l.connect_status === "error" &&
-              <Tooltip title="error">
-                <span style={{color: '#E24343'}}>Thất bại</span>
-              </Tooltip>
-            }
             {l.connect_status === "waiting" &&
-              <span style={{color: '#FFA500'}}>Đang xử lý</span>
+              <span style={{color: '#FFA500'}}>Chưa ghép nối</span>
             }
           </div>
         );
@@ -569,7 +567,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setVisibleFilter(false);
   }, []);
 
-  const savePairingConnectItems = () => {
+  const saveConnectedYodyProduct = () => {
     const request = {
       variants: connectItemList
     }
@@ -578,6 +576,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         if (result) {
           setConnectItemList([]);
           showSuccess("Ghép nối sản phẩm thành công");
+          reloadPage();
           history.replace(`${history.location.pathname}#connected-item`)
         } else {
           showError("Ghép nối sản phẩm thất bại");
@@ -649,7 +648,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, tên sản phẩm Shopee"
+                placeholder="SKU, tên sản phẩm sàn"
               />
             </Form.Item>
 
@@ -686,7 +685,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         <Button
           className="save-pairing-button"
           type="primary"
-          onClick={savePairingConnectItems}
+          onClick={saveConnectedYodyProduct}
           disabled={connectItemList.length === 0}
           size="large"
           icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}

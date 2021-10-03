@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { Button, Form,Select, Input, Modal, Tooltip, Radio, Space, Dropdown, Menu } from "antd";
 import { SearchOutlined, DownOutlined } from "@ant-design/icons";
 
@@ -9,7 +8,6 @@ import BaseFilter from "component/filter/base.filter"
 import { showSuccess,  } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
-import UrlConfig from "config/url.config";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
@@ -52,7 +50,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
-  const [syncStockAll, setSyncStockAll] = useState(null);
+  const [syncStockAll, setSyncStockAll] = useState(true);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
   
   const [selectedRow, setSelected] = useState<Array<any>>([]);
@@ -128,10 +126,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const handleSyncStockItemsSelected = () => {
     const itemSelected: any[] = [];
-    if (selectedRow) {
+    if (selectedRow && selectedRow.length > 0) {
       selectedRow.forEach((item) => {
         itemSelected.push(item.id);
       });
+      setSyncStockAll(false);
     }
     setIdsItemSelected(itemSelected);
     setIsShowSyncStockModal(true);
@@ -143,12 +142,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    setSyncStockAll(null);
+    setSyncStockAll(true);
   };
 
   const okSyncStockModal = () => {
     setIsShowSyncStockModal(false);
-    setSyncStockAll(null);
+    setSyncStockAll(true);
 
     const requestSyncStock = {
       variant_ids: idsItemSelected,
@@ -163,10 +162,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     }));
   };
 
-  const isDisableSyncStockOkButton = () => {
-    return syncStockAll === null;
-  }
-
   //handle delete item
   const handleDeleteItem = (item: any) => {
     setIsShowDeleteItemModal(true);
@@ -174,6 +169,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   };
 
   const handleDeleteItemsSelected = () => {
+    if (isDisableAction()) {
+      return;
+    }
+
     const itemSelected: any[] = [];
     if (selectedRow) {
       selectedRow.forEach((item) => {
@@ -209,6 +208,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   };
 
   const handleDisconnectItemsSelected = () => {
+    if (isDisableAction()) {
+      return;
+    }
+
     const itemSelected: any[] = [];
     if (selectedRow) {
       selectedRow.forEach((item) => {
@@ -245,28 +248,34 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
       },
     },
     {
-      title: "Sku/ itemID (Shopee)",
+      title: "Sku/ itemID (Sàn)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <span>{l.ecommerce_sku || l.ecommerce_product_id || "-"}</span>
+        return (
+          <div>
+            <div>{l.ecommerce_sku}</div>
+            <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
+            <div style={{color: "#2a2a86"}}>({l.shop})</div>
+          </div>
+        )
       },
     },
     {
-      title: "Sản phẩm (Shopee)",
+      title: "Sản phẩm (Sàn)",
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.ecommerce_variant || "-"}</span>
+          <div>{l.ecommerce_variant}</div>
         );
       },
     },
     {
-      title: "Giá bán (Shopee)",
+      title: "Giá bán (Sàn)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
@@ -276,30 +285,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       },
     },
     {
-      title: "Sản phẩm (YODY)",
+      title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
           <div>
-            {l.core_variant &&
-              <Link to={`${UrlConfig.PRODUCT}/${l.ecommerce_id}/variants/${l.id}`}>
-                {l.core_variant}
-              </Link>
-            }
-            {!l.core_variant &&
-              <span>-</span>
-            }
+            <div>{l.core_variant}</div>
+            <div>{l.core_sku}</div>
           </div>
         );
       },
     },
     {
-      title: "Giá bán (YODY)",
+      title: "Giá bán (Yody)",
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.core_price || "-"}</span>
+          <span>{formatCurrency(l.core_price)}</span>
         );
       },
     },
@@ -321,12 +324,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
           <div>
             {l.connect_status === "connected" &&
               <span style={{color: '#27AE60'}}>Thành công</span>
-            }
-            {l.connect_status === "error" &&
-              <span style={{color: '#E24343'}}>Thất bại</span>
-            }
-            {l.connect_status === "waiting" &&
-              <span style={{color: '#FFA500'}}>Đang xử lý</span>
             }
           </div>
         );
@@ -483,12 +480,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   );
 
   const isDisableAction = () => {
-    return selectedRow && selectedRow.length === 0;
+    return !selectedRow || selectedRow.length === 0;
   }
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1" disabled={isDisableAction()}>
+      <Menu.Item key="1">
         <span onClick={handleSyncStockItemsSelected}>Đồng bộ tồn kho lên sàn</span>
       </Menu.Item>
 
@@ -579,14 +576,14 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, tên sản phẩm Shopee"
+                placeholder="SKU, tên sản phẩm sàn"
               />
             </Form.Item>
 
             <Form.Item name="sku_or_name_core" className="yody-search">
               <Input
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, Sản phẩm YODY"
+                placeholder="SKU, Sản phẩm Yody"
               />
             </Form.Item>
 
@@ -610,6 +607,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
           onSelectedChange={onSelectTable}
           columns={columnFinal}
           dataSource={variantConnectedItem}
+          scroll={{ x: 1500 }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantConnectedItem && variantConnectedItem.length,
@@ -778,7 +776,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
           cancelText="Hủy"
           onCancel={cancelSyncStockModal}
           onOk={okSyncStockModal}
-          okButtonProps={{disabled: isDisableSyncStockOkButton()}}
         >
           <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
             <Space direction="vertical">
