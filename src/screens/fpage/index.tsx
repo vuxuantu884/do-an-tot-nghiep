@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import FpageOrders from "./fpage-order/FpageOrders";
 import FpageCustomer from "./fpage-customer/create.customer";
-import { Divider } from "antd";
+import { Divider, Tabs } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
@@ -18,6 +18,8 @@ import {
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
 
+const { TabPane } = Tabs;
+
 const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",
   limit: 10,
@@ -29,8 +31,7 @@ function FpageCRM() {
   let queryString = useQuery();
   const dispatch = useDispatch();
   const [isButtonSelected, setIsButtonSelected] = React.useState<number>(1);
-  const [customerDetail, setCustomerDetail] =
-    React.useState<CustomerResponse>();
+  const [customer, setCustomer] = React.useState<CustomerResponse | null>();
   const [isClearOrderField, setIsClearOrderField] =
     React.useState<boolean>(true);
   const [isCustomerReload, setIsCustomerReload] = React.useState<boolean>(true);
@@ -41,8 +42,12 @@ function FpageCRM() {
   const [customerPhoneString] = React.useState<string | null>(
     queryString?.get("phone")
   );
-  const [customerFbName] = React.useState<string | null>(queryString?.get("name"))
-  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel> | undefined>([]);
+  const [customerFbName] = React.useState<string | null>(
+    queryString?.get("name")
+  );
+  const [orderHistory, setOrderHistory] = React.useState<
+    Array<OrderModel> | undefined
+  >([]);
   const [querySearchOrderFpage, setQuerySearchOrderFpage] = React.useState<any>(
     {
       limit: 10,
@@ -51,16 +56,21 @@ function FpageCRM() {
     }
   );
   const [metaData, setMetaData] = React.useState<any>({});
-  const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>([]);
+  const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(
+    null
+  );
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
+    Array<LoyaltyUsageResponse>
+  >([]);
+
   React.useEffect(() => {
-    if (customerDetail) {
-      dispatch(getLoyaltyPoint(customerDetail.id, setLoyaltyPoint));
+    if (customer) {
+      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
     } else {
       setLoyaltyPoint(null);
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch, customerDetail]);
+  }, [dispatch, customer]);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -69,34 +79,31 @@ function FpageCRM() {
     [querySearchOrderFpage, setQuerySearchOrderFpage]
   );
   const searchByPhoneCallback = (value: any) => {
-      if(value){
-        setCustomerDetail(value);
-      }
+    if (value) {
+      setCustomer(value);
+    } else {
+      setCustomer(null);
+    }
   };
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
       setOrderHistory(data.items);
       setMetaData(data.metadata);
-    }else{
+    } else {
       setOrderHistory(undefined);
     }
   };
   React.useEffect(() => {
-    if (
-      customerDetail &&
-      customerDetail.id !== null &&
-      customerDetail.id !== undefined
-    ) {
-      querySearchOrderFpage.customer_ids = [customerDetail.id];
+    if (customer && customer.id !== null && customer.id !== undefined) {
+      querySearchOrderFpage.customer_ids = [customer.id];
       dispatch(
         getListOrderActionFpage(querySearchOrderFpage, setOrderHistoryItems)
       );
-    }else{
+    } else {
       setOrderHistory(undefined);
       setMetaData(null);
     }
-  }, [customerDetail, dispatch, querySearchOrderFpage]);
-
+  }, [customer, dispatch, querySearchOrderFpage]);
 
   const deletePhone = useCallback(
     (p: any, e: any) => {
@@ -157,11 +164,12 @@ function FpageCRM() {
         </div>
       </div>
       <Divider />
+
       <div style={{ display: isButtonSelected === 1 ? "block" : "none" }}>
         {isCustomerReload && (
           <FpageCustomer
-            customerDetail={customerDetail}
-            setCustomerDetail={setCustomerDetail}
+            customer={customer}
+            setCustomer={setCustomer}
             setIsButtonSelected={setIsButtonSelected}
             customerPhoneList={customerPhoneList}
             setCustomerPhoneList={setCustomerPhoneList}
@@ -181,8 +189,8 @@ function FpageCRM() {
       <div style={{ display: isButtonSelected === 2 ? "block" : "none" }}>
         {isClearOrderField && (
           <FpageOrders
-            customerDetail={customerDetail}
-            setCustomerDetail={setCustomerDetail}
+            customer={customer}
+            setCustomer={setCustomer}
             setIsButtonSelected={setIsButtonSelected}
             setIsClearOrderField={setIsClearOrderField}
             setIsCustomerReload={setIsCustomerReload}
@@ -194,6 +202,18 @@ function FpageCRM() {
           />
         )}
       </div>
+      <Tabs
+        className="custom-fpage-tabs"
+        destroyInactiveTabPane={true}
+        defaultActiveKey="2"
+        centered
+        size="large"
+        tabPosition="top"
+        // onChange={(value) => ShipMethodOnChange(parseInt(value))}
+      >
+        <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}></TabPane>
+        <TabPane key="2" tab={<div>TẠO ĐƠN</div>}></TabPane>
+      </Tabs>
     </div>
   );
 }

@@ -58,8 +58,8 @@ import React, {
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import AddAddressModal from "screens/order-online/modal/add-address.modal";
-import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
+import AddAddressModal from "screens/fpage/fpage-order/modal/add-address.modal";
+import EditCustomerModal from "screens/fpage/fpage-order/modal/edit-customer.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CustomerShippingAddressOrder from "./customer-shipping";
@@ -70,7 +70,7 @@ import UrlConfig from "config/url.config";
 //#end region
 
 type CustomerCardProps = {
-  handleCustomer: (items: CustomerResponse | null) => void;
+  setCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
   customer: CustomerResponse | null;
@@ -102,7 +102,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 ) => {
   const {
     customer,
-    handleCustomer,
+    setCustomer,
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
@@ -126,7 +126,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
+    null
+  );
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
 
@@ -239,7 +241,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   //Delete customer
   const CustomerDeleteInfo = () => {
-    handleCustomer(null);
+    setCustomer(null);
     setVisibleBilling(false);
   };
 
@@ -253,7 +255,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
-        handleCustomer(resultSearch[index]);
+        setCustomer(resultSearch[index]);
 
         //set Shipping Address
         if (resultSearch[index].shipping_addresses) {
@@ -269,6 +271,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         if (resultSearch[index].billing_addresses) {
           resultSearch[index].billing_addresses.forEach((item, index2) => {
             if (item.default === true) {
+              setBillingAddress(item);
               props.BillingAddressChange(item);
             }
           });
@@ -324,7 +327,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
-      handleCustomer(customers);
+      setCustomer(customers);
     }
   };
 
@@ -450,7 +453,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               align="middle"
               justify="space-between"
               className="row-customer-detail"
-              style={{ margin: "10px 0"}}
+              style={{ margin: "10px 0" }}
             >
               <Col style={{ display: "flex", alignItems: "center" }}>
                 <div className="fpage-order-avatar-customer">
@@ -462,11 +465,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </div>
                 <Link
                   target="_blank"
-                  to={`${UrlConfig.CUSTOMER}/${customer.id}`}
+                  to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
                   className="primary"
                   style={{ fontSize: "16px", margin: "0 10px" }}
                 >
-                  {customer.full_name}
+                  {customer?.full_name}
                 </Link>{" "}
                 <Tag className="orders-tag orders-tag-vip">
                   <b>{!rankName ? "Default" : rankName}</b>
@@ -544,7 +547,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             <Divider style={{ padding: 0, margin: 0 }} />
 
             <div>
-              {customer.shipping_addresses !== undefined && (
+              {customer?.shipping_addresses !== undefined && (
                 <Row gutter={24} style={{ paddingTop: 10 }}>
                   <Col
                     span={12}
@@ -697,7 +700,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   </Checkbox>
                 </Row>
 
-                {customer.billing_addresses !== undefined && (
+                {customer?.billing_addresses !== undefined && (
                   <Row
                     gutter={24}
                     hidden={!isVisibleBilling}

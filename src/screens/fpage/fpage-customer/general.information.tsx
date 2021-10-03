@@ -21,7 +21,7 @@ const GeneralInformation = (props: any) => {
     notes,
     handleNote,
     deletePhone,
-    customerDetail,loyaltyPoint,loyaltyUsageRules
+    customer,loyaltyPoint,loyaltyUsageRules
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
@@ -50,7 +50,7 @@ const GeneralInformation = (props: any) => {
                 <span className="customer-field-label">Tên khách hàng:</span>
               }
               form={form}
-              customerDetail={customerDetail}
+              customer={customer}
               loyaltyPoint={loyaltyPoint}
               loyaltyUsageRules={loyaltyUsageRules}
               message="Vui lòng nhập họ tên khách hàng"
@@ -347,7 +347,7 @@ const GeneralInformation = (props: any) => {
           </Row>
         </Card>
       </Col>
-      <Col span={24} hidden={!customerDetail}>
+      <Col span={24} hidden={!customer}>
         <Card>
           <Row
             gutter={12}

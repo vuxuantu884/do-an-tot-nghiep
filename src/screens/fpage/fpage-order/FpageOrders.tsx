@@ -1,5 +1,4 @@
 import { Col, Form, FormInstance, Input, Row, Button } from "antd";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { Type } from "config/type.config";
@@ -49,13 +48,13 @@ import React, {
   createRef,
   useCallback,
   useEffect,
-  useMemo,
+  // useMemo,
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
-  formatCurrency,
+  // formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -69,20 +68,32 @@ import {
 } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
-import OrderDetailBottomBar from "./component/order-detail/BottomBar";
+// import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardPayments from "./component/order-detail/CardPayments";
 import CardProduct from "./component/order-detail/CardProduct";
 import CardShipment from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import SaveAndConfirmOrder from "./modal/save-confirm.modal";
+// import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
 let typeButton = "";
 
 export default function FpageOrders(props: any) {
+  const {
+    customer,
+    setCustomer,
+    setIsButtonSelected,
+    setIsClearOrderField,
+    setIsCustomerReload,
+    setCustomerPhone,
+    setOrderHistory,
+    getCustomerByPhone,
+    loyaltyPoint,
+    loyaltyUsageRules,
+  } = props;
+
   const dispatch = useDispatch();
   const history = useHistory();
-  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
@@ -100,11 +111,6 @@ export default function FpageOrders(props: any) {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
-
-  const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [hvc, setHvc] = useState<number | null>(null);
@@ -122,9 +128,9 @@ export default function FpageOrders(props: any) {
   );
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
-  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
-    useState<boolean>(false);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  // const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
+  //   useState<boolean>(false);
+  // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
@@ -143,9 +149,6 @@ export default function FpageOrders(props: any) {
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
-  const handleCustomer = (_objCustomer: CustomerResponse | null) => {
-    setCustomer(_objCustomer);
-  };
   const onChangeShippingAddress = (
     _objShippingAddress: ShippingAddress | null
   ) => {
@@ -403,41 +406,40 @@ export default function FpageOrders(props: any) {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
+        setIsButtonSelected(1);
       } else {
         showSuccess("Đơn được lưu nháp thành công");
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
       }
     },
     [history]
   );
 
-  const handleTypeButton = (type: string) => {
-    typeButton = type;
-  };
+  // const handleTypeButton = (type: string) => {
+  //   typeButton = type;
+  // };
 
-  //show modal save and confirm order ?
-  const onCancelSaveAndConfirm = () => {
-    setIsVisibleSaveAndConfirm(false);
-  };
+  // //show modal save and confirm order ?
+  // const onCancelSaveAndConfirm = () => {
+  //   setIsVisibleSaveAndConfirm(false);
+  // };
 
-  const onOkSaveAndConfirm = () => {
-    typeButton = OrderStatus.DRAFT;
-    formRef.current?.submit();
-    setIsVisibleSaveAndConfirm(false);
-  };
+  // const onOkSaveAndConfirm = () => {
+  //   typeButton = OrderStatus.DRAFT;
+  //   formRef.current?.submit();
+  //   setIsVisibleSaveAndConfirm(false);
+  // };
 
-  const showSaveAndConfirmModal = () => {
-    if (
-      shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ||
-      paymentMethod !== 3
-    ) {
-      setIsVisibleSaveAndConfirm(true);
-    } else {
-      typeButton = OrderStatus.DRAFT;
-      formRef.current?.submit();
-    }
-  };
+  // const showSaveAndConfirmModal = () => {
+  //   if (
+  //     shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ||
+  //     paymentMethod !== 3
+  //   ) {
+  //     setIsVisibleSaveAndConfirm(true);
+  //   } else {
+  //     typeButton = OrderStatus.DRAFT;
+  //     formRef.current?.submit();
+  //   }
+  // };
   const onFinish = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -731,28 +733,20 @@ export default function FpageOrders(props: any) {
   }, [cloneIdParam, dispatch, isCloneOrder]);
 
   useEffect(() => {
-    if (customer) {
-      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-    } else {
-      setLoyaltyPoint(null);
-    }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     dispatch(getLoyaltyRate(setLoyaltyRate));
   }, [dispatch, customer]);
 
   const checkPointfocus = useCallback(
     (value: any) => {
       let Pointfocus = payments.find((p) => p.code === "point");
-
       if (!Pointfocus) return true;
-
       let discount = 0;
       value.items.forEach(
         (p: any) => (discount = discount + p.discount_amount)
       );
 
       let rank = loyaltyUsageRules.find(
-        (x) =>
+        (x: any) =>
           x.rank_id ===
           (loyaltyPoint?.loyalty_level_id === null
             ? 0
@@ -880,7 +874,7 @@ export default function FpageOrders(props: any) {
       );
     }
   }, [dispatch, items]);
-  
+
   useEffect(() => {
     dispatch(
       configOrderSaga((data: OrderConfig) => {
@@ -901,9 +895,7 @@ export default function FpageOrders(props: any) {
   );
   return (
     <React.Fragment>
-      <ContentContainer
-        title="Tạo mới đơn hàng"
-      >
+      <ContentContainer title="Tạo mới đơn hàng">
         <div className="fpage-order">
           {isLoadForm && (
             <Form
@@ -939,10 +931,10 @@ export default function FpageOrders(props: any) {
                 <Input />
               </Form.Item>
               <Row gutter={20} style={{ marginBottom: "70px" }}>
-              <Col span={24}>
+                <Col span={24}>
                   <CardCustomer
                     customer={customer}
-                    handleCustomer={handleCustomer}
+                    setCustomer={setCustomer}
                     loyaltyPoint={loyaltyPoint}
                     loyaltyUsageRules={loyaltyUsageRules}
                     ShippingAddressChange={onChangeShippingAddress}

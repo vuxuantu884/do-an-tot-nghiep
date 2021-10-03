@@ -412,7 +412,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                 <Space>
                   <Radio value={"male"}>Nam</Radio>
                   <Radio value={"female"}>Nữ</Radio>
-                  <Radio value={"other"}>Không xác định</Radio>
+                  <Radio value={"other"}>Khác</Radio>
                 </Space>
               </Radio.Group>
             </Form.Item>

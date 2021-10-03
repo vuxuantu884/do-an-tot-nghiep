@@ -4,6 +4,15 @@
     overflow-x: hidden !important;
     overflow-y: scroll;
   }
+  .custom-fpage-tabs{
+    .ant-tabs-nav-list{
+      width: 100%;
+    }
+    .ant-tabs-tab{
+      width: 100%;
+      justify-content: center;
+    }
+  }
   .ant-tabs-nav {
     padding: 0;
   }
@@ -227,6 +236,38 @@
   }
   .order-source-selected {
     flex-direction: column !important;
+  }
+  .ant {
+    &-btn-lg {
+      padding-top: 4px;
+      padding-bottom: 4px;
+      height: 38px;
+      margin-right: 0;
+    }
+    &-radio-inner {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #2a2a86;
+      &::after {
+        background-color: #2a2a86;
+        width: 10px;
+        height: 10px;
+      }
+    }
+
+    &-radio-checked {
+      &::after {
+        border: 1px solid #2a2a86;
+      }
+    }
+  }
+  .ant-radio:hover .ant-radio-inner {
+    border: 1px solid #2a2a86;
+  }
+  .ant-radio-input:focus + .ant-radio-inner,
+  .ant-radio-wrapper:hover .ant-radio,
+  .ant-radio:hover .ant-radio-inner {
+    border-color: #2a2a86;
   }
 }
 
