@@ -4,6 +4,7 @@ import { globalCssSwitch } from "./switch";
 
 /**
  * https://styled-components.com/docs/api#createglobalstyle
+ * https://styled-components.com/docs/faqs
  */
 export const GlobalStyle = createGlobalStyle`
   ${reset}
