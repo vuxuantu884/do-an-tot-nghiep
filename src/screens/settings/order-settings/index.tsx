@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
+import CardGeneralSettings from "./components/CardGeneralSettings";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
@@ -255,6 +256,7 @@ function OrderSettings(props: PropType) {
             />
           )}
         </Card>
+        <CardGeneralSettings />
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
           extra={renderCardExtra()}
