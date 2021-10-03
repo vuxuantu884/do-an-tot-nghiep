@@ -227,6 +227,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   return (
     <Fragment>
       <Modal
+        getContainer={false}
         width={500}
         centered
         visible={visibleDelete}

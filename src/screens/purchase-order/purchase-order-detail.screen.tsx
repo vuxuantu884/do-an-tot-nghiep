@@ -25,7 +25,6 @@ import { useParams, useHistory } from "react-router-dom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { POGetPrintContentAction } from "domain/actions/po/po.action";
 import {
-  PoFormName,
   POStatus,
   ProcumentStatus,
   VietNamId,
@@ -512,7 +511,6 @@ const PODetailScreen: React.FC = () => {
         </Space>
       </div>
       <Form
-        name={PoFormName.Main}
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
           setStatusAction("");

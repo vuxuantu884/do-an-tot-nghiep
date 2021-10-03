@@ -40,10 +40,12 @@ import { DiscountType, POField } from "model/purchase-order/po-field";
 // import { CostLine } from "model/purchase-order/cost-line.model";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { AppConfig } from "config/app.config";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
 };
+var position = 0
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain, isEdit } = props;
@@ -96,12 +98,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
         let variants: Array<VariantResponse> = [data[index]];
         let new_items: Array<PurchaseOrderLineItem> = [
-          ...POUtils.convertVariantToLineitem(variants),
+          ...POUtils.convertVariantToLineitem(variants, position),
         ];
+        position = position + new_items.length;
         let new_line_items = POUtils.addProduct(
           old_line_items,
           new_items,
-          splitLine
+          splitLine,
         );
         let untaxed_amount = POUtils.totalAmount(new_line_items);
         let tax_lines = POUtils.getVatList(
@@ -131,13 +134,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           total_cost_line,
           tax_lines
         );
+        let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
+        let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(currentProcument, new_line_items);
         formMain.setFieldsValue({
           line_items: new_line_items,
           untaxed_amount: untaxed_amount,
           tax_lines: tax_lines,
           trade_discount_amount: trade_discount_amount,
           payment_discount_amount: payment_discount_amount,
-          total: total,
+          [POField.total]: total,
+          [POField.procurements]: newProcument,
         });
       }
       setData([]);
@@ -360,8 +366,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       );
       let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
       let new_items: Array<PurchaseOrderLineItem> = [
-        ...POUtils.convertVariantToLineitem(items),
+        ...POUtils.convertVariantToLineitem(items, position),
       ];
+      position = position + new_items.length;
       let new_line_items = POUtils.addProduct(
         old_line_items,
         new_items,
@@ -580,7 +587,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 onSelect={onSelectProduct}
                 options={renderResult}
                 ref={productSearchRef}
-                isAddProduct
               />
               <Button
                 onClick={() => setVisibleManyProduct(true)}

@@ -22,7 +22,7 @@ export interface PurchaseOrderLineItem {
   discount_rate: number | null;
   discount_value: number | null;
   discount_amount: number;
-  position: number | null;
+  position: number;
   purchase_order_id: number | null;
   temp_id: string;
   showNote: boolean;
