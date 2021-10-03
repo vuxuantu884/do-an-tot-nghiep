@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useEffect, useMemo, createRef } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -11,7 +10,7 @@ import { AppConfig } from "config/app.config";
 
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
-import { showError, showSuccess,} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   findAvatar,
   findPrice,
@@ -79,6 +78,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
+  const [selectedRow, setSelected] = useState<Array<any>>([]);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -163,10 +163,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   };
 
 
-  const renderProductColumn = (item: any, connectItemList: Array<any>, setConnectItemList: Function) => {
+  const RenderProductColumn = (item: any, connectItemList: Array<any>, setConnectItemList: Function) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
-    const [keySearchVariant, setKeySearchVariant] = React.useState("");
+    const [keySearchVariant, setKeySearchVariant] = useState("");
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
     
@@ -466,7 +466,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Sản phẩm (Yody)",
       visible: true,
-      render: (l: any, v: any, i: any) => renderProductColumn(l, connectItemList, setConnectItemList)
+      render: (l: any, v: any, i: any) => RenderProductColumn(l, connectItemList, setConnectItemList)
     },
     {
       title: "Ghép nối",
@@ -580,22 +580,51 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setVisibleFilter(false);
   }, []);
 
+
+  //Save connected Yody product
+  const disableSaveConnectedYodyProduct = () => {
+    return connectItemList.length === 0;
+  }
+
   const saveConnectedYodyProduct = () => {
-    const request = {
-      variants: connectItemList
-    }
-    dispatch(
-      putConnectEcommerceItem(request, (result) => {
-        if (result) {
-          setConnectItemList([]);
-          showSuccess("Ghép nối sản phẩm thành công");
-          reloadPage();
-          history.replace(`${history.location.pathname}#connected-item`)
-        } else {
-          showError("Ghép nối sản phẩm thất bại");
+    const yodyProductConnectCheck: any[] = [];
+    let isSaveAble = true;
+    if (selectedRow.length === 0) {
+      showError("Vui lòng chọn ít nhất 1 sản phẩm để ghép nối");
+      isSaveAble = false;
+    } else {
+      connectItemList.forEach((item) => {
+        const itemMatch = selectedRow.find(rowData => rowData.id === item.id)
+        if (itemMatch) {
+          yodyProductConnectCheck.push(item);
         }
-      })
-    );
+      });
+    }
+
+    if (isSaveAble && yodyProductConnectCheck.length === 0) {
+      showError("Vui lòng chọn sản phẩm (Yody) để ghép nối");
+      isSaveAble = false;
+    }
+
+    
+    if (isSaveAble) {
+      const request = {
+        variants: yodyProductConnectCheck
+      }
+      dispatch(
+        putConnectEcommerceItem(request, (result) => {
+          if (result) {
+            setConnectItemList([]);
+            showSuccess("Ghép nối sản phẩm thành công");
+            reloadPage();
+            history.replace(`${history.location.pathname}#connected-item`)
+          } else {
+            showError("Ghép nối sản phẩm thất bại");
+          }
+        })
+      );
+    }
+
   }
 
   //select shop  
@@ -658,6 +687,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setEcommerceShopList(copyEcommerceShopList);
     setShopIdSelected([]);
   }
+  
+  //select row table
+  const onSelectTable = React.useCallback(
+    (selectedRow: Array<any>) => {
+      setSelected(selectedRow);
+    },
+    []
+  );
 
 
   return (
@@ -724,6 +761,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
         <CustomTable
           isRowSelection
+          onSelectedChange={onSelectTable}
           columns={columns}
           dataSource={variantNotConnectedItem}
           pagination={{
@@ -741,7 +779,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           className="save-pairing-button"
           type="primary"
           onClick={saveConnectedYodyProduct}
-          disabled={connectItemList.length === 0}
+          disabled={disableSaveConnectedYodyProduct()}
           size="large"
           icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
         >
