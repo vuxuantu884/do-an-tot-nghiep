@@ -150,7 +150,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 100, textAlign: "right" }}
+            style={{ width: "100px", textAlign: "right" }}
           />
         </div>
       ),
@@ -163,7 +163,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       title: "",
       render: (a: any, b: any, index: number) => {
         return (
-          <div style={{ textAlign: "center" }}>
+          <div style={{ textAlign: "right" }}>
             <Button
               type="text"
               onClick={() => deleteItem(index)}
@@ -282,7 +282,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   return (
     <Modal
       title="Chọn quà tặng"
-      width={600}
+      width={700}
       onCancel={onCancel}
       onOk={onOkPress}
       visible={visible}

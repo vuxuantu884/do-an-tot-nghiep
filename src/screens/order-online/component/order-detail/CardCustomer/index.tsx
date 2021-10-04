@@ -833,7 +833,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         />
                         <span>Email gửi hóa đơn:</span>
                       </div>
-                      <Form.Item name="Email_note">
+                      <Form.Item name="email_note">
                         <Input
                           placeholder="Điền email"
                           maxLength={500}

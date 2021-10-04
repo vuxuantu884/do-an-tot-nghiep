@@ -41,6 +41,8 @@ import { DiscountType, POField } from "model/purchase-order/po-field";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { AppConfig } from "config/app.config";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { Link } from "react-router-dom";
+import UrlConfig from "config/url.config";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
@@ -267,6 +269,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        data
+      );
+      console.log('newProcument', newProcument);
       formMain.setFieldsValue({
         line_items: [...data],
         total: total,
@@ -274,6 +284,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
         untaxed_amount: untaxed_amount,
+        [POField.procurements]: newProcument
       });
     },
     [formMain]
@@ -355,6 +366,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
+      console.log(items);
       setVisibleManyProduct(false);
       let old_line_items = formMain.getFieldValue(POField.line_items);
       let trade_discount_rate = formMain.getFieldValue(
@@ -669,18 +681,27 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         value: string,
                         item: PurchaseOrderLineItem,
                         index: number
-                      ) => (
-                        <div>
+                      ) => {
+                        return (
                           <div>
-                            <div className="product-item-sku">{item.sku}</div>
-                            <div className="product-item-name">
-                              <span className="product-item-name-detail">
-                                {value}
-                              </span>
+                            <div>
+                              <div className="product-item-sku">
+                                <Link
+                                  target="_blank"
+                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                >
+                                  {item.sku}
+                                </Link>
+                              </div>
+                              <div className="product-item-name">
+                                <span className="product-item-name-detail">
+                                  {value}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ),
+                        );
+                      },
                     },
                     {
                       title: "Đơn vị",
@@ -890,57 +911,66 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         value: string,
                         item: PurchaseOrderLineItem,
                         index: number
-                      ) => (
-                        <div>
+                      ) => {
+                        return (
                           <div>
-                            <div className="product-item-sku">{item.sku}</div>
-                            <div className="product-item-name">
-                              <span className="product-item-name-detail">
-                                {value}
-                              </span>
-                              {!item.showNote && (
-                                <Button
-                                  onClick={() => {
+                            <div>
+                              <div className="product-item-sku">
+                                <Link
+                                  target="_blank"
+                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                >
+                                  {item.sku}
+                                </Link>
+                              </div>
+                              <div className="product-item-name">
+                                <span className="product-item-name-detail">
+                                  {value}
+                                </span>
+                                {!item.showNote && (
+                                  <Button
+                                    onClick={() => {
+                                      onToggleNote(
+                                        `note_${item.temp_id}`,
+                                        true,
+                                        index
+                                      );
+                                    }}
+                                    className={classNames(
+                                      "product-item-name-note",
+                                      item.note === "" && "product-item-note"
+                                    )}
+                                    type="link"
+                                  >
+                                    <i> Thêm ghi chú</i>
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                            {item.showNote && (
+                              <Input
+                                id={`note_${item.temp_id}`}
+                                onBlur={(e) => {
+                                  if (e.target.value === "") {
                                     onToggleNote(
                                       `note_${item.temp_id}`,
-                                      true,
+                                      false,
                                       index
                                     );
-                                  }}
-                                  className={classNames(
-                                    "product-item-name-note",
-                                    item.note === "" && "product-item-note"
-                                  )}
-                                  type="link"
-                                >
-                                  <i> Thêm ghi chú</i>
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          {item.showNote && (
-                            <Input
-                              id={`note_${item.temp_id}`}
-                              onBlur={(e) => {
-                                if (e.target.value === "") {
-                                  onToggleNote(
-                                    `note_${item.temp_id}`,
-                                    false,
-                                    index
-                                  );
+                                  }
+                                }}
+                                addonBefore={<EditOutlined />}
+                                placeholder="Nhập ghi chú"
+                                value={item.note}
+                                className="product-item-note-input"
+                                onChange={(e) =>
+                                  onNoteChange(e.target.value, index)
                                 }
-                              }}
-                              addonBefore={<EditOutlined />}
-                              placeholder="Nhập ghi chú"
-                              value={item.note}
-                              className="product-item-note-input"
-                              onChange={(e) =>
-                                onNoteChange(e.target.value, index)
-                              }
-                            />
-                          )}
-                        </div>
-                      ),
+                              />
+                            )}
+                          </div>
+                        );
+                      },
                     },
                     // {
                     //   align: "center",

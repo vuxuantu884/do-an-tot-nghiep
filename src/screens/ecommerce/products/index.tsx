@@ -77,7 +77,7 @@ const Products: React.FC = () => {
     page: 1,
     limit: 30,
     ecommerce_id: null,
-    shop_id: [],
+    shop_ids: [],
     category_id: null,
     connect_status: null,
     update_stock_status: null,

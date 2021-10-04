@@ -31,8 +31,8 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
           <span className="product-item-sku">{data.sku}</span>
         </div>
         <div className="product-item-info-right">
-          <span className="product-item-price">{price_data !== null ?  formatCurrency(price_data.import_price) : 0} <span className="currency">₫</span></span>
-          <span className="product-item-inventory">Số lượng: <span className="value">{data.inventory}</span></span>
+          <span className="product-item-price">{price_data && price_data.import_price ?  formatCurrency(price_data.import_price) : 0} <span className="currency">₫</span></span>
+          <span className="product-item-inventory">Số lượng: <span className="value">{data.on_hand ? data.on_hand : 0}</span></span>
         </div>
       </div>
     </div>

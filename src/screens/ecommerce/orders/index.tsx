@@ -24,10 +24,7 @@ import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
-import importIcon from "assets/icon/import.svg";
-import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
-import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";

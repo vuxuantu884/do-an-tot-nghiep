@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Select, Input, Modal, Tooltip, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -53,6 +53,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
 
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
@@ -61,7 +62,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       page: 1,
       limit: 30,
       ecommerce_id: null,
-      shop_id: [],
+      shop_ids: [],
       category_id: null,
       connect_status: null,
       update_stock_status: null,
@@ -75,7 +76,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     page: 1,
     limit: 30,
     ecommerce_id: null,
-    shop_id: [],
+    shop_ids: [],
     category_id: null,
     connect_status: null,
     update_stock_status: null,
@@ -99,10 +100,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   }, []);
   
-
-  useEffect(() => {
-    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
-  }, [dispatch, updateEcommerceShopList]);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -238,7 +235,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.stock || "-"}</span>
+          <span>{l.stock}</span>
         );
       },
     },
@@ -263,7 +260,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
         return (
           <div>
             <span>Đồng bộ tồn</span>
-            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
+            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click" color="blue">
               <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
             </Tooltip>
           </div>
@@ -286,7 +283,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               </Tooltip>
             }
 
-            {(l.sync_stock_status === "in_progress" || l.stock === null) &&
+            {(l.sync_stock_status === "in_progress") &&
               <span style={{color: '#FFA500'}}>Đang xử lý</span>
             }
           </div>
@@ -299,10 +296,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
-      value.shop_id = shopIdSelected;
+      value.shop_ids = shopIdSelected;
 
       query.ecommerce_id = value.ecommerce_id;
-      query.shop_id = value.shop_id;
+      query.shop_ids = value.shop_ids;
       query.category_id = value.category_id;
       query.connect_status = value.connect_status;
       query.update_stock_status = value.update_stock_status;
@@ -324,11 +321,13 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   );
 
   const getShopEcommerce = (ecommerceId: any) => {
+    setIsEcommerceSelected(true);
     setShopIdSelected([]);
     dispatch(getShopEcommerceList({ecommerce_id: ecommerceId}, updateEcommerceShopList));
   }
 
   const removeEcommerce = () => {
+    setIsEcommerceSelected(false);
     setShopIdSelected([]);
     dispatch(getShopEcommerceList({}, updateEcommerceShopList));
   }
@@ -480,15 +479,30 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               </Select>
             </Form.Item>
 
-            <Form.Item name="shop_id" className="select-store-dropdown">
-              <Select
-                showSearch
-                disabled={tableLoading}
-                placeholder={getPlaceholderSelectShop()}
-                allowClear={shopIdSelected && shopIdSelected.length > 0}
-                dropdownRender={() => renderShopList(false)}
-                onClear={removeSelectedShop}
-              />
+            <Form.Item name="shop_ids" className="select-store-dropdown">
+              {isEcommerceSelected &&
+                <Select
+                  showSearch
+                  disabled={tableLoading || !isEcommerceSelected}
+                  placeholder={getPlaceholderSelectShop()}
+                  allowClear={shopIdSelected && shopIdSelected.length > 0}
+                  dropdownRender={() => renderShopList(false)}
+                  onClear={removeSelectedShop}
+                />
+              }
+
+              {!isEcommerceSelected &&
+                <Tooltip  title="Yêu cầu chọn sàn" color={"blue"}>
+                  <Select
+                    showSearch
+                    disabled={true}
+                    placeholder={getPlaceholderSelectShop()}
+                    allowClear={shopIdSelected && shopIdSelected.length > 0}
+                    dropdownRender={() => renderShopList(false)}
+                    onClear={removeSelectedShop}
+                  />
+                </Tooltip>
+              }
             </Form.Item>
 
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
@@ -589,17 +603,33 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
             </Form.Item>
 
             <Form.Item
-              name="shop_id"
+              name="shop_ids"
               className="select-store-dropdown"
               label={<b>CHỌN GIAN HÀNG</b>}
             >
-              <Select
-                showSearch
-                placeholder={getPlaceholderSelectShop()}
-                allowClear={shopIdSelected && shopIdSelected.length > 0}
-                dropdownRender={() => renderShopList(true)}
-                onClear={removeSelectedShop}
-              />
+              {isEcommerceSelected &&
+                <Select
+                  showSearch
+                  disabled={tableLoading || !isEcommerceSelected}
+                  placeholder={getPlaceholderSelectShop()}
+                  allowClear={shopIdSelected && shopIdSelected.length > 0}
+                  dropdownRender={() => renderShopList(true)}
+                  onClear={removeSelectedShop}
+                />
+              }
+
+              {!isEcommerceSelected &&
+                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                  <Select
+                    showSearch
+                    disabled={true}
+                    placeholder={getPlaceholderSelectShop()}
+                    allowClear={shopIdSelected && shopIdSelected.length > 0}
+                    dropdownRender={() => renderShopList(true)}
+                    onClear={removeSelectedShop}
+                  />
+                </Tooltip>
+              }
             </Form.Item>
 
             <Form.Item

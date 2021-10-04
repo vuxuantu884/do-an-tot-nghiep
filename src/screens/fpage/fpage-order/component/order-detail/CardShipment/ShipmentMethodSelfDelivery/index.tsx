@@ -14,6 +14,7 @@ type PropType = {
   shippingFeeCustomer: number | null;
   discountValue: number | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
+  totalAmountReturnProducts?: number;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
@@ -22,15 +23,26 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     paymentMethod,
     shippingFeeCustomer,
     discountValue,
+    totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
   } = props;
+
+  const totalAmountCustomerNeedToPayShipper = () => {
+    return (
+      amount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+    );
+  };
+
   return (
     <StyledComponent>
       <div>
         <Row gutter={20}>
-          <Col span={24}>
+        <Col span={24}>
             <Form.Item
-              label="Đối tác giao hàng"
+              label="Đối tác GH:"
               name="shipper_code"
               rules={[
                 {
@@ -69,15 +81,15 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
 
             {paymentMethod === PaymentMethodOption.COD && (
-              <Form.Item label="Tiền thu hộ">
+              <Form.Item label="Tiền thu hộ:">
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="0"
                   value={
-                    amount +
-                    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                    (discountValue ? discountValue : 0)
+                    totalAmountCustomerNeedToPayShipper() > 0
+                      ? totalAmountCustomerNeedToPayShipper()
+                      : 0
                   }
                   style={{
                     textAlign: "right",
@@ -93,7 +105,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
           <Col span={24}>
             <Form.Item
               name="shipping_fee_paid_to_three_pls"
-              label="Phí ship trả đối tác giao hàng"
+              label="Phí ship trả đối tác:"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
@@ -110,7 +122,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
             <Form.Item
               name="shipping_fee_informed_to_customer"
-              label="Phí ship báo khách"
+              label="Phí ship báo khách:"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}

@@ -1,18 +1,57 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //#region Import
+import { CloseOutlined, SearchOutlined } from "@ant-design/icons";
 import {
+  AutoComplete,
   Button,
   Card,
-  Divider,
   Checkbox,
-  Input,
-  Row,
   Col,
-  AutoComplete,
-  Popover,
+  Divider,
   Form,
+  Input,
+  Popover,
+  Row,
   Tag,
+  Typography,
 } from "antd";
+import { RefSelectProps } from "antd/lib/select";
+import imageDefault from "assets/icon/img-default.svg";
+import birthdayIcon from "assets/img/bithday.svg";
+import callIcon from "assets/img/call.svg";
+import editBlueIcon from "assets/img/edit_icon.svg";
+import noteCustomer from "assets/img/note-customer.svg";
+import pointIcon from "assets/img/point.svg";
+import logoMobile from "assets/icon/logoMobile.svg";
+import addressIcon from "assets/img/user-pin.svg";
+import CustomSelect from "component/custom/select.custom";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import {
+  CustomerGroups,
+  CustomerSearch,
+  UpdateShippingAddress,
+  UpdateBillingAddress,
+  CreateShippingAddress,
+  CreateBillingAddress,
+} from "domain/actions/customer/customer.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { WardResponse } from "model/content/ward.model";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import {
+  CustomerShippingAddress,
+  CustomerBillingAddress,
+} from "model/request/customer.request";
+import {
+  BillingAddress,
+  CustomerResponse,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
+import { SourceResponse } from "model/response/order/source.response";
+import moment from "moment";
 import React, {
   createRef,
   useCallback,
@@ -20,71 +59,37 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import addIcon from "assets/img/plus_1.svg";
-import callIcon from "assets/img/call.svg";
-import imgDefault from "assets/icon/img-default.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import addressIcon from "assets/img/user-pin.svg";
-import noteCustomer from "assets/img/note-customer.svg";
-import logoMobile from "assets/icon/logoMobile.svg";
-import { SearchOutlined } from "@ant-design/icons";
-import CustomSelect from "component/custom/select.custom";
-import { Link } from "react-router-dom";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import AddAddressModal from "../modal/add-address.modal";
-import EditCustomerModal from "../modal/edit-customer.modal";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { RefSelectProps } from "antd/lib/select";
-import { CloseOutlined } from "@ant-design/icons";
-import { showSuccess, showError } from "utils/ToastUtils";
+import { Link } from "react-router-dom";
+import AddAddressModal from "screens/fpage/fpage-order/modal/add-address.modal";
+import EditCustomerModal from "screens/fpage/fpage-order/modal/edit-customer.modal";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import UrlConfig from "config/url.config";
 import CustomerModal from "screens/customer/customer-modal";
 import FormCustomerShippingAddress from "screens/customer/customer-detail/customer-shipping/shipping.form.modal";
 import FormCustomerBillingAddress from "screens/customer/customer-detail/customer-billing/billing.form.modal";
-import {
-  BillingAddress,
-  CustomerResponse,
-  ShippingAddress,
-  shippingAddress,
-  billingAddress,
-} from "model/response/customer/customer.response";
-import {
-  CustomerSearch,
-  CreateShippingAddress,
-  UpdateShippingAddress,
-  CreateBillingAddress,
-  UpdateBillingAddress,
-} from "domain/actions/customer/customer.action";
-import { RegUtil } from "utils/RegUtils";
-import { SourceResponse } from "model/response/order/source.response";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import {
-  CustomerShippingAddress,
-  CustomerBillingAddress,
-} from "model/request/customer.request";
-import UrlConfig from "config/url.config";
+
 //#end region
 
 type CustomerCardProps = {
-  setCustomerDetail: (items: CustomerResponse | null) => void;
-  InfoCustomerSet: (items: CustomerResponse | null) => void;
+  setCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
-  customerDetail: CustomerResponse | null;
-  setIsButtonSelected: (items: number) => void;
-  setCustomerPhone: (items: string | null) => void;
-  setOrderHistory: (items: any) => void;
-  getCustomerByPhone: (items: any) => void;
-  setModalAction: (items: any) => void;
-  setIsCustomerReload: (items: boolean) => void;
-  modalAction: any;
-  loyaltyPoint: any;
-  loyaltyUsageRules: any;
+  handleCustomerById: (value: number | null) => void;
+  customer: CustomerResponse | null;
+  loyaltyPoint: LoyaltyPoint | null;
+  loyaltyUsageRules: Array<LoyaltyUsageResponse>;
+  levelOrder?: number;
+  updateOrder?: boolean;
 };
 
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
-  limit: 10,
+  limit: 5,
   page: 1,
   gender: null,
   from_birthday: null,
@@ -102,45 +107,41 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
   const {
-    customerDetail,
-    setCustomerDetail,
-    setIsButtonSelected,
-    setCustomerPhone,
-    setIsCustomerReload,
-    setOrderHistory,
-    setModalAction,
-    modalAction,
-    getCustomerByPhone,
+    customer,
+    setCustomer,
     loyaltyPoint,
     loyaltyUsageRules,
+    levelOrder = 0,
+    handleCustomerById,
   } = props;
   //State
+
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleShippingAddressPopover, setVisibleShippingAddressPopover] =
-    useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
-  const [isVisibleBillingAddressPopover, setVisibleBillingAddressPopover] =
-    useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
-  const [isShowModalBilling, setIsShowModalBilling] = React.useState(false);
-  const [modalSingleShippingAddress, setModalShippingAddress] =
-    React.useState<CustomerShippingAddress>();
-  const [modalSingleBillingAddress, setModalBillingAddress] =
-    React.useState<CustomerBillingAddress>();
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+
+  const [countryId] = React.useState<number>(233);
+  const [areas, setAreas] = React.useState<Array<any>>([]);
+  const [districtId, setDistrictId] = React.useState<any>(null);
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
+  const [groups, setGroups] = React.useState<Array<any>>([]);
+
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
     null
   );
+  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
   //#region Modal
-
+  const ShowBillingAddress = (e: any) => {
+    setVisibleBilling(e.target.checked);
+  };
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
@@ -149,17 +150,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleAddress(false);
   }, []);
 
+  const OkConfirmCustomerCreate = () => {
+    setModalAction("create");
+    setVisibleCustomer(true);
+  };
+  const OkConfirmCustomerEdit = () => {
+    setModalAction("edit");
+    setVisibleCustomer(true);
+  };
   const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
-  const OkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
-
-  const ShowBillingAddress = (e: any) => {
-    setVisibleBilling(e.target.checked);
-  };
   //#end region
 
   //#region Search and Render result
@@ -167,54 +169,21 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerChangeSearch = useCallback(
     (value) => {
       setKeySearchCustomer(value);
-      initQueryCustomer.request = value;
+      initQueryCustomer.request = value.trim();
       dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
     },
     [dispatch, initQueryCustomer]
   );
 
-  const fpageAutoFillCustomerInfor = () => {
-    if (customerDetail) {
-      setCustomer(customerDetail);
-      props.InfoCustomerSet(customerDetail);
-      //set Shipping Address
-      if (customerDetail.shipping_addresses) {
-        const lastIndex = customerDetail.shipping_addresses.length - 1;
-        setShippingAddress(customerDetail.shipping_addresses[lastIndex]);
-        customerDetail.shipping_addresses.forEach((item, index2) => {
-          if (item.default === true) {
-            props.ShippingAddressChange(item);
-          }
-        });
-      }
-
-      //set Billing Address
-      if (customerDetail.billing_addresses) {
-        const lastIndex = customerDetail.billing_addresses.length - 1;
-        setBillingAddress(customerDetail.billing_addresses[lastIndex]);
-        customerDetail.billing_addresses.forEach((item, index2) => {
-          if (item.default === true) {
-            props.BillingAddressChange(item);
-          }
-        });
-      }
-      autoCompleteRef.current?.blur();
-      setKeySearchCustomer("");
-    }
-  };
   //Render result search
-  useEffect(() => {
-    fpageAutoFillCustomerInfor();
-  }, [fpageAutoFillCustomerInfor]);
-
   const CustomerRenderSearchResult = (item: CustomerResponse) => {
     return (
       <div className="row-search w-100">
         <div className="rs-left w-100" style={{ lineHeight: "35px" }}>
           <img
-            src={imgDefault}
+            src={imageDefault}
             alt="anh"
-            placeholder={imgDefault}
+            placeholder={imageDefault}
             className="logo-customer"
           />
           <div className="rs-info w-100">
@@ -250,10 +219,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Delete customer
   const CustomerDeleteInfo = () => {
     setCustomer(null);
-    props.InfoCustomerSet(null);
-    setCustomerDetail(null);
-    setCustomerPhone(null);
-    setOrderHistory(null);
     setVisibleBilling(false);
   };
 
@@ -268,9 +233,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
-        setCustomerDetail(resultSearch[index]);
-        props.InfoCustomerSet(resultSearch[index]);
-        setCustomerPhone(resultSearch[index]?.phone);
+
         //set Shipping Address
         if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
@@ -292,28 +255,115 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         }
         autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
+        setDistrictId(resultSearch[index].district_id);
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
   const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
+    return listSource.filter((item) => item.code !== "POS");
   }, [listSource]);
 
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
-  const handleCreateCustomer = () => {
-    setIsButtonSelected(1);
-    setIsCustomerReload(true);
+
+  useEffect(() => {
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
+  }, [dispatch, countryId]);
+
+  useEffect(() => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, setWards));
+    }
+  }, [dispatch, districtId]);
+
+  useEffect(() => {
+    dispatch(CustomerGroups(setGroups));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (customer && customer.shipping_addresses[0]) {
+      const addressDefault = customer.shipping_addresses.find(
+        (item) => item.default
+      );
+      setShippingAddress(
+        addressDefault ? addressDefault : customer.shipping_addresses[0]
+      );
+    }
+  }, [customer]);
+
+  const handleChangeArea = (districtId: string) => {
+    if (districtId) {
+      setDistrictId(districtId);
+    }
   };
 
+  const handleChangeCustomer = (customers: any) => {
+    if (customers) {
+      setCustomer(customers);
+    }
+  };
+
+  const rankName = loyaltyUsageRules.find(
+    (x) =>
+      x.rank_id ===
+      (loyaltyPoint?.loyalty_level_id === null
+        ? 0
+        : loyaltyPoint?.loyalty_level_id)
+  )?.rank_name;
+
+  const [modalSingleShippingAddress, setModalShippingAddress] =
+    React.useState<CustomerShippingAddress>();
+  const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
+  const [isVisibleShippingAddressPopover, setVisibleShippingAddressPopover] =
+    useState(false);
+
+  const createShippingAddress = () => {
+    setModalAction("create");
+    setIsShowModalShipping(true);
+    setVisibleShippingAddressPopover(false);
+  };
+  const editShippingAddress = (address: any) => {
+    setModalAction("edit");
+    setModalShippingAddress(address);
+    setIsShowModalShipping(true);
+    setVisibleShippingAddressPopover(false);
+  };
   const reloadPage = () => {
-    getCustomerByPhone(customerDetail && customerDetail.phone);
+    handleCustomerById(customer && customer.id);
+  };
+  const handleTempAddress = (value: any) => {
+    setShippingAddress(value);
+    setVisibleShippingAddressPopover(false);
+  };
+  const handleShippingAddressDefault = (value: any, item: any) => {
+    value.stopPropagation();
+    let _item = { ...item };
+    if (_item.default === true) return showError("Không thể bỏ mặc định");
+    _item.is_default = value.target.checked;
+    if (customer) {
+      dispatch(
+        UpdateShippingAddress(
+          _item.id,
+          customer.id,
+          _item,
+          (data: ShippingAddress) => {
+            setVisibleShippingAddressPopover(false);
+            setShippingAddress(data);
+            reloadPage();
+            if (data) {
+              showSuccess("Đặt mặc định thành công");
+            } else {
+              showError("Đặt mặc định thất bại");
+            }
+          }
+        )
+      );
+    }
   };
 
-  // handle shipping address
   const handleShippingAddressForm = {
     create: (formValue: CustomerShippingAddress) => {
       formValue.is_default = false;
@@ -322,8 +372,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           CreateShippingAddress(
             customer.id,
             formValue,
-            (data: shippingAddress) => {
+            (data: ShippingAddress) => {
               setIsShowModalShipping(false);
+              setShippingAddress(data);
               reloadPage();
               data
                 ? showSuccess("Thêm mới địa chỉ thành công")
@@ -341,8 +392,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               modalSingleShippingAddress.id,
               customer.id,
               formValue,
-              (data: shippingAddress) => {
+              (data: ShippingAddress) => {
                 setIsShowModalShipping(false);
+                setShippingAddress(data);
                 reloadPage();
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
@@ -354,18 +406,41 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     },
   };
 
-  const handleShippingAddressDefault = (value: any, item: any) => {
+  const [modalSingleBillingAddress, setModalBillingAddress] =
+    React.useState<CustomerShippingAddress>();
+  const [isShowModalBilling, setIsShowModalBilling] = React.useState(false);
+  const [isVisibleBillingAddressPopover, setVisibleBillingAddressPopover] =
+    useState(false);
+
+  const createBillingAddress = () => {
+    setModalAction("create");
+    setIsShowModalBilling(true);
+    setVisibleBillingAddressPopover(false);
+  };
+  const editBillingAddress = (address: any) => {
+    setModalAction("edit");
+    setModalBillingAddress(address);
+    setIsShowModalBilling(true);
+    setVisibleBillingAddressPopover(false);
+  };
+  const handleTempBillingAddress = (value: any) => {
+    setBillingAddress(value);
+    setVisibleBillingAddressPopover(false);
+  };
+  const handleBillingAddressDefault = (value: any, item: any) => {
+    value.stopPropagation();
     let _item = { ...item };
     if (_item.default === true) return showError("Không thể bỏ mặc định");
     _item.is_default = value.target.checked;
     if (customer) {
       dispatch(
-        UpdateShippingAddress(
+        UpdateBillingAddress(
           _item.id,
           customer.id,
           _item,
-          (data: shippingAddress) => {
-            closeShippingAddressPopover();
+          (data: BillingAddress) => {
+            setVisibleBillingAddressPopover(false);
+            setBillingAddress(data);
             reloadPage();
             if (data) {
               showSuccess("Đặt mặc định thành công");
@@ -378,33 +453,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const handleShippingAddressVisible = (visible: any) => {
-    setVisibleShippingAddressPopover(visible);
-  };
-
-  const createShippingAddress = () => {
-    setModalAction("create");
-    setIsShowModalShipping(true);
-    closeShippingAddressPopover();
-  };
-
-  const editShippingAddress = (address: any) => {
-    setModalAction("edit");
-    setModalShippingAddress(address);
-    setIsShowModalShipping(true);
-    closeShippingAddressPopover();
-  };
-
-  const openShippingAddressPopover = () => {
-    setVisibleShippingAddressPopover(true);
-  };
-
-  const closeShippingAddressPopover = () => {
-    setVisibleShippingAddressPopover(false);
-  };
-  // end shipping address
-
-  //handle billing address
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
       formValue.is_default = false;
@@ -413,8 +461,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           CreateBillingAddress(
             customer.id,
             formValue,
-            (data: billingAddress) => {
+            (data: BillingAddress) => {
               setIsShowModalBilling(false);
+              setBillingAddress(data);
               reloadPage();
               data
                 ? showSuccess("Thêm mới địa chỉ thành công")
@@ -432,8 +481,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               modalSingleBillingAddress.id,
               customer.id,
               formValue,
-              (data: billingAddress) => {
+              (data: BillingAddress) => {
                 setIsShowModalBilling(false);
+                setBillingAddress(data);
                 reloadPage();
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
@@ -444,60 +494,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     },
   };
-
-  const handleBillingAddressDefault = (value: any, item: any) => {
-    let _item = { ...item };
-    if (_item.default === true) return showError("Không thể bỏ mặc định");
-    _item.is_default = value.target.checked;
-    if (customer) {
-      dispatch(
-        UpdateBillingAddress(
-          _item.id,
-          customer.id,
-          _item,
-          (data: billingAddress) => {
-            closeBillingAddressPopover();
-            reloadPage();
-            if (data) {
-              data.default
-                ? showSuccess("Đặt mặc định thành công")
-                : showSuccess("Bỏ mặc định thành công");
-            } else {
-              showError("Đặt mặc định thất bại");
-            }
-          }
-        )
-      );
-    }
-  };
-
-  const handleBillingAddressVisible = (visible: any) => {
-    setVisibleBillingAddressPopover(visible);
-  };
-
-  const openBillingAddressPopover = () => {
-    setVisibleBillingAddressPopover(true);
-  };
-
-  const closeBillingAddressPopover = () => {
-    setVisibleBillingAddressPopover(false);
-  };
-
-  const createBillingAddress = () => {
-    setModalAction("create");
-    setIsShowModalBilling(true);
-    closeBillingAddressPopover();
-  };
-
-  const editBillingAddress = (address: any) => {
-    setModalAction("edit");
-    setModalBillingAddress(address);
-    setIsShowModalBilling(true);
-    closeBillingAddressPopover();
-  };
-  // end billing address
   return (
     <Card
+      className="padding-12"
       extra={
         <div>
           <Form.Item
@@ -543,59 +542,41 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     >
       {customer === null && (
-        <div style={{ padding: "12px 24px" }}>
-          <div>
-            <AutoComplete
-              notFoundContent={
-                keySearchCustomer.length >= 3
-                  ? "Không tìm thấy khách hàng"
-                  : undefined
-              }
-              id="search_customer"
-              value={keySearchCustomer}
-              ref={autoCompleteRef}
-              onSelect={SearchCustomerSelect}
-              dropdownClassName="search-layout-customer dropdown-search-header"
-              dropdownMatchSelectWidth={456}
-              style={{ width: "100%" }}
-              onSearch={CustomerChangeSearch}
-              options={CustomerConvertResultSearch}
-              dropdownRender={(menu) => (
-                <div>
-                  <div
-                    onClick={() => handleCreateCustomer()}
-                    className="row-search w-100"
-                    style={{
-                      minHeight: "42px",
-                      lineHeight: "50px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div className="rs-left w-100">
-                      <div style={{ float: "left", marginLeft: "20px" }}>
-                        <img src={addIcon} alt="" />
-                      </div>
-                      <div className="rs-info w-100">
-                        <span
-                          className="text"
-                          style={{ marginLeft: "23px", lineHeight: "18px" }}
-                        >
-                          Thêm mới khách hàng
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Divider style={{ margin: "4px 0" }} />
-                  {menu}
-                </div>
-              )}
-            >
-              <Input
-                placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              />
-            </AutoComplete>
-          </div>
+        <div>
+          <AutoComplete
+            notFoundContent={
+              keySearchCustomer.length >= 3
+                ? "Không tìm thấy khách hàng"
+                : undefined
+            }
+            id="search_customer"
+            value={keySearchCustomer}
+            ref={autoCompleteRef}
+            onSelect={SearchCustomerSelect}
+            dropdownClassName="search-layout-customer dropdown-search-header"
+            dropdownMatchSelectWidth={456}
+            style={{ width: "100%" }}
+            onSearch={CustomerChangeSearch}
+            options={CustomerConvertResultSearch}
+            dropdownRender={(menu) => (
+              <div className="dropdown-custom">
+                <Button
+                  icon={<AiOutlinePlusCircle size={24} />}
+                  className="dropdown-custom-add-new"
+                  type="link"
+                  onClick={() => OkConfirmCustomerCreate()}
+                >
+                  Thêm mới khách hàng
+                </Button>
+                {menu}
+              </div>
+            )}
+          >
+            <Input
+              placeholder="Tìm hoặc thêm khách hàng... (F4)"
+              prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+            />
+          </AutoComplete>
         </div>
       )}
       <div>
@@ -604,65 +585,52 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             <Row
               align="middle"
               justify="space-between"
-              className="row-customer-detail padding-custom"
+              className="row-customer-detail"
+              style={{ margin: "10px 0" }}
             >
-              <Col span={18} style={{ display: "flex", alignItems: "center" }}>
-                <div
-                  style={{
-                    borderRadius: "50%",
-                    backgroundColor: "#8f8f8f2e",
-                    width: 40,
-                    height: 40,
-                    display: "flex",
-                    overflow: "hidden",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+              <Col style={{ display: "flex", alignItems: "center" }}>
+                <div className="fpage-order-avatar-customer">
                   <img
                     style={{ width: 34, height: 34 }}
                     src={logoMobile}
                     alt="logo"
-                  ></img>
+                  />
                 </div>
                 <Link
-                  to={`${UrlConfig.CUSTOMER}/${customerDetail?.id}`}
                   target="_blank"
+                  to={`${UrlConfig.CUSTOMER}/${customer?.id}`}
                   className="primary"
                   style={{ fontSize: "16px", margin: "0 10px" }}
                 >
-                  {customer.full_name}
-                </Link>
-                <CloseOutlined
-                  onClick={CustomerDeleteInfo}
-                  style={{ marginRight: "5px" }}
-                />
-                <Tag
-                  className="orders-tag orders-tag-vip"
-                  style={{ margin: "0 8px" }}
-                >
-                  <b>
-                    {loyaltyUsageRules &&
-                      loyaltyUsageRules?.find(
-                        (item: any) =>
-                          item.rank_id === loyaltyPoint?.loyalty_level_id
-                      )?.rank_name}
-                  </b>
+                  {customer?.full_name}
+                </Link>{" "}
+                <Tag className="orders-tag orders-tag-vip">
+                  <b>{!rankName ? "Default" : rankName}</b>
                 </Tag>
               </Col>
-              <Col
-                span={6}
-                style={{ display: "flex", justifyContent: "flex-end" }}
-              >
+              <Col style={{ display: "flex", alignItems: "center" }}>
                 <span className="customer-detail-icon">
                   <img src={callIcon} alt="" />
                 </span>
-                <span className="customer-detail-text text-body">
-                  {customer?.phone}
+                <span
+                  className="customer-detail-text text-body"
+                  style={{ marginRight: "10px" }}
+                >
+                  {customer?.phone === undefined
+                    ? "0987654321"
+                    : customer?.phone}
                 </span>
+                {levelOrder < 3 && (
+                  <CloseOutlined
+                    style={{ color: "red" }}
+                    onClick={CustomerDeleteInfo}
+                  />
+                )}
               </Col>
-
-              {/* <Space className="customer-detail-point">
+            </Row>
+            <Divider style={{ padding: 0, margin: 0 }} />
+            <Row align="middle" justify="space-between">
+              <Col className="customer-detail-point">
                 <span className="customer-detail-icon">
                   <img src={pointIcon} alt="" />
                 </span>
@@ -673,49 +641,51 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     style={{ color: "#FCAF17", marginLeft: "5px" }}
                     strong
                   >
-                    {customer?.loyalty === undefined ? "0" : customer?.loyalty}
+                    {loyaltyPoint?.point === undefined
+                      ? "0"
+                      : loyaltyPoint?.point}
                   </Typography.Text>
                 </span>
-              </Space>
+              </Col>
 
-              <Space className="customer-detail-birthday">
-                <span className="customer-detail-icon">
-                  <img
-                    src={birthdayIcon}
-                    alt=""
-                    className="icon-customer-info"
-                  />
-                </span>
-                <span className="customer-detail-text">{customerBirthday}</span>
-              </Space>
+              {customer?.birthday !== null && (
+                <Col className="customer-detail-birthday">
+                  <span className="customer-detail-icon">
+                    <img
+                      src={birthdayIcon}
+                      alt=""
+                      className="icon-customer-info"
+                    />
+                  </span>
+                  <span className="customer-detail-text">
+                    {customerBirthday}
+                  </span>
+                </Col>
+              )}
 
-              <Space className="customer-detail-action">
+              <Col className="customer-detail-action">
                 <Button
                   type="text"
                   className="p-0 ant-btn-custom"
-                  onClick={ShowCustomerModal}
+                  onClick={OkConfirmCustomerEdit}
                 >
-                  Sửa 
                   <img
                     src={editBlueIcon}
                     alt=""
                     style={{ width: "24px", height: "24px" }}
                   />
                 </Button>
-              </Space> */}
+              </Col>
             </Row>
-            <Divider
-              className="margin-0"
-              style={{ padding: 0, marginBottom: 0 }}
-            />
+            <Divider style={{ padding: 0, margin: 0 }} />
 
-            <div style={{ padding: "12px 24px" }}>
-              {customer.shipping_addresses !== undefined && (
-                <Row gutter={24}>
+            <div>
+              {customer?.shipping_addresses !== undefined && (
+                <Row gutter={24} style={{ paddingTop: 10 }}>
                   <Col
                     span={12}
                     style={{
-                      borderRight: " solid #E5E5E5",
+                      borderRight: "1px solid #E5E5E5",
                     }}
                     className="font-weight-500 customer-info-left"
                   >
@@ -732,27 +702,40 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       Địa chỉ giao hàng:
                     </div>
                     <Row className="customer-row-info">
-                      <span className="font-weight-500 pd-right">Họ tên:</span>
-                      <span>{shippingAddress?.name}</span>
+                      <Col className="font-weight-500 pd-right" span={6}>
+                        Họ tên:
+                      </Col>
+                      <Col className="word-break-fpage" span={18}>
+                        {shippingAddress?.name}
+                      </Col>
                     </Row>
                     <Row className="customer-row-info">
-                      <span className="font-weight-500 pd-right">Số ĐT:</span>
-                      <span>{shippingAddress?.phone}</span>
+                      <Col className="font-weight-500 pd-right" span={6}>
+                        Số ĐT:
+                      </Col>
+                      <Col className="word-break-fpage" span={18}>
+                        {shippingAddress?.phone}
+                      </Col>
                     </Row>
                     <Row className="customer-row-info">
-                      <span className="font-weight-500 pd-right">Địa chỉ:</span>
-                      <span className="break-word">
+                      <Col className="font-weight-500 pd-right" span={6}>
+                        Địa chỉ:
+                      </Col>
+                      <Col className="word-break-fpage" span={18}>
                         {shippingAddress?.full_address}
-                      </span>
+                      </Col>
                     </Row>
+
                     <Row>
                       <Popover
                         placement="bottomLeft"
+                        overlayStyle={{ zIndex: 17 }}
                         title={
                           <Row
                             justify="space-between"
                             align="middle"
                             className="change-shipping-address-title"
+                            style={{ width: "100%" }}
                           >
                             <div
                               style={{
@@ -761,12 +744,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             >
                               Thay đổi địa chỉ
                             </div>
-                            <Button
-                              type="link"
-                              onClick={() => {
-                                createShippingAddress();
-                              }}
-                            >
+                            <Button type="link" onClick={createShippingAddress}>
                               Thêm địa chỉ mới
                             </Button>
                           </Row>
@@ -774,7 +752,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         content={
                           <div className="change-shipping-address-content">
                             {customer.shipping_addresses.map((item, index) => (
-                              <div key={index}>
+                              <div
+                                className="customer-shipping-address"
+                                key={index}
+                                onClick={() => handleTempAddress(item)}
+                                style={{ cursor: "pointer" }}
+                              >
                                 <div className="shipping-address-row">
                                   <div className="shipping-address-name word-underline">
                                     Địa chỉ {index + 1}{" "}
@@ -798,26 +781,40 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                       }
                                     />
                                   </div>
-                                  <div className="shipping-customer-name">
-                                    <span className="font-weight-500 pd-right">
+                                  <Row className="shipping-customer-address">
+                                    <Col
+                                      className="font-weight-500 pd-right"
+                                      span={3}
+                                    >
                                       Họ tên:
-                                    </span>
-                                    {item.name}
-                                  </div>
-                                  <div className="shipping-customer-mobile">
-                                    <span className="font-weight-500 pd-right">
+                                    </Col>
+                                    <Col className="word-break-fpage" span={21}>
+                                      {item.name}
+                                    </Col>
+                                  </Row>
+                                  <Row className="shipping-customer-address">
+                                    <Col
+                                      className="font-weight-500 pd-right"
+                                      span={3}
+                                    >
                                       Số ĐT:
-                                    </span>
-                                    {item.phone}
-                                  </div>
-                                  <div className="shipping-customer-address break-word">
-                                    <span className="font-weight-500 pd-right">
+                                    </Col>
+                                    <Col className="word-break-fpage" span={21}>
+                                      {item.phone}
+                                    </Col>
+                                  </Row>
+                                  <Row className="shipping-customer-address">
+                                    <Col
+                                      className="font-weight-500 pd-right"
+                                      span={3}
+                                    >
                                       Địa chỉ:
-                                    </span>
-                                    {item.full_address}
-                                  </div>
+                                    </Col>
+                                    <Col className="word-break-fpage" span={21}>
+                                      {item.full_address}
+                                    </Col>
+                                  </Row>
                                 </div>
-                                <Divider />
                               </div>
                             ))}
                           </div>
@@ -825,12 +822,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         trigger="click"
                         className="change-shipping-address"
                         visible={isVisibleShippingAddressPopover}
-                        onVisibleChange={handleShippingAddressVisible}
+                        onVisibleChange={(visible) =>
+                          setVisibleShippingAddressPopover(visible)
+                        }
                       >
                         <Button
                           type="link"
-                          style={{ padding: 0 }}
-                          onClick={openShippingAddressPopover}
+                          className="btn-style"
+                          disabled={levelOrder > 3}
+                          onClick={() => setVisibleShippingAddressPopover(true)}
                         >
                           Thay đổi địa chỉ giao hàng
                         </Button>
@@ -856,6 +856,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         rows={4}
                         maxLength={500}
                         style={{ marginTop: "10px" }}
+                        disabled={levelOrder > 3}
                       />
                     </Form.Item>
                   </Col>
@@ -864,26 +865,27 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Divider style={{ padding: 0, margin: 0 }} />
 
               <div className="send-order-box">
-                <Row style={{ marginTop: 10 }}>
+                <Row style={{ marginTop: 4 }}>
                   <Checkbox
                     className="checkbox-style"
                     onChange={ShowBillingAddress}
                     style={{ marginLeft: "3px" }}
+                    disabled={levelOrder > 3}
                   >
                     Gửi hoá đơn
                   </Checkbox>
                 </Row>
 
-                {customer.billing_addresses !== undefined && (
+                {customer?.billing_addresses !== undefined && (
                   <Row
                     gutter={24}
+                    style={{ paddingTop: 10 }}
                     hidden={!isVisibleBilling}
-                    style={{ marginTop: "10px" }}
                   >
                     <Col
                       span={12}
                       style={{
-                        borderRight: " solid #E5E5E5",
+                        borderRight: "1px solid #E5E5E5",
                       }}
                       className="font-weight-500 customer-info-left"
                     >
@@ -897,32 +899,43 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             marginRight: "10px",
                           }}
                         />
-                        Địa chỉ nhận hóa đơn:
+                        Địa chỉ gửi hóa đơn:
                       </div>
                       <Row className="customer-row-info">
-                        <span className="font-weight-500 pd-right">
+                        <Col className="font-weight-500 pd-right" span={6}>
                           Họ tên:
-                        </span>
-                        <span>{billingAddress?.name}</span>
+                        </Col>
+                        <Col className="word-break-fpage" span={18}>
+                          {billingAddress?.name}
+                        </Col>
                       </Row>
                       <Row className="customer-row-info">
-                        <span className="font-weight-500 pd-right">Số ĐT:</span>
-                        <span>{billingAddress?.phone}</span>
+                        <Col className="font-weight-500 pd-right" span={6}>
+                          Số ĐT:
+                        </Col>
+                        <Col className="word-break-fpage" span={18}>
+                          {billingAddress?.phone}
+                        </Col>
                       </Row>
                       <Row className="customer-row-info">
-                        <span className="font-weight-500 pd-right break-word">
+                        <Col className="font-weight-500 pd-right" span={6}>
                           Địa chỉ:
-                        </span>
-                        <span>{billingAddress?.full_address}</span>
+                        </Col>
+                        <Col className="word-break-fpage" span={18}>
+                          {billingAddress?.full_address}
+                        </Col>
                       </Row>
+
                       <Row>
                         <Popover
                           placement="bottomLeft"
+                          overlayStyle={{ zIndex: 17 }}
                           title={
                             <Row
                               justify="space-between"
                               align="middle"
                               className="change-shipping-address-title"
+                              style={{ width: "100%" }}
                             >
                               <div
                                 style={{
@@ -933,9 +946,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               </div>
                               <Button
                                 type="link"
-                                onClick={() => {
-                                  createBillingAddress();
-                                }}
+                                onClick={createBillingAddress}
                               >
                                 Thêm địa chỉ mới
                               </Button>
@@ -944,11 +955,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           content={
                             <div className="change-shipping-address-content">
                               {customer.billing_addresses.map((item, index) => (
-                                <div key={index}>
-                                  <div
-                                    className="shipping-address-row"
-                                    key={item.id}
-                                  >
+                                <div
+                                  className="customer-shipping-address"
+                                  key={index}
+                                  onClick={() => handleTempBillingAddress(item)}
+                                  style={{ cursor: "pointer" }}
+                                >
+                                  <div className="shipping-address-row">
                                     <div className="shipping-address-name word-underline">
                                       Địa chỉ {index + 1}{" "}
                                       <Button
@@ -971,26 +984,49 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                         }
                                       />
                                     </div>
-                                    <div className="shipping-customer-name">
-                                      <span className="font-weight-500 pd-right">
+                                    <Row className="shipping-customer-address">
+                                      <Col
+                                        className="font-weight-500 pd-right"
+                                        span={3}
+                                      >
                                         Họ tên:
-                                      </span>
-                                      {item.name}
-                                    </div>
-                                    <div className="shipping-customer-mobile">
-                                      <span className="font-weight-500 pd-right">
+                                      </Col>
+                                      <Col
+                                        className="word-break-fpage"
+                                        span={21}
+                                      >
+                                        {item.name}
+                                      </Col>
+                                    </Row>
+                                    <Row className="shipping-customer-address">
+                                      <Col
+                                        className="font-weight-500 pd-right"
+                                        span={3}
+                                      >
                                         Số ĐT:
-                                      </span>
-                                      {item.phone}
-                                    </div>
-                                    <div className="shipping-customer-address">
-                                      <span className="font-weight-500 pd-right break-word">
+                                      </Col>
+                                      <Col
+                                        className="word-break-fpage"
+                                        span={21}
+                                      >
+                                        {item.phone}
+                                      </Col>
+                                    </Row>
+                                    <Row className="shipping-customer-address">
+                                      <Col
+                                        className="font-weight-500 pd-right"
+                                        span={3}
+                                      >
                                         Địa chỉ:
-                                      </span>
-                                      {item.full_address}
-                                    </div>
+                                      </Col>
+                                      <Col
+                                        className="word-break-fpage"
+                                        span={21}
+                                      >
+                                        {item.full_address}
+                                      </Col>
+                                    </Row>
                                   </div>
-                                  <Divider />
                                 </div>
                               ))}
                             </div>
@@ -998,14 +1034,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           trigger="click"
                           className="change-shipping-address"
                           visible={isVisibleBillingAddressPopover}
-                          onVisibleChange={handleBillingAddressVisible}
+                          onVisibleChange={(visible) =>
+                            setVisibleBillingAddressPopover(visible)
+                          }
                         >
                           <Button
                             type="link"
-                            style={{ padding: 0 }}
-                            onClick={openBillingAddressPopover}
+                            className="btn-style"
+                            disabled={levelOrder > 3}
+                            onClick={() =>
+                              setVisibleBillingAddressPopover(true)
+                            }
                           >
-                            Thay đổi địa chỉ nhận hóa đơn
+                            Thay đổi địa chỉ giao hàng
                           </Button>
                         </Popover>
                       </Row>
@@ -1027,21 +1068,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         />
                         <span>Email gửi hóa đơn:</span>
                       </div>
-                      <Form.Item
-                        style={{ marginTop: "10px" }}
-                        name="Email_note"
-                        // label={<b>Email gửi hóa đơn:</b>}
-                        rules={[
-                          {
-                            pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
-                            message: "Vui lòng nhập đúng định dạng email",
-                          },
-                        ]}
-                      >
+                      <Form.Item name="Email_note">
                         <Input
+                          placeholder="Điền email"
                           maxLength={500}
-                          type="text"
-                          placeholder="Nhập email"
+                          style={{ marginTop: "10px" }}
                         />
                       </Form.Item>
                     </Col>
@@ -1053,6 +1084,27 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         )}
       </div>
 
+      <AddAddressModal
+        customer={customer}
+        handleChangeCustomer={handleChangeCustomer}
+        formItem={modalSingleShippingAddress}
+        visible={isVisibleAddress}
+        modalAction={modalAction}
+        onCancel={CancelConfirmAddress}
+        onOk={OkConfirmAddress}
+      />
+      <EditCustomerModal
+        areas={areas}
+        wards={wards}
+        groups={groups}
+        formItem={customer}
+        modalAction={modalAction}
+        visible={isVisibleCustomer}
+        districtId={districtId}
+        handleChangeArea={handleChangeArea}
+        handleChangeCustomer={handleChangeCustomer}
+        onCancel={CancelConfirmCustomer}
+      />
       <CustomerModal
         createBtnTitle="Tạo mới địa chỉ"
         updateBtnTitle="Lưu địa chỉ"
@@ -1071,7 +1123,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         formItem={modalSingleShippingAddress}
         deletedItemTitle={modalSingleShippingAddress?.name}
       />
-
       <CustomerModal
         createBtnTitle="Tạo mới địa chỉ"
         updateBtnTitle="Lưu địa chỉ"
@@ -1089,17 +1140,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         componentForm={FormCustomerBillingAddress}
         formItem={modalSingleBillingAddress}
         deletedItemTitle={modalSingleBillingAddress?.name}
-      />
-
-      <AddAddressModal
-        visible={isVisibleAddress}
-        onCancel={CancelConfirmAddress}
-        onOk={OkConfirmAddress}
-      />
-      <EditCustomerModal
-        visible={isVisibleCustomer}
-        onCancel={CancelConfirmCustomer}
-        onOk={OkConfirmCustomer}
       />
     </Card>
   );

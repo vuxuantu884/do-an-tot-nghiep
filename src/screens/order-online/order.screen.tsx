@@ -91,7 +91,7 @@ export default function Order() {
     ShipmentMethodOption.DELIVER_LATER
   );
   const [paymentMethod, setPaymentMethod] = useState<number>(
-    PaymentMethodOption.PREPAYMENT
+    PaymentMethodOption.POSTPAYMENT
   );
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
