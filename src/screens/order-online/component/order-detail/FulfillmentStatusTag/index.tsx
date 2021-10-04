@@ -58,7 +58,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       backgroundColor: "rgba(102, 102, 102, 0.1)",
     },
     {
-      name: "Đã nhặt hàng",
+      name: "Đang nhặt hàng",
       status: FulFillmentStatus.PICKED,
       color: "#FCAF17",
       backgroundColor: "rgba(252, 175, 23, 0.1)",
