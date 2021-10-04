@@ -155,3 +155,7 @@ export const DEFAULT_FORM_VALUE = {
   company: "YODY",
   company_id: 1,
 };
+
+export const AdminPermissions = {
+  ADMIN_ALL: "ADMIN_ALL",
+};
