@@ -66,7 +66,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       ecommerce_id: null,
       shop_id: [],
       category_id: null,
-      connect_status: null,
+      connect_status: "connected",
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: ""
@@ -80,7 +80,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     ecommerce_id: null,
     shop_id: [],
     category_id: null,
-    connect_status: null,
+    connect_status: "connected",
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
@@ -250,13 +250,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
       },
     },
     {
       title: "Sku/ itemID (Sàn)",
       visible: true,
-      align: "center",
       render: (l: any, v: any, i: any) => {
         return (
           <div>
@@ -290,7 +289,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        const link = `https://dev.yody.io/unicorn/admin/products/${l.id}/variants/${l.core_variant_id}`;
+        const link = `https://dev.yody.io/unicorn/admin/products/${l.core_product_id}/variants/${l.core_variant_id}`;
         return (
           <div>
             <div onClick={() => window.open(link, "_blank")} className="link">{l.core_variant}</div>
@@ -397,8 +396,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const onPageChange = React.useCallback(
     (page, limit) => {
+      query.page = page;
+      query.limit = limit;
       setQuery({ ...query, page, limit });
-    },[query]
+      getProductUpdated({...query});
+    },[query, getProductUpdated]
   );
 
 

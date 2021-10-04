@@ -82,7 +82,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       ecommerce_id: null,
       shop_id: [],
       category_id: null,
-      connect_status: null,
+      connect_status: "waiting",
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
@@ -96,7 +96,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     ecommerce_id: null,
     shop_id: [],
     category_id: null,
-    connect_status: null,
+    connect_status: "waiting",
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
@@ -178,6 +178,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         core_sku: productSelected.sku,
         core_variant: productSelected.name,
         core_price: productSelected.retail_price,
+        core_product_id: productSelected.product_id,
         ecommerce_correspond_to_core: 1,
       }
   
@@ -266,6 +267,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           core_sku: productSelectedData.sku,
           core_variant: productSelectedData.name,
           core_price: productSelectedData.retail_price,
+          core_product_id: productSelectedData.product_id,
           ecommerce_correspond_to_core: 1,
         }
 
@@ -422,19 +424,17 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
       },
     },
     {
       title: "Sku/ itemID (Sàn)",
       visible: true,
-      align: "center",
       render: (l: any, v: any, i: any) => {
         return (
           <div>
             <div>{l.ecommerce_sku}</div>
             <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
-            <div style={{color: "#737373"}}>({l.ecommerce_variant_id})</div>
             <div style={{color: "#2a2a86"}}>({l.shop})</div>
           </div>
         )
@@ -492,9 +492,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     
   ]);
 
-  const variantNotConnectedItem = variantData && variantData.items && variantData.items.filter((item: any) => {
-    return item.connect_status !== "connected";
-  });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
@@ -514,8 +511,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   const onPageChange = React.useCallback(
     (page, limit) => {
+      query.page = page;
+      query.limit = limit;
       setQuery({ ...query, page, limit });
-    },[query]
+      getProductUpdated({...query});
+    },[query, getProductUpdated]
   );
 
 
@@ -784,10 +784,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
-          dataSource={variantNotConnectedItem}
+          dataSource={variantData.items}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
-            total: variantNotConnectedItem && variantNotConnectedItem.length,
+            total: variantData.metadata && variantData.metadata.total,
             current: variantData.metadata && variantData.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
