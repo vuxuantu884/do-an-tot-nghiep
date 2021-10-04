@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomPagination from "component/table/CustomPagination";
-import ProductItem from "screens/products/product/component/ModalPickManyProduct/product-item";
+import ProductItem from "../component/product-item";
 
 type PickManyProductModalType = {
   visible: boolean;
