@@ -111,9 +111,10 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   );
 
   const onChangeQuantity = useCallback(
-    (value: number | null, indexLineItem: number, indexProcument: number) => {
+    (value: number | null, sku: string, indexProcument: number) => {
       let procument_items: Array<PurchaseProcurementViewDraft> =
         formMain.getFieldValue(POField.procurements);
+      let indexLineItem = procument_items[indexProcument].procurement_items.findIndex((item) => item.sku === sku );
       procument_items[indexProcument].procurement_items[
         indexLineItem
       ].quantity = value ? value : 0;
@@ -231,13 +232,12 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                     placeholder="Số lượng"
                     value={value.find(item1 => item1.sku === item.sku)?.quantity}
                     onChange={(v) => {
-                      onChangeQuantity(v, indexLineItem, indexProcument);
+                      onChangeQuantity(v, item.sku, indexProcument);
                     }}
                   />
                 ),
               });
             });
-            console.log("new_line_items", new_line_items);
 
             return (
               <Table
@@ -303,9 +303,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
             POField.line_items
           );
-          let new_line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-            POField.line_items
-          );
+          let new_line_items: Array<PurchaseOrderLineItem> = []; 
           line_items.forEach((item) => {
             let index = new_line_items.findIndex(
               (item1) => item1.sku === item.sku
