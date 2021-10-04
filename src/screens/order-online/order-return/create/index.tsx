@@ -458,7 +458,10 @@ const ScreenReturnCreate = (props: PropType) => {
             return single.quantity > 0;
           });
           let payments: OrderPaymentRequest[] | null = [];
-          if (returnMoneyType === RETURN_MONEY_TYPE.return_now) {
+          if (
+            totalAmountCustomerNeedToPay < 0 &&
+            returnMoneyType === RETURN_MONEY_TYPE.return_now
+          ) {
             let formValue = form.getFieldsValue();
             const formReturnMoney = formValue.returnMoneyField[0];
             let returnMoneyMethod = listPaymentMethods.find((single) => {
@@ -469,10 +472,10 @@ const ScreenReturnCreate = (props: PropType) => {
                 {
                   payment_method_id: returnMoneyMethod.id,
                   payment_method: returnMoneyMethod.name,
-                  amount: Math.abs(totalAmountCustomerNeedToPay),
+                  amount: -Math.abs(totalAmountCustomerNeedToPay),
                   reference: "",
                   source: "",
-                  paid_amount: Math.abs(totalAmountCustomerNeedToPay),
+                  paid_amount: -Math.abs(totalAmountCustomerNeedToPay),
                   return_amount: 0.0,
                   status: "paid",
                   customer_id: customer?.id || null,
@@ -501,6 +504,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
+          console.log("valuesResult", valuesResult);
           if (checkPointfocus(values)) {
             const handleCreateOrderExchangeByValue = (
               valuesResult: ExchangeRequest
@@ -570,7 +574,11 @@ const ScreenReturnCreate = (props: PropType) => {
 
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
-    values.payments = payments.filter((payment) => payment.amount > 0);
+    if (totalAmountCustomerNeedToPay > 0) {
+      values.payments = payments.filter((payment) => payment.amount > 0);
+    } else {
+      values.payments = [];
+    }
     values.total = totalAmountExchange;
     if (
       values?.fulfillments &&

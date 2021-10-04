@@ -346,10 +346,14 @@ function CardReturnProducts(props: PropType) {
             </Row>
             <Row className="payment-row" justify="space-between">
               <span className="font-size-text">Tiêu điểm: </span>
-              <span>
-                {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
-                {` (${pointUsing ? pointUsing : 0} điểm)`}
-              </span>
+              {isDetailPage ? (
+                `${pointUsing ? pointUsing : 0} điểm`
+              ) : (
+                <span>
+                  {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
+                  {` (${pointUsing ? pointUsing : 0} điểm)`}
+                </span>
+              )}
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>

@@ -584,6 +584,7 @@ const OrderDetail = (props: PropType) => {
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   setTotalAmountReturnProducts={setTotalAmountReturnProducts}
+                  pointUsing={OrderDetail.order_return_origin.point_refund}
                 />
               )}
 
