@@ -2,21 +2,22 @@ import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
 export interface PurchaseProcument extends BaseObject {
   reference: string;
-  store_id: string;
+  store_id: number;
   expect_receipt_date: string;
   procurement_items: Array<PurchaseProcumentLineItem>;
   status: string;
   status_po: string;
   note: string;
-  actived_date: string;
-  actived_by: string;
-  stock_in_date: string;
-  stock_in_by: string;
+  actived_date: string|null;
+  actived_by: string|null;
+  stock_in_date: string|null;
+  stock_in_by: string|null;
   store?: string;
 }
 export interface PurchaseProcurementViewDraft {
   id?: number;
   code?: string;
+  fake_id: number,
   created_name?: string;
   created_by?: string;
   created_date?: Date;
@@ -25,7 +26,7 @@ export interface PurchaseProcurementViewDraft {
   updated_date?: Date;
   version?: number;
   reference?: string;
-  store_id: string;
+  store_id: number;
   expect_receipt_date: string;
   procurement_items: Array<PurchaseOrderLineItemDraft>;
   status: string;
