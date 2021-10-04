@@ -110,20 +110,25 @@ const Products: React.FC = () => {
   }, [dispatch, updateCategoryData, query, updateVariantData]);
 
   useEffect(() => {
-    getProductUpdated(query);
+    const requestQuery = {...query};
+    
     if (history.location.hash) {
       switch (history.location.hash) {
         case "#total-item":
+          requestQuery.connect_status = null;
           setActiveTab("total-item");
           break;
         case "#connected-item":
+          requestQuery.connect_status = "connected";
           setActiveTab("connected-item");
           break;
         case "#not-connected-item":
+          requestQuery.connect_status = "waiting";
           setActiveTab("not-connected-item");
           break;
       }
     }
+    getProductUpdated(requestQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.location.hash]);
 
@@ -299,7 +304,19 @@ const Products: React.FC = () => {
   }
 
   const handleOnchangeTab = (active: any) => {
-    getProductUpdated(query);
+    const requestQuery = {...query};
+    switch (active) {
+      case "total-item":
+        requestQuery.connect_status = null;
+        break;
+      case "connected-item":
+        requestQuery.connect_status = "connected";
+        break;
+      case "not-connected-item":
+        requestQuery.connect_status = "waiting";
+        break;
+    }
+    getProductUpdated(requestQuery);
     history.replace(`${history.location.pathname}#${active}`);
   }
   
