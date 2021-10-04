@@ -267,6 +267,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        data
+      );
+      console.log('newProcument', newProcument);
       formMain.setFieldsValue({
         line_items: [...data],
         total: total,
@@ -274,6 +282,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
         untaxed_amount: untaxed_amount,
+        [POField.procurements]: newProcument
       });
     },
     [formMain]
@@ -355,6 +364,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
+      console.log(items);
       setVisibleManyProduct(false);
       let old_line_items = formMain.getFieldValue(POField.line_items);
       let trade_discount_rate = formMain.getFieldValue(

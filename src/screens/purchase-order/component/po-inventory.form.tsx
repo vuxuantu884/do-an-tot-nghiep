@@ -24,6 +24,7 @@ import deliveryIcon from "assets/icon/delivery.svg";
 import procument from "assets/icon/procument.svg";
 import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import POEditDraftProcurementModal from "../modal/POEditDraftProcurementModal";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
@@ -81,6 +82,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [procumentInventory, setProcumentInventory] =
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
+  const [isEditProcument, setEditProcument] = useState<boolean>(false);
    
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
@@ -352,6 +354,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               onAddProcumentSuccess && onAddProcumentSuccess();
             }}
             confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
+              setEditProcument(isEdit);
               if (isEdit) {
                 setVisible(true);
                 setDraft(value);
@@ -376,10 +379,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             formMain={formMain}
             isEdit={props.isEdit}
             stores={stores}
-            onCancelPU={() => {
-              setVisibleEditProcurement(false);
-            }}
-            visible={visibleEditProcurement}
           />
         )
         
@@ -389,7 +388,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onCancle={() => {
           setVisible(false);
         }}
-        isEdit={props.isEdit}
+        isEdit={isEditProcument}
         loading={loaddingCreate}
         stores={stores}
         now={now}
@@ -404,7 +403,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onDelete={onDeleteProcument}
       />
       <ProcumentConfirmModal
-        isEdit={props.isEdit}
+        isEdit={isEditProcument}
         items={poItems}
         stores={stores}
         now={now}
@@ -422,7 +421,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProcumentInventoryModal
-        isEdit={props.isEdit}
+        isEdit={isEditProcument}
         items={poItems}
         stores={stores}
         now={now}
@@ -438,6 +437,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onCancel={() => {
           setVisibleConfirm(false);
         }}
+      />
+      <POEditDraftProcurementModal 
+        visible={visibleEditProcurement}
+        onCancel={() => setVisibleEditProcurement(false)}
+        onOk={() => {}}
       />
     </Card>
   );

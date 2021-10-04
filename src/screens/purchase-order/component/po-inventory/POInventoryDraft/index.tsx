@@ -10,7 +10,6 @@ import {
   PurchaseProcumentLineItem,
   PurchaseProcurementViewDraft,
 } from "model/purchase-order/purchase-procument";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomDatePicker from "component/custom/date-picker.custom";
@@ -24,9 +23,6 @@ type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
   isEdit: boolean;
   formMain: any;
-  poData?: PurchaseOrder;
-  onCancelPU?: () => void;
-  visible?: boolean;
 };
 
 const POInventoryDraft: React.FC<POInventoryDraftProps> = (
@@ -39,8 +35,18 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     let line_items: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
       POField.line_items
     );
-    let newProcumentLineItem: Array<PurchaseProcumentLineItem> = [];
+    let new_line_items: Array<PurchaseOrderLineItem> = [];
     line_items.forEach((item) => {
+      let index = new_line_items.findIndex((item1) => item1.sku === item.sku);
+      if (index === -1) {
+        new_line_items.push({ ...item });
+      } else {
+        new_line_items[index].quantity =
+          new_line_items[index].quantity + item.quantity;
+      }
+    });
+    let newProcumentLineItem: Array<PurchaseProcumentLineItem> = [];
+    new_line_items.forEach((item) => {
       let total = 0;
       procument_items.forEach((item1) => {
         item1.procurement_items.forEach((procument_item) => {
@@ -174,7 +180,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
       ),
     },
   ];
-  
+
   if (!isEdit) {
     return (
       <POInventoryDraftTable>
@@ -194,7 +200,19 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             let columns: Array<
               ICustomTableColumType<PurchaseProcurementViewDraft>
             > = [];
-            line_items.forEach((item, indexLineItem) => {
+            let new_line_items: Array<PurchaseOrderLineItem> = [];
+            line_items.forEach((item) => {
+              let index = new_line_items.findIndex(
+                (item1) => item1.sku === item.sku
+              );
+              if (index === -1) {
+                new_line_items.push({ ...item });
+              } else {
+                new_line_items[index].quantity =
+                  new_line_items[index].quantity + item.quantity;
+              }
+            });
+            new_line_items.forEach((item, indexLineItem) => {
               columns.push({
                 width: 100,
                 title: () => (
@@ -211,7 +229,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 ) => (
                   <NumberInput
                     placeholder="Số lượng"
-                    value={value[indexLineItem].quantity}
+                    value={value.find(item1 => item1.sku === item.sku)?.quantity}
                     onChange={(v) => {
                       onChangeQuantity(v, indexLineItem, indexProcument);
                     }}
@@ -219,6 +237,8 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 ),
               });
             });
+            console.log("new_line_items", new_line_items);
+
             return (
               <Table
                 className="product-table"
@@ -248,7 +268,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                     <Table.Summary.Row>
                       <Table.Summary.Cell
                         index={1}
-                        colSpan={4 + line_items.length}
+                        colSpan={4 + new_line_items.length}
                       >
                         <Button
                           onClick={onAdd}
@@ -277,18 +297,32 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         }
       >
         {({ getFieldValue }) => {
-           let procument_items: Array<PurchaseProcument> =
-           getFieldValue(POField.procurements);
-           let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
+          let procument_items: Array<PurchaseProcument> = getFieldValue(
+            POField.procurements
+          );
+          let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
             POField.line_items
           );
-          let columns: Array<
-              ICustomTableColumType<PurchaseProcument>
-            > = [];
-          line_items.forEach((item, indexLineItem) => {
+          let new_line_items: Array<PurchaseOrderLineItem> = getFieldValue(
+            POField.line_items
+          );
+          line_items.forEach((item) => {
+            let index = new_line_items.findIndex(
+              (item1) => item1.sku === item.sku
+            );
+            if (index === -1) {
+              new_line_items.push(item);
+            } else {
+              new_line_items[index].quantity =
+                new_line_items[index].quantity + item.quantity;
+            }
+          });
+
+          let columns: Array<ICustomTableColumType<PurchaseProcument>> = [];
+          new_line_items.forEach((item, indexLineItem) => {
             columns.push({
               width: 90,
-              align: 'right',
+              align: "right",
               title: () => (
                 <div style={{ textAlign: "right" }}>
                   <div>{item.sku}</div>
@@ -321,17 +355,16 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   width: 150,
                   title: "Ngày nhận dự kiến",
                   dataIndex: "expect_receipt_date",
-                  render: (value, record, index: number) => (
-                    ConvertUtcToLocalDate(value)
-                  ),
+                  render: (value, record, index: number) =>
+                    ConvertUtcToLocalDate(value),
                 },
                 {
                   width: 250,
                   title: "Cửa hàng nhận",
                   dataIndex: "store",
-                  render: (value, record, index) => (value),
+                  render: (value, record, index) => value,
                 },
-                ...columns
+                ...columns,
               ]}
             />
           );

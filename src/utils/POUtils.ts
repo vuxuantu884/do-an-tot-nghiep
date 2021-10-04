@@ -143,7 +143,7 @@ const POUtils = {
   },
   convertVariantToLineitem: (
     variants: Array<VariantResponse>,
-    position: number,
+    position: number
   ): Array<PurchaseOrderLineItem> => {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
@@ -190,7 +190,7 @@ const POUtils = {
   addProduct: (
     oldItems: Array<PurchaseOrderLineItem>,
     newItems: Array<PurchaseOrderLineItem>,
-    split: boolean,
+    split: boolean
   ) => {
     if (split) {
       return [...newItems, ...oldItems];
@@ -450,18 +450,25 @@ const POUtils = {
     data.forEach((item) => (total = total + item.ordered_quantity));
     return total;
   },
-  getNewProcument: (procuments: Array<PurchaseProcument>, data: Array<PurchaseOrderLineItem>) => {
+  getNewProcument: (
+    procuments: Array<PurchaseProcument>,
+    data: Array<PurchaseOrderLineItem>
+  ) => {
     let newProcument = procuments.map((item) => {
       let newProcumentLineItem = [...item.procurement_items];
       item.procurement_items.forEach((procumentItem) => {
-        let index = data.findIndex((lineItem) => lineItem.position === procumentItem.line_item_id);
-        if(index === -1) {
+        let index = data.findIndex(
+          (lineItem) => lineItem.sku === procumentItem.sku
+        );
+        if (index === -1) {
           newProcumentLineItem.splice(index, 1);
         }
       });
       data.forEach((lineItem) => {
-        let index = newProcumentLineItem.findIndex((procumentItem) => lineItem.position === procumentItem.line_item_id);
-        if(index === -1) {
+        let index = newProcumentLineItem.findIndex(
+          (procumentItem) => lineItem.sku === procumentItem.sku
+        );
+        if (index === -1) {
           newProcumentLineItem.push({
             line_item_id: lineItem.position,
             code: lineItem.code,
@@ -471,18 +478,21 @@ const POUtils = {
             ordered_quantity: lineItem.quantity,
             planned_quantity: lineItem.planned_quantity,
             accepted_quantity: lineItem.receipt_quantity,
-            quantity: 0,
+            quantity: procuments.length === 1 ? lineItem.quantity: 0,
             real_quantity: 0,
             note: "",
-          })
+          });
+        }else {
+          if(procuments.length === 1) {
+            newProcumentLineItem[index].quantity = lineItem.quantity;
+          }
         }
       });
       item.procurement_items = newProcumentLineItem;
       return item;
     });
-    console.log(newProcument);
     return newProcument;
-  }
+  },
 };
 
 export { POUtils };
