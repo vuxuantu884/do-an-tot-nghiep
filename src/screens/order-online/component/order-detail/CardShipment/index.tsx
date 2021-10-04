@@ -99,7 +99,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
     setOfficeTime,
     shipmentMethod,
     payments,
-    onPayments,
+    // onPayments,
     fulfillments,
     isCloneOrder,
     levelOrder = 0,
@@ -126,10 +126,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
       // getInfoDeliveryFees();
       setPaymentMethod(PaymentMethodOption.COD);
       //reset payment
-      onPayments([]);
+      // onPayments([]);
     }
     if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
-      onPayments([]);
+      // onPayments([]);
     }
   };
 
@@ -243,7 +243,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
           <div key={button.value}>
             {shipmentMethod !== button.value ? (
               <div
-                className="saleorder_shipment_button"
+                className="saleorder_shipment_button 2"
                 key={button.value}
                 onClick={() =>
                   levelOrder < 4 && ShipMethodOnChange(button.value)

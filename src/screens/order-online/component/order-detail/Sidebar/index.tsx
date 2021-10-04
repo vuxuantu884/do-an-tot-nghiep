@@ -66,6 +66,82 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             </Select>
           </Form.Item>
           <Form.Item
+            label="Nhân viên marketing"
+            name="marketer_code"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng chọn nhân viên marketing",
+              },
+            ]}
+          >
+            <Select
+              className="select-with-search"
+              notFoundContent="Không tìm thấy kết quả"
+              showSearch
+              placeholder={
+                <React.Fragment>
+                  <SearchOutlined />
+                  <span> Tìm, chọn nhân viên</span>
+                </React.Fragment>
+              }
+              filterOption={(input, option) => {
+                if (option) {
+                  return (
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  );
+                }
+                return false;
+              }}
+            >
+              {accounts.map((item, index) => (
+                <Select.Option key={index.toString()} value={item.code}>
+                  {`${item.full_name} - ${item.code}`}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Nhân viên điều phối"
+            name="coordinator_code"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng chọn nhân viên điều phối",
+              },
+            ]}
+          >
+            <Select
+              className="select-with-search"
+              notFoundContent="Không tìm thấy kết quả"
+              showSearch
+              placeholder={
+                <React.Fragment>
+                  <SearchOutlined />
+                  <span> Tìm, chọn nhân viên</span>
+                </React.Fragment>
+              }
+              filterOption={(input, option) => {
+                if (option) {
+                  return (
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  );
+                }
+                return false;
+              }}
+            >
+              {accounts.map((item, index) => (
+                <Select.Option key={index.toString()} value={item.code}>
+                  {`${item.full_name} - ${item.code}`}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
             label="Tham chiếu"
             name="reference_code"
             tooltip={{
