@@ -1,10 +1,9 @@
-import { Col, Row, Form } from "antd";
+import { Col, Form, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import React from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { PaymentMethodOption } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -21,12 +20,12 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   const {
     amount,
     shipper,
-    paymentMethod,
+    // paymentMethod,
     shippingFeeCustomer,
     discountValue,
     totalAmountReturnProducts,
     setShippingFeeInformedCustomer,
-    levelOrder = 0
+    levelOrder = 0,
   } = props;
 
   const totalAmountCustomerNeedToPayShipper = () => {
@@ -44,7 +43,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
         <Row gutter={20}>
           <Col md={12}>
             <Form.Item
-              label="Đối tác giao hàng"
+              label="Đối tác giao hàng 2"
               name="shipper_code"
               rules={[
                 {
@@ -83,28 +82,28 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               </CustomSelect>
             </Form.Item>
 
-            {paymentMethod === PaymentMethodOption.COD && (
-              <Form.Item label="Tiền thu hộ">
-                <NumberInput
-                  format={(a: string) => formatCurrency(a)}
-                  replace={(a: string) => replaceFormatString(a)}
-                  placeholder="0"
-                  value={
-                    totalAmountCustomerNeedToPayShipper() > 0
-                      ? totalAmountCustomerNeedToPayShipper()
-                      : 0
-                  }
-                  style={{
-                    textAlign: "right",
-                    width: "100%",
-                    color: "#222222",
-                  }}
-                  maxLength={999999999999}
-                  minLength={0}
-                  disabled={levelOrder > 3}
-                />
-              </Form.Item>
-            )}
+            {/* {paymentMethod === PaymentMethodOption.COD && ( */}
+            <Form.Item label="Tiền thu hộ">
+              <NumberInput
+                format={(a: string) => formatCurrency(a)}
+                replace={(a: string) => replaceFormatString(a)}
+                placeholder="0"
+                value={
+                  totalAmountCustomerNeedToPayShipper() > 0
+                    ? totalAmountCustomerNeedToPayShipper()
+                    : 0
+                }
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
+                maxLength={999999999999}
+                minLength={0}
+                disabled={levelOrder > 3}
+              />
+            </Form.Item>
+            {/* )} */}
           </Col>
           <Col md={12}>
             <Form.Item

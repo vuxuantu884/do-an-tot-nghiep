@@ -50,6 +50,7 @@ function CardReturnReceiveProducts(props: PropType) {
           onChange={(e) => {
             handleReceivedReturnProducts(e.target.checked);
           }}
+          defaultChecked
         >
           Đã nhận hàng trả lại
         </Checkbox>

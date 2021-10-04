@@ -15,7 +15,7 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useMemo } from "react";
+import React from "react";
 import {
   formatCurrency,
   formatSuffixPoint,
@@ -29,7 +29,7 @@ type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
   handlePayments: (value: Array<OrderPaymentRequest>) => void;
-  totalAmountCustomerNeedToPay?: number;
+  totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
   isStepExchange: boolean;
   returnMoneyType?: string;
@@ -55,31 +55,11 @@ function CardReturnMoneyPageCreate(props: PropType) {
     totalAmountCustomerNeedToPay !== undefined &&
     totalAmountCustomerNeedToPay <= 0;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const totalAmountReturn = () => {
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    return total;
-  };
-
-  const moneyReturnLeft = useMemo(() => {
-    if (totalAmountCustomerNeedToPay === undefined) {
-      return 0;
-    }
-    console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
-    let result = 0;
-    result =
-      totalAmountCustomerNeedToPay > 0
-        ? totalAmountCustomerNeedToPay - totalAmountReturn()
-        : -totalAmountCustomerNeedToPay - totalAmountReturn();
-    return result;
-  }, [totalAmountCustomerNeedToPay, totalAmountReturn]);
-
   const handlePickPaymentMethod = (code?: string) => {
     if (isReturnMoneyToCustomer) {
       let paymentSelected = listPaymentMethods.find((p) => code === p.code);
       if (paymentSelected) {
-        let abc = {
+        let result = {
           payment_method_id: paymentSelected.id,
           amount: 0,
           paid_amount: 0,
@@ -94,8 +74,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
           note: "",
           type: "",
         };
-        console.log("paymentSelected", paymentSelected);
-        handlePayments([abc]);
+        handlePayments([result]);
       }
     } else {
       let paymentMaster = listPaymentMethods.find((p) => code === p.code);
@@ -134,7 +113,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
         payments[paymentIndex].amount = value;
         payments[paymentIndex].paid_amount = value;
       }
-      console.log("payments", payments);
       handlePayments([...payments]);
     }
   };
@@ -147,10 +125,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const calculateMaxInputValue = (indexSelectedPayment: number) => {
     if (!totalAmountCustomerNeedToPay) return 0;
-    let moneyReturnLeft =
-      totalAmountCustomerNeedToPay > 0
-        ? totalAmountCustomerNeedToPay
-        : -totalAmountCustomerNeedToPay;
+    let moneyReturnLeft = Math.abs(totalAmountCustomerNeedToPay);
     let totalReturnLeft = moneyReturnLeft;
     for (let i = 0; i < payments.length; i++) {
       if (i !== indexSelectedPayment) {
@@ -161,7 +136,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
   };
 
   const renderPaymentMethodsTitle = () => {
-    console.log("listPaymentMethods", listPaymentMethods);
     return (
       <React.Fragment>
         {listPaymentMethods.map((method, index) => {
@@ -340,13 +314,17 @@ function CardReturnMoneyPageCreate(props: PropType) {
         >
           <Space size={20}>
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
-            <Radio value={RETURN_MONEY_TYPE.return_later}>Hoàn tiền sau</Radio>
+            <Radio value={RETURN_MONEY_TYPE.return_later}>
+              Hoàn tiền sau 3
+            </Radio>
           </Space>
         </Radio.Group>
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
             listPaymentMethods={listPaymentMethods}
-            totalAmountCustomerNeedToPay={Math.round(moneyReturnLeft)}
+            totalAmountCustomerNeedToPay={
+              totalAmountCustomerNeedToPay ? totalAmountCustomerNeedToPay : 0
+            }
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}
           />
@@ -391,16 +369,20 @@ function CardReturnMoneyPageCreate(props: PropType) {
                         </span>
                         <strong>
                           {totalAmountCustomerNeedToPay &&
-                            (totalAmountCustomerNeedToPay > 0
-                              ? formatCurrency(totalAmountCustomerNeedToPay)
-                              : formatCurrency(-totalAmountCustomerNeedToPay))}
+                            formatCurrency(
+                              Math.abs(totalAmountCustomerNeedToPay)
+                            )}
                         </strong>
                       </div>
                     </Col>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
                         <span style={{ paddingRight: "20px" }}>Còn lại</span>
-                        <strong>{formatCurrency(moneyReturnLeft)}</strong>
+                        <strong>
+                          {totalAmountCustomerNeedToPay
+                            ? formatCurrency(totalAmountCustomerNeedToPay)
+                            : 0}
+                        </strong>
                       </div>
                     </Col>
                     <Divider style={{ margin: "10px 0" }} />
@@ -448,11 +430,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                           >
                             <span className="t-result-blue">
                               {totalAmountCustomerNeedToPay &&
-                                (totalAmountCustomerNeedToPay > 0
-                                  ? formatCurrency(totalAmountCustomerNeedToPay)
-                                  : formatCurrency(
-                                      -totalAmountCustomerNeedToPay
-                                    ))}
+                                formatCurrency(
+                                  Math.abs(totalAmountCustomerNeedToPay)
+                                )}
                             </span>
                           </Col>
                         </Row>
@@ -482,7 +462,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
                             }}
                           >
                             <span style={{ color: false ? "blue" : "red" }}>
-                              {formatCurrency(moneyReturnLeft)}
+                              {totalAmountCustomerNeedToPay
+                                ? formatCurrency(totalAmountCustomerNeedToPay)
+                                : 0}
                             </span>
                           </Col>
                         </Row>

@@ -83,7 +83,13 @@ function ReturnMoneySelect(props: PropType) {
                             Số tiền
                           </div>
                           <Input
-                            value={formatCurrency(totalAmountCustomerNeedToPay)}
+                            value={
+                              totalAmountCustomerNeedToPay < 0
+                                ? formatCurrency(
+                                    Math.abs(totalAmountCustomerNeedToPay)
+                                  )
+                                : 0
+                            }
                             disabled
                             style={{ color: "inherit", background: "#fff" }}
                           />

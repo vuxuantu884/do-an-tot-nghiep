@@ -255,6 +255,7 @@ const ScreenReturnDetail = (props: PropType) => {
               <CardReturnProducts
                 listReturnProducts={listReturnProducts}
                 isDetailPage={true}
+                totalPrice={0}
               />
               <CardReturnMoneyPageDetail
                 listPaymentMethods={listPaymentMethods}

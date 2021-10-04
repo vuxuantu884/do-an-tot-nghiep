@@ -17,6 +17,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
+  OrderLineItemResponse,
   OrderResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
@@ -25,34 +26,32 @@ import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
+  OrderDetail: OrderResponse | null;
+  listOrderProducts?: OrderLineItemResponse[];
+  listReturnProducts: ReturnProductModel[];
+  handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
   isExchange?: boolean;
   isStepExchange?: boolean;
   isShowProductSearch?: boolean;
-  OrderDetail?: OrderResponse | null;
-  listReturnProducts?: ReturnProductModel[];
-  searchVariantInputValue?: string;
-  pointAmountUsing?: number;
-  pointUsing?: number;
+  searchVariantInputValue: string;
   totalPrice: number;
-  isCheckReturnAll?: boolean;
-  convertResultSearchVariant?: any[] | undefined;
-  onChangeProductSearchValue?: (value: string) => void;
-  onSelectSearchedVariant?: (value: string) => void;
-  onChangeProductQuantity?: (value: number | null, index: number) => void;
-  handleChangeReturnAll?: (e: CheckboxChangeEvent) => void;
+  isCheckReturnAll: boolean;
+  convertResultSearchVariant: any[] | undefined;
+  onChangeProductSearchValue: (value: string) => void;
+  onSelectSearchedVariant: (value: string) => void;
+  onChangeProductQuantity: (value: number | null, index: number) => void;
+  handleChangeReturnAll: (e: CheckboxChangeEvent) => void;
 };
 
 function CardReturnProducts(props: PropType) {
   const {
-    isDetailPage = false,
-    isExchange = false,
-    isStepExchange = false,
-    isShowProductSearch = false,
     OrderDetail,
     listReturnProducts,
-    pointAmountUsing,
-    pointUsing,
+    isDetailPage = false,
+    isExchange = false,
+    isStepExchange,
+    isShowProductSearch = false,
     searchVariantInputValue,
     convertResultSearchVariant,
     totalPrice,
@@ -63,9 +62,10 @@ function CardReturnProducts(props: PropType) {
     handleChangeReturnAll,
   } = props;
 
-  console.log("isExchange", isExchange);
-
   const autoCompleteRef = createRef<RefSelectProps>();
+
+  const pointRate = 1000;
+  const pointPaymentMethod = "Tiêu điểm";
 
   const discountRate = useMemo(() => {
     if (OrderDetail && OrderDetail.discounts) {
@@ -78,6 +78,25 @@ function CardReturnProducts(props: PropType) {
     } else {
       return 0;
     }
+  }, [OrderDetail]);
+
+  const pointUsing = useMemo(() => {
+    let html = null;
+    let paymentPointArray = OrderDetail?.payments?.filter((single) => {
+      return single.payment_method === pointPaymentMethod;
+    });
+    if (paymentPointArray) {
+      console.log("paymentPointArray", paymentPointArray);
+      let amountPoint = 0;
+      paymentPointArray.forEach((single) => {
+        amountPoint += single.paid_amount;
+        console.log("result", amountPoint);
+        html = <span>{amountPoint / pointRate}</span>;
+      });
+    } else {
+      html = "-";
+    }
+    return html;
   }, [OrderDetail]);
 
   const renderCardExtra = () => {
@@ -184,11 +203,9 @@ function CardReturnProducts(props: PropType) {
                 max={record.maxQuantity}
                 value={record.quantity}
                 // defaultValue={0}
-                onChange={(value: number | null) => {
-                  if (onChangeProductQuantity) {
-                    onChangeProductQuantity(value, index);
-                  }
-                }}
+                onChange={(value: number | null) =>
+                  onChangeProductQuantity(value, index)
+                }
                 className="hide-number-handle"
                 maxLength={4}
                 minLength={0}
@@ -276,10 +293,8 @@ function CardReturnProducts(props: PropType) {
             <div className="label">Sản phẩm:</div>
             <AutoComplete
               notFoundContent={
-                searchVariantInputValue
-                  ? searchVariantInputValue.length >= 0
-                    ? "Không tìm thấy sản phẩm"
-                    : undefined
+                searchVariantInputValue.length >= 0
+                  ? "Không tìm thấy sản phẩm"
                   : undefined
               }
               id="search_product"
@@ -345,14 +360,11 @@ function CardReturnProducts(props: PropType) {
               </span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">Tiêu điểm: </span>
-              <span>
-                {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
-                {` (${pointUsing ? pointUsing : 0} điểm)`}
-              </span>
+              <span className="font-size-text">Điểm đã tiêu: </span>
+              <span>{pointUsing}</span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền trả khách:</strong>
+              <strong className="font-size-text">Tổng tiền trả khách 2:</strong>
               <strong>{formatCurrency(totalPrice)}</strong>
             </Row>
           </Col>
