@@ -45,7 +45,7 @@ type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
 };
-var position = 0
+var position = 0;
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain, isEdit } = props;
@@ -104,7 +104,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         let new_line_items = POUtils.addProduct(
           old_line_items,
           new_items,
-          splitLine,
+          splitLine
         );
         let untaxed_amount = POUtils.totalAmount(new_line_items);
         let tax_lines = POUtils.getVatList(
@@ -134,8 +134,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           total_cost_line,
           tax_lines
         );
-        let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
-        let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(currentProcument, new_line_items);
+        let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+          POField.procurements
+        );
+        let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+          currentProcument,
+          new_line_items
+        );
         formMain.setFieldsValue({
           line_items: new_line_items,
           untaxed_amount: untaxed_amount,
@@ -403,6 +408,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        new_line_items
+      );
       formMain.setFieldsValue({
         line_items: new_line_items,
         untaxed_amount: untaxed_amount,
@@ -410,6 +422,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
+        [POField.procurements]: newProcument,
       });
     },
     [formMain, splitLine]
@@ -537,7 +550,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
         extra={
           <Space size={20}>
-            {!isEdit  && (
+            {!isEdit && (
               <Checkbox
                 checked={splitLine}
                 onChange={() => setSplitLine(!splitLine)}
