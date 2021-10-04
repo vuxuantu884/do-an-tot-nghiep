@@ -6,7 +6,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import { FpageCustomerSearchQuery } from "model/query/customer.query";
-import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
+import { CustomerSearchByPhone, CustomerDetail } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
 import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -134,7 +134,9 @@ function FpageCRM() {
     setActiveTabKey(value);
     setIsClearOrderTab(false);
   }, []);
-
+  const handleCustomerById = (id: number) => {
+    dispatch(CustomerDetail(id, searchByPhoneCallback ))
+  }
   return (
     <div className="fpage-customer-relationship">
       <Tabs
@@ -176,6 +178,7 @@ function FpageCRM() {
             getCustomerByPhone={getCustomerWhenChoicePhone}
             loyaltyPoint={loyaltyPoint}
             loyaltyUsageRules={loyaltyUsageRules}
+            handleCustomerById={handleCustomerById}
           />
         </TabPane>
       </Tabs>

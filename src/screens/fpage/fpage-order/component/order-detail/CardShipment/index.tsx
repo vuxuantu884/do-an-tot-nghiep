@@ -264,23 +264,11 @@ const CardShipment: React.FC<CardShipmentProps> = (
           <Row style={{ justifyContent: "center" }}>
             <Tabs
               destroyInactiveTabPane={true}
-              defaultActiveKey="2"
+              defaultActiveKey="4"
               centered
               onChange={(value) => ShipMethodOnChange(parseInt(value))}
             >
-              <TabPane
-                key="1"
-                tab={
-                  <div>
-                    <img
-                      style={{ marginRight: 10 }}
-                      src={IconDelivery}
-                      alt=""
-                    />
-                    Chuyển hãng vận chuyển
-                  </div>
-                }
-              >
+              <TabPane key="1" tab={<div>Chuyển hãng vận chuyển</div>}>
                 <ShipmentMethodDeliverPartner
                   amount={amount}
                   serviceType={serviceType}
@@ -301,19 +289,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
                   totalAmountReturnProducts={totalAmountReturnProducts}
                 />
               </TabPane>
-              <TabPane
-                key="2"
-                tab={
-                  <div>
-                    <img
-                      style={{ marginRight: 10 }}
-                      src={IconSelfDelivery}
-                      alt=""
-                    />
-                    Tự giao hàng
-                  </div>
-                }
-              >
+              <TabPane key="2" tab={<div>Tự giao hàng</div>}>
                 <ShipmentMethodSelfDelivery
                   amount={amount}
                   discountValue={discountValue}
@@ -325,6 +301,9 @@ const CardShipment: React.FC<CardShipmentProps> = (
                   shippingFeeCustomer={shippingFeeCustomer}
                   totalAmountReturnProducts={totalAmountReturnProducts}
                 />
+              </TabPane>
+              <TabPane key="4" tab={<div>Giao hàng sau</div>}>
+              <div style={{minWidth: 1000}}></div>
               </TabPane>
             </Tabs>
           </Row>

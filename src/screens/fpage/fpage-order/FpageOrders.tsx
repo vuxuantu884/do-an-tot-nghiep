@@ -77,6 +77,7 @@ export default function FpageOrders(props: any) {
     setIsClearOrderTab,
     loyaltyPoint,
     loyaltyUsageRules,
+    handleCustomerById
   } = props;
 
   const dispatch = useDispatch();
@@ -91,10 +92,10 @@ export default function FpageOrders(props: any) {
   const [storeId, setStoreId] = useState<number | null>(null);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
-    ShipmentMethodOption.SELF_DELIVER
+    ShipmentMethodOption.DELIVER_LATER
   );
   const [paymentMethod, setPaymentMethod] = useState<number>(
-    PaymentMethodOption.PREPAYMENT
+    PaymentMethodOption.POSTPAYMENT
   );
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
@@ -689,7 +690,7 @@ export default function FpageOrders(props: any) {
         setDiscountRate(0);
         setDiscountValue(0);
         setOfficeTime(false);
-        setShipmentMethod(ShipmentMethodOption.SELF_DELIVER);
+        setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
       }
     };
     fetchData();
@@ -899,6 +900,7 @@ export default function FpageOrders(props: any) {
                 loyaltyUsageRules={loyaltyUsageRules}
                 ShippingAddressChange={onChangeShippingAddress}
                 BillingAddressChange={onChangeBillingAddress}
+                handleCustomerById={handleCustomerById}
               />
               <CardProduct
                 changeInfo={onChangeInfoProduct}
