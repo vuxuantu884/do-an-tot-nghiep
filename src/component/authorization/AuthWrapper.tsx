@@ -1,11 +1,11 @@
 import { useAuthorizationProps } from "hook/useAuthorization";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { cloneElement, Fragment, useEffect, useState } from "react";
+import { Fragment, ReactNode, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { checkUserPermission } from "utils/AuthUtil";
 
 interface AuthWrapperProps extends useAuthorizationProps {
-  children?: any;
+  children: ReactNode;
   passThrough?: boolean; // send boolean value to children
 }
 
@@ -24,16 +24,13 @@ function AuthWrapper(props: AuthWrapperProps) {
   useEffect(() => {
     setAllowed(checkUserPermission(acceptRoles, currentRoles));
   }, [acceptRoles, currentRoles]);
+
   const isPassed = allowed && !not;
+  const elements =
+    typeof children === "function" ? children(isPassed) : children;
   return (
     <Fragment>
-      {passThrough ? (
-        cloneElement(children, isPassed)
-      ) : isPassed ? (
-        children
-      ) : (
-        <Fragment />
-      )}
+      {passThrough ? elements : isPassed ? children : <Fragment />}
     </Fragment>
   );
 }
