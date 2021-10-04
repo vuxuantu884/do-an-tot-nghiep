@@ -62,7 +62,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       page: 1,
       limit: 30,
       ecommerce_id: null,
-      shop_id: [],
+      shop_ids: [],
       category_id: null,
       connect_status: null,
       update_stock_status: null,
@@ -76,7 +76,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     page: 1,
     limit: 30,
     ecommerce_id: null,
-    shop_id: [],
+    shop_ids: [],
     category_id: null,
     connect_status: null,
     update_stock_status: null,
@@ -296,10 +296,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
-      value.shop_id = shopIdSelected;
+      value.shop_ids = shopIdSelected;
 
       query.ecommerce_id = value.ecommerce_id;
-      query.shop_id = value.shop_id;
+      query.shop_ids = value.shop_ids;
       query.category_id = value.category_id;
       query.connect_status = value.connect_status;
       query.update_stock_status = value.update_stock_status;
@@ -479,7 +479,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               </Select>
             </Form.Item>
 
-            <Form.Item name="shop_id" className="select-store-dropdown">
+            <Form.Item name="shop_ids" className="select-store-dropdown">
               {isEcommerceSelected &&
                 <Select
                   showSearch
@@ -603,7 +603,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
             </Form.Item>
 
             <Form.Item
-              name="shop_id"
+              name="shop_ids"
               className="select-store-dropdown"
               label={<b>CHỌN GIAN HÀNG</b>}
             >
