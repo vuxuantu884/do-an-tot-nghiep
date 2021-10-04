@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Select, Input, Modal, Tooltip, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
-import UrlConfig from "config/url.config";
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter"
 import { showSuccess } from "utils/ToastUtils";
@@ -12,9 +11,7 @@ import TotalItemActionColumn from "./TotalItemActionColumn";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
-  getProductEcommerceList,
   getShopEcommerceList,
   deleteEcommerceItem,
   disconnectEcommerceItem,
@@ -36,13 +33,16 @@ import { StyledComponent } from "./styles";
 
 type TotalItemsEcommerceProps = {
   categoryList?: Array<any>
+  variantData: any
+  getProductUpdated: any
+  tableLoading: any
 };
 
 const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   props: TotalItemsEcommerceProps
 ) => {
 
-  const { categoryList } = props;
+  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -52,15 +52,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   const [idDisconnectItem, setIdDisconnectItem] = useState(null);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
-  
-  const [variantData, setVariantData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
 
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
@@ -92,11 +83,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     sku_or_name_ecommerce: "",
   });
 
-  const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
-    if (!!result) {
-      setVariantData(result);
-    }
-  }, []);
 
   const updateEcommerceShopList = React.useCallback((result) => {
     const shopList: any[] = [];
@@ -115,12 +101,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   
 
   useEffect(() => {
-    dispatch(getProductEcommerceList(query, updateVariantData));
     dispatch(getShopEcommerceList({}, updateEcommerceShopList));
-  }, [dispatch, query, updateVariantData, updateEcommerceShopList]);
+  }, [dispatch, updateEcommerceShopList]);
 
   const reloadPage = () => {
-    dispatch(getProductEcommerceList(query, setVariantData));
+    getProductUpdated(query);
   }
 
   //handle sync stock
@@ -189,13 +174,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
       },
     },
     {
       title: "Sku/ itemID (Sàn)",
       visible: true,
-      align: "center",
       render: (l: any, v: any, i: any) => {
         return (
           <div>
@@ -229,7 +213,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        const link = `${UrlConfig.PRODUCT}/${l.id}/variants/${l.core_variant_id}`;
+        const link = `https://dev.yody.io/unicorn/admin/products/${l.core_product_id}/variants/${l.core_variant_id}`;
         return (
           <div>
             <div onClick={() => window.open(link, "_blank")} className="link">{l.core_variant}</div>
@@ -327,13 +311,16 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     }
     
     const querySearch: ProductEcommerceQuery = value;
-    dispatch(getProductEcommerceList(querySearch, setVariantData));
+    getProductUpdated(querySearch);
   };
 
   const onPageChange = React.useCallback(
     (page, limit) => {
+      query.page = page;
+      query.limit = limit;
       setQuery({ ...query, page, limit });
-    },[query]
+      getProductUpdated({...query});
+    },[query, getProductUpdated]
   );
 
   const getShopEcommerce = (ecommerceId: any) => {
@@ -474,6 +461,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
             <Form.Item name="ecommerce_id" className="select-channel-dropdown">
               <Select
                 showSearch
+                disabled={tableLoading}
                 placeholder="Chọn sàn"
                 allowClear
                 onSelect={(value) => getShopEcommerce(value)}
@@ -495,6 +483,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
             <Form.Item name="shop_id" className="select-store-dropdown">
               <Select
                 showSearch
+                disabled={tableLoading}
                 placeholder={getPlaceholderSelectShop()}
                 allowClear={shopIdSelected && shopIdSelected.length > 0}
                 dropdownRender={() => renderShopList(false)}
@@ -504,6 +493,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
+                disabled={tableLoading}
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, tên sản phẩm sàn"
               />
@@ -511,19 +501,20 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
             <Form.Item name="sku_or_name_core" className="yody-search">
               <Input
+                disabled={tableLoading}
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, Sản phẩm Yody"
               />
             </Form.Item>
 
             <Form.Item className="filter-item">
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" disabled={tableLoading}>
                 Lọc
               </Button>
             </Form.Item>
 
             <Form.Item className="filter-item">
-              <Button onClick={openFilter}>
+              <Button onClick={openFilter} disabled={tableLoading}>
                 <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                 <span>Thêm bộ lọc</span>
               </Button>
@@ -532,6 +523,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
         </div>
 
         <CustomTable
+          isLoading={tableLoading}
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1500 }}

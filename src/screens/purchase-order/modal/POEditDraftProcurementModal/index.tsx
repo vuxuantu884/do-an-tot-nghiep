@@ -35,16 +35,6 @@ type ProcurementModalProps = {
   dataSource?: Array<PurchaseOrderLineItemDraft>;
 };
 
-const initDataProcurement = [
-  {
-    store_id: "",
-    expect_receipt_date: "",
-    procurement_items: [],
-    status: "draft",
-    status_po: "draftpo",
-  },
-];
-
 const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
   props: ProcurementModalProps
 ) => {
@@ -87,7 +77,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
 
   const addColumnNumber = useCallback(() => {
     let newProcurement = _.cloneDeep(data);
-    newProcurement.push(...initDataProcurement);
+    // newProcurement.push(...initDataProcurement);
     newProcurement[newProcurement.length - 1].procurement_items =
       dataPurchaseOrderLineItem;
 
@@ -118,7 +108,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
 
       const storeData = stores.find((item) => item.id === parseInt(value));
 
-      newProcurement[index].store_id = value;
+      // newProcurement[index].store_id = value;
       newProcurement[index].store = storeData?.name;
       setData(newProcurement);
     },
@@ -175,9 +165,9 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
                   placeholder="Chọn kho"
                   showSearch
                   optionFilterProp="children"
-                  defaultValue={
-                    itemPCState.store_id ? itemPCState.store_id : undefined
-                  }
+                  // defaultValue={
+                  //   itemPCState.store_id ? itemPCState.store_id : undefined
+                  // }
                   onChange={(value: string) => {
                     value && onChangeValueStore(value, index);
                   }}
