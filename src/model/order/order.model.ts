@@ -1,4 +1,5 @@
 export interface OrderItemModel {
+  product_id:number;
   variant_id: number;
   quantity: number;
   sku: string;
@@ -32,6 +33,7 @@ export interface OrderModel {
   id: number;
   code: string;
   customer: string;
+  customer_id: number;
   customer_phone_number: string;
   store_full_address: string;
   store: string;
