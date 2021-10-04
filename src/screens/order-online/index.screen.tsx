@@ -333,14 +333,58 @@ const ListOrderScreen: React.FC = () => {
           (status) => status.value === status_value
         );
         return (
-          <div
-            style={{
-              background: "rgba(42, 42, 134, 0.1)",
-              borderRadius: "100px",
-              color: "#2A2A86",
-            }}
-          >
-            {status?.name}
+          <div>
+            {status?.name === "Nháp" && (
+              <div
+                style={{
+                  background: "#F5F5F5",
+                  borderRadius: "100px",
+                  color: "#666666",
+                  padding: "3px 10px",
+                }}
+              >
+                {status?.name}
+              </div>
+            )}
+
+            {status?.name === "Đã xác nhận" && (
+              <div
+                style={{
+                  background: "rgba(42, 42, 134, 0.1)",
+                  borderRadius: "100px",
+                  color: "#2A2A86",
+                  padding: "5px 10px",
+                }}
+              >
+                {status?.name}
+              </div>
+            )}
+
+            {status?.name === "Kết thúc" && (
+              <div
+                style={{
+                  background: "rgba(39, 174, 96, 0.1)",
+                  borderRadius: "100px",
+                  color: "#27AE60",
+                  padding: "5px 10px",
+                }}
+              >
+                {status?.name}
+              </div>
+            )}
+
+            {status?.name === "Đã huỷ" && (
+              <div
+                style={{
+                  background: "rgba(226, 67, 67, 0.1)",
+                  borderRadius: "100px",
+                  color: "#E24343",
+                  padding: "5px 10px",
+                }}
+              >
+                {status?.name}
+              </div>
+            )}
           </div>
         );
       },
@@ -783,7 +827,8 @@ const ListOrderScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: "50vh" }}
+            scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
