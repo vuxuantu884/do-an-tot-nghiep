@@ -13,12 +13,17 @@ import { StyledComponent } from "./styles";
 type PropType = {
   listReturnProducts: OrderLineItemResponse[];
   discountRate?: number;
+  pointUsing?: number;
   setTotalAmountReturnProducts: (value: number) => void;
 };
 
 function CardShowReturnProducts(props: PropType) {
-  const { listReturnProducts, discountRate, setTotalAmountReturnProducts } =
-    props;
+  const {
+    listReturnProducts,
+    discountRate,
+    setTotalAmountReturnProducts,
+    pointUsing,
+  } = props;
 
   const getProductDiscountPerOrder = useCallback(
     (product: OrderLineItemResponse) => {
@@ -214,6 +219,10 @@ function CardShowReturnProducts(props: PropType) {
                   <span>{getTotalQuantity(listReturnProducts)}</span>
                 )}
               </span>
+            </Row>
+            <Row className="payment-row" justify="space-between">
+              <span className="font-size-text">Tiêu điểm: </span>
+              {`${pointUsing ? pointUsing : 0} điểm`}
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>

@@ -68,6 +68,8 @@ export interface OrderResponse extends BaseObject {
   order_code?: string;
   order_id?: number;
   order_return_origin?: OrderReturnModel;
+  point_refund?: number;
+  money_refund?: number;
 }
 
 export interface OrderLineItemResponse {

@@ -15,7 +15,7 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   formatCurrency,
   formatSuffixPoint,
@@ -116,6 +116,16 @@ function CardReturnMoneyPageCreate(props: PropType) {
       handlePayments([...payments]);
     }
   };
+
+  const totalAmountPaidInput = useMemo(() => {
+    let total = 0;
+    payments.forEach((p) => (total = total + p.amount));
+    return total;
+  }, [payments]);
+
+  const moneyLeftCalculateInput = useMemo(() => {
+    return totalAmountCustomerNeedToPay - totalAmountPaidInput;
+  }, [totalAmountCustomerNeedToPay, totalAmountPaidInput]);
 
   const handleTransferReference = (index: number, value: string) => {
     const _paymentData = [...payments];
@@ -462,8 +472,8 @@ function CardReturnMoneyPageCreate(props: PropType) {
                             }}
                           >
                             <span style={{ color: false ? "blue" : "red" }}>
-                              {totalAmountCustomerNeedToPay
-                                ? formatCurrency(totalAmountCustomerNeedToPay)
+                              {moneyLeftCalculateInput
+                                ? formatCurrency(moneyLeftCalculateInput)
                                 : 0}
                             </span>
                           </Col>
@@ -500,7 +510,6 @@ function CardReturnMoneyPageCreate(props: PropType) {
   return (
     <Card
       className="margin-top-20"
-      // title={<span className="title-card">Hoàn tiền</span>}
       title={
         <span className="title-card">
           {isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán 2"}
