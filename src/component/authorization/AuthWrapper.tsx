@@ -15,15 +15,15 @@ AuthWrapper.defautProps = {
 };
 
 function AuthWrapper(props: AuthWrapperProps) {
-  const { acceptRoles, not, children, passThrough } = props;
+  const { acceptPermissions, not, children, passThrough } = props;
   const currentRoles: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer?.modules?.permissions
   );
 
   const [allowed, setAllowed] = useState<boolean>(false);
   useEffect(() => {
-    setAllowed(checkUserPermission(acceptRoles, currentRoles));
-  }, [acceptRoles, currentRoles]);
+    setAllowed(checkUserPermission(acceptPermissions, currentRoles));
+  }, [acceptPermissions, currentRoles]);
 
   const isPassed = allowed && !not;
   const elements =

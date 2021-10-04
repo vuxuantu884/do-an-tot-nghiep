@@ -3,24 +3,24 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { checkUserPermission } from "utils/AuthUtil";
 export interface useAuthorizationProps {
-  acceptRoles?: Array<string>;
+  acceptPermissions?: Array<string>;
   not?: boolean;
 }
 
 useAuthorization.defautProps = {
-  acceptRoles: [],
+  acceptPermissions: [],
   not: false,
 };
 function useAuthorization(props: useAuthorizationProps) {
-  const { acceptRoles, not } = props;
+  const { acceptPermissions, not } = props;
   const currentRoles: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer?.modules?.permissions
   );
 
   const [allowed, setAllowed] = useState(false);
   useEffect(() => {
-    setAllowed(checkUserPermission(acceptRoles, currentRoles));
-  }, [acceptRoles, currentRoles]);
+    setAllowed(checkUserPermission(acceptPermissions, currentRoles));
+  }, [acceptPermissions, currentRoles]);
 
   return [allowed && !not];
 }

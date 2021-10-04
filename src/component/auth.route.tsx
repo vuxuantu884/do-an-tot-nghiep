@@ -16,7 +16,7 @@ const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
   return (
     <Route path={path}>
       <Container title={title}>
-        <AuthWrapper acceptRoles={permissions}>
+        <AuthWrapper acceptPermissions={permissions}>
           <Component />
         </AuthWrapper>
       </Container>

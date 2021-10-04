@@ -1,4 +1,4 @@
-import { AdminPermissions } from "./Constants";
+import { UserPermissions } from "./Constants";
 
 //returns true : can | false : can not
 export const checkUserPermission = (
@@ -12,7 +12,7 @@ export const checkUserPermission = (
 
   if (
     Array.isArray(currentPermissions) &&
-    currentPermissions?.includes(AdminPermissions.ADMIN_ALL)
+    currentPermissions?.includes(UserPermissions.ADMIN_ALL)
   ) {
     return true;
   }

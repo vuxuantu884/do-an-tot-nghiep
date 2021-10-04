@@ -156,6 +156,8 @@ export const DEFAULT_FORM_VALUE = {
   company_id: 1,
 };
 
-export const AdminPermissions = {
+export const UserPermissions = {
   ADMIN_ALL: "ADMIN_ALL",
+  HR: "HR",
+  WIN: "WIN",
 };
