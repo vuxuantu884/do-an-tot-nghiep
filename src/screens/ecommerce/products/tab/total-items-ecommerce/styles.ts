@@ -11,27 +11,58 @@ export const StyledComponent = styled.div`
     }
 
     .filter-item {
-      margin-right: 15px;
+      margin-right: 10px;
     }
 
     .select-channel-dropdown {
-      margin-right: 15px;
-      width: 190px;
+      margin-right: 10px;
+      width: 180px;
     }
 
     .select-store-dropdown {
-      margin-right: 15px;
-      width: 150px;
+      margin-right: 10px;
+      width: 200px;
     }
     
     .shoppe-search {
-      margin-right: 15px;
+      margin-right: 10px;
       width: 230px;
     }
     
     .yody-search {
-      margin-right: 15px;
+      margin-right: 10px;
       width: 200px;
+    }
+  }
+
+  .render-shop-list {
+    .shop-name {
+      padding: 5px 10px;
+      white-space: nowrap;
+      &:hover{
+        background-color: #f4f4f7;
+      }
+      .check-box-name {
+        display: flex;
+        .name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+      }
+    }
+  }
+
+  .link {
+    color: #2a2a86;
+    text-decoration: none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+    transition: color .3s;
+    &:hover {
+      color: #1890ff;
+      text-decoration: underline;
     }
   }
   

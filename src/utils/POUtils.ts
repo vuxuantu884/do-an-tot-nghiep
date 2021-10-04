@@ -142,10 +142,11 @@ const POUtils = {
     return poStatus;
   },
   convertVariantToLineitem: (
-    variants: Array<VariantResponse>
+    variants: Array<VariantResponse>,
+    position: number,
   ): Array<PurchaseOrderLineItem> => {
     let result: Array<PurchaseOrderLineItem> = [];
-    variants.forEach((variant) => {
+    variants.forEach((variant, index) => {
       let newId = `${variant.sku}${new Date().getTime()}`;
       let price_response = Products.findPrice(
         variant.variant_prices,
@@ -175,7 +176,7 @@ const POUtils = {
         discount_rate: null,
         discount_value: null,
         discount_amount: 0,
-        position: null,
+        position: position + index + 1,
         purchase_order_id: null,
         temp_id: newId,
         showNote: false,
@@ -189,7 +190,7 @@ const POUtils = {
   addProduct: (
     oldItems: Array<PurchaseOrderLineItem>,
     newItems: Array<PurchaseOrderLineItem>,
-    split: boolean
+    split: boolean,
   ) => {
     if (split) {
       return [...newItems, ...oldItems];
@@ -414,7 +415,7 @@ const POUtils = {
     let result: Array<PurchaseProcumentLineItem> = [];
     data.forEach((item) => {
       result.push({
-        line_item_id: item.id ? item.id : new Date().getTime(),
+        line_item_id: item.position,
         code: item.code,
         sku: item.sku,
         variant: item.variant,
@@ -449,6 +450,39 @@ const POUtils = {
     data.forEach((item) => (total = total + item.ordered_quantity));
     return total;
   },
+  getNewProcument: (procuments: Array<PurchaseProcument>, data: Array<PurchaseOrderLineItem>) => {
+    let newProcument = procuments.map((item) => {
+      let newProcumentLineItem = [...item.procurement_items];
+      item.procurement_items.forEach((procumentItem) => {
+        let index = data.findIndex((lineItem) => lineItem.position === procumentItem.line_item_id);
+        if(index === -1) {
+          newProcumentLineItem.splice(index, 1);
+        }
+      });
+      data.forEach((lineItem) => {
+        let index = newProcumentLineItem.findIndex((procumentItem) => lineItem.position === procumentItem.line_item_id);
+        if(index === -1) {
+          newProcumentLineItem.push({
+            line_item_id: lineItem.position,
+            code: lineItem.code,
+            sku: lineItem.sku,
+            variant: lineItem.variant,
+            variant_image: lineItem.variant_image,
+            ordered_quantity: lineItem.quantity,
+            planned_quantity: lineItem.planned_quantity,
+            accepted_quantity: lineItem.receipt_quantity,
+            quantity: 0,
+            real_quantity: 0,
+            note: "",
+          })
+        }
+      });
+      item.procurement_items = newProcumentLineItem;
+      return item;
+    });
+    console.log(newProcument);
+    return newProcument;
+  }
 };
 
 export { POUtils };

@@ -21,7 +21,7 @@ export const StyledComponent = styled.div`
 
     .select-store-dropdown {
       margin-right: 15px;
-      width: 150px;
+      width: 200px;
     }
 
     .shoppe-search {
@@ -47,6 +47,24 @@ export const StyledComponent = styled.div`
     }
   }
 
+  .render-shop-list {
+    .shop-name {
+      padding: 5px 10px;
+      white-space: nowrap;
+      &:hover{
+        background-color: #f4f4f7;
+      }
+      .check-box-name {
+        display: flex;
+        .name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+      }
+    }
+  }
+
 `;
 
 export const StyledYodyProductColumn = styled.div`
@@ -54,6 +72,26 @@ export const StyledYodyProductColumn = styled.div`
     display: flex;
     justify-content: space-evenly;
   }
+
+  .link {
+    color: #2a2a86;
+    text-decoration: none;
+    background-color: transparent;
+    outline: none;
+    cursor: pointer;
+    transition: color .3s;
+    &:hover {
+      color: #1890ff;
+      text-decoration: underline;
+    }
+  }
+
+  .item-price-unit {
+    text-decoration: underline;
+    text-decoration-color: #737373;
+    color: #737373;
+  }
+
 `;
 
 export const StyledProductListDropdown = styled.div`
