@@ -636,18 +636,19 @@ const ListOrderScreen: React.FC = () => {
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable
-          isRowSelection
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 3630, y: "50vh" }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
+           isRowSelection
+           isLoading={tableLoading}
+           showColumnSetting={true}
+           scroll={{ x: 3630}}
+           sticky={{offsetScroll: 10, offsetHeader: 55}}
+           pagination={{
+             pageSize: data.metadata.limit,
+             total: data.metadata.total,
+             current: data.metadata.page,
+             showSizeChanger: true,
+             onChange: onPageChange,
+             onShowSizeChange: onPageChange,
+           }}
           // expandable={{
           //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
           // }}

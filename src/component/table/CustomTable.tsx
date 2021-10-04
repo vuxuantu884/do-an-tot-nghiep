@@ -12,7 +12,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   isLoading?: boolean;
   showColumnSetting?: boolean;
   isRowSelection?: boolean;
-  selectedRowKey?: any[]
+  selectedRowKey?: any[];
   onChangeRowKey?: (rowKey: any[]) => void;
 }
 
@@ -62,26 +62,12 @@ const CustomTable = (props: ICustomTableProps) => {
     isLoading,
     isRowSelection,
     selectedRowKey,
-    onChangeRowKey
+    onChangeRowKey,
   } = props;
 
-  const configSettingColumns: ICustomTableColumType<any>[] = [
-    {
-      title: (
-        <Button
-          className="custom-table-setting-column"
-          icon={<SettingOutlined />}
-          onClick={onShowColumnSetting}
-        />
-      ),
-      visible: true,
-      key: "configColumn",
-      width: 50,
-    },
-  ];
+  const configSettingColumns: ICustomTableColumType<any>[] = [];
   const onSelect = useCallback(
     (item: any, selected: boolean, selectedRow: any[]) => {
-      
       onSelectedChange && onSelectedChange(selectedRow);
     },
     [onSelectedChange]
