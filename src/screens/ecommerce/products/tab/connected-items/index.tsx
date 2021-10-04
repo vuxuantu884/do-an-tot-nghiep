@@ -311,7 +311,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.stock || "-"}</span>
+          <span>{l.stock}</span>
         );
       },
     },
@@ -333,7 +333,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         return (
           <div>
             <span>Đồng bộ tồn</span>
-            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
+            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click" color="blue">
               <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
             </Tooltip>
           </div>
@@ -344,17 +344,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       render: (l: any, v: any, i: any) => {
         return (
           <div>
-            {l.stock === "done" &&
+            {l.sync_stock_status === "done" &&
               <Tooltip title={l.updated_date}>
                 <span style={{color: '#27AE60'}}>Thành công</span>
               </Tooltip>
             }
-            {l.stock === "error" &&
+            {l.sync_stock_status === "error" &&
               <Tooltip title="error">
                 <span style={{color: '#E24343'}}>Thất bại</span>
               </Tooltip>
             }
-            {(l.stock === "in_progress" || l.stock === null) &&
+            {(l.sync_stock_status === "in_progress") &&
               <span style={{color: '#FFA500'}}>Đang xử lý</span>
             }
           </div>
