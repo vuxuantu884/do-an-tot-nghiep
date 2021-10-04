@@ -6,6 +6,8 @@ import moment from "moment";
 import { DATE_FORMAT } from 'utils/DateUtils';
 import {DownloadOutlined} from "@ant-design/icons"
 
+import { PageResponse } from "model/base/base-metadata.response";
+import { ProductEcommerceQuery } from "model/query/ecommerce.query";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import TotalItemsEcommerce from "./tab/total-items-ecommerce";
@@ -15,7 +17,8 @@ import NotConnectedItems from "./tab/not-connected-items";
 import {
   getShopEcommerceList,
   postProductEcommerceList,
-  getCategoryList
+  getCategoryList,
+  getProductEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
@@ -34,6 +37,7 @@ const { RangePicker } = DatePicker;
 const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
+  const dispatch = useDispatch();
   
   const [isLoading, setIsLoading] = React.useState(false);
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
@@ -58,7 +62,40 @@ const Products: React.FC = () => {
     key: "",
   });
 
-  const dispatch = useDispatch();
+
+  const [tableLoading, setTableLoading] = useState(false);
+  const [variantData, setVariantData] = useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+
+  const [query, ] = useState<ProductEcommerceQuery>({
+    page: 1,
+    limit: 30,
+    ecommerce_id: null,
+    shop_id: [],
+    category_id: null,
+    connect_status: null,
+    update_stock_status: null,
+    sku_or_name_core: "",
+    sku_or_name_ecommerce: "",
+  });
+
+  const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
+    setTableLoading(false);
+    if (!!result) {
+      setVariantData(result);
+    }
+  }, []);
+
+  const getProductUpdated = (queryRequest: any) => {
+    setTableLoading(true);
+    dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+  }
 
   const updateCategoryData = React.useCallback((result) => {
     if (!!result && result.items) {
@@ -67,23 +104,32 @@ const Products: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setTableLoading(true);
+    dispatch(getProductEcommerceList(query, updateVariantData));
     dispatch(getCategoryList({}, updateCategoryData));
-  }, [dispatch, updateCategoryData]);
+  }, [dispatch, updateCategoryData, query, updateVariantData]);
 
   useEffect(() => {
+    const requestQuery = {...query};
+    
     if (history.location.hash) {
       switch (history.location.hash) {
         case "#total-item":
+          requestQuery.connect_status = null;
           setActiveTab("total-item");
           break;
         case "#connected-item":
+          requestQuery.connect_status = "connected";
           setActiveTab("connected-item");
           break;
         case "#not-connected-item":
+          requestQuery.connect_status = "waiting";
           setActiveTab("not-connected-item");
           break;
       }
     }
+    getProductUpdated(requestQuery);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.location.hash]);
 
   const handleGetProductsFromEcommerce = () => {
@@ -196,7 +242,7 @@ const Products: React.FC = () => {
 
   const redirectToNotConnectedItems = () => {
     setIsShowResultGetItemModal(false);
-    history.replace(`${history.location.pathname}#not-connected-item`);
+    handleOnchangeTab("not-connected-item");
     setActiveTab("not-connected-item");
   };
 
@@ -257,6 +303,24 @@ const Products: React.FC = () => {
     setShopIdSelected(shop_id);
   }
 
+  const handleOnchangeTab = (active: any) => {
+    const requestQuery = {...query};
+    switch (active) {
+      case "total-item":
+        requestQuery.connect_status = null;
+        break;
+      case "connected-item":
+        requestQuery.connect_status = "connected";
+        break;
+      case "not-connected-item":
+        requestQuery.connect_status = "waiting";
+        break;
+    }
+    getProductUpdated(requestQuery);
+    history.replace(`${history.location.pathname}#${active}`);
+  }
+  
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -290,20 +354,33 @@ const Products: React.FC = () => {
           <Card>
             <Tabs
               activeKey={activeTab}
-              onChange={(active) => {
-                history.replace(`${history.location.pathname}#${active}`);
-              }}
+              onChange={(active) => {handleOnchangeTab(active)}}
             >
               <TabPane tab="Tất cả sản phẩm" key="total-item">
-                <TotalItemsEcommerce categoryList={categoryList} />
+                <TotalItemsEcommerce
+                  tableLoading={tableLoading}
+                  categoryList={categoryList}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
               </TabPane>
 
               <TabPane tab="Sản phẩm đã ghép" key="connected-item">
-                <ConnectedItems categoryList={categoryList} />
+                <ConnectedItems
+                  tableLoading={tableLoading}
+                  categoryList={categoryList}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
               </TabPane>
               
               <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
-                <NotConnectedItems categoryList={categoryList} />
+                <NotConnectedItems
+                  tableLoading={tableLoading}
+                  categoryList={categoryList}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
               </TabPane>
             </Tabs>
           </Card>

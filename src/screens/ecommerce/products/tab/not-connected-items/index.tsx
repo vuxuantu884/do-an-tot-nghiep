@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo, createRef } from "react";
+import React, { useState, useMemo, createRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
 import { Button, Form, Select, Input, Modal, Tooltip, AutoComplete, Checkbox } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
-import UrlConfig from "config/url.config";
 import { AppConfig } from "config/app.config";
 
 import CustomTable from "component/table/CustomTable";
@@ -25,7 +24,6 @@ import {
 } from "model/product/product.model";
 
 import {
-  getProductEcommerceList,
   getShopEcommerceList,
   deleteEcommerceItem,
   putConnectEcommerceItem
@@ -49,13 +47,16 @@ import { StyledComponent, StyledProductListDropdown, StyledYodyProductColumn } f
   
 type NotConnectedItemsProps = {
   categoryList?: Array<any>
+  variantData: any
+  getProductUpdated: any
+  tableLoading: any
 };
 
 const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   props: NotConnectedItemsProps
 ) => {
 
-  const { categoryList } = props;
+  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -65,20 +66,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
    
-  const [variantData, setVariantData] = useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
+  let tempConnectItemList: any[] = [];
+  let notMatchConnectItemList: any[] = [];
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
-  const [selectedRow, setSelected] = useState<Array<any>>([]);
+  let notMatchSelectedRow: any[] = [];
+  const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -87,7 +82,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       ecommerce_id: null,
       shop_id: [],
       category_id: null,
-      connect_status: null,
+      connect_status: "waiting",
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
@@ -101,17 +96,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     ecommerce_id: null,
     shop_id: [],
     category_id: null,
-    connect_status: null,
+    connect_status: "waiting",
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
   });
 
-  const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
-    if (!!result) {
-      setVariantData(result);
-    }
-  }, []);
   
   const updateEcommerceShopList = React.useCallback((result) => {
     const shopList: any[] = [];
@@ -130,12 +120,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   
 
   useEffect(() => {
-    dispatch(getProductEcommerceList(query, updateVariantData));
     dispatch(getShopEcommerceList({}, updateEcommerceShopList));
-  }, [dispatch, query, updateVariantData, updateEcommerceShopList]);
+  }, [dispatch, updateEcommerceShopList]);
  
   const reloadPage = () => {
-    dispatch(getProductEcommerceList(query, updateVariantData));
+    getProductUpdated(query);
   }
 
 
@@ -162,8 +151,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
   };
 
+  //handle update connectItemList
+  const updateConnectItemList = (newConnectItemList: any) => {
+    tempConnectItemList = newConnectItemList;
 
-  const RenderProductColumn = (item: any, connectItemList: Array<any>, setConnectItemList: Function) => {
+    setConnectItemList(newConnectItemList);
+  };
+
+
+  const RenderProductColumn = (item: any, copyConnectItemList: any, updateConnectItemList: any) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
@@ -172,7 +168,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     
 
     const saveConnectYodyProduct = (itemId: any) => {  
-      const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
+      const newConnectItemList = copyConnectItemList && copyConnectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
 
@@ -182,11 +178,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         core_sku: productSelected.sku,
         core_variant: productSelected.name,
         core_price: productSelected.retail_price,
+        core_product_id: productSelected.product_id,
         ecommerce_correspond_to_core: 1,
       }
   
       setProductSelected(null);
-      setConnectItemList(newConnectItemList);
+      updateConnectItemList(newConnectItemList);
       const request = {
         variants: [connectProductSelected]
       }
@@ -204,11 +201,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
     
     const cancelConnectYodyProduct = (itemId: any) => {
-      const newConnectItemList = connectItemList && connectItemList.filter((item: any) => {
+      const newConnectItemList = copyConnectItemList && copyConnectItemList.filter((item: any) => {
         return item.core_variant_id !== itemId;
       });
   
-      setConnectItemList(newConnectItemList);
+      updateConnectItemList(newConnectItemList);
       setProductSelected(null);
     }
 
@@ -270,13 +267,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           core_sku: productSelectedData.sku,
           core_variant: productSelectedData.name,
           core_price: productSelectedData.retail_price,
+          core_product_id: productSelectedData.product_id,
           ecommerce_correspond_to_core: 1,
         }
 
-        const newConnectItems = [...connectItemList];
+        const newConnectItems = [...copyConnectItemList];
         newConnectItems.push(connectItem);
         
-        setConnectItemList(newConnectItems);
+        updateConnectItemList(newConnectItems);
         setIsInputSearchProductFocus(false);
         setKeySearchVariant("");
         autoCompleteRef.current?.blur();
@@ -342,7 +340,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }, [resultSearchVariant]);
 
     const gotoProductDetail = () => {
-      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`;
+      const link = `https://dev.yody.io/unicorn/admin/products/${productSelected.product_id}/variants/${productSelected.id}`;
       window.open(link, "_blank");
     }
 
@@ -426,19 +424,17 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={l.ecommerce_image_url} style={{height: "40px", width: "30px"}} alt=""></img>;
+        return <img src={l.ecommerce_image_url} style={{height: "40px"}} alt=""></img>;
       },
     },
     {
       title: "Sku/ itemID (Sàn)",
       visible: true,
-      align: "center",
       render: (l: any, v: any, i: any) => {
         return (
           <div>
             <div>{l.ecommerce_sku}</div>
             <div style={{color: "#737373"}}>{l.ecommerce_product_id}</div>
-            <div style={{color: "#737373"}}>({l.ecommerce_variant_id})</div>
             <div style={{color: "#2a2a86"}}>({l.shop})</div>
           </div>
         )
@@ -466,7 +462,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Sản phẩm (Yody)",
       visible: true,
-      render: (l: any, v: any, i: any) => RenderProductColumn(l, connectItemList, setConnectItemList)
+      render: (l: any, v: any, i: any) => RenderProductColumn(l, [...tempConnectItemList], updateConnectItemList)
     },
     {
       title: "Ghép nối",
@@ -496,9 +492,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     
   ]);
 
-  const variantNotConnectedItem = variantData && variantData.items && variantData.items.filter((item: any) => {
-    return item.connect_status !== "connected";
-  });
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
@@ -513,13 +506,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }
     
     const querySearch: ProductEcommerceQuery = value;
-    dispatch(getProductEcommerceList(querySearch, setVariantData));
+    getProductUpdated(querySearch);
   };
 
   const onPageChange = React.useCallback(
     (page, limit) => {
+      query.page = page;
+      query.limit = limit;
       setQuery({ ...query, page, limit });
-    },[query]
+      getProductUpdated({...query});
+    },[query, getProductUpdated]
   );
 
 
@@ -589,16 +585,34 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const saveConnectedYodyProduct = () => {
     const yodyProductConnectCheck: any[] = [];
     let isSaveAble = true;
-    if (selectedRow.length === 0) {
+
+    let tempSelectedRow: any[] = [];
+    selectedRow.forEach((rowData) => {
+      if (!!rowData) {
+        tempSelectedRow.push(rowData);
+      }
+    });
+
+    if (tempSelectedRow.length === 0) {
       showError("Vui lòng chọn ít nhất 1 sản phẩm để ghép nối");
       isSaveAble = false;
     } else {
       connectItemList.forEach((item) => {
-        const itemMatch = selectedRow.find(rowData => rowData.id === item.id)
+        const itemMatch = tempSelectedRow.find(rowData => rowData.id === item.id)
         if (itemMatch) {
           yodyProductConnectCheck.push(item);
+        } else {
+          notMatchConnectItemList.push(item);
         }
       });
+
+      tempSelectedRow.forEach((rowData) => {
+        const rowMatch = yodyProductConnectCheck.find(item => item.id !== rowData.id);
+        if (rowMatch) {
+          notMatchSelectedRow.push(rowData);
+        }
+      });
+
     }
 
     if (isSaveAble && yodyProductConnectCheck.length === 0) {
@@ -614,7 +628,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       dispatch(
         putConnectEcommerceItem(request, (result) => {
           if (result) {
-            setConnectItemList([]);
+            setConnectItemList(notMatchConnectItemList);
+            tempConnectItemList = notMatchConnectItemList;
+            setSelectedRow(notMatchSelectedRow);
+
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
             history.replace(`${history.location.pathname}#connected-item`)
@@ -691,7 +708,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   //select row table
   const onSelectTable = React.useCallback(
     (selectedRow: Array<any>) => {
-      setSelected(selectedRow);
+      setSelectedRow(selectedRow);
     },
     []
   );
@@ -709,6 +726,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <Form.Item name="ecommerce_id" className="select-channel-dropdown">
               <Select
                 showSearch
+                disabled={tableLoading}
                 placeholder="Chọn sàn"
                 allowClear
                 onSelect={(value) => getShopEcommerce(value)}
@@ -730,6 +748,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <Form.Item name="shop_id" className="select-store-dropdown">
               <Select
                 showSearch
+                disabled={tableLoading}
                 placeholder={getPlaceholderSelectShop()}
                 allowClear={shopIdSelected && shopIdSelected.length > 0}
                 dropdownRender={() => renderShopList(false)}
@@ -739,19 +758,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
             <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
               <Input
+                disabled={tableLoading}
                 prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                 placeholder="SKU, tên sản phẩm sàn"
               />
             </Form.Item>
 
             <Form.Item className="filter-item">
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" disabled={tableLoading}>
                 Lọc
               </Button>
             </Form.Item>
 
             <Form.Item className="filter-item">
-              <Button onClick={openFilter}>
+              <Button onClick={openFilter} disabled={tableLoading}>
                 <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
                 <span>Thêm bộ lọc</span>
               </Button>
@@ -761,12 +781,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
         <CustomTable
           isRowSelection
+          isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
-          dataSource={variantNotConnectedItem}
+          dataSource={variantData.items}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
-            total: variantNotConnectedItem && variantNotConnectedItem.length,
+            total: variantData.metadata && variantData.metadata.total,
             current: variantData.metadata && variantData.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
