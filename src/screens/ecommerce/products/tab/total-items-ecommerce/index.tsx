@@ -235,7 +235,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       align: "center",
       render: (l: any, v: any, i: any) => {
         return (
-          <span>{l.stock || "-"}</span>
+          <span>{l.stock}</span>
         );
       },
     },
@@ -260,7 +260,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
         return (
           <div>
             <span>Đồng bộ tồn</span>
-            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
+            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click" color="blue">
               <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
             </Tooltip>
           </div>
@@ -283,7 +283,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               </Tooltip>
             }
 
-            {(l.sync_stock_status === "in_progress" || l.stock === null) &&
+            {(l.sync_stock_status === "in_progress") &&
               <span style={{color: '#FFA500'}}>Đang xử lý</span>
             }
           </div>
