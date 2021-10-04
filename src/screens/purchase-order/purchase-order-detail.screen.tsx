@@ -114,9 +114,10 @@ const PODetailScreen: React.FC = () => {
   const [printContent, setPrintContent] = useState<string>("");
   const [isEditDetail, setIsEditDetail] = useState<boolean>(false);
   const [statusAction, setStatusAction] = useState<string>("");
-
+  const [isLoading, setLoading] = useState<boolean>(false);
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
+      setLoading(false)
       if (!result) {
         setError(true);
       } else {
@@ -400,6 +401,7 @@ const PODetailScreen: React.FC = () => {
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
     if (!isNaN(idNumber)) {
+      setLoading(true);
       loadDetail(idNumber, true);
     } else {
       setError(true);
@@ -463,6 +465,7 @@ const PODetailScreen: React.FC = () => {
   return (
     <ContentContainer
       isError={isError}
+      isLoading={isLoading}
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
@@ -561,12 +564,11 @@ const PODetailScreen: React.FC = () => {
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
               poData={poData}
-              isEdit={true}
-              isEditDetail={isEditDetail}
+              isEdit={!isEditDetail}
               now={now}
+              formMain={formMain}
               status={status}
               stores={listStore}
-              formMainEdit={formMain}
             />
 
             {poData && poData.status !== POStatus.DRAFT ? (
