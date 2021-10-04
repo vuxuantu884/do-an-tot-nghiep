@@ -1,4 +1,4 @@
-import { Col, Form, FormInstance, Input, Row } from "antd";
+import { Card, Col, Collapse, Form, FormInstance, Input, Row, Space, Tag } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -47,9 +47,11 @@ import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
+  checkPaymentStatusToShow,
   formatCurrency,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
+  SumCOD,
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -60,10 +62,10 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
-import CardPayments from "./component/order-detail/CardPayments";
 import CardProduct from "./component/order-detail/CardProduct";
 import CardShipment from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
@@ -179,9 +181,6 @@ export default function Order(props: PropType) {
     setStoreId(storeId);
   };
 
-  const handlePaymentMethod = (value: number) => {
-    setPaymentMethod(value);
-  };
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
@@ -995,7 +994,7 @@ const setStoreForm=useCallback((id:number|null)=>{
                     levelOrder={levelOrder}
                     updateOrder={true}
                   />
-                  <CardPayments
+                  {/* <CardPayments
                     setSelectedPaymentMethod={handlePaymentMethod}
                     payments={payments}
                     setPayments={onPayments}
@@ -1009,7 +1008,191 @@ const setStoreForm=useCallback((id:number|null)=>{
                     isCloneOrder={true}
                     levelOrder={levelOrder}
                     updateOrder={true}
-                  />
+                  /> */}
+                  {OrderDetail !== null &&
+                    OrderDetail?.payments &&
+                    OrderDetail?.payments?.length > 0 && (
+                      <Card
+                        className="margin-top-20"
+                        title={
+                          <Space>
+                            <div className="d-flex">
+                              <span className="title-card">THANH TOÁN</span>
+                            </div>
+                            {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                              <Tag className="orders-tag orders-tag-default">
+                                Chưa thanh toán 2
+                              </Tag>
+                            )}
+                            {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                              <Tag className="orders-tag orders-tag-warning">
+                                Thanh toán 1 phần
+                              </Tag>
+                            )}
+                            {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                              <Tag
+                                className="orders-tag orders-tag-success"
+                                style={{
+                                  backgroundColor: "rgba(39, 174, 96, 0.1)",
+                                  color: "#27AE60",
+                                }}
+                              >
+                                Đã thanh toán
+                              </Tag>
+                            )}
+                          </Space>
+                        }
+                      >
+                        {OrderDetail?.payments && (
+                          <div>
+                            <div style={{ padding: "0 24px 24px 24px" }}>
+                              <Collapse
+                                className="orders-timeline"
+                                defaultActiveKey={["100"]}
+                                ghost
+                              >
+                                {OrderDetail.total === SumCOD(OrderDetail) &&
+                                OrderDetail.total === OrderDetail.total_paid ? (
+                                  ""
+                                ) : (
+                                  <>
+                                    {OrderDetail?.payments
+                                      .filter((payment) => {
+                                        // nếu là đơn trả thì tính cả cod
+                                        if (OrderDetail.order_return_origin) {
+                                          return true;
+                                        }
+                                        return (
+                                          payment.payment_method !== "cod" &&
+                                          payment.amount
+                                        );
+                                      })
+                                      .map((payment: any, index: number) => (
+                                        <Collapse.Panel
+                                          showArrow={false}
+                                          className="orders-timeline-custom success-collapse"
+                                          header={
+                                            <div className="orderPaymentItem">
+                                              <div className="orderPaymentItem__left">
+                                                <div>
+                                                  {/* <b>{payment.payment_method}</b> */}
+                                                  {/* trường hợp số tiền âm là hoàn lại tiền */}
+                                                  <b>
+                                                    {payment.paid_amount < 0
+                                                      ? "Hoàn tiền cho khách"
+                                                      : payment.payment_method}
+                                                  </b>
+                                                  <span>{payment.reference}</span>
+                                                  {payment.payment_method_id ===
+                                                    5 && (
+                                                    <span
+                                                      style={{ marginLeft: 10 }}
+                                                    >
+                                                      {payment.amount / 1000} điểm
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <span className="amount">
+                                                  {formatCurrency(
+                                                    Math.abs(payment.paid_amount)
+                                                  )}
+                                                </span>
+                                              </div>
+                                              <div className="orderPaymentItem__right">
+                                                <span className="date">
+                                                  {ConvertUtcToLocalDate(
+                                                    payment.created_date,
+                                                    "DD/MM/YYYY HH:mm"
+                                                  )}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          }
+                                          key={index}
+                                        ></Collapse.Panel>
+                                      ))}
+                                  </>
+                                )}
+                                
+                                {OrderDetail?.fulfillments &&
+                                  OrderDetail?.fulfillments.length > 0 &&
+                                  OrderDetail?.fulfillments[0].shipment &&
+                                  OrderDetail?.fulfillments[0].shipment.cod && (
+                                    <Collapse.Panel
+                                      className={
+                                        OrderDetail?.fulfillments[0].status !==
+                                        "shipped"
+                                          ? "orders-timeline-custom orders-dot-status"
+                                          : "orders-timeline-custom "
+                                      }
+                                      showArrow={false}
+                                      header={
+                                        <>
+                                          <div className="orderPaymentItem">
+                                            <div className="orderPaymentItem__left">
+                                              <b>
+                                                COD
+                                                {OrderDetail.fulfillments[0]
+                                                  .status !== "shipped" ? (
+                                                  <Tag
+                                                    className="orders-tag orders-tag-warning"
+                                                    style={{ marginLeft: 10 }}
+                                                  >
+                                                    Đang chờ thu
+                                                  </Tag>
+                                                ) : (
+                                                  <Tag
+                                                    className="orders-tag orders-tag-success"
+                                                    style={{
+                                                      backgroundColor:
+                                                        "rgba(39, 174, 96, 0.1)",
+                                                      color: "#27AE60",
+                                                      marginLeft: 10,
+                                                    }}
+                                                  >
+                                                    Đã thu COD
+                                                  </Tag>
+                                                )}
+                                              </b>
+                                              <span className="amount">
+                                                {OrderDetail !== null &&
+                                                OrderDetail?.fulfillments
+                                                  ? formatCurrency(
+                                                      OrderDetail.fulfillments[0]
+                                                        .shipment?.cod
+                                                    )
+                                                  : 0}
+                                              </span>
+                                            </div>
+                                            <div className="orderPaymentItem__right">
+                                              {OrderDetail?.fulfillments[0]
+                                                .status === "shipped" && (
+                                                <div>
+                                                  <span className="date">
+                                                    {ConvertUtcToLocalDate(
+                                                      OrderDetail?.updated_date,
+                                                      "DD/MM/YYYY HH:mm"
+                                                    )}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </>
+                                      }
+                                      key="100"
+                                    ></Collapse.Panel>
+                                  )}
+                              </Collapse>
+                            </div>{" "}
+                          </div>
+                        )}
+
+                        
+                      </Card>
+                    )}
+
+                  
                 </Col>
                 <Col md={6}>
                   <OrderDetailSidebar

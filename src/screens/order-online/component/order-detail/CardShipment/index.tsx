@@ -113,7 +113,9 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const ShipMethodOnChange = (value: number) => {
     setServiceType(undefined);
     setShipmentMethodProps(value);
-    setPaymentMethod(value);
+    if(levelOrder <3) {
+      setPaymentMethod(value);
+    }
     setShipmentMethodProps(value);
     if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
       if (value === ShipmentMethodOption.SELF_DELIVER) {

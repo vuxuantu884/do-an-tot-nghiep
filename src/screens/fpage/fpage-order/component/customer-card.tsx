@@ -1029,7 +1029,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       </div>
                       <Form.Item
                         style={{ marginTop: "10px" }}
-                        name="Email_note"
+                        name="email_note"
                         // label={<b>Email gửi hóa đơn:</b>}
                         rules={[
                           {
