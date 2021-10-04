@@ -1,4 +1,4 @@
-import { Card, Col, Collapse, Form, FormInstance, Input, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Collapse, Divider, Form, FormInstance, Input, Row, Space, Tag } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -595,7 +595,10 @@ export default function Order(props: PropType) {
       dispatch(
         OrderDetailAction(Number(id), (response) => {
           const { customer_id } = response;
-          setOrderDetail(response);
+          setOrderDetail({
+            ...response,
+            fulfillments: response.fulfillments?.reverse()
+          });
           if (customer_id) {
             dispatch(
               CustomerDetail(customer_id, (responseCustomer) => {
@@ -1187,11 +1190,144 @@ const setStoreForm=useCallback((id:number|null)=>{
                             </div>{" "}
                           </div>
                         )}
-
+                        
                         
                       </Card>
                     )}
+                  {/* COD toàn phần */}
+                  {OrderDetail &&
+                    OrderDetail.fulfillments &&
+                    OrderDetail.fulfillments.length > 0 &&
+                    OrderDetail.fulfillments[0].shipment &&
+                    OrderDetail.fulfillments[0].shipment?.cod ===
+                      (OrderDetail?.fulfillments[0].shipment
+                        .shipping_fee_informed_to_customer
+                        ? OrderDetail?.fulfillments[0].shipment
+                            .shipping_fee_informed_to_customer
+                        : 0) +
+                        OrderDetail?.total_line_amount_after_line_discount -
+                        (OrderDetail?.discounts &&
+                        OrderDetail?.discounts.length > 0 &&
+                        OrderDetail?.discounts[0].amount
+                          ? OrderDetail?.discounts[0].amount
+                          : 0) &&
+                    checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                      <Card
+                        className="margin-top-20"
+                        title={
+                          <Space>
+                            <div className="d-flex">
+                              <span className="title-card">THANH TOÁN 2</span>
+                            </div>
+                            {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                              <Tag
+                                className="orders-tag orders-tag-success"
+                                style={{
+                                  backgroundColor: "rgba(39, 174, 96, 0.1)",
+                                  color: "#27AE60",
+                                }}
+                              >
+                                Đã thanh toán
+                              </Tag>
+                            )}
+                          </Space>
+                        }
+                      >
+                        <div className="padding-24">
+                          <Row>
+                            <Col span={12}>
+                              <span className="text-field margin-right-40">
+                                Đã thanh toán:
+                              </span>
+                              <b>0</b>
+                            </Col>
+                            <Col span={12}>
+                              <span className="text-field margin-right-40">
+                                Còn phải trả:
+                              </span>
+                              <b style={{ color: "red" }}>0</b>
+                            </Col>
+                          </Row>
+                        </div>
+                        <Divider style={{ margin: "0px" }} />
+                        <div className="padding-24">
+                          <Collapse
+                            className="orders-timeline"
+                            defaultActiveKey={["1"]}
+                            ghost
+                          >
+                            <Collapse.Panel
+                              className={
+                                OrderDetail?.fulfillments[0].status !== "shipped"
+                                  ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
+                                  : "orders-timeline-custom orders-dot-fullCod-status"
+                              }
+                              showArrow={false}
+                              header={
+                                <div
+                                  style={{
+                                    color: "#222222",
+                                    paddingTop: 4,
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  COD
+                                  <Tag
+                                    className="orders-tag orders-tag-warning"
+                                    style={{ marginLeft: 10 }}
+                                  >
+                                    Đang chờ thu
+                                  </Tag>
+                                  <b
+                                    style={{
+                                      marginLeft: "200px",
+                                      color: "#222222",
+                                    }}
+                                  >
+                                    {OrderDetail.fulfillments
+                                      ? formatCurrency(
+                                          OrderDetail.fulfillments[0].shipment?.cod
+                                        )
+                                      : 0}
+                                  </b>
+                                </div>
+                              }
+                              key="1"
+                            >
+                              <Row gutter={24}>
+                                {OrderDetail?.payments &&
+                                  OrderDetail?.payments.map((item, index) => (
+                                    <Col span={12} key={item.id}>
+                                      <p className="text-field">
+                                        {item.payment_method}
+                                      </p>
+                                      <p>{formatCurrency(item.paid_amount)}</p>
+                                    </Col>
+                                  ))}
+                              </Row>
+                            </Collapse.Panel>
+                          </Collapse>
+                        </div>
+                        <div className="padding-24 text-right">
+                          {OrderDetail?.payments !== null
+                            ? OrderDetail?.payments.map(
+                                (item, index) =>
+                                  OrderDetail.total !== null &&
+                                  OrderDetail.total - item.paid_amount !== 0 && (
+                                    <Button
+                                      key={index}
+                                      type="primary"
+                                      className="ant-btn-outline fixed-button"
+                                    >
+                                      Thanh toán
+                                    </Button>
+                                  )
+                              )
+                            : "Chưa thanh toán"}
+                        </div>
 
+                      </Card>
+                    )}
                   
                 </Col>
                 <Col md={6}>
