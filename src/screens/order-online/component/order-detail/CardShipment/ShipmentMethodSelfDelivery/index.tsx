@@ -1,10 +1,9 @@
-import { Col, Row, Form } from "antd";
+import { Col, Form, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import React from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { PaymentMethodOption } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -21,7 +20,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   const {
     amount,
     shipper,
-    paymentMethod,
+    // paymentMethod,
     shippingFeeCustomer,
     discountValue,
     totalAmountReturnProducts,
