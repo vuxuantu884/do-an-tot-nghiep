@@ -48,9 +48,7 @@ import {
 import {
   BillingAddress,
   CustomerResponse,
-  shippingAddress,
   ShippingAddress,
-  billingAddress,
 } from "model/response/customer/customer.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
@@ -138,9 +136,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
     null
   );
-  const [singleShippingAddress, setSingleShippingAddress] =
-    useState<CustomerShippingAddress | null>(null);
-
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
   //#region Modal
@@ -311,28 +306,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  // const handleShippingAddressDelete = () => {
-  //   if (singleShippingAddress) {
-  //     if (customer)
-  //       dispatch(
-  //         DeleteShippingAddress(
-  //           singleShippingAddress.id,
-  //           customer.id,
-  //           (data: shippingAddress) => {
-  //             dispatch(
-  //               CustomerDetail(customer.id, (datas: CustomerResponse) => {
-  //                 handleChangeCustomer(datas);
-  //               })
-  //             );
-  //             data
-  //               ? showSuccess("Xóa địa chỉ thành công")
-  //               : showError("Xóa địa chỉ thất bại");
-  //           }
-  //         )
-  //       );
-  //   }
-  // };
-
   const rankName = loyaltyUsageRules.find(
     (x) =>
       x.rank_id ===
@@ -376,8 +349,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           _item.id,
           customer.id,
           _item,
-          (data: shippingAddress) => {
+          (data: ShippingAddress) => {
             setVisibleShippingAddressPopover(false);
+            setShippingAddress(data);
             reloadPage();
             if (data) {
               showSuccess("Đặt mặc định thành công");
@@ -398,8 +372,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           CreateShippingAddress(
             customer.id,
             formValue,
-            (data: shippingAddress) => {
+            (data: ShippingAddress) => {
               setIsShowModalShipping(false);
+              setShippingAddress(data);
               reloadPage();
               data
                 ? showSuccess("Thêm mới địa chỉ thành công")
@@ -417,8 +392,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               modalSingleShippingAddress.id,
               customer.id,
               formValue,
-              (data: shippingAddress) => {
+              (data: ShippingAddress) => {
                 setIsShowModalShipping(false);
+                setShippingAddress(data);
                 reloadPage();
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
@@ -462,8 +438,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           _item.id,
           customer.id,
           _item,
-          (data: billingAddress) => {
+          (data: BillingAddress) => {
             setVisibleBillingAddressPopover(false);
+            setBillingAddress(data);
             reloadPage();
             if (data) {
               showSuccess("Đặt mặc định thành công");
@@ -484,8 +461,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           CreateBillingAddress(
             customer.id,
             formValue,
-            (data: billingAddress) => {
+            (data: BillingAddress) => {
               setIsShowModalBilling(false);
+              setBillingAddress(data);
               reloadPage();
               data
                 ? showSuccess("Thêm mới địa chỉ thành công")
@@ -503,8 +481,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               modalSingleBillingAddress.id,
               customer.id,
               formValue,
-              (data: billingAddress) => {
+              (data: BillingAddress) => {
                 setIsShowModalBilling(false);
+                setBillingAddress(data);
                 reloadPage();
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
@@ -1108,7 +1087,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       <AddAddressModal
         customer={customer}
         handleChangeCustomer={handleChangeCustomer}
-        formItem={singleShippingAddress}
+        formItem={modalSingleShippingAddress}
         visible={isVisibleAddress}
         modalAction={modalAction}
         onCancel={CancelConfirmAddress}
