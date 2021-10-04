@@ -9,7 +9,7 @@ type CustomInputProps = {
   placeholder?: string;
   maxLength?: number;
   isRequired?: boolean;
-  customerDetail?: any;
+  customer?: any;
   loyaltyPoint?: any;
   loyaltyUsageRules?: any;
 };
@@ -30,7 +30,7 @@ function CustomInput(props: CustomInputProps) {
     placeholder,
     maxLength,
     isRequired,
-    customerDetail,
+    customer,
     loyaltyPoint,
     loyaltyUsageRules,
   } = props;
@@ -61,11 +61,9 @@ function CustomInput(props: CustomInputProps) {
     >
       <Input
         suffix={
-          customerDetail ? (
+          customer ? (
             <span style={{ backgroundColor: `${color[rankLvl()]}` }}>
-              {`${
-                rankLvl() || "Không xác định"
-              }: ${loyaltyPoint?.point} điểm`}
+              {rankLvl() && `${rankLvl() || ""}: ${loyaltyPoint?.point || 0} điểm`}
             </span>
           ) : null
         }

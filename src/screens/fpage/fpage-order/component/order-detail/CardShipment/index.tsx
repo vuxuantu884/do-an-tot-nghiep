@@ -7,8 +7,11 @@ import {
   Form,
   Row,
   Select,
-  Tabs
+  Divider,
+  Tabs,
 } from "antd";
+import IconDelivery from "assets/icon/delivery.svg";
+import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   // DeliveryServicesGetList,
@@ -22,6 +25,8 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  // DeliveryServiceResponse,
+  FulFillmentResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -34,9 +39,12 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
+import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
+
+const { TabPane } = Tabs;
 
 type CardShipmentProps = {
   shipmentMethod: number;
@@ -46,7 +54,8 @@ type CardShipmentProps = {
   setPaymentMethod: (value: number) => void;
   setHVC: (value: number) => void;
   setOfficeTime: (value: boolean) => void;
-  setServiceType: (value: string) => void;
+  serviceType?: string | null;
+  setServiceType: (value?: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
   paymentMethod: number;
@@ -60,10 +69,12 @@ type CardShipmentProps = {
   OrderDetail?: OrderResponse | null;
   payments?: OrderPaymentRequest[];
   onPayments: (value: Array<OrderPaymentRequest>) => void;
-  // fulfillments: FulFillmentResponse[];
-  // isCloneOrder: boolean;
+  fulfillments: FulFillmentResponse[];
+  isCloneOrder: boolean;
+  levelOrder?: number;
+  updateOrder?: boolean;
+  totalAmountReturnProducts?: number;
 };
-const {TabPane} = Tabs
 
 const CardShipment: React.FC<CardShipmentProps> = (
   props: CardShipmentProps
@@ -71,7 +82,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const {
     OrderDetail,
     paymentMethod,
+    setPaymentMethod,
+    setShipmentMethodProps,
     setHVC,
+    serviceType,
     setServiceType,
     setFee,
     customerInfo,
@@ -84,11 +98,37 @@ const CardShipment: React.FC<CardShipmentProps> = (
     officeTime,
     setOfficeTime,
     payments,
+    onPayments,
+    fulfillments,
+    isCloneOrder,
+    levelOrder = 0,
+    totalAmountReturnProducts,
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  // const [deliveryServices, setDeliveryServices] =
+  const [addressError, setAddressError] = useState<string>("");
+
+  const ShipMethodOnChange = (value: number) => {
+    setServiceType(undefined);
+    setShipmentMethodProps(value);
+    setPaymentMethod(value);
+    if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
+      if (value === ShipmentMethodOption.SELF_DELIVER) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    }
+
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      // getInfoDeliveryFees();
+      setPaymentMethod(PaymentMethodOption.COD);
+      //reset payment
+      onPayments([]);
+    }
+    if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
+      onPayments([]);
+    }
+  };
 
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
@@ -101,7 +141,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     item: any,
     fee: number
   ) => {
-
     setHVC(id);
     setServiceType(item);
     setFee(fee);
@@ -115,8 +154,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
     // dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
 
-
   useEffect(() => {
+    if (!storeDetail) {
+      setAddressError("Thiếu thông tin địa chỉ cửa hàng");
+    }
     if (
       customerInfo &&
       storeDetail &&
@@ -152,24 +193,17 @@ const CardShipment: React.FC<CardShipmentProps> = (
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
+      setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      console.log("cần thêm địa chỉ khách hàng");
+      setAddressError("Thiếu thông tin địa chỉ khách hàng");
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
   return (
     <StyledComponent>
-      <Card
-        className="margin-top-20"
-        title={
-          <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
-          </div>
-        }
-      >
-        <div className="padding-24 orders-shipment">
+      <Card>
+        <div className="padding-12 orders-shipment">
           <Row gutter={24}>
             <Col span={24}>
               <Form.Item name="dating_ship" label="Hẹn giao:">
@@ -194,66 +228,85 @@ const CardShipment: React.FC<CardShipmentProps> = (
               </Form.Item>
             </Col>
             <Col span={24}>
-            <Form.Item name="requirements" label="Yêu cầu:">
-              <Select
-                className="select-with-search"
-                showSearch
-                showArrow
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: "100%" }}
-                placeholder="Chọn yêu cầu"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
+              <Form.Item name="requirements" label="Yêu cầu:">
+                <Select
+                  className="select-with-search"
+                  showSearch
+                  showArrow
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{ width: "100%" }}
+                  placeholder="Chọn yêu cầu"
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return (
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }
+                    return false;
+                  }}
+                >
+                  {shipping_requirements?.map((item, index) => (
+                    <Select.Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item.value}
+                    >
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Divider style={{ margin: 0 }} />
+          <Row style={{ justifyContent: "center" }}>
+            <Tabs
+              destroyInactiveTabPane={true}
+              defaultActiveKey="4"
+              centered
+              onChange={(value) => ShipMethodOnChange(parseInt(value))}
+            >
+              <TabPane key="1" tab={<div>Chuyển hãng vận chuyển</div>}>
+                <ShipmentMethodDeliverPartner
+                  amount={amount}
+                  serviceType={serviceType}
+                  changeServiceType={changeServiceType}
+                  // deliveryServices={deliveryServices}
+                  discountValue={discountValue}
+                  infoFees={infoFees}
+                  setShippingFeeInformedCustomer={
+                    setShippingFeeInformedCustomer
                   }
-                  return false;
-                }}
-              >
-                {shipping_requirements?.map((item, index) => (
-                  <Select.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.value}
-                  >
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  OrderDetail={OrderDetail}
+                  payments={payments}
+                  fulfillments={fulfillments}
+                  isCloneOrder={isCloneOrder}
+                  addressError={addressError}
+                  levelOrder={levelOrder}
+                  totalAmountReturnProducts={totalAmountReturnProducts}
+                />
+              </TabPane>
+              <TabPane key="2" tab={<div>Tự giao hàng</div>}>
+                <ShipmentMethodSelfDelivery
+                  amount={amount}
+                  discountValue={discountValue}
+                  paymentMethod={paymentMethod}
+                  setShippingFeeInformedCustomer={
+                    setShippingFeeInformedCustomer
+                  }
+                  shipper={shipper}
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  totalAmountReturnProducts={totalAmountReturnProducts}
+                />
+              </TabPane>
+              <TabPane key="4" tab={<div>Giao hàng sau</div>}>
+              <div style={{minWidth: 1000}}></div>
+              </TabPane>
+            </Tabs>
           </Row>
-          <Row>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="Chuyển hãng vận chuyển" key="1">
-            <ShipmentMethodDeliverPartner
-              amount={amount}
-              changeServiceType={changeServiceType}
-              // deliveryServices={deliveryServices}
-              discountValue={discountValue}
-              infoFees={infoFees}
-              setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-              shippingFeeCustomer={shippingFeeCustomer}
-              OrderDetail={OrderDetail}
-              payments={payments}
-            />
-            </TabPane>
-            <TabPane tab="Tự giao hàng" key="2">
-            <ShipmentMethodSelfDelivery
-              amount={amount}
-              discountValue={discountValue}
-              paymentMethod={paymentMethod}
-              setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-              shipper={shipper}
-              shippingFeeCustomer={shippingFeeCustomer}
-            />
-            </TabPane>
-          </Tabs>
-          </Row>
-          
         </div>
       </Card>
     </StyledComponent>
