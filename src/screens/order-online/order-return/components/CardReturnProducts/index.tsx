@@ -14,206 +14,71 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
-import imgDefault from "assets/icon/img-default.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
-  OrderLineItemResponse,
+  OrderResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useMemo } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  listOrderProducts?: OrderLineItemResponse[];
-  listReturnProducts: ReturnProductModel[];
-  handleReturnProducts?: (listReturnProducts: ReturnProductModel[]) => void;
-  handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
   isExchange?: boolean;
   isStepExchange?: boolean;
-  discountRate?: number;
-  setTotalAmountReturnProducts?: (value: number) => void;
+  isShowProductSearch?: boolean;
+  OrderDetail?: OrderResponse | null;
+  listReturnProducts?: ReturnProductModel[];
+  searchVariantInputValue?: string;
+  pointAmountUsing?: number;
+  pointUsing?: number;
+  totalPrice: number;
+  isCheckReturnAll?: boolean;
+  convertResultSearchVariant?: any[] | undefined;
+  onChangeProductSearchValue?: (value: string) => void;
+  onSelectSearchedVariant?: (value: string) => void;
+  onChangeProductQuantity?: (value: number | null, index: number) => void;
+  handleChangeReturnAll?: (e: CheckboxChangeEvent) => void;
 };
 
 function CardReturnProducts(props: PropType) {
   const {
+    isDetailPage = false,
+    isExchange = false,
+    isStepExchange = false,
+    isShowProductSearch = false,
+    OrderDetail,
     listReturnProducts,
-    handleReturnProducts,
-    listOrderProducts,
-    handleCanReturn,
-    isDetailPage,
-    isExchange,
-    isStepExchange,
-    discountRate,
-    setTotalAmountReturnProducts,
+    pointAmountUsing,
+    pointUsing,
+    searchVariantInputValue,
+    convertResultSearchVariant,
+    totalPrice,
+    isCheckReturnAll,
+    onChangeProductSearchValue,
+    onSelectSearchedVariant,
+    onChangeProductQuantity,
+    handleChangeReturnAll,
   } = props;
-  console.log("isStepExchange", isStepExchange);
-  const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
-  const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
+
+  console.log("isExchange", isExchange);
+
   const autoCompleteRef = createRef<RefSelectProps>();
 
-  const onSelectSearchedVariant = (value: string) => {
-    if (!listOrderProducts) {
-      return;
-    }
-    const selectedVariant = listOrderProducts.find((single) => {
-      return single.id === +value;
-    });
-    if (!selectedVariant) return;
-    let selectedVariantWithMaxQuantity: ReturnProductModel = {
-      ...selectedVariant,
-      maxQuantity: selectedVariant.quantity,
-    };
-    let indexSelectedVariant = listReturnProducts.findIndex((single) => {
-      return single.id === selectedVariantWithMaxQuantity.id;
-    });
-    let result = [...listReturnProducts];
-    if (indexSelectedVariant === -1) {
-      selectedVariantWithMaxQuantity.quantity = 1;
-      result = [selectedVariantWithMaxQuantity, ...listReturnProducts];
-    } else {
-      let selectedVariant = result[indexSelectedVariant];
-      if (
-        selectedVariant.maxQuantity &&
-        selectedVariant.quantity < selectedVariant.maxQuantity
-      ) {
-        selectedVariant.quantity += 1;
-      }
-    }
-    if (handleReturnProducts) {
-      handleReturnProducts(result);
-    }
-    if (handleCanReturn) {
-      handleCanReturn(true);
-    }
-    if (
-      result.some((single) => {
-        return single.maxQuantity && single.quantity < single.maxQuantity;
-      })
-    ) {
-      setIsCheckReturnAll(false);
-    } else {
-      setIsCheckReturnAll(true);
-    }
-  };
-
-  const checkIfIsCanReturn = (listReturnProducts: ReturnProductModel[]) => {
-    if (handleCanReturn) {
-      if (
-        listReturnProducts.some((single) => {
-          return single.quantity > 0;
-        })
-      ) {
-        handleCanReturn(true);
-      } else {
-        handleCanReturn(false);
-      }
-    }
-  };
-
-  const handleChangeReturnAll = (e: CheckboxChangeEvent) => {
-    if (!listOrderProducts) {
-      return;
-    }
-    if (e.target.checked) {
-      const resultReturnProducts: ReturnProductModel[] = listOrderProducts.map(
-        (single) => {
-          return {
-            ...single,
-            maxQuantity: single.quantity,
-          };
-        }
-      );
-      if (handleReturnProducts) {
-        handleReturnProducts(resultReturnProducts);
-      }
-      checkIfIsCanReturn(resultReturnProducts);
-      // if (setTotalAmountReturnProducts) {
-      //   setTotalAmountReturnProducts(getTotalPrice(resultReturnProducts));
-      // }
-    } else {
-      const result: ReturnProductModel[] = listOrderProducts.map((single) => {
-        return {
-          ...single,
-          quantity: 0,
-          maxQuantity: single.quantity,
-        };
+  const discountRate = useMemo(() => {
+    if (OrderDetail && OrderDetail.discounts) {
+      let discountRate = 0;
+      OrderDetail.discounts.forEach((single) => {
+        const singleDiscountRate = single.rate || 0;
+        discountRate += singleDiscountRate;
       });
-      if (handleReturnProducts) {
-        handleReturnProducts(result);
-      }
-      checkIfIsCanReturn(result);
-      // if (setTotalAmountReturnProducts) {
-      //   setTotalAmountReturnProducts(0);
-      // }
+      return discountRate;
+    } else {
+      return 0;
     }
-    setIsCheckReturnAll(e.target.checked);
-  };
-
-  const renderSearchVariant = (item: OrderLineItemResponse) => {
-    let avatar = item.variant_image;
-    return (
-      <div
-        className="row-search w-100"
-        style={{ padding: "3px 20px", alignItems: "center" }}
-      >
-        <div className="rs-left w-100" style={{ width: "100%" }}>
-          <div style={{ marginTop: 10 }}>
-            <img
-              src={avatar === "" ? imgDefault : avatar}
-              alt="anh"
-              placeholder={imgDefault}
-              style={{ width: "40px", height: "40px", borderRadius: 5 }}
-            />
-          </div>
-          <div className="rs-info w-100">
-            <span style={{ color: "#37394D" }} className="text">
-              {item.product}
-            </span>
-            <span style={{ color: "#95A1AC" }} className="text p-4">
-              {item.sku}
-            </span>
-          </div>
-        </div>
-        <div className="rs-right">
-          <span style={{ color: "#222222" }} className="text t-right">
-            {formatCurrency(item.price)}
-            <span
-              style={{
-                color: "#737373",
-                textDecoration: "underline",
-                textDecorationColor: "#737373",
-              }}
-            >
-              đ
-            </span>
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  const convertResultSearchVariant = useMemo(() => {
-    if (!listOrderProducts) {
-      return;
-    }
-    let options: any[] = [];
-    listOrderProducts.forEach((item: OrderLineItemResponse, index: number) => {
-      options.push({
-        label: renderSearchVariant(item),
-        value: item.id ? item.id.toString() : "",
-      });
-    });
-    return options;
-  }, [listOrderProducts]);
+  }, [OrderDetail]);
 
   const renderCardExtra = () => {
     return (
@@ -229,55 +94,13 @@ function CardReturnProducts(props: PropType) {
     );
   };
 
-  const onChangeProductSearchValue = (value: string) => {
-    setSearchVariantInputValue(value);
+  const getProductDiscountPerProduct = (product: ReturnProductModel) => {
+    let discountPerProduct = 0;
+    product.discount_items.forEach((single) => {
+      discountPerProduct += single.value;
+    });
+    return discountPerProduct;
   };
-
-  const onChangeProductQuantity = (value: number | null, index: number) => {
-    let resultListReturnProducts = [...listReturnProducts];
-    resultListReturnProducts[index].quantity = Number(
-      value === null ? "0" : value.toString().replace(".", "")
-    );
-    if (handleReturnProducts) {
-      handleReturnProducts(resultListReturnProducts);
-    }
-    if (
-      resultListReturnProducts.some((single) => {
-        return single.maxQuantity && single.quantity < single.maxQuantity;
-      })
-    ) {
-      setIsCheckReturnAll(false);
-    } else {
-      setIsCheckReturnAll(true);
-    }
-    checkIfIsCanReturn(resultListReturnProducts);
-    // if (setTotalAmountReturnProducts) {
-    //   setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
-    // }
-  };
-
-  // const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
-  //   let totalPrice = 0;
-  //   listReturnProducts.forEach((single) => {
-  //     let discountPerProduct = getProductDiscountPerProduct(single);
-  //     let discountPerOrder = getProductDiscountPerOrder(single);
-  //     let singleTotalPrice =
-  //       single.price - discountPerProduct - discountPerOrder;
-  //     totalPrice = totalPrice + single.quantity * singleTotalPrice;
-  //   });
-  //   // setTotalAmountReturnProducts(totalPrice);
-  //   return totalPrice;
-  // };
-
-  // const getProductDiscountPerOrder = (product: ReturnProductModel) => {
-  //   let discountPerOrder = 0;
-  //   let discountPerProduct = getProductDiscountPerProduct(product);
-  //   if (discountRate) {
-  //     discountPerOrder =
-  //       ((product.price - discountPerProduct) * discountRate) / 100;
-  //   }
-  //   return discountPerOrder;
-  // };
 
   const getProductDiscountPerOrder = useCallback(
     (product: ReturnProductModel) => {
@@ -291,42 +114,6 @@ function CardReturnProducts(props: PropType) {
     },
     [discountRate]
   );
-
-  const getTotalPrice = useCallback(
-    (listReturnProducts: ReturnProductModel[]) => {
-      let totalPrice = 0;
-      listReturnProducts.forEach((single) => {
-        let discountPerProduct = getProductDiscountPerProduct(single);
-        let discountPerOrder = getProductDiscountPerOrder(single);
-        let singleTotalPrice =
-          single.price - discountPerProduct - discountPerOrder;
-        totalPrice = totalPrice + single.quantity * singleTotalPrice;
-      });
-      // setTotalAmountReturnProducts(totalPrice);
-      return totalPrice;
-    },
-    [getProductDiscountPerOrder]
-  );
-
-  // const getTotalPrice =  (listReturnProducts: ReturnProductModel[]) => {
-
-  // };
-
-  const getProductDiscountPerProduct = (product: ReturnProductModel) => {
-    let discountPerProduct = 0;
-    product.discount_items.forEach((single) => {
-      discountPerProduct += single.value;
-    });
-    return discountPerProduct;
-  };
-
-  const isShowProductSearch = () => {
-    let result = true;
-    if (isDetailPage || isStepExchange) {
-      result = false;
-    }
-    return result;
-  };
 
   const renderPopOverPriceTitle = (price: number) => {
     return (
@@ -397,9 +184,11 @@ function CardReturnProducts(props: PropType) {
                 max={record.maxQuantity}
                 value={record.quantity}
                 // defaultValue={0}
-                onChange={(value: number | null) =>
-                  onChangeProductQuantity(value, index)
-                }
+                onChange={(value: number | null) => {
+                  if (onChangeProductQuantity) {
+                    onChangeProductQuantity(value, index);
+                  }
+                }}
                 className="hide-number-handle"
                 maxLength={4}
                 minLength={0}
@@ -444,19 +233,6 @@ function CardReturnProducts(props: PropType) {
         );
       },
     },
-    // {
-    //   title: "Chiết khấu",
-    //   width: "20%",
-    //   render: (value: number, record: ReturnProductModel, index: number) => {
-    //     return (
-    //       <div>
-    //         {record.discount_items[0].value !== null
-    //           ? formatCurrency(record.discount_items[0].value)
-    //           : 0}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       title: () => (
         <div>
@@ -488,27 +264,22 @@ function CardReturnProducts(props: PropType) {
     },
   ];
 
-  useEffect(() => {
-    if (setTotalAmountReturnProducts) {
-      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
-    }
-  }, [getTotalPrice, listReturnProducts, setTotalAmountReturnProducts]);
-
   return (
     <StyledComponent>
       <Card
         className="margin-top-20"
-        // title="SẢN PHẨM"
         title={isStepExchange ? "Thông tin sản phẩm trả" : "SẢN PHẨM"}
         extra={!isDetailPage && !isStepExchange ? renderCardExtra() : null}
       >
-        {isShowProductSearch() && (
+        {isShowProductSearch && (
           <div>
             <div className="label">Sản phẩm:</div>
             <AutoComplete
               notFoundContent={
-                searchVariantInputValue.length >= 0
-                  ? "Không tìm thấy sản phẩm"
+                searchVariantInputValue
+                  ? searchVariantInputValue.length >= 0
+                    ? "Không tìm thấy sản phẩm"
+                    : undefined
                   : undefined
               }
               id="search_product"
@@ -574,10 +345,19 @@ function CardReturnProducts(props: PropType) {
               </span>
             </Row>
             <Row className="payment-row" justify="space-between">
+              <span className="font-size-text">Tiêu điểm: </span>
+              {isDetailPage ? (
+                `${pointUsing ? pointUsing : 0} điểm`
+              ) : (
+                <span>
+                  {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
+                  {` (${pointUsing ? pointUsing : 0} điểm)`}
+                </span>
+              )}
+            </Row>
+            <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              <strong>
-                {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
-              </strong>
+              <strong>{formatCurrency(totalPrice)}</strong>
             </Row>
           </Col>
         </Row>

@@ -11,6 +11,8 @@ export interface OrderRequest {
   customer_note: string | null;
   account_code?: string | null;
   assignee_code: string | null;
+  marketer_code?: string | null;
+  coordinator_code?: string | null;
   customer_id?: number | null;
   reference_code: string | null;
   url: string | null;
@@ -188,6 +190,7 @@ export interface UpdateShipmentRequest {
 export interface OrderPaymentRequest {
   payment_method_id: number;
   payment_method: string;
+  payment_method_code?: string;
   amount: number;
   reference: string;
   source: string;

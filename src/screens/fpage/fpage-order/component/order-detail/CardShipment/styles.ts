@@ -1,6 +1,12 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+
+  .ant-tabs-nav {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
   .orders-shipment {
     .ant-row {
       justify-content: space-between;
@@ -12,8 +18,8 @@ export const StyledComponent = styled.div`
     }
   }
   .formInputAmount {
+    color: #222;
     text-align: right;
     width: 100%;
-    color: #222;
   }
 `;

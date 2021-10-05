@@ -1,3 +1,4 @@
+import React from "react";
 import { Form, Row, Col, Button, Table, Card, Tooltip, Tag } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
@@ -19,13 +20,10 @@ import {
   CustomerModel,
   CustomerContactClass,
 } from "model/request/customer.request";
-import React, { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -35,33 +33,26 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
 import { formatCurrency } from "utils/AppUtils";
-import { FpageCustomerSearchQuery } from "model/query/customer.query";
-import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
-const initQueryCustomer: FpageCustomerSearchQuery = {
-  request: "",
-  phone: null,
-  limit: 10,
-  page: 1,
-};
-const CustomerAdd = (props: any) => {
+const FpageCustomerDetail = (props: any) => {
   const {
-    setCustomerDetail,
+    setCustomer,
     setIsButtonSelected,
-    customerDetail,
+    customer,
     customerPhoneList,
     setCustomerPhoneList,
     getCustomerWhenPhoneChange,
     orderHistory,
     setIsClearOrderField,
-    customerPhone,
     deletePhone,
     metaData,
-    onPageChange,customerFbName, loyaltyPoint,
-    loyaltyUsageRules
+    onPageChange,
+    customerFbName,
+    loyaltyPoint,
+    loyaltyUsageRules,
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -75,8 +66,11 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-  const customerId = customerDetail && customerDetail.id;
-  const [notes, setNotes] = React.useState<any>([])
+  const customerId = customer && customer.id;
+  const [notes, setNotes] = React.useState<any>([]);
+  const [loadingCreateButton, setLoadingCreateButton] =
+    React.useState<boolean>(false);
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -96,11 +90,10 @@ const CustomerAdd = (props: any) => {
   );
   //m
   React.useEffect(() => {
-    if (customerDetail?.district_id) {
-      dispatch(WardGetByDistrictAction(customerDetail.district_id, setWards));
+    if (customer?.district_id) {
+      dispatch(WardGetByDistrictAction(customer.district_id, setWards));
     }
-  }, [dispatch, customerDetail]);
-console.log("till kept",orderHistory)
+  }, [dispatch, customer]);
   const status_order = [
     {
       name: "Nháp",
@@ -244,24 +237,22 @@ console.log("till kept",orderHistory)
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    customerForm.setFieldsValue({ ...new CustomerModel()});
+    customerForm.setFieldsValue({ ...new CustomerModel() });
   }, [customerForm]);
   React.useEffect(() => {
-    if (customerDetail) {
+    if (customer) {
       const field = {
-        full_name: customerDetail.full_name,
-        birthday: customerDetail.birthday
-          ? moment(customerDetail.birthday)
-          : "",
-        phone: customerDetail.phone,
-        email: customerDetail.email,
-        gender: customerDetail.gender,
-        district_id: customerDetail.district_id,
-        ward_id: customerDetail.ward_id,
-        full_address: customerDetail.full_address,
-        city_id: customerDetail.city_id,
+        full_name: customer.full_name,
+        birthday: customer.birthday ? moment(customer.birthday) : "",
+        phone: customer.phone,
+        email: customer.email,
+        gender: customer.gender,
+        district_id: customer.district_id,
+        ward_id: customer.ward_id,
+        full_address: customer.full_address,
+        city_id: customer.city_id,
       };
-      setNotes(customerDetail.notes?.reverse())
+      setNotes(customer.notes?.reverse());
       customerForm.setFieldsValue(field);
     } else {
       const field = {
@@ -275,39 +266,42 @@ console.log("till kept",orderHistory)
       };
       customerForm.setFieldsValue(field);
     }
-  }, [customerDetail, customerForm,customerFbName]);
+  }, [customer, customerForm, customerFbName]);
   const setResultUpdate = React.useCallback(
     (result) => {
+      setLoadingCreateButton(false)
       if (result) {
         if (result) {
           showSuccess("Sửa thông tin khách hàng thành công");
-          setCustomerDetail(result);
+          setCustomer(result);
           setIsClearOrderField(false);
         }
       }
     },
-    [setCustomerDetail, setIsClearOrderField]
+    [setCustomer, setIsClearOrderField]
   );
   const setResultCreate = React.useCallback(
     (result) => {
+      setLoadingCreateButton(false)
       if (result) {
         if (result) {
           showSuccess("Tạo khách hàng thành công");
-          setCustomerDetail(result);
+          setCustomer(result);
           setIsButtonSelected(2);
         }
       }
     },
-    [setCustomerDetail, setIsButtonSelected]
+    [setCustomer, setIsButtonSelected]
   );
   const handleSubmitOption = (values: any) => {
-    if (customerDetail) {
+    if (customer) {
       handleSubmitUpdate(values);
     } else {
       handleSubmitCreate(values);
     }
   };
   const handleSubmitCreate = (values: any) => {
+    setLoadingCreateButton(true)
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
@@ -334,6 +328,7 @@ console.log("till kept",orderHistory)
     );
   };
   const handleSubmitUpdate = (values: any) => {
+    setLoadingCreateButton(true)
     const processValue = {
       ...values,
       birthday: values.birthday
@@ -343,44 +338,39 @@ console.log("till kept",orderHistory)
         ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
-      version: customerDetail.version,
-      shipping_addresses: customerDetail.shipping_addresses.map((item: any) => {
+      version: customer.version,
+      shipping_addresses: customer.shipping_addresses.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
         return _item;
       }),
-      billing_addresses: customerDetail.billing_addresses.map((item: any) => {
+      billing_addresses: customer.billing_addresses.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
         return _item;
       }),
-      contacts: customerDetail.contacts,
+      contacts: customer.contacts,
     };
-    dispatch(UpdateCustomer(customerDetail.id, processValue, setResultUpdate));
+    dispatch(UpdateCustomer(customer.id, processValue, setResultUpdate));
   };
-  const handleSubmitFail = (errorInfo: any) => {
-  };
+  const handleSubmitFail = (errorInfo: any) => {};
 
   const reloadPage = () => {
-    getCustomerWhenPhoneChange(customerDetail.phone);
+    getCustomerWhenPhoneChange(customer.phone);
   };
 
   const handleNote = {
     create: (noteContent: any) => {
-      if (noteContent && customerDetail) {
+      if (noteContent && customer) {
         dispatch(
-          CreateNote(
-            customerDetail.id,
-            { content: noteContent },
-            (data: any) => {
-              if (data) {
-                showSuccess("Thêm mới ghi chú thành công");
-                reloadPage();
-              } else {
-                showError("Thêm mới ghi chú thất bại");
-              }
+          CreateNote(customer.id, { content: noteContent }, (data: any) => {
+            if (data) {
+              showSuccess("Thêm mới ghi chú thành công");
+              reloadPage();
+            } else {
+              showError("Thêm mới ghi chú thất bại");
             }
-          )
+          })
         );
       }
     },
@@ -400,41 +390,26 @@ console.log("till kept",orderHistory)
     },
   };
 
-  const searchByPhoneCallback = useCallback(
-    (value: any) => {
-      if (value !== undefined) {
-        setCustomerDetail(value);
-      } else {
-        setCustomerDetail(undefined);
-      }
-    },
-    [setCustomerDetail]
-  );
+  // const searchByPhoneCallback = useCallback(
+  //   (value: any) => {
+  //     if (value !== undefined) {
+  //       setCustomer(value);
+  //     } else {
+  //       setCustomer(null);
+  //     }
+  //   },
+  //   [setCustomer]
+  // );
 
-  useEffect(() => {
-    if (customerPhone) {
-      initQueryCustomer.phone = customerPhone;
-      dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
-    }
-  }, [dispatch, customerPhone, searchByPhoneCallback]);
+  // useEffect(() => {
+  //   if (customerPhone) {
+  //     initQueryCustomer.phone = customerPhone;
+  //     dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
+  //   }
+  // }, [dispatch, customerPhone, searchByPhoneCallback]);
 
   return (
-    <ContentContainer
-      title=""
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Khách hàng",
-          path: `/customer`,
-        },
-        {
-          name: "Thêm khách hàng",
-        },
-      ]}
-    >
+    <div style={{ marginTop: 56 }}>
       <Form
         form={customerForm}
         name="customer_add"
@@ -463,7 +438,7 @@ console.log("till kept",orderHistory)
               customerId={customerId}
               notes={notes}
               handleNote={handleNote}
-              customerDetail={customerDetail}
+              customer={customer}
               deletePhone={deletePhone}
               loyaltyPoint={loyaltyPoint}
               loyaltyUsageRules={loyaltyUsageRules}
@@ -471,6 +446,7 @@ console.log("till kept",orderHistory)
           </Col>
         </Row>
         <Card
+          className="padding-12"
           title={
             <div>
               <span style={{ fontWeight: 500 }} className="title-card">
@@ -501,20 +477,28 @@ console.log("till kept",orderHistory)
           >
             Hủy
           </Button>
-          {!customerDetail && (
-            <Button type="primary" htmlType="submit">
+          {!customer && (
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loadingCreateButton}
+            >
               Tạo mới khách hàng
             </Button>
           )}
-          {customerDetail && (
-            <Button type="primary" htmlType="submit">
+          {customer && (
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loadingCreateButton}
+            >
               Lưu khách hàng
             </Button>
           )}
         </div>
       </Form>
-    </ContentContainer>
+    </div>
   );
 };
 
-export default CustomerAdd;
+export default FpageCustomerDetail;

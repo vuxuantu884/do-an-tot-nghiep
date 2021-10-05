@@ -34,7 +34,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
     (index, e) => {
       if (index < 0 || index > columns.length - 1) return; // Ignores if outside designated area
       const items = [...columns];
-      items[index] = {...items[index], visible: e.target.checked}
+      items[index] = { ...items[index], visible: e.target.checked };
       setColumn(items);
     },
     [columns]
@@ -56,11 +56,14 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       cancelText="Huỷ"
     >
       <p>Kéo thả chuột để lựa chọn cột theo trình tự bạn mong muốn.</p>
-      <ReactCustomScrollbars style={{ height: '450px' }} autoHide>
+      <ReactCustomScrollbars style={{ height: "300px" }} autoHide>
         <ReactDragListView
           onDragEnd={onDrag}
           nodeSelector=".ant-list-item.draggble"
         >
+          <List.Item className={"draggble"}>
+            <Checkbox >Chọn tất cả</Checkbox>
+          </List.Item>
           <List
             dataSource={columns}
             renderItem={(item, index) => (

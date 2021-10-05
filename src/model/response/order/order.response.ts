@@ -21,6 +21,10 @@ export interface OrderResponse extends BaseObject {
   account: string | null;
   assignee_code: string | null;
   assignee: string | null;
+  marketer_code: string | null;
+  marketer: string | null;
+  coordinator_code: string | null;
+  coordinator: string | null;
   channel_id: number | null;
   channel: string | null;
   customer_id: number | null;
@@ -64,6 +68,8 @@ export interface OrderResponse extends BaseObject {
   order_code?: string;
   order_id?: number;
   order_return_origin?: OrderReturnModel;
+  point_refund?: number;
+  money_refund?: number;
 }
 
 export interface OrderLineItemResponse {

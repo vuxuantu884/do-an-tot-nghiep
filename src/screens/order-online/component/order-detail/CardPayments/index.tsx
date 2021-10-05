@@ -92,6 +92,7 @@ function CardPayments(props: CardPaymentsProps) {
     payments[index].point = point;
     payments[index].amount = point * usageRate;
     payments[index].paid_amount = point * usageRate;
+    payments[index].payment_method_code = PaymentMethodCode.POINT;
     setPayments([...payments]);
     // props.setPayments([...paymentData]);
   };

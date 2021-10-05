@@ -91,7 +91,7 @@ export default function Order() {
     ShipmentMethodOption.DELIVER_LATER
   );
   const [paymentMethod, setPaymentMethod] = useState<number>(
-    PaymentMethodOption.PREPAYMENT
+    PaymentMethodOption.POSTPAYMENT
   );
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -207,6 +207,8 @@ export default function Order() {
     customer_note: "",
     account_code: userReducer.account?.code,
     assignee_code: null,
+    marketer_code: null,
+    coordinator_code: null,
     customer_id: null,
     reference_code: "",
     url: "",
@@ -650,6 +652,8 @@ export default function Order() {
                 customer_note: response.customer_note,
                 source_id: response.source_id,
                 assignee_code: response.assignee_code,
+                marketer_code: response.marketer_code,
+                coordinator_code: response.coordinator_code,
                 store_id: response.store_id,
                 items: responseItems,
                 dating_ship: newDatingShip,
@@ -780,24 +784,35 @@ export default function Order() {
         ? 0
         : Pointfocus.point;
 
-     let totalAmountPayable =
-     orderAmount +
-     (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-     discountValue; //tổng tiền phải trả
+      let totalAmountPayable =
+        orderAmount +
+        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        discountValue; //tổng tiền phải trả
 
-      let usageRate= loyaltyRate===null|| loyaltyRate===undefined? 0 : loyaltyRate.usage_rate;
+      let usageRate =
+        loyaltyRate === null || loyaltyRate === undefined
+          ? 0
+          : loyaltyRate.usage_rate;
 
-      let enableUsingPoint=loyaltyRate===null|| loyaltyRate===undefined? false : loyaltyRate.enable_using_point;
+      let enableUsingPoint =
+        loyaltyRate === null || loyaltyRate === undefined
+          ? false
+          : loyaltyRate.enable_using_point;
 
-      let limitOrderPercent=!rank? 0 : !rank.limit_order_percent ? 100 : rank.limit_order_percent;// % tối đa giá trị đơn hàng.
+      let limitOrderPercent = !rank
+        ? 0
+        : !rank.limit_order_percent
+        ? 100
+        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
-      let limitAmount=point * usageRate;
+      let limitAmount = point * usageRate;
 
-      let amountLimitOrderPercent= (totalAmountPayable * limitOrderPercent)/100
+      let amountLimitOrderPercent =
+        (totalAmountPayable * limitOrderPercent) / 100;
 
-      if(enableUsingPoint===false){
+      if (enableUsingPoint === false) {
         showError("Chương trình tiêu điểm đang tạm dừng hoạt động");
-          return false;
+        return false;
       }
 
       if (!loyaltyPoint || limitOrderPercent === 0) {
@@ -814,10 +829,11 @@ export default function Order() {
         return false;
       }
 
-      if(limitAmount > amountLimitOrderPercent)
-      {
-          showError(`Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`);
-          return false;
+      if (limitAmount > amountLimitOrderPercent) {
+        showError(
+          `Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`
+        );
+        return false;
       }
 
       if (point > curenPoint) {
@@ -833,7 +849,7 @@ export default function Order() {
       discountValue,
       orderAmount,
       shippingFeeCustomer,
-      loyaltyRate
+      loyaltyRate,
     ]
   );
 

@@ -1,13 +1,10 @@
 import { Card, Radio, Space } from "antd";
-import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useMemo } from "react";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../../ReturnMoneySelect";
 
 type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
-  payments: OrderPaymentRequest[];
   totalAmountCustomerNeedToPay?: number;
   returnMoneyType?: string;
   setReturnMoneyType?: (value: string) => void;
@@ -20,30 +17,12 @@ type PropType = {
 function CardReturnMoneyPageCreateReturn(props: PropType) {
   const {
     listPaymentMethods,
-    payments,
     totalAmountCustomerNeedToPay,
     returnMoneyType,
     setReturnMoneyType,
   } = props;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const totalAmountReturn = () => {
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    return total;
-  };
-
-  const moneyReturnLeft = useMemo(() => {
-    if (totalAmountCustomerNeedToPay === undefined) {
-      return 0;
-    }
-    let result = 0;
-    result =
-      totalAmountCustomerNeedToPay > 0
-        ? totalAmountCustomerNeedToPay - totalAmountReturn()
-        : -totalAmountCustomerNeedToPay - totalAmountReturn();
-    return result;
-  }, [totalAmountCustomerNeedToPay, totalAmountReturn]);
+  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   return (
     <Card
@@ -68,7 +47,7 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
             listPaymentMethods={listPaymentMethods}
-            totalAmountCustomerNeedToPay={Math.round(moneyReturnLeft)}
+            totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay || 0}
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}
           />

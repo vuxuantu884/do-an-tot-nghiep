@@ -24,8 +24,8 @@ function OrderShortDetails(props: PropType) {
       >
         <div className="padding-24">
           <Row className="" gutter={5}>
-            <Col span={9}>Cửa hàng:</Col>
-            <Col span={15}>
+            <Col span={11}>Cửa hàng:</Col>
+            <Col span={13}>
               <span
                 style={{ fontWeight: 500, color: "#2A2A86" }}
                 className="text-focus"
@@ -35,24 +35,24 @@ function OrderShortDetails(props: PropType) {
             </Col>
           </Row>
           <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Điện thoại:</Col>
-            <Col span={15}>
+            <Col span={11}>Điện thoại:</Col>
+            <Col span={13}>
               <span style={{ fontWeight: 500, color: "#222222" }}>
                 {OrderDetail?.customer_phone_number}
               </span>
             </Col>
           </Row>
           <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Địa chỉ:</Col>
-            <Col span={15}>
+            <Col span={11}>Địa chỉ:</Col>
+            <Col span={13}>
               <span style={{ fontWeight: 500, color: "#222222" }}>
                 {OrderDetail?.shipping_address?.full_address}
               </span>
             </Col>
           </Row>
           <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>NVBH:</Col>
-            <Col span={15}>
+            <Col span={11}>Nhân viên bán hàng:</Col>
+            <Col span={13}>
               <span
                 style={{ fontWeight: 500, color: "#222222" }}
                 className="text-focus"
@@ -62,8 +62,30 @@ function OrderShortDetails(props: PropType) {
             </Col>
           </Row>
           <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Người tạo:</Col>
-            <Col span={15}>
+            <Col span={11}>Nhân viên marketing:</Col>
+            <Col span={13}>
+              <span
+                style={{ fontWeight: 500, color: "#222222" }}
+                className="text-focus"
+              >
+                {OrderDetail?.marketer}
+              </span>
+            </Col>
+          </Row>
+          <Row className="margin-top-10" gutter={5}>
+            <Col span={11}>Nhân viên điều phối:</Col>
+            <Col span={13}>
+              <span
+                style={{ fontWeight: 500, color: "#222222" }}
+                className="text-focus"
+              >
+                {OrderDetail?.coordinator}
+              </span>
+            </Col>
+          </Row>
+          <Row className="margin-top-10" gutter={5}>
+            <Col span={11}>Người tạo:</Col>
+            <Col span={13}>
               <span
                 style={{ fontWeight: 500, color: "#222222" }}
                 className="text-focus"
@@ -73,8 +95,8 @@ function OrderShortDetails(props: PropType) {
             </Col>
           </Row>
           <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Đường dẫn:</Col>
-            <Col span={15} style={{ wordWrap: "break-word" }}>
+            <Col span={11}>Đường dẫn:</Col>
+            <Col span={13} style={{ wordWrap: "break-word" }}>
               {OrderDetail?.url ? (
                 <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
               ) : (

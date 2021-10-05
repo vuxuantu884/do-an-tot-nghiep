@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, Col, Modal, Row, Space, Tag, Table } from "antd";
+import { Button, Card, Row, Space } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -11,12 +10,9 @@ import ReturnFilter from "component/filter/return.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { AccountResponse } from "model/account/account.model";
-import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
-import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
-// import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { getListReasonRequest, getReturnsAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
@@ -61,51 +57,6 @@ const initQuery: ReturnSearchQuery = {
   reason_ids: [],
 };
 
-const columnsItems  = [
-  {
-    title: "STT",
-    dataIndex: "index",
-    visible: true,
-    width:"30px",
-  },
-  {
-    title: "Mã SKU",
-    dataIndex: "sku",
-    visible: true,
-    width:"150px",
-  },
-  {
-    title: "Tên sản phẩm",
-    dataIndex: "variant",
-    visible: true,
-    width: "200px",
-  },
-  {
-    title: "Số lượng",
-    dataIndex: "quantity",
-    visible: true,
-    width: "50px",
-  },
-  {
-    title: "Đơn giá",
-    dataIndex: "price",
-    visible: true,
-    width: "100px",
-  },
-  {
-    title: "Thành tiền",
-    render: (record: any) => (
-      <NumberFormat
-        value={100000}
-        className="foo"
-        displayType={"text"}
-        thousandSeparator={true}
-      />
-    ),
-    visible: true,
-    width: "150px",
-  },
-];
 
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
@@ -366,18 +317,19 @@ const ListOrderScreen: React.FC = () => {
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable
-          isRowSelection
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 1200, y: "50vh" }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 200}}
+            sticky={{offsetScroll: 10, offsetHeader: 55}}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
           // expandable={{
           //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
           // }}

@@ -202,7 +202,6 @@ function* orderFpageCreateSaga(action: YodyAction) {
   }
 }
 
-
 function* InfoFeesSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
@@ -615,9 +614,8 @@ function* getAllChannelSaga(action: YodyAction) {
 function* getListReasonSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<{id: string; name: string}>> = yield call(
-      getReasonsApi
-    );
+    let response: BaseResponse<Array<{ id: string; name: string }>> =
+      yield call(getReasonsApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -638,10 +636,7 @@ function* cancelOrderSaga(action: YodyAction) {
   yield put(showLoading());
   let { id } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(
-      cancelOrderApi,
-      id
-    );
+    let response: BaseResponse<any> = yield call(cancelOrderApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         // setData(response.data);
@@ -664,8 +659,7 @@ function* cancelOrderSaga(action: YodyAction) {
   }
 }
 
-function * configOrderSaga(action:YodyAction)
-{
+function* configOrderSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
     let response: BaseResponse<OrderConfig> = yield call(getOrderConfig);
@@ -677,7 +671,7 @@ function * configOrderSaga(action:YodyAction)
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         break;
     }
   } catch (error) {
@@ -687,7 +681,10 @@ function * configOrderSaga(action:YodyAction)
 
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
-  yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
+  yield takeLatest(
+    OrderType.GET_LIST_ORDER_FPAGE_REQUEST,
+    getListOrderFpageSaga
+  );
   yield takeLatest(
     OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST,
     getListOrderCustomerSaga

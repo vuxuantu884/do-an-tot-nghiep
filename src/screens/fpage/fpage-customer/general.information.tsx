@@ -21,7 +21,7 @@ const GeneralInformation = (props: any) => {
     notes,
     handleNote,
     deletePhone,
-    customerDetail,loyaltyPoint,loyaltyUsageRules
+    customer,loyaltyPoint,loyaltyUsageRules
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
@@ -42,7 +42,7 @@ const GeneralInformation = (props: any) => {
   return (
     <Row gutter={24}>
       <Col span={24}>
-        <Card style={{ padding: "12px" }}>
+        <Card style={{ padding: "12px 0" }}>
           <Col span={24}>
             <CustomInput
               name="full_name"
@@ -50,7 +50,7 @@ const GeneralInformation = (props: any) => {
                 <span className="customer-field-label">Tên khách hàng:</span>
               }
               form={form}
-              customerDetail={customerDetail}
+              customer={customer}
               loyaltyPoint={loyaltyPoint}
               loyaltyUsageRules={loyaltyUsageRules}
               message="Vui lòng nhập họ tên khách hàng"
@@ -104,7 +104,7 @@ const GeneralInformation = (props: any) => {
                   marginBottom: 10,
                 }}
               >
-                <Col span={16}>
+                <Col span={20}>
                   {phones &&
                     phones.map((p: any, index: any) => (
                       <Tag
@@ -347,7 +347,7 @@ const GeneralInformation = (props: any) => {
           </Row>
         </Card>
       </Col>
-      <Col span={24} hidden={!customerDetail}>
+      <Col span={24} hidden={!customer}>
         <Card>
           <Row
             gutter={12}
