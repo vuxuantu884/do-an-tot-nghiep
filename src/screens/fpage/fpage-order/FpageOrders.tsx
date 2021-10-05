@@ -15,7 +15,7 @@ import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inven
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
-  orderCreateAction,
+  orderFpageCreateAction,
   OrderDetailAction,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
@@ -24,15 +24,17 @@ import { InventoryResponse } from "model/inventory";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
   FulFillmentRequest,
   OrderDiscountRequest,
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
-  ShippingAddress,
 } from "model/request/order.request";
+import {
+  BillingAddress,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import {
   FulFillmentResponse,
@@ -77,14 +79,14 @@ export default function FpageOrders(props: any) {
     setIsClearOrderTab,
     loyaltyPoint,
     loyaltyUsageRules,
-    handleCustomerById
+    handleCustomerById,
   } = props;
 
   const dispatch = useDispatch();
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] =
-    React.useState<BillingAddress | null>(null);
+    useState<BillingAddress | null>(null);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
@@ -135,18 +137,6 @@ export default function FpageOrders(props: any) {
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
-  const onChangeShippingAddress = (
-    _objShippingAddress: ShippingAddress | null
-  ) => {
-    setShippingAddress(_objShippingAddress);
-  };
-
-  const onChangeBillingAddress = (
-    _objBillingAddress: BillingAddress | null
-  ) => {
-    setBillingAddress(_objBillingAddress);
-  };
-
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
   };
@@ -165,7 +155,6 @@ export default function FpageOrders(props: any) {
     setDiscountValue(discount_value);
     setOrderAmount(amount);
   };
-
   const onStoreSelect = (storeId: number) => {
     setStoreId(storeId);
   };
@@ -177,7 +166,6 @@ export default function FpageOrders(props: any) {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
   };
@@ -202,7 +190,7 @@ export default function FpageOrders(props: any) {
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    assignee_code: null,
+    assignee_code: userReducer?.account?.code || null,
     customer_id: null,
     reference_code: "",
     url: "",
@@ -390,16 +378,16 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setLoadingCreateButton(false);
       if (value) {
         showSuccess("Đơn được lưu và duyệt thành công");
         setIsClearOrderTab(true);
         setActiveTabKey("1");
+        handleCustomerById(customer && customer.id);
       } else {
         showError("Tạo đơn hàng thất bại");
       }
     },
-    [setActiveTabKey, setIsClearOrderTab]
+    [setActiveTabKey, setIsClearOrderTab, customer, handleCustomerById]
   );
 
   const onFinish = (values: OrderRequest) => {
@@ -462,7 +450,7 @@ export default function FpageOrders(props: any) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
             setLoadingCreateButton(true);
-            dispatch(orderCreateAction(values, createOrderCallback));
+            dispatch(orderFpageCreateAction(values, createOrderCallback, setLoadingCreateButton));
           }
         } else {
           if (
@@ -475,7 +463,7 @@ export default function FpageOrders(props: any) {
               let bolCheckPointfocus = checkPointfocus(values);
               if (bolCheckPointfocus) {
                 setLoadingCreateButton(true);
-                dispatch(orderCreateAction(values, createOrderCallback));
+                dispatch(orderFpageCreateAction(values, createOrderCallback, setLoadingCreateButton));
               }
             }
           }
@@ -830,15 +818,22 @@ export default function FpageOrders(props: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, isCloneOrder]);
 
-  useEffect(() => {
-    if (items && items != null) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(
-        inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse)
-      );
-    }
-  }, [dispatch, items]);
+  const getInventory = useCallback(
+    (value: any) => {
+      if (value && value.length > 0) {
+        let variant_id: Array<number> = [];
+        value.forEach((element: any) => variant_id.push(element.variant_id));
+        dispatch(
+          inventoryGetDetailVariantIdsSaga(
+            variant_id,
+            null,
+            setInventoryResponse
+          )
+        );
+      }
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     dispatch(
@@ -898,11 +893,14 @@ export default function FpageOrders(props: any) {
                 setCustomer={setCustomer}
                 loyaltyPoint={loyaltyPoint}
                 loyaltyUsageRules={loyaltyUsageRules}
-                ShippingAddressChange={onChangeShippingAddress}
-                BillingAddressChange={onChangeBillingAddress}
+                setShippingAddress={setShippingAddress}
+                setBillingAddress={setBillingAddress}
                 handleCustomerById={handleCustomerById}
+                shippingAddress={shippingAddress}
+                billingAddress={billingAddress}
               />
               <CardProduct
+                getInventory={getInventory}
                 changeInfo={onChangeInfoProduct}
                 selectStore={onStoreSelect}
                 storeId={storeId}
@@ -918,6 +916,12 @@ export default function FpageOrders(props: any) {
                 inventoryResponse={inventoryResponse}
                 setInventoryResponse={setInventoryResponse}
                 setStoreForm={setStoreForm}
+              />
+              <OrderDetailSidebar
+                accounts={accounts}
+                tags={tags}
+                isCloneOrder={isCloneOrder}
+                onChangeTag={onChangeTag}
               />
               <CardShipment
                 setShipmentMethodProps={onShipmentSelect}
@@ -956,14 +960,6 @@ export default function FpageOrders(props: any) {
                 }
                 isCloneOrder={isCloneOrder}
                 loyaltyRate={loyaltyRate}
-              />
-            </Col>
-            <Col span={24}>
-              <OrderDetailSidebar
-                accounts={accounts}
-                tags={tags}
-                isCloneOrder={isCloneOrder}
-                onChangeTag={onChangeTag}
               />
             </Col>
           </Row>

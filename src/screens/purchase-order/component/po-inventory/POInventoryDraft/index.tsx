@@ -263,12 +263,23 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   },
                 ]}
                 dataSource={procument_items}
-                summary={(data) => (
+                summary={(data) => {
+                  let newTotal:any = {};
+                  data.forEach(item => {
+                    item.procurement_items.forEach(item => {
+                      if(newTotal[item.sku]) {
+                        newTotal[item.sku] = newTotal[item.sku] + item.quantity;
+                      } else {
+                        newTotal[item.sku] = item.quantity
+                      }
+                    })
+                  })
+                  return (
                   <Table.Summary>
                     <Table.Summary.Row>
                       <Table.Summary.Cell
                         index={1}
-                        colSpan={4 + new_line_items.length}
+                        colSpan={3}
                       >
                         <Button
                           onClick={onAdd}
@@ -278,9 +289,20 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                           Thêm kế hoạch
                         </Button>
                       </Table.Summary.Cell>
+                      {
+                        new_line_items.map((new_line_items, index) => (
+                          <Table.Summary.Cell align="right" index={index + 2}>
+                            <div style={{marginRight: 15}}>{newTotal[new_line_items.sku]}</div>
+                          </Table.Summary.Cell>
+                        ))
+                      }
+                       <Table.Summary.Cell
+                        index={2}
+                        colSpan={1}
+                      ></Table.Summary.Cell>
                     </Table.Summary.Row>
                   </Table.Summary>
-                )}
+                )}}
               />
             );
           }}
@@ -309,7 +331,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
               (item1) => item1.sku === item.sku
             );
             if (index === -1) {
-              new_line_items.push(item);
+              new_line_items.push({...item});
             } else {
               new_line_items[index].quantity =
                 new_line_items[index].quantity + item.quantity;
@@ -332,7 +354,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 value: Array<PurchaseProcumentLineItem>,
                 record,
                 indexProcument
-              ) => value[indexLineItem].quantity,
+              ) => value.find(item1 => item1.sku === item.sku)?.quantity
             });
           });
           return (

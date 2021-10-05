@@ -275,30 +275,33 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
-      <div
-        className="row-search w-100"
-        style={{ padding: 0, paddingRight: 20, paddingLeft: 20 }}
-      >
-        <div className="rs-left w-100" style={{ width: "100%" }}>
-          <div style={{ marginTop: 10 }}>
-            <img
-              src={avatar === "" ? imgDefault : avatar}
-              alt="anh"
-              placeholder={imgDefault}
-              style={{ width: "40px", height: "40px", borderRadius: 5 }}
-            />
+      <Row>
+        <Col
+          span={4}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+            padding: "4px 6px"
+          }}
+        >
+          <img
+            src={avatar === "" ? imgDefault : avatar}
+            alt="anh"
+            placeholder={imgDefault}
+            style={{ width: "50%", borderRadius: 5 }}
+          />
+        </Col>
+        <Col span={15}>
+          <span style={{ color: "#37394D" }} >
+            {item.name}
+          </span>
+          <div style={{ color: "#95A1AC" }} >
+            {item.sku}
           </div>
-          <div className="rs-info w-100">
-            <span style={{ color: "#37394D" }} className="text">
-              {item.name}
-            </span>
-            <span style={{ color: "#95A1AC" }} className="text p-4">
-              {item.sku}
-            </span>
-          </div>
-        </div>
-        <div className="rs-right">
-          <span style={{ color: "#222222" }} className="text t-right">
+        </Col>
+        <Col span={5}>
+          <Col style={{ color: "#222222" }}>
             {`${findPrice(item.variant_prices, AppConfig.currency)} `}
             <span
               style={{
@@ -309,11 +312,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             >
               đ
             </span>
-          </span>
-          <span style={{ color: "#737373" }} className="text t-right p-4">
+          </Col>
+          <div style={{ color: "#737373" }}>
             Có thể bán:
             <span
               style={{
+                marginRight: "20px",
                 color:
                   (item.available === null ? 0 : item.available) > 0
                     ? "#2A2A86"
@@ -322,9 +326,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             >
               {` ${item.available === null ? 0 : item.available}`}
             </span>
-          </span>
-        </div>
-      </div>
+          </div>
+        </Col>
+      </Row>
     );
   };
 
@@ -887,7 +891,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   return (
     <Card
-      className="margin-top-20"
+      className="margin-top-20 product-auto-complete"
       title={
         <div className="d-flex">
           <span className="title-card">SẢN PHẨM</span>
