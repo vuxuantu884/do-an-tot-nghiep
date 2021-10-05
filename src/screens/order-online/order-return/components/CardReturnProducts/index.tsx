@@ -63,7 +63,7 @@ function CardReturnProducts(props: PropType) {
     handleChangeReturnAll,
   } = props;
 
-  console.log("isExchange", isExchange);
+  console.log("totalPrice", totalPrice);
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -345,14 +345,19 @@ function CardReturnProducts(props: PropType) {
               </span>
             </Row>
             <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">Tiêu điểm: </span>
               {isDetailPage ? (
-                `${pointUsing ? pointUsing : 0} điểm`
+                <React.Fragment>
+                  <span className="font-size-text">Điểm hoàn: </span>
+                  <span>{` ${pointUsing ? pointUsing : 0} điểm`}</span>
+                </React.Fragment>
               ) : (
-                <span>
-                  {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
-                  {` (${pointUsing ? pointUsing : 0} điểm)`}
-                </span>
+                <React.Fragment>
+                  <span className="font-size-text">Tiêu điểm:</span>
+                  <span>
+                    {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
+                    {` (${pointUsing ? pointUsing : 0} điểm)`}
+                  </span>
+                </React.Fragment>
               )}
             </Row>
             <Row className="payment-row" justify="space-between">

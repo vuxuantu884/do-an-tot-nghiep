@@ -76,14 +76,16 @@ import FormCustomerBillingAddress from "screens/customer/customer-detail/custome
 
 type CustomerCardProps = {
   setCustomer: (items: CustomerResponse | null) => void;
-  ShippingAddressChange: (items: ShippingAddress) => void;
-  BillingAddressChange: (items: BillingAddress) => void;
+  setShippingAddress: (items: ShippingAddress) => void;
+  setBillingAddress: (items: BillingAddress) => void;
   handleCustomerById: (value: number | null) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
+  shippingAddress: ShippingAddress | null;
+  billingAddress: BillingAddress | null;
 };
 
 //Add query for search Customer
@@ -113,31 +115,33 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     loyaltyUsageRules,
     levelOrder = 0,
     handleCustomerById,
+    shippingAddress,
+    billingAddress,
+    setShippingAddress,
+    setBillingAddress,
   } = props;
   //State
-
   const dispatch = useDispatch();
+  const autoCompleteRef = createRef<RefSelectProps>();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-
   const [countryId] = React.useState<number>(233);
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
-
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
+  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
+  const [idShippingSelected, setIdShippingSelected] = useState<number | null>(
     null
   );
-  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
-  const autoCompleteRef = createRef<RefSelectProps>();
+  const [idBillingSelected, setIdBillingSelected] = useState<number | null>(
+    null
+  );
   //#region Modal
   const ShowBillingAddress = (e: any) => {
     setVisibleBilling(e.target.checked);
@@ -149,6 +153,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
+  console.log(billingAddress);
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
@@ -239,7 +244,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setShippingAddress(item);
-              props.ShippingAddressChange(item);
             }
           });
         }
@@ -249,7 +253,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           resultSearch[index].billing_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setBillingAddress(item);
-              props.BillingAddressChange(item);
             }
           });
         }
@@ -285,12 +288,30 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   useEffect(() => {
     if (customer && customer.shipping_addresses[0]) {
+      const shippingSelected = customer.shipping_addresses.find(
+        (item) => item.id === idShippingSelected
+      );
       const addressDefault = customer.shipping_addresses.find(
         (item) => item.default
       );
-      setShippingAddress(
-        addressDefault ? addressDefault : customer.shipping_addresses[0]
+      if (shippingSelected) {
+        setShippingAddress(shippingSelected);
+      } else if (addressDefault) {
+        setShippingAddress(addressDefault);
+      }
+
+      const billingSelected = customer.billing_addresses.find(
+        (item) => item.id === idBillingSelected
       );
+      const billingDefault = customer.billing_addresses.find(
+        (item) => item.default
+      );
+
+      if (billingSelected) {
+        setBillingAddress(billingSelected);
+      } else if (billingDefault) {
+        setBillingAddress(billingDefault);
+      }
     }
   }, [customer]);
 
@@ -334,10 +355,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const reloadPage = () => {
     handleCustomerById(customer && customer.id);
   };
-  const handleTempAddress = (value: any) => {
+  const handleTempShippingAddress = (value: any) => {
+    setIdShippingSelected(value.id);
     setShippingAddress(value);
     setVisibleShippingAddressPopover(false);
   };
+
   const handleShippingAddressDefault = (value: any, item: any) => {
     value.stopPropagation();
     let _item = { ...item };
@@ -351,7 +374,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           _item,
           (data: ShippingAddress) => {
             setVisibleShippingAddressPopover(false);
-            setShippingAddress(data);
             reloadPage();
             if (data) {
               showSuccess("Đặt mặc định thành công");
@@ -374,8 +396,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             formValue,
             (data: ShippingAddress) => {
               setIsShowModalShipping(false);
-              setShippingAddress(data);
               reloadPage();
+              setIdShippingSelected(data.id)
               data
                 ? showSuccess("Thêm mới địa chỉ thành công")
                 : showError("Thêm mới địa chỉ thất bại");
@@ -394,8 +416,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               formValue,
               (data: ShippingAddress) => {
                 setIsShowModalShipping(false);
-                setShippingAddress(data);
                 reloadPage();
+                setIdShippingSelected(data.id)
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
                   : showError("Cập nhật địa chỉ thất bại");
@@ -424,6 +446,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleBillingAddressPopover(false);
   };
   const handleTempBillingAddress = (value: any) => {
+    setIdBillingSelected(value.id);
     setBillingAddress(value);
     setVisibleBillingAddressPopover(false);
   };
@@ -440,8 +463,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           _item,
           (data: BillingAddress) => {
             setVisibleBillingAddressPopover(false);
-            setBillingAddress(data);
             reloadPage();
+            setIdBillingSelected(data.id)
             if (data) {
               showSuccess("Đặt mặc định thành công");
             } else {
@@ -463,8 +486,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             formValue,
             (data: BillingAddress) => {
               setIsShowModalBilling(false);
-              setBillingAddress(data);
               reloadPage();
+              setIdBillingSelected(data.id)
               data
                 ? showSuccess("Thêm mới địa chỉ thành công")
                 : showError("Thêm mới địa chỉ thất bại");
@@ -483,7 +506,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               formValue,
               (data: BillingAddress) => {
                 setIsShowModalBilling(false);
-                setBillingAddress(data);
                 reloadPage();
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
@@ -755,7 +777,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               <div
                                 className="customer-shipping-address"
                                 key={index}
-                                onClick={() => handleTempAddress(item)}
+                                onClick={() => handleTempShippingAddress(item)}
                                 style={{ cursor: "pointer" }}
                               >
                                 <div className="shipping-address-row">

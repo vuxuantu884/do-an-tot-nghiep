@@ -60,6 +60,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             </Select>
           </Form.Item>
           <Form.Item
+            hidden
             label="Tham chiếu"
             name="reference_code"
             tooltip={{
@@ -71,6 +72,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             <Input placeholder="Điền tham chiếu" maxLength={255} />
           </Form.Item>
           <Form.Item
+            hidden
             label="Đường dẫn"
             name="url"
             tooltip={{
