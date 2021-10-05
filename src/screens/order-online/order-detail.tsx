@@ -66,7 +66,7 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import ActionHistory from "./component/order-detail/ActionHistory";
+import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import UpdateCustomerCard from "./component/update-customer-card";
@@ -585,6 +585,7 @@ const OrderDetail = (props: PropType) => {
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
+                  totalAmount={OrderDetail?.order_return_origin.money_refund}
                 />
               )}
 
@@ -693,7 +694,7 @@ const OrderDetail = (props: PropType) => {
                             {customerNeedToPayValue -
                               (OrderDetail?.total_paid
                                 ? OrderDetail?.total_paid
-                                : 0) >
+                                : 0) >=
                             0
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
