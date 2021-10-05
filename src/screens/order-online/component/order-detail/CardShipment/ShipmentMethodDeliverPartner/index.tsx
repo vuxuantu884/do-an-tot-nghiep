@@ -11,10 +11,10 @@ import React, { useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-import LogoGHTK from "assets/img/logoGHTK.svg";
-import LogoGHN from "assets/img/logoGHN.svg";
-import LogoVTP from "assets/img/logoVTP.svg";
-import LogoDHL from "assets/img/logoDHL.svg";
+import LogoGHTK from "assets/img/LogoGHTK.svg";
+import LogoGHN from "assets/img/LogoGHN.svg";
+import LogoVTP from "assets/img/LogoVTP.svg";
+import LogoDHL from "assets/img/LogoDHL.svg";
 import NumberFormat from "react-number-format";
 
 type PropType = {
