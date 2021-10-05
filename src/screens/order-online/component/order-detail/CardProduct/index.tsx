@@ -16,7 +16,6 @@ import {
   Select,
   Space,
   Table,
-  Tag,
   Tooltip,
   Typography,
 } from "antd";
@@ -31,8 +30,8 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import {
-  StoreSearchListAction,
   StoreGetListAction,
+  StoreSearchListAction,
 } from "domain/actions/core/store.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -76,6 +75,7 @@ import {
 import { MoneyType } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DiscountGroup from "../../discount-group";
+import CardProductBottom from "./CardProductBottom";
 
 type CardProductProps = {
   storeId: number | null;
@@ -100,6 +100,10 @@ type CardProductProps = {
   setStoreForm: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
+  pointUsing?: {
+    point: number;
+    amount: number;
+  } | null;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -112,14 +116,15 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     orderSettings,
     formRef,
     items,
-    handleCardItems,
     discountRateParent,
     discountValueParent,
     storeId,
-    selectStore,
     inventoryResponse,
+    pointUsing,
+    selectStore,
     setStoreForm,
-    levelOrder = 0
+    handleCardItems,
+    levelOrder = 0,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -826,8 +831,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-      console.log('listStores listStores', listStores);
-      
+      console.log("listStores listStores", listStores);
+
       newData = listStores.filter(
         // tạm thời bỏ điều kiện để show cửa hàng
         (store) =>
@@ -1125,143 +1130,21 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         }
       />
-      <div className="padding-24" style={{ paddingTop: "30px" }}>
-        <Row className="sale-product-box-payment" gutter={24}>
-          <Col xs={24} lg={11}>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-                Bỏ chiết khấu tự động
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-                Không tính thuế VAT
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-                Bỏ tích điểm tự động
-              </Checkbox>
-            </div>
-          </Col>
-          <Col xs={24} lg={10}>
-            <Row
-              className="payment-row"
-              style={{ justifyContent: "space-between" }}
-            >
-              <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                {formatCurrency(amount)}
-              </div>
-            </Row>
 
-            <Row className="payment-row" justify="space-between" align="middle">
-              <Space align="center">
-                {items && items.length > 0 ? (
-                  <Typography.Link
-                    className="font-weight-400"
-                    onClick={ShowDiscountModal}
-                    style={{
-                      textDecoration: "underline",
-                      textDecorationColor: "#5D5D8A",
-                      color: "#5D5D8A",
-                    }}
-                  >
-                    Chiết khấu:
-                  </Typography.Link>
-                ) : (
-                  <div>Chiết khấu</div>
-                )}
-
-                {discountRate !== 0 && items && (
-                  <Tag
-                    style={{
-                      marginTop: 0,
-                      color: "#E24343",
-                      backgroundColor: "#F5F5F5",
-                    }}
-                    className="orders-tag orders-tag-danger"
-                    closable
-                    onClose={() => {
-                      setDiscountRate(0);
-                      setDiscountValue(0);
-                      calculateChangeMoney(items, amount, 0, 0);
-                    }}
-                  >
-                    {discountRate !== 0 ? discountRate : 0}%{" "}
-                  </Tag>
-                )}
-              </Space>
-              <div className="font-weight-500 ">
-                {discountValue ? formatCurrency(discountValue) : "-"}
-              </div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between" align="middle">
-              <Space align="center">
-                {items && items.length > 0 ? (
-                  <Typography.Link
-                    className="font-weight-400"
-                    onClick={ShowDiscountModal}
-                    style={{
-                      textDecoration: "underline",
-                      textDecorationColor: "#5D5D8A",
-                      color: "#5D5D8A",
-                    }}
-                  >
-                    Mã giảm giá:
-                  </Typography.Link>
-                ) : (
-                  <div>Mã giảm giá</div>
-                )}
-
-                {coupon !== "" && (
-                  <Tag
-                    style={{
-                      margin: 0,
-                      color: "#E24343",
-                      backgroundColor: "#F5F5F5",
-                    }}
-                    className="orders-tag orders-tag-danger"
-                    closable
-                    onClose={() => {
-                      setDiscountRate(0);
-                      setDiscountValue(0);
-                    }}
-                  >
-                    {coupon}{" "}
-                  </Tag>
-                )}
-              </Space>
-              <div className="font-weight-500 ">-</div>
-            </Row>
-
-            <Row className="payment-row padding-top-10" justify="space-between">
-              <div className="font-weight-500">Phí ship báo khách:</div>
-              <div className="font-weight-500 payment-row-money">
-                {props.shippingFeeCustomer !== null
-                  ? formatCurrency(props.shippingFeeCustomer)
-                  : "-"}
-              </div>
-            </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
-            <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả:</strong>
-              <strong className="text-success font-size-price">
-                {changeMoney
-                  ? formatCurrency(
-                      changeMoney +
-                        (props.shippingFeeCustomer
-                          ? props.shippingFeeCustomer
-                          : 0) -
-                        discountValue
-                    )
-                  : "-"}
-              </strong>
-            </Row>
-          </Col>
-        </Row>
-      </div>
+      <CardProductBottom
+        amount={amount}
+        calculateChangeMoney={calculateChangeMoney}
+        changeMoney={changeMoney}
+        coupon={coupon}
+        discountRate={discountRate}
+        discountValue={discountValue}
+        setDiscountRate={setDiscountRate}
+        setDiscountValue={setDiscountValue}
+        showDiscountModal={ShowDiscountModal}
+        totalAmountOrder={amount}
+        items={items}
+        pointUsing={pointUsing}
+      />
 
       <PickDiscountModal
         amount={amount}
