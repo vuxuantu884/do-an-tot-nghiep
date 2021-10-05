@@ -585,6 +585,7 @@ const OrderDetail = (props: PropType) => {
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
+                  totalAmount={OrderDetail?.order_return_origin.money_refund}
                 />
               )}
 
@@ -693,7 +694,7 @@ const OrderDetail = (props: PropType) => {
                             {customerNeedToPayValue -
                               (OrderDetail?.total_paid
                                 ? OrderDetail?.total_paid
-                                : 0) >
+                                : 0) >=
                             0
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
