@@ -10,18 +10,19 @@
       width: 440px !important;
     }
   }
-  .change-shipping-address-content{
+  .change-shipping-address-content {
     width: 100%;
-    padding: 0
+    padding: 0;
   }
-  .shipping-customer-address{
-  }
-  .word-break-fpage{
+  .ant-select-item-option-content {
+    white-space: normal;
+}
+  .word-break-fpage {
     word-wrap: break-word;
     word-spacing: break-word;
   }
-  .ant-popover-inner-content{
-    padding: 0
+  .ant-popover-inner-content {
+    padding: 0;
   }
   .ant-popover {
     width: 100%;
@@ -30,17 +31,17 @@
     //   width: 100%;
     // }
   }
-  .customer-shipping-address{
+  .customer-shipping-address {
     padding: 6px 12px;
     border-bottom: 1px solid #d1d1db;
-    &:hover{
-      background-color: #e9e9e9
+    &:hover {
+      background-color: rgba(42, 42, 134, 0.1);
     }
   }
   .custom-fpage-tabs {
     .ant-tabs-nav {
       position: fixed;
-      z-index: 999;
+      z-index: 1051;
       width: 100%;
     }
     .ant-tabs-nav-list {
@@ -152,6 +153,16 @@
       }
     }
   }
+  .ant-btn:hover, .ant-btn:focus{
+    background-color: none
+  }
+  .fpage-ant-btn-custom {
+    border: none !important;
+    background: none;
+    text-align: center !important;
+    padding: 0;
+    height: 38px;
+  }
   .padding-12 {
     padding: 12px;
   }
@@ -168,6 +179,12 @@
     }
     .ant-input-number-input-wrap > input {
       height: 36px;
+    }
+  }
+  .yody-pos-qtt {
+    .ant-input {
+      text-align: center;
+      padding: 0 5px;
     }
   }
   .ant-layout-content {
@@ -210,8 +227,18 @@
     width: 100% !important;
   }
   .ant-table-cell {
-    padding: 4px 10px !important;
+    padding: 4px 2px !important;
   }
+  .site-input-group-wrapper{
+    height: 0;
+  }
+  .saleorder-product-card-action .saleorder-input-group-wrapper {
+    min-height: 0;
+    height: 22px;
+    .anticon-down:hover{
+      color: #2a2a86
+    }
+}
   .sale-product-box-table {
     .ant-input {
       padding: 0;

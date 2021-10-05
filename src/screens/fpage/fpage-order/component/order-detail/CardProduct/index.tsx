@@ -21,10 +21,10 @@ import {
   Typography,
   Modal,
 } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import { RefSelectProps } from "antd/lib/select";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
-import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
@@ -98,6 +98,7 @@ type CardProductProps = {
   setStoreForm: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
+  getInventory: (value: any) => void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -118,6 +119,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     inventoryResponse,
     setStoreForm,
     levelOrder = 0,
+    getInventory,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -266,30 +268,32 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
-      <div
-        className="row-search w-100"
-        style={{ padding: 0, paddingRight: 20, paddingLeft: 20 }}
-      >
-        <div className="rs-left w-100" style={{ width: "100%" }}>
-          <div style={{ marginTop: 10 }}>
-            <img
-              src={avatar === "" ? imgDefault : avatar}
-              alt="anh"
-              placeholder={imgDefault}
-              style={{ width: "40px", height: "40px", borderRadius: 5 }}
-            />
+      <Row>
+        <Col
+          span={4}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+          }}
+        >
+          <img
+            src={avatar === "" ? imgDefault : avatar}
+            alt="anh"
+            placeholder={imgDefault}
+            style={{ width: "60%", borderRadius: 5 }}
+          />
+        </Col>
+        <Col span={15}>
+          <span style={{ color: "#37394D" }}>
+            {item.name}
+          </span>
+          <div style={{ color: "#95A1AC" }} >
+            {item.sku}
           </div>
-          <div className="rs-info w-100">
-            <span style={{ color: "#37394D" }} className="text">
-              {item.name}
-            </span>
-            <span style={{ color: "#95A1AC" }} className="text p-4">
-              {item.sku}
-            </span>
-          </div>
-        </div>
-        <div className="rs-right">
-          <span style={{ color: "#222222" }} className="text t-right">
+        </Col>
+        <Col span={5}>
+          <Col style={{ color: "#222222" }}>
             {`${findPrice(item.variant_prices, AppConfig.currency)} `}
             <span
               style={{
@@ -300,11 +304,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             >
               đ
             </span>
-          </span>
-          <span style={{ color: "#737373" }} className="text t-right p-4">
+          </Col>
+          <div style={{ color: "#737373" }}>
             Có thể bán:
-            <span
+            <div
               style={{
+                textAlign: "right",
+                marginRight: "20px",
                 color:
                   (item.available === null ? 0 : item.available) > 0
                     ? "#2A2A86"
@@ -312,10 +318,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               }}
             >
               {` ${item.available === null ? 0 : item.available}`}
-            </span>
-          </span>
-        </div>
-      </div>
+            </div>
+          </div>
+        </Col>
+      </Row>
     );
   };
 
@@ -353,7 +359,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           <div className="d-flex align-items-center">
             <div
               style={{
-                width: "calc(100% - 32px)",
                 float: "left",
               }}
             >
@@ -418,7 +423,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "10%",
+    width: "5%",
     align: "right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -446,7 +451,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-price text-right",
-    width: "20%",
+    width: "12%",
     align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -492,12 +497,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     showAddDiscountItemModal(false);
   };
   const ActionColumn = {
-    title: () => (
-      <div className="text-center">
-        <div>Thêm</div>
-      </div>
-    ),
-    width: "10%",
+    title: () => <div className="text-center"></div>,
+    width: "3%",
     align: "center",
     className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -567,9 +568,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               trigger={["click"]}
               placement="bottomRight"
             >
-              <Button type="text" className="p-0 ant-btn-custom">
-                <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
-              </Button>
+              <DownOutlined style={{ height: 0 }} />
             </Dropdown>
           </div>
         </div>
@@ -577,12 +576,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     },
   };
 
-  const columns = [
-    ProductColumn,
-    AmountColumnt,
-    PriceColumnt,
-    ActionColumn,
-  ];
+  const columns = [ProductColumn, AmountColumnt, PriceColumnt, ActionColumn];
 
   const autoCompleteRef = createRef<RefSelectProps>();
   const createItem = (variant: VariantResponse) => {
@@ -695,6 +689,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         }
       }
       handleCardItems(_items.reverse());
+      getInventory(_items)
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
@@ -828,7 +823,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _items[indexItem].gifts = itemGifts;
     handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
-
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
@@ -1028,8 +1022,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         }
       />
-      <Row style={{marginTop: 10 }}>
-        <Col span={12}>
+      <Row style={{ marginTop: 10 }}>
+        <Col span={10}>
           <Col span={24}>
             <Checkbox disabled={levelOrder > 3}>Bỏ chiết khấu tự động</Checkbox>
           </Col>
@@ -1040,7 +1034,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Checkbox disabled={levelOrder > 3}>Bỏ tích điểm tự động</Checkbox>
           </Col>
         </Col>
-        <Col span={12}>
+        <Col span={14}>
           <Col xs={24} lg={10}>
             <Row className="payment-style">
               <div className="font-weight-500">Tổng tiền:</div>
@@ -1048,7 +1042,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Row>
 
             <Row className="payment-style" align="middle">
-              <Space align="center">
+              <div>
                 {items && items.length > 0 ? (
                   <Typography.Link
                     className="font-weight-400"
@@ -1068,7 +1062,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 {discountRate !== 0 && items && (
                   <Tag
                     style={{
-                      marginTop: 0,
+                      marginLeft: 10,
                       color: "#E24343",
                       backgroundColor: "#F5F5F5",
                     }}
@@ -1083,14 +1077,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     {discountRate !== 0 ? discountRate : 0}%{" "}
                   </Tag>
                 )}
-              </Space>
+              </div>
               <div className="font-weight-500 ">
                 {discountValue ? formatCurrency(discountValue) : "-"}
               </div>
             </Row>
 
-            <Row className="payment-row" justify="space-between" align="middle">
-              <Space align="center">
+            <Row className="payment-row" align="middle">
+              <div>
                 {items && items.length > 0 ? (
                   <Typography.Link
                     className="font-weight-400"
@@ -1104,13 +1098,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     Mã giảm giá:
                   </Typography.Link>
                 ) : (
-                  <div>Mã giảm giá:</div>
+                  <div style={{ marginRight: 20 }}>Mã giảm giá:</div>
                 )}
 
-                {coupon !== "" && (
+                {coupon !== "" ? (
                   <Tag
                     style={{
-                      margin: 0,
+                      marginLeft: 10,
                       color: "#E24343",
                       backgroundColor: "#F5F5F5",
                     }}
@@ -1123,9 +1117,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   >
                     {coupon}{" "}
                   </Tag>
+                ) : (
+                  <span className="font-weight-500" style={{ float: "right" }}>
+                  </span>
                 )}
-              </Space>
-              <div className="font-weight-500 ">-</div>
+              </div>
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">
@@ -1136,16 +1132,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   : "-"}
               </div>
             </Row>
-            <Divider style={{margin: "10px 0"}} />
+            <Divider style={{ margin: "10px 0" }} />
             <Row className="payment-row" justify="space-between">
-              <b style={{lineHeight: "29px"}} className="font-size-text">Khách cần phải trả:</b>
+              <b style={{ lineHeight: "29px" }} className="font-size-text">
+                Khách cần phải trả:
+              </b>
               <b className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(
                       changeMoney +
                         (props.shippingFeeCustomer
                           ? props.shippingFeeCustomer
-                          : 0)
+                          : 0) - discountValue
                     )
                   : "-"}
               </b>

@@ -10,8 +10,6 @@ import {
   Divider,
   Tabs,
 } from "antd";
-import IconDelivery from "assets/icon/delivery.svg";
-import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   // DeliveryServicesGetList,
