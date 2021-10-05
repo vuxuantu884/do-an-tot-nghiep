@@ -4,7 +4,7 @@ import {
   POProcumentField,
   PurchaseProcument,
 } from "model/purchase-order/purchase-procument";
-import { POStatus, ProcumentStatus } from "utils/Constants";
+import {ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
@@ -96,7 +96,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                 width: 200,
                 render: (value, item, index: number) => (
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                     {item.status === POStatus.CANCELLED ? (
+                     {item.is_cancelled ? (
                       <Button disabled>Đã huỷ</Button>
                     ) : (
                     <Button

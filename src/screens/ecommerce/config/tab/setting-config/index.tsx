@@ -75,6 +75,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     Array<EcommerceShopInventoryDto>
   >([]);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [isConfigExist, setIsConfigExist] = useState<boolean>(false);
 
   useEffect(() => {
     if (configFromEcommerce) {
@@ -90,7 +91,16 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       setConfigDetail(configToView);
     }
   }, [configToView, setConfigDetail, configFromEcommerce, configData]);
-  console.log(configDetail);
+
+  useEffect(() => {
+    const id = configDetail?.id;
+    const _isExist = configData && configData?.some((item) => item.id === id);
+    if (_isExist) {
+      setIsConfigExist(true);
+    } else {
+      setIsConfigExist(false);
+    }
+  }, [configDetail, configData]);
   const handleConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       if (value) {
@@ -121,7 +131,8 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     (value: EcommerceRequest) => {
       if (configDetail) {
         const id = configDetail?.id;
-        const index = configData && configData?.find((item) => item.id === id);
+        const _isExist =
+          configData && configData?.some((item) => item.id === id);
         let request = {
           ...configDetail,
           ...value,
@@ -134,7 +145,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           store:
             listStores?.find((item) => item.id === value.store_id)?.name || "",
         };
-        if (index) {
+        if (_isExist) {
           dispatch(
             ecommerceConfigUpdateAction(id, request, handleConfigCallback)
           );
@@ -154,7 +165,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       accounts,
       configData,
       listSource,
-      listStores
+      listStores,
     ]
   );
   const handleDisconnectEcommerce = () => {
@@ -191,9 +202,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
         inventory_sync: configDetail.inventory_sync,
         store: configDetail.store,
         source_id: configDetail.source_id,
-        inventories: _inventories?.map(
-          (item: any) => item.store_id
-        ),
+        inventories: _inventories?.map((item: any) => item.store_id),
       });
     } else {
       form.resetFields();
@@ -402,12 +411,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <Form.Item
               label={<span>Cửa hàng</span>}
               name="store_id"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Vui lòng chọn cửa hàng",
-              //   },
-              // ]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn cửa hàng",
+                },
+              ]}
             >
               <Select
                 showSearch
@@ -433,12 +442,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <Form.Item
               label={<span>Nhân viên bán hàng</span>}
               name="assign_account_code"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Vui lòng chọn nhân viên bán hàng",
-              //   },
-              // ]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn nhân viên bán hàng",
+                },
+              ]}
             >
               <Select
                 disabled={configDetail ? false : true}
@@ -460,12 +469,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <Form.Item
               label={<span>Nguồn đơn hàng</span>}
               name="source_id"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Vui lòng chọn nguồn đơn hàng",
-              //   },
-              // ]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn nguồn đơn hàng",
+                },
+              ]}
             >
               <Select
                 disabled={configDetail ? false : true}
@@ -625,22 +634,25 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           </Col>
         </Row>
         <div className="customer-bottom-button">
-          <Button
-            className="disconnect-btn"
-            icon={<img src={disconnectIcon} alt="" />}
-            style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
-            type="ghost"
-            onClick={() => handleDisconnectEcommerce()}
-          >
-            Ngắt kết nối
-          </Button>
+          {isConfigExist ? (
+            <Button
+              className="disconnect-btn"
+              icon={<img src={disconnectIcon} alt="" />}
+              style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
+              type="ghost"
+              onClick={() => handleDisconnectEcommerce()}
+            >
+              Ngắt kết nối
+            </Button>
+          ) : <div></div>}
+
           <Button
             type="primary"
             htmlType="submit"
             disabled={!configDetail}
             icon={<img src={saveIcon} alt="" />}
           >
-            Lưu cấu hình
+            {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}
           </Button>
         </div>
       </Form>

@@ -65,6 +65,10 @@ const CustomerCreate = (props: any) => {
     },
     [dispatch, setDataAccounts]
   );
+  
+  const reload = React.useCallback(() => {
+    customerForm.resetFields();
+  }, [customerForm]);
 
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -225,12 +229,12 @@ const CustomerCreate = (props: any) => {
         </Row>
         <div className="customer-bottom-button">
           <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
-            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+            <img style={{ marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
             Quay lại danh sách khách hàng
           </div>
           <div>
             <Button
-              onClick={() => history.goBack()}
+               onClick={() => reload()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >

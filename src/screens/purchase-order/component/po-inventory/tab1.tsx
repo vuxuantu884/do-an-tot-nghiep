@@ -43,6 +43,18 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                 (item) => item.status === ProcumentStatus.RECEIVED
               )
             : [];
+        console.log(line_items)
+        let new_line_items: Array<PurchaseOrderLineItem> = [];
+        line_items.forEach((item) => {
+          let index = new_line_items.findIndex((item1) => item1.sku === item.sku);
+          if(index === -1) {
+            new_line_items.push({...item});
+          } else {
+            new_line_items[index].quantity = new_line_items[index].quantity + item.quantity;
+            new_line_items[index].planned_quantity = new_line_items[index].planned_quantity + item.planned_quantity;
+            new_line_items[index].receipt_quantity = new_line_items[index].receipt_quantity + item.receipt_quantity;
+          }
+        })
         return (
           <div>
             <Table
@@ -51,7 +63,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                 record.id ? record.id : record.temp_id
               }
               rowClassName="product-table-row"
-              dataSource={line_items}
+              dataSource={new_line_items}
               tableLayout="fixed"
               scroll={{ y: 250, x: 845 }}
               pagination={false}
