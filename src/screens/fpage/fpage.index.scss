@@ -10,11 +10,14 @@
       width: 440px !important;
     }
   }
+  .ant-select-dropdown{
+    z-index: 99999999;
+  }
 .ant-modal-mask{
-  z-index: 999999999999999;
+  z-index: 99999999;
 }
 .ant-modal-wrap{
-  z-index: 999999999999999
+  z-index: 99999999
 }
   .modal-pick-discount{
     width: 100% !important;

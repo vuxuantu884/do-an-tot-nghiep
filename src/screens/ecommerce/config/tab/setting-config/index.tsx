@@ -442,12 +442,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <Form.Item
               label={<span>Nhân viên bán hàng</span>}
               name="assign_account_code"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn nhân viên bán hàng",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Vui lòng chọn nhân viên bán hàng",
+              //   },
+              // ]}
             >
               <Select
                 disabled={configDetail ? false : true}
@@ -469,12 +469,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <Form.Item
               label={<span>Nguồn đơn hàng</span>}
               name="source_id"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn nguồn đơn hàng",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Vui lòng chọn nguồn đơn hàng",
+              //   },
+              // ]}
             >
               <Select
                 disabled={configDetail ? false : true}
@@ -623,9 +623,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ sản phẩm"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
+                {/* <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
                   convertToCapitalizedString() || "sàn"
-                } về`}</Option>
+                } về`}</Option> */}
                 <Option value={"manual"}>
                   <span>Đợi ghép nối</span>
                 </Option>

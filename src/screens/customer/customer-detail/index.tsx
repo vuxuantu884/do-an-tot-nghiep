@@ -68,6 +68,8 @@ const CustomerDetailIndex = () => {
     },
     items: [],
   });
+  const [tableLoading, setTableLoading] = React.useState<boolean>(false)
+
   console.log(loyaltyCard)
   React.useEffect(() => {
     if (customer) {
@@ -100,8 +102,6 @@ const CustomerDetailIndex = () => {
       }
     }
   }, [history.location.hash]);
-console.log(loyaltyPoint, loyaltyUsageRules)
-console.log(customer)
   React.useEffect (() => {
       const _detail = [
         {
@@ -144,6 +144,7 @@ console.log(customer)
     (data: PageResponse<OrderModel> | false) => {
       if (data) {
         setData(data);
+        setTableLoading(false)
       }
     },
     []
@@ -289,6 +290,7 @@ console.log(customer)
                 <CustomerHistoryInfo
                   orderData={data}
                   onPageChange={onPageChange}
+                  tableLoading={tableLoading}
                 />
               </TabPane>
               <TabPane

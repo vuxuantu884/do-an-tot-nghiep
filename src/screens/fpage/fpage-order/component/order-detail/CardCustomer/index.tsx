@@ -388,7 +388,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleShippingAddressForm = {
     create: (formValue: CustomerShippingAddress) => {
-      formValue.is_default = false;
+      if(customer && customer?.shipping_addresses.length <= 0) {
+        formValue.is_default = true
+      }else{
+        formValue.is_default = false;
+      }
       if (customer)
         dispatch(
           CreateShippingAddress(
@@ -478,7 +482,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      formValue.is_default = false;
+      if(customer && customer?.billing_addresses.length <= 0) {
+        formValue.is_default = true
+      }else{
+        formValue.is_default = false;
+      }
       if (customer)
         dispatch(
           CreateBillingAddress(
@@ -627,7 +635,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   {customer?.full_name}
                 </Link>{" "}
                 <Tag className="orders-tag orders-tag-vip">
-                  <b>{!rankName ? "Default" : rankName}</b>
+                  <b>{!rankName ? "Bình thường" : rankName}</b>
                 </Tag>
               </Col>
               <Col style={{ display: "flex", alignItems: "center" }}>
