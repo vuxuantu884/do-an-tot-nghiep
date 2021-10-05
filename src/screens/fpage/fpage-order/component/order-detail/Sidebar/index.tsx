@@ -15,7 +15,7 @@ type PropType = {
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder } = props;
+  const { accounts, onChangeTag, } = props;
 
   return (
     <StyledComponent>

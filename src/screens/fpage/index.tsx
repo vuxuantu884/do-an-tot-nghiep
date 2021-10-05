@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import FpageOrders from "./fpage-order/FpageOrders";
 import FpageCustomer from "./fpage-customer/create.customer";
-import { Divider, Tabs } from "antd";
+import { Tabs } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
