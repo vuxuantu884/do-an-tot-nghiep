@@ -276,7 +276,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         currentProcument,
         data
       );
-      console.log('newProcument', newProcument);
       formMain.setFieldsValue({
         line_items: [...data],
         total: total,
