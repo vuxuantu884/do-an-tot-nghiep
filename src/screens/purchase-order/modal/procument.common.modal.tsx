@@ -145,7 +145,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             </div>
           </Row>
         ),
-        value: item.line_item_id.toString(),
+        value: item.sku,
       });
     });
     return options;
