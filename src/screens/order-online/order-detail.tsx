@@ -66,7 +66,7 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import ActionHistory from "./component/order-detail/ActionHistory";
+import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import UpdateCustomerCard from "./component/update-customer-card";

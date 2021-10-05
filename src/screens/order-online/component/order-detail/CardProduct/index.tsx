@@ -743,7 +743,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       setKeySearchVariant("");
     },
     [resultSearchVariant, items, splitLine]
-    // autoCompleteRef, dispatch, resultSearch
   );
 
   const onChangeProductSearch = (value: string) => {
@@ -824,7 +823,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _discountRate: number,
     _discountValue: number
   ) => {
-    // setChangeMoney(_amount - _discountValue);
     props.changeInfo(_items, _amount, _discountRate, _discountValue);
   };
 
@@ -833,17 +831,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     if (listStores && listStores != null) {
       console.log("listStores listStores", listStores);
 
-      newData = listStores.filter(
-        // tạm thời bỏ điều kiện để show cửa hàng
-        (store) =>
-          haveAccess(
-            store.id,
-            userReducer.account ? userReducer.account.account_stores : []
-          )
-        // store
+      newData = listStores.filter((store) =>
+        haveAccess(
+          store.id,
+          userReducer.account ? userReducer.account.account_stores : []
+        )
       );
-      // if(newData && newData.length)
-      //   selectStore(newData[0].id);
     }
     return newData;
   }, [listStores, userReducer.account]);
