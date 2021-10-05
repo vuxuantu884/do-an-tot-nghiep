@@ -137,6 +137,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
+  const autoCompleteElement:any = document.getElementById("search_customer");
+
+  const [timeRef, setTimeRef] = React.useState<any>();
+  const [typingTimer,setTypingTimer]= useState(0);
 
   //#region Modal
   const ShowBillingAddress = (e: any) => {
@@ -185,17 +189,78 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setIsVisibleShippingModal(false);
   };
 
+  const event =useCallback((event: KeyboardEvent)=>{
+    if (event.target instanceof HTMLInputElement) {
+      if (event.key === "Enter" && event.target.id==="search_customer") 
+      {
+          setTypingTimer(5000);
+          const initQueryCustomer: any = {
+              request: "",
+              limit: 5,
+              page: 1,
+          };
+          console.log("autoCompleteElement");
+          // console.log(autoCompleteElement);
+          // console.log(autoCompleteRef.current);
+          if(autoCompleteRef)
+           console.log(autoCompleteRef.current);
+          //initQueryCustomer.request = autoCompleteRef.current?.props.value.trim();
+          initQueryCustomer.request = "";
+          dispatch(CustomerSearch(initQueryCustomer, (data:Array<CustomerResponse>)=>{
+            console.log(data);
+            handleCustomer(data[0]);
+
+             //set Shipping Address
+            if (data[0].shipping_addresses) {
+              data[0].shipping_addresses.forEach((item, index2) => {
+                if (item.default === true) {
+                  setShippingAddress(item);
+                  props.ShippingAddressChange(item);
+                }
+              });
+            }
+
+            //set Billing Address
+            if (data[0].billing_addresses) {
+              data[0].billing_addresses.forEach((item, index2) => {
+                if (item.default === true) {
+                  props.BillingAddressChange(item);
+                }
+              });
+            }
+          }));
+
+          setKeySearchCustomer("");
+      }
+  }
+  },[dispatch,autoCompleteElement]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", event);
+}, [event]);
+
   //#end region
 
   //#region Search and Render result
   //Search and render customer by name, phone, code
   const CustomerChangeSearch = useCallback(
     (value) => {
+
+      clearTimeout(timeRef);
       setKeySearchCustomer(value);
       initQueryCustomer.request = value.trim();
-      dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+      let time = setTimeout(() => {
+          dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+      }, typingTimer);
+      setTimeRef(time);
+      setTypingTimer(3000);
+      //autoCompleteRef.current?.blur();
+      //console.log(autoCompleteElement.value);
+      // setKeySearchCustomer(value);
+      // initQueryCustomer.request = value.trim();
+      // dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
     },
-    [dispatch, initQueryCustomer]
+    [dispatch, timeRef, typingTimer, setTypingTimer]
   );
 
   //Render result search
@@ -276,6 +341,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           });
         }
         autoCompleteRef.current?.blur();
+        console.log(autoCompleteElement.value);
         setKeySearchCustomer("");
         setDistrictId(resultSearch[index].district_id);
       }
