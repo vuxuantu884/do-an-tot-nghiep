@@ -9,8 +9,8 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import { useHistory } from "react-router-dom";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import successIcon from "assets/icon/success_2.svg";
 import moment from "moment";
-
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -22,7 +22,7 @@ type SyncEcommerceProps = {
   configData: any;
   setConfigToView: (value: EcommerceResponse) => void;
   reloadConfigData: () => void;
-  showDeleteModal: (value: EcommerceResponse) => void
+  showDeleteModal: (value: EcommerceResponse) => void;
 };
 
 const SyncEcommerce: React.FC<SyncEcommerceProps> = (
@@ -44,8 +44,8 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
   };
 
   const handleShowDeleteModal = (item: EcommerceResponse) => {
-    showDeleteModal(item)
-  }
+    showDeleteModal(item);
+  };
 
   const [columns] = useState<any>([
     {
@@ -95,12 +95,19 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     //   align: "center",
     //   dataIndex: "product_sync",
     // },
-    { title: "Nhân viên bán hàng", visible: true,align: "center", dataIndex: "assign_account" },
+    {
+      title: "Nhân viên bán hàng",
+      visible: true,
+      align: "center",
+      dataIndex: "assign_account",
+    },
     {
       title: "Ngày kết nối",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        return <span>{moment.unix(v.auth_time).format("DD/MM/YYYY HH:mm:ss")}</span>;
+        return (
+          <span>{moment.unix(v.auth_time).format("DD/MM/YYYY HH:mm:ss")}</span>
+        );
       },
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
@@ -144,13 +151,15 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     },
   ]);
 
-  const configDataFiltered = configData && configData?.filter((item: any) => {
-    if (activatedBtn?.id === "all") {
-      return true;
-    } else {
-      return item.ecommerce === activatedBtn.id;
-    }
-  });
+  const configDataFiltered =
+    configData &&
+    configData?.filter((item: any) => {
+      if (activatedBtn?.id === "all") {
+        return true;
+      } else {
+        return item.ecommerce === activatedBtn.id;
+      }
+    });
 
   return (
     <StyledComponent>
@@ -167,6 +176,9 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
               onClick={() => setActivatedBtn(button)}
             >
               {button.title}
+              {button.key === activatedBtn?.key && (
+                <img src={successIcon} className="icon-active-button" alt="" />
+              )}
             </Button>
           ))}
         </StyledHeader>

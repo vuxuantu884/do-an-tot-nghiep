@@ -19,6 +19,11 @@ export const StyledHeader = styled.div`
     background-color: #f3f3ff;
     color: #222222;
   }
+
+  .icon-active-button {
+    margin-left: 5px;
+    margin-right: 0 !important;
+  }
 `;
 
 export const StyledComponent = styled.div`

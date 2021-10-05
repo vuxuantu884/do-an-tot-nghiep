@@ -226,7 +226,7 @@ const CustomerUpdate = (props: any) => {
         <div className="customer-bottom-button" style={{}}>
           <Link to="/customers">
             <div style={{ cursor: "pointer" }}>
-              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+              <img style={{ marginRight: "10px", transform: "rotate(180deg)" }} src={arrowLeft} alt="" />
               Quay lại danh sách khách hàng
             </div>
           </Link>
