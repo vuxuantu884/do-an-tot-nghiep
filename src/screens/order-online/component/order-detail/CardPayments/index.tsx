@@ -38,9 +38,7 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
-  setSelectedPaymentMethod: (paymentType: number) => void;
   payments: OrderPaymentRequest[];
-  setPayments: (value: Array<OrderPaymentRequest>) => void;
   paymentMethod: number;
   amount: number;
   shipmentMethod: number;
@@ -48,17 +46,21 @@ type CardPaymentsProps = {
   levelOrder?: number;
   updateOrder?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
+  setSelectedPaymentMethod: (paymentType: number) => void;
+  setPointUsing?: (value: { point: number; amount: number } | null) => void;
+  setPayments: (value: Array<OrderPaymentRequest>) => void;
 };
 
 function CardPayments(props: CardPaymentsProps) {
   const {
+    levelOrder = 0,
     paymentMethod,
     payments,
     isCloneOrder,
-    setPayments,
     shipmentMethod,
-    levelOrder = 0,
     loyaltyRate,
+    setPayments,
+    setPointUsing,
   } = props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
@@ -180,6 +182,34 @@ function CardPayments(props: CardPaymentsProps) {
   //   }
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [paymentMethod]);
+
+  useEffect(() => {
+    if (payments) {
+      let paymentByPoint = payments.filter((singlePayment) => {
+        return singlePayment.payment_method_code === PaymentMethodCode.POINT;
+      });
+      if (paymentByPoint) {
+        let totalPoint = 0;
+        let totalAmountPoint = 0;
+        paymentByPoint.forEach((single) => {
+          if (single.point) {
+            totalPoint += single.point;
+            totalAmountPoint += single.paid_amount;
+          }
+        });
+        if (setPointUsing) {
+          if (totalPoint > 0) {
+            setPointUsing({
+              point: totalPoint,
+              amount: totalAmountPoint,
+            });
+          } else {
+            setPointUsing(null);
+          }
+        }
+      }
+    }
+  }, [payments, setPointUsing]);
 
   return (
     <Card

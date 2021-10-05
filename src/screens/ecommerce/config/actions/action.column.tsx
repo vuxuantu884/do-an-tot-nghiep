@@ -32,7 +32,7 @@ const actionColumn = (handleUpdate: any, handleDelete: any) => {
               className=""
               onClick={() => handleDelete(item)}
             >
-              Ngắt kết nối
+              Xóa gian hàng
             </Button>
           </Menu.Item>
         </Menu>
