@@ -1,5 +1,5 @@
-import { LoadingOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Spin, Table as ANTTable, TableProps } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin, Table as ANTTable, TableProps } from "antd";
 import { ColumnType, TableLocale } from "antd/lib/table/interface";
 import { PageConfig } from "config/page.config";
 import React, { useCallback } from "react";
@@ -57,7 +57,6 @@ const CustomTable = (props: ICustomTableProps) => {
     pagination = defaultPagination,
     columns,
     onSelectedChange,
-    onShowColumnSetting,
     showColumnSetting,
     isLoading,
     isRowSelection,

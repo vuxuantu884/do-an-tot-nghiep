@@ -13,6 +13,8 @@ export interface PurchaseProcument extends BaseObject {
   stock_in_date: string|null;
   stock_in_by: string|null;
   store?: string;
+  is_cancelled?: boolean
+  
 }
 export interface PurchaseProcurementViewDraft {
   id?: number;
