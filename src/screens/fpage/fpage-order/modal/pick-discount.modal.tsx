@@ -5,7 +5,7 @@ import {
   Button,
   FormInstance,
   Input,
-  InputNumber,
+  InputNumber, Col, Row
 } from "antd";
 import React, { createRef, useState } from "react";
 // import { useDispatch } from 'react-redux';
@@ -60,7 +60,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
   };
   return (
     <Modal
-      title=""
+      title="Chiết khấu đơn hàng"
       onCancel={onCancel}
       centered
       visible={visible}
@@ -76,21 +76,23 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
         layout="vertical"
         onKeyPress={(e) => handleEnterToSubmit(e.which)}
       >
-        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
-          <Form.Item label="Chiết khấu đơn hàng">
-            <Input.Group size="large">
+        <Col span={24}>
+          <Form.Item label="CK Đơn hàng">
+            <Input.Group >
+              <Row style={{alignItems: 'center', justifyContent: "space-between"}}>
+              <Col span={6}>
               <Select
-                style={{ width: "17%", height: "37px" }}
+                className="fpage-discount-select"
                 defaultValue={_type}
                 onChange={handleChangeSelect}
-                className="currency-option"
               >
                 <Select.Option value="percent">%</Select.Option>
                 <Select.Option value="money">₫</Select.Option>
               </Select>
+              </Col>
+              <Col span={18}>
               <InputNumber
-                style={{ width: "83%" }}
-                className="hide-number-handle"
+                style={{ width: "100%", borderRadius: "0 5px 5px 0", height: 38}}
                 onFocus={(e) => e.target.select()}
                 value={_type === "money" ? _value : _rate}
                 min={0}
@@ -98,10 +100,12 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                 formatter={(value) => formatCurrency(value ? value : "0")}
                 onChange={onchangeDiscount}
               />
+              </Col>
+              </Row>
             </Input.Group>
           </Form.Item>
-        </div>
-        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
+        </Col>
+        <Col span={24}>
           <Form.Item label="Mã giảm giá">
             <Input
               placeholder="Mã giảm giá"
@@ -111,7 +115,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
               onChange={onchangeCounpon}
             />
           </Form.Item>
-        </div>
+        </Col>
       </Form>
     </Modal>
   );

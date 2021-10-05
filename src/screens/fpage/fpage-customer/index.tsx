@@ -324,19 +324,6 @@ const Customer = () => {
     dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
 
-  // const onRow = (record: any) => ({
-  //   onContextMenu: (event: any) => {
-  //     event.preventDefault();
-  //     if (!popup.visible) {
-  //       document.addEventListener(`click`, function onClickOutside() {
-  //         setPopup({ ...popup, visible: false });
-  //         document.removeEventListener(`click`, onClickOutside);
-  //       });
-  //     }
-
-  //     setPopup({ visible: true, x: event.clientX, y: event.clientY });
-  //   },
-  // });
   const [formAdvance] = Form.useForm();
 
   const onFilterClick = React.useCallback(() => {
