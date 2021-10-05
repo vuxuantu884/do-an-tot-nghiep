@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, Col, Modal, Row, Space, Tag, Table } from "antd";
+import { Button, Card, Col, Modal, Row, Space, Table } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import ShipmentFilter from "component/filter/shipment.filter";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Item, Shipment, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import { AccountResponse } from "model/account/account.model";
@@ -17,7 +15,6 @@ import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
-// import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { getListReasonRequest, getShipmentsAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
@@ -28,12 +25,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
-import ImageGHTK from "assets/img/imageGHTK.svg";
-import ImageGHN from "assets/img/imageGHN.png";
-import ImageVTP from "assets/img/imageVTP.svg";
-import ImageDHL from "assets/img/imageDHL.svg";
+import { delivery_service } from "./common/delivery-service";
 
 const actions: Array<MenuAction> = [
   {
@@ -135,10 +127,7 @@ const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
- 
-  const listStatus = useSelector((state: RootReducerType) => {
-    return state.bootstrapReducer.data?.variant_status;
-  });
+
   const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -171,32 +160,6 @@ const ListOrderScreen: React.FC = () => {
     {name: "Kết thúc", value: "finished"},
     {name: "Đã huỷ", value: "cancelled"},
     {name: "Đã hết hạn", value: "expired"},
-  ]
-  const delivery_service = [
-    {
-      code: "ghtk",
-      id: 1,
-      logo: ImageGHTK,
-      name: "Giao hàng tiết kiệm"
-    },
-    {
-      code: "ghn",
-      id: 2,
-      logo: ImageGHN,
-      name: "Giao hàng nhanh"
-    },
-    {
-      code: "vtp",
-      id: 3,
-      logo: ImageVTP,
-      name: "Viettel Post"
-    },
-    {
-      code: "dhl",
-      id: 4,
-      logo: ImageDHL,
-      name: "DHL"
-    }
   ]
   
   const shipmentDetailModal = useCallback(
