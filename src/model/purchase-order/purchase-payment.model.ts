@@ -1,5 +1,3 @@
-import { BaseObject } from "model/base/base.response";
-
 export interface PurchasePayments {
   id?: number;
   code?: string;
@@ -10,7 +8,7 @@ export interface PurchasePayments {
   updated_name?: string;
   updated_date?: Date;
   version?: number;
-
+  is_refund?: boolean
   accountCode?: string;
   payment_method_code?: string;
   amount?: number;

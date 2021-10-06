@@ -17,7 +17,6 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
@@ -50,7 +49,6 @@ import {
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, {
-  createRef,
   useCallback,
   useEffect,
   useMemo,
