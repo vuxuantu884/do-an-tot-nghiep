@@ -11,9 +11,22 @@ import {
 import { useState } from "react";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropType = {
+  isAllowToSellWhenNotAvailableStock: boolean;
+  onChangeAllowToSellWhenNotAvailableStock: (checked: any) => void;
+};
 
 function CardGeneralSettings(props: PropType) {
+  const {
+    isAllowToSellWhenNotAvailableStock,
+    onChangeAllowToSellWhenNotAvailableStock,
+  } = props;
+
+  console.log(
+    "isAllowToSellWhenNotAvailableStock",
+    isAllowToSellWhenNotAvailableStock
+  );
+
   const chonChoTatCaDonHangSelect = [
     {
       name: "Cho xem và thử hàng",
@@ -121,8 +134,8 @@ function CardGeneralSettings(props: PropType) {
                   </div>
                   <div>
                     <Switch
-                      defaultChecked={undefined}
-                      // onChange={onChange}
+                      checked={isAllowToSellWhenNotAvailableStock}
+                      onChange={onChangeAllowToSellWhenNotAvailableStock}
                       className="ant-switch-primary"
                     />
                     Cho phép bán khi tồn kho
