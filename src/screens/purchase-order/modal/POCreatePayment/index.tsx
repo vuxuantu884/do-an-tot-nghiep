@@ -177,13 +177,12 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
     >
       <POCreatePaymentModalStyled>
         <Form
-          name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
           form={formPayment}
           initialValues={initPOCreatePaymentValue}
           onFinish={onFinish}
+          className="update-customer-modal"
           autoComplete="off"
+          layout="vertical"
         >
           <Row gutter={24}>
             <Col xs={24} lg={12}>
@@ -224,6 +223,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
               >
                 <CustomDatepicker
                   disableDate={(date) => date <= moment().startOf("days")}
+                  style={{ width: "100%" }}
                   placeholder="dd/mm/yyyy"
                 />
               </Item>

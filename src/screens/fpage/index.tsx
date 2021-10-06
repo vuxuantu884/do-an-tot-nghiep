@@ -143,6 +143,7 @@ function FpageCRM() {
         className="custom-fpage-tabs"
         destroyInactiveTabPane={isClearOrderTab}
         centered
+        animated
         activeKey={activeTabKey}
         onChange={(value: string) => handleOnchangeTabs(value)}
       >

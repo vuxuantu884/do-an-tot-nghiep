@@ -152,11 +152,14 @@ function CustomerShippingInfo(props: any) {
         )
       );
   };
-
   // handle billing
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      formValue.is_default = false;
+      if(customer?.billing_addresses.length <= 0) {
+        formValue.is_default = true
+      }else{
+        formValue.is_default = false;
+      }
       if (customer)
         dispatch(
           CreateBillingAddress(
