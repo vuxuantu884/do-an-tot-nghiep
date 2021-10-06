@@ -194,6 +194,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     if (event.target instanceof HTMLInputElement) {
       if (event.keyCode === 13 && event.target.id==="search_customer") 
       {
+        console.log(event.target.value)
           setTypingTimer(5000);
           const initQueryCustomer: any = {
               request: "",
