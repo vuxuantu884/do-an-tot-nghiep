@@ -268,11 +268,9 @@ const FpageCustomerDetail = (props: any) => {
   const setResultUpdate = React.useCallback(
     (result) => {
       if (result) {
-        if (result) {
-          showSuccess("Sửa thông tin khách hàng thành công");
-          setCustomer(result);
-          setIsClearOrderField(false);
-        }
+        showSuccess("Sửa thông tin khách hàng thành công");
+        setCustomer(result);
+        setIsClearOrderField(false);
       }
     },
     [setCustomer, setIsClearOrderField]
@@ -280,11 +278,9 @@ const FpageCustomerDetail = (props: any) => {
   const setResultCreate = React.useCallback(
     (result) => {
       if (result) {
-        if (result) {
-          showSuccess("Tạo khách hàng thành công");
-          setCustomer(result);
-          setIsButtonSelected(2);
-        }
+        showSuccess("Tạo khách hàng thành công");
+        setCustomer(result);
+        setIsButtonSelected(2);
       }
     },
     [setCustomer, setIsButtonSelected]
@@ -332,25 +328,25 @@ const FpageCustomerDetail = (props: any) => {
         ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
-      version: customer.version,
-      shipping_addresses: customer.shipping_addresses.map((item: any) => {
+      version: customer?.version,
+      shipping_addresses: customer?.shipping_addresses?.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
         return _item;
       }),
-      billing_addresses: customer.billing_addresses.map((item: any) => {
+      billing_addresses: customer?.billing_addresses?.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
         return _item;
       }),
-      contacts: customer.contacts,
+      contacts: customer?.contacts,
     };
-    dispatch(UpdateCustomer(customer.id, processValue, setResultUpdate));
+    dispatch(UpdateCustomer(customer?.id, processValue, setResultUpdate));
   };
   const handleSubmitFail = (errorInfo: any) => {};
 
   const reloadPage = () => {
-    getCustomerWhenPhoneChange(customer.phone);
+    getCustomerWhenPhoneChange(customer?.phone);
   };
 
   const handleNote = {

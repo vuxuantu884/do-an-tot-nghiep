@@ -60,9 +60,8 @@ function FpageCRM() {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
     Array<LoyaltyUsageResponse>
   >([]);
-
   React.useEffect(() => {
-    if (customer) {
+    if (customer?.id) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
     } else {
       setLoyaltyPoint(null);

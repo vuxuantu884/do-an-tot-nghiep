@@ -22,7 +22,7 @@ function CardShowReturnProducts(props: PropType) {
   const {
     listReturnProducts,
     discountRate,
-    setTotalAmountReturnProducts,
+    // setTotalAmountReturnProducts,
     pointUsing,
     totalAmount,
   } = props;
@@ -40,21 +40,21 @@ function CardShowReturnProducts(props: PropType) {
     [discountRate]
   );
 
-  const getTotalPrice = useCallback(
-    (listReturnProducts: OrderLineItemResponse[]) => {
-      let totalPrice = 0;
-      listReturnProducts.forEach((single) => {
-        let discountPerProduct = getProductDiscountPerProduct(single);
-        let discountPerOrder = getProductDiscountPerOrder(single);
-        let singleTotalPrice =
-          single.price - discountPerProduct - discountPerOrder;
-        totalPrice = totalPrice + single.quantity * singleTotalPrice;
-      });
-      setTotalAmountReturnProducts(totalPrice);
-      return totalPrice;
-    },
-    [getProductDiscountPerOrder, setTotalAmountReturnProducts]
-  );
+  // const getTotalPrice = useCallback(
+  //   (listReturnProducts: OrderLineItemResponse[]) => {
+  //     let totalPrice = 0;
+  //     listReturnProducts.forEach((single) => {
+  //       let discountPerProduct = getProductDiscountPerProduct(single);
+  //       let discountPerOrder = getProductDiscountPerOrder(single);
+  //       let singleTotalPrice =
+  //         single.price - discountPerProduct - discountPerOrder;
+  //       totalPrice = totalPrice + single.quantity * singleTotalPrice;
+  //     });
+  //     setTotalAmountReturnProducts(totalPrice);
+  //     return totalPrice;
+  //   },
+  //   [getProductDiscountPerOrder, setTotalAmountReturnProducts]
+  // );
 
   const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
     let discountPerProduct = 0;

@@ -196,6 +196,20 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
     width: "3.5%",
   },
   {
+    title: "Điểm",
+    // dataIndex: "",
+    render: (record: any) => (
+      <>
+       <div><span>Tích:</span></div>
+       <div><span>Tiêu:</span></div>
+      </>
+    ),
+    key: "customer.amount_money",
+    visible: true,
+    align: "left",
+    width: "3.5%",
+  },
+  {
     title: "HTVC",
     dataIndex: "fulfillments",
     key: "shipment.type",
