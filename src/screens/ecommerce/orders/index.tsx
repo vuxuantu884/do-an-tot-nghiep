@@ -315,7 +315,7 @@ const EcommerceOrderSync: React.FC = () => {
             <img
               src={service.logo ? service.logo : ""}
               alt=""
-              style={{ width: "100%", height: "30px" }}
+              style={{ width: "100%"}}
             />
           )
         );

@@ -2082,7 +2082,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             props.stepsStatusValue === FulFillmentStatus.SHIPPED
                           }
                         >
-                          Tạo đơn giao hàng 3
+                          Tạo đơn giao hàng
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"

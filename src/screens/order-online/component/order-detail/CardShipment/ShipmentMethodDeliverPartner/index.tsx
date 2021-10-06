@@ -11,10 +11,10 @@ import React, { useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-import ImageGHTK from "assets/img/imageGHTK.svg";
-import ImageGHN from "assets/img/imageGHN.png";
-import ImageVTP from "assets/img/imageVTP.svg";
-import ImageDHL from "assets/img/imageDHL.svg";
+import LogoGHTK from "assets/img/LogoGHTK.svg";
+import LogoGHN from "assets/img/LogoGHN.svg";
+import LogoVTP from "assets/img/LogoVTP.svg";
+import LogoDHL from "assets/img/LogoDHL.svg";
 import NumberFormat from "react-number-format";
 
 type PropType = {
@@ -71,25 +71,25 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       ghtk: {
         code: "ghtk",
         id: 1,
-        logo: ImageGHTK,
+        logo: LogoGHTK,
         name: "Giao hàng tiết kiệm",
       },
       ghn: {
         code: "ghn",
         id: 2,
-        logo: ImageGHN,
+        logo: LogoGHN,
         name: "Giao hàng nhanh",
       },
       vtp: {
         code: "vtp",
         id: 3,
-        logo: ImageVTP,
+        logo: LogoVTP,
         name: "Viettel Post",
       },
       dhl: {
         code: "dhl",
         id: 4,
-        logo: ImageDHL,
+        logo: LogoDHL,
         name: "DHL",
       },
     };
