@@ -22,7 +22,7 @@ function CardShowReturnProducts(props: PropType) {
   const {
     listReturnProducts,
     discountRate,
-    setTotalAmountReturnProducts,
+    // setTotalAmountReturnProducts,
     pointUsing,
     totalAmount,
   } = props;

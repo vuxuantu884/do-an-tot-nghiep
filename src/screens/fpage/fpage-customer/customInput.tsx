@@ -15,11 +15,11 @@ type CustomInputProps = {
 };
 const color: any = {
   "KH mới": "#00F000",
-  "KH mũ": "#F5C4C4",
-  "Vip Silver": "#cccccc",
-  "Vip Gold": "#F0F000",
-  "Vip Ruby": "#FF0000",
-  "Vip Diamond": "#007FFF",
+  "KH cũ": "#F5C4C4",
+  "Vip S": "#cccccc",
+  "Vip G": "#F0F000",
+  "Vip R": "#FF0000",
+  "Vip D": "#007FFF",
 };
 function CustomInput(props: CustomInputProps) {
   const {

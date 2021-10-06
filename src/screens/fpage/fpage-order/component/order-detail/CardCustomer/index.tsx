@@ -153,7 +153,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
-  console.log(billingAddress);
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
@@ -287,11 +286,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   }, [dispatch]);
 
   useEffect(() => {
-    if (customer && customer.shipping_addresses[0]) {
-      const shippingSelected = customer.shipping_addresses.find(
+    if (customer && customer?.shipping_addresses?.length > 0) {
+      const shippingSelected = customer?.shipping_addresses?.find(
         (item) => item.id === idShippingSelected
       );
-      const addressDefault = customer.shipping_addresses.find(
+      const addressDefault = customer.shipping_addresses?.find(
         (item) => item.default
       );
       if (shippingSelected) {
@@ -300,10 +299,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         setShippingAddress(addressDefault);
       }
 
-      const billingSelected = customer.billing_addresses.find(
+      const billingSelected = customer?.billing_addresses?.find(
         (item) => item.id === idBillingSelected
       );
-      const billingDefault = customer.billing_addresses.find(
+      const billingDefault = customer?.billing_addresses?.find(
+        (item) => item.default
+      );
+
+      if (billingSelected) {
+        setBillingAddress(billingSelected);
+      } else if (billingDefault) {
+        setBillingAddress(billingDefault);
+      }
+    }
+    if (customer && customer?.billing_addresses?.length > 0) {
+      const billingSelected = customer?.billing_addresses?.find(
+        (item) => item.id === idBillingSelected
+      );
+      const billingDefault = customer?.billing_addresses?.find(
         (item) => item.default
       );
 
@@ -388,7 +401,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleShippingAddressForm = {
     create: (formValue: CustomerShippingAddress) => {
-      formValue.is_default = false;
+      if(customer && customer?.shipping_addresses.length <= 0) {
+        formValue.is_default = true
+      }else{
+        formValue.is_default = false;
+      }
       if (customer)
         dispatch(
           CreateShippingAddress(
@@ -478,7 +495,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      formValue.is_default = false;
+      if(customer && customer?.billing_addresses.length <= 0) {
+        formValue.is_default = true
+      }else{
+        formValue.is_default = false;
+      }
       if (customer)
         dispatch(
           CreateBillingAddress(
@@ -627,7 +648,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   {customer?.full_name}
                 </Link>{" "}
                 <Tag className="orders-tag orders-tag-vip">
-                  <b>{!rankName ? "Default" : rankName}</b>
+                  <b>{!rankName ? "Bình thường" : rankName}</b>
                 </Tag>
               </Col>
               <Col style={{ display: "flex", alignItems: "center" }}>
@@ -773,7 +794,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         }
                         content={
                           <div className="change-shipping-address-content">
-                            {customer.shipping_addresses.map((item, index) => (
+                            {customer?.shipping_addresses?.map((item, index) => (
                               <div
                                 className="customer-shipping-address"
                                 key={index}
@@ -976,7 +997,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           }
                           content={
                             <div className="change-shipping-address-content">
-                              {customer.billing_addresses.map((item, index) => (
+                              {customer?.billing_addresses?.map((item, index) => (
                                 <div
                                   className="customer-shipping-address"
                                   key={index}

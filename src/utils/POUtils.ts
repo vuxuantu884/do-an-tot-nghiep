@@ -485,6 +485,7 @@ const POUtils = {
         }else {
           if(procuments.length === 1) {
             newProcumentLineItem[index].quantity = lineItem.quantity;
+            newProcumentLineItem[index].ordered_quantity = lineItem.quantity;
           }
         }
       });
