@@ -31,7 +31,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { SearchBarCode, searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
@@ -828,6 +828,70 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     _items[indexItem].gifts = itemGifts;
     handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
+
+  const event = useCallback((event:KeyboardEvent)=>{
+
+    if(event.target instanceof HTMLInputElement){
+      
+      if (event.keyCode === 13 && event.target.value && event.target.id==="search_product") 
+      {
+        event.target.onchange=()=>{
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        let barcode=event.target.value;
+        if (!items) {
+          return;
+        }
+        dispatch(SearchBarCode(barcode,(data:VariantResponse)=>{
+          let _items = [...items].reverse();
+          const item: OrderLineItemRequest = createItem(data);
+          let index = _items.findIndex((i) => i.variant_id === data.id);
+          item.position = items.length + 1;
+
+            if (splitLine || index === -1) {
+              _items.push(item);
+              setAmount(amount + item.price);
+              calculateChangeMoney(
+                _items,
+                amount + item.price,
+                discountRate,
+                discountValue
+              );
+            } else {
+              let variantItems = _items.filter((item) => item.variant_id === data.id);
+              let lastIndex = variantItems.length - 1;
+              variantItems[lastIndex].quantity += 1;
+              variantItems[lastIndex].line_amount_after_line_discount +=
+                variantItems[lastIndex].price -
+                variantItems[lastIndex].discount_items[0].amount;
+              setAmount(
+                amount +
+                  variantItems[lastIndex].price -
+                  variantItems[lastIndex].discount_items[0].amount
+              );
+              calculateChangeMoney(
+                _items,
+                amount +
+                  variantItems[lastIndex].price -
+                  variantItems[lastIndex].discount_items[0].amount,
+                discountRate,
+                discountValue
+              );
+            }
+          
+          handleCardItems(_items.reverse());
+          autoCompleteRef.current?.blur();
+          setIsInputSearchProductFocus(false);
+          setKeySearchVariant("");
+        }));
+      }
+    }
+  },[items, splitLine]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", event);
+  }, [event]);
 
   return (
     <Card

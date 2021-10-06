@@ -12,4 +12,5 @@ export interface RouteMenu {
   pathIgnore?: Array<string>;
   component: React.ReactNode;
   showMenuThird?: boolean;
+  permissions?: Array<string>
 }

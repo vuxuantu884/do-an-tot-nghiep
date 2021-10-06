@@ -34,7 +34,7 @@ export const actionConfigureIsAllowToSellWhenNotAvailableStock = (
 };
 
 export const actionListConfigurationShippingServiceAndShippingFee = (
-  handleData: (data: ShippingServiceConfigResponseModel[]) => void
+  handleData: (data: ShippingServiceConfigDetailResponseModel[]) => void
 ) => {
   return {
     type: SETTING_TYPES.orderSettings

@@ -113,7 +113,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const ShipMethodOnChange = (value: number) => {
     setServiceType(undefined);
     setShipmentMethodProps(value);
-    if(levelOrder <3) {
+    if (levelOrder < 3) {
       setPaymentMethod(value);
     }
     setShipmentMethodProps(value);
@@ -132,6 +132,9 @@ const CardShipment: React.FC<CardShipmentProps> = (
     }
     if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
       // onPayments([]);
+    }
+    if (value === ShipmentMethodOption.DELIVER_LATER) {
+      setPaymentMethod(PaymentMethodOption.POSTPAYMENT);
     }
   };
 

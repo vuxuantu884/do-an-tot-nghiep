@@ -56,9 +56,9 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AddGiftModal from "screens/order-online/modal/add-gift.modal";
-import InventoryModal from "screens/order-online/modal/inventory.modal";
-import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
+import AddGiftModal from "screens/fpage/fpage-order/modal/add-gift.modal";
+import InventoryModal from "screens/fpage/fpage-order/modal/inventory.modal";
+import PickDiscountModal from "screens/fpage/fpage-order/modal/pick-discount.modal";
 import {
   findAvatar,
   findPrice,
@@ -1176,7 +1176,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       />
       <Modal
         title="Thêm giảm giá"
-        width={600}
         onCancel={handleCancelDiscountItemModal}
         onOk={handleAddDiscountItemModal}
         visible={isShowAddDiscountItemModal}

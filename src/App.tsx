@@ -2,6 +2,7 @@ import {
   loadSettingAppAction,
   loadUserFromStorageAction,
 } from "domain/actions/app.action";
+import { profilePermissionAction } from "domain/actions/auth/permission.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,12 +16,24 @@ function App() {
   const isLoad = useSelector(
     (state: RootReducerType) => state.userReducer.isLoad
   );
+
+  const user_id = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.user_id
+  );
+
   useEffect(() => {
     if (!isLoad) {
       dispatch(loadUserFromStorageAction());
       dispatch(loadSettingAppAction());
     }
   }, [dispatch, isLoad]);
+
+  useEffect(() => {
+    if (user_id) {
+      dispatch(profilePermissionAction(user_id));
+    }
+  }, [dispatch, user_id]);
+  
   return (
     <Suspense fallback={<SplashScreen />}>
       <BrowserRouter basename="/unicorn/admin">

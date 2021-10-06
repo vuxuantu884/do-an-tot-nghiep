@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const POCreatePaymentModalStyled = styled.div`
-  .ant-row.ant-form-item {
+  /* .ant-row.ant-form-item {
     flex-direction: column;
     align-items: flex-start;
 
@@ -15,5 +15,5 @@ export const POCreatePaymentModalStyled = styled.div`
     .ant-form-item-label {
       max-width: 100%;
     }
-  }
+  } */
 `

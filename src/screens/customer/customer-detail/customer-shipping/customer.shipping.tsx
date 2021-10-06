@@ -153,7 +153,11 @@ function CustomerShippingAddressInfo(props: any) {
 
   const handleShippingAddressForm = {
     create: (formValue: CustomerShippingAddress) => {
-      formValue.is_default = false;
+      if(customer?.shipping_addresses.length <= 0) {
+        formValue.is_default = true
+      }else{
+        formValue.is_default = false;
+      }
       if (customer)
         dispatch(
           CreateShippingAddress(

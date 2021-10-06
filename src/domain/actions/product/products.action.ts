@@ -14,6 +14,7 @@ import BaseAction from "base/base.action";
 import { ProductType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductUploadModel } from "model/product/product-upload.model";
+import { SearchType } from 'domain/types/search.type';
 
 export const searchVariantsRequestAction = (
   query: VariantSearchQuery,
@@ -135,4 +136,8 @@ export const variantUpdateManyAction = (variants: Array<VariantUpdateRequest>, o
 
 export const variantDeleteManyAction = (variants: Array<any>, onResult: (exception: boolean) => void) => {
   return BaseAction(ProductType.VARIANT_DELETE, {variants, onResult});
+}
+
+export const SearchBarCode = (barcode: string, setData:(data:VariantResponse)=>void) => {
+  return BaseAction(SearchType.SEARCH_BAR_CODE, {barcode, setData});
 }
