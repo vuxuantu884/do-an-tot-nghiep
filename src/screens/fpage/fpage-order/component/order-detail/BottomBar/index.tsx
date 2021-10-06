@@ -97,10 +97,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
               id="save-and-confirm"
               onClick={() => {
                 handleTypeButton(OrderStatus.FINALIZED);
-                console.log(
-                  "formRef.current.value",
-                  formRef?.current?.getFieldsValue()
-                );
                 formRef.current?.submit();
               }}
             >

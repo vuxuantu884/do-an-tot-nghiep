@@ -642,7 +642,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               type="ghost"
               onClick={() => handleDisconnectEcommerce()}
             >
-              Ngắt kết nối
+              Xóa gian hàng
             </Button>
           ) : <div></div>}
 

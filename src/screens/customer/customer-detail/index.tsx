@@ -27,20 +27,20 @@ import {
   getLoyaltyPoint,
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
-import {LoyaltyCardSearch} from "domain/actions/loyalty/card/loyalty-card.action";
+// import {LoyaltyCardSearch} from "domain/actions/loyalty/card/loyalty-card.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { LoyaltyCardResponse } from 'model/response/loyalty/card/loyalty-card.response';
+// import { LoyaltyCardResponse } from 'model/response/loyalty/card/loyalty-card.response';
 import { formatCurrency } from "utils/AppUtils";
-import {BaseQuery} from "model/base/base.query"
+// import {BaseQuery} from "model/base/base.query"
 // import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const { TabPane } = Tabs;
 
-const cardQuery: BaseQuery = {
-  page: 1,
-  limit: 30
-}
+// const cardQuery: BaseQuery = {
+//   page: 1,
+//   limit: 30
+// }
 
 const CustomerDetailIndex = () => {
   const [activeTab, setActiveTab] = React.useState<string>("history");
@@ -52,7 +52,7 @@ const CustomerDetailIndex = () => {
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
     const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
-    const [loyaltyCard, setLoyaltyCard] = React.useState<PageResponse<LoyaltyCardResponse>>();
+    // const [loyaltyCard, setLoyaltyCard] = React.useState<PageResponse<LoyaltyCardResponse>>();
     const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>([]);
     const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
   const [queryParams, setQueryParams] = React.useState<any>({
@@ -70,17 +70,15 @@ const CustomerDetailIndex = () => {
   });
   const [tableLoading, setTableLoading] = React.useState<boolean>(false)
 
-  console.log(loyaltyCard)
   React.useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch(cardQuery, setLoyaltyCard))
+      // dispatch(LoyaltyCardSearch(cardQuery, setLoyaltyCard))
     } else {
       setLoyaltyPoint(null);
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer]);
-
   React.useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {

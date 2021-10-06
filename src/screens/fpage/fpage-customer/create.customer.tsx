@@ -68,8 +68,6 @@ const FpageCustomerDetail = (props: any) => {
   const [status, setStatus] = React.useState<string>("active");
   const customerId = customer && customer.id;
   const [notes, setNotes] = React.useState<any>([]);
-  const [loadingCreateButton, setLoadingCreateButton] =
-    React.useState<boolean>(false);
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -269,7 +267,6 @@ const FpageCustomerDetail = (props: any) => {
   }, [customer, customerForm, customerFbName]);
   const setResultUpdate = React.useCallback(
     (result) => {
-      setLoadingCreateButton(false)
       if (result) {
         if (result) {
           showSuccess("Sửa thông tin khách hàng thành công");
@@ -282,7 +279,6 @@ const FpageCustomerDetail = (props: any) => {
   );
   const setResultCreate = React.useCallback(
     (result) => {
-      setLoadingCreateButton(false)
       if (result) {
         if (result) {
           showSuccess("Tạo khách hàng thành công");
@@ -301,7 +297,6 @@ const FpageCustomerDetail = (props: any) => {
     }
   };
   const handleSubmitCreate = (values: any) => {
-    setLoadingCreateButton(true)
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
@@ -328,7 +323,6 @@ const FpageCustomerDetail = (props: any) => {
     );
   };
   const handleSubmitUpdate = (values: any) => {
-    setLoadingCreateButton(true)
     const processValue = {
       ...values,
       birthday: values.birthday
@@ -481,7 +475,6 @@ const FpageCustomerDetail = (props: any) => {
             <Button
               type="primary"
               htmlType="submit"
-              loading={loadingCreateButton}
             >
               Tạo mới khách hàng
             </Button>
@@ -490,7 +483,6 @@ const FpageCustomerDetail = (props: any) => {
             <Button
               type="primary"
               htmlType="submit"
-              loading={loadingCreateButton}
             >
               Lưu khách hàng
             </Button>

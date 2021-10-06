@@ -152,7 +152,6 @@ function CustomerShippingInfo(props: any) {
         )
       );
   };
-console.log(customer?.billing_addresses)
   // handle billing
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {

@@ -153,7 +153,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
-  console.log(billingAddress);
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");

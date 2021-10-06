@@ -1,10 +1,14 @@
 import { Input, Form, Row, Col, DatePicker, Select, Card, Tag } from "antd";
+import {CalendarOutlined} from "@ant-design/icons"
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
 import CustomInput from "./customInput";
 import React from "react";
 import arrowDown from "assets/icon/arrow-down.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
+import moment from "moment";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+
 const { Option } = Select;
 
 const GeneralInformation = (props: any) => {
@@ -21,7 +25,9 @@ const GeneralInformation = (props: any) => {
     notes,
     handleNote,
     deletePhone,
-    customer,loyaltyPoint,loyaltyUsageRules
+    customer,
+    loyaltyPoint,
+    loyaltyUsageRules,
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
@@ -39,6 +45,7 @@ const GeneralInformation = (props: any) => {
   const deleteNote = (note: any, e: any) => {
     handleNote.delete(note, customerId);
   };
+
   return (
     <Row gutter={24}>
       <Col span={24}>
@@ -66,9 +73,25 @@ const GeneralInformation = (props: any) => {
               // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
             >
               <DatePicker
-                style={{ width: "100%" }}
+                style={{ width: "100%" }
+                }
                 placeholder="Chọn ngày sinh"
                 format={"DD/MM/YYYY"}
+                suffixIcon={
+                  <div style={{display: "flex", width: "100px"}}>
+                    <CalendarOutlined />
+                    <span style={{color: "#2a2a86", fontWeight: 500, marginLeft: 10}}>
+                      {customer?.birthday &&
+                        `${moment().diff(
+                          ConvertUtcToLocalDate(
+                            customer?.birthday,
+                            "MM/DD/YYYY"
+                          ),
+                          "years"
+                        )} Tuổi`}
+                    </span>
+                  </div>
+                }
               />
             </Form.Item>
           </Col>
@@ -230,11 +253,12 @@ const GeneralInformation = (props: any) => {
                   allowClear
                   optionFilterProp="children"
                 >
-                  {countries && countries.map((country: any) => (
-                    <Option key={country.id} value={country.id}>
-                      {country.name + ` - ${country.code}`}
-                    </Option>
-                  ))}
+                  {countries &&
+                    countries.map((country: any) => (
+                      <Option key={country.id} value={country.id}>
+                        {country.name + ` - ${country.code}`}
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>

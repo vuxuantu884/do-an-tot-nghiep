@@ -401,8 +401,6 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
     dataIndex: "items",
     key: "item.quantity.total",
     render: (items) => {
-      // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-
       return items.reduce(
         (total: number, item: any) => total + item.quantity,
         0
@@ -568,7 +566,7 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
             isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10 }}
             pagination={{
               pageSize: orderData.metadata.limit,
               total: orderData.metadata.total,
