@@ -22,7 +22,6 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { GlobalStyle } from "utils/global-styles";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import CardGeneralSettings from "./components/CardGeneralSettings";
 import { StyledComponent } from "./styles";
@@ -280,7 +279,6 @@ function OrderSettings(props: PropType) {
           />
         </Card>
       </ContentContainer>
-      <GlobalStyle />
     </StyledComponent>
   );
 }

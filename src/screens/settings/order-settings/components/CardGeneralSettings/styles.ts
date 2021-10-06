@@ -1,19 +1,14 @@
 import styled from "styled-components";
 
-type PropType = {
-  abc: boolean;
-};
-
 export const StyledComponent = styled.div`
+  .title {
+    margin-bottom: 15px;
+  }
   .ant-select {
     width: 100%;
   }
-  .title {
-    margin-bottom: 10px;
-    color: ${(props: PropType) => {
-      console.log("props", props);
-      return props.abc ? "green" : "red";
-    }};
+  .ant-switch {
+    margin-right: 15px;
   }
   .ant-radio-group {
     .single:not(:last-child) {
@@ -23,7 +18,14 @@ export const StyledComponent = styled.div`
   .selectChonChoTatCaDonHang {
     width: 255px;
     max-width: 100%;
-    margin-top: 25px;
+    margin-top: 10px;
     margin-left: 25px;
+  }
+  .singleSetting {
+    margin-bottom: 25px;
+  }
+  .selectInNhieuDonHang {
+    width: 255px;
+    max-width: 100%;
   }
 `;

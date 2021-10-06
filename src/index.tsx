@@ -1,7 +1,7 @@
 import { ConfigProvider } from "antd";
 import "antd/dist/antd.min.css";
 import locale from "antd/lib/locale/vi_VN";
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "assets/css/app.scss";
 import "assets/font/iconmon/font.css";

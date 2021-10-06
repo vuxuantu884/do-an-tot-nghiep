@@ -1,4 +1,13 @@
-import { Card, Col, Radio, RadioChangeEvent, Row, Select, Switch } from "antd";
+import {
+  Card,
+  Col,
+  Radio,
+  RadioChangeEvent,
+  Row,
+  Select,
+  Space,
+  Switch,
+} from "antd";
 import { useState } from "react";
 import { StyledComponent } from "./styles";
 
@@ -51,10 +60,8 @@ function CardGeneralSettings(props: PropType) {
     console.log(`selected ${value}`);
   };
 
-  const [greenOrRed, setGreenOrRed] = useState(true);
-
   return (
-    <StyledComponent abc={greenOrRed}>
+    <StyledComponent>
       <Card title="Cài đặt chung">
         <Row gutter={30}>
           <Col span={12}>
@@ -103,22 +110,24 @@ function CardGeneralSettings(props: PropType) {
             <div className="singleSetting">
               <h4 className="title">Cài đặt khác</h4>
               <div className="singleSetting__content">
-                <div>
-                  <Switch
-                    defaultChecked={undefined}
-                    // onChange={onChange}
-                    className="ant-switch-primary"
-                  />
-                  Cài đặt chọn cửa hàng trước mới cho chọn sản phẩm
-                </div>
-                <div>
-                  <Switch
-                    defaultChecked={undefined}
-                    // onChange={onChange}
-                    className="ant-switch-primary"
-                  />
-                  Cho phép bán khi tồn kho
-                </div>
+                <Space direction="vertical" size={15}>
+                  <div>
+                    <Switch
+                      defaultChecked={undefined}
+                      // onChange={onChange}
+                      className="ant-switch-primary"
+                    />
+                    Cài đặt chọn cửa hàng trước mới cho chọn sản phẩm
+                  </div>
+                  <div>
+                    <Switch
+                      defaultChecked={undefined}
+                      // onChange={onChange}
+                      className="ant-switch-primary"
+                    />
+                    Cho phép bán khi tồn kho
+                  </div>
+                </Space>
               </div>
             </div>
             <div className="singleSetting">
@@ -129,6 +138,7 @@ function CardGeneralSettings(props: PropType) {
                 <Select
                   defaultValue="b2"
                   onChange={onChangeSelectChonChoTatCaDonHang}
+                  className="selectInNhieuDonHang"
                 >
                   {cauHinhInLienDonHangSelect &&
                     cauHinhInLienDonHangSelect.length > 0 &&
@@ -145,9 +155,6 @@ function CardGeneralSettings(props: PropType) {
           </Col>
         </Row>
       </Card>
-      <button onClick={() => setGreenOrRed(!greenOrRed)}>
-        Toggle green and red
-      </button>
     </StyledComponent>
   );
 }
