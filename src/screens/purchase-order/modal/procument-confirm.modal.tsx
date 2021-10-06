@@ -188,10 +188,13 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     </div>
                   ),
                   width: 130,
-                  dataIndex: POProcumentLineItemField.real_quantity,
-                  render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>{value}</div>
-                  ),
+                  dataIndex: POProcumentLineItemField.sku,
+                  render: (value, item, index) => {
+                    let itemSku = items.find((item1) => item1.sku === value)
+                    let quantity =  itemSku ? itemSku.receipt_quantity : 0
+                    return (
+                    <div style={{ textAlign: "right" }}>{quantity}</div>
+                  )},
                 },
                 {
                   title: (
@@ -272,7 +275,10 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                 let quantity = 0;
                 data.forEach((item) => {
                   ordered_quantity += item.ordered_quantity;
-                  real_quantity += item.real_quantity;
+                  let itemSku = items.find((item1) => item1.sku === item.sku)
+                  if(itemSku) {
+                    real_quantity = real_quantity + itemSku.receipt_quantity
+                  }
                   planned_quantity += item.planned_quantity;
                   quantity += item.quantity;
                 });

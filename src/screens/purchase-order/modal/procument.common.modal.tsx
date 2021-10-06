@@ -73,6 +73,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const allProcurementItems = useMemo(() => {
     let result = POUtils.getPOProcumentItem(items);
+    console.log('result', result);
     result = result.map((item) => {
       if (visible) {
         if (type === "draft") {
@@ -92,7 +93,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     (value: string) => {
       value = value.toUpperCase();
       let result = allProcurementItems.filter((variant) => {
-        return variant.sku.includes(value) || variant.variant.includes(value);
+        return variant.sku.toUpperCase().includes(value) || variant.variant.toUpperCase().includes(value);
       });
       setData(result);
     },
@@ -227,7 +228,6 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   return (
     <Fragment>
       <Modal
-        getContainer={false}
         width={500}
         centered
         visible={visibleDelete}
