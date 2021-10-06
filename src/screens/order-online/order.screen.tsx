@@ -19,6 +19,7 @@ import {
   orderCreateAction,
   OrderDetailAction,
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
@@ -45,6 +46,7 @@ import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
+import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -103,9 +105,8 @@ export default function Order() {
 
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
-  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
-    null
-  );
+  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] =
+    useState<number | null>(null);
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
     number | null
   >(null);
@@ -135,6 +136,10 @@ export default function Order() {
     amount: number;
   } | null>(null);
 
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
+
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
@@ -158,7 +163,7 @@ export default function Order() {
   };
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
-    setShippingFeeCustomer(value);
+    setShippingFeeInformedToCustomer(value);
   };
   const ChangeShippingFeeCustomerHVC = (value: number | null) => {
     setShippingFeeCustomerHVC(value);
@@ -344,7 +349,9 @@ export default function Order() {
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
-            (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+            (shippingFeeInformedToCustomer
+              ? shippingFeeInformedToCustomer
+              : 0) -
             getAmountPaymentRequest(payments) -
             discountValue,
         };
@@ -352,16 +359,16 @@ export default function Order() {
       case ShipmentMethodOption.PICK_AT_STORE:
         objShipment.delivery_service_provider_type = "pick_at_store";
         let newCod = orderAmount;
-        if (shippingFeeCustomer !== null) {
+        if (shippingFeeInformedToCustomer !== null) {
           if (
             orderAmount +
-              shippingFeeCustomer -
+              shippingFeeInformedToCustomer -
               getAmountPaymentRequest(payments) >
             0
           ) {
             newCod =
               orderAmount +
-              shippingFeeCustomer -
+              shippingFeeInformedToCustomer -
               getAmountPaymentRequest(payments);
           }
         } else {
@@ -472,7 +479,7 @@ export default function Order() {
       ) {
         values.fulfillments[0].shipment.cod =
           orderAmount +
-          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
           getAmountPaymentRequest(payments) -
           discountValue;
       }
@@ -694,7 +701,7 @@ export default function Order() {
                 }
                 setShipmentMethod(newShipmentMethod);
                 setFulfillments(response.fulfillments);
-                setShippingFeeCustomer(
+                setShippingFeeInformedToCustomer(
                   response.shipping_fee_informed_to_customer
                 );
                 if (response.store_id) {
@@ -735,7 +742,7 @@ export default function Order() {
         setStoreId(null);
         setTag("");
         setIsLoadForm(true);
-        setShippingFeeCustomer(0);
+        setShippingFeeInformedToCustomer(0);
         setDiscountRate(0);
         setDiscountValue(0);
         setOfficeTime(false);
@@ -788,7 +795,7 @@ export default function Order() {
 
       let totalAmountPayable =
         orderAmount +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
         discountValue; //tổng tiền phải trả
 
       let usageRate =
@@ -850,7 +857,7 @@ export default function Order() {
       payments,
       discountValue,
       orderAmount,
-      shippingFeeCustomer,
+      shippingFeeInformedToCustomer,
       loyaltyRate,
     ]
   );
@@ -888,6 +895,14 @@ export default function Order() {
   }, [cloneIdParam, isCloneOrder]);
 
   useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
     if (items && items != null) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
@@ -921,10 +936,16 @@ export default function Order() {
 
   // theme context data
 
-  const themeContextData = {
+  const createOrderContextData = {
     store: {
       storeId,
       setStoreId,
+    },
+    shipping: {
+      shippingServiceConfig,
+      shippingAddress,
+      shippingFeeInformedToCustomer,
+      setShippingFeeInformedToCustomer,
     },
   };
 
@@ -946,7 +967,7 @@ export default function Order() {
         ]}
         extra={<CreateBillStep status="draff" orderDetail={null} />}
       >
-        <OrderCreateContext.Provider value={themeContextData}>
+        <OrderCreateContext.Provider value={createOrderContextData}>
           <div className="orders">
             {isLoadForm && (
               <Form
@@ -995,7 +1016,7 @@ export default function Order() {
                       changeInfo={onChangeInfoProduct}
                       selectStore={onStoreSelect}
                       storeId={storeId}
-                      shippingFeeCustomer={shippingFeeCustomer}
+                      shippingFeeCustomer={shippingFeeInformedToCustomer}
                       setItemGift={setItemGifts}
                       orderSettings={orderSettings}
                       formRef={formRef}
@@ -1020,7 +1041,7 @@ export default function Order() {
                       amount={orderAmount}
                       setPaymentMethod={setPaymentMethod}
                       paymentMethod={paymentMethod}
-                      shippingFeeCustomer={shippingFeeCustomer}
+                      shippingFeeCustomer={shippingFeeInformedToCustomer}
                       shippingFeeCustomerHVC={shippingFeeCustomerHVC}
                       customerInfo={customer}
                       items={items}
@@ -1043,7 +1064,9 @@ export default function Order() {
                       shipmentMethod={shipmentMethod}
                       amount={
                         orderAmount +
-                        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                        (shippingFeeInformedToCustomer
+                          ? shippingFeeInformedToCustomer
+                          : 0) -
                         discountValue
                       }
                       isCloneOrder={isCloneOrder}
