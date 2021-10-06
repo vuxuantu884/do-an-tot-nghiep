@@ -6,6 +6,7 @@ export const StyledComponent = styled.div`
       position: relative;
       z-index: 1;
       width: 100%;
+      position: relative !important;
     }
   .orders-shipment {
     .ant-row {
