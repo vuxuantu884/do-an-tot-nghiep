@@ -201,7 +201,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const changeVisibleSupplierAddress = () => {
     setVisibleSupplierAddress(!visibleSupplierAddress);
   };
-
+  console.log(isSelectSupplier)
   return (
     <div className="supplier">
       <Card
