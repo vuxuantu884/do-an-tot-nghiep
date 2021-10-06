@@ -78,7 +78,7 @@ const GeneralInformation = (props: any) => {
                 placeholder="Chọn ngày sinh"
                 format={"DD/MM/YYYY"}
                 suffixIcon={
-                  <div style={{display: "flex", width: "100px"}}>
+                  <div style={{display: "flex", width: "100px", justifyContent: "flex-end"}}>
                     <CalendarOutlined />
                     <span style={{color: "#2a2a86", fontWeight: 500, marginLeft: 10}}>
                       {customer?.birthday &&
