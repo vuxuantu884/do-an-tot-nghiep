@@ -1,6 +1,5 @@
 import { Card, Col, Row } from "antd";
 import { actionGetOrderReturnLog } from "domain/actions/order/order-return.action";
-import { actionGetOrderActionLogs } from "domain/actions/order/order.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import moment from "moment";
