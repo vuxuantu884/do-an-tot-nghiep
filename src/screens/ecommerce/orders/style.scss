@@ -1,0 +1,53 @@
+.ecommerce-order-list {
+    .ant-table.ant-table-middle .ant-table-tbody > tr > td{
+        border-right: 1px solid #E5E5E5;
+        padding: 10px 10px;
+      }
+
+    .cell-items {
+        margin: 0 -10px;
+        .item {
+            width: 100%;
+            border-bottom: 1px solid #f4f4f7;
+            padding: 10px;              
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .tooltip-item {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+}
+
+.download-order-data-modal {
+    .ecommerce-list {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+
+        .ant-btn {
+            padding: 7px 10px;
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border: 1px solid #e5e5e5;
+            img {
+            margin-right: 10px;
+            }
+        }
+
+        .active-button {
+            background-color: #f3f3ff;
+            color: #222222;
+        }
+
+        .icon-active-button {
+            margin-left: 5px;
+            margin-right: 0 !important;
+        }
+    }
+}
