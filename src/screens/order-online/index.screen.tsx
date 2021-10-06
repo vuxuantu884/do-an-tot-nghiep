@@ -17,9 +17,7 @@ import {
   OrderPaymentModel,
   OrderSearchQuery,
 } from "model/order/order.model";
-import {
-  AccountResponse,
-} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
@@ -43,6 +41,7 @@ import {
 } from "model/response/order-processing-status.response";
 
 import { delivery_service } from "./common/delivery-service";
+import { StyledComponent } from "./index.screen.styles";
 
 const actions: Array<MenuAction> = [
   {
@@ -101,7 +100,6 @@ const initQuery: OrderSearchQuery = {
   reference_code: null,
 };
 
-
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -141,7 +139,7 @@ const ListOrderScreen: React.FC = () => {
     { name: "Đã huỷ", value: "cancelled" },
     { name: "Đã hết hạn", value: "expired" },
   ];
-  
+
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
   >([
@@ -189,23 +187,30 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Sản phẩm",
       dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<OrderItemModel>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <Link
-                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                >
-                  {item.variant}
-                </Link>
-                <p>{item.sku}</p>
-              </div>
-            );
-          })}
-        </div>
-      ),
+      key: "items.name11",
+      render: (items: Array<OrderItemModel>) => {
+        return (
+          <div className="items">
+            {items.map((item, i) => {
+              return (
+                <div className="item custom-td">
+                  <div className="product">
+                    <Link
+                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                    >
+                      {item.variant}
+                    </Link>
+                    <p>{item.sku}</p>
+                  </div>
+                  <div className="quantity">
+                    <span>SL: {item.quantity}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
       visible: true,
       align: "left",
       width: "6.5%",
@@ -218,7 +223,7 @@ const ListOrderScreen: React.FC = () => {
         <div className="items">
           {items.map((item, i) => {
             return (
-              <div className="item custom-td" style={{ width: "100%" }}>
+              <div className="item" style={{ width: "100%" }}>
                 <div className="item-quantity">{item.quantity}</div>
               </div>
             );
@@ -731,94 +736,102 @@ const ListOrderScreen: React.FC = () => {
   }, [dispatch, setDataAccounts]);
 
   return (
-    <ContentContainer
-      title="Danh sách đơn hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Danh sách đơn hàng",
-        },
-      ]}
-      extra={
-        <Row>
-          <Space>
-            <Button
-              type="default"
-              className="light"
-              size="large"
-              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => {}}
-            >
-              Nhập file
-            </Button>
-            <Button
-              type="default"
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              // onClick={onExport}
-              onClick={() => {
-                // setShowExportModal(true);
+    <StyledComponent>
+      <ContentContainer
+        title="Danh sách đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Danh sách đơn hàng",
+          },
+        ]}
+        extra={
+          <Row>
+            <Space>
+              <Button
+                type="default"
+                className="light"
+                size="large"
+                icon={
+                  <img src={importIcon} style={{ marginRight: 8 }} alt="" />
+                }
+                onClick={() => {}}
+              >
+                Nhập file
+              </Button>
+              <Button
+                type="default"
+                className="light"
+                size="large"
+                icon={
+                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
+                }
+                // onClick={onExport}
+                onClick={() => {
+                  // setShowExportModal(true);
+                }}
+              >
+                Xuất file
+              </Button>
+              <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+            </Space>
+          </Row>
+        }
+      >
+        <Card>
+          <div className="padding-20">
+            <OrderFilter
+              onMenuClick={onMenuClick}
+              actions={actions}
+              onFilter={onFilter}
+              params={params}
+              listSource={listSource}
+              listStore={listStore}
+              accounts={accounts}
+              deliveryService={delivery_service}
+              subStatus={listOrderProcessingStatus}
+              onShowColumnSetting={() => setShowSettingColumn(true)}
+            />
+            <CustomTable
+              isRowSelection
+              isLoading={tableLoading}
+              showColumnSetting={true}
+              scroll={{ x: 3630 }}
+              sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
               }}
-            >
-              Xuất file
-            </Button>
-            <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
-          </Space>
-        </Row>
-      }
-    >
-      <Card>
-        <div className="padding-20">
-          <OrderFilter
-            onMenuClick={onMenuClick}
-            actions={actions}
-            onFilter={onFilter}
-            params={params}
-            listSource={listSource}
-            listStore={listStore}
-            accounts={accounts}
-            deliveryService={delivery_service}
-            subStatus={listOrderProcessingStatus}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-          />
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            scroll={{ x: 3630 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: OrderModel) => item.id}
-            className="order-list"
-          />
-        </div>
-      </Card>
+              onSelectedChange={(selectedRows) =>
+                onSelectedChange(selectedRows)
+              }
+              onShowColumnSetting={() => setShowSettingColumn(true)}
+              dataSource={data.items}
+              columns={columnFinal}
+              rowKey={(item: OrderModel) => item.id}
+              className="order-list"
+            />
+          </div>
+        </Card>
 
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
-    </ContentContainer>
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 

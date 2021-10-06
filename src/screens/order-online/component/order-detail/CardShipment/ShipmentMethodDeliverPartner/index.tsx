@@ -198,6 +198,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     }
     console.log("listCheckedShippingFeeConfig", listCheckedShippingFeeConfig);
 
+    //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
     const flattenArray = (arr: any) => {
       return arr.reduce(function (flat: any, toFlatten: any) {
         return flat.concat(
