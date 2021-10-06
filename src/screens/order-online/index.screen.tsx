@@ -51,6 +51,7 @@ import {
 } from "model/response/order-processing-status.response";
 
 import { delivery_service } from "./common/delivery-service";
+import ExportModal from "./modal/export.modal";
 
 
 const actions: Array<MenuAction> = [
@@ -117,6 +118,7 @@ const ListOrderScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const [tableLoading, setTableLoading] = useState(true);
+  const [showExportModal, setShowExportModal] = useState(false);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
@@ -692,9 +694,7 @@ const ListOrderScreen: React.FC = () => {
               size="large"
               icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
               // onClick={onExport}
-              onClick={() => {
-                // setShowExportModal(true);
-              }}
+              onClick={() => { console.log('export');setShowExportModal(true)}}
             >
               Xuất file
             </Button>
@@ -748,6 +748,12 @@ const ListOrderScreen: React.FC = () => {
           setColumn(data);
         }}
         data={columns}
+      />
+      <ExportModal
+        visible={showExportModal}
+        onCancel={() => setShowExportModal(false)}
+        onOk={() => console.log('123')}
+        type='orders'
       />
     </ContentContainer>
   );
