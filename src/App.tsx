@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import MainRoute from "routes";
 import SplashScreen from "screens/splash.screen";
+import { GlobalStyle } from "utils/global-styles";
 
 function App() {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ function App() {
       <BrowserRouter basename="/unicorn/admin">
         <MainRoute />
       </BrowserRouter>
+      <GlobalStyle />
     </Suspense>
   );
 }

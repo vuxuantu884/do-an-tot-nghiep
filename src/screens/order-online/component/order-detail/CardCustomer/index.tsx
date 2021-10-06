@@ -54,6 +54,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -136,7 +137,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     React.useState<boolean>(false);
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
-  const autoCompleteRef = createRef<RefSelectProps>();
+  const autoCompleteRef = useRef<any>(null);
+  const autoCompleteElement:any = document.getElementById("search_customer");
+
+  const [timeRef, setTimeRef] = React.useState<any>();
+  const [typingTimer,setTypingTimer]= useState(0);
 
   //#region Modal
   const ShowBillingAddress = (e: any) => {
@@ -185,17 +190,73 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setIsVisibleShippingModal(false);
   };
 
+  const event =useCallback((event: KeyboardEvent)=>{
+    if (event.target instanceof HTMLInputElement) {
+      if (event.keyCode === 13 && event.target.id==="search_customer") 
+      {
+          setTypingTimer(5000);
+          const initQueryCustomer: any = {
+              request: "",
+              limit: 5,
+              page: 1,
+          };
+
+          if(autoCompleteRef.current?.props.value){
+            initQueryCustomer.request = autoCompleteRef.current?.props.value;
+            dispatch(CustomerSearch(initQueryCustomer, (data:Array<CustomerResponse>)=>{
+              if(data && data.length!==0)
+              {
+                handleCustomer(data[0]);
+                //set Shipping Address
+                if (data[0].shipping_addresses) {
+                  data[0].shipping_addresses.forEach((item, index2) => {
+                    if (item.default === true) {
+                      setShippingAddress(item);
+                      props.ShippingAddressChange(item);
+                    }
+                  });
+                }
+
+                //set Billing Address
+                if (data[0].billing_addresses) {
+                  data[0].billing_addresses.forEach((item, index2) => {
+                    if (item.default === true) {
+                      props.BillingAddressChange(item);
+                    }
+                  });
+                }    
+              }
+              else{
+                showError("Không tìm thấy khách hàng từ hệ thống");
+              }
+              setKeySearchCustomer("");
+            }));
+          }
+      }
+  }
+  },[dispatch,autoCompleteElement, customer]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", event);
+}, [event]);
+
   //#end region
 
   //#region Search and Render result
   //Search and render customer by name, phone, code
   const CustomerChangeSearch = useCallback(
     (value) => {
+
+      clearTimeout(timeRef);
       setKeySearchCustomer(value);
-      initQueryCustomer.request = value.trim();
-      dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+      let time = setTimeout(() => {
+          initQueryCustomer.request = value.trim();
+          dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+      }, typingTimer);
+      setTimeRef(time);
+      setTypingTimer(3000);
     },
-    [dispatch, initQueryCustomer]
+    [dispatch, timeRef, typingTimer, setTypingTimer]
   );
 
   //Render result search
@@ -276,6 +337,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           });
         }
         autoCompleteRef.current?.blur();
+        console.log(autoCompleteElement.value);
         setKeySearchCustomer("");
         setDistrictId(resultSearch[index].district_id);
       }

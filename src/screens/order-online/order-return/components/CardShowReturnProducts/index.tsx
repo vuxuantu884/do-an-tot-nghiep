@@ -14,6 +14,7 @@ type PropType = {
   listReturnProducts: OrderLineItemResponse[];
   discountRate?: number;
   pointUsing?: number;
+  totalAmount?: number;
   setTotalAmountReturnProducts: (value: number) => void;
 };
 
@@ -23,6 +24,7 @@ function CardShowReturnProducts(props: PropType) {
     discountRate,
     setTotalAmountReturnProducts,
     pointUsing,
+    totalAmount,
   } = props;
 
   const getProductDiscountPerOrder = useCallback(
@@ -226,9 +228,7 @@ function CardShowReturnProducts(props: PropType) {
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              <strong>
-                {formatCurrency(Math.round(getTotalPrice(listReturnProducts)))}
-              </strong>
+              <strong>{totalAmount ? formatCurrency(totalAmount) : 0}</strong>
             </Row>
           </Col>
         </Row>
