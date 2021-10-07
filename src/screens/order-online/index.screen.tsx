@@ -771,6 +771,7 @@ const ListOrderScreen: React.FC = () => {
               onMenuClick={onMenuClick}
               actions={actions}
               onFilter={onFilter}
+              isLoading={tableLoading}
               params={params}
               listSource={listSource}
               listStore={listStore}

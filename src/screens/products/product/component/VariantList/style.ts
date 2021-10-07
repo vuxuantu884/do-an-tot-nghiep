@@ -97,10 +97,23 @@ export const StyledComponent = styled.div`
             }
           }
           .right__name {
-            width: 90%;
+            // width: 90%;
+            // white-space: nowrap;
+            // overflow: hidden;
+            // text-overflow: ellipsis;
+          }
+          .sku {
+            font-weight: 500;
+            color: #11006f;
+          }
+          .variant-name {
             white-space: nowrap;
+            width: 90%;
+            max-width: 250px;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 12px;
+            opacity: 0.8;
           }
         }
       }

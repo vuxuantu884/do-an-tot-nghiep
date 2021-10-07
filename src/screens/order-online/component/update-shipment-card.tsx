@@ -140,6 +140,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [requirementNameView, setRequirementNameView] = useState<string | null>(
     null
   );
+  const [updateShipment, setUpdateShipment] = useState(false);
+  const [cancelShipment, setCancelShipment] = useState(false);
+
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
@@ -263,12 +266,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
+    setUpdateShipment(false);
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
       window.location.reload();
     }, timeout);
   };
   const onPickSuccess = (value: OrderResponse) => {
+    setUpdateShipment(false);
     showSuccess("Nhặt hàng thành công");
     setTimeout(() => {
       window.location.reload();
@@ -276,6 +281,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
 
   const onPackSuccess = (value: OrderResponse) => {
+    setUpdateShipment(false);
     showSuccess("Đóng gói thành công");
     setTimeout(() => {
       window.location.reload();
@@ -283,6 +289,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
 
   const onShippingSuccess = (value: OrderResponse) => {
+    setUpdateShipment(false);
     showSuccess("Xuất kho thành công");
     setTimeout(() => {
       window.location.reload();
@@ -290,12 +297,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
 
   const onShipedSuccess = (value: OrderResponse) => {
+    setUpdateShipment(false);
     showSuccess("Hoàn tất đơn hàng");
     setTimeout(() => {
       window.location.reload();
     }, timeout);
   };
   const onCancelSuccess = (value: OrderResponse) => {
+    setCancelShipment(false);
     showSuccess(
       `Bạn đã hủy đơn giao hàng ${
         props.OrderDetail?.fulfillments &&
@@ -313,6 +322,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }, timeout);
   };
   const onReturnSuccess = (value: OrderResponse) => {
+    setCancelShipment(false);
     showSuccess(
       `Bạn đã nhận hàng trả lại của đơn giao hàng ${
         value.fulfillments &&
@@ -338,46 +348,68 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       ? props.OrderDetail?.fulfillments[0].id
       : null;
     value.fulfillment_id = fulfillment_id;
-
-    switch (type) {
-      case 1:
-        value.status = FulFillmentStatus.PICKED;
-        value.action = FulFillmentStatus.PICKED;
-        dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess));
-        break;
-      case 2:
-        value.status = FulFillmentStatus.PACKED;
-        value.action = FulFillmentStatus.PACKED;
-        dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess));
-        break;
-      case 3:
-        value.status = FulFillmentStatus.SHIPPING;
-        value.action = FulFillmentStatus.SHIPPING;
-        dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess));
-        break;
-      case 4:
-        value.status = FulFillmentStatus.SHIPPED;
-        value.action = FulFillmentStatus.SHIPPED;
-        dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
-        break;
-      case 5:
-        value.status = FulFillmentStatus.CANCELLED;
-        value.action = FulFillmentStatus.CANCELLED;
-        dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-        break;
-      case 6:
-        value.status = FulFillmentStatus.RETURNING;
-        value.action = FulFillmentStatus.RETURNING;
-        dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-        break;
-      case 7:
-        value.status = FulFillmentStatus.RETURNED;
-        value.action = FulFillmentStatus.RETURNED;
-        dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-        break;
-      default:
-        return;
-    }
+    (async () => {
+      switch (type) {
+        case 1:
+          value.status = FulFillmentStatus.PICKED;
+          value.action = FulFillmentStatus.PICKED;
+          setUpdateShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess));
+          } catch {}
+          break;
+        case 2:
+          value.status = FulFillmentStatus.PACKED;
+          value.action = FulFillmentStatus.PACKED;
+          setUpdateShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess));
+          } catch {}
+          break;
+        case 3:
+          value.status = FulFillmentStatus.SHIPPING;
+          value.action = FulFillmentStatus.SHIPPING;
+          setUpdateShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess));
+          } catch {}
+          break;
+        case 4:
+          value.status = FulFillmentStatus.SHIPPED;
+          value.action = FulFillmentStatus.SHIPPED;
+          setUpdateShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
+          } catch {}
+          break;
+        case 5:
+          value.status = FulFillmentStatus.CANCELLED;
+          value.action = FulFillmentStatus.CANCELLED;
+          setCancelShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+          } catch {}
+          break;
+        case 6:
+          value.status = FulFillmentStatus.RETURNING;
+          value.action = FulFillmentStatus.RETURNING;
+          setUpdateShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+          } catch {}
+          break;
+        case 7:
+          value.status = FulFillmentStatus.RETURNED;
+          value.action = FulFillmentStatus.RETURNED;
+          setCancelShipment(true);
+          try {
+            dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+          } catch {}
+          break;
+        default:
+          return;
+      }
+    })()
   };
   // shipping confirm
   const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
@@ -611,7 +643,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     ) {
       showError("Vui lòng chọn đơn vị vận chuyển");
     } else {
-      dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
+      setUpdateShipment(true);
+      (async () => {
+        try {
+          await dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
+        } catch {}
+      })()
+      // setUpdateShipment(false);
     }
   };
 
@@ -1520,6 +1558,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 .delivery_service_provider_type === "pick_at_store" ? (
                 <Button
                   onClick={cancelFullfilment}
+                  loading={cancelShipment}
                   type="default"
                   className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                   style={{
@@ -1536,6 +1575,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 props.OrderDetail?.fulfillments[0].shipment && (
                   <Button
                     onClick={cancelFullfilment}
+                    loading={cancelShipment}
                     type="default"
                     className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{
@@ -1561,6 +1601,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
+                loading={updateShipment}
               >
                 Nhặt hàng
               </Button>
@@ -1576,6 +1617,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 style={{ marginLeft: "10px" }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={onOkShippingConfirm}
+                loading={updateShipment}
               >
                 Nhặt hàng & đóng gói
               </Button>
@@ -1587,6 +1629,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               className="create-button-custom ant-btn-outline fixed-button"
               style={{ marginLeft: "10px" }}
               onClick={onOkShippingConfirm}
+              loading={updateShipment}
             >
               Đóng gói
             </Button>
@@ -1601,6 +1644,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 style={{ marginLeft: "10px", padding: "0 25px" }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippingConfirm(true)}
+                loading={updateShipment}
               >
                 Xuất kho
               </Button>
@@ -1611,6 +1655,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{ marginLeft: "10px" }}
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => setIsvibleShippedConfirm(true)}
+              loading={updateShipment}
             >
               Đã giao hàng
             </Button>
@@ -1626,6 +1671,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 style={{ marginLeft: "10px", padding: "0 25px" }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippedConfirm(true)}
+                loading={updateShipment}
               >
                 Xuất kho & giao hàng
               </Button>
@@ -1648,6 +1694,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   padding: "0 25px",
                 }}
                 onClick={ShowShipping}
+                loading={updateShipment}
                 disabled={
                   props.stepsStatusValue === OrderStatus.CANCELLED ||
                   props.stepsStatusValue === FulFillmentStatus.SHIPPED
@@ -1878,6 +1925,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         }}
                         // htmlType="submit"
                         onClick={() => formRefShipment.current?.submit()}
+                        loading={updateShipment}
                         disabled={
                           props.stepsStatusValue === OrderStatus.CANCELLED ||
                           props.stepsStatusValue === FulFillmentStatus.SHIPPED
@@ -1888,6 +1936,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       <Button
                         className="ant-btn-outline fixed-button cancle-button create-button-custom"
                         onClick={() => window.location.reload()}
+                        loading={cancelShipment}
                         style={{
                           float: "right",
                           padding: "0 25px",
@@ -2011,6 +2060,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           // htmlType="submit"
                           onClick={() => formRefShipment.current?.submit()}
+                          loading={updateShipment}
                           disabled={
                             props.stepsStatusValue === OrderStatus.CANCELLED ||
                             props.stepsStatusValue === FulFillmentStatus.SHIPPED
@@ -2022,6 +2072,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
                           onClick={() => window.location.reload()}
                           style={{ float: "right" }}
+                          loading={cancelShipment}
                         >
                           Huỷ
                         </Button>
@@ -2077,6 +2128,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           // htmlType="submit"
                           onClick={() => formRefShipment.current?.submit()}
+                          loading={updateShipment}
                           disabled={
                             props.stepsStatusValue === OrderStatus.CANCELLED ||
                             props.stepsStatusValue === FulFillmentStatus.SHIPPED
@@ -2087,6 +2139,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
                           onClick={() => window.location.reload()}
+                          loading={cancelShipment}
                           style={{ float: "right" }}
                         >
                           Hủy
@@ -2107,6 +2160,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         onCancel={() => setIsvibleShippingConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
+        updateShipment={updateShipment}
         icon={WarningIcon}
         okText="Đồng ý"
         cancelText="Hủy"
@@ -2122,6 +2176,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
+        updateShipment={updateShipment}
         icon={WarningIcon}
         okText="Xác nhận thanh toán"
         cancelText="Hủy"
@@ -2137,6 +2192,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         onCancel={() => setIsvibleCancelFullfilment(false)}
         onOk={onOKCancelFullfilment}
         visible={isvibleCancelFullfilment}
+        cancelShipment={cancelShipment}
         icon={DeleteIcon}
         okText="Hủy đơn giao"
         cancelText="Thoát"
@@ -2149,6 +2205,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         onOk={onOKCancelFullfilment}
         onOkandMore={onOkCancelAndGetGoodsBack}
         visible={isvibleCancelandGetGoodsBack}
+        isCanceling={cancelShipment}
         icon={DeleteIcon}
         okText="Hủy đơn giao"
         cancelText="Thoát"

@@ -6,25 +6,23 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   listReturnProducts: OrderLineItemResponse[];
-  discountRate?: number;
+  discountRate?: number | null;
   pointUsing?: number;
-  totalAmount?: number;
-  setTotalAmountReturnProducts: (value: number) => void;
+  totalAmountReturnToCustomer: number | undefined;
 };
 
 function CardShowReturnProducts(props: PropType) {
   const {
     listReturnProducts,
     discountRate,
-    // setTotalAmountReturnProducts,
     pointUsing,
-    totalAmount,
+    totalAmountReturnToCustomer,
   } = props;
 
   const getProductDiscountPerOrder = useCallback(
@@ -39,22 +37,6 @@ function CardShowReturnProducts(props: PropType) {
     },
     [discountRate]
   );
-
-  // const getTotalPrice = useCallback(
-  //   (listReturnProducts: OrderLineItemResponse[]) => {
-  //     let totalPrice = 0;
-  //     listReturnProducts.forEach((single) => {
-  //       let discountPerProduct = getProductDiscountPerProduct(single);
-  //       let discountPerOrder = getProductDiscountPerOrder(single);
-  //       let singleTotalPrice =
-  //         single.price - discountPerProduct - discountPerOrder;
-  //       totalPrice = totalPrice + single.quantity * singleTotalPrice;
-  //     });
-  //     setTotalAmountReturnProducts(totalPrice);
-  //     return totalPrice;
-  //   },
-  //   [getProductDiscountPerOrder, setTotalAmountReturnProducts]
-  // );
 
   const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
     let discountPerProduct = 0;
@@ -228,7 +210,11 @@ function CardShowReturnProducts(props: PropType) {
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              <strong>{totalAmount ? formatCurrency(totalAmount) : 0}</strong>
+              <strong>
+                {totalAmountReturnToCustomer
+                  ? formatCurrency(totalAmountReturnToCustomer)
+                  : 0}
+              </strong>
             </Row>
           </Col>
         </Row>
