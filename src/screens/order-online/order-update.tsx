@@ -988,25 +988,16 @@ export default function Order(props: PropType) {
 
   // console.log(inventoryResponse)
 
-  useEffect(() => {
-    dispatch(
-      configOrderSaga((data: OrderConfig) => {
-        setConfigOrder(data);
-      })
-    );
+  useEffect(()=> {
+    dispatch(configOrderSaga((data:OrderConfig)=>{
+        setConfigOrder(data)
+    }));
   }, [dispatch]);
 
-  const setStoreForm = useCallback(
-    (id: number | null) => {
-      formRef.current?.setFieldsValue({ store_id: id });
-      // setInitialForm({
-      //   ...initialForm,
-      //   store_id: id
-      // });
-    },
-    [formRef]
-  );
-  console.log("initialForm", initialForm);
+  const setStoreForm = useCallback((id:number|null)=> {
+    formRef.current?.setFieldsValue({ store_id: id});
+  }, [formRef]);
+
   return (
     <React.Fragment>
       <ContentContainer
