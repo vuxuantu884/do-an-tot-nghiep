@@ -1,5 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -93,8 +97,10 @@ type CardProductProps = {
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
   isCloneOrder?: boolean;
-  discountRateParent?: number;
-  discountValueParent?: number;
+  discountRate: number;
+  setDiscountRate: (item: number) => void;
+  discountValue: number;
+  setDiscountValue: (item: number) => void;
   inventoryResponse: Array<InventoryResponse> | null;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   setStoreForm: (id: number | null) => void;
@@ -116,8 +122,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     orderSettings,
     formRef,
     items,
-    discountRateParent,
-    discountValueParent,
+    discountRate,
+    setDiscountRate,
+    discountValue,
+    setDiscountValue,
     storeId,
     inventoryResponse,
     pointUsing,
@@ -147,12 +155,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
-  const [discountValue, setDiscountValue] = useState<number>(
-    discountValueParent || 0
-  );
-  const [discountRate, setDiscountRate] = useState<number>(
-    discountRateParent || 0
-  );
+
+  console.log("discountRate", discountRate);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
@@ -283,7 +287,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             alignItems: "center",
             justifyContent: "center",
             display: "flex",
-            padding: "4px 6px"
+            padding: "4px 6px",
           }}
         >
           <img
@@ -294,12 +298,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           />
         </Col>
         <Col span={15}>
-          <span style={{ color: "#37394D" }} >
-            {item.name}
-          </span>
-          <div style={{ color: "#95A1AC" }} >
-            {item.sku}
-          </div>
+          <span style={{ color: "#37394D" }}>{item.name}</span>
+          <div style={{ color: "#95A1AC" }}>{item.sku}</div>
         </Col>
         <Col span={5}>
           <Col style={{ color: "#222222" }}>
@@ -762,14 +762,15 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       setSearchProducts(true);
       try {
         await dispatch(
-          searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
+          searchVariantsOrderRequestAction(
+            initQueryVariant,
+            setResultSearchVariant
+          )
         );
         setSearchProducts(false);
       } catch {}
-    })()
-    
+    })();
   }, []);
-
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -842,7 +843,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -1038,7 +1038,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  suffix={searchProducts ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
+                  suffix={
+                    searchProducts ? (
+                      <LoadingOutlined style={{ color: "#ABB4BD" }} />
+                    ) : null
+                  }
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>
