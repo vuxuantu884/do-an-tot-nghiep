@@ -126,8 +126,9 @@ const OrderDetail = (props: PropType) => {
   >([]);
 
   // đổi hàng
-  const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
-    useState<number>(0);
+  // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
+  //   useState<number>(0);
+  const [totalAmountReturnProducts] = useState<number>(0);
   console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
