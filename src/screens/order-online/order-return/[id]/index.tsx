@@ -33,6 +33,7 @@ import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
 import OrderShortDetails from "../components/Sidebar/OrderShortDetailsReturn";
+import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 
 type PropType = {};
 type OrderParam = {
@@ -63,6 +64,8 @@ const ScreenReturnDetail = (props: PropType) => {
   >([]);
   const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
 
+  const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
+
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -83,6 +86,7 @@ const ScreenReturnDetail = (props: PropType) => {
                 let _data = { ...data };
                 setOrderDetail(_data);
               }
+              setCountChangeSubStatus(countChangeSubStatus + 1);
             }
           )
         );
@@ -135,6 +139,7 @@ const ScreenReturnDetail = (props: PropType) => {
                       if (_data.payments) {
                         setPayments(_data.payments);
                       }
+                      setCountChangeSubStatus(countChangeSubStatus + 1);
                     }
                   }
                 )
@@ -278,6 +283,10 @@ const ScreenReturnDetail = (props: PropType) => {
           </Col>
           <Col md={6}>
             <OrderShortDetails OrderDetail={OrderDetail} />
+            <OrderReturnActionHistory
+              orderId={id}
+              countChangeSubStatus={countChangeSubStatus}
+            />
             <OrderMoreDetails OrderDetail={OrderDetail} />
           </Col>
         </Row>

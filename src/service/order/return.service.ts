@@ -2,6 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { ExchangeRequest, OrderRequest } from "model/request/order.request";
+import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import {
   OrderPaymentResponse,
   OrderReturnReasonModel,
@@ -47,4 +48,10 @@ export const createOrderExchangeService = (
     `${ApiConfig.ORDER}/orders/create-order-exchange`,
     params
   );
+};
+
+export const getOrderReturnLog = (
+  id: number
+): Promise<BaseResponse<OrderActionLogResponse[]>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/order-return/${id}/log`);
 };
