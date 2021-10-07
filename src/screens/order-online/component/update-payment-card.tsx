@@ -150,6 +150,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
     showSuccess("Thanh toán thành công");
+    setCreatePayment(false);
     window.location.reload();
   }, []);
 
@@ -193,6 +194,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     listFullfillmentRequest.push(request);
     return listFullfillmentRequest;
   };
+  const [createPayment, setCreatePayment] = useState(false);
 
   const onOkConfirm = () => {
     let fulfillment = CreateFulFillmentRequest();
@@ -200,7 +202,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       payments: paymentData.filter((payment) => payment.amount > 0),
       fulfillments: fulfillment,
     };
-    dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
+    (async () => {
+      // console.log('setSearchProducts true');
+      setCreatePayment(true);
+      try {
+        await dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
+      } catch {}
+    })()
+    // dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
 
   const caculateMax = (totalAmount: number, index: number) => {
@@ -235,6 +244,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         onCancel={onCancleConfirm}
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
+        updateShipment={createPayment}
         icon={WarningIcon}
         okText="Đồng ý"
         cancelText="Hủy"

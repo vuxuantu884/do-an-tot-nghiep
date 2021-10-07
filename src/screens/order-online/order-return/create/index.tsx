@@ -660,10 +660,10 @@ const ScreenReturnCreate = (props: PropType) => {
       return false;
     }
 
-    if (point > curenPoint) {
-      showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
-      return false;
-    }
+    // if (point > curenPoint) {
+    //   showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
+    //   return false;
+    // }
     return true;
   };
 
