@@ -197,16 +197,16 @@ const ListOrderScreen: React.FC = () => {
               return (
                 <div className="item custom-td">
                   <div className="product">
+                  <p>{item.sku} ({item.quantity})</p>
                     <Link
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
                     >
                       {item.variant}
                     </Link>
-                    <p>{item.sku}</p>
                   </div>
-                  <div className="quantity">
+                  {/* <div className="quantity">
                     <span>SL: {item.quantity}</span>
-                  </div>
+                  </div> */}
                 </div>
               );
             })}
@@ -216,25 +216,6 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "left",
       width: "6.5%",
-    },
-    {
-      title: "SL",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<OrderItemModel>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item" style={{ width: "100%" }}>
-                <div className="item-quantity">{item.quantity}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: "1.3%",
     },
     {
       title: "Khách phải trả",
