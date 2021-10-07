@@ -387,7 +387,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                         : "Tiền mặt"}
                                     </h3>
                                     <div>
-                                      Yêu cầu hoàn tiền: <br />
+                                      {item.is_refund ? 'Yêu cầu hoàn tiền' : 'Yêu cầu thanh toán'} : <br />
                                       <strong>
                                         {ConvertUtcToLocalDate(
                                           item.transaction_date,

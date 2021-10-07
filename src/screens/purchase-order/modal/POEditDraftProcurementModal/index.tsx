@@ -24,7 +24,7 @@ type ProcurementModalProps = {
 const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
   props: ProcurementModalProps
 ) => {
-  const { visible, onCancel, onOk, dataSource } = props;
+  const { visible, onCancel, dataSource } = props;
   const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = [
     {
       width: 50,

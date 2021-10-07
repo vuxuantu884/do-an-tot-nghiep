@@ -14,6 +14,7 @@ type PropType = {
   isVisibleUpdateButtons?: boolean;
   stepsStatusValue?: string;
   formRef?: React.RefObject<FormInstance<any>>;
+  creating?: boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
@@ -28,6 +29,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     isVisibleUpdateButtons,
     stepsStatusValue,
     formRef,
+    creating,
     handleTypeButton,
     showSaveAndConfirmModal,
     orderActionsClick,
@@ -60,6 +62,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
               className="create-button-custom ant-btn-outline fixed-button"
               type="primary"
               onClick={showSaveAndConfirmModal}
+              loading={creating}
             >
               Lưu nháp
             </Button>
@@ -76,6 +79,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 );
                 formRef.current?.submit();
               }}
+              loading={creating}
             >
               Lưu và Xác nhận
             </Button>

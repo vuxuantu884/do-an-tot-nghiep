@@ -36,7 +36,8 @@ type OrderFilterProps = {
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
-  subStatus: Array<OrderProcessingStatusModel>
+  subStatus: Array<OrderProcessingStatusModel>;
+  isLoading?: Boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -57,6 +58,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     accounts,
     deliveryService,
     subStatus,
+    isLoading,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -64,6 +66,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   
+  const loadingFilter = useMemo(() => {
+    return isLoading ? true : false
+  }, [isLoading])
+
   const status = useMemo(() => [
     {name: "Nháp", value: "draft"},
     {name: "Đóng gói", value: "packed"},
@@ -520,8 +526,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.order_sub_status.length) {
       let textStatus = ""
       
-      initialValues.order_sub_status.forEach(i => {
-        const findStatus = subStatus?.find(item => item.id.toString() === i)
+      initialValues.order_sub_status.forEach((i: any) => {
+        const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
       })
       list.push({
@@ -710,7 +716,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Item>
             
             <Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
               </Button>
             </Item>

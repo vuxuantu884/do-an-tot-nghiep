@@ -1,6 +1,7 @@
 import { ORDER_RETURN_TYPES } from "domain/types/order-return";
 import { OrderType } from "domain/types/order.type";
 import { ExchangeRequest, OrderRequest } from "model/request/order.request";
+import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import { OrderReturnReasonModel } from "model/response/order/order.response";
 
 export const actionGetOrderReturnDetails = (
@@ -78,6 +79,19 @@ export const actionCreateOrderExchange = (
     type: ORDER_RETURN_TYPES.CREATE_ORDER_EXCHANGE,
     payload: {
       params,
+      handleData,
+    },
+  };
+};
+
+export const actionGetOrderReturnLog = (
+  id: number,
+  handleData: (data: OrderActionLogResponse[]) => void
+) => {
+  return {
+    type: ORDER_RETURN_TYPES.GET_ORDER_RETURN_LOGS,
+    payload: {
+      id,
       handleData,
     },
   };

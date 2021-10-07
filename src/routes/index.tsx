@@ -47,17 +47,17 @@ const MainRoute = () => {
     <Switch>
       {
         listRoutesNotShowInMenu().map((item: RouteMenu) => (
-          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} permissions={item.permissions}/>
         ))
       }
       {
         listMenu().map((item: RouteMenu) => (
-          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} permissions={item.permissions}/>
         ))
       }
       {
         listExtraMenu().map((item: RouteMenu) => (
-          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title}  permissions={item.permissions}/>
         ))
       }
       <Route path={UrlConfig.LOGIN} exact={true} component={Login} />

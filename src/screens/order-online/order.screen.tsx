@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import { OrderCreateContext } from "contexts/order-create-context";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -19,6 +19,7 @@ import {
   orderCreateAction,
   OrderDetailAction,
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
@@ -45,6 +46,7 @@ import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
+import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -103,9 +105,9 @@ export default function Order() {
 
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
-  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
-    null
-  );
+  const [creating, setCreating] = useState(false);
+  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] =
+    useState<number | null>(null);
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
     number | null
   >(null);
@@ -116,6 +118,7 @@ export default function Order() {
   );
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
+  const [form] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
     useState<boolean>(false);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
@@ -134,6 +137,10 @@ export default function Order() {
     point: number;
     amount: number;
   } | null>(null);
+
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
 
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
@@ -158,7 +165,7 @@ export default function Order() {
   };
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
-    setShippingFeeCustomer(value);
+    setShippingFeeInformedToCustomer(value);
   };
   const ChangeShippingFeeCustomerHVC = (value: number | null) => {
     setShippingFeeCustomerHVC(value);
@@ -344,7 +351,9 @@ export default function Order() {
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
-            (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+            (shippingFeeInformedToCustomer
+              ? shippingFeeInformedToCustomer
+              : 0) -
             getAmountPaymentRequest(payments) -
             discountValue,
         };
@@ -352,16 +361,16 @@ export default function Order() {
       case ShipmentMethodOption.PICK_AT_STORE:
         objShipment.delivery_service_provider_type = "pick_at_store";
         let newCod = orderAmount;
-        if (shippingFeeCustomer !== null) {
+        if (shippingFeeInformedToCustomer !== null) {
           if (
             orderAmount +
-              shippingFeeCustomer -
+              shippingFeeInformedToCustomer -
               getAmountPaymentRequest(payments) >
             0
           ) {
             newCod =
               orderAmount +
-              shippingFeeCustomer -
+              shippingFeeInformedToCustomer -
               getAmountPaymentRequest(payments);
           }
         } else {
@@ -403,6 +412,7 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
         history.push(`${UrlConfig.ORDER}/${value.id}`);
@@ -472,7 +482,7 @@ export default function Order() {
       ) {
         values.fulfillments[0].shipment.cod =
           orderAmount +
-          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
           getAmountPaymentRequest(payments) -
           discountValue;
       }
@@ -499,7 +509,13 @@ export default function Order() {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            dispatch(orderCreateAction(values, createOrderCallback));
+            setCreating(true);
+            (async () => {
+              try {
+                await dispatch(orderCreateAction(values, createOrderCallback));
+              } catch {}
+            })();
+            // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
           if (
@@ -510,8 +526,15 @@ export default function Order() {
           } else {
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus)
-                dispatch(orderCreateAction(values, createOrderCallback));
+              if (bolCheckPointfocus) setCreating(true);
+              (async () => {
+                try {
+                  await dispatch(
+                    orderCreateAction(values, createOrderCallback)
+                  );
+                } catch {}
+              })();
+              // dispatch(orderCreateAction(values, createOrderCallback));
             }
           }
         }
@@ -579,6 +602,7 @@ export default function Order() {
               );
             }
             if (response) {
+              console.log("response333", response);
               let giftResponse = response.items.filter((item) => {
                 return item.type === Type.GIFT;
               });
@@ -621,6 +645,25 @@ export default function Order() {
                     gifts: giftResponse,
                   };
                 });
+              setItems(responseItems);
+
+              setShippingFeeInformedToCustomer(
+                response.shipping_fee_informed_to_customer
+              );
+              if (response.store_id) {
+                setStoreId(response.store_id);
+              }
+              if (response.tags) {
+                setTag(response.tags);
+              }
+              if (response?.discounts && response?.discounts[0]) {
+                if (response.discounts[0].value) {
+                  setDiscountValue(response.discounts[0].value);
+                }
+                if (response.discounts[0].rate) {
+                  setDiscountRate(response.discounts[0].rate);
+                }
+              }
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
               let new_payments = initialForm.payments;
@@ -634,21 +677,6 @@ export default function Order() {
                     response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
-              if (
-                response.fulfillments &&
-                response.fulfillments[0].shipment?.cod
-              ) {
-                setPaymentMethod(PaymentMethodOption.COD);
-              } else if (response.payments && response.payments?.length > 0) {
-                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-                new_payments = response.payments;
-                setPayments(new_payments);
-              }
-              setItems(responseItems);
-              setOrderAmount(
-                response.total -
-                  (response.shipping_fee_informed_to_customer || 0)
-              );
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
@@ -668,6 +696,25 @@ export default function Order() {
                 note: response.note,
                 tags: response.tags,
               });
+              formRef.current?.resetFields();
+              // load lại form sau khi set initialValue
+              setIsLoadForm(true);
+              if (
+                response.fulfillments &&
+                response.fulfillments[0].shipment?.cod
+              ) {
+                setPaymentMethod(PaymentMethodOption.COD);
+              } else if (response.payments && response.payments?.length > 0) {
+                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
+                new_payments = response.payments;
+                setPayments(new_payments);
+              }
+
+              setOrderAmount(
+                response.total -
+                  (response.shipping_fee_informed_to_customer || 0)
+              );
+
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (
                 response.fulfillments &&
@@ -694,30 +741,12 @@ export default function Order() {
                 }
                 setShipmentMethod(newShipmentMethod);
                 setFulfillments(response.fulfillments);
-                setShippingFeeCustomer(
-                  response.shipping_fee_informed_to_customer
-                );
-                if (response.store_id) {
-                  setStoreId(response.store_id);
-                }
-                if (response.tags) {
-                  setTag(response.tags);
-                }
-                if (response?.discounts && response?.discounts[0]) {
-                  if (response.discounts[0].value) {
-                    setDiscountValue(response.discounts[0].value);
-                  }
-                  if (response.discounts[0].rate) {
-                    setDiscountRate(response.discounts[0].rate);
-                  }
-                }
                 if (
                   response.fulfillments[0] &&
                   response.fulfillments[0]?.shipment?.office_time
                 ) {
                   setOfficeTime(true);
                 }
-                setIsLoadForm(true);
               }
             }
           })
@@ -727,7 +756,6 @@ export default function Order() {
         setItems([]);
         setItemGifts([]);
         setPayments([]);
-        console.log("initialRequest", initialRequest);
         setInitialForm({
           ...initialRequest,
         });
@@ -735,7 +763,7 @@ export default function Order() {
         setStoreId(null);
         setTag("");
         setIsLoadForm(true);
-        setShippingFeeCustomer(0);
+        setShippingFeeInformedToCustomer(0);
         setDiscountRate(0);
         setDiscountValue(0);
         setOfficeTime(false);
@@ -788,7 +816,7 @@ export default function Order() {
 
       let totalAmountPayable =
         orderAmount +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
         discountValue; //tổng tiền phải trả
 
       let usageRate =
@@ -838,10 +866,10 @@ export default function Order() {
         return false;
       }
 
-      if (point > curenPoint) {
-        showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
-        return false;
-      }
+      // if (point > curenPoint) {
+      //   showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
+      //   return false;
+      // }
       return true;
     },
     [
@@ -850,7 +878,7 @@ export default function Order() {
       payments,
       discountValue,
       orderAmount,
-      shippingFeeCustomer,
+      shippingFeeInformedToCustomer,
       loyaltyRate,
     ]
   );
@@ -888,6 +916,14 @@ export default function Order() {
   }, [cloneIdParam, isCloneOrder]);
 
   useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
     if (items && items != null) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
@@ -896,8 +932,6 @@ export default function Order() {
       );
     }
   }, [dispatch, items]);
-
-  console.log(inventoryResponse);
 
   useEffect(() => {
     dispatch(
@@ -917,14 +951,20 @@ export default function Order() {
     },
     [formRef]
   );
-  console.log(initialForm);
 
-  // theme context data
-
-  const themeContextData = {
+  /**
+   * theme context data
+   */
+  const createOrderContextData = {
     store: {
       storeId,
       setStoreId,
+    },
+    shipping: {
+      shippingServiceConfig,
+      shippingAddress,
+      shippingFeeInformedToCustomer,
+      setShippingFeeInformedToCustomer,
     },
   };
 
@@ -946,13 +986,14 @@ export default function Order() {
         ]}
         extra={<CreateBillStep status="draff" orderDetail={null} />}
       >
-        <OrderCreateContext.Provider value={themeContextData}>
+        <OrderCreateContext.Provider value={createOrderContextData}>
           <div className="orders">
             {isLoadForm && (
               <Form
                 layout="vertical"
                 initialValues={initialForm}
                 ref={formRef}
+                form={form}
                 onFinishFailed={({ errorFields }: any) => {
                   const element: any = document.getElementById(
                     errorFields[0].name.join("")
@@ -995,15 +1036,17 @@ export default function Order() {
                       changeInfo={onChangeInfoProduct}
                       selectStore={onStoreSelect}
                       storeId={storeId}
-                      shippingFeeCustomer={shippingFeeCustomer}
+                      shippingFeeCustomer={shippingFeeInformedToCustomer}
                       setItemGift={setItemGifts}
                       orderSettings={orderSettings}
                       formRef={formRef}
                       items={items}
                       handleCardItems={setItems}
                       isCloneOrder={isCloneOrder}
-                      discountRateParent={discountRate}
-                      discountValueParent={discountValue}
+                      discountRate={discountRate}
+                      setDiscountRate={setDiscountRate}
+                      discountValue={discountValue}
+                      setDiscountValue={setDiscountValue}
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
@@ -1020,7 +1063,7 @@ export default function Order() {
                       amount={orderAmount}
                       setPaymentMethod={setPaymentMethod}
                       paymentMethod={paymentMethod}
-                      shippingFeeCustomer={shippingFeeCustomer}
+                      shippingFeeCustomer={shippingFeeInformedToCustomer}
                       shippingFeeCustomerHVC={shippingFeeCustomerHVC}
                       customerInfo={customer}
                       items={items}
@@ -1043,7 +1086,9 @@ export default function Order() {
                       shipmentMethod={shipmentMethod}
                       amount={
                         orderAmount +
-                        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                        (shippingFeeInformedToCustomer
+                          ? shippingFeeInformedToCustomer
+                          : 0) -
                         discountValue
                       }
                       isCloneOrder={isCloneOrder}
@@ -1066,6 +1111,7 @@ export default function Order() {
                     handleTypeButton={handleTypeButton}
                     isVisibleGroupButtons={true}
                     showSaveAndConfirmModal={showSaveAndConfirmModal}
+                    creating={creating}
                   />
                 )}
               </Form>

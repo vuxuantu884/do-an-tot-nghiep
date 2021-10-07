@@ -176,11 +176,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     ),
                     width: 100,
                     dataIndex: POProcumentLineItemField.accepted_quantity,
-                    render: (value, item, index) => (
+                    render: (value, item, index) =>{ 
+                      return (
                       <div style={{ textAlign: "right" }}>
                         {value ? value : 0}
                       </div>
-                    ),
+                    )},
                   },
                   {
                     title: (

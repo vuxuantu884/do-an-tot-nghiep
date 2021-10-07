@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //#region Import
-import { CloseOutlined, SearchOutlined } from "@ant-design/icons";
+import { CloseOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Avatar,
@@ -17,7 +17,6 @@ import {
   Tag,
   Typography,
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
@@ -50,7 +49,6 @@ import {
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, {
-  createRef,
   useCallback,
   useEffect,
   useMemo,
@@ -116,6 +114,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
 
@@ -244,14 +243,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   //#region Search and Render result
   //Search and render customer by name, phone, code
+
   const CustomerChangeSearch = useCallback(
     (value) => {
 
       clearTimeout(timeRef);
       setKeySearchCustomer(value);
+      setSearchCustomer(true)
       let time = setTimeout(() => {
           initQueryCustomer.request = value.trim();
           dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+          setSearchCustomer(false)
       }, typingTimer);
       setTimeRef(time);
       setTypingTimer(3000);
@@ -337,7 +339,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           });
         }
         autoCompleteRef.current?.blur();
-        console.log(autoCompleteElement.value);
         setKeySearchCustomer("");
         setDistrictId(resultSearch[index].district_id);
       }
@@ -516,6 +517,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Input
                 placeholder="Tìm hoặc thêm khách hàng... (F4)"
                 prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
               />
             </AutoComplete>
           </div>

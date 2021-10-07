@@ -7,7 +7,7 @@ import {
   OrderResponse,
   FeesResponse,
 } from "model/response/order/order.response";
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -16,6 +16,9 @@ import LogoGHN from "assets/img/LogoGHN.svg";
 import LogoVTP from "assets/img/LogoVTP.svg";
 import LogoDHL from "assets/img/LogoDHL.svg";
 import NumberFormat from "react-number-format";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
+import moment from "moment";
+import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 
 type PropType = {
   amount: number | undefined;
@@ -34,6 +37,7 @@ type PropType = {
   levelOrder?: number;
   totalAmountReturnProducts?: number;
 };
+
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
     amount,
@@ -54,6 +58,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   } = props;
 
   console.log("propsShipmentmethod", props);
+
+  const createOrderContext = useContext(OrderCreateContext);
+  console.log("createOrderContext", createOrderContext);
 
   const [selectedShipmentMethod, setSelectedShipmentMethod] =
     useState(serviceType);
@@ -113,6 +120,119 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
     );
   };
+
+  const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
+
+  /**
+   * check cấu hình đơn hàng để tính phí ship báo khách
+   */
+  useEffect(() => {
+    const fakeCity = "TP. Hà Nội";
+    const fakePrice = 500000;
+    if (
+      !createOrderContext?.shipping.shippingServiceConfig ||
+      !customerShippingAddress
+    ) {
+      return;
+    }
+    //check thời gian
+    const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
+      const now = moment();
+      const checkIfTodayAfterStartDate = moment(startDate).isBefore(now);
+      const checkIfTodayBeforeEndDate = moment(now).isBefore(endDate);
+      console.log("checkIfTodayAfterStartDate", checkIfTodayAfterStartDate);
+      console.log("checkIfTodayBeforeEndDate", checkIfTodayBeforeEndDate);
+      return checkIfTodayAfterStartDate && checkIfTodayAfterStartDate;
+    };
+
+    // check tỉnh giao hàng
+    const checkIfSameProvince = (
+      customerShippingAddressProvince: string,
+      configShippingAddressProvince: string
+    ) => {
+      return customerShippingAddressProvince === configShippingAddressProvince;
+    };
+
+    // check giá
+    const checkIfPrice = (
+      orderPrice: number,
+      fromPrice: number,
+      toPrice: number
+    ) => {
+      console.log("fromPrice", fromPrice);
+      console.log("toPrice", toPrice);
+      console.log("orderPrice", orderPrice);
+      console.log(fromPrice <= orderPrice && orderPrice <= toPrice);
+      return fromPrice <= orderPrice && orderPrice <= toPrice;
+    };
+
+    // filter thời gian
+    const onTimeShippingServiceConfig =
+      createOrderContext?.shipping.shippingServiceConfig.filter((single) => {
+        return (
+          checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+          single.status === ORDER_SETTINGS_STATUS.active
+        );
+      });
+
+    console.log("onTimeShippingServiceConfig", onTimeShippingServiceConfig);
+
+    // filter city
+    let listCheckedShippingFeeConfig = [];
+
+    if (onTimeShippingServiceConfig) {
+      for (const singleOnTimeShippingServiceConfig of onTimeShippingServiceConfig) {
+        const checkedShippingFeeConfig =
+          singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
+            (single) => {
+              console.log("single", single);
+              return (
+                checkIfSameProvince(single.city_name, fakeCity) &&
+                checkIfPrice(fakePrice, single.from_price, single.to_price)
+              );
+            }
+          );
+        console.log("checkedShippingFeeConfig", checkedShippingFeeConfig);
+        listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
+      }
+    }
+    console.log("listCheckedShippingFeeConfig", listCheckedShippingFeeConfig);
+
+    //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+    const flattenArray = (arr: any) => {
+      return arr.reduce(function (flat: any, toFlatten: any) {
+        return flat.concat(
+          Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
+        );
+      }, []);
+    };
+
+    const listCheckedShippingFeeConfigFlatten = flattenArray(
+      listCheckedShippingFeeConfig
+    );
+    console.log(
+      "listCheckedShippingFeeConfigFlatten",
+      listCheckedShippingFeeConfigFlatten
+    );
+
+    // lấy số nhỏ nhất
+    if (
+      listCheckedShippingFeeConfigFlatten &&
+      listCheckedShippingFeeConfigFlatten.length > 0
+    ) {
+      let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
+      listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
+        if (single.transport_fee < result) {
+          result = single.transport_fee;
+        }
+      });
+      console.log("result", result);
+    }
+  }, [
+    createOrderContext?.shipping.shippingAddress,
+    createOrderContext?.shipping.shippingServiceConfig,
+    customerShippingAddress,
+  ]);
 
   return (
     <StyledComponent>
@@ -230,7 +350,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                                 service.total_fee
                                               );
                                             }}
-                                            disabled={service.total_fee === 0 || levelOrder >3}
+                                            disabled={
+                                              service.total_fee === 0 ||
+                                              levelOrder > 3
+                                            }
                                           />
                                           <span className="checkmark"></span>
                                           {service.transport_type_name}

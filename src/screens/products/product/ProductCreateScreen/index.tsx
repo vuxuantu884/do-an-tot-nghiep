@@ -2,21 +2,19 @@ import {
   DeleteOutlined,
   InfoCircleOutlined,
   MinusOutlined,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import {
   Button,
   Card,
   Col,
   Collapse,
-  Form,
-  Input,
+  Form, Image, Input,
   Row,
   Select,
   Space,
   Switch,
-  Table,
-  Image,
+  Table
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -32,8 +30,8 @@ import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { listColorAction } from "domain/actions/product/color.action";
-import { materialSearchAll } from "domain/actions/product/material.action";
-import { productCreateAction } from "domain/actions/product/products.action";
+import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
+import { productCheckDuplicateCodeAction, productCreateAction } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -46,7 +44,7 @@ import {
   ProductRequestView,
   ProductResponse,
   VariantImage,
-  VariantRequestView,
+  VariantRequestView
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -55,7 +53,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
@@ -63,19 +61,19 @@ import {
   convertCategory,
   formatCurrency,
   Products,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
+import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, {
-  VariantImageModel,
+  VariantImageModel
 } from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
-
 const { Item, List } = Form;
-
+const VIETNAM_COUNTRY_ID = 233
 const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
@@ -291,12 +289,36 @@ const ProductCreateScreen: React.FC = () => {
     [form]
   );
 
+  const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    if (value.length === 7)
+      dispatch(
+        productCheckDuplicateCodeAction(value, (message) => {
+          if (message) {
+            form.setFields([
+              {
+                name: "code",
+                errors: [message],
+              },
+            ]);
+          }
+        })
+      );
+  };
+
   const onNameChange = useCallback(
     (event) => {
       listVariantsFilter(colorSelected, sizeSelected);
     },
     [colorSelected, listVariantsFilter, sizeSelected]
   );
+ 
+ 
+
+  const onMaterialChange = (id: number) => {    
+    dispatch(detailMaterialAction(id, (material)=>handleChangeMaterial(material,form)));
+
+  };
 
   const onSizeChange = useCallback(
     (values: Array<number>) => {
@@ -505,6 +527,12 @@ const ProductCreateScreen: React.FC = () => {
     isLoadMaterData.current = true;
     return () => {};
   }, [dispatch, setDataAccounts, setDataCategory]);
+
+  useEffect(() => {
+    form.setFieldsValue({ made_in_id: VIETNAM_COUNTRY_ID });
+    form.setFieldsValue({ length_unit: 'cm' });
+  }, [form]);
+
   return (
     <Form
       form={form}
@@ -572,10 +600,7 @@ const ProductCreateScreen: React.FC = () => {
                             message: "Vui lòng chọn loại sản phẩm",
                           },
                         ]}
-                        tooltip={{
-                          title: "Ngành hàng",
-                          icon: <InfoCircleOutlined />,
-                        }}
+
                         name="goods"
                         label="Ngành hàng"
                       >
@@ -614,6 +639,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
+                              onClick={()=>window.open('/unicorn/admin/categories/create')}
                             />
                           }
                         >
@@ -654,7 +680,7 @@ const ProductCreateScreen: React.FC = () => {
                         <Input
                           maxLength={7}
                           placeholder="Nhập mã sản phẩm"
-                          onChange={onNameChange}
+                          onChange={onCodeChange}
                         />
                       </Item>
                     </Col>
@@ -673,7 +699,7 @@ const ProductCreateScreen: React.FC = () => {
                         ]}
                         tooltip={{
                           title:
-                            "Tên sản phẩm không bao gồm các giá trị thuộc tính như màu sắc, chất liệu, kích cỡ...",
+                            "Tên mã cha, không bao gồm màu sắc và kích cỡ",
                           icon: <InfoCircleOutlined />,
                         }}
                         name="name"
@@ -707,7 +733,7 @@ const ProductCreateScreen: React.FC = () => {
                         <CustomSelect
                           showSearch
                           optionFilterProp="children"
-                          placeholder="Chọn xuất xứ"
+                          placeholder="Chọn xuất xứ"                         
                         >
                           {listCountry?.map((item) => (
                             <CustomSelect.Option key={item.id} value={item.id}>
@@ -725,6 +751,14 @@ const ProductCreateScreen: React.FC = () => {
                           showSearch
                           optionFilterProp="children"
                           placeholder="Chọn chất liệu"
+                          onChange={onMaterialChange}
+                          suffix={
+                            <Button
+                              style={{ width: 37, height: 37 }}
+                              icon={<PlusOutlined />}
+                              onClick={()=>window.open('/unicorn/admin/materials/create')}
+                            />
+                          }
                         >
                           {listMaterial?.map((item) => (
                             <CustomSelect.Option key={item.id} value={item.id}>
@@ -732,6 +766,7 @@ const ProductCreateScreen: React.FC = () => {
                             </CustomSelect.Option>
                           ))}
                         </CustomSelect>
+                        
                       </Item>
                     </Col>
                     <Col span={24} md={12} sm={24}>
@@ -840,10 +875,7 @@ const ProductCreateScreen: React.FC = () => {
                       <Item
                         required
                         label="Khối lượng"
-                        tooltip={{
-                          title: "Nhập khối lượng của sản phẩm",
-                          icon: <InfoCircleOutlined />,
-                        }}
+                        
                       >
                         <Input.Group compact>
                           <Item
@@ -900,7 +932,7 @@ const ProductCreateScreen: React.FC = () => {
                           className="custom-header"
                         >
                           <Item name="description">
-                            <CustomEditor />
+                            <CustomEditor/>
                           </Item>
                         </Collapse.Panel>
                       </Collapse>
@@ -954,7 +986,7 @@ const ProductCreateScreen: React.FC = () => {
                   <Item
                     name="designer_code"
                     label="Thiết kế"
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
                   >
                     <CustomSelect
                       optionFilterProp="children"
@@ -1151,14 +1183,14 @@ const ProductCreateScreen: React.FC = () => {
                             </Row>
                           )
                         )}
-                        <Button
+                        {/* <Button
                           type="link"
                           className="padding-0"
                           onClick={() => add()}
                           icon={<PlusOutlined />}
                         >
                           Thêm mới
-                        </Button>
+                        </Button> */}
                       </>
                     )}
                   </List>
@@ -1200,12 +1232,14 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
+                              onClick={()=>window.open('/unicorn/admin/colors/create')}
+
                             />
                           }
                         >
                           {listColor?.map((item) => (
                             <CustomSelect.Option key={item.id} value={item.id}>
-                              {item.name}
+                              {`${item.code} - ${item.name}`}
                             </CustomSelect.Option>
                           ))}
                         </CustomSelect>
@@ -1225,6 +1259,8 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
+                              onClick={()=>window.open('/unicorn/admin/sizes/create')}
+
                             />
                           }
                         >

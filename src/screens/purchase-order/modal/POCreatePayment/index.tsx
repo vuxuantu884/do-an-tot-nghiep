@@ -29,6 +29,7 @@ const initPOCreatePaymentValue = {
   reference: "",
   transaction_date: "",
   note: "",
+  is_refund: false
 };
 
 type POCreatePaymentModalProps = {
@@ -62,29 +63,22 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
   const [formPayment] = Form.useForm();
 
   const onFinish = useCallback(() => {
+    const paymentNewData = {
+      payment_method_code: formPayment.getFieldValue("payment_method_code"),
+      transaction_date: formPayment.getFieldValue("transaction_date"),
+      amount: formPayment.getFieldValue("amount"),
+      reference: formPayment.getFieldValue("reference"),
+      note: formPayment.getFieldValue("note"),
+      is_refund: formPayment.getFieldValue("is_refund")
+    };
     if (indexPurchasePayment) {
       const old_payments = formMain.getFieldValue("payments");
-      const paymentNewData = {
-        payment_method_code: formPayment.getFieldValue("payment_method_code"),
-        transaction_date: formPayment.getFieldValue("transaction_date"),
-        amount: formPayment.getFieldValue("amount"),
-        reference: formPayment.getFieldValue("reference"),
-        note: formPayment.getFieldValue("note"),
-      };
       old_payments[indexPurchasePayment] = paymentNewData;
       onChangeDataPayments(old_payments);
     } else {
       const old_payments = formMain.getFieldValue("payments");
-      const paymentData = {
-        payment_method_code: formPayment.getFieldValue("payment_method_code"),
-        transaction_date: formPayment.getFieldValue("transaction_date"),
-        amount: formPayment.getFieldValue("amount"),
-        reference: formPayment.getFieldValue("reference"),
-        note: formPayment.getFieldValue("note"),
-      };
       const new_payments = [...old_payments];
-      new_payments.push(paymentData);
-
+      new_payments.push(paymentNewData);
       onChangeDataPayments(new_payments);
     }
     onCancel();
@@ -177,14 +171,16 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
     >
       <POCreatePaymentModalStyled>
         <Form
-          name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
           form={formPayment}
           initialValues={initPOCreatePaymentValue}
           onFinish={onFinish}
+          className="update-customer-modal"
           autoComplete="off"
+          layout="vertical"
         >
+          <Item noStyle name="is_refund" hidden>
+            <Input />
+          </Item>
           <Row gutter={24}>
             <Col xs={24} lg={12}>
               <Item
@@ -214,6 +210,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                 </Radio.Group>
               </Item>
             </Col>
+
             <Col xs={24} lg={12}>
               <Item
                 name="transaction_date"
@@ -224,6 +221,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
               >
                 <CustomDatepicker
                   disableDate={(date) => date <= moment().startOf("days")}
+                  style={{ width: "100%" }}
                   placeholder="dd/mm/yyyy"
                 />
               </Item>
