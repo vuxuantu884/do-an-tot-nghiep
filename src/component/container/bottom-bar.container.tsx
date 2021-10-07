@@ -1,5 +1,5 @@
 import { useHistory } from "react-router";
-import arrowLeft from "assets/icon/arrow-left.svg";
+import arrowLeft from "assets/icon/arrow-back.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useSelector } from "react-redux";
 import classNames from 'classnames'
