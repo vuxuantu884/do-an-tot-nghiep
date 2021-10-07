@@ -1,7 +1,6 @@
 import { Row, Col } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import { PlusOutlined } from "@ant-design/icons";
 import CustomerModal from "../../customer-modal";
 import {
   CreateNote,
@@ -19,14 +18,20 @@ import FormCustomerNote from "screens/customer/customer-detail/customer-note/not
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 function CustomerNoteInfo(props: any) {
+  const {
+    customer,
+    customerDetailState,
+    setModalAction,
+    modalAction,
+    isShowModalNote,
+    setIsShowModalNote,
+  } = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  const { customer, customerDetailState, setModalAction, modalAction } = props;
   const [modalSingleNote, setModalNote] = React.useState<CustomerNote>();
-  const [isShowModalNote, setIsShowModalNote] = React.useState(false);
   const onCancelNoteDelete = () => {
     setIsVisibleNoteModal(false);
   };
@@ -60,7 +65,9 @@ function CustomerNoteInfo(props: any) {
       dataIndex: "",
       visible: true,
       render: (value, row, index) => {
-        return <div  style={{ color: "#666666", width: 300 }}>{row.content}</div>;
+        return (
+          <div style={{ color: "#666666", width: 300 }}>{row.content}</div>
+        );
       },
     },
     {
@@ -142,45 +149,10 @@ function CustomerNoteInfo(props: any) {
     },
   };
   const gotoFirstPage = (customerId: any) => {
-    history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
-    window.scrollTo(0, 0);
+    history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   return (
     <Row style={{ marginTop: 16 }}>
-      <div
-        style={{
-          padding: "0 16px 10px 0",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          width: "100%",
-          color: "#2A2A86",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          <div>
-            <PlusOutlined />
-          </div>
-          <span
-            style={{
-              marginLeft: 10,
-            }}
-            onClick={() => {
-              setModalAction("create");
-              setIsShowModalNote(true);
-            }}
-          >
-            Thêm ghi chú
-          </span>
-        </div>
-      </div>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}

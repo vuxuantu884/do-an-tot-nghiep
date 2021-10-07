@@ -1,7 +1,6 @@
 import { Row, Col, Checkbox } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import { PlusOutlined } from "@ant-design/icons";
 import CustomerModal from "../../customer-modal";
 import {
   CreateShippingAddress,
@@ -23,13 +22,11 @@ import actionColumn from "../../common/action.column";
 function CustomerShippingAddressInfo(props: any) {
   const history = useHistory();
   const dispatch = useDispatch();
-  const { customer, customerDetailState, setModalAction, modalAction } = props;
-  const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
+  const { customer, customerDetailState, setModalAction, modalAction,isShowModalShipping, setIsShowModalShipping } = props;
   const [modalSingleShippingAddress, setModalShippingAddress] =
     React.useState<CustomerShippingAddress>();
   const gotoFirstPage = (customerId: any) => {
-    history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
-    window.scrollTo(0, 0);
+    history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);
@@ -62,7 +59,7 @@ function CustomerShippingAddressInfo(props: any) {
           customer.id,
           _item,
           (data: shippingAddress) => {
-            history.replace(`${UrlConfig.CUSTOMER}/` + customer.id);
+            gotoFirstPage(customer.id);
             if (data) {
               showSuccess("Đặt mặc định thành công");
             } else {
@@ -214,40 +211,6 @@ function CustomerShippingAddressInfo(props: any) {
   };
   return (
     <Row style={{ marginTop: 16 }}>
-      <div
-        style={{
-          padding: "0 16px 10px 0",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          width: "100%",
-          color: "#2A2A86",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          <div>
-            <PlusOutlined />
-          </div>
-          <span
-            style={{
-              marginLeft: 10,
-            }}
-            onClick={() => {
-              setModalAction("create");
-              setIsShowModalShipping(true);
-            }}
-          >
-            Thêm địa chỉ
-          </span>
-        </div>
-      </div>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}
@@ -295,7 +258,7 @@ function CustomerShippingAddressInfo(props: any) {
           onDelete={() => {}}
           onCancel={() => setIsShowModalShipping(false)}
           modalAction={modalAction}
-          modalTypeText="Địa chỉ giao hàng"
+          modalTypeText="Địa chỉ nhận hàng"
           componentForm={FormCustomerShippingAddress}
           formItem={modalSingleShippingAddress}
           deletedItemTitle={modalSingleShippingAddress?.name}

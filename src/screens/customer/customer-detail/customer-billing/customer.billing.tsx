@@ -1,7 +1,6 @@
 import { Row, Col, Checkbox } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import { PlusOutlined } from "@ant-design/icons";
 import CustomerModal from "../../customer-modal";
 
 import {
@@ -22,13 +21,18 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
 
 function CustomerShippingInfo(props: any) {
-  const { customer, customerDetailState, setModalAction, modalAction } = props;
+  const {
+    customer,
+    customerDetailState,
+    setModalAction,
+    modalAction,
+    isShowModalBilling,
+    setIsShowModalBilling,
+  } = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const billingColumnFinal = () =>
     billingColumns.filter((item) => item.visible === true);
-  const [isShowModalBilling, setIsShowModalBilling] = React.useState(false);
-
   const [modalSingleBillingAddress, setModalBillingAddress] =
     React.useState<CustomerBillingAddress>();
 
@@ -140,7 +144,7 @@ function CustomerShippingInfo(props: any) {
           customer.id,
           _item,
           (data: billingAddress) => {
-            history.replace(`${UrlConfig.CUSTOMER}/` + customer.id);
+            gotoFirstPage(customer.id);
             if (data) {
               data.default
                 ? showSuccess("Đặt mặc định thành công")
@@ -155,9 +159,9 @@ function CustomerShippingInfo(props: any) {
   // handle billing
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      if(customer?.billing_addresses.length <= 0) {
-        formValue.is_default = true
-      }else{
+      if (customer?.billing_addresses.length <= 0) {
+        formValue.is_default = true;
+      } else {
         formValue.is_default = false;
       }
       if (customer)
@@ -216,45 +220,10 @@ function CustomerShippingInfo(props: any) {
   };
   // end
   const gotoFirstPage = (customerId: any) => {
-    history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
-    window.scrollTo(0, 0);
+    history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   return (
     <Row style={{ marginTop: 16 }}>
-      <div
-        style={{
-          padding: "0 16px 10px 0",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          width: "100%",
-          color: "#2A2A86",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
-          <div>
-            <PlusOutlined />
-          </div>
-          <span
-            style={{
-              marginLeft: 10,
-            }}
-            onClick={() => {
-              setModalAction("create");
-              setIsShowModalBilling(true);
-            }}
-          >
-            Thêm địa chỉ
-          </span>
-        </div>
-      </div>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}

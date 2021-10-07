@@ -1,7 +1,6 @@
 import { Row, Col } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import { PlusOutlined } from "@ant-design/icons";
 import CustomerModal from "../../customer-modal";
 
 import {
@@ -22,18 +21,23 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
 
 function CustomerContactInfo(props: any) {
-  const { customer, customerDetailState, setModalAction, modalAction } = props;
+  const {
+    customer,
+    customerDetailState,
+    setModalAction,
+    modalAction,
+    setIsShowModalContacts,
+    isShowModalContacts,
+  } = props;
   const dispatch = useDispatch();
   const history = useHistory();
-  const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
   const [isVisibleContactModal, setIsVisibleContactModal] =
     React.useState<boolean>(false);
   const [modalSingleContact, setModalSingleContact] =
     React.useState<CustomerContact>();
   // contact column
   const gotoFirstPage = (customerId: any) => {
-    history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
-    window.scrollTo(0, 0);
+    history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   const handleContactEdit = () => {
     setIsShowModalContacts(true);
@@ -177,24 +181,6 @@ function CustomerContactInfo(props: any) {
   };
   return (
     <Row style={{ marginTop: 16 }}>
-      <div className="customer-create-info">
-        <div className="customer-create-info-btn">
-          <div>
-            <PlusOutlined />
-          </div>
-          <span
-            style={{
-              marginLeft: 10,
-            }}
-            onClick={() => {
-              setModalAction("create");
-              setIsShowModalContacts(true);
-            }}
-          >
-            Thêm liên hệ
-          </span>
-        </div>
-      </div>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}

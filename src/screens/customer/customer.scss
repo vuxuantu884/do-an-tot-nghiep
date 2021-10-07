@@ -225,6 +225,19 @@
   .ant-card {
     padding: 0 24px;
   }
+  .ant-tabs-tab{
+   padding: 12px 0;
+  
+  }
+  .ant-tabs-nav-list{
+    width: 100% !important;
+    display: flex;
+    justify-self: space-between;
+  }
+  .ant-tabs-tab:nth-child(8){
+    justify-self: flex-end;
+    color: rgb(42, 42, 134);
+  }
 }
 .customer-info-detail {
   .ant-tabs-nav {
