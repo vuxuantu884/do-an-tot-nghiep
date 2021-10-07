@@ -126,8 +126,9 @@ const OrderDetail = (props: PropType) => {
   >([]);
 
   // đổi hàng
-  const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
-    useState<number>(0);
+  // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
+  //   useState<number>(0);
+  const [totalAmountReturnProducts] = useState<number>(0);
   console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
@@ -583,9 +584,10 @@ const OrderDetail = (props: PropType) => {
               {OrderDetail?.order_return_origin?.items && (
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
-                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
-                  totalAmount={OrderDetail?.order_return_origin.money_refund}
+                  totalAmountReturnToCustomer={
+                    OrderDetail?.order_return_origin.money_refund
+                  }
                 />
               )}
 

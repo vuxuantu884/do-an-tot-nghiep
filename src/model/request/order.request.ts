@@ -48,6 +48,7 @@ export interface ExchangeRequest extends OrderRequest {
 }
 
 export interface FulFillmentRequest {
+  id?: number;
   store_id: number | null;
   account_code?: string | null;
   assignee_code: string | null;

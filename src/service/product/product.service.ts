@@ -92,3 +92,8 @@ export const productImportApi = (file: File, isCreate: string) => {
     headers: { "content-type": "multipart/form-data" },
   });
 }
+
+export const productCheckDuplicateCodeApi = (code: string) =>{
+  const url = `${ApiConfig.PRODUCT}/products/validate`;
+  return BaseAxios.post(url,{code})
+}

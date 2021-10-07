@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -142,6 +142,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     items: [],
   });
   const [isVisibleGift, setVisibleGift] = useState(false);
+  const [searchProducts, setSearchProducts] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
@@ -165,57 +166,60 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     useState<Array<StoreResponse> | null>([]);
   //Function
 
-  const event = useCallback((event:KeyboardEvent)=>{
+  const event = useCallback((event: KeyboardEvent) => {
 
-    if(event.target instanceof HTMLInputElement){
-      
-      if (event.keyCode === 13 && event.target.value && event.target.id==="search_product") 
-      {
-        event.target.onchange=()=>{
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        let barcode=event.target.value;
-        if (!items) {
-          return;
-        }
-        dispatch(SearchBarCode(barcode,(data:VariantResponse)=>{
+    console.log(storeId);
+    if (event.target instanceof HTMLInputElement) {
+
+      if (event.keyCode === 13 
+          && event.target.value 
+          && event.target.id === "search_product"
+          &&orderSettings?.chonCuaHangTruocMoiChonSanPham 
+          && items 
+          && storeId) 
+        {
+        // event.target.onchange=()=>{
+        //   event.preventDefault();
+        //   event.stopPropagation();
+        // }
+        let barcode = event.target.value;
+        dispatch(SearchBarCode(barcode, (data: VariantResponse) => {
           let _items = [...items].reverse();
           const item: OrderLineItemRequest = createItem(data);
           let index = _items.findIndex((i) => i.variant_id === data.id);
           item.position = items.length + 1;
 
-            if (splitLine || index === -1) {
-              _items.push(item);
-              setAmount(amount + item.price);
-              calculateChangeMoney(
-                _items,
-                amount + item.price,
-                discountRate,
-                discountValue
-              );
-            } else {
-              let variantItems = _items.filter((item) => item.variant_id === data.id);
-              let lastIndex = variantItems.length - 1;
-              variantItems[lastIndex].quantity += 1;
-              variantItems[lastIndex].line_amount_after_line_discount +=
-                variantItems[lastIndex].price -
-                variantItems[lastIndex].discount_items[0].amount;
-              setAmount(
-                amount +
-                  variantItems[lastIndex].price -
-                  variantItems[lastIndex].discount_items[0].amount
-              );
-              calculateChangeMoney(
-                _items,
-                amount +
-                  variantItems[lastIndex].price -
-                  variantItems[lastIndex].discount_items[0].amount,
-                discountRate,
-                discountValue
-              );
-            }
-          
+          if (splitLine || index === -1) {
+            _items.push(item);
+            setAmount(amount + item.price);
+            calculateChangeMoney(
+              _items,
+              amount + item.price,
+              discountRate,
+              discountValue
+            );
+          } else {
+            let variantItems = _items.filter((item) => item.variant_id === data.id);
+            let lastIndex = variantItems.length - 1;
+            variantItems[lastIndex].quantity += 1;
+            variantItems[lastIndex].line_amount_after_line_discount +=
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount;
+            setAmount(
+              amount +
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount
+            );
+            calculateChangeMoney(
+              _items,
+              amount +
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount,
+              discountRate,
+              discountValue
+            );
+          }
+
           handleCardItems(_items.reverse());
           autoCompleteRef.current?.blur();
           setIsInputSearchProductFocus(false);
@@ -223,7 +227,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         }));
       }
     }
-  },[items, splitLine]);
+  }, [items, splitLine, storeId]);
 
   useEffect(() => {
     window.addEventListener("keydown", event);
@@ -790,14 +794,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             variantItems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount,
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
@@ -811,18 +815,35 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     [resultSearchVariant, items, splitLine]
   );
 
-  const onChangeProductSearch = (value: string) => {
+  const onChangeProductSearch = useCallback((value: string) => {
     if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
       if (value) {
         formRef.current?.validateFields(["store_id"]);
       }
     }
+    setIsInputSearchProductFocus(true)
     setKeySearchVariant(value);
     initQueryVariant.info = value;
-    dispatch(
-      searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
-    );
-  };
+    if (value.trim()) {
+      (async () => {
+        // console.log('setSearchProducts true');
+        setSearchProducts(true);
+        try {
+          await dispatch(
+            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+              setResultSearchVariant(data)
+              setSearchProducts(false);
+              // console.log('setSearchProducts false');
+            })
+          );
+        } catch {}
+      })()
+    } else {
+      setSearchProducts(false);
+    }
+    
+  }, []);
+
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -1091,6 +1112,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  suffix={searchProducts ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>

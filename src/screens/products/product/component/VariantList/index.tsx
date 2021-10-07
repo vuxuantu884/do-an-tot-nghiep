@@ -1,12 +1,12 @@
-import { Checkbox, List, Spin } from "antd";
-import { VariantResponse } from "model/product/product.model";
-import { Products } from "utils/AppUtils";
-import classNames from "classnames";
-import variantdefault from "assets/icon/variantdefault.jpg";
-import React, { useCallback, useState } from "react";
-import { StyledComponent } from "./style";
-import ActionButton from "component/table/ActionButton";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { Checkbox, List, Spin } from "antd";
+import variantdefault from "assets/icon/variantdefault.jpg";
+import classNames from "classnames";
+import ActionButton from "component/table/ActionButton";
+import { ProductResponse, VariantResponse } from "model/product/product.model";
+import React, { useCallback, useState } from "react";
+import { formatCurrency, Products } from "utils/AppUtils";
+import { StyledComponent } from "./style";
 
 interface VariantListProps {
   value?: Array<VariantResponse>;
@@ -15,12 +15,14 @@ interface VariantListProps {
   onStopSale: (data: Array<number>) => void;
   onAllowSale: (data: Array<number>) => void;
   loading?: boolean;
-  disabledAction?: boolean
+  disabledAction?: boolean,
+  productData?: ProductResponse
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
   const [listSelected, setListSelected] = useState<Array<number>>([]);
   const [checkedAll, setCheckedAll] = useState<boolean>(false);
+  const productName = props?.productData?.name;
   const onMenuClick = useCallback(
     (action) => {
       switch (action) {
@@ -49,7 +51,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                 checked={checkedAll}
                 onChange={(e) => {
                   setCheckedAll(e.target.checked);
-                  if (props.value) { 
+                  if (props.value) {
                     if (e.target.checked) {
                       props.value.forEach((item) => {
                         let index = listSelected.findIndex(
@@ -89,6 +91,10 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
         }
         renderItem={(item, index) => {
           let avatar = Products.findAvatar(item.variant_images);
+          let variantName = item.name;
+          if (productName) {
+            variantName = item.name?.replace(productName, "");
+          }
           return (
             <List.Item
               className={classNames(index === props.active && "active")}
@@ -121,7 +127,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                   <div className="avatar">
                     <img
                       alt=""
-                      src={avatar !== null ? avatar.url : variantdefault}
+                      src={avatar ? avatar.url : variantdefault}
                     />
                     {!item.saleable && (
                       <div className="not-salable">Ngừng bán</div>
@@ -132,19 +138,27 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                       width: "100%",
                       display: "flex",
                       flexDirection: "column",
-                      position: 'relative',
-                      overflow: 'hidden',
+                      position: "relative",
+                      overflow: "hidden",
                     }}
                   >
                     {item.id ? (
                       <React.Fragment>
-                        <div>{item.sku}</div>
-                        <div className="right__name">{item.name}</div>
+                        <div className="sku">{item.sku}</div>
+                        <div className="variant-name">{variantName}</div>
                       </React.Fragment>
                     ) : (
                       <div className="item-new">Phiên bản mới</div>
                     )}
                   </div>
+                  <td className="variant-price">
+                    {" "}
+                    {`${
+                      item.variant_prices[0].retail_price
+                        ? formatCurrency(item.variant_prices[0].retail_price)
+                        : "-"
+                    }`}
+                  </td>
                 </div>
               </div>
             </List.Item>
