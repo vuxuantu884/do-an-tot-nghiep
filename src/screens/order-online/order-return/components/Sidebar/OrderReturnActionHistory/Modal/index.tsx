@@ -205,7 +205,7 @@ function ActionHistoryModal(props: PropType) {
 
   return (
     <Modal
-      title="Chi tiết log đơn hàng"
+      title="Chi tiết log đơn trả hàng"
       visible={isModalVisible}
       footer={false}
       onCancel={handleCancel}

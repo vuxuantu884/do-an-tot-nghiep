@@ -13,7 +13,10 @@ stages:
 
 docker build:
   stage: docker_build
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  services:
+    - docker:dind
+  tags:
+  - build-yody-tag
   only:
     - develop
     - uat
@@ -23,7 +26,7 @@ docker build:
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
-    - bash deployment/dockerbuild.sh
+    - sh deployment/dockerbuild.sh
 
 deploy to dev:
   stage: deploy

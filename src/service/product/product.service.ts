@@ -93,7 +93,7 @@ export const productImportApi = (file: File, isCreate: string) => {
   });
 }
 
-export const productCheckDuplicateCodeApi = (code: string) =>{
+export const productCheckDuplicateCodeApi = (code: string) : Promise<BaseResponse<null>>=>{
   const url = `${ApiConfig.PRODUCT}/products/validate`;
   return BaseAxios.post(url,{code})
 }
