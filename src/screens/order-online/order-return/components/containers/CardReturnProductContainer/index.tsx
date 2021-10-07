@@ -1,49 +1,47 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import {
   OrderLineItemResponse,
-  OrderResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
 type PropType = {
-  isExchange?: boolean;
-  OrderDetail: OrderResponse | null;
-  listOrderProducts?: OrderLineItemResponse[];
-  listReturnProducts: ReturnProductModel[];
-  handleReturnProducts?: (listReturnProducts: ReturnProductModel[]) => void;
   handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
-  isStepExchange?: boolean;
   discountRate?: number;
-  setTotalAmountReturnProducts?: (value: number) => void;
 };
 
 function CardReturnProductContainer(props: PropType) {
-  const {
-    isExchange = false,
-    OrderDetail,
-    listReturnProducts,
-    handleReturnProducts,
-    listOrderProducts,
-    handleCanReturn,
-    isDetailPage,
-    isStepExchange,
-    discountRate,
-    setTotalAmountReturnProducts,
-  } = props;
-  console.log("isStepExchange", isStepExchange);
+  const { handleCanReturn, isDetailPage, discountRate } = props;
 
   const pointPaymentMethod = "Tiêu điểm";
+
+  const createOrderReturnContext = useContext(CreateOrderReturnContext);
+  console.log("createOrderReturnContext", createOrderReturnContext);
 
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
 
+  const listReturnProducts =
+    createOrderReturnContext?.return.listReturnProducts;
+  const setListReturnProducts =
+    createOrderReturnContext?.return.setListReturnProducts;
+  const setTotalAmountReturnProducts =
+    createOrderReturnContext?.return.setTotalAmountReturnProducts;
+  const OrderDetail = createOrderReturnContext?.orderDetail;
+  const listOrderProducts = OrderDetail?.items;
+  const isStepExchange = createOrderReturnContext?.isStepExchange;
+  const isExchange = createOrderReturnContext?.isExchange;
+
   const onSelectSearchedVariant = (value: string) => {
     if (!listOrderProducts) {
+      return;
+    }
+    if (!listReturnProducts) {
       return;
     }
     const selectedVariant = listOrderProducts.find((single) => {
@@ -70,8 +68,8 @@ function CardReturnProductContainer(props: PropType) {
         selectedVariant.quantity += 1;
       }
     }
-    if (handleReturnProducts) {
-      handleReturnProducts(result);
+    if (setListReturnProducts) {
+      setListReturnProducts(result);
     }
     if (handleCanReturn) {
       handleCanReturn(true);
@@ -115,8 +113,8 @@ function CardReturnProductContainer(props: PropType) {
           };
         }
       );
-      if (handleReturnProducts) {
-        handleReturnProducts(resultReturnProducts);
+      if (setListReturnProducts) {
+        setListReturnProducts(resultReturnProducts);
       }
       checkIfIsCanReturn(resultReturnProducts);
     } else {
@@ -127,8 +125,8 @@ function CardReturnProductContainer(props: PropType) {
           maxQuantity: single.quantity,
         };
       });
-      if (handleReturnProducts) {
-        handleReturnProducts(result);
+      if (setListReturnProducts) {
+        setListReturnProducts(result);
       }
       checkIfIsCanReturn(result);
     }
@@ -208,12 +206,15 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   const onChangeProductQuantity = (value: number | null, index: number) => {
+    if (!listReturnProducts) {
+      return;
+    }
     let resultListReturnProducts = [...listReturnProducts];
     resultListReturnProducts[index].quantity = Number(
       value === null ? "0" : value.toString().replace(".", "")
     );
-    if (handleReturnProducts) {
-      handleReturnProducts(resultListReturnProducts);
+    if (setListReturnProducts) {
+      setListReturnProducts(resultListReturnProducts);
     }
     if (
       resultListReturnProducts.some((single) => {
@@ -303,6 +304,9 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   useEffect(() => {
+    if (!listReturnProducts) {
+      return;
+    }
     if (setTotalAmountReturnProducts) {
       setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
     }
@@ -323,7 +327,9 @@ function CardReturnProductContainer(props: PropType) {
       pointAmountUsing={pointAmountUsing}
       pointUsing={pointUsing}
       searchVariantInputValue={searchVariantInputValue}
-      totalPrice={Math.round(getTotalPrice(listReturnProducts))}
+      totalPriceReturnToCustomer={
+        listReturnProducts ? Math.round(getTotalPrice(listReturnProducts)) : 0
+      }
       isShowProductSearch={isShowProductSearch()}
     />
   );

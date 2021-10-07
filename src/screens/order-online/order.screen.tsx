@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import { OrderCreateContext } from "contexts/order-create-context";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -948,8 +948,9 @@ export default function Order() {
   );
   console.log(initialForm);
 
-  // theme context data
-
+  /**
+   * theme context data
+   */
   const createOrderContextData = {
     store: {
       storeId,
