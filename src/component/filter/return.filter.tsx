@@ -33,6 +33,7 @@ type ReturnFilterProps = {
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   reasons: Array<{id: number; name: string}>;
+  isLoading?: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ReturnSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -50,6 +51,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     actions,
     listStore,
     reasons,
+    isLoading,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -57,9 +59,12 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   
+  const loadingFilter = useMemo(() => {
+    return isLoading ? true : false
+  }, [isLoading])
+
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-  
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -397,7 +402,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             </Item>
             
             <Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
               </Button>
             </Item>

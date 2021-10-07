@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -142,6 +142,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     items: [],
   });
   const [isVisibleGift, setVisibleGift] = useState(false);
+  const [searchProducts, setSearchProducts] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
@@ -164,7 +165,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
   //Function
-
 
   const event = useCallback((event: KeyboardEvent) => {
 
@@ -815,7 +815,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     [resultSearchVariant, items, splitLine]
   );
 
-  const onChangeProductSearch = (value: string) => {
+  const onChangeProductSearch = useCallback((value: string) => {
     if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
       if (value) {
         formRef.current?.validateFields(["store_id"]);
@@ -823,10 +823,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     }
     setKeySearchVariant(value);
     initQueryVariant.info = value;
-    dispatch(
-      searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
-    );
-  };
+    (async () => {
+      setSearchProducts(true);
+      try {
+        await dispatch(
+          searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
+        );
+        setSearchProducts(false);
+      } catch {}
+    })()
+    
+  }, []);
+
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -1095,6 +1103,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  suffix={searchProducts ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>

@@ -2,6 +2,7 @@ import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import {
@@ -35,7 +36,6 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
-  OrderLineItemResponse,
   OrderResponse,
   OrderReturnReasonModel,
   ReturnProductModel,
@@ -120,9 +120,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
     ReturnProductModel[]
-  >([]);
-  const [listOrderProducts, setListOrderProducts] = useState<
-    OrderLineItemResponse[]
   >([]);
 
   const [listPaymentMethods, setListPaymentMethods] = useState<
@@ -269,7 +266,6 @@ const ScreenReturnCreate = (props: PropType) => {
         };
       });
       setListReturnProducts(returnProduct);
-      setListOrderProducts(_data.items);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
       if (_data.tags) {
@@ -836,6 +832,20 @@ const ScreenReturnCreate = (props: PropType) => {
     history.push("/");
   };
 
+  /**
+   * theme context data
+   */
+  const createOrderReturnContextData = {
+    orderDetail: OrderDetail,
+    return: {
+      listReturnProducts,
+      setListReturnProducts,
+      setTotalAmountReturnProducts,
+    },
+    isExchange,
+    isStepExchange,
+  };
+
   const renderIfCannotReturn = () => {
     return <div>Đơn hàng không thể đổi trả!</div>;
   };
@@ -865,17 +875,8 @@ const ScreenReturnCreate = (props: PropType) => {
                   isStepExchange={isStepExchange}
                 />
                 <CardReturnProductContainer
-                  OrderDetail={OrderDetail}
                   discountRate={discountRate}
-                  listReturnProducts={listReturnProducts}
-                  handleReturnProducts={(
-                    listReturnProducts: ReturnProductModel[]
-                  ) => setListReturnProducts(listReturnProducts)}
-                  listOrderProducts={listOrderProducts}
                   isDetailPage={false}
-                  isExchange={isExchange}
-                  isStepExchange={isStepExchange}
-                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts
@@ -925,33 +926,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     isCloneOrder={false}
                     totalAmountReturnProducts={totalAmountReturnProducts}
                   />
-                  // <CardReturnShipment
-                  //   setShipmentMethod={setShipmentMethod}
-                  //   shipmentMethod={shipmentMethod}
-                  //   storeDetail={storeDetail}
-                  //   setShippingFeeInformedCustomer={setShippingFeeCustomer}
-                  //   setShippingFeeInformedCustomerHVC={
-                  //     setShippingFeeInformedCustomerHVC
-                  //   }
-                  //   amount={getTotalPrice(listExchangeProducts)}
-                  //   setPaymentMethod={setPaymentMethod}
-                  //   paymentMethod={paymentMethod}
-                  //   shippingFeeCustomer={shippingFeeCustomer}
-                  //   shippingFeeCustomerHVC={shippingFeeInformedCustomerHVC}
-                  //   customerInfo={customer}
-                  //   items={listExchangeProducts}
-                  //   discountValue={discountValue}
-                  //   setOfficeTime={setOfficeTime}
-                  //   officeTime={officeTime}
-                  //   setServiceType={setServiceType}
-                  //   setHVC={setHvc}
-                  //   setFee={setFee}
-                  //   payments={payments}
-                  //   onPayments={setPayments}
-                  //   fulfillments={fulfillments}
-                  //   isCloneOrder={false}
-                  //   totalAmountReturnProducts={totalAmountReturnProducts}
-                  // />
                 )}
                 {isExchange && (
                   <CardReturnMoneyPageCreate
@@ -1088,31 +1062,33 @@ const ScreenReturnCreate = (props: PropType) => {
   }, []);
 
   return (
-    <ContentContainer
-      isError={isError}
-      title="Trả hàng cho đơn hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: `${UrlConfig.HOME}`,
-        },
-        {
-          name: "Đơn hàng",
-        },
-        {
-          name: "Trả hàng",
-        },
-        {
-          name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
-        },
-      ]}
-    >
-      {!isFetchData
-        ? "Loading ..."
-        : isCanReturnOrExchange
-        ? renderIfCanReturn()
-        : renderIfCannotReturn()}
-    </ContentContainer>
+    <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
+      <ContentContainer
+        isError={isError}
+        title="Trả hàng cho đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: `${UrlConfig.HOME}`,
+          },
+          {
+            name: "Đơn hàng",
+          },
+          {
+            name: "Trả hàng",
+          },
+          {
+            name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
+          },
+        ]}
+      >
+        {!isFetchData
+          ? "Loading ..."
+          : isCanReturnOrExchange
+          ? renderIfCanReturn()
+          : renderIfCannotReturn()}
+      </ContentContainer>
+    </CreateOrderReturnContext.Provider>
   );
 };
 

@@ -1,4 +1,4 @@
-import { Button, Card, Col, Modal, Row, Space, Table } from "antd";
+import { Button, Card, Row, Space } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -26,6 +26,7 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { delivery_service } from "./common/delivery-service";
+import ShipmentDetailsModal from "./modal/shipment-details.modal";
 
 const actions: Array<MenuAction> = [
   {
@@ -77,51 +78,7 @@ const initQuery: ShipmentSearchQuery = {
   cancel_reason: [],
 };
 
-const columnsItems  = [
-  {
-    title: "STT",
-    dataIndex: "index",
-    visible: true,
-    width:"30px",
-  },
-  {
-    title: "Mã SKU",
-    dataIndex: "sku",
-    visible: true,
-    width:"150px",
-  },
-  {
-    title: "Tên sản phẩm",
-    dataIndex: "variant",
-    visible: true,
-    width: "200px",
-  },
-  {
-    title: "Số lượng",
-    dataIndex: "quantity",
-    visible: true,
-    width: "50px",
-  },
-  {
-    title: "Đơn giá",
-    dataIndex: "price",
-    visible: true,
-    width: "100px",
-  },
-  {
-    title: "Thành tiền",
-    render: (record: any) => (
-      <NumberFormat
-        value={100000}
-        className="foo"
-        displayType={"text"}
-        thousandSeparator={true}
-      />
-    ),
-    visible: true,
-    width: "150px",
-  },
-];
+
 
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
@@ -129,6 +86,8 @@ const ListOrderScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const [tableLoading, setTableLoading] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
+  const [details, setDetails] = useState(false);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
     useState<Array<AccountResponse>>();
@@ -164,91 +123,8 @@ const ListOrderScreen: React.FC = () => {
   
   const shipmentDetailModal = useCallback(
     (record: any) => {
-      Modal.info({
-        title: `Chi tiết đơn hàng ${record.code}`,
-        content: (
-          <Row gutter={16}>
-            <Col span={16}>
-              <Table
-                dataSource={record.items.map((item: any, index: number) => {
-                  return {
-                    ...item,
-                    index: index +1
-                  }
-                })}
-                columns={columnsItems}
-                pagination={false}
-              />
-              <div className="customer">
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginTop: '20px', marginRight: '85px' }}>
-                  <div>Tổng tiền:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.total}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
-                  <div>Chiết khấu:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.total_discount? record.total_discount : 0}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
-                  <div>Phí giao hàng:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.shipment.delivery_fee ? record.shipment.delivery_fee : 0}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', height: '50px', marginRight: '85px' }}>
-                  <div>COD:</div>
-                  <div style={{ color: "#2A2A86", width: '135px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <NumberFormat
-                      value={record.shipment.cod ? record.shipment.cod : 0}
-                      className="foo"
-                      displayType={"text"}
-                      thousandSeparator={true}
-                    />
-                  </div>
-                </div>
-                
-              </div>
-            </Col>
-            <Col span={8}>
-              {record.shipping_address && (
-              <div className="customer">
-                <div style={{ height: '50px', display: 'flex'}}>
-                  <div style={{ width: '100px'}}>Người nhận:</div>
-                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.name}</div>
-                </div>
-                <div style={{ height: '50px', display: 'flex' }}>
-                  <div style={{ width: '100px'}}>SĐT:</div>
-                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.phone}</div>
-                </div>
-                <div style={{ height: '50px', display: 'flex' }}>
-                  <div style={{ width: '100px'}}>Địa chỉ:</div>
-                  <div style={{ color: "#2A2A86" }}>{record.shipping_address.full_address}</div>
-                </div>
-              </div>)}
-            </Col>
-          </Row>
-        ),
-        maskClosable: true,
-        width: '1200px'
-      })
+      setShowDetails(true)
+      setDetails(record)
     },
     []
   );
@@ -590,6 +466,7 @@ const ListOrderScreen: React.FC = () => {
           onMenuClick={onMenuClick}
           actions={actions}
           onFilter={onFilter}
+          isLoading={tableLoading}
           params={params}
           listSource={listSource}
           listStore={listStore}
@@ -625,14 +502,19 @@ const ListOrderScreen: React.FC = () => {
       </Card>
       
       <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data)
-          }}
-          data={columns}
-        />
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data)
+        }}
+        data={columns}
+      />
+      <ShipmentDetailsModal
+        visible={showDetails}
+        onOk={() => {setShowDetails(false)}}
+        shipmentDetails={details}
+      />
     </ContentContainer>
   );
 };

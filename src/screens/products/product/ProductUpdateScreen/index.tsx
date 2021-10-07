@@ -29,7 +29,7 @@ import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { listColorAction } from "domain/actions/product/color.action";
-import { materialSearchAll } from "domain/actions/product/material.action";
+import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
 import {
   productGetDetail,
   productUpdateAction,
@@ -51,7 +51,7 @@ import {
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useMemo } from "react";
+import React, { Fragment, useMemo } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
@@ -74,6 +74,7 @@ import { RcFile, UploadFile } from "antd/lib/upload/interface";
 import { ProductUploadModel } from "model/product/product-upload.model";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
+import { handleChangeMaterial } from "utils/ProductUtils";
 
 const { Item } = Form;
 var tempActive: number = 0;
@@ -248,6 +249,7 @@ const ProductDetailScreen: React.FC = () => {
                 form.getFieldValue("variants");
               if (variants[active].id) {
                 setModalConfirm({ visible: false });
+                setCurrentVariant(active1);
               } else {
                 setModalConfirm({ visible: false });
                 let idActive = variants[active1].id;
@@ -336,7 +338,9 @@ const ProductDetailScreen: React.FC = () => {
     },
     [form, update]
   );
-
+  const onMaterialChange = (id: number) => {
+    dispatch(detailMaterialAction(id, (material)=>handleChangeMaterial(material,form)));
+  };
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
       setModalConfirm({
@@ -771,6 +775,7 @@ const ProductDetailScreen: React.FC = () => {
                               showSearch
                               optionFilterProp="children"
                               placeholder="Chọn chất liệu"
+                              onChange={onMaterialChange}
                             >
                               {listMaterial?.map((item) => (
                                 <CustomSelect.Option
@@ -860,7 +865,7 @@ const ProductDetailScreen: React.FC = () => {
                             if (url !== null) {
                               return (
                                 <div onClick={onPickAvatar} className="bpa">
-                                  <Image preview={false} src={url} />
+                                  <Image preview={false} src={url} className="product-img" />
                                 </div>
                               );
                             }
@@ -945,15 +950,23 @@ const ProductDetailScreen: React.FC = () => {
                         onStopSale={onStopSale}
                         active={active}
                         setActive={onActive}
+                        productData={data} 
                       />
                     </Item>
                     <Divider />
                     <Form.List name="variants">
-                      {(fields, { add, remove }) => (
+                      {(fields, { add, remove }) =>{
+                       
+                        const currentVariantList = form.getFieldValue("variants")
+                        console.log('currentVariantList', currentVariantList);
+                        //check already have new item
+                        let hasNewItem= currentVariantList?.some((element:VariantResponse) => !element.id  );
+                        return (
                         <Button
                           onClick={() => {
-                            add(
+                            !hasNewItem && add(
                               {
+                                id: null,
                                 variant_images: [],
                                 name: data.name,
                                 status: "active",
@@ -995,7 +1008,7 @@ const ProductDetailScreen: React.FC = () => {
                         >
                           Thêm phiên bản
                         </Button>
-                      )}
+                      )} }
                     </Form.List>
                   </Col>
                   <Col className="right" span={24} md={17}>
@@ -1059,7 +1072,10 @@ const ProductDetailScreen: React.FC = () => {
                                             <Col span={24} md={12}>
                                               <Item
                                                 name={[name, "sku"]}
-                                                rules={[{ required: true }]}
+                                                rules={[{ required: true },{
+                                                  min: 10,
+                                                  message: "Mã sản phẩm tối thiểu 10 kí tự",
+                                                }]}
                                                 label="Mã sản phẩm"
                                               >
                                                 <Input
@@ -1623,6 +1639,20 @@ const ProductDetailScreen: React.FC = () => {
                   </Col>
                 </Row>
               </Card>
+              <Form.List name="variants">
+                {(fields, { add, remove })=>{
+
+                  return  <ModalConfirmPrice
+
+                  onCancel={() => {
+                    setVisiblePrice(false);
+                    remove(active);
+                  }}
+                  visible={visiblePrice}
+                  onOk={onOkPrice}
+                />
+                }}
+              </Form.List>
             </React.Fragment>
           </Form>
         )}
@@ -1644,13 +1674,8 @@ const ProductDetailScreen: React.FC = () => {
           visible={visiblePickAvatar}
         />
         <ModalConfirm {...modalConfirm} />
-        <ModalConfirmPrice
-          onCancel={() => {
-            setVisiblePrice(false)
-          }}
-          visible={visiblePrice}
-          onOk={onOkPrice}
-        />
+       
+       
         <ModalUpdatePrice onCancel={() => setVisibleUpdatePrice(false)} onOk={onUpdatePrice} currentVariant={active} variants={currentVariants} visible={visibleUpdatePrice} />
       </ContentContainer>
     </StyledComponent>

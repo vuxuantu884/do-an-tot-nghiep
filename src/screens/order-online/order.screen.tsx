@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import { OrderCreateContext } from "contexts/order-create-context";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -105,6 +105,7 @@ export default function Order() {
 
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
+  const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] =
     useState<number | null>(null);
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
@@ -410,6 +411,7 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
         history.push(`${UrlConfig.ORDER}/${value.id}`);
@@ -506,7 +508,13 @@ export default function Order() {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            dispatch(orderCreateAction(values, createOrderCallback));
+            setCreating(true);
+            (async () => {
+              try {
+                await dispatch(orderCreateAction(values, createOrderCallback));
+              } catch {}
+            })()
+            // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
           if (
@@ -518,7 +526,13 @@ export default function Order() {
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
               if (bolCheckPointfocus)
-                dispatch(orderCreateAction(values, createOrderCallback));
+                setCreating(true);
+                (async () => {
+                  try {
+                    await dispatch(orderCreateAction(values, createOrderCallback));
+                  } catch {}
+                })()
+                // dispatch(orderCreateAction(values, createOrderCallback));
             }
           }
         }
@@ -934,8 +948,9 @@ export default function Order() {
   );
   console.log(initialForm);
 
-  // theme context data
-
+  /**
+   * theme context data
+   */
   const createOrderContextData = {
     store: {
       storeId,
@@ -1089,6 +1104,7 @@ export default function Order() {
                     handleTypeButton={handleTypeButton}
                     isVisibleGroupButtons={true}
                     showSaveAndConfirmModal={showSaveAndConfirmModal}
+                    creating={creating}
                   />
                 )}
               </Form>
