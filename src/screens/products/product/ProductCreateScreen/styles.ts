@@ -25,8 +25,8 @@ export const StyledComponent = styled.div`
     align-items: center;
     justify-content: center;
     .bpa {
-      width: 178px;
-      height: 190px;
+      width: 165px;
+      height: 165px;
       background: #fafafa;
       border: 1px dashed #d9d9d9;
       display: flex;
