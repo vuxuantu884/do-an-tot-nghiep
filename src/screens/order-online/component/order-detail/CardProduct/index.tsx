@@ -821,17 +821,26 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         formRef.current?.validateFields(["store_id"]);
       }
     }
+    setIsInputSearchProductFocus(true)
     setKeySearchVariant(value);
     initQueryVariant.info = value;
-    (async () => {
-      setSearchProducts(true);
-      try {
-        await dispatch(
-          searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
-        );
-        setSearchProducts(false);
-      } catch {}
-    })()
+    if (value.trim()) {
+      (async () => {
+        // console.log('setSearchProducts true');
+        setSearchProducts(true);
+        try {
+          await dispatch(
+            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+              setResultSearchVariant(data)
+              setSearchProducts(false);
+              // console.log('setSearchProducts false');
+            })
+          );
+        } catch {}
+      })()
+    } else {
+      setSearchProducts(false);
+    }
     
   }, []);
 
