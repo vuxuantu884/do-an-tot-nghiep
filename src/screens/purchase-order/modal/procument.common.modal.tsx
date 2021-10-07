@@ -72,8 +72,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   const [data, setData] = useState<Array<PurchaseProcumentLineItem>>([]);
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const allProcurementItems = useMemo(() => {
-    let result = POUtils.getPOProcumentItem(items);
-    console.log('result', result);
+    let newLineItem: Array<PurchaseOrderLineItem> = [];
+    items.forEach((item) => {
+      let index = newLineItem.findIndex((item1) => item1.sku === item.sku);
+      if(index === -1) {
+        newLineItem.push({...item});
+      } else {
+        newLineItem[index].quantity += item.quantity;
+        newLineItem[index].receipt_quantity += item.receipt_quantity;
+        newLineItem[index].planned_quantity += item.planned_quantity;
+      }
+    })
+    let result = POUtils.getPOProcumentItem(newLineItem);
     result = result.map((item) => {
       if (visible) {
         if (type === "draft") {
@@ -93,7 +103,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     (value: string) => {
       value = value.toUpperCase();
       let result = allProcurementItems.filter((variant) => {
-        return variant.sku.toUpperCase().includes(value) || variant.variant.toUpperCase().includes(value);
+        return (
+          variant.sku.toUpperCase().includes(value) ||
+          variant.variant.toUpperCase().includes(value)
+        );
       });
       setData(result);
     },
@@ -105,13 +118,11 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         POProcumentField.procurement_items
       );
       let newProcumentItem = procurement_items.find(
-        (item: PurchaseProcumentLineItem) =>
-          item.sku === (sku)
+        (item: PurchaseProcumentLineItem) => item.sku === sku
       );
       if (!newProcumentItem) {
         newProcumentItem = allProcurementItems.find(
-          (item: PurchaseProcumentLineItem) =>
-            item.sku === (sku)
+          (item: PurchaseProcumentLineItem) => item.sku === sku
         );
         if (newProcumentItem) {
           procurement_items = [
@@ -184,7 +195,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       let currentProcument = form.getFieldValue(
         POProcumentField.procurement_items
       );
-      let allLineId: Array<number| any> = [],
+      let allLineId: Array<number | any> = [],
         lineIdMapping: any = {};
       allProcurementItems.forEach((item) => {
         allLineId.push(item.sku);
@@ -205,10 +216,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   };
   useEffect(() => {
     if (item) {
-      if(type === "inventory" ) {
+      if (type === "inventory") {
         item.procurement_items.forEach((item1) => {
-          item1.real_quantity = item1.quantity
-        })
+          item1.real_quantity = item1.quantity;
+        });
       }
       form.setFieldsValue(JSON.parse(JSON.stringify(item)));
     } else {
