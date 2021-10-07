@@ -131,6 +131,8 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [totalAmountExchange, setTotalAmountExchange] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
+
+  const [storeId, setStoreId] = useState<number | null>(null);
   //Function
 
   const totalAmount = useCallback(
@@ -831,18 +833,24 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
 
   const event = useCallback((event:KeyboardEvent)=>{
 
+   
     if(event.target instanceof HTMLInputElement){
-      
-      if (event.keyCode === 13 && event.target.value && event.target.id==="search_product") 
+      console.log("storeId")
+      console.log(storeId)
+      if (event.keyCode === 13 
+        && event.target.value 
+        && event.target.id === "search_product"
+        &&orderSettings?.chonCuaHangTruocMoiChonSanPham 
+        && items 
+        && storeId) 
       {
-        event.target.onchange=()=>{
-          event.preventDefault();
-          event.stopPropagation();
-        }
+       
+        // event.target.onchange=()=>{
+        //   event.preventDefault();
+        //   event.stopPropagation();
+        // }
         let barcode=event.target.value;
-        if (!items) {
-          return;
-        }
+
         dispatch(SearchBarCode(barcode,(data:VariantResponse)=>{
           let _items = [...items].reverse();
           const item: OrderLineItemRequest = createItem(data);
@@ -887,7 +895,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
         }));
       }
     }
-  },[items, splitLine]);
+  },[items, splitLine,storeId]);
 
   useEffect(() => {
     window.addEventListener("keydown", event);
@@ -946,6 +954,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
                 onChange={(value?: number) => {
                   if (value) {
                     setIsShowProductSearch(true);
+                    setStoreId(value);
                   } else {
                     setIsShowProductSearch(false);
                   }
