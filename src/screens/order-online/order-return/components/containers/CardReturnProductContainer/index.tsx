@@ -1,11 +1,18 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import {
   OrderLineItemResponse,
   OrderResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { formatCurrency } from "utils/AppUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
@@ -26,7 +33,6 @@ function CardReturnProductContainer(props: PropType) {
   const {
     isExchange = false,
     OrderDetail,
-    listReturnProducts,
     handleReturnProducts,
     listOrderProducts,
     handleCanReturn,
@@ -35,15 +41,24 @@ function CardReturnProductContainer(props: PropType) {
     discountRate,
     setTotalAmountReturnProducts,
   } = props;
+
   console.log("isStepExchange", isStepExchange);
+
+  const createOrderReturnContext = useContext(CreateOrderReturnContext);
+  console.log("createOrderReturnContext", createOrderReturnContext);
 
   const pointPaymentMethod = "Tiêu điểm";
 
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
 
+  const listReturnProducts = createOrderReturnContext?.listReturnProducts;
+
   const onSelectSearchedVariant = (value: string) => {
     if (!listOrderProducts) {
+      return;
+    }
+    if (!listReturnProducts) {
       return;
     }
     const selectedVariant = listOrderProducts.find((single) => {
@@ -208,6 +223,9 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   const onChangeProductQuantity = (value: number | null, index: number) => {
+    if (!listReturnProducts) {
+      return;
+    }
     let resultListReturnProducts = [...listReturnProducts];
     resultListReturnProducts[index].quantity = Number(
       value === null ? "0" : value.toString().replace(".", "")
@@ -303,6 +321,9 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   useEffect(() => {
+    if (!listReturnProducts) {
+      return;
+    }
     if (setTotalAmountReturnProducts) {
       setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
     }
@@ -323,7 +344,9 @@ function CardReturnProductContainer(props: PropType) {
       pointAmountUsing={pointAmountUsing}
       pointUsing={pointUsing}
       searchVariantInputValue={searchVariantInputValue}
-      totalPrice={Math.round(getTotalPrice(listReturnProducts))}
+      totalPriceReturnToCustomer={
+        listReturnProducts ? Math.round(getTotalPrice(listReturnProducts)) : 0
+      }
       isShowProductSearch={isShowProductSearch()}
     />
   );

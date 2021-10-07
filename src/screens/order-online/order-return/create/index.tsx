@@ -2,6 +2,7 @@ import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import {
@@ -836,6 +837,14 @@ const ScreenReturnCreate = (props: PropType) => {
     history.push("/");
   };
 
+  /**
+   * theme context data
+   */
+  const createOrderReturnContextData = {
+    orderDetail: OrderDetail,
+    listReturnProducts,
+  };
+
   const renderIfCannotReturn = () => {
     return <div>Đơn hàng không thể đổi trả!</div>;
   };
@@ -1088,31 +1097,33 @@ const ScreenReturnCreate = (props: PropType) => {
   }, []);
 
   return (
-    <ContentContainer
-      isError={isError}
-      title="Trả hàng cho đơn hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: `${UrlConfig.HOME}`,
-        },
-        {
-          name: "Đơn hàng",
-        },
-        {
-          name: "Trả hàng",
-        },
-        {
-          name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
-        },
-      ]}
-    >
-      {!isFetchData
-        ? "Loading ..."
-        : isCanReturnOrExchange
-        ? renderIfCanReturn()
-        : renderIfCannotReturn()}
-    </ContentContainer>
+    <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
+      <ContentContainer
+        isError={isError}
+        title="Trả hàng cho đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: `${UrlConfig.HOME}`,
+          },
+          {
+            name: "Đơn hàng",
+          },
+          {
+            name: "Trả hàng",
+          },
+          {
+            name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
+          },
+        ]}
+      >
+        {!isFetchData
+          ? "Loading ..."
+          : isCanReturnOrExchange
+          ? renderIfCanReturn()
+          : renderIfCannotReturn()}
+      </ContentContainer>
+    </CreateOrderReturnContext.Provider>
   );
 };
 

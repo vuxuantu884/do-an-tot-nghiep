@@ -583,9 +583,10 @@ const OrderDetail = (props: PropType) => {
               {OrderDetail?.order_return_origin?.items && (
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
-                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
-                  totalAmount={OrderDetail?.order_return_origin.money_refund}
+                  totalAmountReturnToCustomer={
+                    OrderDetail?.order_return_origin.money_refund
+                  }
                 />
               )}
 

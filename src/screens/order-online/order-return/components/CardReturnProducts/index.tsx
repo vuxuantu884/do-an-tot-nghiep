@@ -34,7 +34,7 @@ type PropType = {
   searchVariantInputValue?: string;
   pointAmountUsing?: number;
   pointUsing?: number;
-  totalPrice: number;
+  totalPriceReturnToCustomer: number;
   isCheckReturnAll?: boolean;
   convertResultSearchVariant?: any[] | undefined;
   onChangeProductSearchValue?: (value: string) => void;
@@ -55,7 +55,7 @@ function CardReturnProducts(props: PropType) {
     pointUsing,
     searchVariantInputValue,
     convertResultSearchVariant,
-    totalPrice,
+    totalPriceReturnToCustomer,
     isCheckReturnAll,
     onChangeProductSearchValue,
     onSelectSearchedVariant,
@@ -63,7 +63,7 @@ function CardReturnProducts(props: PropType) {
     handleChangeReturnAll,
   } = props;
 
-  console.log("totalPrice", totalPrice);
+  console.log("totalPriceReturnToCustomer", totalPriceReturnToCustomer);
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -362,7 +362,7 @@ function CardReturnProducts(props: PropType) {
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              <strong>{formatCurrency(totalPrice)}</strong>
+              <strong>{formatCurrency(totalPriceReturnToCustomer)}</strong>
             </Row>
           </Col>
         </Row>

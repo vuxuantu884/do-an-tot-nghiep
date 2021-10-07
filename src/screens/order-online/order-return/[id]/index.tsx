@@ -34,6 +34,8 @@ import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
 import OrderShortDetails from "../components/Sidebar/OrderShortDetailsReturn";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
+import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
+import CardShowReturnProducts from "../components/CardShowReturnProducts";
 
 type PropType = {};
 type OrderParam = {
@@ -152,6 +154,14 @@ const ScreenReturnDetail = (props: PropType) => {
     });
   };
 
+  /**
+   * theme context data
+   */
+  const orderReturnSingleContextData = {
+    orderDetail: OrderDetail,
+    listReturnProducts,
+  };
+
   useEffect(() => {
     if (!Number.isNaN(returnOrderId)) {
       dispatch(
@@ -218,80 +228,81 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch]);
 
   return (
-    <ContentContainer
-      isLoading={loadingData}
-      isError={isError}
-      title="Trả hàng cho đơn hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: `${UrlConfig.HOME}`,
-        },
-        {
-          name: "Trả hàng",
-          path: `${UrlConfig.HOME}`,
-        },
-        {
-          name: `Chi tiết đơn trả hàng ${id}`,
-        },
-      ]}
-    >
-      <div className="orders">
-        <Row gutter={24} style={{ marginBottom: "70px" }}>
-          <Col md={18}>
-            <Form
-              layout="vertical"
-              initialValues={initialFormValue}
-              form={form}
-            >
-              <UpdateCustomerCard
-                OrderDetail={OrderDetail}
-                customerDetail={customerDetail}
-                loyaltyPoint={loyaltyPoint}
-                loyaltyUsageRules={loyaltyUsageRules}
-              />
-              {!isDetailPage && (
-                <CardReturnOrder
-                  isDetailPage={isDetailPage}
-                  isExchange={false}
-                  isStepExchange={false}
+    <OrderReturnSingleContext.Provider value={orderReturnSingleContextData}>
+      <ContentContainer
+        isLoading={loadingData}
+        isError={isError}
+        title="Trả hàng cho đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: `${UrlConfig.HOME}`,
+          },
+          {
+            name: "Trả hàng",
+            path: `${UrlConfig.HOME}`,
+          },
+          {
+            name: `Chi tiết đơn trả hàng ${id}`,
+          },
+        ]}
+      >
+        <div className="orders">
+          <Row gutter={24} style={{ marginBottom: "70px" }}>
+            <Col md={18}>
+              <Form
+                layout="vertical"
+                initialValues={initialFormValue}
+                form={form}
+              >
+                <UpdateCustomerCard
+                  OrderDetail={OrderDetail}
+                  customerDetail={customerDetail}
+                  loyaltyPoint={loyaltyPoint}
+                  loyaltyUsageRules={loyaltyUsageRules}
                 />
-              )}
-              <CardReturnProducts
-                listReturnProducts={listReturnProducts}
-                isDetailPage={true}
-                pointAmountUsing={OrderDetail?.money_refund}
-                pointUsing={OrderDetail?.point_refund}
-                totalPrice={OrderDetail?.money_refund || 0}
+                {!isDetailPage && (
+                  <CardReturnOrder
+                    isDetailPage={isDetailPage}
+                    isExchange={false}
+                    isStepExchange={false}
+                  />
+                )}
+                <CardShowReturnProducts
+                  listReturnProducts={listReturnProducts}
+                  discountRate={OrderDetail?.order_discount_rate}
+                  pointUsing={OrderDetail?.point_refund}
+                  totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                />
+                <CardReturnMoneyPageDetail
+                  listPaymentMethods={listPaymentMethods}
+                  payments={payments}
+                  returnMoneyAmount={
+                    OrderDetail?.total_line_amount_after_line_discount || 0
+                  }
+                  isShowPaymentMethod={isShowPaymentMethod}
+                  setIsShowPaymentMethod={setIsShowPaymentMethod}
+                  handleReturnMoney={handleReturnMoney}
+                />
+                <CardReturnReceiveProducts
+                  isDetailPage={isDetailPage}
+                  isReceivedReturnProducts={isReceivedReturnProducts}
+                  handleReceivedReturnProducts={handleReceivedReturnProducts}
+                />
+              </Form>
+            </Col>
+            <Col md={6}>
+              <OrderShortDetails OrderDetail={OrderDetail} />
+              <OrderReturnActionHistory
+                orderId={id}
+                countChangeSubStatus={countChangeSubStatus}
               />
-              <CardReturnMoneyPageDetail
-                listPaymentMethods={listPaymentMethods}
-                payments={payments}
-                returnMoneyAmount={
-                  OrderDetail?.total_line_amount_after_line_discount || 0
-                }
-                isShowPaymentMethod={isShowPaymentMethod}
-                setIsShowPaymentMethod={setIsShowPaymentMethod}
-                handleReturnMoney={handleReturnMoney}
-              />
-              <CardReturnReceiveProducts
-                isDetailPage={isDetailPage}
-                isReceivedReturnProducts={isReceivedReturnProducts}
-                handleReceivedReturnProducts={handleReceivedReturnProducts}
-              />
-            </Form>
-          </Col>
-          <Col md={6}>
-            <OrderShortDetails OrderDetail={OrderDetail} />
-            <OrderReturnActionHistory
-              orderId={id}
-              countChangeSubStatus={countChangeSubStatus}
-            />
-            <OrderMoreDetails OrderDetail={OrderDetail} />
-          </Col>
-        </Row>
-      </div>
-    </ContentContainer>
+              <OrderMoreDetails OrderDetail={OrderDetail} />
+            </Col>
+          </Row>
+        </div>
+      </ContentContainer>
+    </OrderReturnSingleContext.Provider>
   );
 };
 
