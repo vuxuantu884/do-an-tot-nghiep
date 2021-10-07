@@ -37,6 +37,7 @@ type OrderFilterProps = {
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
   reasons: Array<{id: number; name: string}>;
+  isLoading: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ShipmentSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -72,6 +73,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     accounts,
     deliveryService,
     reasons,
+    isLoading,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -79,16 +81,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   
-  // const status = useMemo(() => [
-  //   {name: "Nháp", value: "draft"},
-  //   {name: "Đóng gói", value: "packed"},
-  //   {name: "Xuất kho", value: "shipping"},
-  //   {name: "Đã xác nhận", value: "finalized"},
-  //   {name: "Hoàn thành", value: "completed"},
-  //   {name: "Kết thúc", value: "finished"},
-  //   {name: "Đã huỷ", value: "cancelled"},
-  //   {name: "Đã hết hạn", value: "expired"},
-  // ], []);
+  const loadingFilter = useMemo(() => {
+    return isLoading ? true : false
+  }, [isLoading]);
+
   const serviceType = useMemo(() => [
     {
       name: 'Tự vận chuyển',
@@ -753,7 +749,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Item>
             
             <Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
               </Button>
             </Item>
