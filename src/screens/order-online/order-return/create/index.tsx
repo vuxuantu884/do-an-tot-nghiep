@@ -842,7 +842,13 @@ const ScreenReturnCreate = (props: PropType) => {
    */
   const createOrderReturnContextData = {
     orderDetail: OrderDetail,
-    listReturnProducts,
+    return: {
+      listReturnProducts,
+      setListReturnProducts,
+      setTotalAmountReturnProducts,
+    },
+    isExchange,
+    isStepExchange,
   };
 
   const renderIfCannotReturn = () => {
@@ -874,17 +880,8 @@ const ScreenReturnCreate = (props: PropType) => {
                   isStepExchange={isStepExchange}
                 />
                 <CardReturnProductContainer
-                  OrderDetail={OrderDetail}
                   discountRate={discountRate}
-                  listReturnProducts={listReturnProducts}
-                  handleReturnProducts={(
-                    listReturnProducts: ReturnProductModel[]
-                  ) => setListReturnProducts(listReturnProducts)}
-                  listOrderProducts={listOrderProducts}
                   isDetailPage={false}
-                  isExchange={isExchange}
-                  isStepExchange={isStepExchange}
-                  setTotalAmountReturnProducts={setTotalAmountReturnProducts}
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts
@@ -934,33 +931,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     isCloneOrder={false}
                     totalAmountReturnProducts={totalAmountReturnProducts}
                   />
-                  // <CardReturnShipment
-                  //   setShipmentMethod={setShipmentMethod}
-                  //   shipmentMethod={shipmentMethod}
-                  //   storeDetail={storeDetail}
-                  //   setShippingFeeInformedCustomer={setShippingFeeCustomer}
-                  //   setShippingFeeInformedCustomerHVC={
-                  //     setShippingFeeInformedCustomerHVC
-                  //   }
-                  //   amount={getTotalPrice(listExchangeProducts)}
-                  //   setPaymentMethod={setPaymentMethod}
-                  //   paymentMethod={paymentMethod}
-                  //   shippingFeeCustomer={shippingFeeCustomer}
-                  //   shippingFeeCustomerHVC={shippingFeeInformedCustomerHVC}
-                  //   customerInfo={customer}
-                  //   items={listExchangeProducts}
-                  //   discountValue={discountValue}
-                  //   setOfficeTime={setOfficeTime}
-                  //   officeTime={officeTime}
-                  //   setServiceType={setServiceType}
-                  //   setHVC={setHvc}
-                  //   setFee={setFee}
-                  //   payments={payments}
-                  //   onPayments={setPayments}
-                  //   fulfillments={fulfillments}
-                  //   isCloneOrder={false}
-                  //   totalAmountReturnProducts={totalAmountReturnProducts}
-                  // />
                 )}
                 {isExchange && (
                   <CardReturnMoneyPageCreate

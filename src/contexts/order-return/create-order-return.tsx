@@ -6,7 +6,13 @@ import { createContext } from "react";
 
 type CreateOrderReturnContextType = {
   orderDetail: OrderResponse | null;
-  listReturnProducts: ReturnProductModel[];
+  return: {
+    listReturnProducts: ReturnProductModel[];
+    setListReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
+    setTotalAmountReturnProducts: (value: number) => void;
+  };
+  isExchange: boolean;
+  isStepExchange: boolean;
 };
 // tạo context
 export const CreateOrderReturnContext =
