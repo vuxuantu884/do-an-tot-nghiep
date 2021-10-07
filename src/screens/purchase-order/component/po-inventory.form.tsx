@@ -277,6 +277,16 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               className += " po-tag-success";
               dotClassName += " success";
             }
+            if(status === ProcumentStatus.DRAFT && !props.isEdit) {
+              return <Space>
+              {isShowStatusTag && (
+                <div className={dotClassName} style={{ fontSize: 8 }} />
+              )}
+              <div className="d-flex">
+                <span className="title-card">NHẬP KHO</span>
+              </div>{" "}
+            </Space>
+            }
 
             return (
               <Space>
@@ -286,7 +296,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
                 </div>{" "}
-                {isShowStatusTag && (
+                {isShowStatusTag  && (
                   <Tag className={className}>{statusName}</Tag>
                 )}
               </Space>
@@ -316,9 +326,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             );
             let receive_status: string = getFieldValue(POField.receive_status);
             if (
-              (receive_status || status) === ProcumentStatus.DRAFT &&
-              props.isEdit
+              (receive_status === ProcumentStatus.DRAFT || status === ProcumentStatus.DRAFT)
             ) {
+              if(!props.isEdit) {
+                return null;
+              }
               return (
                 <Button
                   onClick={() => {
@@ -339,6 +351,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 </Button>
               );
             }
+        
             return (
               receive_status !== ProcumentStatus.DRAFT &&
               receive_status !== ProcumentStatus.FINISHED &&
