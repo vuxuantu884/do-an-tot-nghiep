@@ -1,9 +1,11 @@
-import { Modal } from "antd";
+import { Button, Modal } from "antd";
 
 type SaveAndConfirmOrderModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
+  updateShipment?: boolean;
+  cancelShipment?: boolean;
   text: string;
   title: string;
   icon: string;
@@ -14,7 +16,7 @@ type SaveAndConfirmOrderModalProps = {
 const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
   props: SaveAndConfirmOrderModalProps
 ) => {
-  const { visible, onCancel, onOk, text, title, icon, okText, cancelText } = props;
+  const { visible, onCancel, onOk, text, title, icon, okText, updateShipment = false, cancelShipment = false, cancelText } = props;
   return (
     <Modal
       onCancel={onCancel}
@@ -30,6 +32,16 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
             <h4>{title}</h4>
             <span style={title ?{fontWeight: 400} : {fontWeight: 600, fontSize: 16}}>{text}</span>
           </div>
+        </div>,
+      ]}
+      footer={[
+        <div>
+          <Button onClick={onOk} loading={updateShipment || cancelShipment}>
+            {okText}
+          </Button>
+          <Button onClick={onCancel}>
+            {cancelText}
+          </Button>
         </div>,
       ]}
       width={600}

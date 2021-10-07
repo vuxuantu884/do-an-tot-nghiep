@@ -1,11 +1,10 @@
 import { Card, Col, Row } from "antd";
 import { actionGetOrderReturnLog } from "domain/actions/order/order-return.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { OrderStatus } from "utils/Constants";
+import { useDispatch } from "react-redux";
+import { ORDER_RETURN_HISTORY } from "utils/Order.constants";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
@@ -22,17 +21,6 @@ function OrderReturnActionHistory(props: PropType) {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number | undefined>(undefined);
-
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-
-  const LIST_FULFILLMENT_STATUS = bootstrapReducer.data?.fulfillment_status;
-  const extraStatus = {
-    name: "Đã xác nhận",
-    value: OrderStatus.FINALIZED,
-  };
-  let LIST_STATUS_EXTRA = LIST_FULFILLMENT_STATUS?.concat(extraStatus);
 
   const showModal = (actionId: number) => {
     setIsModalVisible(true);
@@ -57,11 +45,11 @@ function OrderReturnActionHistory(props: PropType) {
       return;
     }
     let result = action;
-    const resultAction = LIST_STATUS_EXTRA?.find((singleStatus) => {
-      return singleStatus.value === action;
+    const resultAction = ORDER_RETURN_HISTORY.find((singleStatus) => {
+      return singleStatus.code === action;
     });
-    if (resultAction && resultAction.name) {
-      result = resultAction.name || action;
+    if (resultAction) {
+      result = resultAction.title;
     }
     return result;
   };
