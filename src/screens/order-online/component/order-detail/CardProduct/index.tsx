@@ -1,5 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -33,7 +37,10 @@ import {
   StoreGetListAction,
   StoreSearchListAction,
 } from "domain/actions/core/store.action";
-import { SearchBarCode, searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import {
+  SearchBarCode,
+  searchVariantsOrderRequestAction,
+} from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
@@ -93,8 +100,10 @@ type CardProductProps = {
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
   isCloneOrder?: boolean;
-  discountRateParent?: number;
-  discountValueParent?: number;
+  discountRate: number;
+  setDiscountRate: (item: number) => void;
+  discountValue: number;
+  setDiscountValue: (item: number) => void;
   inventoryResponse: Array<InventoryResponse> | null;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   setStoreForm: (id: number | null) => void;
@@ -116,8 +125,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     orderSettings,
     formRef,
     items,
-    discountRateParent,
-    discountValueParent,
+    discountRate,
+    setDiscountRate,
+    discountValue,
+    setDiscountValue,
     storeId,
     inventoryResponse,
     pointUsing,
@@ -147,12 +158,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
-  const [discountValue, setDiscountValue] = useState<number>(
-    discountValueParent || 0
-  );
-  const [discountRate, setDiscountRate] = useState<number>(
-    discountRateParent || 0
-  );
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
@@ -166,68 +171,74 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     useState<Array<StoreResponse> | null>([]);
   //Function
 
-  const event = useCallback((event: KeyboardEvent) => {
+  const event = useCallback(
+    (event: KeyboardEvent) => {
+      console.log(storeId);
+      if (event.target instanceof HTMLInputElement) {
+        if (
+          event.keyCode === 13 &&
+          event.target.value &&
+          event.target.id === "search_product" &&
+          orderSettings?.chonCuaHangTruocMoiChonSanPham &&
+          items &&
+          storeId
+        ) {
+          // event.target.onchange=()=>{
+          //   event.preventDefault();
+          //   event.stopPropagation();
+          // }
+          let barcode = event.target.value;
+          dispatch(
+            SearchBarCode(barcode, (data: VariantResponse) => {
+              let _items = [...items].reverse();
+              const item: OrderLineItemRequest = createItem(data);
+              let index = _items.findIndex((i) => i.variant_id === data.id);
+              item.position = items.length + 1;
 
-    console.log(storeId);
-    if (event.target instanceof HTMLInputElement) {
+              if (splitLine || index === -1) {
+                _items.push(item);
+                setAmount(amount + item.price);
+                calculateChangeMoney(
+                  _items,
+                  amount + item.price,
+                  discountRate,
+                  discountValue
+                );
+              } else {
+                let variantItems = _items.filter(
+                  (item) => item.variant_id === data.id
+                );
+                let lastIndex = variantItems.length - 1;
+                variantItems[lastIndex].quantity += 1;
+                variantItems[lastIndex].line_amount_after_line_discount +=
+                  variantItems[lastIndex].price -
+                  variantItems[lastIndex].discount_items[0].amount;
+                setAmount(
+                  amount +
+                    variantItems[lastIndex].price -
+                    variantItems[lastIndex].discount_items[0].amount
+                );
+                calculateChangeMoney(
+                  _items,
+                  amount +
+                    variantItems[lastIndex].price -
+                    variantItems[lastIndex].discount_items[0].amount,
+                  discountRate,
+                  discountValue
+                );
+              }
 
-      if (event.keyCode === 13 
-          && event.target.value 
-          && event.target.id === "search_product"
-          &&orderSettings?.chonCuaHangTruocMoiChonSanPham 
-          && items 
-          && storeId) 
-        {
-        // event.target.onchange=()=>{
-        //   event.preventDefault();
-        //   event.stopPropagation();
-        // }
-        let barcode = event.target.value;
-        dispatch(SearchBarCode(barcode, (data: VariantResponse) => {
-          let _items = [...items].reverse();
-          const item: OrderLineItemRequest = createItem(data);
-          let index = _items.findIndex((i) => i.variant_id === data.id);
-          item.position = items.length + 1;
-
-          if (splitLine || index === -1) {
-            _items.push(item);
-            setAmount(amount + item.price);
-            calculateChangeMoney(
-              _items,
-              amount + item.price,
-              discountRate,
-              discountValue
-            );
-          } else {
-            let variantItems = _items.filter((item) => item.variant_id === data.id);
-            let lastIndex = variantItems.length - 1;
-            variantItems[lastIndex].quantity += 1;
-            variantItems[lastIndex].line_amount_after_line_discount +=
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount;
-            setAmount(
-              amount +
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount
-            );
-            calculateChangeMoney(
-              _items,
-              amount +
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount,
-              discountRate,
-              discountValue
-            );
-          }
-
-          handleCardItems(_items.reverse());
-          autoCompleteRef.current?.blur();
-          setIsInputSearchProductFocus(false);
-          setKeySearchVariant("");
-        }));
+              handleCardItems(_items.reverse());
+              autoCompleteRef.current?.blur();
+              setIsInputSearchProductFocus(false);
+              setKeySearchVariant("");
+            })
+          );
+        }
       }
-    }
-  }, [items, splitLine, storeId]);
+    },
+    [items, splitLine, storeId]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", event);
@@ -348,7 +359,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             alignItems: "center",
             justifyContent: "center",
             display: "flex",
-            padding: "4px 6px"
+            padding: "4px 6px",
           }}
         >
           <img
@@ -359,12 +370,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           />
         </Col>
         <Col span={15}>
-          <span style={{ color: "#37394D" }} >
-            {item.name}
-          </span>
-          <div style={{ color: "#95A1AC" }} >
-            {item.sku}
-          </div>
+          <span style={{ color: "#37394D" }}>{item.name}</span>
+          <div style={{ color: "#95A1AC" }}>{item.sku}</div>
         </Col>
         <Col span={5}>
           <Col style={{ color: "#222222" }}>
@@ -794,14 +801,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             variantItems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-            variantItems[lastIndex].price -
-            variantItems[lastIndex].discount_items[0].amount
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-            variantItems[lastIndex].price -
-            variantItems[lastIndex].discount_items[0].amount,
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
@@ -815,35 +822,36 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     [resultSearchVariant, items, splitLine]
   );
 
-  const onChangeProductSearch = useCallback((value: string) => {
-    if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
-      if (value) {
-        formRef.current?.validateFields(["store_id"]);
+  const onChangeProductSearch = useCallback(
+    (value: string) => {
+      if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
+        if (value) {
+          formRef.current?.validateFields(["store_id"]);
+        }
       }
-    }
-    setIsInputSearchProductFocus(true)
-    setKeySearchVariant(value);
-    initQueryVariant.info = value;
-    if (value.trim()) {
-      (async () => {
-        // console.log('setSearchProducts true');
-        setSearchProducts(true);
-        try {
-          await dispatch(
-            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-              setResultSearchVariant(data)
-              setSearchProducts(false);
-              // console.log('setSearchProducts false');
-            })
-          );
-        } catch {}
-      })()
-    } else {
-      setSearchProducts(false);
-    }
-    
-  }, []);
-
+      setIsInputSearchProductFocus(true);
+      setKeySearchVariant(value);
+      initQueryVariant.info = value;
+      if (value.trim()) {
+        (async () => {
+          // console.log('setSearchProducts true');
+          setSearchProducts(true);
+          try {
+            await dispatch(
+              searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+                setResultSearchVariant(data);
+                setSearchProducts(false);
+                // console.log('setSearchProducts false');
+              })
+            );
+          } catch {}
+        })();
+      } else {
+        setSearchProducts(false);
+      }
+    },
+    [formRef]
+  );
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -916,7 +924,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
-
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -1017,7 +1024,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn cửa hàng 3",
+                  message: "Vui lòng chọn cửa hàng",
                 },
               ]}
             >
@@ -1112,7 +1119,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  suffix={searchProducts ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
+                  suffix={
+                    searchProducts ? (
+                      <LoadingOutlined style={{ color: "#ABB4BD" }} />
+                    ) : null
+                  }
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>
