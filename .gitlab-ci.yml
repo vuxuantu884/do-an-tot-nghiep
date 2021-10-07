@@ -13,7 +13,10 @@ stages:
 
 docker build:
   stage: docker_build
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  services:
+    - docker:dind
+  tags:
+  - build-yody-tag
   only:
     - develop
     - uat
