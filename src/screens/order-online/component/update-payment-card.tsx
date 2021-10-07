@@ -154,6 +154,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     window.location.reload();
   }, []);
 
+  const onError = (error: boolean) => {
+    setCreatePayment(error);
+  };
+
   const ShowConfirmPayment = () => {
     if (props.orderDetail.status === OrderStatus.FINALIZED) {
       settextValue(
@@ -206,7 +210,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       // console.log('setSearchProducts true');
       setCreatePayment(true);
       try {
-        await dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
+        await dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError));
       } catch {}
     })()
     // dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));

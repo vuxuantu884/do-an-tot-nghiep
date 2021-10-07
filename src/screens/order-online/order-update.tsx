@@ -51,7 +51,6 @@ import {
   getAmountPaymentRequest,
   getServiceName,
   getTotalAmountAfferDiscount,
-  // InfoServiceDeliveryDetail,
   SumCOD,
   SumWeightResponse,
   TrackingCode,
@@ -849,11 +848,11 @@ export default function Order(props: PropType) {
         (x) => x.rank_id === (loyaltyPoint?.loyalty_level_id===null?0:loyaltyPoint?.loyalty_level_id)
       );
 
-      let curenPoint = !loyaltyPoint
-        ? 0
-        : loyaltyPoint.point === null
-        ? 0
-        : loyaltyPoint.point;
+      // let curenPoint = !loyaltyPoint
+      //   ? 0
+      //   : loyaltyPoint.point === null
+      //   ? 0
+      //   : loyaltyPoint.point;
       let point = !Pointfocus
         ? 0
         : Pointfocus.point === undefined
