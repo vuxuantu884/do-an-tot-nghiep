@@ -36,7 +36,6 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
-  OrderLineItemResponse,
   OrderResponse,
   OrderReturnReasonModel,
   ReturnProductModel,
@@ -121,9 +120,6 @@ const ScreenReturnCreate = (props: PropType) => {
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
     ReturnProductModel[]
-  >([]);
-  const [listOrderProducts, setListOrderProducts] = useState<
-    OrderLineItemResponse[]
   >([]);
 
   const [listPaymentMethods, setListPaymentMethods] = useState<
@@ -270,7 +266,6 @@ const ScreenReturnCreate = (props: PropType) => {
         };
       });
       setListReturnProducts(returnProduct);
-      setListOrderProducts(_data.items);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
       if (_data.tags) {
