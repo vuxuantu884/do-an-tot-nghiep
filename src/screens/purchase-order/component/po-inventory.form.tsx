@@ -8,7 +8,7 @@ import {
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
 import React, { useCallback, useState, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -25,6 +25,7 @@ import procument from "assets/icon/procument.svg";
 import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import POEditDraftProcurementModal from "../modal/POEditDraftProcurementModal";
+import { PoUpdateAction } from "domain/actions/po/po.action";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
@@ -88,11 +89,12 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [draft, setDraft] = useState<PurchaseProcument | null>(null);
   const [procumentDraft, setProcumentDraft] =
     useState<PurchaseProcument | null>(null);
-  const [procuments, setProcuments] = useState<Array<PurchaseProcument>>([]);
+  const [procuments, setProcuments] = useState<Array<PurchaseProcurementViewDraft>>([]);
   const [procumentInventory, setProcumentInventory] =
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEditProcument, setEditProcument] = useState<boolean>(false);
+  const [loadingEditDraft, setLoadingEditDraft] = useState<boolean>(false);
 
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
@@ -107,6 +109,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [isEditProcument, onAddProcumentSuccess]
   );
+
 
   const onAddProcument = useCallback(
     (value: PurchaseProcument) => {
@@ -217,6 +220,14 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     [onAddProcumentSuccess]
   );
 
+  const onUpdateCall = useCallback((result) => {
+    setLoadingEditDraft(false);
+    if(result !== null) {
+      setVisibleEditProcurement(false);
+      onAddProcumentSuccess && onAddProcumentSuccess();
+    }
+  }, [onAddProcumentSuccess])
+
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
@@ -321,7 +332,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
               POField.line_items
             );
-            let procurements: Array<PurchaseProcument> = getFieldValue(
+            let procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(
               POField.procurements
             );
             let receive_status: string = getFieldValue(POField.receive_status);
@@ -482,9 +493,17 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         stores={stores}
         visible={visibleEditProcurement}
         onCancel={() => setVisibleEditProcurement(false)}
-        onOk={() => {}}
+        onOk={(value: Array<PurchaseProcurementViewDraft>) => {
+          setLoadingEditDraft(true);
+          let data = formMain.getFieldsValue(true);
+          let dataClone = {...data,procurements: value}
+          if(idNumber) {
+            dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+          }
+        }}
         lineItems={poItems}
         dataSource={procuments}
+        confirmLoading={loadingEditDraft}
       />
     </Card>
   );

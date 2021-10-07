@@ -17,16 +17,8 @@ export interface PurchaseProcument extends BaseObject {
   
 }
 export interface PurchaseProcurementViewDraft {
-  id?: number;
-  code?: string;
+  id?: number,
   fake_id: number,
-  created_name?: string;
-  created_by?: string;
-  created_date?: Date;
-  updated_by?: string;
-  updated_name?: string;
-  updated_date?: Date;
-  version?: number;
   reference?: string;
   store_id: number;
   expect_receipt_date: string;
