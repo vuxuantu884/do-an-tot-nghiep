@@ -51,3 +51,73 @@
         }
     }
 }
+
+.ecommerce-order-filter {
+    .order-filter {
+        .first-line {
+            display: flex;
+            .ecommerce-dropdown {
+                margin-right: 15px;
+                margin-bottom: 20px;
+                width: 287px;
+            }
+        }
+        .second-line {
+            display: flex;
+            justify-content: space-between;
+            .page-filter {
+                padding: 0;
+            }
+            .id_order_ecommerce {
+                width: 170px;
+            }
+            .input-search {
+                width: 380px;
+            }
+       }
+    }
+    
+}
+
+.ant-form{
+    .ant-row {
+      .ant-collapse-content-box {
+        .date-option {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+          .ant-btn {
+            width: 30%;
+          }
+        }
+        .button-option {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+          .ant-btn {
+            width: 48%;
+          }
+        }
+      }
+    }
+}
+
+.render-shop-list {
+    .shop-name {
+        padding: 5px 10px;
+        white-space: nowrap;
+        &:hover{
+        background-color: #f4f4f7;
+        }
+        .check-box-name {
+        display: flex;
+            .name {
+                width: 230px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+        }
+    }
+}
+

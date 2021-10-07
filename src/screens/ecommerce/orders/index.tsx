@@ -37,7 +37,6 @@ import {
 
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import EcommerceOrderFilter from "component/filter/ecommerce.order.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
 import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
@@ -49,26 +48,15 @@ import ImageDHL from "assets/img/imageDHL.svg";
 
 import "./style.scss"
 import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
+import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
-    name: "Xóa",
-  },
-  {
-    id: 2,
-    name: "Export",
-  },
-  // {
-  //   id: 3,
-  //   name: "Clone đơn hàng",
-  // },
-  {
-    id: 4,
     name: "In phiếu giao hàng",
   },
   {
-    id: 5,
+    id: 2,
     name: "In phiếu xuất kho",
   },
 ];
@@ -623,27 +611,12 @@ const EcommerceOrderSync: React.FC = () => {
       let params = {
         action: "print",
         ids: selectedRowKeys,
-        "print-type": index === 4 ? "shipment" : "stock_export",
+        "print-type": index === 1 ? "shipment" : "stock_export",
         "print-dialog": true,
       };
       const queryParam = generateQuery(params);
       console.log(queryParam);
-      switch (index) {
-        case 1:
-          break;
-        case 2:
-          break;
-        case 3:
-          break;
-        case 4:
-          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          break;
-        case 5:
-          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          break;
-        default:
-          break;
-      }
+      history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
     },
     [history, selectedRowKeys]
   );
@@ -746,6 +719,7 @@ const EcommerceOrderSync: React.FC = () => {
       extra={
         <>
           <Button
+            disabled={tableLoading}
             onClick={openGetOrderModal}
             className="ant-btn-outline ant-btn-primary"
             size="large"
@@ -756,8 +730,9 @@ const EcommerceOrderSync: React.FC = () => {
         </>
       }
     >
-      <Card style={{ padding: "0 20px 20px" }}>
+      <Card style={{ padding: "20px" }}>
         <EcommerceOrderFilter
+          tableLoading={tableLoading}
           onMenuClick={onMenuClick}
           actions={actions}
           onFilter={onFilter}
