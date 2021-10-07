@@ -141,3 +141,7 @@ export const variantDeleteManyAction = (variants: Array<any>, onResult: (excepti
 export const SearchBarCode = (barcode: string, setData:(data:VariantResponse)=>void) => {
   return BaseAction(SearchType.SEARCH_BAR_CODE, {barcode, setData});
 }
+
+export const productCheckDuplicateCodeAction = (code: string, onResult: (isDuplicate: boolean) => void) => {
+  return BaseAction(ProductType.VARIANT_DELETE, {code, onResult});
+}
