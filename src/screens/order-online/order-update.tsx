@@ -760,6 +760,8 @@ export default function Order(props: PropType) {
               url: response.url,
               note: response.note,
               tags: response.tags,
+              marketer_code: response.marketer_code,
+              coordinator_code: response.coordinator_code,
             });
             let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
             if (
@@ -949,12 +951,8 @@ export default function Order(props: PropType) {
 
 const setStoreForm=useCallback((id:number|null)=>{
   formRef.current?.setFieldsValue({ store_id: id});
-  // setInitialForm({
-  //   ...initialForm,
-  //   store_id: id
-  // });
 },[formRef]);
-  console.log('initialForm', initialForm)
+
   return (
     <React.Fragment>
       <ContentContainer
