@@ -15,3 +15,8 @@ export interface AuthenRequest {
   user_name: string,
   password: string,
 }
+
+export interface RoleProfile {
+  code: string;
+  name: string;
+}

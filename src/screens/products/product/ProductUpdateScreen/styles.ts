@@ -48,8 +48,6 @@ export const StyledComponent = styled.div`
     align-items: center;
     justify-content: center;
     .bpa {
-      width: 142px;
-      height: 181px;
       background: #fafafa;
       border: 1px dashed #d9d9d9;
       display: flex;
@@ -58,6 +56,11 @@ export const StyledComponent = styled.div`
       flex-direction: column;
       row-gap: 10px;
       cursor: pointer;
+      img {
+        height: 165px;
+        width: 165px;
+        object-fit: contain;
+      }
     }
   }
 `;

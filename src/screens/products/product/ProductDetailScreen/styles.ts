@@ -30,7 +30,9 @@ export const StyledComponent = styled.div`
       align-items: center;
       justify-content: center;
       img {
-        height: 200px;
+        height: 165px;
+        width: 165px;
+        object-fit: contain;
       }
     }
     .loading-view {

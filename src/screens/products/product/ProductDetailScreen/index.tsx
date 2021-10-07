@@ -426,6 +426,7 @@ const ProductDetailScreen: React.FC = () => {
                           );
                         }}
                         loading={loadingVariant}
+                        productData={data} 
                       />
                     </Col>
                     <Col className="right" span={24} md={17}>

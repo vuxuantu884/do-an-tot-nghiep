@@ -1,5 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Dropdown, Menu, Switch } from "antd";
+import { Button, Card, Dropdown, Menu } from "antd";
 import { ColumnType } from "antd/lib/table";
 import iconDelete from "assets/icon/deleteIcon.svg";
 import iconEdit from "assets/icon/edit.svg";
@@ -37,17 +37,12 @@ function OrderSettings(props: PropType) {
     setIsAllowToSellWhenNotAvailableStock,
   ] = useState(false);
 
-  const [
-    isLoadedAllowToSellWhenNotAvailableStock,
-    setisLoadedAllowToSellWhenNotAvailableStock,
-  ] = useState(false);
-
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigResponseModel[]
   >([]);
   const dispatch = useDispatch();
 
-  const handleDelete = (id: number) => {
+  const handleDeleteShippingService = (id: number) => {
     dispatch(
       actionDeleteConfigurationShippingServiceAndShippingFee(id, () => {
         setIsTableLoading(true);
@@ -147,7 +142,7 @@ function OrderSettings(props: PropType) {
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete(row.id);
+                  handleDeleteShippingService(row.id);
                 }}
               >
                 Xóa
@@ -197,7 +192,8 @@ function OrderSettings(props: PropType) {
     );
   };
 
-  const onChange = (checked: any) => {
+  const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
+    setIsAllowToSellWhenNotAvailableStock(checked);
     dispatch(
       actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
     );
@@ -213,7 +209,6 @@ function OrderSettings(props: PropType) {
     dispatch(
       actionGetIsAllowToSellWhenNotAvailableStock((response) => {
         setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
-        setisLoadedAllowToSellWhenNotAvailableStock(true);
       })
     );
   }, [dispatch]);
@@ -245,18 +240,14 @@ function OrderSettings(props: PropType) {
           },
         ]}
       >
-        <Card title={null} className="sectionAllowInventory">
-          Cho phép bán khi tồn kho
-          {isLoadedAllowToSellWhenNotAvailableStock && (
-            <Switch
-              defaultChecked={isAllowToSellWhenNotAvailableStock}
-              onChange={onChange}
-              className="ant-switch-primary"
-              style={{ marginLeft: 20 }}
-            />
-          )}
-        </Card>
-        <CardGeneralSettings />
+        <CardGeneralSettings
+          isAllowToSellWhenNotAvailableStock={
+            isAllowToSellWhenNotAvailableStock
+          }
+          onChangeAllowToSellWhenNotAvailableStock={
+            onChangeAllowToSellWhenNotAvailableStock
+          }
+        />
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
           extra={renderCardExtra()}

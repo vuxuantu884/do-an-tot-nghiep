@@ -11,12 +11,13 @@ type cancelFullfilmentModalProps = {
   icon: string;
   cancelText: string;
   okText: string;
+  isCanceling?: boolean;
 };
 
 const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
   props: cancelFullfilmentModalProps
 ) => {
-  const { visible, onCancel, onOk, text, title, icon, okText, cancelText } =
+  const { visible, onCancel, onOk, text, title, icon, okText, isCanceling, cancelText } =
     props;
   return (
     <Modal
@@ -52,6 +53,7 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
           type="primary"
           className="create-button-custom ant-btn-outline fixed-button"
           onClick={onOk}
+          loading={isCanceling}
         >
           {okText}
         </Button>,
