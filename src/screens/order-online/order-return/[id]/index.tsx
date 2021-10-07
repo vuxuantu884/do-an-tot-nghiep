@@ -1,6 +1,7 @@
 import { Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import {
   getLoyaltyPoint,
@@ -29,13 +30,11 @@ import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnOrder from "../components/CardReturnOrder";
-import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
-import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
-import OrderShortDetails from "../components/Sidebar/OrderShortDetailsReturn";
-import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
-import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import CardShowReturnProducts from "../components/CardShowReturnProducts";
+import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
+import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
+import OrderShortDetails from "../components/Sidebar/OrderShortDetailsReturn";
 
 type PropType = {};
 type OrderParam = {
