@@ -118,6 +118,7 @@ export default function Order() {
   );
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
+  const [form] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
     useState<boolean>(false);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
@@ -676,8 +677,6 @@ export default function Order() {
                     response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
-              console.log("den day");
-              console.log("response.marketer_code", response.marketer_code);
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
@@ -934,8 +933,6 @@ export default function Order() {
     }
   }, [dispatch, items]);
 
-  console.log(inventoryResponse);
-
   useEffect(() => {
     dispatch(
       configOrderSaga((data: OrderConfig) => {
@@ -954,7 +951,6 @@ export default function Order() {
     },
     [formRef]
   );
-  console.log(initialForm);
 
   /**
    * theme context data
@@ -997,6 +993,7 @@ export default function Order() {
                 layout="vertical"
                 initialValues={initialForm}
                 ref={formRef}
+                form={form}
                 onFinishFailed={({ errorFields }: any) => {
                   const element: any = document.getElementById(
                     errorFields[0].name.join("")

@@ -155,8 +155,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
-
-  console.log("discountRate", discountRate);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
@@ -750,27 +748,30 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     [resultSearchVariant, items, splitLine]
   );
 
-  const onChangeProductSearch = useCallback((value: string) => {
-    if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
-      if (value) {
-        formRef.current?.validateFields(["store_id"]);
+  const onChangeProductSearch = useCallback(
+    (value: string) => {
+      if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
+        if (value) {
+          formRef.current?.validateFields(["store_id"]);
+        }
       }
-    }
-    setKeySearchVariant(value);
-    initQueryVariant.info = value;
-    (async () => {
-      setSearchProducts(true);
-      try {
-        await dispatch(
-          searchVariantsOrderRequestAction(
-            initQueryVariant,
-            setResultSearchVariant
-          )
-        );
-        setSearchProducts(false);
-      } catch {}
-    })();
-  }, []);
+      setKeySearchVariant(value);
+      initQueryVariant.info = value;
+      (async () => {
+        setSearchProducts(true);
+        try {
+          await dispatch(
+            searchVariantsOrderRequestAction(
+              initQueryVariant,
+              setResultSearchVariant
+            )
+          );
+          setSearchProducts(false);
+        } catch {}
+      })();
+    },
+    [formRef]
+  );
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -943,7 +944,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn cửa hàng 3",
+                  message: "Vui lòng chọn cửa hàng",
                 },
               ]}
             >
