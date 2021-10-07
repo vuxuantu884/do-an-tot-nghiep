@@ -195,8 +195,13 @@ export default function Order(props: PropType) {
             return 3
           }
         }  else {
-          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED) {
-            return 1
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED) {
+            // return 1
+            if (!OrderDetail.payment_status || OrderDetail.payment_status === 'unpaid') {
+              return 2
+            } else {
+              return 3
+            }
           }
           return 4
         }
@@ -204,6 +209,7 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
+  console.log('levelOrder', levelOrder);
   
   let initialRequest: OrderRequest = {
     action: "", //finalized
@@ -271,46 +277,50 @@ export default function Order(props: PropType) {
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
-    let request: FulFillmentRequest = {
-      store_id: value.store_id,
-      account_code: userReducer.account?.code,
-      assignee_code: value.assignee_code,
-      delivery_type: "",
-      stock_location_id: null,
-      payment_status: "",
-      total: orderAmount,
-      total_tax: null,
-      total_discount: null,
-      total_quantity: null,
-      discount_rate: discountRate,
-      discount_value: discountValue,
-      discount_amount: null,
-      total_line_amount_after_line_discount: null,
-      shipment: shipmentRequest,
-      items: items,
-    };
+    if (OrderDetail?.fulfillments?.length) {
+      let request: FulFillmentRequest = {
+        id: OrderDetail.fulfillments[0].id ? OrderDetail.fulfillments[0].id : undefined,
+        store_id: value.store_id,
+        account_code: userReducer.account?.code,
+        assignee_code: value.assignee_code,
+        delivery_type: "",
+        stock_location_id: null,
+        payment_status: "",
+        total: orderAmount,
+        total_tax: null,
+        total_discount: null,
+        total_quantity: null,
+        discount_rate: discountRate,
+        discount_value: discountValue,
+        discount_amount: null,
+        total_line_amount_after_line_discount: null,
+        shipment: shipmentRequest,
+        items: items,
+      };
 
-    let listFulfillmentRequest = [];
-    if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-      request.delivery_type = "pick_at_store";
-    }
-    if (
-      paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
-      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
-      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
-    ) {
-      listFulfillmentRequest.push(request);
-    }
+      let listFulfillmentRequest = [];
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+        request.delivery_type = "pick_at_store";
+      }
+      if (
+        paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
+        shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
+        shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+      ) {
+        listFulfillmentRequest.push(request);
+      }
 
-    if (
-      paymentMethod === PaymentMethodOption.POSTPAYMENT &&
-      shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
-      typeButton === OrderStatus.FINALIZED
-    ) {
-      request.shipment = null;
-      listFulfillmentRequest.push(request);
+      if (
+        paymentMethod === PaymentMethodOption.POSTPAYMENT &&
+        shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
+        typeButton === OrderStatus.FINALIZED
+      ) {
+        request.shipment = null;
+        listFulfillmentRequest.push(request);
+      }
+      return listFulfillmentRequest;
     }
-    return listFulfillmentRequest;
+    return null
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -777,7 +787,8 @@ export default function Order(props: PropType) {
                   break;
               }
               setShipmentMethod(newShipmentMethod);
-              setFulfillments(response.fulfillments);
+              const newFulfillments = [...response.fulfillments]
+              setFulfillments(newFulfillments.reverse());
               setServiceType(response?.fulfillments[0]?.shipment.service)
               setShippingFeeCustomer(
                 response.shipping_fee_informed_to_customer
