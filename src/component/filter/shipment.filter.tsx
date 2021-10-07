@@ -37,7 +37,7 @@ type OrderFilterProps = {
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
   reasons: Array<{id: number; name: string}>;
-  isLoading: boolean;
+  isLoading?: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ShipmentSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;

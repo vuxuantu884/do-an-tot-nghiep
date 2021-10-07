@@ -33,7 +33,7 @@ type ReturnFilterProps = {
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   reasons: Array<{id: number; name: string}>;
-  isLoading: boolean;
+  isLoading?: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ReturnSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
