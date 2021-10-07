@@ -161,23 +161,7 @@ const ProductDetailScreen: React.FC = () => {
     [form]
   );
 
-  const onResult = useCallback(
-    (result: ProductResponse | false) => {
-      setLoading(false);
-      if (!result) {
-        setError(true);
-      } else {
-        setData(result);
-        setStatus(result.status);
-        form.setFieldsValue(result);
-        let fieldList = Products.convertAvatarToFileList(
-          result.variants[active].variant_images
-        );
-        setFieldList(fieldList);
-      }
-    },
-    [active, form]
-  );
+ 
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
@@ -322,9 +306,10 @@ const ProductDetailScreen: React.FC = () => {
         }
       });
       update(values);
+      history.push(`/unicorn/admin/products/${idNumber}`);
     }
      
-  }, [active, form, update])
+  }, [active, form, update, history, idNumber])
 
   const updateStatus = useCallback(
     (listSelected: Array<number>, status) => {
@@ -453,7 +438,7 @@ const ProductDetailScreen: React.FC = () => {
                   variants[active].variant_images.push({
                     image_id: data[0].id,
                     product_avatar: false,
-                    variant_avatar: false,
+                    variant_avatar: true,
                     variant_id: variants[active].id,
                     url: data[0].path,
                     position: null,
@@ -494,9 +479,23 @@ const ProductDetailScreen: React.FC = () => {
       if (isOnly) {
         form.submit();
       } else {
-        let variants = form.getFieldValue('variants');
+        let variants = form.getFieldValue("variants");
         setCurrentVariants(variants);
         setVisibleUpdatePrice(true);
+      }
+    },
+    [form]
+  );
+
+  const onResult = useCallback(
+    (result: ProductResponse | false) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+      } else {
+        setData(result);
+        setStatus(result.status);
+        form.setFieldsValue(result);
       }
     },
     [form]
@@ -505,6 +504,15 @@ const ProductDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
+
+  useEffect(() => {
+    if (data) {
+      let fieldList = Products.convertAvatarToFileList(
+        data.variants[active].variant_images
+      );
+      setFieldList(fieldList);
+    }
+  }, [data, active]);
 
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -957,48 +965,47 @@ const ProductDetailScreen: React.FC = () => {
                     <Form.List name="variants">
                       {(fields, { add, remove }) =>{
                        
-                        const currentVariantList = form.getFieldValue("variants")
-                        console.log('currentVariantList', currentVariantList);
+                        const currentVariantList = form.getFieldValue("variants");                       
                         //check already have new item
                         let hasNewItem= currentVariantList?.some((element:VariantResponse) => !element.id  );
+                        
+                        const newItem = {
+                          id: null,
+                          variant_images: [],
+                          name: data.name,
+                          status: "active",
+                          barcode: "",
+                          color_id: null,
+                          composite: false,
+                          composites: [],
+                          product_id: idNumber,
+                          saleable: true,
+                          size: null,
+                          sku: data.code,
+                          variant_prices: [
+                            {
+                              retail_price: "",
+                              currency_code: AppConfig.currency,
+                              import_price: "",
+                              wholesale_price: "",
+                              cost_price: "",
+                              tax_percent: 0,
+                            },
+                          ],
+                          length_unit:
+                            lengthUnitList && lengthUnitList.length > 0
+                              ? lengthUnitList[0].value
+                              : "",
+                          weight_unit:
+                            weightUnitList && weightUnitList.length > 0
+                              ? weightUnitList[0].value
+                              : "",
+                        }
                         return (
                         <Button
-                          onClick={() => {
-                            !hasNewItem && add(
-                              {
-                                id: null,
-                                variant_images: [],
-                                name: data.name,
-                                status: "active",
-                                barcode: "",
-                                color_id: null,
-                                composite: false,
-                                composites: [],
-                                product_id: idNumber,
-                                saleable: true,
-                                size: null,
-                                sku: data.code,
-                                variant_prices: [
-                                  {
-                                    retail_price: "",
-                                    currency_code: AppConfig.currency,
-                                    import_price: "",
-                                    wholesale_price: "",
-                                    cost_price: "",
-                                    tax_percent: 0,
-                                  },
-                                ],
-                                length_unit:
-                                  lengthUnitList && lengthUnitList.length > 0
-                                    ? lengthUnitList[0].value
-                                    : "",
-                                weight_unit:
-                                  weightUnitList && weightUnitList.length > 0
-                                    ? weightUnitList[0].value
-                                    : "",
-                              },
-                              0
-                            );
+                        disabled={hasNewItem}
+                          onClick={() => {                           
+                            add(newItem, 0);                          
                             setChange(true);
                             setActive(0);
                             setFieldList([]);
@@ -1643,7 +1650,6 @@ const ProductDetailScreen: React.FC = () => {
                 {(fields, { add, remove })=>{
 
                   return  <ModalConfirmPrice
-
                   onCancel={() => {
                     setVisiblePrice(false);
                     remove(active);

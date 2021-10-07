@@ -1,4 +1,4 @@
-import { productBarcodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
+import { productBarcodeApi, productCheckDuplicateCodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
   ProductResponse,
@@ -447,6 +447,33 @@ function* searchBarCodeSaga(action: YodyAction) {
   }
 }
 
+export function* checkDuplicateSkuSaga(action: YodyAction) {
+  const {code, onResult } = action.payload;
+  try {
+    let response: BaseResponse<null> = yield call(productCheckDuplicateCodeApi, code);
+ 
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult('');
+        break;
+      case HttpStatus.BAD_REQUEST:
+        onResult(response.errors);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult('');
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
@@ -475,4 +502,5 @@ export function* productSaga() {
   yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga)
   yield takeLatest(ProductType.VARIANT_DELETE, variantDeleteSaga);
   yield takeLatest(SearchType.SEARCH_BAR_CODE, searchBarCodeSaga);
+  yield takeLatest(ProductType.DUPLICATE_PRODUCT_CODE, checkDuplicateSkuSaga);
 }
