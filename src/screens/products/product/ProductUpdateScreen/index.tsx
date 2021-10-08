@@ -1670,12 +1670,6 @@ const ProductDetailScreen: React.FC = () => {
                   </Col>
                 </Row>
               </Card>
-              {/* <Form.List name="variants">
-                {(fields, { add, remove })=>{
-
-                  return  
-                }}
-              </Form.List> */}
             </React.Fragment>
           </Form>
         )}

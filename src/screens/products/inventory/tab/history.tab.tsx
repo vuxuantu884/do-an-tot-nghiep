@@ -7,7 +7,7 @@ import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryInventoryFilter from "../filter/history.filter";
@@ -87,8 +87,12 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     {
       title: 'ID chứng từ',
       visible: true,
-      fixed: 'left',
       dataIndex: 'document_code'
+    },
+    {
+      title: 'Thao tác',
+      visible: true,
+      // dataIndex: 'document_code'
     },
     {
       align: 'center',
@@ -101,40 +105,26 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: 'right',
       title: 'SL thay đổi',
       visible: true,
-      dataIndex: 'quantity'
-    },
-   
-    {
-      align: 'right',
-      title: 'Giá',
-      visible: true,
-      dataIndex: 'retail_price',
-      render: (value) => formatCurrency(value), 
+      dataIndex: 'quantity',
+      render: (value)=> parseInt(value) >0 ? `+${value}` : value 
     },
     {
       align: 'right',
-      title: 'Chiếu khấu',
+      title: 'Tồn trong kho',
       visible: true,
-      dataIndex: 'total_discount'
-    },
-    {
-      align: 'right',
-      title: 'Tổng tiền',
-      visible: true,
-      dataIndex: 'total',
-      render: (value) => formatCurrency(value), 
-    },
-    {
-      align: 'right',
-      title: 'Tồng trong kho',
-      visible: true,
-      dataIndex: 'on_hand'
+      dataIndex: 'on_hand',
     },
     {
       align: 'center',
       title: 'Kho hàng',
       visible: true,
       dataIndex: 'store',
+    },
+    {
+      align: 'center',
+      title: 'Người sửa',
+      visible: true,
+      dataIndex: 'updated_by',
     },
   ]);
   const columnFinal = useMemo(
