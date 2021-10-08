@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
@@ -40,6 +40,8 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
 import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
+import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
+import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
@@ -47,8 +49,6 @@ import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
 
 import "./style.scss"
-import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
-import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
 
 const actions: Array<MenuAction> = [
   {
@@ -122,8 +122,8 @@ const EcommerceOrderSync: React.FC = () => {
     }
   );
   
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
   let dataQuery: OrderSearchQuery = {
@@ -137,6 +137,7 @@ const EcommerceOrderSync: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -156,6 +157,7 @@ const EcommerceOrderSync: React.FC = () => {
     { name: "Đã huỷ", value: "cancelled" },
     { name: "Đã hết hạn", value: "expired" },
   ];
+
   const delivery_service = [
     {
       code: "ghtk",
@@ -182,6 +184,7 @@ const EcommerceOrderSync: React.FC = () => {
       name: "DHL",
     },
   ];
+
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
   >([
@@ -579,7 +582,6 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
     },
   ]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const onSelectedChange = useCallback((selectedRow) => {
     const selectedRowKeys = selectedRow.map((row: any) => row.id);
@@ -590,23 +592,19 @@ const EcommerceOrderSync: React.FC = () => {
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
-    [history, params]
+    [params]
   );
+
   const onFilter = useCallback(
     (values) => {
-      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
-      let queryParam = generateQuery(newPrams);
-      // console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
-      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
-    [history, params]
+    [params]
   );
+
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -674,15 +672,9 @@ const EcommerceOrderSync: React.FC = () => {
     setIsShowResultGetOrderModal(false);
   };
 
-  
-  
 
 
   useEffect(() => {
-    if (isFirstLoad.current) {
-      setTableLoading(true);
-    }
-    isFirstLoad.current = false;
     setTableLoading(true);
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
@@ -759,7 +751,6 @@ const EcommerceOrderSync: React.FC = () => {
             onShowSizeChange: onPageChange,
           }}
           onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
           rowKey={(item: OrderModel) => item.id}
