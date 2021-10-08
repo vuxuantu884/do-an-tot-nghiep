@@ -1,0 +1,21 @@
+{
+    "editor.defaultFormatter": "lonefy.vscode-JS-CSS-HTML-formatter",
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "cSpell.words": [
+        "antd",
+        "Ghtk",
+        "hàng",
+        "nháp",
+        "Sachkho",
+        "trên",
+        "variantdefault"
+    ]
+}

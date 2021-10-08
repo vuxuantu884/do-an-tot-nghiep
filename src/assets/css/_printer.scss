@@ -1,0 +1,49 @@
+@page {
+  /* size: 80mm 50mm; */
+  margin: 20mm;
+}
+
+@media print {
+  .pageBreak {
+    page-break-before: always;
+  }
+}
+
+.ckeditor-table-border-dotted {
+  border: 1px dotted #000;
+  border-collapse: separate;
+  td {
+    border: none;
+    &:not(:last-child) {
+      border-right: 1px dotted #000;
+    }
+  }
+}
+
+.ckeditor-table-border-dashed {
+  border-style: dashed;
+}
+
+.ckeditor-table-border-bottom-dotted {
+  border-bottom: 1px dotted #000;
+}
+
+.ckeditor-table-border-bottom-dashed {
+  border-bottom-style: dashed;
+}
+
+.ckeditor-table-has-border {
+  td {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+.printContent {
+  table {
+    td {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+  }
+}

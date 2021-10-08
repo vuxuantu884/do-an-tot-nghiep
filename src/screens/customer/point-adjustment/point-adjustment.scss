@@ -1,0 +1,58 @@
+.create-point-adjustments {
+  padding: 17px 30px;
+  font-family: Roboto;
+  font-size: 14px;
+  line-height: 16px;
+  color: #222222;
+
+  .row {
+    margin-bottom: 4px;
+
+    &-label {
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+  }
+
+  .footer-controller {
+    .back {
+      display: flex;
+      align-items: center;
+      padding-left: 24px !important;
+      cursor: pointer;
+
+      .back-wrapper {
+        display: flex;
+        align-items: center;
+      }
+  
+      a {
+        color: #737373;
+      }
+  
+      svg {
+        margin-right: 8px;
+      }
+    }
+  
+    .action-group {
+      padding-right: 30px !important;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+  
+      .save-btn {
+        margin-left: 30px;
+      }
+  
+      .cancel-btn {
+        background-color: white;
+  
+        &:hover {
+          color: #222222;
+          background-color: white;
+        }
+      }
+    }
+  }
+}
