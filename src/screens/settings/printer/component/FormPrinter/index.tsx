@@ -61,6 +61,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       name: "Thông tin vận chuyển",
       list: printerVariables.print_shipment_variable,
     },
+    {
+      name: "Thông tin nhập hàng",
+      list: printerVariables.print_purchase_order,
+    },
   ];
 
   const PRODUCTS_VARIABLES = {
