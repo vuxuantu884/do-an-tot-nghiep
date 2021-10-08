@@ -142,6 +142,6 @@ export const SearchBarCode = (barcode: string, setData:(data:VariantResponse)=>v
   return BaseAction(SearchType.SEARCH_BAR_CODE, {barcode, setData});
 }
 
-export const productCheckDuplicateCodeAction = (code: string, onResult: (isDuplicate: boolean) => void) => {
-  return BaseAction(ProductType.VARIANT_DELETE, {code, onResult});
+export const productCheckDuplicateCodeAction = (code: string, onResult: (duplicateMessages: string) => void) => {
+  return BaseAction(ProductType.DUPLICATE_PRODUCT_CODE, {code, onResult});
 }
