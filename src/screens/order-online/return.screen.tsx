@@ -7,15 +7,20 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import ReturnFilter from "component/filter/return.filter";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { AccountResponse } from "model/account/account.model";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { getListReasonRequest, getReturnsAction } from "domain/actions/order/order.action";
-import './scss/index.screen.scss'
+import {
+  getListReasonRequest,
+  getReturnsAction,
+} from "domain/actions/order/order.action";
+import "./scss/index.screen.scss";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -57,17 +62,15 @@ const initQuery: ReturnSearchQuery = {
   reason_ids: [],
 };
 
-
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
- 
-  
+
   const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-    useState<Array<AccountResponse>>();
+  useState<Array<AccountResponse>>();
   let dataQuery: ReturnSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -76,7 +79,9 @@ const ListOrderScreen: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [reasons, setReasons] = useState<Array<{id: number; name: string}>>([]);
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
+    []
+  );
 
   const [data, setData] = useState<PageResponse<ReturnModel>>({
     metadata: {
@@ -86,45 +91,62 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  
-  
-  const [columns, setColumn]  = useState<Array<ICustomTableColumType<ReturnModel>>>([
+
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<ReturnModel>>
+  >([
     {
       title: "Mã đơn trả hàng",
       render: (record: ReturnModel) => (
         <div>
-          <div
-            className="name p-b-3" style={{ color: "#2A2A86" }}
-          >
-            <Link target="_blank" to={`${UrlConfig.ORDERS_RETURN}/${record.id}`}>{record.code_order_return}</Link>
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDERS_RETURN}/${record.id}`}
+            >
+              {record.code_order_return}
+            </Link>
           </div>
-          <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
+          <div>
+            {record.created_date
+              ? ConvertUtcToLocalDate(record.created_date)
+              : ""}
+          </div>
         </div>
       ),
       visible: true,
-      fixed: 'left',
-      width:"10%",
+      fixed: "left",
+      // width: "10%",
     },
     {
       title: "Mã đơn hàng",
       render: (record: ReturnModel) => (
-        <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>{record.code_order}</Link>
+        <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>
+          {record.code_order}
+        </Link>
       ),
       visible: true,
-      width:"10%",
+      // width: "10%",
     },
     {
       title: "Người nhận",
       render: (record: any) => (
         <div className="customer">
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}><Link target="_blank" to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}>{record.customer_name}</Link></div>
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+            >
+              {record.customer_name}
+            </Link>
+          </div>
           <div className="p-b-3">{record.customer_phone_number}</div>
           <div className="p-b-3">{record.customer_email}</div>
         </div>
       ),
       key: "customer",
       visible: true,
-      width: "20%",
+      // width: "20%",
     },
     {
       title: "Trạng thái nhận hàng",
@@ -133,7 +155,6 @@ const ListOrderScreen: React.FC = () => {
       render: (value: boolean) => {
         let processIcon = null;
         switch (value) {
-          
           case true:
             processIcon = "icon-full";
             break;
@@ -149,7 +170,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width:"10%"
+      // width: "10%",
     },
     {
       title: "Hoàn tiền",
@@ -223,7 +244,7 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log('values filter 1', values)
+      console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -234,17 +255,20 @@ const ListOrderScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
 
   const setSearchResult = useCallback(
-    (result: PageResponse<ReturnModel>|false) => {
+    (result: PageResponse<ReturnModel> | false) => {
       setTableLoading(false);
-      if(!!result) {
+      if (!!result) {
         setData(result);
       }
     },
     []
   );
-  
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
-  
+
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
+
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -254,7 +278,7 @@ const ListOrderScreen: React.FC = () => {
     },
     []
   );
-  
+
   useEffect(() => {
     if (isFirstLoad.current) {
       setTableLoading(true);
@@ -270,14 +294,14 @@ const ListOrderScreen: React.FC = () => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListReasonRequest(setReasons));
   }, [dispatch, setDataAccounts]);
-  
+
   return (
     <ContentContainer
       title="Danh sách đơn trả hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
-         path: UrlConfig.HOME,
+          path: UrlConfig.HOME,
         },
         {
           name: "Danh sách đơn trả hàng",
@@ -305,24 +329,24 @@ const ListOrderScreen: React.FC = () => {
     >
       <Card>
         <div className="padding-20">
-        <ReturnFilter
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          isLoading={tableLoading}
-          params={params}
-          listSource={listSource}
-          listStore={listStore}
-          accounts={accounts}
-          reasons={reasons}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-        />
-        <CustomTable
+          <ReturnFilter
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            isLoading={tableLoading}
+            params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            reasons={reasons}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+          />
+          <CustomTable
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 200}}
-            sticky={{offsetScroll: 10, offsetHeader: 55}}
+            scroll={{ x: 200 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -331,27 +355,27 @@ const ListOrderScreen: React.FC = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-          // expandable={{
-          //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-          // }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: ReturnModel) => item.id}
-          className="order-list"
-        />
+            // expandable={{
+            //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
+            // }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: ReturnModel) => item.id}
+            className="order-list"
+          />
         </div>
       </Card>
-      
+
       <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data)
-          }}
-          data={columns}
-        />
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data);
+        }}
+        data={columns}
+      />
     </ContentContainer>
   );
 };
