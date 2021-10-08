@@ -325,7 +325,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
           <Space size={20}>
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
             <Radio value={RETURN_MONEY_TYPE.return_later}>
-              Hoàn tiền sau 3
+              Hoàn tiền sau
             </Radio>
           </Space>
         </Radio.Group>

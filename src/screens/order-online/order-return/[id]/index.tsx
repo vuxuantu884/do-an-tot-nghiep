@@ -44,7 +44,6 @@ type OrderParam = {
 const ScreenReturnDetail = (props: PropType) => {
   let { id } = useParams<OrderParam>();
   let returnOrderId = parseInt(id);
-  const isDetailPage = id ? true : false;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
@@ -226,6 +225,9 @@ const ScreenReturnDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
+  // check open tab url
+  console.log("process.env.PUBLIC_URL", process.env.PUBLIC_URL);
+
   return (
     <OrderReturnSingleContext.Provider value={orderReturnSingleContextData}>
       <ContentContainer
@@ -260,18 +262,13 @@ const ScreenReturnDetail = (props: PropType) => {
                   loyaltyPoint={loyaltyPoint}
                   loyaltyUsageRules={loyaltyUsageRules}
                 />
-                {!isDetailPage && (
-                  <CardReturnOrder
-                    isDetailPage={isDetailPage}
-                    isExchange={false}
-                    isStepExchange={false}
-                  />
-                )}
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
                   discountRate={OrderDetail?.order_discount_rate}
                   pointUsing={OrderDetail?.point_refund}
                   totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                  isDetailPage
+                  pointReturnToCustomer={0}
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
@@ -284,7 +281,7 @@ const ScreenReturnDetail = (props: PropType) => {
                   handleReturnMoney={handleReturnMoney}
                 />
                 <CardReturnReceiveProducts
-                  isDetailPage={isDetailPage}
+                  isDetailPage
                   isReceivedReturnProducts={isReceivedReturnProducts}
                   handleReceivedReturnProducts={handleReceivedReturnProducts}
                 />

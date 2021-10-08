@@ -87,10 +87,11 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                         }
                         key={item.key}
                       >
-                        {item.subTitle ? (
+                        {<Link to={item.path} title={item.subTitle || item.title}>{item.title}</Link>}
+                        {/* {item.subTitle ? (
                           <Tooltip
                             title={item.subTitle}
-                            color="#FCAF17"
+                            color="red"
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
                             overlayInnerStyle={{
@@ -98,11 +99,11 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                               padding: "5px 10px",
                             }}
                           >
-                            <Link to={item.path}>{item.title}</Link>
+                            <Link to={item.path} title={item.subTitle}>{item.title}</Link>
                           </Tooltip>
                         ) : (
                           <Link to={item.path}>{item.title}</Link>
-                        )}
+                        )} */}
                       </Menu.Item>
                     );
                   })}
