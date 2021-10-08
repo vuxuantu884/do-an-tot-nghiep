@@ -115,6 +115,7 @@ const PODetailScreen: React.FC = () => {
   const [isEditDetail, setIsEditDetail] = useState<boolean>(false);
   const [statusAction, setStatusAction] = useState<string>("");
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isSuggest, setSuggest] = useState<boolean>(false);
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       setLoading(false)
@@ -129,7 +130,8 @@ const PODetailScreen: React.FC = () => {
     [formMain]
   );
   const loadDetail = useCallback(
-    (id: number, isLoading) => {
+    (id: number, isLoading, isSuggestDetail: boolean) => {
+      setSuggest(isSuggestDetail);
       dispatch(PoDetailAction(idNumber, onDetail));
     },
     [dispatch, idNumber, onDetail]
@@ -185,7 +187,7 @@ const PODetailScreen: React.FC = () => {
       setIsEditDetail(false);
       if (result !== null) {
         showSuccess("Cập nhật nhập hàng thành công");
-        loadDetail(idNumber, true);
+        loadDetail(idNumber, true, false);
       }
     },
     [idNumber, loadDetail]
@@ -224,8 +226,8 @@ const PODetailScreen: React.FC = () => {
       setIsShowBillStep(false);
     }
   }, []);
-  const onAddProcumentSuccess = useCallback(() => {
-    loadDetail(idNumber, true);
+  const onAddProcumentSuccess = useCallback((isSuggest) => {
+    loadDetail(idNumber, true, isSuggest);
   }, [idNumber, loadDetail]);
 
   const onCancel = useCallback(() => {
@@ -402,7 +404,7 @@ const PODetailScreen: React.FC = () => {
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
     if (!isNaN(idNumber)) {
       setLoading(true);
-      loadDetail(idNumber, true);
+      loadDetail(idNumber, true, false);
     } else {
       setError(true);
     }
@@ -550,11 +552,10 @@ const PODetailScreen: React.FC = () => {
             <POSupplierForm
               showSupplierAddress={true}
               showBillingAddress={true}
-              isEdit={true}
+              isEdit={!isEditDetail}
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
-              isEditDetail={isEditDetail}
             />
             <POProductForm
               isEdit={!isEditDetail}
@@ -573,6 +574,8 @@ const PODetailScreen: React.FC = () => {
 
             {poData && poData.status !== POStatus.DRAFT ? (
               <POPaymentForm
+                setSuggest={(isSuggest) => setSuggest(isSuggest)}
+                isSuggest={isSuggest}
                 poData={poData}
                 poId={parseInt(id)}
                 loadDetail={loadDetail}
