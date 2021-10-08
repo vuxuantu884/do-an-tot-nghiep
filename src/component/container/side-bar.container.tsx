@@ -1,9 +1,9 @@
-import { Layout, Menu, Tooltip } from "antd";
+import { Layout, Menu } from "antd";
 import React, { useMemo } from "react";
+import { Scrollbars } from "react-custom-scrollbars";
 import { Link } from "react-router-dom";
 import menu from "routes/menu";
 import { findCurrentRoute } from "utils/AppUtils";
-import { Scrollbars } from "react-custom-scrollbars";
 
 type SidebarContainerProps = {
   path: string;
@@ -24,13 +24,18 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
     defaultOpenKeys = [...defaultOpenKeys, ...currentRoute.subMenu];
   }
   return (
-    <Sider collapsed={collapsed} collapsedWidth={60} width={240} style={{zIndex: 2}}>
+    <Sider
+      collapsed={collapsed}
+      collapsedWidth={60}
+      width={240}
+      style={{ zIndex: 2 }}
+    >
       <Scrollbars autoHide>
         <Menu
           defaultOpenKeys={collapsed ? [] : defaultOpenKeys}
           defaultSelectedKeys={defaultSelectedKeys}
           mode="inline"
-          style={{borderRight: 'none'}}
+          style={{ borderRight: "none" }}
         >
           {menu.map((route) => {
             if (route.subMenu.length > 0) {
@@ -87,7 +92,14 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                         }
                         key={item.key}
                       >
-                        {<Link to={item.path} title={item.subTitle || item.title}>{item.title}</Link>}
+                        {
+                          <Link
+                            to={item.path}
+                            title={item.subTitle || item.title}
+                          >
+                            {item.title}
+                          </Link>
+                        }
                         {/* {item.subTitle ? (
                           <Tooltip
                             title={item.subTitle}
