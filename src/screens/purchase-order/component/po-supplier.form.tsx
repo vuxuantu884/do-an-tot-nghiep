@@ -238,7 +238,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       >
                         {supplier}
                       </Link>
-                      {(!isEdit && status === POStatus.DRAFT) && (
+                      {!isEdit && status === POStatus.DRAFT && (
                         <Button
                           className="icon-information-delete"
                           onClick={removeSupplier}
