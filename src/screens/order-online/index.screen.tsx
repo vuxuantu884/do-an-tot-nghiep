@@ -187,9 +187,17 @@ const ListOrderScreen: React.FC = () => {
       width: "5%",
     },
     {
-      title: "Sản phẩm",
+      title: (
+        <div className="productNameQuantityHeader">
+          <span className="productNameWidth">Sản phẩm</span>
+          <span className="quantity quantityWidth">
+            <span>Số lượng</span>
+          </span>
+        </div>
+      ),
       dataIndex: "items",
       key: "items.name11",
+      className: "productNameQuantity",
       render: (items: Array<OrderItemModel>) => {
         return (
           <div className="items">

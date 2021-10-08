@@ -1,42 +1,51 @@
-import { Button, Card, Col, Row, Switch, Image, Tabs, Spin } from "antd";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Image, Row, Spin, Switch, Tabs } from "antd";
+import variantdefault from "assets/icon/variantdefault.jpg";
+import classNames from "classnames";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {
-  productGetDetail,
-  productUpdateAction,
-} from "domain/actions/product/products.action";
-import { ProductResponse } from "model/product/product.model";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router";
-import RowDetail from "../component/RowDetail";
-import { StyledComponent } from "./styles";
-import variantdefault from "assets/icon/variantdefault.jpg";
-import Slider from "react-slick";
-import VariantList from "../component/VariantList";
-import { showSuccess } from "utils/ToastUtils";
-import { Products } from "utils/AppUtils";
-import { Loading3QuartersOutlined } from "@ant-design/icons";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import TabProductInventory from "../tab/TabProductInventory";
-import TabProductHistory from "../tab/TabProductHistory";
-import {
   inventoryGetDetailAction,
-  inventoryGetHistoryAction,
+  inventoryGetHistoryAction
 } from "domain/actions/inventory/inventory.action";
-import classNames from "classnames";
+import {
+  productGetDetail,
+  productUpdateAction
+} from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse, InventoryResponse } from "model/inventory";
+import { ProductResponse } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation, useParams } from "react-router";
+import Slider from "react-slick";
+import { Products } from "utils/AppUtils";
+import { showSuccess } from "utils/ToastUtils";
+import RowDetail from "../component/RowDetail";
+import VariantList from "../component/VariantList";
+import TabProductHistory from "../tab/TabProductHistory";
+import TabProductInventory from "../tab/TabProductInventory";
+import { StyledComponent } from "./styles";
 
 export interface ProductParams {
   id: string;
   variantId: string;
 }
 
+enum TabName {
+  HISTORY = '#historyTab',
+  INVENTORY = '#inventoryTab'
+}
 const ProductDetailScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const {hash} = location;
+
+  const tabRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab]= useState<string>("1")
   const { id, variantId } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -228,11 +237,15 @@ const ProductDetailScreen: React.FC = () => {
             { variant_id: variantSelect, page: page },
             onResultInventoryHistory
           )
-        );
+        );       
       }
     },
     [active, data, dispatch, onResultInventoryHistory]
   );
+
+  const onTabClick = (key: string) => {
+    history.push(key);
+  };
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -270,6 +283,23 @@ const ProductDetailScreen: React.FC = () => {
       }
     }
   }, [data, variantId]);
+const tab= document.getElementById("tab");
+  useLayoutEffect(() => { 
+
+     if (hash === TabName.INVENTORY) {
+       setActiveTab(TabName.INVENTORY);
+     }
+
+     if (hash === TabName.HISTORY) {
+       setActiveTab(TabName.HISTORY);
+     }
+
+     if (tabRef.current && hash) {
+       tabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+     } 
+
+  }, [tabRef, hash, tab]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -587,15 +617,16 @@ const ProductDetailScreen: React.FC = () => {
             </Row>
             <Row gutter={24}>
               <Col span={24}>
-                <Card className="card">
-                  <Tabs style={{ overflow: "initial" }}>
-                    <Tabs.TabPane tab="Danh sách tồn kho" key="1">
+                <div id="tab" ref={tabRef}>
+                  <Card className="card">  
+                  <Tabs style={{ overflow: "initial" }} defaultActiveKey={activeTab} onTabClick={onTabClick}>
+                    <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
                       <TabProductInventory
                         onChange={onChangeDataInventory}
                         data={dataInventory}
                       />
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="Lich sử tồn kho" key="2">
+                    <Tabs.TabPane tab="Lich sử tồn kho" key={TabName.HISTORY}>
                       <TabProductHistory
                         onChange={onChangeDataHistory}
                         data={dataHistory}
@@ -603,6 +634,8 @@ const ProductDetailScreen: React.FC = () => {
                     </Tabs.TabPane>
                   </Tabs>
                 </Card>
+                  </div>
+               
               </Col>
             </Row>
           </React.Fragment>

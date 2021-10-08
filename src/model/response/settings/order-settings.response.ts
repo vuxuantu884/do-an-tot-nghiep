@@ -25,11 +25,13 @@ export interface ShippingServiceConfigDetailResponseModel {
       to_price: number;
       city_name: string;
       transport_fee: number;
+      city_id: number;
     }
   ];
   external_service_transport_types: [
     {
       id: number;
+      code: string;
       external_service_id: number;
       external_service_code: string;
       name: string;

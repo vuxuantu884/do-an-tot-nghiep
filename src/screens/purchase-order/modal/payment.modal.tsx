@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Modal, Radio, Row } from "antd";
+import { Button, Checkbox, Col, Form, Input, Modal, Radio, Row } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import CustomDatepicker from "component/custom/date-picker.custom";
@@ -29,6 +29,7 @@ type PaymentModalProps = {
   onCancel: () => void;
   deletePayment: () => void;
   onOk: (isLoad: boolean) => void;
+  initValue: PurchasePayments|null,
 };
 const { Item } = Form;
 const PaymentModal: React.FC<PaymentModalProps> = (
@@ -47,7 +48,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [disabledRef, setDisabledRef] = React.useState(false);
-  const [isVisibleModalDeleteWarning, setIsVisibleModalDeleteWarning] = React.useState(false);
+  const [isVisibleModalDeleteWarning, setIsVisibleModalDeleteWarning] =
+    React.useState(false);
 
   const onOkPress = useCallback(() => {
     // onOk();
@@ -70,7 +72,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   );
 
   const updateCallback = useCallback(
-    (result: PurchasePayments | null) => {      
+    (result: PurchasePayments | null) => {
       if (result !== null && result !== undefined) {
         setConfirmLoading(false);
         showSuccess("cập nhật dữ liệu thành công");
@@ -149,6 +151,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       }
     }
   }, [formPayment, purchasePayment, visible]);
+  useEffect(() => {
+    if(props.initValue) {
+      formPayment.setFieldsValue(props.initValue);
+    }
+  }, [formPayment, props.initValue])
   return (
     <Modal
       title={purchasePayment?.id ? "Sửa thanh toán " : "Tạo thanh toán "}
@@ -161,26 +168,31 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       width={700}
       confirmLoading={confirmLoading}
       onCancel={handleCancel}
-      footer={ purchasePayment && [
-        <Button
-          danger
-          onClick={() => {
-            setIsVisibleModalDeleteWarning(true);
-          }}
-          style={{ float: "left" }}
-        >
-          <DeleteOutlined /> Xoá
-        </Button>,
-        <Button key="back" onClick={handleCancel}>
-          Huỷ
-        </Button>,
-        <Button key="submit" type="primary" onClick={onOkPress}>
-          {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
-        </Button>,
-      ]}
+      footer={
+        purchasePayment && [
+          <Button
+            danger
+            onClick={() => {
+              setIsVisibleModalDeleteWarning(true);
+            }}
+            style={{ float: "left" }}
+          >
+            <DeleteOutlined /> Xoá
+          </Button>,
+          <Button key="back" onClick={handleCancel}>
+            Huỷ
+          </Button>,
+          <Button key="submit" type="primary" onClick={onOkPress}>
+            {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
+          </Button>,
+        ]
+      }
     >
       <Form
         layout="vertical"
+        initialValues={{
+          is_refund: false
+        }}
         form={formPayment}
         scrollToFirstError
         onFinish={onFinish}
@@ -265,13 +277,20 @@ const PaymentModal: React.FC<PaymentModalProps> = (
             </Item>
           </Col>
         </Row>
+        <Row gutter={24}>
+          <Col>
+            <Item valuePropName="checked" name="is_refund" noStyle>
+              <Checkbox>Yêu cầu nhà cung cấp hoàn tiền</Checkbox>
+            </Item>
+          </Col>
+        </Row>
       </Form>
       <ModalConfirm
         onCancel={() => {
           setIsVisibleModalDeleteWarning(false);
         }}
         onOk={() => {
-          onDeletePayment()
+          onDeletePayment();
           setIsVisibleModalDeleteWarning(false);
         }}
         okText="Đồng ý"

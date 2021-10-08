@@ -13,6 +13,7 @@ export interface OrderResponse extends BaseObject {
   tax_treatment: string | null;
   source_id: number | null;
   source: string | null;
+  source_code: string | null;
   note: string | null;
   tags: string | null;
   customer_note: string | null;

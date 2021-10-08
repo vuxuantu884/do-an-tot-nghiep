@@ -31,7 +31,7 @@ import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { listColorAction } from "domain/actions/product/color.action";
 import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
-import { productCreateAction } from "domain/actions/product/products.action";
+import { productCheckDuplicateCodeAction, productCreateAction } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -63,6 +63,7 @@ import {
   Products,
   replaceFormatString
 } from "utils/AppUtils";
+import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -73,7 +74,7 @@ import UploadImageModal, {
 } from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
 const { Item, List } = Form;
-const VIETNAM_COUNTRY_ID = 233
+
 const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
@@ -290,7 +291,20 @@ const ProductCreateScreen: React.FC = () => {
   );
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("validate code here", event.target.value);
+    const value = event.target.value;
+    if (value.length === 7)
+      dispatch(
+        productCheckDuplicateCodeAction(value, (message) => {
+          if (message) {
+            form.setFields([
+              {
+                name: "code",
+                errors: [message],
+              },
+            ]);
+          }
+        })
+      );
   };
 
   const onNameChange = useCallback(
@@ -516,7 +530,7 @@ const ProductCreateScreen: React.FC = () => {
   }, [dispatch, setDataAccounts, setDataCategory]);
 
   useEffect(() => {
-    form.setFieldsValue({ made_in_id: VIETNAM_COUNTRY_ID });
+    form.setFieldsValue({ made_in_id: VietNamId });
     form.setFieldsValue({ length_unit: 'cm' });
   }, [form]);
 
@@ -626,7 +640,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/categories/create')}
+                              onClick={()=>window.open('/unicorn/admin/categories/create')}
                             />
                           }
                         >
@@ -739,6 +753,13 @@ const ProductCreateScreen: React.FC = () => {
                           optionFilterProp="children"
                           placeholder="Chọn chất liệu"
                           onChange={onMaterialChange}
+                          suffix={
+                            <Button
+                              style={{ width: 37, height: 37 }}
+                              icon={<PlusOutlined />}
+                              onClick={()=>window.open('/unicorn/admin/materials/create')}
+                            />
+                          }
                         >
                           {listMaterial?.map((item) => (
                             <CustomSelect.Option key={item.id} value={item.id}>
@@ -746,6 +767,7 @@ const ProductCreateScreen: React.FC = () => {
                             </CustomSelect.Option>
                           ))}
                         </CustomSelect>
+                        
                       </Item>
                     </Col>
                     <Col span={24} md={12} sm={24}>
@@ -1211,7 +1233,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/colors/create')}
+                              onClick={()=>window.open('/unicorn/admin/colors/create')}
 
                             />
                           }
@@ -1238,7 +1260,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/sizes/create')}
+                              onClick={()=>window.open('/unicorn/admin/sizes/create')}
 
                             />
                           }

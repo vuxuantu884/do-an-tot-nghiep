@@ -78,7 +78,7 @@ export const StyledComponent = styled.div`
               border-radius: 3px;
               img {
                 width: 40px;
-                height: auto;
+                height: 40px;
                 object-fit: cover;
                 border-radius: 3px;
               }

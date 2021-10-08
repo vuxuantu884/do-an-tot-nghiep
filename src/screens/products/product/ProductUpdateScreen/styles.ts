@@ -56,6 +56,8 @@ export const StyledComponent = styled.div`
       flex-direction: column;
       row-gap: 10px;
       cursor: pointer;
+      height: 165px;
+      width: 165px;
       img {
         height: 165px;
         width: 165px;

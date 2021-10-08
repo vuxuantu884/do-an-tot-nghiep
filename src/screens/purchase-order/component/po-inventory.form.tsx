@@ -8,7 +8,7 @@ import {
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
 import React, { useCallback, useState, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -25,13 +25,14 @@ import procument from "assets/icon/procument.svg";
 import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import POEditDraftProcurementModal from "../modal/POEditDraftProcurementModal";
+import { PoUpdateAction } from "domain/actions/po/po.action";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
   status: string;
   now: Moment;
   isEdit: boolean;
-  onAddProcumentSuccess?: () => void;
+  onAddProcumentSuccess?: (isSuggest: boolean) => void;
   idNumber?: number;
   poData?: PurchaseOrder;
   formMain?: any;
@@ -88,11 +89,12 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [draft, setDraft] = useState<PurchaseProcument | null>(null);
   const [procumentDraft, setProcumentDraft] =
     useState<PurchaseProcument | null>(null);
-  const [procuments, setProcuments] = useState<Array<PurchaseProcument>>([]);
+  const [procuments, setProcuments] = useState<Array<PurchaseProcurementViewDraft>>([]);
   const [procumentInventory, setProcumentInventory] =
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEditProcument, setEditProcument] = useState<boolean>(false);
+  const [loadingEditDraft, setLoadingEditDraft] = useState<boolean>(false);
 
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
@@ -102,11 +104,12 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         if (isEditProcument) showSuccess("Lưu phiếu nhập kho nháp thành công");
         else showSuccess("Thêm phiếu nhập kho nháp thành công");
         setVisible(false);
-        onAddProcumentSuccess && onAddProcumentSuccess();
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
     [isEditProcument, onAddProcumentSuccess]
   );
+
 
   const onAddProcument = useCallback(
     (value: PurchaseProcument) => {
@@ -144,7 +147,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     setVisible(false);
     setVisibleDraft(false);
     setVisibleConfirm(false);
-    onAddProcumentSuccess && onAddProcumentSuccess();
+    onAddProcumentSuccess && onAddProcumentSuccess(false);
   }, [onAddProcumentSuccess]);
 
   const onDeleteProcument = useCallback(
@@ -173,7 +176,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       } else {
         showSuccess("Thêm phiếu nháp kho thành công");
         setVisibleDraft(false);
-        onAddProcumentSuccess && onAddProcumentSuccess();
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
     [onAddProcumentSuccess]
@@ -211,11 +214,19 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         showSuccess("Xác nhận nhập kho thành công");
         setVisibleConfirm(false);
         setLoadingRecive(false);
-        onAddProcumentSuccess && onAddProcumentSuccess();
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
     [onAddProcumentSuccess]
   );
+
+  const onUpdateCall = useCallback((result) => {
+    setLoadingEditDraft(false);
+    if(result !== null) {
+      setVisibleEditProcurement(false);
+      onAddProcumentSuccess && onAddProcumentSuccess(false);
+    }
+  }, [onAddProcumentSuccess])
 
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
@@ -277,6 +288,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               className += " po-tag-success";
               dotClassName += " success";
             }
+            if(status === ProcumentStatus.DRAFT) {
+              return <Space>
+              <div className="d-flex">
+                <span className="title-card">NHẬP KHO</span>
+              </div>{" "}
+            </Space>
+            }
 
             return (
               <Space>
@@ -286,7 +304,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
                 </div>{" "}
-                {isShowStatusTag && (
+                {isShowStatusTag  && (
                   <Tag className={className}>{statusName}</Tag>
                 )}
               </Space>
@@ -311,14 +329,16 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
               POField.line_items
             );
-            let procurements: Array<PurchaseProcument> = getFieldValue(
+            let procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(
               POField.procurements
             );
             let receive_status: string = getFieldValue(POField.receive_status);
             if (
-              (receive_status || status) === ProcumentStatus.DRAFT &&
-              props.isEdit
+              (receive_status === ProcumentStatus.DRAFT || status === ProcumentStatus.DRAFT)
             ) {
+              if(!props.isEdit) {
+                return null;
+              }
               return (
                 <Button
                   onClick={() => {
@@ -339,6 +359,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 </Button>
               );
             }
+        
             return (
               receive_status !== ProcumentStatus.DRAFT &&
               receive_status !== ProcumentStatus.FINISHED &&
@@ -375,7 +396,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             code={poData ? poData.code : undefined}
             id={idNumber}
             onSuccess={() => {
-              onAddProcumentSuccess && onAddProcumentSuccess();
+              onAddProcumentSuccess && onAddProcumentSuccess(true);
             }}
             confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
               setEditProcument(isEdit);
@@ -469,9 +490,17 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         stores={stores}
         visible={visibleEditProcurement}
         onCancel={() => setVisibleEditProcurement(false)}
-        onOk={() => {}}
+        onOk={(value: Array<PurchaseProcurementViewDraft>) => {
+          setLoadingEditDraft(true);
+          let data = formMain.getFieldsValue(true);
+          let dataClone = {...data,procurements: value}
+          if(idNumber) {
+            dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+          }
+        }}
         lineItems={poItems}
         dataSource={procuments}
+        confirmLoading={loadingEditDraft}
       />
     </Card>
   );

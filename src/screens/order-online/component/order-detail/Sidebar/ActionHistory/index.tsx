@@ -13,10 +13,11 @@ import { StyledComponent } from "./styles";
 type PropType = {
   countChangeSubStatus: number;
   orderId: string;
+  reload?: boolean;
 };
 
 function ActionHistory(props: PropType) {
-  const { orderId, countChangeSubStatus } = props;
+  const { orderId, countChangeSubStatus, reload } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
 
@@ -82,7 +83,7 @@ function ActionHistory(props: PropType) {
   };
 
   useEffect(() => {
-    if (orderId) {
+    if (orderId || reload) {
       dispatch(
         actionGetOrderActionLogs(
           +orderId,
@@ -92,7 +93,7 @@ function ActionHistory(props: PropType) {
         )
       );
     }
-  }, [dispatch, orderId, countChangeSubStatus]);
+  }, [dispatch, orderId, countChangeSubStatus, reload]);
 
   return (
     <StyledComponent>

@@ -9,9 +9,7 @@ import {
   Checkbox,
 } from "antd";
 import { Fragment, useState, useEffect } from "react";
-import POProgressView from "./po-progress-view";
 import NumberInput from "component/custom/number-input.custom";
-import { CheckCircleOutlined } from "@ant-design/icons";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import CustomDatepicker from "component/custom/date-picker.custom";
@@ -53,6 +51,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
             reference: null,
             note: null,
             status: PoPaymentStatus.REFUND,
+            is_refund: true,
           },
         ],
       });
@@ -68,6 +67,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
           amount: null,
           reference: null,
           note: null,
+          is_refund: true,
           status: PoPaymentStatus.REFUND,
         },
       ],
@@ -76,7 +76,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
 
   return (
     <Card
-      className="po-form margin-top-20"
+      className="po-form margin-top-20 margin-bottom-20"
       title={
         <div className="d-flex">
           <span className="title-card">Nhà cung cấp hoàn tiền</span>
@@ -105,66 +105,23 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
         </Item>
       }
     >
-      <div className="padding-20">
-        <Item
-          shouldUpdate={(prev, current) =>
-            prev[POField.total_paid] !== current[POField.total_paid] ||
-            prev[POField.total] !== current[POField.total] ||
-            prev[POField.payment_condition_name] !==
-              current[POField.payment_condition_name] ||
-            prev[POField.payment_note] !== current[POField.payment_note]
-          }
-        >
-          {({ getFieldValue }) => {
-            const total_paid = getFieldValue(POField.total_paid);
-            const payment_condition_name = getFieldValue(
-              POField.payment_condition_name
-            );
-            const payment_note = getFieldValue(POField.payment_note);
-            if (total_paid && total_paid > 0) {
-              return (
-                <Fragment>
-                  <Row>
-                    <Col span={12}>
-                      Kho nhận hàng: <strong>{payment_condition_name}</strong>
-                    </Col>
-                    <Col span={12}>
-                      Diễn giải: <strong>{payment_note}</strong>
-                    </Col>
-                  </Row>
-                  <Item
-                    shouldUpdate={(prev, current) =>
-                      prev[POField.total_paid] !==
-                        current[POField.total_paid] ||
-                      prev[POField.total] !== current[POField.total]
-                    }
-                  >
-                    {({ getFieldValue }) => {
-                      let total_paid = getFieldValue(POField.total_paid);
-                      let total = getFieldValue(POField.total);
-                      return (
-                        <POProgressView
-                          remainTitle={"Còn phải trả"}
-                          receivedTitle={"ĐÃ NHẬN"}
-                          received={total_paid}
-                          total={total}
-                          extra={
-                            <div>
-                              <CheckCircleOutlined
-                                style={{
-                                  fontSize: "16px",
-                                  color: "#27AE60",
-                                  marginRight: 4,
-                                }}
-                              />
-                              Đã thanh toán: <strong>{total_paid}</strong>
-                            </div>
-                          }
-                        />
-                      );
-                    }}
-                  </Item>
-                  {showPayment && (
+      <Item
+        noStyle
+        shouldUpdate={(prev, current) =>
+          prev[POField.total_paid] !== current[POField.total_paid] ||
+          prev[POField.total] !== current[POField.total] ||
+          prev[POField.payment_condition_name] !==
+            current[POField.payment_condition_name] ||
+          prev[POField.payment_note] !== current[POField.payment_note]
+        }
+      >
+        {({ getFieldValue }) => {
+          const total_paid = getFieldValue(POField.total_paid);
+          if (total_paid && total_paid > 0) {
+            return (
+              <Fragment>
+                {showPayment && (
+                  <div className="padding-20">
                     <Row gutter={24} className="margin-top-20">
                       <List name="payments">
                         {(fields) =>
@@ -268,16 +225,14 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                         }
                       </List>
                     </Row>
-                  )}
-                </Fragment>
-              );
-            } else
-              return (
-                <EmptyPlaceholder text="Không có thanh toán để hoàn trả" />
-              );
-          }}
-        </Item>
-      </div>
+                  </div>
+                )}
+              </Fragment>
+            );
+          } else
+            return <EmptyPlaceholder text="Không có thanh toán để hoàn trả" />;
+        }}
+      </Item>
     </Card>
   );
 };
