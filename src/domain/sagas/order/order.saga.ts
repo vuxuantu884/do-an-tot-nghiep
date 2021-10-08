@@ -686,7 +686,7 @@ function* configOrderSaga(action: YodyAction) {
 function* getFulfillmentsSaga(action: YodyAction) {
   const { code, setData } = action.payload;
   try {
-    let response: BaseResponse<OrderConfig> = yield call(getFulfillmentsApi, code);
+    let response: BaseResponse<any> = yield call(getFulfillmentsApi, code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

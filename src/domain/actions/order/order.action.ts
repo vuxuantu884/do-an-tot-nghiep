@@ -353,6 +353,6 @@ export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
 
-export const getFulfillments=(code:string, setData:(data:OrderResponse)=>void)=>{
-  return BaseAction(OrderType.GET_FULFILLMENTS,{setData});
+export const getFulfillments=(code:string, setData:(data:Array<any>)=>void)=>{
+  return BaseAction(OrderType.GET_FULFILLMENTS,{code, setData});
 };

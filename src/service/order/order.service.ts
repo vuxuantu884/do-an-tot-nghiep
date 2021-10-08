@@ -308,6 +308,7 @@ export const getOrderConfig=():Promise<any>=>{
   );
 }
 
-export const getFulfillmentsApi=(code:string):Promise<OrderResponse>=>{
-  return BaseAxios.get(`${ApiConfig.ORDER}/fulfillments?${code}`);
+export const getFulfillmentsApi=(code:string):Promise<BaseResponse<any>>=>{
+  let link =`${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
+  return BaseAxios.get(link);
 }
