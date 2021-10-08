@@ -41,10 +41,9 @@ const POUtils = {
       planned_quantity,
       status: poStatus,
       procurements,
-      total,
+      total_payment,
       payments,
     } = poData;
-
     if (
       poStatus === POStatus.FINISHED ||
       poStatus === POStatus.COMPLETED ||
@@ -118,7 +117,8 @@ const POUtils = {
           clonePayments[paymentIndex] = newPayment;
         } else clonePayments.splice(paymentIndex, 1);
       }
-      payments.forEach((payment: PurchasePayments) => {
+      console.log('payments', payments);
+      clonePayments.forEach((payment: PurchasePayments) => {
         if (
           payment.status === PoPaymentStatus.PAID ||
           payment.status === PoPaymentStatus.REFUND
@@ -128,7 +128,11 @@ const POUtils = {
           }
         }
       });
-      if (total_paid > total) {
+      console.log('total_paid', total_paid);
+      console.log('total_payment', total_payment);
+      console.log('receipt_quantity', receipt_quantity);
+      console.log('planned_quantity', planned_quantity);
+      if (total_paid >= total_payment) {
         if (
           receive_status === ProcumentStatus.FINISHED ||
           receive_status === ProcumentStatus.RECEIVED

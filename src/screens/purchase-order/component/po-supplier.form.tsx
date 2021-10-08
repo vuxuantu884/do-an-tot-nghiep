@@ -32,7 +32,7 @@ import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
 import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { AddressType } from "utils/Constants";
+import { AddressType, POStatus } from "utils/Constants";
 import SupplierAddModal from "screens/products/supplier/modal/supplier-add-modal.screen";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { RegUtil } from "utils/RegUtils";
@@ -43,7 +43,6 @@ type POSupplierFormProps = {
   listDistrict: Array<DistrictResponse>;
   formMain: FormInstance;
   isEdit: boolean;
-  isEditDetail?: boolean;
   showBillingAddress: boolean;
   showSupplierAddress: boolean;
   hideExpand?: boolean;
@@ -56,7 +55,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     listCountries,
     listDistrict,
     isEdit,
-    isEditDetail,
     showBillingAddress,
     showSupplierAddress,
     hideExpand,
@@ -201,7 +199,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const changeVisibleSupplierAddress = () => {
     setVisibleSupplierAddress(!visibleSupplierAddress);
   };
-  console.log(isSelectSupplier)
   return (
     <div className="supplier">
       <Card
@@ -222,7 +219,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
             {({ getFieldValue }) => {
               let supplier_id = getFieldValue("supplier_id");
               let phone = getFieldValue("phone");
-              
+              let status: string = getFieldValue("status");
               let supplier: string = getFieldValue("supplier");
               return supplier_id ? (
                 <div>
@@ -241,7 +238,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       >
                         {supplier}
                       </Link>
-                      {(!isEdit || isEditDetail) && (
+                      {(!isEdit && status === POStatus.DRAFT) && (
                         <Button
                           className="icon-information-delete"
                           onClick={removeSupplier}
@@ -410,7 +407,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     className="font-weight-500"
                     style={{ paddingLeft: "34px", marginTop: "14px" }}
                   >
-                    {isEdit && !isEditDetail ? (
+                    {isEdit ? (
                       <div>
                         <Form.Item
                           shouldUpdate={(prevValues, curValues) =>
@@ -480,7 +477,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         />
                       </Form.Item>
                     )}
-                    {isEdit && !isEditDetail ? (
+                    {isEdit ? (
                       <div>
                         <Form.Item hidden name="supplier_note" noStyle>
                           <Input />
