@@ -43,7 +43,6 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                 (item) => item.status === ProcumentStatus.RECEIVED
               )
             : [];
-        console.log(line_items)
         let new_line_items: Array<PurchaseOrderLineItem> = [];
         line_items.forEach((item) => {
           let index = new_line_items.findIndex((item1) => item1.sku === item.sku);

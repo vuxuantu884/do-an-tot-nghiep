@@ -32,7 +32,7 @@ type POInventoryFormProps = {
   status: string;
   now: Moment;
   isEdit: boolean;
-  onAddProcumentSuccess?: () => void;
+  onAddProcumentSuccess?: (isSuggest: boolean) => void;
   idNumber?: number;
   poData?: PurchaseOrder;
   formMain?: any;
@@ -104,7 +104,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         if (isEditProcument) showSuccess("Lưu phiếu nhập kho nháp thành công");
         else showSuccess("Thêm phiếu nhập kho nháp thành công");
         setVisible(false);
-        onAddProcumentSuccess && onAddProcumentSuccess();
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
     [isEditProcument, onAddProcumentSuccess]
@@ -147,7 +147,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     setVisible(false);
     setVisibleDraft(false);
     setVisibleConfirm(false);
-    onAddProcumentSuccess && onAddProcumentSuccess();
+    onAddProcumentSuccess && onAddProcumentSuccess(false);
   }, [onAddProcumentSuccess]);
 
   const onDeleteProcument = useCallback(
@@ -176,7 +176,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       } else {
         showSuccess("Thêm phiếu nháp kho thành công");
         setVisibleDraft(false);
-        onAddProcumentSuccess && onAddProcumentSuccess();
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
     [onAddProcumentSuccess]
@@ -214,7 +214,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         showSuccess("Xác nhận nhập kho thành công");
         setVisibleConfirm(false);
         setLoadingRecive(false);
-        onAddProcumentSuccess && onAddProcumentSuccess();
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
     [onAddProcumentSuccess]
@@ -224,7 +224,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     setLoadingEditDraft(false);
     if(result !== null) {
       setVisibleEditProcurement(false);
-      onAddProcumentSuccess && onAddProcumentSuccess();
+      onAddProcumentSuccess && onAddProcumentSuccess(false);
     }
   }, [onAddProcumentSuccess])
 
@@ -288,11 +288,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               className += " po-tag-success";
               dotClassName += " success";
             }
-            if(status === ProcumentStatus.DRAFT && !props.isEdit) {
+            if(status === ProcumentStatus.DRAFT) {
               return <Space>
-              {isShowStatusTag && (
-                <div className={dotClassName} style={{ fontSize: 8 }} />
-              )}
               <div className="d-flex">
                 <span className="title-card">NHẬP KHO</span>
               </div>{" "}
@@ -399,7 +396,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             code={poData ? poData.code : undefined}
             id={idNumber}
             onSuccess={() => {
-              onAddProcumentSuccess && onAddProcumentSuccess();
+              onAddProcumentSuccess && onAddProcumentSuccess(true);
             }}
             confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
               setEditProcument(isEdit);
