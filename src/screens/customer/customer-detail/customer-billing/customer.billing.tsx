@@ -19,8 +19,20 @@ import FormCustomerBillingAddress from "screens/customer/customer-detail/custome
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
-function CustomerShippingInfo(props: any) {
+
+type CustomerBillingInfoProps = {
+    customer: CustomerResponse | undefined,
+    customerDetailState: string,
+    modalAction: modalActionType ,
+    isShowModalBilling: boolean,
+    setModalAction: (value: modalActionType) => void,
+    setIsShowModalBilling: (value: boolean) => void,
+}
+
+const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: CustomerBillingInfoProps) => {
   const {
     customer,
     customerDetailState,
@@ -159,7 +171,7 @@ function CustomerShippingInfo(props: any) {
   // handle billing
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      if (customer?.billing_addresses.length <= 0) {
+      if (customer?.billing_addresses && customer?.billing_addresses.length <= 0) {
         formValue.is_default = true;
       } else {
         formValue.is_default = false;
@@ -291,4 +303,4 @@ function CustomerShippingInfo(props: any) {
   );
 }
 
-export default CustomerShippingInfo;
+export default CustomerBillingInfo;

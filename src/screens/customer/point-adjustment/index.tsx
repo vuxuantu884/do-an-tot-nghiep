@@ -125,7 +125,6 @@ const PointAdjustment = () => {
   }
 
   const onUpdateEnd = useCallback((data: LoyaltyPoint) => {
-    console.log(data)
     formRef.current?.resetFields()
     setType('add')
     let _selectedCustomers = selectedCustomers

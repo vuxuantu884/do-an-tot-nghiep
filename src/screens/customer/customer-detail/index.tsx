@@ -13,6 +13,7 @@ import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
 import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
 import CustomerHistoryInfo from "./customer.history";
+import CustomerCareHistory from "./customer-care-history"
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -21,20 +22,14 @@ import {
   getLoyaltyPoint,
   getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
-// import {LoyaltyCardSearch} from "domain/actions/loyalty/card/loyalty-card.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-// import { LoyaltyCardResponse } from 'model/response/loyalty/card/loyalty-card.response';
+import ActionButton, {
+  MenuAction,
+} from "../../../component/table/ActionButton";
 import { formatCurrency } from "utils/AppUtils";
-// import {BaseQuery} from "model/base/base.query"
-// import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const { TabPane } = Tabs;
-
-// const cardQuery: BaseQuery = {
-//   page: 1,
-//   limit: 30
-// }
 
 const CustomerDetailIndex = () => {
   const [activeTab, setActiveTab] = React.useState<string>("history");
@@ -63,6 +58,25 @@ const CustomerDetailIndex = () => {
     page: 1,
     customer_ids: null,
   });
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "Tặng điểm",
+    },
+    {
+      id: 2,
+      name: "Trừ điểm",
+    },
+    {
+      id: 3,
+      name: "Tặng tiền tích lũy",
+    },
+    {
+      id: 4,
+      name: "Trừ tiền tích lũy",
+    },
+  ];
+  console.log(loyaltyPoint)
   const [data, setData] = React.useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 10,
@@ -91,7 +105,7 @@ const CustomerDetailIndex = () => {
           break;
         case "#caring-history":
           setActiveTab("caring-history");
-          setIsShowAddBtn(false);
+          setIsShowAddBtn(true);
           break;
         case "#contacts":
           setActiveTab("contacts");
@@ -126,6 +140,7 @@ const CustomerDetailIndex = () => {
     "#billing": "Thêm địa chỉ",
     "#shipping": "Thêm địa chỉ",
     "#contacts": "Thêm liên hệ",
+    "#caring-history": "Thêm mới",
   };
 
   React.useEffect(() => {
@@ -270,6 +285,9 @@ const CustomerDetailIndex = () => {
       history.replace(`${history.location.pathname}#${active}`);
     }
   };
+
+  const onMenuClick = React.useCallback((menuId: number) => console.log(menuId),[])
+  
   return (
     <ContentContainer
       title="Thông tin chi tiết"
@@ -286,6 +304,19 @@ const CustomerDetailIndex = () => {
           name: "Chi tiết khách hàng",
         },
       ]}
+      extra={
+        <div className="page-filter">
+          <div className="page-filter-heading">
+            <div className="page-filter-left">
+              <ActionButton
+                // disabled={actionDisable}
+                menu={actions}
+                onMenuClick={onMenuClick}
+              />
+            </div>
+          </div>
+        </div>
+      }
     >
       <Row gutter={24} className="customer-info-detail">
         <Col span={18}>
@@ -375,7 +406,9 @@ const CustomerDetailIndex = () => {
                   tableLoading={tableLoading}
                 />
               </TabPane>
-              <TabPane tab="Lịch sử chăm sóc" key="caring-history"></TabPane>
+              <TabPane tab="Lịch sử chăm sóc" key="caring-history">
+                <CustomerCareHistory />
+              </TabPane>
               <TabPane tab="Ghi chú" key="notes">
                 <CustomerNoteInfo
                   customer={customer}

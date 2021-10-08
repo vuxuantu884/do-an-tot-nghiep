@@ -230,11 +230,15 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
             <>
               <div>
                 <span>Tích:</span>
-                <span style={{marginLeft: 10}}>{orderPointSpend(record) || 0}</span>
+                <span style={{ marginLeft: 10 }}>
+                  {orderPointSpend(record) || 0}
+                </span>
               </div>
               <div>
                 <span>Tiêu:</span>
-                <span style={{marginLeft: 10}}>{orderPointCollected(record) || 0}</span>
+                <span style={{ marginLeft: 10 }}>
+                  {orderPointCollected(record) || 0}
+                </span>
               </div>
             </>
           ),
@@ -619,7 +623,7 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
           isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: 3630 }}
-          sticky={{ offsetScroll: 10 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={{
             pageSize: orderData.metadata.limit,
             total: orderData.metadata.total,

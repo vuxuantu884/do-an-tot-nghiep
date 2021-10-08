@@ -19,8 +19,20 @@ import FormCustomerContact from "screens/customer/customer-detail/customer-conta
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
-function CustomerContactInfo(props: any) {
+
+type CustomerContactInfoProps = {
+  customer: CustomerResponse | undefined,
+  customerDetailState: string,
+  modalAction: modalActionType ,
+  isShowModalContacts: boolean,
+  setIsShowModalContacts: (value: boolean) => void,
+  setModalAction: (value: modalActionType) => void,
+}
+
+const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: CustomerContactInfoProps) => {
   const {
     customer,
     customerDetailState,
