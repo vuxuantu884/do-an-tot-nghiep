@@ -1,27 +1,19 @@
 import {
   InfoCircleOutlined,
   MinusOutlined,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import {
-  Col,
-  Row,
-  Form,
-  Switch,
-  Card,
-  Button,
-  Input,
-  Collapse,
-  Select,
-  Divider,
-  Space,
-  Image,
-  Upload,
+  Button, Card, Col, Collapse, Divider, Form, Image, Input, Row, Select, Space, Switch, Upload
 } from "antd";
+import { RcFile, UploadFile } from "antd/lib/upload/interface";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
+import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -33,7 +25,7 @@ import { detailMaterialAction, materialSearchAll } from "domain/actions/product/
 import {
   productGetDetail,
   productUpdateAction,
-  productUploadAction,
+  productUploadAction
 } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
@@ -43,41 +35,36 @@ import { SupplierResponse } from "model/core/supplier.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { ColorResponse } from "model/product/color.model";
 import { MaterialResponse } from "model/product/material.model";
+import { ProductUploadModel } from "model/product/product-upload.model";
 import {
   ProductRequest,
   ProductResponse,
   VariantImage,
-  VariantResponse,
+  VariantResponse
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { Fragment, useMemo } from "react";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
   convertCategory,
   formatCurrency,
   Products,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
+import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import ModalConfirmPrice from "../component/ModalConfirmPrice";
+import ModalPickAvatar from "../component/ModalPickAvatar";
+import ModalUpdatePrice from "../component/ModalUpdatePrice";
+import VariantList from "../component/VariantList";
 import { ProductParams } from "../ProductDetailScreen";
 import { StyledComponent } from "./styles";
-import NumberInput from "component/custom/number-input.custom";
-import BottomBarContainer from "component/container/bottom-bar.container";
-import VariantList from "../component/VariantList";
-import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import ModalPickAvatar from "../component/ModalPickAvatar";
-import { RcFile, UploadFile } from "antd/lib/upload/interface";
-import { ProductUploadModel } from "model/product/product-upload.model";
-import ModalConfirmPrice from "../component/ModalConfirmPrice";
-import ModalUpdatePrice from "../component/ModalUpdatePrice";
-import { handleChangeMaterial } from "utils/ProductUtils";
 
 const { Item } = Form;
-var tempActive: number = 0;
+let tempActive: number = 0;
 
 const uploadButton = (
   <div>
@@ -136,6 +123,8 @@ const ProductDetailScreen: React.FC = () => {
   const [visiblePrice, setVisiblePrice] = useState(false);
   const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
+  
+    
   const categoryFilter = useMemo(() => {
     if (data === null) {
       return listCategory;
@@ -217,50 +206,7 @@ const ProductDetailScreen: React.FC = () => {
     return "";
   }, [productStatusList, status]);
 
-  const onActive = useCallback(
-    (active1: number) => {
-      let variants = form.getFieldValue("variants");
-      if (active1 !== active) {
-        if (isChange && !isChangePrice) {
-          tempActive = active1;
-          setModalConfirm({
-            onOk: () => {
-              setModalConfirm({ visible: false });
-              form.submit();
-            },
-            onCancel: () => {
-              let variants: Array<VariantResponse> =
-                form.getFieldValue("variants");
-              if (variants[active].id) {
-                setModalConfirm({ visible: false });
-                setCurrentVariant(active1);
-              } else {
-                setModalConfirm({ visible: false });
-                let idActive = variants[active1].id;
-                variants.splice(active, 1);
-                let index = variants.findIndex((item) => item.id === idActive);
-                form.setFieldsValue({ variants: variants });
-                setActive(index);
-                let fieldList = Products.convertAvatarToFileList(
-                  variants[index].variant_images
-                );
-                setFieldList(fieldList);
-              }
-            },
-            visible: true,
-            title: "Xác nhận",
-            subTitle: "Bạn có muốn lưu lại phiên bản này?",
-          });
-        } else if (isChangePrice && variants.length > 1) {
-          tempActive = active1;
-          setVisiblePrice(true);
-        } else {
-          setCurrentVariant(active1);
-        }
-      }
-    },
-    [active, form, isChange, isChangePrice, setCurrentVariant]
-  );
+ 
 
   const onChange = useCallback(() => {
     setChange(true);
@@ -306,7 +252,7 @@ const ProductDetailScreen: React.FC = () => {
         }
       });
       update(values);
-      history.push(`/unicorn/admin/products/${idNumber}`);
+      history.push(`/products/${idNumber}`);
     }
      
   }, [active, form, update, history, idNumber])
@@ -486,7 +432,73 @@ const ProductDetailScreen: React.FC = () => {
     },
     [form]
   );
+    const productDetailRef = useRef<ProductResponse>();
+    const resetProductDetail = useCallback(() => {
+      setChangePrice(false);
+      if (productDetailRef.current && typeof active === "number") {
+        form.setFieldsValue(productDetailRef.current);
+        let fieldList = Products.convertAvatarToFileList(
+          productDetailRef.current.variants[active].variant_images
+        );
+        setFieldList(fieldList);
+      }
+    }, [productDetailRef, active, form]);
 
+    const onActive = useCallback(
+      (active1: number) => {
+        let variants = form.getFieldValue("variants");
+        if (active1 !== active) {
+          if (isChange && !isChangePrice) {
+            tempActive = active1;
+            setModalConfirm({
+              onOk: () => {
+                setModalConfirm({ visible: false });
+                form.submit();
+              },
+              onCancel: () => {
+                resetProductDetail();
+                let variants: Array<VariantResponse> =
+                  form.getFieldValue("variants");
+                if (variants[active].id) {
+                  setModalConfirm({ visible: false });
+                  setCurrentVariant(active1);
+                } else {
+                  setModalConfirm({ visible: false });
+                  let idActive = variants[active1].id;
+                  variants.splice(active, 1);
+                  let index = variants.findIndex(
+                    (item) => item.id === idActive
+                  );
+                  form.setFieldsValue({ variants: variants });
+                  setActive(index);
+                  let fieldList = Products.convertAvatarToFileList(
+                    variants[index].variant_images
+                  );
+                  setFieldList(fieldList);
+                }
+              },
+              visible: true,
+              title: "Xác nhận",
+              subTitle: "Bạn có muốn lưu lại phiên bản này?",
+            });
+          } else if (isChangePrice && variants.length > 1) {
+            tempActive = active1;
+
+            setVisiblePrice(true);
+          } else {
+            setCurrentVariant(active1);
+          }
+        }
+      },
+      [
+        active,
+        form,
+        isChange,
+        isChangePrice,
+        setCurrentVariant,
+        resetProductDetail,
+      ]
+    );
   const onResult = useCallback(
     (result: ProductResponse | false) => {
       setLoading(false);
@@ -495,6 +507,7 @@ const ProductDetailScreen: React.FC = () => {
       } else {
         setData(result);
         setStatus(result.status);
+        productDetailRef.current = JSON.parse(JSON.stringify(result));
         form.setFieldsValue(result);
       }
     },
@@ -873,7 +886,11 @@ const ProductDetailScreen: React.FC = () => {
                             if (url !== null) {
                               return (
                                 <div onClick={onPickAvatar} className="bpa">
-                                  <Image preview={false} src={url} className="product-img" />
+                                  <Image
+                                    preview={false}
+                                    src={url}
+                                    className="product-img"
+                                  />
                                 </div>
                               );
                             }
@@ -958,17 +975,19 @@ const ProductDetailScreen: React.FC = () => {
                         onStopSale={onStopSale}
                         active={active}
                         setActive={onActive}
-                        productData={data} 
+                        productData={data}
                       />
                     </Item>
                     <Divider />
                     <Form.List name="variants">
-                      {(fields, { add, remove }) =>{
-                       
-                        const currentVariantList = form.getFieldValue("variants");                       
+                      {(fields, { add, remove }) => {
+                        const currentVariantList =
+                          form.getFieldValue("variants");
                         //check already have new item
-                        let hasNewItem= currentVariantList?.some((element:VariantResponse) => !element.id  );
-                        
+                        let hasNewItem = currentVariantList?.some(
+                          (element: VariantResponse) => !element.id
+                        );
+
                         const newItem = {
                           id: null,
                           variant_images: [],
@@ -1000,22 +1019,23 @@ const ProductDetailScreen: React.FC = () => {
                             weightUnitList && weightUnitList.length > 0
                               ? weightUnitList[0].value
                               : "",
-                        }
+                        };
                         return (
-                        <Button
-                        disabled={hasNewItem}
-                          onClick={() => {                           
-                            add(newItem, 0);                          
-                            setChange(true);
-                            setActive(0);
-                            setFieldList([]);
-                          }}
-                          type="link"
-                          icon={<PlusOutlined />}
-                        >
-                          Thêm phiên bản
-                        </Button>
-                      )} }
+                          <Button
+                            disabled={hasNewItem}
+                            onClick={() => {
+                              add(newItem, 0);
+                              setChange(true);
+                              setActive(0);
+                              setFieldList([]);
+                            }}
+                            type="link"
+                            icon={<PlusOutlined />}
+                          >
+                            Thêm phiên bản
+                          </Button>
+                        );
+                      }}
                     </Form.List>
                   </Col>
                   <Col className="right" span={24} md={17}>
@@ -1079,10 +1099,14 @@ const ProductDetailScreen: React.FC = () => {
                                             <Col span={24} md={12}>
                                               <Item
                                                 name={[name, "sku"]}
-                                                rules={[{ required: true },{
-                                                  min: 10,
-                                                  message: "Mã sản phẩm tối thiểu 10 kí tự",
-                                                }]}
+                                                rules={[
+                                                  { required: true },
+                                                  {
+                                                    min: 10,
+                                                    message:
+                                                      "Mã sản phẩm tối thiểu 10 kí tự",
+                                                  },
+                                                ]}
                                                 label="Mã sản phẩm"
                                               >
                                                 <Input
@@ -1646,19 +1670,12 @@ const ProductDetailScreen: React.FC = () => {
                   </Col>
                 </Row>
               </Card>
-              <Form.List name="variants">
+              {/* <Form.List name="variants">
                 {(fields, { add, remove })=>{
 
-                  return  <ModalConfirmPrice
-                  onCancel={() => {
-                    setVisiblePrice(false);
-                    remove(active);
-                  }}
-                  visible={visiblePrice}
-                  onOk={onOkPrice}
-                />
+                  return  
                 }}
-              </Form.List>
+              </Form.List> */}
             </React.Fragment>
           </Form>
         )}
@@ -1666,7 +1683,7 @@ const ProductDetailScreen: React.FC = () => {
           back="Quay lại"
           rightComponent={
             <Space>
-              <Button>Đặt lại</Button>
+              <Button onClick={resetProductDetail}>Đặt lại</Button>
               <Button loading={loadingButton} onClick={onSave} type="primary">
                 Lưu lại
               </Button>
@@ -1680,9 +1697,29 @@ const ProductDetailScreen: React.FC = () => {
           visible={visiblePickAvatar}
         />
         <ModalConfirm {...modalConfirm} />
-       
-       
-        <ModalUpdatePrice onCancel={() => setVisibleUpdatePrice(false)} onOk={onUpdatePrice} currentVariant={active} variants={currentVariants} visible={visibleUpdatePrice} />
+        <ModalUpdatePrice
+          onCancel={() => setVisibleUpdatePrice(false)}
+          onOk={onUpdatePrice}
+          currentVariant={active}
+          variants={currentVariants}
+          visible={visibleUpdatePrice}
+        />
+        <ModalConfirmPrice
+          onClickOutside={() => setVisiblePrice(false)}
+          onCancel={() => {
+            // check has new item => remove new item
+            setActive(tempActive);
+            resetProductDetail()
+            const variants = form.getFieldValue("variants");
+            variants.forEach((item: VariantResponse, index: number) => {
+              if (!item.id) {
+                variants.splice(index, 1);
+              }
+            });
+          }}
+          visible={visiblePrice}
+          onOk={onOkPrice}
+        />
       </ContentContainer>
     </StyledComponent>
   );
