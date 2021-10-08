@@ -7,22 +7,23 @@ export interface ModalConfirmProps {
   onCancel?: () => void;
   onNext?: () => void;
   bgIcon?: string;
-  
+  onClickOutside? : ()=>void;
 }
 
 const ModalConfirmPrice: React.FC<ModalConfirmProps> = (
   props: ModalConfirmProps
 ) => {
-  const { visible, onOk, onCancel } = props;
+  const { visible, onOk, onCancel, onClickOutside } = props;
   return (
     <Modal
       width="35%"
       className="modal-confirm"
       visible={visible}
-      onCancel={onCancel}
+      onCancel={onClickOutside}
       footer={[
         <Button
           onClick={() => {
+            onClickOutside && onClickOutside();
             onCancel && onCancel();
           }}
         >
