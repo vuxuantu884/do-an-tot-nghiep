@@ -6,7 +6,7 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -14,7 +14,9 @@ type PropType = {
   listReturnProducts: OrderLineItemResponse[];
   discountRate?: number | null;
   pointUsing?: number;
+  pointReturnToCustomer?: number;
   totalAmountReturnToCustomer: number | undefined;
+  isDetailPage?: boolean;
 };
 
 function CardShowReturnProducts(props: PropType) {
@@ -22,7 +24,9 @@ function CardShowReturnProducts(props: PropType) {
     listReturnProducts,
     discountRate,
     pointUsing,
+    pointReturnToCustomer,
     totalAmountReturnToCustomer,
+    isDetailPage = false,
   } = props;
 
   const getProductDiscountPerOrder = useCallback(
@@ -204,10 +208,23 @@ function CardShowReturnProducts(props: PropType) {
                 )}
               </span>
             </Row>
-            <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">Tiêu điểm: </span>
-              {`${pointUsing ? pointUsing : 0} điểm`}
-            </Row>
+            {isDetailPage ? (
+              <React.Fragment>
+                <Row className="payment-row" justify="space-between">
+                  <span className="font-size-text">Điểm trừ: </span>
+                  {`${pointReturnToCustomer ? pointReturnToCustomer : 0} điểm`}
+                </Row>
+                <Row className="payment-row" justify="space-between">
+                  <span className="font-size-text">Điểm hoàn: </span>
+                  {`${pointUsing ? pointUsing : 0} điểm`}
+                </Row>
+              </React.Fragment>
+            ) : (
+              <Row className="payment-row" justify="space-between">
+                <span className="font-size-text">Tiêu điểm: </span>
+                {`${pointUsing ? pointUsing : 0} điểm`}
+              </Row>
+            )}
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>

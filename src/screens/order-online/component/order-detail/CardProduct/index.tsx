@@ -33,6 +33,7 @@ import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import {
   StoreGetListAction,
   StoreSearchListAction,
@@ -57,6 +58,7 @@ import { OrderLineItemRequest } from "model/request/order.request";
 import React, {
   createRef,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -166,6 +168,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
+
+  const createOrderContext = useContext(OrderCreateContext);
+  const shippingFeeInformedToCustomer =
+    createOrderContext?.shipping.shippingFeeInformedToCustomer;
 
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
@@ -1235,6 +1241,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         totalAmountOrder={amount}
         items={items}
         pointUsing={pointUsing}
+        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
       />
 
       <PickDiscountModal
