@@ -27,6 +27,9 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "document_code",
           },
           {
+            title: 'Thao tác',
+          },
+          {
             title: "Thời gian",
             dataIndex: "transaction_date",
             render: (value) => ConvertUtcToLocalDate(value),
@@ -36,31 +39,23 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             title: "SL Thay đổi",
             dataIndex: "quantity",
             align: 'center',
+            render: (value)=> parseInt(value) >0 ? `+${value}` : value 
           },
           {
             title: "Tồn trong kho",
             dataIndex: "on_hand",
             align: 'center',
           },
-          {
-            title: "Giá",
-            dataIndex: "retail_price",
-            align: 'center',
-          },
-          {
-            title: "Chiết khấu",
-            dataIndex: "total_discount",
-            align: 'center',
-          },
-          {
-            title: "Tổng tiền",
-            dataIndex: "total",
-            align: 'center',
-          },
+           
           {
             title: "Kho hàng",
             dataIndex: "store",
             align: 'center',
+          },
+          {
+            align: 'center',
+            title: 'Người sửa',
+            dataIndex: 'updated_by',
           },
         ]}
       />
