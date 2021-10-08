@@ -1,25 +1,64 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
+const quantityWidth = 80;
 
 export const StyledComponent = styled.div`
-  .item.custom-td {
-    margin-left: -10px;
-    margin-right: -10px;
-    padding: 0 10px;
+  th {
+    .productNameQuantityHeader {
+      .productNameWidth {
+        text-align: center;
+      }
+    }
+  }
+  .ant-table-cell.productNameQuantity {
+    padding: 0 !important;
+  }
+  td {
+    position: relative;
+  }
+  .productNameQuantityHeader {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+  }
+  .productNameWidth {
+    width: 200px;
+  }
+  .quantityWidth {
+    width: ${quantityWidth}px;
+    text-align: center;
+  }
+  .item.custom-td {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
     &:not(:last-child) {
       border-bottom: 1px solid ${borderColor};
     }
-    > div {
-      padding: 10px 0;
+    .product {
+      padding: 10px 10px;
+      height: 100%;
+      display: flex;
+      align-items: center;
     }
     p {
       margin-bottom: 0;
     }
     .quantity {
-      margin-left: 15px;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:before {
+        content: "";
+        display: block;
+        width: 1px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        bottom: 0;
+        right: ${quantityWidth}px;
+        background-color: ${borderColor};
+      }
     }
   }
 `;
