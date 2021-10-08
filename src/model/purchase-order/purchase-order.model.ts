@@ -85,6 +85,6 @@ export interface PurchaseOrderQuery extends BaseQuery {
 }
 export interface PurchaseOrderPrint {
   purchaseOrderId: number;
-  htmlContent: string;
+  html_content: string;
   size: string;
 }
