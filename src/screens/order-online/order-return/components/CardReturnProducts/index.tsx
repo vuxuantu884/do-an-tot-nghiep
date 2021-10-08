@@ -216,8 +216,10 @@ function CardReturnProducts(props: PropType) {
       dataIndex: "price",
       key: "price",
       render: (value: number, record: ReturnProductModel, index: number) => {
-        let discountPerProduct = getProductDiscountPerProduct(record);
-        let discountPerOrder = getProductDiscountPerOrder(record);
+        const discountPerProduct = getProductDiscountPerProduct(record);
+        const discountPerOrder = getProductDiscountPerOrder(record);
+        const pricePerOrder =
+          record.price - discountPerProduct - discountPerOrder;
         return (
           <Popover
             content={renderPopOverPriceContent(
@@ -226,9 +228,7 @@ function CardReturnProducts(props: PropType) {
             )}
             title={renderPopOverPriceTitle(record.price)}
           >
-            {formatCurrency(
-              Math.round(record.price - discountPerProduct - discountPerOrder)
-            )}
+            {formatCurrency(Math.round(pricePerOrder))}
           </Popover>
         );
       },
@@ -250,8 +250,8 @@ function CardReturnProducts(props: PropType) {
         record: ReturnProductModel,
         index: number
       ) => {
-        let discountPerProduct = getProductDiscountPerProduct(record);
-        let discountPerOrder = getProductDiscountPerOrder(record);
+        const discountPerProduct = getProductDiscountPerProduct(record);
+        const discountPerOrder = getProductDiscountPerOrder(record);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
@@ -362,7 +362,12 @@ function CardReturnProducts(props: PropType) {
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              <strong>{formatCurrency(totalPriceReturnToCustomer)}</strong>
+              {/* làm tròn đến trăm đồng */}
+              <strong>
+                {formatCurrency(
+                  Math.round(totalPriceReturnToCustomer / 100) * 100
+                )}
+              </strong>
             </Row>
           </Col>
         </Row>

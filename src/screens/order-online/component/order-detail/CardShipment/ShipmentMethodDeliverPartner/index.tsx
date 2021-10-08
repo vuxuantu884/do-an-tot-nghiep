@@ -133,7 +133,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       if (!customerShippingAddress || !orderPrice) {
         return;
       }
-      const customerShippingAddressCity = customerShippingAddress.city;
+      const customerShippingAddressCityId = customerShippingAddress.city_id;
 
       if (
         !createOrderContext?.shipping.shippingServiceConfig ||
@@ -165,12 +165,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       };
 
       // check tỉnh giao hàng
-      const checkIfSameProvince = (
-        customerShippingAddressProvince: string,
-        configShippingAddressProvince: string
+      const checkIfSameCity = (
+        customerShippingAddressCityId: number,
+        configShippingAddressCityId: number
       ) => {
         return (
-          customerShippingAddressProvince === configShippingAddressProvince
+          customerShippingAddressCityId === configShippingAddressCityId
         );
       };
 
@@ -212,9 +212,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               (single) => {
                 console.log("single", single);
                 return (
-                  checkIfSameProvince(
-                    single.city_name,
-                    customerShippingAddressCity
+                  checkIfSameCity(
+                    single.city_id,
+                    customerShippingAddressCityId
                   ) &&
                   checkIfPrice(orderPrice, single.from_price, single.to_price)
                 );

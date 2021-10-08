@@ -1,7 +1,5 @@
 import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { OrderLineItemRequest } from "model/request/order.request";
-import { useContext } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -12,6 +10,7 @@ type PropType = {
   discountRate: number;
   discountValue: number;
   coupon: string;
+  shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
   pointUsing?: {
@@ -38,6 +37,7 @@ function CardProductBottom(props: PropType) {
     discountValue,
     coupon,
     changeMoney,
+    shippingFeeInformedToCustomer,
     amount,
     pointUsing,
     showDiscountModal,
@@ -45,11 +45,6 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
   } = props;
-
-  const createOrderContext = useContext(OrderCreateContext);
-  const shippingFeeInformedToCustomer =
-    createOrderContext?.shipping.shippingFeeInformedToCustomer;
-
   return (
     <StyledComponent>
       <div className="padding-24" style={{ paddingTop: "30px" }}>

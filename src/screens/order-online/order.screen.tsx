@@ -598,6 +598,11 @@ export default function Order() {
               dispatch(
                 CustomerDetail(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
+                  responseCustomer.shipping_addresses.forEach((item) => {
+                    if (item.default === true) {
+                      setShippingAddress(item);
+                    }
+                  });
                 })
               );
             }
