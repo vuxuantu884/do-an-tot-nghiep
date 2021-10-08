@@ -561,40 +561,57 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </div>
         }
         extra={
-          <Space size={20}>
-            {!isEdit && (
-              <Checkbox
-                checked={splitLine}
-                onChange={() => setSplitLine(!splitLine)}
-              >
-                Tách dòng
-              </Checkbox>
-            )}
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, current) => prev.status !== current.status}
+          >
+            {({ getFieldValue }) => {
+              let status = getFieldValue(POField.status);
+              return (
+                <Space size={20}>
+                  {!isEdit && status === POStatus.DRAFT && (
+                    <Checkbox
+                      checked={splitLine}
+                      onChange={() => setSplitLine(!splitLine)}
+                    >
+                      Tách dòng
+                    </Checkbox>
+                  )}
 
-            <span>Chính sách giá:</span>
-            {isEdit ? (
-              <div>
-                <span style={{ fontWeight: 700 }}>Giá nhập</span>
-                <Form.Item name={POField.policy_price_code} noStyle hidden>
-                  <Input />
-                </Form.Item>
-              </div>
-            ) : (
-              <Form.Item
-                name={POField.policy_price_code}
-                style={{ margin: "0px" }}
-              >
-                <Select
-                  style={{ minWidth: 145, height: 38 }}
-                  placeholder="Chính sách giá"
-                >
-                  <Select.Option value={AppConfig.import_price} color="#222222">
-                    Giá nhập
-                  </Select.Option>
-                </Select>
-              </Form.Item>
-            )}
-          </Space>
+                  <span>Chính sách giá:</span>
+                  {!isEdit && status === POStatus.DRAFT ? (
+                    <Form.Item
+                      name={POField.policy_price_code}
+                      style={{ margin: "0px" }}
+                    >
+                      <Select
+                        style={{ minWidth: 145, height: 38 }}
+                        placeholder="Chính sách giá"
+                      >
+                        <Select.Option
+                          value={AppConfig.import_price}
+                          color="#222222"
+                        >
+                          Giá nhập
+                        </Select.Option>
+                      </Select>
+                    </Form.Item>
+                  ) : (
+                    <div>
+                      <span style={{ fontWeight: 700 }}>Giá nhập</span>
+                      <Form.Item
+                        name={POField.policy_price_code}
+                        noStyle
+                        hidden
+                      >
+                        <Input />
+                      </Form.Item>
+                    </div>
+                  )}
+                </Space>
+              );
+            }}
+          </Form.Item>
         }
       >
         <div className="padding-20">
@@ -602,31 +619,34 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             noStyle
             shouldUpdate={(prev, current) => prev.status !== current.status}
           >
-            {({getFieldValue}) => {
-              let status = getFieldValue('status');
-              return (!isEdit && status === POStatus.DRAFT) && (
-                <Input.Group className="display-flex">
-                  <CustomAutoComplete
-                    id="#product_search"
-                    dropdownClassName="product"
-                    placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                    onSearch={onSearch}
-                    dropdownMatchSelectWidth={456}
-                    style={{ width: "100%" }}
-                    showAdd={true}
-                    textAdd="Thêm mới sản phẩm"
-                    onSelect={onSelectProduct}
-                    options={renderResult}
-                    ref={productSearchRef}
-                  />
-                  <Button
-                    onClick={() => setVisibleManyProduct(true)}
-                    style={{ width: 132, marginLeft: 10 }}
-                  >
-                    Chọn nhiều
-                  </Button>
-                </Input.Group>
-              )
+            {({ getFieldValue }) => {
+              let status = getFieldValue("status");
+              return (
+                !isEdit &&
+                status === POStatus.DRAFT && (
+                  <Input.Group className="display-flex">
+                    <CustomAutoComplete
+                      id="#product_search"
+                      dropdownClassName="product"
+                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                      onSearch={onSearch}
+                      dropdownMatchSelectWidth={456}
+                      style={{ width: "100%" }}
+                      showAdd={true}
+                      textAdd="Thêm mới sản phẩm"
+                      onSelect={onSelectProduct}
+                      options={renderResult}
+                      ref={productSearchRef}
+                    />
+                    <Button
+                      onClick={() => setVisibleManyProduct(true)}
+                      style={{ width: 132, marginLeft: 10 }}
+                    >
+                      Chọn nhiều
+                    </Button>
+                  </Input.Group>
+                )
+              );
             }}
           </Form.Item>
           {}
@@ -645,218 +665,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               let items = getFieldValue(POField.line_items)
                 ? getFieldValue(POField.line_items)
                 : [];
+              let status = getFieldValue(POField.status);
 
-              return isEdit ? (
-                <Table
-                  className="product-table"
-                  rowKey={(record: PurchaseOrderLineItem) =>
-                    record.id ? record.id : record.temp_id
-                  }
-                  rowClassName="product-table-row"
-                  dataSource={items}
-                  tableLayout="fixed"
-                  scroll={{ y: 300, x: 1000 }}
-                  pagination={false}
-                  columns={[
-                    {
-                      title: "STT",
-                      align: "center",
-                      fixed: "left",
-                      width: 60,
-                      render: (value, record, index) => index + 1,
-                    },
-                    {
-                      title: "Ảnh",
-                      width: 60,
-                      fixed: "left",
-                      dataIndex: "variant_image",
-                      render: (value) => (
-                        <div className="product-item-image">
-                          <img
-                            src={value === null ? imgDefIcon : value}
-                            alt=""
-                            className=""
-                          />
-                        </div>
-                      ),
-                    },
-                    {
-                      title: "Sản phẩm",
-                      className: "ant-col-info",
-                      width: 250,
-                      fixed: "left",
-                      dataIndex: "variant",
-                      render: (
-                        value: string,
-                        item: PurchaseOrderLineItem,
-                        index: number
-                      ) => {
-                        return (
-                          <div>
-                            <div>
-                              <div className="product-item-sku">
-                                <Link
-                                  target="_blank"
-                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                                >
-                                  {item.sku}
-                                </Link>
-                              </div>
-                              <div className="product-item-name">
-                                <span className="product-item-name-detail">
-                                  {value}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      },
-                    },
-                    {
-                      title: "Đơn vị",
-                      align: "center",
-                      width: 100,
-                      render: () => "Cái",
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                            flexDirection: "column",
-                            display: "flex",
-                          }}
-                        >
-                          SL
-                          <div
-                            style={{ color: "#2A2A86", fontWeight: "normal" }}
-                          >
-                            ({POUtils.totalQuantity(items)})
-                          </div>
-                        </div>
-                      ),
-                      width: 100,
-                      dataIndex: "quantity",
-                      render: (value, item, index) => (
-                        <div style={{ textAlign: "right" }}>{value}</div>
-                      ),
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
-                        >
-                          Giá nhập
-                          <span
-                            style={{
-                              color: "#737373",
-                              fontSize: "12px",
-                              fontWeight: "normal",
-                            }}
-                          >
-                            {" "}
-                            ₫
-                          </span>
-                        </div>
-                      ),
-                      width: 140,
-                      dataIndex: "price",
-                      render: (value, item, index) => {
-                        return (
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            {formatCurrency(
-                              Math.round(
-                                POUtils.caculatePrice(
-                                  value,
-                                  item.discount_rate,
-                                  item.discount_value
-                                )
-                              )
-                            )}
-                          </div>
-                        );
-                      },
-                    },
-                    {
-                      title: (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
-                        >
-                          VAT (%)
-                        </div>
-                      ),
-                      width: 120,
-                      dataIndex: "tax_rate",
-                      render: (value, item, index) => {
-                        return (
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            {value} %
-                          </div>
-                        );
-                      },
-                    },
-                    {
-                      dataIndex: "line_amount_after_line_discount",
-                      title: (
-                        <Tooltip title="Thành tiền không bao gồm thuế VAT">
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            Thành tiền
-                            <span
-                              style={{
-                                color: "#737373",
-                                fontSize: "12px",
-                                fontWeight: "normal",
-                              }}
-                            >
-                              {" "}
-                              ₫
-                            </span>
-                          </div>
-                        </Tooltip>
-                      ),
-                      align: "center",
-                      width: 130,
-                      render: (value: number) => (
-                        <div
-                          style={{
-                            width: "100%",
-                            textAlign: "right",
-                          }}
-                        >
-                          {formatCurrency(Math.round(value))}
-                        </div>
-                      ),
-                    },
-                    {
-                      title: "",
-                      width: 40,
-                      render: (value: string, item, index: number) => "",
-                    },
-                  ]}
-                />
-              ) : (
+              return !isEdit && status === POStatus.DRAFT ? (
                 <Table
                   className="product-table"
                   locale={{
@@ -1172,6 +983,216 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   tableLayout="fixed"
                   pagination={false}
                   scroll={{ y: 300, x: 950 }}
+                />
+              ) : (
+                <Table
+                  className="product-table"
+                  rowKey={(record: PurchaseOrderLineItem) =>
+                    record.id ? record.id : record.temp_id
+                  }
+                  rowClassName="product-table-row"
+                  dataSource={items}
+                  tableLayout="fixed"
+                  scroll={{ y: 300, x: 1000 }}
+                  pagination={false}
+                  columns={[
+                    {
+                      title: "STT",
+                      align: "center",
+                      fixed: "left",
+                      width: 60,
+                      render: (value, record, index) => index + 1,
+                    },
+                    {
+                      title: "Ảnh",
+                      width: 60,
+                      fixed: "left",
+                      dataIndex: "variant_image",
+                      render: (value) => (
+                        <div className="product-item-image">
+                          <img
+                            src={value === null ? imgDefIcon : value}
+                            alt=""
+                            className=""
+                          />
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "Sản phẩm",
+                      className: "ant-col-info",
+                      width: 250,
+                      fixed: "left",
+                      dataIndex: "variant",
+                      render: (
+                        value: string,
+                        item: PurchaseOrderLineItem,
+                        index: number
+                      ) => {
+                        return (
+                          <div>
+                            <div>
+                              <div className="product-item-sku">
+                                <Link
+                                  target="_blank"
+                                  to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                >
+                                  {item.sku}
+                                </Link>
+                              </div>
+                              <div className="product-item-name">
+                                <span className="product-item-name-detail">
+                                  {value}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      title: "Đơn vị",
+                      align: "center",
+                      width: 100,
+                      render: () => "Cái",
+                    },
+                    {
+                      title: (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                            flexDirection: "column",
+                            display: "flex",
+                          }}
+                        >
+                          SL
+                          <div
+                            style={{ color: "#2A2A86", fontWeight: "normal" }}
+                          >
+                            ({POUtils.totalQuantity(items)})
+                          </div>
+                        </div>
+                      ),
+                      width: 100,
+                      dataIndex: "quantity",
+                      render: (value, item, index) => (
+                        <div style={{ textAlign: "right" }}>{value}</div>
+                      ),
+                    },
+                    {
+                      title: (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          Giá nhập
+                          <span
+                            style={{
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {" "}
+                            ₫
+                          </span>
+                        </div>
+                      ),
+                      width: 140,
+                      dataIndex: "price",
+                      render: (value, item, index) => {
+                        return (
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "right",
+                            }}
+                          >
+                            {formatCurrency(
+                              Math.round(
+                                POUtils.caculatePrice(
+                                  value,
+                                  item.discount_rate,
+                                  item.discount_value
+                                )
+                              )
+                            )}
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      title: (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          VAT (%)
+                        </div>
+                      ),
+                      width: 120,
+                      dataIndex: "tax_rate",
+                      render: (value, item, index) => {
+                        return (
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "right",
+                            }}
+                          >
+                            {value} %
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      dataIndex: "line_amount_after_line_discount",
+                      title: (
+                        <Tooltip title="Thành tiền không bao gồm thuế VAT">
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "right",
+                            }}
+                          >
+                            Thành tiền
+                            <span
+                              style={{
+                                color: "#737373",
+                                fontSize: "12px",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              {" "}
+                              ₫
+                            </span>
+                          </div>
+                        </Tooltip>
+                      ),
+                      align: "center",
+                      width: 130,
+                      render: (value: number) => (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          {formatCurrency(Math.round(value))}
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "",
+                      width: 40,
+                      render: (value: string, item, index: number) => "",
+                    },
+                  ]}
                 />
               );
             }}
