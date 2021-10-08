@@ -13,22 +13,12 @@ import {
   PurchaseOrderPrint,
 } from "model/purchase-order/purchase-order.model";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { POGetPrintContentAction } from "domain/actions/po/po.action";
-import {
-  POStatus,
-  ProcumentStatus,
-  VietNamId,
-} from "utils/Constants";
+import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
@@ -115,9 +105,10 @@ const PODetailScreen: React.FC = () => {
   const [isEditDetail, setIsEditDetail] = useState<boolean>(false);
   const [statusAction, setStatusAction] = useState<string>("");
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isSuggest, setSuggest] = useState<boolean>(false);
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
-      setLoading(false)
+      setLoading(false);
       if (!result) {
         setError(true);
       } else {
@@ -129,7 +120,8 @@ const PODetailScreen: React.FC = () => {
     [formMain]
   );
   const loadDetail = useCallback(
-    (id: number, isLoading) => {
+    (id: number, isLoading, isSuggestDetail: boolean) => {
+      setSuggest(isSuggestDetail);
       dispatch(PoDetailAction(idNumber, onDetail));
     },
     [dispatch, idNumber, onDetail]
@@ -138,10 +130,9 @@ const PODetailScreen: React.FC = () => {
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
   const onConfirmButton = useCallback(() => {
-    setStatusAction(POStatus.FINALIZED)
+    setStatusAction(POStatus.FINALIZED);
     setIsEditDetail(true);
     formMain.submit();
-    
   }, [formMain]);
 
   const onResultRD = useCallback(
@@ -181,17 +172,17 @@ const PODetailScreen: React.FC = () => {
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
-      setLoadingSaveDraftButton(false);      
+      setLoadingSaveDraftButton(false);
       setIsEditDetail(false);
       if (result !== null) {
         showSuccess("Cập nhật nhập hàng thành công");
-        loadDetail(idNumber, true);
+        loadDetail(idNumber, true, false);
       }
     },
     [idNumber, loadDetail]
   );
   const onFinish = useCallback(
-    (value: PurchaseOrder) => { 
+    (value: PurchaseOrder) => {
       if (value.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
@@ -201,16 +192,20 @@ const PODetailScreen: React.FC = () => {
         showError("Vui lòng thêm sản phẩm");
         return;
       }
-      
-      const dataClone = {...value, status: statusAction};
+
+      const dataClone = { ...value, status: statusAction };
       switch (dataClone.status) {
         case POStatus.DRAFT:
+        case POStatus.STORED:
+        case POStatus.COMPLETED:
+        case POStatus.FINISHED:
+        case POStatus.CANCELLED:
           setLoadingSaveDraftButton(true);
           dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
         case POStatus.FINALIZED:
-        case POStatus.CANCELLED:
           setLoadingConfirmButton(true);
+          setLoadingSaveDraftButton(true);
           dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
       }
@@ -224,9 +219,12 @@ const PODetailScreen: React.FC = () => {
       setIsShowBillStep(false);
     }
   }, []);
-  const onAddProcumentSuccess = useCallback(() => {
-    loadDetail(idNumber, true);
-  }, [idNumber, loadDetail]);
+  const onAddProcumentSuccess = useCallback(
+    (isSuggest) => {
+      loadDetail(idNumber, true, isSuggest);
+    },
+    [idNumber, loadDetail]
+  );
 
   const onCancel = useCallback(() => {
     formMain.setFieldsValue({ status: POStatus.CANCELLED });
@@ -271,7 +269,8 @@ const PODetailScreen: React.FC = () => {
       okText = "Đồng ý",
       cancelText = "Hủy",
       deleteFunc = onCancel,
-      handleCancel= ()=>{setConfirmDelete(false);
+      handleCancel = () => {
+        setConfirmDelete(false);
       };
 
     if (!poData) return;
@@ -318,7 +317,6 @@ const PODetailScreen: React.FC = () => {
   }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
 
   const renderButton = useMemo(() => {
-    
     switch (status) {
       case POStatus.DRAFT:
         return (
@@ -329,18 +327,14 @@ const PODetailScreen: React.FC = () => {
               loading={isEditDetail && loadingSaveDraftButton}
               onClick={() => {
                 if (isEditDetail) {
-                  setStatusAction(POStatus.DRAFT)
+                  setStatusAction(POStatus.DRAFT);
                   formMain.submit();
-                }
-                else {
+                } else {
                   setIsEditDetail(!isEditDetail);
                 }
-              }
-            }
+              }}
             >
-              {
-                isEditDetail ? 'Lưu nháp' : 'Sửa'
-              }
+              {isEditDetail ? "Lưu nháp" : "Sửa"}
             </Button>
             <Button
               type="primary"
@@ -362,20 +356,23 @@ const PODetailScreen: React.FC = () => {
               if (isEditDetail) {
                 setStatusAction(status);
                 formMain.submit();
-              }
-              else {
+              } else {
                 setIsEditDetail(!isEditDetail);
               }
-            }
-          }
+            }}
           >
-            {
-              isEditDetail ? 'Lưu' : 'Sửa'
-            }
+            {isEditDetail ? "Lưu" : "Sửa"}
           </Button>
-        )
+        );
     }
-  }, [formMain, isEditDetail, loadingConfirmButton, loadingSaveDraftButton, onConfirmButton, status]);
+  }, [
+    formMain,
+    isEditDetail,
+    loadingConfirmButton,
+    loadingSaveDraftButton,
+    onConfirmButton,
+    status,
+  ]);
 
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
@@ -402,7 +399,7 @@ const PODetailScreen: React.FC = () => {
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
     if (!isNaN(idNumber)) {
       setLoading(true);
-      loadDetail(idNumber, true);
+      loadDetail(idNumber, true, false);
     } else {
       setError(true);
     }
@@ -447,7 +444,7 @@ const PODetailScreen: React.FC = () => {
     if (
       poData &&
       ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
-        (poData.total_paid && poData.total_paid > 0)) 
+        (poData.total_paid && poData.total_paid > 0))
     ) {
       return (
         <POReturnList
@@ -484,7 +481,7 @@ const PODetailScreen: React.FC = () => {
     >
       <div id="test" className="page-filter">
         <Space direction="horizontal">
-          <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary"   />
+          <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
 
           <Button
             type="link"
@@ -550,16 +547,12 @@ const PODetailScreen: React.FC = () => {
             <POSupplierForm
               showSupplierAddress={true}
               showBillingAddress={true}
-              isEdit={true}
+              isEdit={!isEditDetail}
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
-              isEditDetail={isEditDetail}
             />
-            <POProductForm
-              isEdit={!isEditDetail}
-              formMain={formMain}
-            />
+            <POProductForm isEdit={!isEditDetail} formMain={formMain} />
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
@@ -573,6 +566,8 @@ const PODetailScreen: React.FC = () => {
 
             {poData && poData.status !== POStatus.DRAFT ? (
               <POPaymentForm
+                setSuggest={(isSuggest) => setSuggest(isSuggest)}
+                isSuggest={isSuggest}
                 poData={poData}
                 poId={parseInt(id)}
                 loadDetail={loadDetail}
@@ -586,9 +581,8 @@ const PODetailScreen: React.FC = () => {
                 isEditDetail={isEditDetail}
               />
             )}
-       
-              {showPOReturnList()}
-              
+
+            {showPOReturnList()}
           </Col>
           {/* Right Side */}
           <Col md={6}>
@@ -607,7 +601,7 @@ const PODetailScreen: React.FC = () => {
           style={{
             position: "fixed",
             textAlign: "right",
-            zIndex:5,
+            zIndex: 5,
             width: "100%",
             height: "55px",
             bottom: "0%",

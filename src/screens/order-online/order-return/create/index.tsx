@@ -241,7 +241,7 @@ const ScreenReturnCreate = (props: PropType) => {
     if (!data) {
       setError(true);
     } else {
-      let _data = { ...data };
+      const _data = { ...data };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
           f.status !== FulFillmentStatus.CANCELLED &&
@@ -249,13 +249,14 @@ const ScreenReturnCreate = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      let returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
+      const returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
         return (
           singleFulfillment.status === FulFillmentStatus.SHIPPED ||
           singleFulfillment.status === FulFillmentStatus.UNSHIPPED
         );
       });
-      if (returnFulfillment) {
+      const returnCondition = returnFulfillment || _data.source === "POS";
+      if (returnCondition) {
         setIsCanReturnOrExchange(true);
       }
       let returnProduct: ReturnProductModel[] = _data.items.map((single) => {

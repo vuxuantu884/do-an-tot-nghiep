@@ -2,15 +2,15 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Modal, Radio, Space } from "antd";
 import { useMemo, useState } from "react";
 
-type ExportModalProps = {
+type ImportModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
   type: string;
 };
 
-const ExportModal: React.FC<ExportModalProps> = (
-  props: ExportModalProps
+const ImportModal: React.FC<ImportModalProps> = (
+  props: ImportModalProps
 ) => {
   const { visible, onCancel, onOk, type } = props;
   const [editFields, setEditFields] = useState(false); 
@@ -92,5 +92,5 @@ const ExportModal: React.FC<ExportModalProps> = (
   );
 };
 
-export default ExportModal;
+export default ImportModal;
 

@@ -63,6 +63,7 @@ import {
   Products,
   replaceFormatString
 } from "utils/AppUtils";
+import { VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -73,7 +74,7 @@ import UploadImageModal, {
 } from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
 const { Item, List } = Form;
-const VIETNAM_COUNTRY_ID = 233
+
 const initialRequest: ProductRequestView = {
   goods: null,
   category_id: null,
@@ -529,7 +530,7 @@ const ProductCreateScreen: React.FC = () => {
   }, [dispatch, setDataAccounts, setDataCategory]);
 
   useEffect(() => {
-    form.setFieldsValue({ made_in_id: VIETNAM_COUNTRY_ID });
+    form.setFieldsValue({ made_in_id: VietNamId });
     form.setFieldsValue({ length_unit: 'cm' });
   }, [form]);
 

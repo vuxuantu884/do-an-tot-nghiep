@@ -10,7 +10,7 @@ type PropType = {
   discountRate: number;
   discountValue: number;
   coupon: string;
-  shippingFeeCustomer?: number;
+  shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
   pointUsing?: {
@@ -37,7 +37,7 @@ function CardProductBottom(props: PropType) {
     discountValue,
     coupon,
     changeMoney,
-    shippingFeeCustomer,
+    shippingFeeInformedToCustomer,
     amount,
     pointUsing,
     showDiscountModal,
@@ -185,8 +185,8 @@ function CardProductBottom(props: PropType) {
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
-                {shippingFeeCustomer
-                  ? formatCurrency(shippingFeeCustomer)
+                {shippingFeeInformedToCustomer
+                  ? formatCurrency(shippingFeeInformedToCustomer)
                   : "-"}
               </div>
             </Row>
@@ -197,7 +197,9 @@ function CardProductBottom(props: PropType) {
                 {changeMoney
                   ? formatCurrency(
                       changeMoney +
-                        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                        (shippingFeeInformedToCustomer
+                          ? shippingFeeInformedToCustomer
+                          : 0) -
                         discountValue
                     )
                   : "-"}
