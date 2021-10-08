@@ -17,7 +17,10 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getFulfillments } from "domain/actions/order/order.action";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemResponse, OrderProductListModel } from "model/response/order/order.response";
+import {
+  OrderLineItemResponse,
+  OrderProductListModel,
+} from "model/response/order/order.response";
 import {
   createRef,
   useCallback,
@@ -48,6 +51,8 @@ const PackInfo: React.FC = () => {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
+  //element
+  const btnFinishPackElement = document.getElementById("btnFinishPack");
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -85,39 +90,23 @@ const PackInfo: React.FC = () => {
         formRef.current?.validateFields(["order_request"]);
         formRef.current?.validateFields(["quality_request"]);
 
-        let store_request = formRef.current?.getFieldValue(["store_request"]);
-        let order_request = formRef.current?.getFieldValue(["order_request"]);
-        let quality_request = formRef.current?.getFieldValue([
-          "quality_request",
-        ]);
-        let product_request = formRef.current?.getFieldValue([
-          "product_request",
-        ]);
-
-        if (
-          store_request &&
-          order_request &&
-          quality_request &&
-          product_request
-        ) {
-          let indexPack = orderList.findIndex((p) => p.sku === value);
-          if (indexPack !== -1) {
-            orderList[indexPack].pick = quality_request;
-            if (quality_request == orderList[indexPack].quantity)
-              orderList[indexPack].color = "#27AE60";
-            else
-              orderList[indexPack].color = "#E24343";
-            setOrderList([...orderList]);
-          } else {
-            showError("Máy chủ bận")
-          }
-          console.log(`ok luôn ${product_request}`);
-        } else {
-          console.log("false luôn");
-        }
+        btnFinishPackElement?.click();
       }
     },
-    [formRef, orderList]
+    [formRef, btnFinishPackElement]
+  );
+
+  const onKeyupQuality = useCallback(
+    (value: string) => {
+      if (value.trim()) {
+        // formRef.current?.validateFields(["store_request"]);
+        // formRef.current?.validateFields(["order_request"]);
+        // formRef.current?.validateFields(["quality_request"]);
+
+        btnFinishPackElement?.click();
+      }
+    },
+    [btnFinishPackElement]
   );
   //event
 
@@ -130,13 +119,58 @@ const PackInfo: React.FC = () => {
           item.push({ ...i, pick: 0, color: "#E24343" });
         });
       });
-      console.log(item);
       setOrderList(item);
     }
   }, [orderResponse]);
 
-  const Finish = useCallback(() => {}, [formRef]);
+  useEffect(() => {
+    if (orderList && orderResponse && orderResponse.length!==0 && orderList.length !== 0) {
+      //let checkPickUp=false;
+      console.log("orderList");
+      console.log(orderList);
+      let indexPack = orderList.filter((p:OrderProductListModel) => Number(p.quantity) !== Number(p.pick));
+      console.log("indexPack");
+      console.log(indexPack);
+      // orderList.forEach(function (value: OrderProductListModel) {
+      //   if (Number(value.quantity) !== Number(value.pick)) console.log(value);
+      // });
+      if (indexPack === undefined|| indexPack.length===0) {
+        let request = {id: orderResponse[0].id,code:orderResponse[0].code,items:{...orderList}};
+        console.log("request")
+        console.log(request)
+      }
+    }
+  }, [orderList,orderResponse]);
+
   //useEffect
+
+  const FinishPack = useCallback(() => {
+    let store_request = formRef.current?.getFieldValue(["store_request"]);
+    let order_request = formRef.current?.getFieldValue(["order_request"]);
+    let quality_request = formRef.current?.getFieldValue(["quality_request"]);
+    let product_request = formRef.current?.getFieldValue(["product_request"]);
+
+    if (store_request && order_request && quality_request && product_request) {
+      let indexPack = orderList.findIndex(
+        (p) =>
+          p.sku === product_request || p.variant_barcode === product_request
+      );
+
+      if (indexPack !== -1) {
+        orderList[indexPack].pick = quality_request;
+        if (quality_request == orderList[indexPack].quantity)
+          orderList[indexPack].color = "#27AE60";
+        else orderList[indexPack].color = "#E24343";
+        setOrderList([...orderList]);
+        formRef.current?.setFieldsValue({ product_request: "" });
+        formRef.current?.setFieldsValue({ quality_request: "" });
+      } else {
+        showError("Fontend bận");
+      }
+    } else {
+      console.log("false luôn");
+    }
+  }, [formRef, orderList]);
 
   const SttColumn = {
     title: () => (
@@ -339,13 +373,17 @@ const PackInfo: React.FC = () => {
                     style={{ width: "50%" }}
                     placeholder="số lượng"
                     addonAfter={<AiOutlinePlusCircle />}
+                    onPressEnter={(e: any) => {
+                      onKeyupQuality(e.target.value);
+                    }}
                   />
                 </Form.Item>
               </Input.Group>
             </Form.Item>
           </Col>
         </Row>
-
+      </div>
+      <div style={{ padding: "24px 24px 0 24px" }}>
         {orderList && orderList.length > 0 && (
           <Row
             align="middle"
@@ -406,7 +444,8 @@ const PackInfo: React.FC = () => {
             </Col>
           </Row>
         )}
-
+      </div>
+      <div style={{ padding: "24px 24px 0 24px" }}>
         <Row className="sale-product-box" justify="space-between">
           <Table
             locale={{
@@ -424,7 +463,7 @@ const PackInfo: React.FC = () => {
                     marginBottom: 15,
                   }}
                 >
-                  Thêm sản phẩm ngay (F3)
+                  Thêm đơn hàng ngay (F3)
                 </Button>
               ),
             }}
@@ -457,7 +496,10 @@ const PackInfo: React.FC = () => {
                     }}
                   >
                     {formatCurrency(
-                      orderList.reduce((a:number, b:OrderProductListModel) => a + b.quantity, 0)
+                      orderList.reduce(
+                        (a: number, b: OrderProductListModel) => a + b.quantity,
+                        0
+                      )
                     )}
                   </div>
                   <div
@@ -468,7 +510,13 @@ const PackInfo: React.FC = () => {
                       fontWeight: 400,
                     }}
                   >
-                    {formatCurrency(orderList.reduce((a:number, b:OrderProductListModel) => a + Number(b.pick), 0))}
+                    {formatCurrency(
+                      orderList.reduce(
+                        (a: number, b: OrderProductListModel) =>
+                          a + Number(b.pick),
+                        0
+                      )
+                    )}
                   </div>
                 </div>
               ) : (
@@ -476,6 +524,25 @@ const PackInfo: React.FC = () => {
               )
             }
           />
+        </Row>
+      </div>
+      <div style={{ padding: "24px" }}>
+        <Row gutter={24}>
+          <Col md={12}>
+            <Button style={{ padding: "0px 50px" }}>Hủy đã đóng gói</Button>
+          </Col>
+          <Col md={12}>
+            <Button
+              style={{ display: "none" }}
+              id="btnFinishPack"
+              onClick={(e) => {
+                e.stopPropagation();
+                FinishPack();
+              }}
+            >
+              Đóng gói
+            </Button>
+          </Col>
         </Row>
       </div>
     </Form>
