@@ -27,6 +27,7 @@ import {
   getChannelApi,
   getDeliveryMappedStoresServices,
   getDeliveryTransportTypesServices,
+  getFulfillmentsApi,
   getInfoDeliveryFees,
   getOrderConfig,
   getPaymentMethod,
@@ -679,6 +680,26 @@ function* configOrderSaga(action: YodyAction) {
   }
 }
 
+function* getFulfillmentsSaga(action: YodyAction) {
+  const { code, setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderConfig> = yield call(getFulfillmentsApi, code);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(
@@ -737,4 +758,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_REASON_REQUEST, getListReasonSaga);
   yield takeLatest(OrderType.CANCEL_ORDER_REQUEST, cancelOrderSaga);
   yield takeLatest(OrderType.GET_ORDER_CONFIG, configOrderSaga);
+  yield takeLatest(OrderType.GET_FULFILLMENTS, getFulfillmentsSaga);
 }

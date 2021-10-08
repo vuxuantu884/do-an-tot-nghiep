@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Card, Row, Space, Tabs, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import PackInfo from "./pack-support/pack-info";
 
 const { TabPane } = Tabs;
 
@@ -30,11 +31,12 @@ const PackSupportScreen: React.FC = () => {
                         <Card>
                             <Tabs defaultActiveKey="1">
                                 <TabPane tab="Đóng gói" key="1">
-                                    <Row gutter={24}>
+                                    <PackInfo></PackInfo>
+                                    {/* <Row gutter={24}>
                                         <Col xs={24}>
                                             Tab 1
                                         </Col>
-                                    </Row>
+                                    </Row> */}
                                 </TabPane>
                                 <TabPane tab="Bàn giao" disabled key="2">
                                     Tab 2
