@@ -30,6 +30,7 @@ export interface ShippingServiceConfigDetailResponseModel {
   external_service_transport_types: [
     {
       id: number;
+      code: string;
       external_service_id: number;
       external_service_code: string;
       name: string;

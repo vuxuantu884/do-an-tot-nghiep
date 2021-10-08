@@ -602,7 +602,6 @@ export default function Order() {
               );
             }
             if (response) {
-              console.log("response333", response);
               let giftResponse = response.items.filter((item) => {
                 return item.type === Type.GIFT;
               });
@@ -701,6 +700,7 @@ export default function Order() {
               setIsLoadForm(true);
               if (
                 response.fulfillments &&
+                response.fulfillments.length > 0 &&
                 response.fulfillments[0].shipment?.cod
               ) {
                 setPaymentMethod(PaymentMethodOption.COD);
@@ -960,11 +960,15 @@ export default function Order() {
       storeId,
       setStoreId,
     },
+    form,
     shipping: {
       shippingServiceConfig,
       shippingAddress,
       shippingFeeInformedToCustomer,
       setShippingFeeInformedToCustomer,
+    },
+    order: {
+      orderAmount,
     },
   };
 

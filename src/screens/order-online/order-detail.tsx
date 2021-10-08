@@ -426,7 +426,9 @@ const OrderDetail = (props: PropType) => {
           history.push(`${UrlConfig.ORDER}/${id}/update`);
           break;
         case "clone":
-          history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          const newTab = window.open(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`, "_blank")
+          newTab?.focus()
           break;
         default:
           break;

@@ -1,24 +1,23 @@
-import { Col, Row, Form } from "antd";
+import { Col, Form, Row } from "antd";
+import LogoDHL from "assets/img/LogoDHL.svg";
+import LogoGHN from "assets/img/LogoGHN.svg";
+import LogoGHTK from "assets/img/LogoGHTK.svg";
+import LogoVTP from "assets/img/LogoVTP.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { OrderPaymentRequest } from "model/request/order.request";
 import {
+  FeesResponse,
   // DeliveryServiceResponse,
   FulFillmentResponse,
   OrderResponse,
-  FeesResponse,
 } from "model/response/order/order.response";
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
-
-import LogoGHTK from "assets/img/LogoGHTK.svg";
-import LogoGHN from "assets/img/LogoGHN.svg";
-import LogoVTP from "assets/img/LogoVTP.svg";
-import LogoDHL from "assets/img/LogoDHL.svg";
-import NumberFormat from "react-number-format";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import moment from "moment";
+import React, { useCallback, useContext, useMemo, useState } from "react";
+import NumberFormat from "react-number-format";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   amount: number | undefined;
@@ -122,117 +121,150 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   };
 
   const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
+  const form = createOrderContext?.form;
+  const orderPrice = createOrderContext?.order.orderAmount;
 
   /**
    * check cấu hình đơn hàng để tính phí ship báo khách
    */
-  useEffect(() => {
-    const fakeCity = "TP. Hà Nội";
-    const fakePrice = 500000;
-    if (
-      !createOrderContext?.shipping.shippingServiceConfig ||
-      !customerShippingAddress
-    ) {
-      return;
-    }
-    //check thời gian
-    const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
-      const now = moment();
-      const checkIfTodayAfterStartDate = moment(startDate).isBefore(now);
-      const checkIfTodayBeforeEndDate = moment(now).isBefore(endDate);
-      console.log("checkIfTodayAfterStartDate", checkIfTodayAfterStartDate);
-      console.log("checkIfTodayBeforeEndDate", checkIfTodayBeforeEndDate);
-      return checkIfTodayAfterStartDate && checkIfTodayAfterStartDate;
-    };
 
-    // check tỉnh giao hàng
-    const checkIfSameProvince = (
-      customerShippingAddressProvince: string,
-      configShippingAddressProvince: string
-    ) => {
-      return customerShippingAddressProvince === configShippingAddressProvince;
-    };
-
-    // check giá
-    const checkIfPrice = (
-      orderPrice: number,
-      fromPrice: number,
-      toPrice: number
-    ) => {
-      console.log("fromPrice", fromPrice);
-      console.log("toPrice", toPrice);
-      console.log("orderPrice", orderPrice);
-      console.log(fromPrice <= orderPrice && orderPrice <= toPrice);
-      return fromPrice <= orderPrice && orderPrice <= toPrice;
-    };
-
-    // filter thời gian
-    const onTimeShippingServiceConfig =
-      createOrderContext?.shipping.shippingServiceConfig.filter((single) => {
-        return (
-          checkIfIsInTimePeriod(single.start_date, single.end_date) &&
-          single.status === ORDER_SETTINGS_STATUS.active
-        );
-      });
-
-    console.log("onTimeShippingServiceConfig", onTimeShippingServiceConfig);
-
-    // filter city
-    let listCheckedShippingFeeConfig = [];
-
-    if (onTimeShippingServiceConfig) {
-      for (const singleOnTimeShippingServiceConfig of onTimeShippingServiceConfig) {
-        const checkedShippingFeeConfig =
-          singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
-            (single) => {
-              console.log("single", single);
-              return (
-                checkIfSameProvince(single.city_name, fakeCity) &&
-                checkIfPrice(fakePrice, single.from_price, single.to_price)
-              );
-            }
-          );
-        console.log("checkedShippingFeeConfig", checkedShippingFeeConfig);
-        listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
+  const shippingFeeApplyOrderSetting = useCallback(
+    (transportType: string) => {
+      if (!customerShippingAddress || !orderPrice) {
+        return;
       }
-    }
-    console.log("listCheckedShippingFeeConfig", listCheckedShippingFeeConfig);
+      const customerShippingAddressCity = customerShippingAddress.city;
 
-    //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
-    const flattenArray = (arr: any) => {
-      return arr.reduce(function (flat: any, toFlatten: any) {
-        return flat.concat(
-          Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
-        );
-      }, []);
-    };
+      if (
+        !createOrderContext?.shipping.shippingServiceConfig ||
+        !customerShippingAddress
+      ) {
+        return;
+      }
+      //check thời gian
+      const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
+        const now = moment();
+        const checkIfTodayAfterStartDate = moment(startDate).isBefore(now);
+        const checkIfTodayBeforeEndDate = moment(now).isBefore(endDate);
+        return checkIfTodayAfterStartDate && checkIfTodayBeforeEndDate;
+      };
 
-    const listCheckedShippingFeeConfigFlatten = flattenArray(
-      listCheckedShippingFeeConfig
-    );
-    console.log(
-      "listCheckedShippingFeeConfigFlatten",
-      listCheckedShippingFeeConfigFlatten
-    );
-
-    // lấy số nhỏ nhất
-    if (
-      listCheckedShippingFeeConfigFlatten &&
-      listCheckedShippingFeeConfigFlatten.length > 0
-    ) {
-      let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
-      listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
-        if (single.transport_fee < result) {
-          result = single.transport_fee;
+      // check dịch vụ
+      const checkIfListServicesContainSingle = (
+        listServices: any[],
+        singleService: string
+      ) => {
+        let result = false;
+        let checkCondition = listServices.some((single) => {
+          return single.code === singleService;
+        });
+        if (checkCondition) {
+          result = true;
         }
-      });
-      console.log("result", result);
-    }
-  }, [
-    createOrderContext?.shipping.shippingAddress,
-    createOrderContext?.shipping.shippingServiceConfig,
-    customerShippingAddress,
-  ]);
+        return result;
+      };
+
+      // check tỉnh giao hàng
+      const checkIfSameProvince = (
+        customerShippingAddressProvince: string,
+        configShippingAddressProvince: string
+      ) => {
+        return (
+          customerShippingAddressProvince === configShippingAddressProvince
+        );
+      };
+
+      // check giá
+      const checkIfPrice = (
+        orderPrice: number,
+        fromPrice: number,
+        toPrice: number
+      ) => {
+        return fromPrice <= orderPrice && orderPrice <= toPrice;
+      };
+
+      // filter thời gian, active
+      const filteredShippingServiceConfig =
+        createOrderContext?.shipping.shippingServiceConfig.filter((single) => {
+          return (
+            checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+            single.status === ORDER_SETTINGS_STATUS.active &&
+            single.external_service_transport_types &&
+            checkIfListServicesContainSingle(
+              single.external_service_transport_types,
+              transportType
+            )
+          );
+        });
+
+      console.log(
+        "filteredShippingServiceConfig",
+        filteredShippingServiceConfig
+      );
+
+      // filter city
+      let listCheckedShippingFeeConfig = [];
+
+      if (filteredShippingServiceConfig) {
+        for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
+          const checkedShippingFeeConfig =
+            singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
+              (single) => {
+                console.log("single", single);
+                return (
+                  checkIfSameProvince(
+                    single.city_name,
+                    customerShippingAddressCity
+                  ) &&
+                  checkIfPrice(orderPrice, single.from_price, single.to_price)
+                );
+              }
+            );
+          console.log("checkedShippingFeeConfig", checkedShippingFeeConfig);
+          listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
+        }
+      }
+
+      //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+      const flattenArray = (arr: any) => {
+        return arr.reduce(function (flat: any, toFlatten: any) {
+          return flat.concat(
+            Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
+          );
+        }, []);
+      };
+
+      const listCheckedShippingFeeConfigFlatten = flattenArray(
+        listCheckedShippingFeeConfig
+      );
+
+      // lấy số nhỏ nhất
+      if (
+        listCheckedShippingFeeConfigFlatten &&
+        listCheckedShippingFeeConfigFlatten.length > 0
+      ) {
+        let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
+        listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
+          if (single.transport_fee < result) {
+            result = single.transport_fee;
+          }
+        });
+        console.log("result", result);
+        form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
+        setShippingFeeInformedCustomer(result);
+      } else {
+        form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
+        setShippingFeeInformedCustomer(0);
+      }
+    },
+    [
+      createOrderContext?.shipping.shippingServiceConfig,
+      customerShippingAddress,
+      form,
+      orderPrice,
+      setShippingFeeInformedCustomer,
+    ]
+  );
 
   return (
     <StyledComponent>
@@ -267,7 +299,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách"
+              label="Phí ship báo khách:"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput
@@ -338,6 +370,22 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                               service.transport_type
                                             }
                                             onChange={(e) => {
+                                              console.log("change shipping");
+                                              console.log(
+                                                "sercivesFee",
+                                                sercivesFee
+                                              );
+                                              console.log(
+                                                "service.transport_type",
+                                                service.transport_type
+                                              );
+                                              console.log(
+                                                "deliveryServiceName",
+                                                deliveryServiceName
+                                              );
+                                              shippingFeeApplyOrderSetting(
+                                                service.transport_type
+                                              );
                                               setSelectedShipmentMethod(
                                                 service.transport_type
                                               );
