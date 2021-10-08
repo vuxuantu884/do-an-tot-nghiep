@@ -187,6 +187,7 @@ const EcommerceOrderSync: React.FC = () => {
   >([
     {
       title: "ID đơn hàng",
+      key: "order_id",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => (
         <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
@@ -228,14 +229,14 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Sản phẩm",
       dataIndex: "items",
-      key: "items.name",
+      key: "items_variant_id",
       render: (items: Array<OrderItemModel>) => (
         <div className="cell-items">
           {items.length > 1 && items.map((item, i) => {
             return (
-              <div className="item">
+              <div className="item" key={i}>
                 {item.variant.length > 33 &&
-                  <div key={item.variant_id} className="tooltip-item">
+                  <div className="tooltip-item">
                     <Tooltip title={item.variant} color="#1890ff">
                       <Link
                         target="_blank"
@@ -248,7 +249,7 @@ const EcommerceOrderSync: React.FC = () => {
                 }
 
                 {item.variant.length <= 31 &&
-                  <div key={item.variant_id}>
+                  <div>
                     <Link
                       target="_blank"
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
@@ -277,7 +278,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Số lượng",
       dataIndex: "items",
-      key: "items.name",
+      key: "items_quantity",
       render: (items: Array<OrderItemModel>) => (
         <div className="cell-items">
           {items.map((item, i) => {
@@ -317,7 +318,7 @@ const EcommerceOrderSync: React.FC = () => {
           </span>
         </>
       ),
-      key: "customer.amount_money",
+      key: "customer_amount_money",
       visible: true,
       align: "right",
       width: "3.5%",
@@ -325,7 +326,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Phí ship trả sàn",
       dataIndex: "fulfillments",
-      key: "shipment.type",
+      key: "shipment_type",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
         const service_id =
           fulfillments.length && fulfillments[0].shipment
@@ -351,7 +352,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
-      key: "status",
+      key: "order_status",
       render: (status_value: string) => {
         const status = status_order.find(
           (status) => status.value === status_value
@@ -482,7 +483,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
-      key: "item.quantity.total",
+      key: "item_quantity_total",
       render: (items) => {
         return items.reduce(
           (total: number, item: any) => total + item.quantity,
@@ -520,13 +521,13 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Nguồn đơn hàng",
       dataIndex: "source",
-      key: "source",
+      key: "order_source",
       visible: true,
     },
     {
       title: "Phương thức thanh toán",
       dataIndex: "payments",
-      key: "payments.type",
+      key: "payments_type",
       render: (payments: Array<OrderPaymentModel>) =>
         payments.map((payment) => {
           return <Tag key={payment.id}>{payment.payment_method}</Tag>;
@@ -574,7 +575,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Tình trạng ghép nối",
       dataIndex: "customer_note",
-      key: "customer_note",
+      key: "connect_status",
       visible: true,
     },
   ]);
@@ -782,6 +783,7 @@ const EcommerceOrderSync: React.FC = () => {
 
       <ModalSettingColumn
         visible={showSettingColumn}
+        isSetDefaultColumn={true}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
           setShowSettingColumn(false);
