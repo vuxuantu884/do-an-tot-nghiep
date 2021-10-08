@@ -43,6 +43,7 @@ import { AppConfig } from "config/app.config";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
+import { POStatus } from "utils/Constants";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
@@ -283,7 +284,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
         untaxed_amount: untaxed_amount,
-        [POField.procurements]: newProcument
+        [POField.procurements]: newProcument,
       });
     },
     [formMain]
@@ -597,29 +598,38 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
       >
         <div className="padding-20">
-          {!isEdit && (
-            <Input.Group className="display-flex">
-              <CustomAutoComplete
-                id="#product_search"
-                dropdownClassName="product"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                onSearch={onSearch}
-                dropdownMatchSelectWidth={456}
-                style={{ width: "100%" }}
-                showAdd={true}
-                textAdd="Thêm mới sản phẩm"
-                onSelect={onSelectProduct}
-                options={renderResult}
-                ref={productSearchRef}
-              />
-              <Button
-                onClick={() => setVisibleManyProduct(true)}
-                style={{ width: 132, marginLeft: 10 }}
-              >
-                Chọn nhiều
-              </Button>
-            </Input.Group>
-          )}
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, current) => prev.status !== current.status}
+          >
+            {({getFieldValue}) => {
+              let status = getFieldValue('status');
+              return (!isEdit && status === POStatus.DRAFT) && (
+                <Input.Group className="display-flex">
+                  <CustomAutoComplete
+                    id="#product_search"
+                    dropdownClassName="product"
+                    placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                    onSearch={onSearch}
+                    dropdownMatchSelectWidth={456}
+                    style={{ width: "100%" }}
+                    showAdd={true}
+                    textAdd="Thêm mới sản phẩm"
+                    onSelect={onSelectProduct}
+                    options={renderResult}
+                    ref={productSearchRef}
+                  />
+                  <Button
+                    onClick={() => setVisibleManyProduct(true)}
+                    style={{ width: 132, marginLeft: 10 }}
+                  >
+                    Chọn nhiều
+                  </Button>
+                </Input.Group>
+              )
+            }}
+          </Form.Item>
+          {}
 
           <Form.Item noStyle name={POField.line_items} hidden>
             <Input />

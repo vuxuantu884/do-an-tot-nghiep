@@ -29,6 +29,7 @@ type PaymentModalProps = {
   onCancel: () => void;
   deletePayment: () => void;
   onOk: (isLoad: boolean) => void;
+  initValue: PurchasePayments|null,
 };
 const { Item } = Form;
 const PaymentModal: React.FC<PaymentModalProps> = (
@@ -150,6 +151,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       }
     }
   }, [formPayment, purchasePayment, visible]);
+  useEffect(() => {
+    if(props.initValue) {
+      formPayment.setFieldsValue(props.initValue);
+    }
+  }, [formPayment, props.initValue])
   return (
     <Modal
       title={purchasePayment?.id ? "Sửa thanh toán " : "Tạo thanh toán "}

@@ -143,7 +143,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                   >
                     {({ getFieldValue }) => {
                       let total_paid = getFieldValue(POField.total_paid);
-                      let total = getFieldValue(POField.total);
+                      let total = getFieldValue(POField.total_payment);
                       return (
                         <POProgressView
                           remainTitle={"Còn phải trả"}
