@@ -223,7 +223,7 @@ function* InfoFeesSaga(action: YodyAction) {
 }
 
 function* updateFulFillmentStatusSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, setData, setError } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       updateFulFillmentStatus,
@@ -238,12 +238,13 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    setError(true)
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* updatePaymentSaga(action: YodyAction) {
-  const { request, order_id, setData } = action.payload;
+  const { request, order_id, setData, setError } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       updatePayment,
@@ -259,12 +260,13 @@ function* updatePaymentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    setError(true)
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* updateShipmentSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, setData, setError } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       updateShipment,
@@ -279,6 +281,7 @@ function* updateShipmentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    setError(true)
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

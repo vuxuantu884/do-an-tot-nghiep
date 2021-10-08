@@ -21,7 +21,7 @@ import {
   VariantUpdateView,
 } from "model/product/product.model";
 import {
-  DeliveryServiceResponse,
+  // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
@@ -793,7 +793,7 @@ export const SumWeightResponse = (items?: Array<OrderLineItemResponse>) => {
 };
 
 export const InfoServiceDeliveryDetail = (
-  items: Array<DeliveryServiceResponse> | null,
+  items: Array<any> | null,
   delivery_id: number | null
 ) => {
   if (items) {
