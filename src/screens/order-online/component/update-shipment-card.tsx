@@ -95,6 +95,7 @@ type UpdateShipmentCardProps = {
   setPaymentType: (value: number) => void;
   setVisibleShipping: (value: boolean) => void;
   setOfficeTime: (value: boolean) => void;
+  onReload?: () => void;
   OrderDetail: OrderResponse | null;
   storeDetail?: StoreResponse;
   stepsStatusValue?: string;
@@ -119,6 +120,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setVisibleShipping,
     setPaymentType,
     setShipmentMethod,
+    onReload,
     OrderDetail,
     orderSettings,
   } = props;
@@ -221,8 +223,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
 
+  const [reload, setReload] = useState(false);
   useEffect(() => {
-    if (TrackingCode(props.OrderDetail) !== "Đang xử lý") {
+    if (TrackingCode(props.OrderDetail) !== "Đang xử lý" || reload) {
       if (
         props.OrderDetail &&
         props.OrderDetail.fulfillments &&
@@ -237,7 +240,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         );
       }
     }
-  }, [dispatch, props.OrderDetail]); //logne
+    setReload(false);
+  }, [dispatch, props.OrderDetail, reload]); //logne
 
   useEffect(() => {
     if (
@@ -259,47 +263,45 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#endregion
 
   //#region Update Fulfillment Status
-  let timeout = 500;
+  // let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
+    setReload(true)
     showSuccess("Tạo đơn giao hàng thành công");
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    onReload && onReload()
   };
   const onPickSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
+    setReload(true)
     showSuccess("Nhặt hàng thành công");
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    onReload && onReload()
   };
 
   const onPackSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
+    setReload(true)
     showSuccess("Đóng gói thành công");
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    onReload && onReload()
   };
 
   const onShippingSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
+    setReload(true)
     showSuccess("Xuất kho thành công");
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    setIsvibleShippingConfirm(false)
+    onReload && onReload()
   };
 
   const onShipedSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
+    setReload(true)
     showSuccess("Hoàn tất đơn hàng");
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    setIsvibleShippedConfirm(false)
+    onReload && onReload()
   };
   const onCancelSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
+    setReload(true)
     showSuccess(
       `Bạn đã hủy đơn giao hàng ${
         props.OrderDetail?.fulfillments &&
@@ -312,9 +314,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         )[0].id
       } thành công`
     );
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    setIsvibleCancelFullfilment(false)
+    onReload && onReload()
   };
   const onError = (error: boolean) => {
     setUpdateShipment(false);
@@ -322,6 +323,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
   const onReturnSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
+    setReload(true)
     showSuccess(
       `Bạn đã nhận hàng trả lại của đơn giao hàng ${
         value.fulfillments &&
@@ -331,9 +333,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         )[0].id
       }`
     );
-    setTimeout(() => {
-      window.location.reload();
-    }, timeout);
+    setIsvibleGoodsReturn(false)
+    onReload && onReload()
   };
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
