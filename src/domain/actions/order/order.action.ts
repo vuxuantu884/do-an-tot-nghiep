@@ -124,29 +124,33 @@ export const getTrackingLogError = (
 
 export const UpdateFulFillmentStatusAction = (
   request: UpdateFulFillmentStatusRequest,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  setError?: (error: boolean) => void
 ) => {
-  return BaseAction(OrderType.UPDATE_FULFILLMENT_METHOD, { request, setData });
+  return BaseAction(OrderType.UPDATE_FULFILLMENT_METHOD, { request, setData, setError });
 };
 
 export const UpdatePaymentAction = (
   // request: UpdatePaymentRequest,
   request: any,
   order_id: number | null,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  setError?: (error: boolean) => void
 ) => {
   return BaseAction(OrderType.UPDATE_PAYMENT_METHOD, {
     request,
     order_id,
     setData,
+    setError
   });
 };
 
 export const UpdateShipmentAction = (
   request: UpdateLineFulFillment,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  setError?: (error: boolean) => void
 ) => {
-  return BaseAction(OrderType.UPDATE_SHIPPING_METHOD, { request, setData });
+  return BaseAction(OrderType.UPDATE_SHIPPING_METHOD, { request, setData, setError });
 };
 
 export const DeliveryServicesGetList = (

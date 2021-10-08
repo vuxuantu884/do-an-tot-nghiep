@@ -68,7 +68,6 @@ import {
   getAmountPaymentRequest,
   getServiceName,
   getTotalAmountAfferDiscount,
-  // InfoServiceDeliveryDetail,
   SumCOD,
   SumWeightResponse,
   TrackingCode,
@@ -792,6 +791,8 @@ export default function Order(props: PropType) {
               url: response.url,
               note: response.note,
               tags: response.tags,
+              marketer_code: response.marketer_code,
+              coordinator_code: response.coordinator_code,
             });
             let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
             if (
@@ -883,11 +884,11 @@ export default function Order(props: PropType) {
             : loyaltyPoint?.loyalty_level_id)
       );
 
-      let curenPoint = !loyaltyPoint
-        ? 0
-        : loyaltyPoint.point === null
-        ? 0
-        : loyaltyPoint.point;
+      // let curenPoint = !loyaltyPoint
+      //   ? 0
+      //   : loyaltyPoint.point === null
+      //   ? 0
+      //   : loyaltyPoint.point;
       let point = !Pointfocus
         ? 0
         : Pointfocus.point === undefined
@@ -987,25 +988,16 @@ export default function Order(props: PropType) {
 
   // console.log(inventoryResponse)
 
-  useEffect(() => {
-    dispatch(
-      configOrderSaga((data: OrderConfig) => {
-        setConfigOrder(data);
-      })
-    );
+  useEffect(()=> {
+    dispatch(configOrderSaga((data:OrderConfig)=>{
+        setConfigOrder(data)
+    }));
   }, [dispatch]);
 
-  const setStoreForm = useCallback(
-    (id: number | null) => {
-      formRef.current?.setFieldsValue({ store_id: id });
-      // setInitialForm({
-      //   ...initialForm,
-      //   store_id: id
-      // });
-    },
-    [formRef]
-  );
-  console.log("initialForm", initialForm);
+  const setStoreForm = useCallback((id:number|null)=> {
+    formRef.current?.setFieldsValue({ store_id: id});
+  }, [formRef]);
+
   return (
     <React.Fragment>
       <ContentContainer

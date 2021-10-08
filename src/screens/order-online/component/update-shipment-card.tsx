@@ -31,7 +31,6 @@ import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
-  DeliveryServicesGetList,
   getFeesAction,
   getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
@@ -49,7 +48,6 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  DeliveryServiceResponse,
   OrderResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
@@ -85,6 +83,7 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
+import { delivery_service } from "../common/delivery-service";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -144,19 +143,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [cancelShipment, setCancelShipment] = useState(false);
 
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-  const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse> | null>(null);
+
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  // const [errorLogFulfillment, setErrorLogFulfillment] =
-  //   useState<Array<ErrorLogResponse> | null>(null);
+
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
-  useEffect(() => {
-    dispatch(DeliveryServicesGetList(setDeliveryServices));
-  }, [dispatch]);
+
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
@@ -321,6 +316,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       window.location.reload();
     }, timeout);
   };
+  const onError = (error: boolean) => {
+    setUpdateShipment(false);
+    setCancelShipment(false);
+  };
   const onReturnSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
     showSuccess(
@@ -354,57 +353,44 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           value.status = FulFillmentStatus.PICKED;
           value.action = FulFillmentStatus.PICKED;
           setUpdateShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess, onError));
           break;
         case 2:
           value.status = FulFillmentStatus.PACKED;
           value.action = FulFillmentStatus.PACKED;
           setUpdateShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
+          
           break;
         case 3:
           value.status = FulFillmentStatus.SHIPPING;
           value.action = FulFillmentStatus.SHIPPING;
           setUpdateShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess, onError));
           break;
         case 4:
           value.status = FulFillmentStatus.SHIPPED;
           value.action = FulFillmentStatus.SHIPPED;
           setUpdateShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess, onError));
           break;
         case 5:
           value.status = FulFillmentStatus.CANCELLED;
           value.action = FulFillmentStatus.CANCELLED;
           setCancelShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         case 6:
           value.status = FulFillmentStatus.RETURNING;
           value.action = FulFillmentStatus.RETURNING;
           setUpdateShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         case 7:
           value.status = FulFillmentStatus.RETURNED;
           value.action = FulFillmentStatus.RETURNED;
           setCancelShipment(true);
-          try {
-            dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-          } catch {}
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         default:
           return;
@@ -646,7 +632,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       setUpdateShipment(true);
       (async () => {
         try {
-          await dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
+          await dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess, onError));
         } catch {}
       })()
       // setUpdateShipment(false);
@@ -1156,7 +1142,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                   <img
                                     style={{ width: "112px", height: 25 }}
                                     src={InfoServiceDeliveryDetail(
-                                      deliveryServices,
+                                      delivery_service,
                                       fulfillment.shipment
                                         .delivery_service_provider_id
                                     )}
@@ -1843,59 +1829,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               {/*--- Chuyển hãng vận chuyển ----*/}
               {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                 <>
-                  {/* <Row gutter={24}>
-                    <Col md={12}>
-                      <Form.Item label="Tiền thu hộ:">
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          // value={customerNeedToPayValue}
-                          value={
-                            customerNeedToPayValue -
-                            (OrderDetail?.total_paid
-                              ? OrderDetail?.total_paid
-                              : 0)
-                          }
-                          onChange={(value: any) => setTakeMoneyHelper(value)}
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={999999999999}
-                          minLength={0}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col md={12}>
-                      <Form.Item
-                        label="Phí ship báo khách"
-                        name="shipping_fee_informed_to_customer"
-                      >
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={15}
-                          minLength={0}
-                          onChange={(e: any) =>
-                            changeShippingFeeInformedCustomer(e)
-                          }
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row> */}
                   {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                     <ShipmentMethodDeliverPartner
                       amount={OrderDetail?.total}
                       changeServiceType={changeServiceType}
-                      // deliveryServices={deliveryServices}
                       discountValue={OrderDetail?.total_discount}
                       infoFees={infoFees}
                       setShippingFeeInformedCustomer={

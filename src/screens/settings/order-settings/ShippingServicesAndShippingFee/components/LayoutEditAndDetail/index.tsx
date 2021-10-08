@@ -76,7 +76,7 @@ function LayoutEditAndDetail(props: PropType) {
                 id,
                 formValueFormatted,
                 () => {
-                  history.push(UrlConfig.ORDER_SETTINGS);
+                  // history.push(UrlConfig.ORDER_SETTINGS);
                 }
               )
             );

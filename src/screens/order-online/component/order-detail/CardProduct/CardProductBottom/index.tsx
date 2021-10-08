@@ -1,5 +1,7 @@
 import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { OrderLineItemRequest } from "model/request/order.request";
+import { useContext } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -10,7 +12,6 @@ type PropType = {
   discountRate: number;
   discountValue: number;
   coupon: string;
-  shippingFeeCustomer?: number;
   changeMoney: number;
   amount: number;
   pointUsing?: {
@@ -37,7 +38,6 @@ function CardProductBottom(props: PropType) {
     discountValue,
     coupon,
     changeMoney,
-    shippingFeeCustomer,
     amount,
     pointUsing,
     showDiscountModal,
@@ -45,6 +45,11 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
   } = props;
+
+  const createOrderContext = useContext(OrderCreateContext);
+  const shippingFeeInformedToCustomer =
+    createOrderContext?.shipping.shippingFeeInformedToCustomer;
+
   return (
     <StyledComponent>
       <div className="padding-24" style={{ paddingTop: "30px" }}>
@@ -185,8 +190,8 @@ function CardProductBottom(props: PropType) {
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
-                {shippingFeeCustomer
-                  ? formatCurrency(shippingFeeCustomer)
+                {shippingFeeInformedToCustomer
+                  ? formatCurrency(shippingFeeInformedToCustomer)
                   : "-"}
               </div>
             </Row>
@@ -197,7 +202,9 @@ function CardProductBottom(props: PropType) {
                 {changeMoney
                   ? formatCurrency(
                       changeMoney +
-                        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                        (shippingFeeInformedToCustomer
+                          ? shippingFeeInformedToCustomer
+                          : 0) -
                         discountValue
                     )
                   : "-"}
