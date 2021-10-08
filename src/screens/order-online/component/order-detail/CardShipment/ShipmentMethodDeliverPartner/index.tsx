@@ -251,8 +251,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         });
         console.log("result", result);
         form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
+        setShippingFeeInformedCustomer(result);
       } else {
         form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
+        setShippingFeeInformedCustomer(0);
       }
     },
     [
@@ -260,6 +262,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       customerShippingAddress,
       form,
       orderPrice,
+      setShippingFeeInformedCustomer,
     ]
   );
 
