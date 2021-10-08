@@ -960,11 +960,15 @@ export default function Order() {
       storeId,
       setStoreId,
     },
+    form,
     shipping: {
       shippingServiceConfig,
       shippingAddress,
       shippingFeeInformedToCustomer,
       setShippingFeeInformedToCustomer,
+    },
+    order: {
+      orderAmount,
     },
   };
 
