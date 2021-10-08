@@ -50,8 +50,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
       let total = 0;
       procument_items.forEach((item1) => {
         item1.procurement_items.forEach((procument_item) => {
-          console.log(procument_item);
-          if (procument_item.line_item_id === item.position) {
+          if (procument_item.sku === item.sku) {
             total = total + procument_item.quantity;
           }
         });
@@ -79,7 +78,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
       status: ProcumentStatus.DRAFT,
       status_po: POStatus.DRAFT,
       note: "",
-      fake_id: 1,
+      fake_id: new Date().getTime(),
     });
     formMain.setFieldsValue({
       [POField.procurements]: [...procument_items],
