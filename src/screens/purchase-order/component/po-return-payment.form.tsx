@@ -53,6 +53,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
             reference: null,
             note: null,
             status: PoPaymentStatus.REFUND,
+            is_refund: true,
           },
         ],
       });
@@ -68,6 +69,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
           amount: null,
           reference: null,
           note: null,
+          is_refund: true,
           status: PoPaymentStatus.REFUND,
         },
       ],
@@ -157,7 +159,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                   marginRight: 4,
                                 }}
                               />
-                              Đã thanh toán: <strong>{total_paid}</strong>
+                              Đã thanh toán: <strong>{formatCurrency(total_paid)}</strong>
                             </div>
                           }
                         />
