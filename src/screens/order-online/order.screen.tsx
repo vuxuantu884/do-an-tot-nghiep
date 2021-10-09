@@ -808,11 +808,11 @@ export default function Order() {
             : loyaltyPoint?.loyalty_level_id)
       );
 
-      let curenPoint = !loyaltyPoint
-        ? 0
-        : loyaltyPoint.point === null
-        ? 0
-        : loyaltyPoint.point;
+      // let curenPoint = !loyaltyPoint
+      //   ? 0
+      //   : loyaltyPoint.point === null
+      //   ? 0
+      //   : loyaltyPoint.point;
       let point = !Pointfocus
         ? 0
         : Pointfocus.point === undefined
