@@ -53,6 +53,9 @@ const PackInfo: React.FC = () => {
   //element
   const btnFinishPackElement = document.getElementById("btnFinishPack");
   const btnClearPackElement = document.getElementById("btnClearPack");
+  const OrderRequestElement: any = document.getElementById("order_request");
+  const ProductRequestElement: any = document.getElementById("product_request");
+  const QualityRequestElement: any = document.getElementById("quality_request");
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -73,25 +76,36 @@ const PackInfo: React.FC = () => {
 
   //event
 
-  
-  const event = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement) {
-        if (
-          event.keyCode === 13 &&
-          event.target.value &&
-          event.target.id === "order_request"
-        ) {
-        
-        }
-      }
-    },
-    []
-  );
+  // const event = useCallback(
+  //   (event: KeyboardEvent) => {
+  //     console.log(event)
+  //     // if (event.target instanceof HTMLInputElement) {
+  //     //   if (
+  //     //     event.keyCode === 13 &&
+  //     //     event.target.value &&
+  //     //     event.target.id === "order_request"
+  //     //   ) {
 
-  useEffect(() => {
-    window.addEventListener("keydown", event);
-  }, [event]);
+  //     //   }
+  //     // }
+  //   },
+  //   []
+  // );
+
+  // useEffect(() => {
+  //   window.addEventListener("keydown", event);
+  // }, [event]);
+
+  // OrderRequestElement?.addEventListener('blur', (e:any) => {
+
+  //   console.log(e)
+  // });
+
+  QualityRequestElement?.addEventListener("focus", (e: any) => {
+    if (!formRef.current?.getFieldValue(["quality_request"]))
+      formRef.current?.setFieldsValue({ product_request: "" });
+    console.log(formRef.current?.getFieldValue(["quality_request"]));
+  });
 
   const onKeyupOrder = useCallback(
     (value: string) => {
@@ -107,13 +121,14 @@ const PackInfo: React.FC = () => {
               } else {
                 setDisableStoreId(false);
                 setDisableOrder(false);
-                showError("Không tìm thấy đơn hàng");
+                showError("Không tìm thấy đơn giao hàng");
               }
             })
           );
+        OrderRequestElement?.select();
       }
     },
-    [dispatch, formRef]
+    [dispatch, formRef, OrderRequestElement]
   );
 
   const onKeyupProduct = useCallback(
@@ -124,9 +139,10 @@ const PackInfo: React.FC = () => {
         formRef.current?.validateFields(["quality_request"]);
 
         btnFinishPackElement?.click();
+        ProductRequestElement?.select();
       }
     },
-    [formRef, btnFinishPackElement]
+    [formRef, btnFinishPackElement, ProductRequestElement]
   );
 
   const onKeyupQuality = useCallback(
@@ -189,7 +205,7 @@ const PackInfo: React.FC = () => {
 
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
-            if (data){
+            if (data) {
               btnClearPackElement?.click();
               showSuccess("Đóng gói đơn hàng thành công");
             }
@@ -220,12 +236,11 @@ const PackInfo: React.FC = () => {
           orderList[indexPack].color = "#27AE60";
         else orderList[indexPack].color = "#E24343";
 
-        if (Number(orderList[indexPack].quantity) >= Number(quality_request))
-        {
+        if (Number(orderList[indexPack].quantity) >= Number(quality_request)) {
           setOrderList([...orderList]);
-          if(Number(orderList[indexPack].quantity) < Number(quality_request)) showWarning("")
-        }
-        else showError("Số lượng nhặt lớn hơn số lượng sản phẩm đặt");
+          if (Number(orderList[indexPack].quantity) < Number(quality_request))
+            showWarning("");
+        } else showError("Số lượng nhặt lớn hơn số lượng sản phẩm đặt");
 
         //formRef.current?.setFieldsValue({ product_request: "" });
         formRef.current?.setFieldsValue({ quality_request: "" });
@@ -397,6 +412,7 @@ const PackInfo: React.FC = () => {
                   console.log(e.target.value);
                 }}
                 disabled={disableOrder}
+                id="order_request"
               />
             </Form.Item>
           </Col>
