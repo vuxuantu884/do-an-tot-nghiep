@@ -10,6 +10,8 @@
   font-display: block;
 }
 
+
+
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -26,28 +28,28 @@
 }
 
 .icon-sale:before {
-  content: "\e900";
+  content: url("assets/icon/menu-pos.svg");
 }
 .icon-customer:before {
   content: "\e901";
 }
 .icon-dashboard:before {
-  content: "\e902";
+  content: url("assets/icon/menu-dash-board.svg");
 }
 .icon-dot:before {
   content: "\e903";
 }
 .icon-report:before {
-  content: url("assets/icon/menu-report-chart.svg");;
+  content: url("assets/icon/menu-report-chart.svg");
 }
 .icon-inventory:before {
-  content: "\e906";
+  content: url("assets/icon/menu-ware-house.svg");
 }
 .icon-order:before {
-  content: url("assets/icon/menu-order-paper.svg");;
+  content: url("assets/icon/menu-order-paper.svg");
 }
 .icon-product:before {
-  content: url("assets/icon/menu-clother.svg");
+  content: url("assets/icon/menu-clothe.svg");
 }
 .icon-promotion:before {
   content: "\e90a";

@@ -1,7 +1,7 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Modal, Radio, Space } from "antd";
+import { Button, Col, Modal, Radio, Row, Space } from "antd";
 import { useMemo, useState } from "react";
-
+import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
 type ExportModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
@@ -28,20 +28,20 @@ const ExportModal: React.FC<ExportModalProps> = (
     },
     [type]
   );
-  // const fields = useMemo(
-  //   () => {
-  //     switch (type) { 
-  //       case "orders":
-  //         return ['1', '2']
-  //       case "shipments":
-  //         return ['1', '2', '3']
-  //       case "returns":
-  //         return ['1', '2', '3', '4']
-  //       default: break
-  //     }
-  //   },
-  //   [type]
-  // );
+  const fields = useMemo(
+    () => {
+      switch (type) { 
+        case "orders":
+          return fields_order
+        case "shipments":
+          return fields_shipment
+        case "returns":
+          return fields_return
+        default: break
+      }
+    },
+    [type]
+  );
   return (
     <Modal
       onCancel={onCancel}
@@ -56,7 +56,7 @@ const ExportModal: React.FC<ExportModalProps> = (
           Xuất file danh sách {text}
         </span>
       ]}
-      width={600}
+      width={800}
     >
       {!editFields && (
       <div>
@@ -82,11 +82,13 @@ const ExportModal: React.FC<ExportModalProps> = (
       </div>
       )}
       {editFields && (
-      <div>
         <Radio.Group name="radiogroup" defaultValue={1}>
-          <Radio value={1}>Fields 1 2 3</Radio>
+          <Row>
+            {fields?.map((field) => (
+              <Col span={8}><Radio value={field.value}>{field.name}</Radio></Col>
+            ))}
+          </Row>
         </Radio.Group>
-      </div>
       )}
     </Modal>
   );

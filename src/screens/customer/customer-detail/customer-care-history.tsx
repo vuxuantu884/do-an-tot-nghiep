@@ -1,7 +1,6 @@
 import { Row, Col } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomerModal from "../../customer-modal";
 import {
   CreateNote,
   UpdateNote,
@@ -14,30 +13,16 @@ import { showSuccess, showError } from "utils/ToastUtils";
 import UrlConfig from "config/url.config";
 import { note } from "model/response/customer/customer.response";
 import { CustomerNote } from "model/request/customer.request";
-import FormCustomerNote from "screens/customer/customer-detail/customer-note/note.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import actionColumn from "../../common/action.column";
+import actionColumn from "screens/customer/common/action.column";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { modalActionType } from "model/modal/modal.model";
-import { CustomerResponse } from "model/response/customer/customer.response";
 
-type CustomerNoteInfoProps = {
-  customer: CustomerResponse | undefined,
-  customerDetailState: string,
-  modalAction: modalActionType ,
-  isShowModalNote: boolean,
-  setIsShowModalNote: (value: boolean) => void,
-  setModalAction: (value: modalActionType) => void,
-}
-
-const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteInfoProps) => {
+function CustomerCareHistory(props: any) {
   const {
     customer,
     customerDetailState,
     setModalAction,
-    modalAction,
-    isShowModalNote,
     setIsShowModalNote,
   } = props;
   const history = useHistory();
@@ -72,7 +57,7 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
       },
     },
     {
-      title: "Nội dung",
+      title: "Mã phiếu",
       dataIndex: "",
       visible: true,
       render: (value, row, index) => {
@@ -82,30 +67,35 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
       },
     },
     {
-      title: "Người tạo",
+      title: "Loại điều chỉnh",
       dataIndex: "created_name",
       visible: true,
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "content",
+      title: "Giá trị",
+      dataIndex: "created_name",
       visible: true,
       render: (value, row, index) => {
         return <span>{ConvertUtcToLocalDate(row.created_date)}</span>;
       },
     },
     {
-      title: "Ngày sửa",
+      title: "Mô tả",
+      dataIndex: "created_source",
+      visible: true,
+    },
+    {
+      title: "Người điều chỉnh",
+      dataIndex: "created_source",
+      visible: true,
+    },
+    {
+      title: "Ngày điều chỉnh",
       dataIndex: "content",
       visible: true,
       render: (value, row, index) => {
         return <span>{ConvertUtcToLocalDate(row.updated_date)}</span>;
       },
-    },
-    {
-      title: "Nguồn tạo",
-      dataIndex: "created_source",
-      visible: true,
     },
     actionColumn(handleNoteEdit, handleNoteDelete, customerDetailState),
   ];
@@ -181,22 +171,6 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
             };
           }}
         />
-        <CustomerModal
-          createBtnTitle="Tạo mới ghi chú"
-          updateBtnTitle="Lưu ghi chú"
-          visible={isShowModalNote}
-          onCreate={(formValue: CustomerNote) =>
-            handleNoteForm.create(formValue)
-          }
-          onEdit={(formValue: CustomerNote) => handleNoteForm.edit(formValue)}
-          onDelete={() => {}}
-          onCancel={() => setIsShowModalNote(false)}
-          modalAction={modalAction}
-          modalTypeText="Ghi chú"
-          componentForm={FormCustomerNote}
-          formItem={modalSingleNote}
-          deletedItemTitle={modalSingleNote?.content}
-        />
       </Col>
       <div
         style={{
@@ -220,4 +194,4 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
   );
 }
 
-export default CustomerNoteInfo;
+export default CustomerCareHistory;
