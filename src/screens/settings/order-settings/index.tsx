@@ -11,7 +11,6 @@ import UrlConfig from "config/url.config";
 import {
   actionConfigureIsAllowToSellWhenNotAvailableStock,
   actionDeleteConfigurationShippingServiceAndShippingFee,
-  actionGetIsAllowToSellWhenNotAvailableStock,
   actionGetOrderConfig,
   actionGetOrderConfigActionOrderPreview,
   actionGetOrderConfigPrint,
@@ -38,6 +37,7 @@ function OrderSettings(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const [isTableLoading, setIsTableLoading] = useState(true);
+  const [isLoadedData, setIsLoadedData] = useState(true);
 
   const [listPrintConfig, setListPrintConfig] = useState<
     OrderConfigPrintResponseModel[] | null
@@ -242,14 +242,7 @@ function OrderSettings(props: PropType) {
     dispatch(
       actionGetOrderConfig((response) => {
         setListOrderConfigs(response);
-      })
-    );
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(
-      actionGetIsAllowToSellWhenNotAvailableStock((response) => {
-        setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
+        setIsLoadedData(true);
       })
     );
   }, [dispatch]);
@@ -281,17 +274,22 @@ function OrderSettings(props: PropType) {
           },
         ]}
       >
-        <CardGeneralSettings
-          isAllowToSellWhenNotAvailableStock={
-            isAllowToSellWhenNotAvailableStock
-          }
-          onChangeAllowToSellWhenNotAvailableStock={
-            onChangeAllowToSellWhenNotAvailableStock
-          }
-          listPrintConfig={listPrintConfig}
-          listActionsOrderPreview={listActionsOrderPreview}
-          listOrderConfigs={listOrderConfigs}
-        />
+        {isLoadedData ? (
+          <CardGeneralSettings
+            isAllowToSellWhenNotAvailableStock={
+              isAllowToSellWhenNotAvailableStock
+            }
+            onChangeAllowToSellWhenNotAvailableStock={
+              onChangeAllowToSellWhenNotAvailableStock
+            }
+            listPrintConfig={listPrintConfig}
+            listActionsOrderPreview={listActionsOrderPreview}
+            listOrderConfigs={listOrderConfigs}
+          />
+        ) : (
+          "Đang cập nhật"
+        )}
+
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
           extra={renderCardExtra()}
