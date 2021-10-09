@@ -19,7 +19,6 @@ import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import CustomerAdd from "./customer.create";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 
@@ -94,7 +93,6 @@ const Customer = () => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
     Array<LoyaltyUsageResponse>
   >([]);
-  const [visible, setVisible] = React.useState<boolean>(false);
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
@@ -533,9 +531,6 @@ const Customer = () => {
           />
         </div>
       </Card>
-
-      {visible && <CustomerAdd visible={visible} setVisible={setVisible} />}
-
       <BaseFilter
         onClearFilter={onClearFilterAdvanceClick}
         onFilter={onFilterClick}
