@@ -13,11 +13,10 @@ import {
   OrderConfigPrintResponseModel,
   OrderConfigResponseModel,
 } from "model/response/settings/order-settings.response";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  isAllowToSellWhenNotAvailableStock: boolean;
   listPrintConfig: OrderConfigPrintResponseModel[] | null;
   listActionsOrderPreview: OrderConfigActionOrderPreviewResponseModel[] | null;
   listOrderConfigs: OrderConfigResponseModel | null;
@@ -29,21 +28,37 @@ function CardGeneralSettings(props: PropType) {
   const {
     listPrintConfig,
     listActionsOrderPreview,
-    isAllowToSellWhenNotAvailableStock,
+    listOrderConfigs,
     onChangeAllowToSellWhenNotAvailableStock,
   } = props;
 
+  const valueCustomerCanViewOrderOption = {
+    isTrue: "luaChonTheoTungDon",
+    isFalse: "chonChoTatCaDonHang",
+  };
+
   const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] =
-    useState("luaChonTheoTungDon");
+    useState("");
 
   const onChangeCustomerCanViewOrder = (e: RadioChangeEvent) => {
-    console.log("radio checked", e.target.value);
     setValueCustomerCanViewOrder(e.target.value);
   };
 
   const onChangeSelectChonChoTatCaDonHang = (value: string) => {
     console.log(`selected ${value}`);
   };
+
+  useEffect(() => {
+    if (listOrderConfigs?.for_all_order) {
+      setValueCustomerCanViewOrder(valueCustomerCanViewOrderOption.isTrue);
+    } else {
+      setValueCustomerCanViewOrder(valueCustomerCanViewOrderOption.isFalse);
+    }
+  }, [
+    listOrderConfigs,
+    valueCustomerCanViewOrderOption.isFalse,
+    valueCustomerCanViewOrderOption.isTrue,
+  ]);
 
   return (
     <StyledComponent>
@@ -58,12 +73,12 @@ function CardGeneralSettings(props: PropType) {
                   value={valueCustomerCanViewOrder}
                 >
                   <div className="single">
-                    <Radio value="luaChonTheoTungDon">
+                    <Radio value={valueCustomerCanViewOrderOption.isTrue}>
                       Lựa chọn theo từng đơn
                     </Radio>
                   </div>
                   <div className="single">
-                    <Radio value="chonChoTatCaDonHang">
+                    <Radio value={valueCustomerCanViewOrderOption.isFalse}>
                       Chọn cho tất cả đơn hàng
                     </Radio>
                   </div>
@@ -72,13 +87,21 @@ function CardGeneralSettings(props: PropType) {
                   <Select
                     placeholder="Chọn hành động"
                     onChange={onChangeSelectChonChoTatCaDonHang}
+                    key={Math.random()}
                     className="selectChonChoTatCaDonHang"
+                    defaultValue={
+                      listOrderConfigs?.order_config_action.id.toString() ||
+                      undefined
+                    }
                   >
                     {listActionsOrderPreview &&
                       listActionsOrderPreview.length > 0 &&
                       listActionsOrderPreview.map((single) => {
                         return (
-                          <Select.Option value={single.id} key={single.id}>
+                          <Select.Option
+                            value={single.id.toString()}
+                            key={single.id}
+                          >
                             {single.name}
                           </Select.Option>
                         );
@@ -95,7 +118,8 @@ function CardGeneralSettings(props: PropType) {
                 <Space direction="vertical" size={15}>
                   <div>
                     <Switch
-                      defaultChecked={undefined}
+                      key={Math.random()}
+                      defaultChecked={listOrderConfigs?.allow_choose_item}
                       // onChange={onChange}
                       className="ant-switch-primary"
                     />
@@ -103,7 +127,8 @@ function CardGeneralSettings(props: PropType) {
                   </div>
                   <div>
                     <Switch
-                      checked={isAllowToSellWhenNotAvailableStock}
+                      key={Math.random()}
+                      defaultChecked={listOrderConfigs?.sellable_inventory}
                       onChange={onChangeAllowToSellWhenNotAvailableStock}
                       className="ant-switch-primary"
                     />
@@ -118,15 +143,23 @@ function CardGeneralSettings(props: PropType) {
               </h4>
               <div className="singleSetting__content">
                 <Select
+                  key={Math.random()}
                   placeholder="Chọn số lượng"
                   onChange={onChangeSelectChonChoTatCaDonHang}
                   className="selectInNhieuDonHang"
+                  defaultValue={
+                    listOrderConfigs?.order_config_print.id.toString() ||
+                    undefined
+                  }
                 >
                   {listPrintConfig &&
                     listPrintConfig.length > 0 &&
                     listPrintConfig.map((single) => {
                       return (
-                        <Select.Option value={single.id} key={single.id}>
+                        <Select.Option
+                          value={single.id.toString()}
+                          key={single.id}
+                        >
                           {single.name}
                         </Select.Option>
                       );
