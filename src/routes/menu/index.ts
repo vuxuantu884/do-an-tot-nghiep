@@ -29,18 +29,6 @@ const menu: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: "/products",
-    exact: true,
-    title: "Sản phẩm",
-    icon: 'icon-product',
-    component: Product,
-    key: "2",
-    isShow: true,
-    header: null,
-    subMenu: product,
-
-  },
-  {
     path: "/kho",
     exact: true,
     title: "Kho hàng",
@@ -52,16 +40,19 @@ const menu: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: "/unicorn/pos",
+    path: "/products",
     exact: true,
-    title: "Bán hàng",
-    icon: 'icon-sale',
-    component: null,
-    key: "4",
-    isShow: false,
+    title: "Sản phẩm",
+    icon: 'icon-product',
+    component: Product,
+    key: "2",
+    isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: product,
+
   },
+  
+ 
   {
     path: UrlConfig.ORDER,
     exact: true,
@@ -138,6 +129,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: setting,
+  },
+  {
+    path: "/unicorn/pos",
+    exact: true,
+    title: "Bán hàng tại quầy",
+    icon: 'icon-sale',
+    component: null,
+    key: "4",
+    isShow: false,
+    header: null,
+    subMenu: [],
   },
 ]
 
