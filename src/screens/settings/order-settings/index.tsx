@@ -12,9 +12,15 @@ import {
   actionConfigureIsAllowToSellWhenNotAvailableStock,
   actionDeleteConfigurationShippingServiceAndShippingFee,
   actionGetIsAllowToSellWhenNotAvailableStock,
+  actionGetOrderConfig,
+  actionGetOrderConfigActionOrderPreview,
+  actionGetOrderConfigPrint,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
 import {
+  OrderConfigActionOrderPreviewResponseModel,
+  OrderConfigPrintResponseModel,
+  OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
@@ -32,6 +38,18 @@ function OrderSettings(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const [isTableLoading, setIsTableLoading] = useState(true);
+
+  const [listPrintConfig, setListPrintConfig] = useState<
+    OrderConfigPrintResponseModel[] | null
+  >(null);
+
+  const [listActionsOrderPreview, setListActionsOrderPreview] = useState<
+    OrderConfigActionOrderPreviewResponseModel[] | null
+  >(null);
+
+  const [listOrderConfigs, setListOrderConfigs] =
+    useState<OrderConfigResponseModel | null>(null);
+
   const [
     isAllowToSellWhenNotAvailableStock,
     setIsAllowToSellWhenNotAvailableStock,
@@ -40,6 +58,7 @@ function OrderSettings(props: PropType) {
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigResponseModel[]
   >([]);
+
   const dispatch = useDispatch();
 
   const handleDeleteShippingService = (id: number) => {
@@ -179,8 +198,6 @@ function OrderSettings(props: PropType) {
     },
   ];
 
-  // const [isTableLoading, setTableLoading] = useState(false);
-
   const history = useHistory();
 
   const renderCardExtra = () => {
@@ -204,6 +221,30 @@ function OrderSettings(props: PropType) {
       `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
     );
   };
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfigPrint((response) => {
+        setListPrintConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfigActionOrderPreview((response) => {
+        setListActionsOrderPreview(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfig((response) => {
+        setListOrderConfigs(response);
+      })
+    );
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(
@@ -247,6 +288,9 @@ function OrderSettings(props: PropType) {
           onChangeAllowToSellWhenNotAvailableStock={
             onChangeAllowToSellWhenNotAvailableStock
           }
+          listPrintConfig={listPrintConfig}
+          listActionsOrderPreview={listActionsOrderPreview}
+          listOrderConfigs={listOrderConfigs}
         />
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
