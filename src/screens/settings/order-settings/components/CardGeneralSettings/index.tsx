@@ -8,58 +8,30 @@ import {
   Space,
   Switch,
 } from "antd";
+import {
+  OrderConfigActionOrderPreviewResponseModel,
+  OrderConfigPrintResponseModel,
+  OrderConfigResponseModel,
+} from "model/response/settings/order-settings.response";
 import { useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   isAllowToSellWhenNotAvailableStock: boolean;
+  listPrintConfig: OrderConfigPrintResponseModel[] | null;
+  listActionsOrderPreview: OrderConfigActionOrderPreviewResponseModel[] | null;
+  listOrderConfigs: OrderConfigResponseModel | null;
+
   onChangeAllowToSellWhenNotAvailableStock: (checked: any) => void;
 };
 
 function CardGeneralSettings(props: PropType) {
   const {
+    listPrintConfig,
+    listActionsOrderPreview,
     isAllowToSellWhenNotAvailableStock,
     onChangeAllowToSellWhenNotAvailableStock,
   } = props;
-
-  console.log(
-    "isAllowToSellWhenNotAvailableStock",
-    isAllowToSellWhenNotAvailableStock
-  );
-
-  const chonChoTatCaDonHangSelect = [
-    {
-      name: "Cho xem và thử hàng",
-      value: "a1",
-    },
-    {
-      name: "Cho xem và không thử hàng",
-      value: "a2",
-    },
-    {
-      name: "Không cho xem hàng",
-      value: "a3",
-    },
-  ];
-
-  const cauHinhInLienDonHangSelect = [
-    {
-      name: "In 1 liên",
-      value: "b1",
-    },
-    {
-      name: "In 2 liên",
-      value: "b2",
-    },
-    {
-      name: "In 3 liên",
-      value: "b3",
-    },
-    {
-      name: "In 4 liên",
-      value: "b4",
-    },
-  ];
 
   const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] =
     useState("luaChonTheoTungDon");
@@ -98,18 +70,15 @@ function CardGeneralSettings(props: PropType) {
                 </Radio.Group>
                 <div>
                   <Select
-                    defaultValue="a2"
+                    placeholder="Chọn hành động"
                     onChange={onChangeSelectChonChoTatCaDonHang}
                     className="selectChonChoTatCaDonHang"
                   >
-                    {chonChoTatCaDonHangSelect &&
-                      chonChoTatCaDonHangSelect.length > 0 &&
-                      chonChoTatCaDonHangSelect.map((single) => {
+                    {listActionsOrderPreview &&
+                      listActionsOrderPreview.length > 0 &&
+                      listActionsOrderPreview.map((single) => {
                         return (
-                          <Select.Option
-                            value={single.value}
-                            key={single.value}
-                          >
+                          <Select.Option value={single.id} key={single.id}>
                             {single.name}
                           </Select.Option>
                         );
@@ -149,15 +118,15 @@ function CardGeneralSettings(props: PropType) {
               </h4>
               <div className="singleSetting__content">
                 <Select
-                  defaultValue="b2"
+                  placeholder="Chọn số lượng"
                   onChange={onChangeSelectChonChoTatCaDonHang}
                   className="selectInNhieuDonHang"
                 >
-                  {cauHinhInLienDonHangSelect &&
-                    cauHinhInLienDonHangSelect.length > 0 &&
-                    cauHinhInLienDonHangSelect.map((single) => {
+                  {listPrintConfig &&
+                    listPrintConfig.length > 0 &&
+                    listPrintConfig.map((single) => {
                       return (
-                        <Select.Option value={single.value} key={single.value}>
+                        <Select.Option value={single.id} key={single.id}>
                           {single.name}
                         </Select.Option>
                       );

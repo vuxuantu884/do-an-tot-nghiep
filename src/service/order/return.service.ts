@@ -55,3 +55,13 @@ export const getOrderReturnLog = (
 ): Promise<BaseResponse<OrderActionLogResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/order-return/${id}/log`);
 };
+
+export const getOrderReturnCalculateRefund = (
+  customerId: number,
+  orderId: number,
+  refund: number
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(
+    `${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/order/${orderId}/calculate-refund?refund=${refund}`
+  );
+};

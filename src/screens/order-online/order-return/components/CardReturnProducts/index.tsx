@@ -32,9 +32,8 @@ type PropType = {
   OrderDetail?: OrderResponse | null;
   listReturnProducts?: ReturnProductModel[];
   searchVariantInputValue?: string;
-  pointAmountUsing?: number;
   pointUsing?: number;
-  totalPriceReturnToCustomer: number;
+  totalAmountCustomerNeedToPay: number | undefined;
   isCheckReturnAll?: boolean;
   convertResultSearchVariant?: any[] | undefined;
   onChangeProductSearchValue?: (value: string) => void;
@@ -51,11 +50,10 @@ function CardReturnProducts(props: PropType) {
     isShowProductSearch = false,
     OrderDetail,
     listReturnProducts,
-    pointAmountUsing,
     pointUsing,
     searchVariantInputValue,
     convertResultSearchVariant,
-    totalPriceReturnToCustomer,
+    totalAmountCustomerNeedToPay = 0,
     isCheckReturnAll,
     onChangeProductSearchValue,
     onSelectSearchedVariant,
@@ -63,7 +61,7 @@ function CardReturnProducts(props: PropType) {
     handleChangeReturnAll,
   } = props;
 
-  console.log("totalPriceReturnToCustomer", totalPriceReturnToCustomer);
+  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -352,22 +350,14 @@ function CardReturnProducts(props: PropType) {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <span className="font-size-text">Tiêu điểm:</span>
-                  <span>
-                    {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
-                    {` (${pointUsing ? pointUsing : 0} điểm)`}
-                  </span>
+                  <span className="font-size-text">Điểm hoàn:</span>
+                  <span>{` ${pointUsing ? pointUsing : 0} điểm`}</span>
                 </React.Fragment>
               )}
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              {/* làm tròn đến trăm đồng */}
-              <strong>
-                {formatCurrency(
-                  Math.round(totalPriceReturnToCustomer / 100) * 100
-                )}
-              </strong>
+              <strong>{formatCurrency(-totalAmountCustomerNeedToPay)}</strong>
             </Row>
           </Col>
         </Row>

@@ -3,9 +3,45 @@ import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/
 import { OrderSourceResponseModel } from "model/response/order/order-source.response";
 import {
   IsAllowToSellWhenNotAvailableStockResponseModel,
+  OrderConfigActionOrderPreviewResponseModel,
+  OrderConfigPrintResponseModel,
+  OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
+
+export const actionGetOrderConfig = (
+  handleData: (data: OrderConfigResponseModel) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings.GET_ORDER_CONFIGURATIONS,
+    payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionGetOrderConfigPrint = (
+  handleData: (data: OrderConfigPrintResponseModel[]) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings.GET_ORDER_CONFIG_PRINT,
+    payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionGetOrderConfigActionOrderPreview = (
+  handleData: (data: OrderConfigActionOrderPreviewResponseModel[]) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings.GET_ORDER_CONFIG_ACTION,
+    payload: {
+      handleData,
+    },
+  };
+};
 
 export const actionGetIsAllowToSellWhenNotAvailableStock = (
   handleData: (data: IsAllowToSellWhenNotAvailableStockResponseModel) => void
