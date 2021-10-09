@@ -312,3 +312,14 @@ export const getFulfillmentsApi=(code:string):Promise<BaseResponse<any>>=>{
   let link =`${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
   return BaseAxios.get(link);
 }
+
+export const getFulfillmentsPackedApi=(query:any):Promise<BaseResponse<any>>=>{
+  const queryString = generateQuery(query);
+  const link =`${ApiConfig.ORDER}/fulfillments/packed?${queryString}`;
+  return BaseAxios.get(link);
+}
+
+export const putFulfillmentsPackApi=(request:any):Promise<BaseResponse<any>>=>{
+  let url = `${ApiConfig.ORDER}/fulfillments/pack`;
+  return BaseAxios.put(url, request);
+}

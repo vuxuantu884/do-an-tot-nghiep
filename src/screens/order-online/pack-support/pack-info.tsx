@@ -11,16 +11,14 @@ import {
   Tooltip,
   FormInstance,
 } from "antd";
-import scanbarcode from "assets/img/scanbarcode.svg";
-import { Type } from "config/type.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getFulfillments } from "domain/actions/order/order.action";
+import {
+  getFulfillments,
+  getFulfillmentsPack,
+} from "domain/actions/order/order.action";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import {
-  OrderLineItemResponse,
-  OrderProductListModel,
-} from "model/response/order/order.response";
+import { OrderProductListModel } from "model/response/order/order.response";
 import {
   createRef,
   useCallback,
@@ -31,10 +29,8 @@ import {
 } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { formatCurrency, getTotalQuantity, haveAccess } from "utils/AppUtils";
-import giftIcon from "assets/icon/gift.svg";
-import { color } from "html2canvas/dist/types/css/types/color";
-import { showError } from "utils/ToastUtils";
+import { formatCurrency, haveAccess } from "utils/AppUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
 const PackInfo: React.FC = () => {
   const dispatch = useDispatch();
@@ -48,11 +44,15 @@ const PackInfo: React.FC = () => {
   const [orderResponse, setOrderResponse] = useState<Array<any>>([]);
   const [orderList, setOrderList] = useState<Array<any>>([]);
 
+  const [disableStoreId, setDisableStoreId] = useState(false);
+  const [disableOrder, setDisableOrder] = useState(false);
+
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
   //element
   const btnFinishPackElement = document.getElementById("btnFinishPack");
+  const btnClearPackElement = document.getElementById("btnClearPack");
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -72,12 +72,45 @@ const PackInfo: React.FC = () => {
   }, [dispatch]);
 
   //event
+
+  
+  const event = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) {
+        if (
+          event.keyCode === 13 &&
+          event.target.value &&
+          event.target.id === "order_request"
+        ) {
+        
+        }
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", event);
+  }, [event]);
+
   const onKeyupOrder = useCallback(
     (value: string) => {
       if (value.trim()) {
         formRef.current?.validateFields(["store_request"]);
         if (formRef.current?.getFieldValue(["store_request"]))
-          dispatch(getFulfillments(value, setOrderResponse));
+          dispatch(
+            getFulfillments(value, (data: any) => {
+              if (data && data.length !== 0) {
+                setOrderResponse(data);
+                setDisableStoreId(true);
+                setDisableOrder(true);
+              } else {
+                setDisableStoreId(false);
+                setDisableOrder(false);
+                showError("Không tìm thấy đơn hàng");
+              }
+            })
+          );
       }
     },
     [dispatch, formRef]
@@ -108,6 +141,19 @@ const PackInfo: React.FC = () => {
     },
     [btnFinishPackElement]
   );
+
+  const onClickClearPack = () => {
+    setDisableStoreId(false);
+    setDisableOrder(false);
+
+    setOrderResponse([]);
+    setOrderList([]);
+
+    formRef.current?.setFieldsValue({ product_request: "" });
+    formRef.current?.setFieldsValue({ quality_request: "" });
+    formRef.current?.setFieldsValue({ order_request: "" });
+    formRef.current?.setFieldsValue({ store_request: "" });
+  };
   //event
 
   //useEffect
@@ -124,23 +170,34 @@ const PackInfo: React.FC = () => {
   }, [orderResponse]);
 
   useEffect(() => {
-    if (orderList && orderResponse && orderResponse.length!==0 && orderList.length !== 0) {
-      //let checkPickUp=false;
-      console.log("orderList");
-      console.log(orderList);
-      let indexPack = orderList.filter((p:OrderProductListModel) => Number(p.quantity) !== Number(p.pick));
-      console.log("indexPack");
-      console.log(indexPack);
-      // orderList.forEach(function (value: OrderProductListModel) {
-      //   if (Number(value.quantity) !== Number(value.pick)) console.log(value);
-      // });
-      if (indexPack === undefined|| indexPack.length===0) {
-        let request = {id: orderResponse[0].id,code:orderResponse[0].code,items:{...orderList}};
-        console.log("request")
-        console.log(request)
+    if (
+      orderList &&
+      orderResponse &&
+      orderResponse.length !== 0 &&
+      orderList.length !== 0
+    ) {
+      let indexPack = orderList.filter(
+        (p: OrderProductListModel) => Number(p.quantity) !== Number(p.pick)
+      );
+
+      if (indexPack === undefined || indexPack.length === 0) {
+        let request = {
+          id: orderResponse[0].id,
+          code: orderResponse[0].code,
+          items: orderList,
+        };
+
+        dispatch(
+          getFulfillmentsPack(request, (data: any) => {
+            if (data){
+              btnClearPackElement?.click();
+              showSuccess("Đóng gói đơn hàng thành công");
+            }
+          })
+        );
       }
     }
-  }, [orderList,orderResponse]);
+  }, [dispatch, orderList, orderResponse, btnClearPackElement]);
 
   //useEffect
 
@@ -158,17 +215,25 @@ const PackInfo: React.FC = () => {
 
       if (indexPack !== -1) {
         orderList[indexPack].pick = quality_request;
+
         if (quality_request == orderList[indexPack].quantity)
           orderList[indexPack].color = "#27AE60";
         else orderList[indexPack].color = "#E24343";
-        setOrderList([...orderList]);
-        formRef.current?.setFieldsValue({ product_request: "" });
+
+        if (Number(orderList[indexPack].quantity) >= Number(quality_request))
+        {
+          setOrderList([...orderList]);
+          if(Number(orderList[indexPack].quantity) < Number(quality_request)) showWarning("")
+        }
+        else showError("Số lượng nhặt lớn hơn số lượng sản phẩm đặt");
+
+        //formRef.current?.setFieldsValue({ product_request: "" });
         formRef.current?.setFieldsValue({ quality_request: "" });
       } else {
-        showError("Fontend bận");
+        showError("Sản phẩm này không có trong đơn hàng");
       }
     } else {
-      console.log("false luôn");
+      console.log("Chưa đủ thông tin");
     }
   }, [formRef, orderList]);
 
@@ -300,6 +365,7 @@ const PackInfo: React.FC = () => {
                   }
                   return false;
                 }}
+                disabled={disableStoreId}
               >
                 {dataCanAccess.map((item, index) => (
                   <Select.Option key={index.toString()} value={item.id}>
@@ -330,6 +396,7 @@ const PackInfo: React.FC = () => {
                   onKeyupOrder(e.target.value);
                   console.log(e.target.value);
                 }}
+                disabled={disableOrder}
               />
             </Form.Item>
           </Col>
@@ -527,23 +594,31 @@ const PackInfo: React.FC = () => {
         </Row>
       </div>
       <div style={{ padding: "24px" }}>
-        <Row gutter={24}>
-          <Col md={12}>
-            <Button style={{ padding: "0px 50px" }}>Hủy đã đóng gói</Button>
-          </Col>
-          <Col md={12}>
-            <Button
-              style={{ display: "none" }}
-              id="btnFinishPack"
-              onClick={(e) => {
-                e.stopPropagation();
-                FinishPack();
-              }}
-            >
-              Đóng gói
-            </Button>
-          </Col>
-        </Row>
+        {orderList && orderList.length > 0 && (
+          <Row gutter={24}>
+            <Col md={12}>
+              <Button
+                style={{ padding: "0px 50px" }}
+                onClick={onClickClearPack}
+                id="btnClearPack"
+              >
+                Hủy đã đóng gói
+              </Button>
+            </Col>
+            <Col md={12}>
+              <Button
+                style={{ display: "none" }}
+                id="btnFinishPack"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  FinishPack();
+                }}
+              >
+                Đóng gói
+              </Button>
+            </Col>
+          </Row>
+        )}
       </div>
     </Form>
   );
