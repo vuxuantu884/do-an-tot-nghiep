@@ -30,6 +30,7 @@ import { POUtils } from "utils/POUtils";
 import "./po-return-form.scss";
 import { StoreResponse } from "model/core/store.model";
 import { POProcumentField } from "model/purchase-order/purchase-procument";
+import moment from "moment";
 
 type POReturnFormProps = {
   formMain: FormInstance;
@@ -184,6 +185,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                 <DatePicker
                                   style={{ width: "100%" }}
                                   placeholder="Chọn ngày nhận"
+                                  disabledDate={(current: any) =>
+                                    moment().add(-1, "days") >= current
+                                  }
                                   format={"DD/MM/YYYY"}
                                 />
                               </Form.Item>
