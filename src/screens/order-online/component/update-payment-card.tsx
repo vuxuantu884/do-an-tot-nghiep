@@ -43,6 +43,7 @@ type PaymentCardUpdateProps = {
   setVisibleUpdatePayment: (value: boolean) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
   setTotalPaid: (value: number) => void;
+  reload?: () => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
   shipmentMethod: number;
@@ -57,7 +58,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
   const dispatch = useDispatch();
-  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
+  const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
@@ -151,11 +152,18 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
     showSuccess("Thanh toán thành công");
     setCreatePayment(false);
-    window.location.reload();
-  }, []);
+    // window.location.reload();
+    setVisibleConfirmPayment(false);
+    setPaymentData([]);
+    props.reload && props.reload();
+  }, [props]);
 
   const onError = (error: boolean) => {
-    setCreatePayment(error);
+    if (error) {
+      setVisibleConfirmPayment(false);
+      setCreatePayment(false);
+    }
+    
   };
 
   const ShowConfirmPayment = () => {
@@ -247,7 +255,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       <SaveAndConfirmOrder
         onCancel={onCancleConfirm}
         onOk={onOkConfirm}
-        visible={isibleConfirmPayment}
+        visible={visibleConfirmPayment}
         updateShipment={createPayment}
         icon={WarningIcon}
         okText="Đồng ý"
@@ -977,7 +985,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         marginRight: "10px",
                         padding: "0 25px",
                       }}
-                      onClick={() => window.location.reload()}
+                      onClick={() => props.reload && props.reload()}
                     >
                       Hủy
                     </Button>

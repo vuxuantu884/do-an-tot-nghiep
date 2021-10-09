@@ -8,6 +8,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
+import purify from "dompurify";
 import {
   PurchaseOrder,
   PurchaseOrderPrint,
@@ -377,7 +378,7 @@ const PODetailScreen: React.FC = () => {
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
       if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].htmlContent);
+      setPrintContent(printContent[0].html_content);
     },
     [setPrintContent]
   );
@@ -420,6 +421,7 @@ const PODetailScreen: React.FC = () => {
 
   const handleExport = () => {
     var temp = document.createElement("div");
+    console.log(printContent);
     temp.id = "temp";
     temp.innerHTML = printContent;
     let value = document.body.appendChild(temp);
@@ -503,7 +505,7 @@ const PODetailScreen: React.FC = () => {
             <div className="printContent" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: printContent,
+                  __html: purify.sanitize(printContent),
                 }}
               ></div>
             </div>

@@ -256,6 +256,7 @@ function* updatePaymentSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
+        setError(true)
         response.errors.forEach((e) => showError(e));
         break;
     }
