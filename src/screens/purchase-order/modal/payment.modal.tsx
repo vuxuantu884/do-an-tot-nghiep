@@ -256,7 +256,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                   formatCurrency(a ? Math.abs(parseInt(a)) : 0)
                 }
                 replace={(a: string) => replaceFormatString(a)}
-                min={0}
+                min={1}
                 default={0}
                 placeholder="Nhập số tiền cần thanh toán"
               />

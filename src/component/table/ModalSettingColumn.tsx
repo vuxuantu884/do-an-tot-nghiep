@@ -1,15 +1,18 @@
-import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { Button, Checkbox, List, Modal } from "antd";
-import { useCallback, useEffect } from "react";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import ReactCustomScrollbars from "react-custom-scrollbars";
+import { Button, Checkbox, List, Modal } from "antd";
+import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
+
 import { ICustomTableColumType } from "./CustomTable";
+import Undo from "assets/icon/undo.svg";
+
 const ReactDragListView = require("react-drag-listview/lib/index");
 
 export interface YodyColumn {}
 
 type ModalSettingColumnType = {
   visible: boolean;
+  isSetDefaultColumn?: boolean;
   onOk: (data: Array<ICustomTableColumType<any>>) => void;
   onCancel: () => void;
   data: Array<ICustomTableColumType<any>>;
@@ -18,7 +21,8 @@ type ModalSettingColumnType = {
 const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
   props: ModalSettingColumnType
 ) => {
-  const { visible, onOk, onCancel, data } = props;
+  const { visible, isSetDefaultColumn, onOk, onCancel, data } = props;
+
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([]);
   const onDrag = useCallback(
     (fromIndex, toIndex) => {
@@ -39,9 +43,24 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
     },
     [columns]
   );
+
+  const setDefaultColumn = useCallback(
+    () => {
+      const defautlColumns = [...columns];
+      defautlColumns.forEach(column => {
+        column.visible = true;
+      })
+
+      setColumn(defautlColumns);
+      onOk(defautlColumns)
+    },
+    [columns, onOk]
+  );
+
   useEffect(() => {
     setColumn(data);
   }, [data]);
+
   return (
     <Modal
       title="Cài đặt ẩn hiện cột"
@@ -54,6 +73,27 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       }}
       okText="Lưu"
       cancelText="Huỷ"
+      footer={
+        [
+          <div
+            style={{
+              display: "flex",
+              justifyContent: isSetDefaultColumn ? "space-between" : "flex-end"
+            }}
+          >
+            { isSetDefaultColumn &&
+              <Button key="return_default" icon={<img src={Undo} style={{ marginRight: 5 }} alt=""/>}  onClick={setDefaultColumn}>
+                Quay về mặc định
+              </Button>
+            }
+
+            <div>
+              <Button key="on_cancel"  onClick={() => { setColumn(data); onCancel && onCancel(); }} >Huỷ</Button>
+              <Button key="on_ok"  type="primary" onClick={() => onOk && onOk(columns)}>Lưu</Button>
+            </div>
+          </div>
+        ]
+      }
     >
       <p>Kéo thả chuột để lựa chọn cột theo trình tự bạn mong muốn.</p>
       <ReactCustomScrollbars style={{ height: "300px" }} autoHide>
@@ -61,13 +101,14 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
           onDragEnd={onDrag}
           nodeSelector=".ant-list-item.draggble"
         >
-          <List.Item className={"draggble"}>
+          <List.Item className={"draggble"} key="select-all">
             <Checkbox >Chọn tất cả</Checkbox>
           </List.Item>
           <List
             dataSource={columns}
             renderItem={(item, index) => (
               <List.Item
+                key={item.key}
                 className={"draggble"}
                 actions={[
                   <Button

@@ -130,7 +130,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
-      if (!customerShippingAddress || !orderPrice) {
+      if (!customerShippingAddress || orderPrice === undefined) {
         return;
       }
       const customerShippingAddressCityId = customerShippingAddress.city_id;
@@ -169,9 +169,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         customerShippingAddressCityId: number,
         configShippingAddressCityId: number
       ) => {
-        return (
-          customerShippingAddressCityId === configShippingAddressCityId
-        );
+        return customerShippingAddressCityId === configShippingAddressCityId;
       };
 
       // check giá

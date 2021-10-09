@@ -3,25 +3,39 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import arrowLeft from "assets/icon/arrow-left.svg";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
 const genreEnum: any = {
   male: "Nam",
   female: "Nữ",
   other: "Khác",
 };
-function CustomerInfo(props: any) {
-  const { customer } = props;
-  const params = useParams() as any;
-  const [customerDetail, setCustomerDetail] = React.useState([]) as any;
-  const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
-    []
-  ) as any;
-  const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
-  React.useEffect(() => {
-    let details: any = [];
+type CustomerInfoProps = {
+  customer: CustomerResponse | undefined;
+};
+
+type CustomerParams = {
+  id: string;
+};
+
+type detailMapping = {
+  name: string;
+  value: string | null;
+  position: string;
+  key: string;
+  isWebsite?: boolean;
+};
+
+const CustomerInfo: React.FC<CustomerInfoProps> = (
+  props: CustomerInfoProps
+) => {
+  const { customer } = props;
+  const params = useParams<CustomerParams>();
+  const [showDetail, setShowDetail] = React.useState<boolean>(true);
+  const customerDetail: Array<detailMapping> | undefined = React.useMemo(() => {
     if (customer) {
-      details = [
+      const details = [
         {
           name: "Tên khách hàng",
           value: customer.full_name,
@@ -61,96 +75,97 @@ function CustomerInfo(props: any) {
           key: "6",
         },
       ];
+      return details;
     }
-    setCustomerDetail(details);
-  }, [customer, setCustomerDetail]);
-  React.useEffect(() => {
-    let details: any = [];
-    if (customer) {
-      details = [
-        {
-          name: "Nhóm khách hàng",
-          value: customer.customer_group,
-          position: "left",
-          key: "11",
-        },
-        {
-          name: "Email",
-          value: customer.email,
-          position: "right",
-          key: "2",
-        },
-        {
-          name: "Loại khách hàng",
-          value: customer.customer_type,
-          position: "left",
-          key: "10",
-        },
-        {
-          name: "Nhân viên phụ trách",
-          value: `${
-            customer.responsible_staff_code
-              ? customer.responsible_staff_code
-              : ""
-          }${
-            customer.responsible_staff ? "-" + customer.responsible_staff : ""
-          }`,
-          position: "right",
-          key: "1",
-        },
-        
-        
-        {
-          name: "Ngày cưới",
-          value: customer.wedding_date
-            ? ConvertUtcToLocalDate(customer.wedding_date, DATE_FORMAT.DDMMYYY)
-            : null,
-          position: "left",
-          key: "4",
-        },
-        {
-          name: "Facebook",
-          value: customer.website,
-          position: "right",
-          isWebsite: true,
-          key: "5",
-        },
-        {
-          name: "Tên đơn vị",
-          value: customer.company,
-          position: "left",
-          key: "6",
-        },
-        {
-          name: "Mã số thuế",
-          value: customer.tax_code,
-          position: "right",
-          key: "7",
-        },
-        {
-          name: "Địa chỉ",
-          value: `${customer.full_address ? customer.full_address : ""}${
-            customer.ward ? " - " + customer.ward : ""
-          }${customer.district ? " - " + customer.district : ""}${
-            customer.city ? " - " + customer.city : ""
-          }`,
-          position: "left",
-          key: "8",
-        },
-        {
-          name: "Ghi chú",
-          value: customer.description,
-          position: "right",
-          key: "9",
-        },
-      ];
-    }
-    setCustomerDetailCollapse(details);
-  }, [customer, setCustomerDetailCollapse]);
+  }, [customer]);
+  const customerDetailCollapse: Array<detailMapping> | undefined =
+    React.useMemo(() => {
+      if (customer) {
+        const details = [
+          {
+            name: "Nhóm khách hàng",
+            value: customer.customer_group,
+            position: "left",
+            key: "11",
+          },
+          {
+            name: "Email",
+            value: customer.email,
+            position: "right",
+            key: "2",
+          },
+          {
+            name: "Loại khách hàng",
+            value: customer.customer_type,
+            position: "left",
+            key: "10",
+          },
+          {
+            name: "Nhân viên phụ trách",
+            value: `${
+              customer.responsible_staff_code
+                ? customer.responsible_staff_code
+                : ""
+            }${
+              customer.responsible_staff ? "-" + customer.responsible_staff : ""
+            }`,
+            position: "right",
+            key: "1",
+          },
 
-  const handleLinkClick = React.useCallback((detail: any) => {
+          {
+            name: "Ngày cưới",
+            value: customer.wedding_date
+              ? ConvertUtcToLocalDate(
+                  customer.wedding_date,
+                  DATE_FORMAT.DDMMYYY
+                )
+              : null,
+            position: "left",
+            key: "4",
+          },
+          {
+            name: "Facebook",
+            value: customer.website,
+            position: "right",
+            isWebsite: true,
+            key: "5",
+          },
+          {
+            name: "Tên đơn vị",
+            value: customer.company,
+            position: "left",
+            key: "6",
+          },
+          {
+            name: "Mã số thuế",
+            value: customer.tax_code,
+            position: "right",
+            key: "7",
+          },
+          {
+            name: "Địa chỉ",
+            value: `${customer.full_address ? customer.full_address : ""}${
+              customer.ward ? " - " + customer.ward : ""
+            }${customer.district ? " - " + customer.district : ""}${
+              customer.city ? " - " + customer.city : ""
+            }`,
+            position: "left",
+            key: "8",
+          },
+          {
+            name: "Ghi chú",
+            value: customer.description,
+            position: "right",
+            key: "9",
+          },
+        ];
+        return details;
+      }
+    }, [customer]);
+  const handleLinkClick = React.useCallback((detail: detailMapping) => {
     let link = "";
-    if (!detail?.value.includes("https://")) {
+    if (!detail?.value?.includes("https://")) {
       link = `https://${detail.value}`;
     } else {
       link = `${detail.value}`;
@@ -204,8 +219,8 @@ function CustomerInfo(props: any) {
         <Col span={12}>
           {customerDetail &&
             customerDetail
-              .filter((detail: any) => detail.position === "left")
-              .map((detail: any, index: number) => (
+              .filter((detail: detailMapping) => detail.position === "left")
+              .map((detail: detailMapping, index: number) => (
                 <Col
                   key={index}
                   span={24}
@@ -223,7 +238,7 @@ function CustomerInfo(props: any) {
                       padding: "0 4px 0 15px",
                     }}
                   >
-                    <span style={{color: "#666666"}}>{detail.name}</span>
+                    <span style={{ color: "#666666" }}>{detail.name}</span>
                     <span style={{ fontWeight: 600 }}>:</span>
                   </Col>
                   <Col span={12} style={{ paddingLeft: 0 }}>
@@ -242,10 +257,10 @@ function CustomerInfo(props: any) {
         <Col span={12}>
           {customerDetail &&
             customerDetail
-              .filter((detail: any) => detail.position === "right")
-              .map((detail: any, index: number) => (
+              .filter((detail: detailMapping) => detail.position === "right")
+              .map((detail: detailMapping, index: number) => (
                 <Col
-                  key={detail.key}
+                  key={index}
                   span={24}
                   style={{
                     display: "flex",
@@ -261,7 +276,7 @@ function CustomerInfo(props: any) {
                       padding: "0 4px 0 15px",
                     }}
                   >
-                    <span style={{color: "#666666"}}>{detail.name}</span>
+                    <span style={{ color: "#666666" }}>{detail.name}</span>
                     <span style={{ fontWeight: 600 }}>:</span>
                   </Col>
                   <Col span={12} style={{ paddingLeft: 0 }}>
@@ -283,10 +298,10 @@ function CustomerInfo(props: any) {
           <Col span={12}>
             {customerDetailCollapse &&
               customerDetailCollapse
-                .filter((detail: any) => detail.position === "left")
-                .map((detail: any, index: number) => (
+                .filter((detail: detailMapping) => detail.position === "left")
+                .map((detail: detailMapping, index: number) => (
                   <Col
-                    key={detail.key}
+                    key={index}
                     span={24}
                     style={{
                       display: "flex",
@@ -302,7 +317,7 @@ function CustomerInfo(props: any) {
                         padding: "0 4px 0 15px",
                       }}
                     >
-                      <span style={{color: "#666666"}}>{detail.name}</span>
+                      <span style={{ color: "#666666" }}>{detail.name}</span>
                       <span style={{ fontWeight: 600 }}>:</span>
                     </Col>
                     <Col span={12} style={{ paddingLeft: 0 }}>
@@ -321,10 +336,10 @@ function CustomerInfo(props: any) {
           <Col span={12}>
             {customerDetailCollapse &&
               customerDetailCollapse
-                .filter((detail: any) => detail.position === "right")
-                .map((detail: any, index: number) => (
+                .filter((detail: detailMapping) => detail.position === "right")
+                .map((detail: detailMapping, index: number) => (
                   <Col
-                    key={detail.key}
+                    key={index}
                     span={24}
                     style={{
                       display: "flex",
@@ -340,7 +355,7 @@ function CustomerInfo(props: any) {
                         padding: "0 4px 0 15px",
                       }}
                     >
-                      <span style={{color: "#666666"}}>{detail.name}</span>
+                      <span style={{ color: "#666666" }}>{detail.name}</span>
                       <span style={{ fontWeight: 600 }}>:</span>
                     </Col>
                     <Col span={12} style={{ paddingLeft: 0 }}>
@@ -403,26 +418,27 @@ function CustomerInfo(props: any) {
             </span>
           </div>
         </Col>
-        {showDetail && <Col
-          span={20}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div
+        {showDetail && (
+          <Col
+            span={20}
             style={{
-              width: "100%",
-              height: 0,
-              borderBottom: "1px dashed #E5E5E5",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
-          ></div>
-        </Col>}
-        
+          >
+            <div
+              style={{
+                width: "100%",
+                height: 0,
+                borderBottom: "1px dashed #E5E5E5",
+              }}
+            ></div>
+          </Col>
+        )}
       </Row>
     </Card>
   );
-}
+};
 
 export default CustomerInfo;
