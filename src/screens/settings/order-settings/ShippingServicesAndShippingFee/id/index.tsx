@@ -24,10 +24,11 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
       program_name: "",
       shipping_fee_configs: [
         {
-          from_price: 0,
-          to_price: 0,
+          from_price: undefined,
+          to_price: undefined,
           city_name: "",
-          transport_fee: 0,
+          city_id: undefined,
+          transport_fee: undefined,
         },
       ],
       external_service_transport_type_ids: [],
@@ -50,6 +51,7 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
                     from_price: single.from_price,
                     to_price: single.to_price,
                     city_name: single.city_name,
+                    city_id: single.city_id,
                     transport_fee: single.transport_fee,
                   };
                 }
