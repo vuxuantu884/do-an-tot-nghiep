@@ -50,11 +50,6 @@ function OrderSettings(props: PropType) {
   const [listOrderConfigs, setListOrderConfigs] =
     useState<OrderConfigResponseModel | null>(null);
 
-  const [
-    isAllowToSellWhenNotAvailableStock,
-    setIsAllowToSellWhenNotAvailableStock,
-  ] = useState(false);
-
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigResponseModel[]
   >([]);
@@ -210,7 +205,6 @@ function OrderSettings(props: PropType) {
   };
 
   const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
-    setIsAllowToSellWhenNotAvailableStock(checked);
     dispatch(
       actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
     );
@@ -276,9 +270,6 @@ function OrderSettings(props: PropType) {
       >
         {isLoadedData ? (
           <CardGeneralSettings
-            isAllowToSellWhenNotAvailableStock={
-              isAllowToSellWhenNotAvailableStock
-            }
             onChangeAllowToSellWhenNotAvailableStock={
               onChangeAllowToSellWhenNotAvailableStock
             }

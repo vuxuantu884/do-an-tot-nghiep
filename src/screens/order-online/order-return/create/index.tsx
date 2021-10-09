@@ -84,7 +84,6 @@ let order_return_id: number = 0;
 
 const ScreenReturnCreate = (props: PropType) => {
   const [form] = Form.useForm();
-  const pointPaymentMethodId = 1;
   const [isError, setError] = useState(false);
   const [isCanReturnOrExchange, setIsCanReturnOrExchange] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
@@ -235,28 +234,12 @@ const ScreenReturnCreate = (props: PropType) => {
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = 0;
-    let isUsingPoint = OrderDetail?.payments?.some((single) => {
-      return single.payment_method_id === pointPaymentMethodId;
-    });
-    if (!isUsingPoint) {
-      result =
-        totalAmountExchange +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-        totalAmountReturnProducts;
-      // làm tròn đến trăm đồng
-      result = Math.round(result / 100) * 100;
-    } else {
-      result = moneyRefund;
-    }
+    let result =
+      totalAmountExchange +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      totalAmountReturnProducts;
     return result;
-  }, [
-    OrderDetail?.payments,
-    moneyRefund,
-    shippingFeeCustomer,
-    totalAmountExchange,
-    totalAmountReturnProducts,
-  ]);
+  }, [shippingFeeCustomer, totalAmountExchange, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
@@ -864,7 +847,10 @@ const ScreenReturnCreate = (props: PropType) => {
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
+      moneyRefund,
       setMoneyRefund,
+      totalAmountReturnProducts,
+      totalAmountExchange,
       totalAmountCustomerNeedToPay,
     },
     isExchange,

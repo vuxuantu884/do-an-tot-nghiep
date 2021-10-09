@@ -20,6 +20,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
@@ -31,7 +32,10 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { SearchBarCode, searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import {
+  SearchBarCode,
+  searchVariantsOrderRequestAction,
+} from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
@@ -47,6 +51,7 @@ import { OrderLineItemRequest } from "model/request/order.request";
 import React, {
   createRef,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -133,6 +138,10 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   const [coupon, setCoupon] = useState<string>("");
 
   const [storeId, setStoreId] = useState<number | null>(null);
+
+  const createOrderReturnContextData = useContext(CreateOrderReturnContext);
+  console.log("createOrderReturnContextData", createOrderReturnContextData);
+
   //Function
 
   const totalAmount = useCallback(
@@ -831,71 +840,76 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
 
-  const event = useCallback((event:KeyboardEvent)=>{
+  const event = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) {
+        console.log("storeId");
+        console.log(storeId);
+        if (
+          event.keyCode === 13 &&
+          event.target.value &&
+          event.target.id === "search_product" &&
+          orderSettings?.chonCuaHangTruocMoiChonSanPham &&
+          items &&
+          storeId
+        ) {
+          // event.target.onchange=()=>{
+          //   event.preventDefault();
+          //   event.stopPropagation();
+          // }
+          let barcode = event.target.value;
 
-   
-    if(event.target instanceof HTMLInputElement){
-      console.log("storeId")
-      console.log(storeId)
-      if (event.keyCode === 13 
-        && event.target.value 
-        && event.target.id === "search_product"
-        &&orderSettings?.chonCuaHangTruocMoiChonSanPham 
-        && items 
-        && storeId) 
-      {
-       
-        // event.target.onchange=()=>{
-        //   event.preventDefault();
-        //   event.stopPropagation();
-        // }
-        let barcode=event.target.value;
+          dispatch(
+            SearchBarCode(barcode, (data: VariantResponse) => {
+              let _items = [...items].reverse();
+              const item: OrderLineItemRequest = createItem(data);
+              let index = _items.findIndex((i) => i.variant_id === data.id);
+              item.position = items.length + 1;
 
-        dispatch(SearchBarCode(barcode,(data:VariantResponse)=>{
-          let _items = [...items].reverse();
-          const item: OrderLineItemRequest = createItem(data);
-          let index = _items.findIndex((i) => i.variant_id === data.id);
-          item.position = items.length + 1;
-
-            if (splitLine || index === -1) {
-              _items.push(item);
-              setAmount(amount + item.price);
-              calculateChangeMoney(
-                _items,
-                amount + item.price,
-                discountRate,
-                discountValue
-              );
-            } else {
-              let variantItems = _items.filter((item) => item.variant_id === data.id);
-              let lastIndex = variantItems.length - 1;
-              variantItems[lastIndex].quantity += 1;
-              variantItems[lastIndex].line_amount_after_line_discount +=
-                variantItems[lastIndex].price -
-                variantItems[lastIndex].discount_items[0].amount;
-              setAmount(
-                amount +
+              if (splitLine || index === -1) {
+                _items.push(item);
+                setAmount(amount + item.price);
+                calculateChangeMoney(
+                  _items,
+                  amount + item.price,
+                  discountRate,
+                  discountValue
+                );
+              } else {
+                let variantItems = _items.filter(
+                  (item) => item.variant_id === data.id
+                );
+                let lastIndex = variantItems.length - 1;
+                variantItems[lastIndex].quantity += 1;
+                variantItems[lastIndex].line_amount_after_line_discount +=
                   variantItems[lastIndex].price -
-                  variantItems[lastIndex].discount_items[0].amount
-              );
-              calculateChangeMoney(
-                _items,
-                amount +
-                  variantItems[lastIndex].price -
-                  variantItems[lastIndex].discount_items[0].amount,
-                discountRate,
-                discountValue
-              );
-            }
-          
-          handleCardItems(_items.reverse());
-          autoCompleteRef.current?.blur();
-          setIsInputSearchProductFocus(false);
-          setKeySearchVariant("");
-        }));
+                  variantItems[lastIndex].discount_items[0].amount;
+                setAmount(
+                  amount +
+                    variantItems[lastIndex].price -
+                    variantItems[lastIndex].discount_items[0].amount
+                );
+                calculateChangeMoney(
+                  _items,
+                  amount +
+                    variantItems[lastIndex].price -
+                    variantItems[lastIndex].discount_items[0].amount,
+                  discountRate,
+                  discountValue
+                );
+              }
+
+              handleCardItems(_items.reverse());
+              autoCompleteRef.current?.blur();
+              setIsInputSearchProductFocus(false);
+              setKeySearchVariant("");
+            })
+          );
+        }
       }
-    }
-  },[items, splitLine,storeId]);
+    },
+    [items, splitLine, storeId]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", event);
@@ -1248,21 +1262,23 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền hàng mua 1:</strong>
+              <strong className="font-size-text">Tổng tiền hàng mua:</strong>
               <strong className="text-success font-size-price">
                 {totalAmountExchangeNeedToPay
                   ? formatCurrency(totalAmountExchangeNeedToPay)
                   : "-"}
               </strong>
             </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền hàng trả:</strong>
               <strong className="text-success font-size-price">
                 {formatCurrency(amountReturn)}
               </strong>
             </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
+            <Divider
+              className="margin-top-5 margin-bottom-5"
+              style={{ height: "auto", margin: "10px 0" }}
+            />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">
                 {totalAmountCustomerNeedToPay >= 0
