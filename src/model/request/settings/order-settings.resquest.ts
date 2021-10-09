@@ -7,6 +7,7 @@ export interface CreateShippingServiceConfigReQuestModel {
     from_price: number | undefined;
     to_price: number | undefined;
     city_name: string;
+    city_id: number | undefined;
     transport_fee: number | undefined;
   }[];
   external_service_transport_type_ids: number[];

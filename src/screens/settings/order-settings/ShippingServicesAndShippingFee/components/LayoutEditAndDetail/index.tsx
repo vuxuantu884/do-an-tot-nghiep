@@ -51,15 +51,24 @@ function LayoutEditAndDetail(props: PropType) {
           end_date: moment(formValue.end_date).utc().format(),
           shipping_fee_configs: formValue.shipping_fee_configs.map(
             (single: any) => {
+              const provinceSelected = listProvinces.find((singleCity) => {
+                return singleCity.name === single.city_name;
+              });
+              let city_id = undefined;
+              if (provinceSelected) {
+                city_id = provinceSelected.id;
+              }
               return {
                 from_price: single.from_price,
                 to_price: single.to_price,
                 city_name: single.city_name,
+                city_id,
                 transport_fee: single.transport_fee,
               };
             }
           ),
         };
+        console.log("formValueFormatted", formValueFormatted);
         if (action === LAYOUT_CREATE_AND_DETAIL.create) {
           dispatch(
             actionCreateConfigurationShippingServiceAndShippingFee(
