@@ -204,19 +204,17 @@ const ListOrderScreen: React.FC = () => {
             {items.map((item, i) => {
               return (
                 <div className="item custom-td">
-                  <div className="product productNameWidth">
-                    <div>
-                      <Link
-                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                      >
-                        {item.variant}
-                      </Link>
-                      <p>{item.sku}</p>
-                    </div>
+                  <div className="product">
+                  <p>{item.sku} ({item.quantity})</p>
+                    <Link
+                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                    >
+                      {item.variant}
+                    </Link>
                   </div>
-                  <div className="quantity quantityWidth">
+                  {/* <div className="quantity">
                     <span>SL: {item.quantity}</span>
-                  </div>
+                  </div> */}
                 </div>
               );
             })}
@@ -225,7 +223,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "left",
-      width: "280px",
+      width: "6.5%",
     },
     {
       title: "Khách phải trả",
