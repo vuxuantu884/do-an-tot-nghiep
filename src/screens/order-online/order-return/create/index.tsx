@@ -244,9 +244,7 @@ const ScreenReturnCreate = (props: PropType) => {
         totalAmountExchange +
         (shippingFeeCustomer ? shippingFeeCustomer : 0) -
         totalAmountReturnProducts;
-      {
-        /* làm tròn đến trăm đồng */
-      }
+      // làm tròn đến trăm đồng
       result = Math.round(result / 100) * 100;
     } else {
       result = moneyRefund;
