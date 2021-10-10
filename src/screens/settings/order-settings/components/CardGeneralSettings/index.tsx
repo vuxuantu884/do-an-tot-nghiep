@@ -8,6 +8,7 @@ import {
   Space,
   Switch,
 } from "antd";
+import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
   OrderConfigActionOrderPreviewResponseModel,
   OrderConfigPrintResponseModel,
@@ -20,8 +21,7 @@ type PropType = {
   listPrintConfig: OrderConfigPrintResponseModel[] | null;
   listActionsOrderPreview: OrderConfigActionOrderPreviewResponseModel[] | null;
   listOrderConfigs: OrderConfigResponseModel | null;
-
-  onChangeAllowToSellWhenNotAvailableStock: (checked: any) => void;
+  onUpdateOrderConfig: (params: OrderConfigRequestModel) => void;
 };
 
 function CardGeneralSettings(props: PropType) {
@@ -29,9 +29,18 @@ function CardGeneralSettings(props: PropType) {
     listPrintConfig,
     listActionsOrderPreview,
     listOrderConfigs,
-    onChangeAllowToSellWhenNotAvailableStock,
+    onUpdateOrderConfig,
   } = props;
 
+  const initParams: OrderConfigRequestModel | null = listOrderConfigs
+    ? {
+        sellable_inventory: listOrderConfigs.sellable_inventory,
+        for_all_order: listOrderConfigs.for_all_order,
+        allow_choose_item: listOrderConfigs.allow_choose_item,
+        order_config_action_id: listOrderConfigs.order_config_action.id,
+        order_config_print_id: listOrderConfigs.order_config_print.id,
+      }
+    : null;
   const valueCustomerCanViewOrderOption = {
     isTrue: "luaChonTheoTungDon",
     isFalse: "chonChoTatCaDonHang",
@@ -41,11 +50,65 @@ function CardGeneralSettings(props: PropType) {
     useState("");
 
   const onChangeCustomerCanViewOrder = (e: RadioChangeEvent) => {
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
     setValueCustomerCanViewOrder(e.target.value);
+    const for_all_order =
+      e.target.value === valueCustomerCanViewOrderOption.isTrue;
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      for_all_order,
+    };
+    onUpdateOrderConfig(params);
   };
 
   const onChangeSelectChonChoTatCaDonHang = (value: string) => {
-    console.log(`selected ${value}`);
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
+    const order_config_action_id = +value;
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      order_config_action_id,
+    };
+    onUpdateOrderConfig(params);
+  };
+
+  const onChangeSelectSettingPrinter = (value: string) => {
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
+    const order_config_print_id = +value;
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      order_config_print_id,
+    };
+    onUpdateOrderConfig(params);
+  };
+
+  const onChangeAllowChooseItemBeforeChooseStore = (checked: boolean) => {
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
+    const allow_choose_item = checked;
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      allow_choose_item,
+    };
+    onUpdateOrderConfig(params);
+  };
+
+  const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
+    if (!listOrderConfigs || !initParams) {
+      return;
+    }
+    const sellable_inventory = checked;
+    const params: OrderConfigRequestModel = {
+      ...initParams,
+      sellable_inventory,
+    };
+    onUpdateOrderConfig(params);
   };
 
   useEffect(() => {
@@ -120,7 +183,7 @@ function CardGeneralSettings(props: PropType) {
                     <Switch
                       key={Math.random()}
                       defaultChecked={listOrderConfigs?.allow_choose_item}
-                      // onChange={onChange}
+                      onChange={onChangeAllowChooseItemBeforeChooseStore}
                       className="ant-switch-primary"
                     />
                     Cài đặt chọn cửa hàng trước mới cho chọn sản phẩm
@@ -145,7 +208,7 @@ function CardGeneralSettings(props: PropType) {
                 <Select
                   key={Math.random()}
                   placeholder="Chọn số lượng"
-                  onChange={onChangeSelectChonChoTatCaDonHang}
+                  onChange={onChangeSelectSettingPrinter}
                   className="selectInNhieuDonHang"
                   defaultValue={
                     listOrderConfigs?.order_config_print.id.toString() ||
