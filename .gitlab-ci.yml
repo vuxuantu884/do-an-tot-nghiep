@@ -13,8 +13,6 @@ stages:
 
 docker build:
   stage: docker_build
-  services:
-    - docker:dind
   tags:
   - build-yody-tag
   only:
@@ -32,7 +30,6 @@ deploy to dev:
   stage: deploy
   tags:
     - nonprod-deploy
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   only:
     - develop
   variables:
@@ -46,7 +43,6 @@ deploy to dev:
 
 deploy to uat:
   stage: deploy
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   when: manual
   only:
     - uat
