@@ -15,7 +15,9 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getFulfillments,
   getFulfillmentsPack,
+  getFulfillmentsPackedSaga,
 } from "domain/actions/order/order.action";
+import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProductListModel } from "model/response/order/order.response";
@@ -32,7 +34,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
-const PackInfo: React.FC = () => {
+type PackInfoProps={
+  setFulfillmentsPackedItems:(items:PageResponse<any>)=>void;
+  queryParams:any;
+};
+
+const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
+
+  const {setFulfillmentsPackedItems,queryParams}=props;
+
   const dispatch = useDispatch();
 
   //form
@@ -46,6 +56,8 @@ const PackInfo: React.FC = () => {
 
   const [disableStoreId, setDisableStoreId] = useState(false);
   const [disableOrder, setDisableOrder] = useState(false);
+  const [disableProduct, setDisableProduct]= useState(true);
+  const [disableQuality, setDisableQuality]= useState(true);
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -96,10 +108,13 @@ const PackInfo: React.FC = () => {
   //   window.addEventListener("keydown", event);
   // }, [event]);
 
-  // OrderRequestElement?.addEventListener('blur', (e:any) => {
+  OrderRequestElement?.addEventListener('focus', (e:any) => {
+    OrderRequestElement.select();
+  });
 
-  //   console.log(e)
-  // });
+  ProductRequestElement?.addEventListener('focus', (e:any) => {
+    ProductRequestElement.select();
+  });
 
   QualityRequestElement?.addEventListener("focus", (e: any) => {
     if (!formRef.current?.getFieldValue(["quality_request"]))
@@ -207,6 +222,15 @@ const PackInfo: React.FC = () => {
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
+
+              dispatch(
+                getFulfillmentsPackedSaga(queryParams, (data: PageResponse<any>) => {
+                  if (data) {
+                    setFulfillmentsPackedItems(data);
+                  } else showError("Lấy danh sách Order thất bại");
+                })
+              );
+
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
@@ -215,6 +239,17 @@ const PackInfo: React.FC = () => {
     }
   }, [dispatch, orderList, orderResponse, btnClearPackElement]);
 
+  useEffect(()=>{
+    if(disableOrder===true)
+    {
+      setDisableProduct(false);
+      setDisableQuality(false);
+    }
+    else{
+      setDisableProduct(true);
+      setDisableQuality(true);
+    }
+  },[disableOrder]);
   //useEffect
 
   const FinishPack = useCallback(() => {
@@ -440,6 +475,7 @@ const PackInfo: React.FC = () => {
                     onPressEnter={(e: any) => {
                       onKeyupProduct(e.target.value);
                     }}
+                    disabled={disableProduct}
                   />
                 </Form.Item>
                 <Form.Item
@@ -459,6 +495,7 @@ const PackInfo: React.FC = () => {
                     onPressEnter={(e: any) => {
                       onKeyupQuality(e.target.value);
                     }}
+                    disabled={disableQuality}
                   />
                 </Form.Item>
               </Input.Group>
@@ -531,25 +568,25 @@ const PackInfo: React.FC = () => {
       <div style={{ padding: "24px 24px 0 24px" }}>
         <Row className="sale-product-box" justify="space-between">
           <Table
-            locale={{
-              emptyText: (
-                <Button
-                  type="text"
-                  className="font-weight-500"
-                  style={{
-                    color: "#2A2A86",
-                    background: "rgba(42,42,134,0.05)",
-                    borderRadius: 5,
-                    padding: 8,
-                    height: "auto",
-                    marginTop: 15,
-                    marginBottom: 15,
-                  }}
-                >
-                  Thêm đơn hàng ngay (F3)
-                </Button>
-              ),
-            }}
+            // locale={{
+            //   emptyText: (
+            //     <Button
+            //       type="text"
+            //       className="font-weight-500"
+            //       style={{
+            //         color: "#2A2A86",
+            //         background: "rgba(42,42,134,0.05)",
+            //         borderRadius: 5,
+            //         padding: 8,
+            //         height: "auto",
+            //         marginTop: 15,
+            //         marginBottom: 15,
+            //       }}
+            //     >
+            //       Thêm đơn hàng ngay (F3)
+            //     </Button>
+            //   ),
+            // }}
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={orderList}

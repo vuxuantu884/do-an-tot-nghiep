@@ -24,6 +24,8 @@ const PackSupportScreen: React.FC = () => {
   });
 
   //useState
+  const [tableLoading, setTableLoading] = useState(true);
+
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 10,
@@ -33,7 +35,10 @@ const PackSupportScreen: React.FC = () => {
     items: [],
   });
 
+
+
   const setFulfillmentsPackedItems = useCallback((data: PageResponse<any>) => {
+    setTableLoading(false);
     if (data) {
       setData(data);
     }
@@ -78,7 +83,7 @@ const PackSupportScreen: React.FC = () => {
             <Card>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Đóng gói" key="1">
-                  <PackInfo></PackInfo>
+                  <PackInfo setFulfillmentsPackedItems={setFulfillmentsPackedItems} queryParams={queryParams}></PackInfo>
                 </TabPane>
                 <TabPane tab="Bàn giao" disabled key="2">
                   Tab 2
@@ -89,7 +94,7 @@ const PackSupportScreen: React.FC = () => {
         </Row>
         <Row gutter={24}>
           <Col xs={24}>
-            <PackList data={data} onPageChange={onPageChange} />
+            <PackList data={data} tableLoading={tableLoading} onPageChange={onPageChange} />
           </Col>
         </Row>
       </ContentContainer>

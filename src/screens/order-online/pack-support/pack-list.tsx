@@ -2,7 +2,7 @@ import { Card, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 
 function PackList(props: any) {
-  const { data, onPageChange } = props;
+  const { data, onPageChange,tableLoading } = props;
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
@@ -70,6 +70,7 @@ function PackList(props: any) {
           dataSource={data?.items.reverse()}
           columns={columnsOrderPack}
           rowKey={(item: any) => item.id}
+          loading={tableLoading}
           //className="history-customer-table"
         />
       </div>
