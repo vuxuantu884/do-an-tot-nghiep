@@ -352,3 +352,21 @@ export const cancelOrderRequest = (id: number | undefined) => {
 export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
+
+export const getFulfillments=(code:string, setData:(data:Array<any>)=>void)=>{
+  return BaseAction(OrderType.GET_FULFILLMENTS,{code, setData});
+};
+
+export const getFulfillmentsPack=(request:any, setData:(data:any)=>void)=>{
+  return BaseAction(OrderType.GET_FULFILLMENTS_PACK,{request, setData});
+};
+
+export const getFulfillmentsPackedSaga = (
+  query: any,
+  setData: (data: PageResponse<any>) => void
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENTS_PACKED, {
+    query,
+    setData,
+  });
+};

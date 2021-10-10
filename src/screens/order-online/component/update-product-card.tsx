@@ -231,7 +231,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                       fontWeight: 700,
                     }}
                   >
-                    TỔNG
+                    TỔNG TEST
                   </div>
                   <div
                     style={{
