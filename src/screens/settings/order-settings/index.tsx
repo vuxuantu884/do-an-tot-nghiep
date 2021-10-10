@@ -215,12 +215,6 @@ function OrderSettings(props: PropType) {
     dispatch(
       actionEditOrderConfig(params, (response) => {
         console.log("response", response);
-        dispatch(
-          actionGetOrderConfig((response) => {
-            setListOrderConfigs(response);
-            setIsLoadedData(true);
-          })
-        );
       })
     );
   };
