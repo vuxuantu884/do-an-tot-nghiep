@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
-const quantityWidth = 80;
+const quantityWidth = 70;
 
 export const StyledComponent = styled.div`
   th {
@@ -21,7 +21,7 @@ export const StyledComponent = styled.div`
     justify-content: space-between;
   }
   .productNameWidth {
-    width: 200px;
+    width: 210px;
   }
   .quantityWidth {
     width: ${quantityWidth}px;
