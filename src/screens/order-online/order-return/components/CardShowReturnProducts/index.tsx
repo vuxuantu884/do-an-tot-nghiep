@@ -210,12 +210,13 @@ function CardShowReturnProducts(props: PropType) {
             </Row>
             {isDetailPage ? (
               <React.Fragment>
-                <Row className="payment-row" justify="space-between">
+                {/* <Row className="payment-row" justify="space-between">
                   <span className="font-size-text">Điểm trừ: </span>
                   {`${pointReturnToCustomer ? pointReturnToCustomer : 0} điểm`}
-                </Row>
+                </Row> */}
                 <Row className="payment-row" justify="space-between">
-                  <span className="font-size-text">Điểm hoàn: </span>
+                  {/* <span className="font-size-text">Điểm hoàn: </span> */}
+                  <span className="font-size-text">Điểm trừ: </span>
                   {`${pointUsing ? pointUsing : 0} điểm`}
                 </Row>
               </React.Fragment>
