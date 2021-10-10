@@ -10,7 +10,10 @@ type CreateOrderReturnContextType = {
     listReturnProducts: ReturnProductModel[];
     setListReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
     setTotalAmountReturnProducts: (value: number) => void;
+    moneyRefund: number;
     setMoneyRefund: (value: number) => void;
+    totalAmountReturnProducts: number;
+    totalAmountExchange: number;
     totalAmountCustomerNeedToPay: number;
   };
   isExchange: boolean;

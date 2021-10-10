@@ -38,10 +38,11 @@ function CardReturnProductContainer(props: PropType) {
     createOrderReturnContext?.return.setListReturnProducts;
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
+  const totalAmountReturnProducts =
+    createOrderReturnContext?.return.totalAmountReturnProducts;
+  const moneyRefund = createOrderReturnContext?.return.moneyRefund;
   const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
-  const totalAmountCustomerNeedToPay =
-    createOrderReturnContext?.return.totalAmountCustomerNeedToPay;
   const listOrderProducts = OrderDetail?.items;
   const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
@@ -358,7 +359,7 @@ function CardReturnProductContainer(props: PropType) {
               console.log("response", response);
               setPointRefund(response.point_refund);
               if (setMoneyRefund) {
-                setMoneyRefund(-response.money_refund);
+                setMoneyRefund(response.money_refund);
               }
             }
           )
@@ -384,10 +385,33 @@ function CardReturnProductContainer(props: PropType) {
     if (!listReturnProducts) {
       return;
     }
-    if (setTotalAmountReturnProducts) {
-      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    let result = 0;
+    let isUsingPoint = OrderDetail?.payments?.some((single) => {
+      return single.payment_method_id === pointPaymentMethodId;
+    });
+    if (!isUsingPoint) {
+      if (setTotalAmountReturnProducts) {
+        result = getTotalPrice(listReturnProducts);
+        console.log("result", result);
+        // làm tròn đến trăm đồng
+        result = Math.round(result / 100) * 100;
+      }
+    } else {
+      if (moneyRefund) {
+        result = moneyRefund;
+      }
     }
-  }, [getTotalPrice, listReturnProducts, setTotalAmountReturnProducts]);
+
+    if (setTotalAmountReturnProducts) {
+      setTotalAmountReturnProducts(result);
+    }
+  }, [
+    OrderDetail?.payments,
+    getTotalPrice,
+    listReturnProducts,
+    moneyRefund,
+    setTotalAmountReturnProducts,
+  ]);
 
   return (
     <CardReturnProducts
@@ -403,7 +427,7 @@ function CardReturnProductContainer(props: PropType) {
       onSelectSearchedVariant={onSelectSearchedVariant}
       pointUsing={pointRefund}
       searchVariantInputValue={searchVariantInputValue}
-      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+      totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
     />
   );
