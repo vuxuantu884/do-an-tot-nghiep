@@ -588,7 +588,7 @@ export default function Order() {
   }, []);
 
   useEffect(() => {
-    const fetchData = () => {
+    const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(+cloneIdParam, (response) => {
@@ -757,13 +757,16 @@ export default function Order() {
           })
         );
       } else {
+        console.log("den day");
+        await setInitialForm({
+          ...initialRequest,
+        });
+
         setCustomer(null);
         setItems([]);
         setItemGifts([]);
         setPayments([]);
-        setInitialForm({
-          ...initialRequest,
-        });
+
         setOfficeTime(false);
         setStoreId(null);
         setTag("");
@@ -772,7 +775,9 @@ export default function Order() {
         setDiscountRate(0);
         setDiscountValue(0);
         setOfficeTime(false);
+        console.log("initialForm", initialForm);
         setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
+        form.resetFields();
       }
     };
     fetchData();
