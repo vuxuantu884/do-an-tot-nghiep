@@ -1,18 +1,19 @@
-import { Button, Collapse, Form, Input, Space, Tag } from "antd";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Collapse, Form, FormInstance, Input, Space, Tag } from "antd";
+import search from "assets/img/search.svg";
 import CustomSelect from "component/custom/select.custom";
+import BaseFilter from "component/filter/base.filter";
+import CustomRangepicker, { StyledButton } from "component/filter/component/range-picker.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryQuery } from "model/inventory";
 import { AvdHistoryInventoryFilter, HistoryInventoryMappingField, HistoryInventoryQueryField } from "model/inventory/field";
-import { useCallback, useEffect, useState } from "react";
-import search from "assets/img/search.svg";
-import { FilterOutlined } from "@ant-design/icons";
-import BaseFilter from "component/filter/base.filter";
-import CustomRangepicker from "component/filter/component/range-picker.custom";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
+import { useCallback, useEffect, useState } from "react";
+import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import { QuantityButtonStyle } from "./history-filter.style";
 
 interface HistoryInventoryFilterProps {
   params: InventoryQuery;
@@ -79,6 +80,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
   const onAdvanceFinish = useCallback(
     (values: InventoryQuery) => {
       let data = formAdvanceFilter.getFieldsValue(true);
+    
       onFilter && onFilter(data);
     },
     [formAdvanceFilter, onFilter]
@@ -126,15 +128,12 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
           let data = {...baseValues,...advanceValues, store_ids: baseValues.store_ids, condition: baseValues.condition };
-          let created_date = data[AvdHistoryInventoryFilter.created_date],
-            transaction_date = data[AvdHistoryInventoryFilter.transaction_date];
+          let created_date = data[AvdHistoryInventoryFilter.created_date];
 
           const [from_created_date, to_created_date] = created_date
               ? created_date
-              : [undefined, undefined],
-            [from_transaction_date, to_transaction_date] = transaction_date
-              ? transaction_date
               : [undefined, undefined];
+            
           for (let key in data) {
             if (data[key] instanceof Array) {
               if (data[key].length === 0) data[key] = undefined;
@@ -144,8 +143,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             ...data,
             from_created_date,
             to_created_date,
-            from_transaction_date,
-            to_transaction_date,
+            //quantity change
           };
           formBaseFilter.setFieldsValue({ ...data });
           formAdvanceFilter?.setFieldsValue({
@@ -227,15 +225,8 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
               className="po-filter"
               direction="vertical"
               style={{ width: "100%" }}
-            >
+            >             
               {Object.keys(AvdHistoryInventoryFilter).map((field) => {
-                let component: any = null;
-                switch (field) {
-                  case AvdHistoryInventoryFilter.created_date:
-                  case AvdHistoryInventoryFilter.transaction_date:
-                    component = <CustomRangepicker />;
-                    break;
-                }
                 return (
                   <Collapse key={field}>
                     <Panel
@@ -247,7 +238,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                         </span>
                       }
                     >
-                      <Item name={field}>{component}</Item>
+                      <Item name={field}>{field === AvdHistoryInventoryFilter.created_date ?  <CustomRangepicker /> : <QuantityChange form={formAdvanceFilter}/> }</Item>
                     </Panel>
                   </Collapse>
                 );
@@ -270,8 +261,7 @@ const FilterList = ({ filters, resetField }: any) => {
         if (!value) return null;
         if (!HistoryInventoryMappingField[filterKey]) return null;
         switch (filterKey) {
-          case AvdHistoryInventoryFilter.created_date:
-          case AvdHistoryInventoryFilter.transaction_date:
+          case AvdHistoryInventoryFilter.created_date:          
             let [from, to] = value;
             let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
               formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
@@ -295,4 +285,31 @@ const FilterList = ({ filters, resetField }: any) => {
   );
 };
 
+type QuantityChangeProps ={
+  form : FormInstance
+}
+const QuantityChange = ({form}:QuantityChangeProps) => {
+  return (
+    <QuantityButtonStyle>
+      <StyledButton
+        className={"btn-item"}
+        onClick={() => {
+          form.setFieldsValue({ [HistoryInventoryQueryField.to_quantity]: 0 });
+          form.setFieldsValue({ [HistoryInventoryQueryField.from_quantity]: null });
+        }}
+      >
+        Trừ <br /> (Xuất hàng)
+      </StyledButton>
+      <StyledButton
+        className={"btn-item"}
+        onClick={() => {
+          form.setFieldsValue({ [HistoryInventoryQueryField.to_quantity]: null });
+          form.setFieldsValue({ [HistoryInventoryQueryField.from_quantity]: 0 });
+        }}
+      >
+        Cộng <br /> (Nhập hàng)
+      </StyledButton>
+    </QuantityButtonStyle>
+  );
+};
 export default HistoryInventoryFilter;

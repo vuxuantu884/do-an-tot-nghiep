@@ -94,8 +94,16 @@ const TabHistoryInfo: React.FC = () => {
       title: "Người sửa",
       dataIndex: "action_name",
       visible: true,
-      align: "center",
-    },
+      align: "left",
+      render : (value, record) => {return (
+        <div>
+          <span style={{color:"#2a2a86", textTransform: "uppercase"}}>
+            {value}
+          </span>
+          <div>{record.action_by}</div>
+        </div>
+      ); 
+    }},
     {
       title: "Log ID",
       dataIndex: "code",
