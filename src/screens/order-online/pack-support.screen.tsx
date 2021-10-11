@@ -35,24 +35,25 @@ const PackSupportScreen: React.FC = () => {
     items: [],
   });
 
+  console.log(data);
 
 
-  const setFulfillmentsPackedItems = useCallback((data: PageResponse<any>) => {
-    setTableLoading(false);
-    if (data) {
-      setData(data);
-    }
-  }, []);
+  // const setFulfillmentsPackedItems = useCallback((data: PageResponse<any>) => {
+  //   setTableLoading(false);
+  //   if (data) {
+  //     setData(data);
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    dispatch(
-      getFulfillmentsPackedSaga(queryParams, (data: PageResponse<any>) => {
-        if (data) {
-          setFulfillmentsPackedItems(data);
-        } else showError("Lấy danh sách Order thất bại");
-      })
-    );
-  }, [dispatch, setFulfillmentsPackedItems, queryParams]);
+  // useEffect(() => {
+  //   dispatch(
+  //     getFulfillmentsPackedSaga(queryParams, (data: PageResponse<any>) => {
+  //       if (data) {
+  //         setFulfillmentsPackedItems(data);
+  //       } else showError("Lấy danh sách Order thất bại");
+  //     })
+  //   );
+  // }, [dispatch, setFulfillmentsPackedItems, queryParams]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -83,7 +84,7 @@ const PackSupportScreen: React.FC = () => {
             <Card>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Đóng gói" key="1">
-                  <PackInfo setFulfillmentsPackedItems={setFulfillmentsPackedItems} queryParams={queryParams}></PackInfo>
+                  <PackInfo setFulfillmentsPackedItems={setData} fulfillmentData={data} queryParams={queryParams}></PackInfo>
                 </TabPane>
                 <TabPane tab="Bàn giao" disabled key="2">
                   Tab 2

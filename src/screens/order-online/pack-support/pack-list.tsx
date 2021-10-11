@@ -3,6 +3,7 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 
 function PackList(props: any) {
   const { data, onPageChange,tableLoading } = props;
+  
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
@@ -10,7 +11,7 @@ function PackList(props: any) {
       dataIndex: "",
       align: "center",
       visible: true,
-      width: "5%",
+      width: "10%",
       render: (value: any, row: any, index: number) => {
         return <span>{index + 1}</span>;
       },
@@ -32,14 +33,14 @@ function PackList(props: any) {
       title: "Hãng vận chuyển",
       visible: true,
       render: (value, row, index) => {
-        return <div>ABC</div>;
+        return <div>{row.shipment}</div>;
       },
     },
     {
       title: "Khách hàng",
       visible: true,
       render: (value, row, index) => {
-        return <div>{row.shipping_address?.name}</div>;
+        return <div>{row.customer}</div>;
       },
     },
     {
@@ -70,8 +71,8 @@ function PackList(props: any) {
           dataSource={data?.items.reverse()}
           columns={columnsOrderPack}
           rowKey={(item: any) => item.id}
-          loading={tableLoading}
-          //className="history-customer-table"
+          //loading={tableLoading}
+          className="ecommerce-order-list"
         />
       </div>
     </Card>
