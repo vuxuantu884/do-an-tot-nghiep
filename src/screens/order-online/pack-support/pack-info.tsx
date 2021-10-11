@@ -237,7 +237,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
         );
       }
     }
-  }, [dispatch, orderList, orderResponse, btnClearPackElement]);
+  }, [dispatch, orderList, orderResponse, btnClearPackElement,queryParams,setFulfillmentsPackedItems]);
 
   useEffect(()=>{
     if(disableOrder===true)
