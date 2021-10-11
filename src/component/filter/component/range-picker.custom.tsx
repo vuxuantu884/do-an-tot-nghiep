@@ -23,7 +23,7 @@ type BtnProps = {
   onClick?: (value: any | undefined) => void;
 };
 
-const StyledButton = ({ children, className, onClick }: BtnProps) => {
+export const StyledButton = ({ children, className, onClick }: BtnProps) => {
   return (
     <Button
       className={className}

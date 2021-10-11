@@ -1,8 +1,8 @@
-import { Col, Modal, Row, Image, List, Checkbox } from "antd";
+import { Checkbox, Col, Modal, Row } from "antd";
+import variantdefault from "assets/icon/variantdefault.jpg";
 import { VariantImage } from "model/product/product.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyledComponent } from "./style";
-import variantdefault from "assets/icon/variantdefault.jpg";
 
 type ModalPickAvatarProps = {
   visible: boolean;
@@ -51,37 +51,27 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (
               {selected === -1 ? (
                 <img src={variantdefault} alt="" />
               ) : (
-                <Image preview={false} src={avatar} />
+                <img src={avatar} alt="" />
               )}
             </div>
           </Col>
           <Col span={24} md={17}>
-            <List
-              locale={{
-                emptyText: "Danh sách ảnh trống"
-              }}
-              className="avatar-list"
-              grid={{ column: 4 }}
-              dataSource={variantImages}
-              renderItem={(item, index) => (
-                <List.Item>
-                  <Image preview={false} src={item.url} />
-                  <Checkbox
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelected(item.image_id);
-                      } else {
-                        if (item.image_id === selected) {
-                          setSelected(-1);
-                        }
-                      }
-                    }}
+          
+            <div className="avatar-list">
+              {variantImages.map((item:VariantImage)=>
+              <div className="img-frame" onClick={(e) => {
+                
+                setSelected(item.image_id);
+              
+            }} >
+              <img src={item.url} alt="" />
+              <Checkbox
                     checked={item.image_id === selected}
                     className="av-checkbox"
                   />
-                </List.Item>
+              </div>
               )}
-            />
+            </div>
           </Col>
         </Row>
       </StyledComponent>
