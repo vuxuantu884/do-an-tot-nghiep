@@ -41,6 +41,9 @@ import { delivery_service } from "./common/delivery-service";
 import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
+import { exportFile, getFile } from "service/other/export.service";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { HttpStatus } from "config/http-status.config";
 
 const actions: Array<MenuAction> = [
   {
@@ -675,6 +678,67 @@ const ListOrderScreen: React.FC = () => {
     [history, selectedRowKeys]
   );
 
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+
+  const onExport = useCallback(() => {
+
+    let queryParams = generateQuery(params);
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_ORDER",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(2)
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        setStatusExport(4)
+        console.log("orders export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [params, listExportFile]);
+  const checkExportFile = useCallback(() => {
+    console.log('start check status');
+    
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (exportProgress < 95) {
+            setExportProgress(exportProgress + 3)
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(3)
+            console.log('finishhh');
+            setExportProgress(100)
+            const fileCode = response.data.code
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [exportProgress, listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+    
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
+
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
       setTableLoading(false);
@@ -820,12 +884,19 @@ const ListOrderScreen: React.FC = () => {
           }}
           data={columns}
         />
-        <ExportModal
+        {showExportModal && <ExportModal
           visible={showExportModal}
-          onCancel={() => setShowExportModal(false)}
-          onOk={() => console.log("123")}
+          onCancel={() => {
+            setShowExportModal(false)
+            setExportProgress(0)
+            setStatusExport(1)
+          }}
+          onOk={() => onExport()}
           type="orders"
-        />
+          total={data.metadata.total}
+          exportProgress={exportProgress}
+          statusExport={statusExport}
+        />}
       </ContentContainer>
     </StyledComponent>
   );
