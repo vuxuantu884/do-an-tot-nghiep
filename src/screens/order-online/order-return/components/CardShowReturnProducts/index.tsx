@@ -1,4 +1,4 @@
-import { Card, Col, Popover, Row, Table } from "antd";
+import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -14,7 +14,6 @@ type PropType = {
   listReturnProducts: OrderLineItemResponse[];
   discountRate?: number | null;
   pointUsing?: number;
-  pointReturnToCustomer?: number;
   totalAmountReturnToCustomer: number | undefined;
   isDetailPage?: boolean;
 };
@@ -24,7 +23,6 @@ function CardShowReturnProducts(props: PropType) {
     listReturnProducts,
     discountRate,
     pointUsing,
-    pointReturnToCustomer,
     totalAmountReturnToCustomer,
     isDetailPage = false,
   } = props;
@@ -97,6 +95,32 @@ function CardShowReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      render: (value, record: ReturnProductModel, index: number) => {
+        return (
+          <div className="d-flex align-items-center">
+            <div
+              style={{
+                width: "calc(100% - 32px)",
+                float: "left",
+              }}
+            >
+              <div className="yody-pos-sku">
+                <Typography.Link style={{ color: "#2A2A86" }}>
+                  {record.sku}
+                </Typography.Link>
+              </div>
+              <div className="yody-pos-varian">
+                <Tooltip
+                  title={record.variant}
+                  className="yody-pos-varian-name"
+                >
+                  <span>{record.variant}</span>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: () => (
@@ -210,12 +234,13 @@ function CardShowReturnProducts(props: PropType) {
             </Row>
             {isDetailPage ? (
               <React.Fragment>
-                <Row className="payment-row" justify="space-between">
+                {/* <Row className="payment-row" justify="space-between">
                   <span className="font-size-text">Điểm trừ: </span>
                   {`${pointReturnToCustomer ? pointReturnToCustomer : 0} điểm`}
-                </Row>
+                </Row> */}
                 <Row className="payment-row" justify="space-between">
-                  <span className="font-size-text">Điểm hoàn: </span>
+                  {/* <span className="font-size-text">Điểm hoàn: </span> */}
+                  <span className="font-size-text">Điểm trừ: </span>
                   {`${pointUsing ? pointUsing : 0} điểm`}
                 </Row>
               </React.Fragment>

@@ -26,7 +26,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
   return (
     <Sider
       collapsed={collapsed}
-      collapsedWidth={60}
+      collapsedWidth={52}
       width={240}
       style={{ zIndex: 2 }}
     >
@@ -41,12 +41,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
             if (route.subMenu.length > 0) {
               return (
                 <Menu.SubMenu
-                  icon={
-                    <i
-                      className={route.icon}
-                      style={{ fontSize: 24, marginRight: 10 }}
-                    />
-                  }
+                  icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                   title={route.title}
                   key={route.key}
                 >
@@ -60,7 +55,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                           icon={
                             <i
                               className={item.icon}
-                              style={{ fontSize: 8, marginRight: 0 }}
+                              style={{ fontSize: 8, marginRight: 0, marginLeft: 10 }}
                             />
                           }
                           title={item.title}
@@ -71,7 +66,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                               icon={
                                 <i
                                   className={item.icon}
-                                  style={{ fontSize: 8, marginRight: 0 }}
+                                  style={{ fontSize: 8, marginRight: 0, marginLeft: 38 }}
                                 />
                               }
                               key={item2.key}
@@ -87,7 +82,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                         icon={
                           <i
                             className={item.icon}
-                            style={{ fontSize: 8, marginRight: 0 }}
+                            style={{ fontSize: 8, marginRight: 0, marginLeft: 10 }}
                           />
                         }
                         key={item.key}
@@ -129,12 +124,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                     window.location.href = route.path;
                   }
                 }}
-                icon={
-                  <i
-                    className={route.icon}
-                    style={{ fontSize: 24, marginRight: 10 }}
-                  />
-                }
+                icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                 key={route.key}
               >
                 {route.isShow ? (

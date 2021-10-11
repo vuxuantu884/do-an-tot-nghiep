@@ -324,9 +324,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
         >
           <Space size={20}>
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
-            <Radio value={RETURN_MONEY_TYPE.return_later}>
-              Hoàn tiền sau
-            </Radio>
+            <Radio value={RETURN_MONEY_TYPE.return_later}>Hoàn tiền sau</Radio>
           </Space>
         </Radio.Group>
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
@@ -375,7 +373,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
                         <span style={{ paddingRight: "20px" }}>
-                          Tổng tiền cần thanh toán 11
+                          Tổng tiền cần thanh toán:
                         </span>
                         <strong>
                           {totalAmountCustomerNeedToPay &&
@@ -387,7 +385,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                     </Col>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
-                        <span style={{ paddingRight: "20px" }}>Còn lại</span>
+                        <span style={{ paddingRight: "20px" }}>Còn lại:</span>
                         <strong>
                           {totalAmountCustomerNeedToPay
                             ? formatCurrency(totalAmountCustomerNeedToPay)
@@ -512,7 +510,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
       className="margin-top-20"
       title={
         <span className="title-card">
-          {isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán 2"}
+          {isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}
         </span>
       }
     >

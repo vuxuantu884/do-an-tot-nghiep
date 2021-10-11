@@ -9,6 +9,8 @@ import {
   Popover,
   Row,
   Table,
+  Tooltip,
+  Typography,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
@@ -32,9 +34,8 @@ type PropType = {
   OrderDetail?: OrderResponse | null;
   listReturnProducts?: ReturnProductModel[];
   searchVariantInputValue?: string;
-  pointAmountUsing?: number;
   pointUsing?: number;
-  totalPriceReturnToCustomer: number;
+  totalAmountReturnProducts: number | undefined;
   isCheckReturnAll?: boolean;
   convertResultSearchVariant?: any[] | undefined;
   onChangeProductSearchValue?: (value: string) => void;
@@ -51,11 +52,10 @@ function CardReturnProducts(props: PropType) {
     isShowProductSearch = false,
     OrderDetail,
     listReturnProducts,
-    pointAmountUsing,
     pointUsing,
     searchVariantInputValue,
     convertResultSearchVariant,
-    totalPriceReturnToCustomer,
+    totalAmountReturnProducts = 0,
     isCheckReturnAll,
     onChangeProductSearchValue,
     onSelectSearchedVariant,
@@ -63,7 +63,7 @@ function CardReturnProducts(props: PropType) {
     handleChangeReturnAll,
   } = props;
 
-  console.log("totalPriceReturnToCustomer", totalPriceReturnToCustomer);
+  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -162,6 +162,32 @@ function CardReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      render: (value, record: ReturnProductModel, index: number) => {
+        return (
+          <div className="d-flex align-items-center">
+            <div
+              style={{
+                width: "calc(100% - 32px)",
+                float: "left",
+              }}
+            >
+              <div className="yody-pos-sku">
+                <Typography.Link style={{ color: "#2A2A86" }}>
+                  {record.sku}
+                </Typography.Link>
+              </div>
+              <div className="yody-pos-varian">
+                <Tooltip
+                  title={record.variant}
+                  className="yody-pos-varian-name"
+                >
+                  <span>{record.variant}</span>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: () => (
@@ -352,20 +378,17 @@ function CardReturnProducts(props: PropType) {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <span className="font-size-text">Tiêu điểm:</span>
-                  <span>
-                    {pointAmountUsing ? formatCurrency(pointAmountUsing) : 0}
-                    {` (${pointUsing ? pointUsing : 0} điểm)`}
-                  </span>
+                  <span className="font-size-text">Điểm hoàn:</span>
+                  <span>{` ${pointUsing ? pointUsing : 0} điểm`}</span>
                 </React.Fragment>
               )}
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
-              {/* làm tròn đến trăm đồng */}
               <strong>
+                {/* làm tròn đến trăm đồng */}
                 {formatCurrency(
-                  Math.round(totalPriceReturnToCustomer / 100) * 100
+                  Math.round(totalAmountReturnProducts / 100) * 100
                 )}
               </strong>
             </Row>

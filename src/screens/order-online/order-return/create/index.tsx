@@ -43,7 +43,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CardShipment from "screens/order-online/component/order-detail/CardShipment";
@@ -88,6 +88,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isCanReturnOrExchange, setIsCanReturnOrExchange] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
+  const [isErrorExchange, setIsErrorExchange] = useState(false);
   const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
@@ -155,6 +156,8 @@ const ScreenReturnCreate = (props: PropType) => {
   const [returnMoneyType, setReturnMoneyType] = useState(
     RETURN_MONEY_TYPE.return_now
   );
+
+  const [moneyRefund, setMoneyRefund] = useState(0);
 
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -231,10 +234,13 @@ const ScreenReturnCreate = (props: PropType) => {
    * if return > exchange: positive
    * else negative
    */
-  let totalAmountCustomerNeedToPay =
-    totalAmountExchange +
-    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-    totalAmountReturnProducts;
+  let totalAmountCustomerNeedToPay = useMemo(() => {
+    let result =
+      totalAmountExchange +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      totalAmountReturnProducts;
+    return result;
+  }, [shippingFeeCustomer, totalAmountExchange, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
@@ -506,13 +512,21 @@ const ScreenReturnCreate = (props: PropType) => {
             const handleCreateOrderExchangeByValue = (
               valuesResult: ExchangeRequest
             ) => {
+              if (isErrorExchange) {
+                showError("Đã tạo đơn đổi hàng không thành công!");
+                return;
+              }
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
-                      createOrderExchangeCallback
+                      createOrderExchangeCallback,
+                      (error) => {
+                        console.log("error", error);
+                        setIsErrorExchange(true);
+                      }
                     )
                   );
                 })
@@ -842,6 +856,11 @@ const ScreenReturnCreate = (props: PropType) => {
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
+      moneyRefund,
+      setMoneyRefund,
+      totalAmountReturnProducts,
+      totalAmountExchange,
+      totalAmountCustomerNeedToPay,
     },
     isExchange,
     isStepExchange,
@@ -878,6 +897,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 <CardReturnProductContainer
                   discountRate={discountRate}
                   isDetailPage={false}
+                  orderId={orderId}
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts

@@ -8,6 +8,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import {
   createOrderExchangeService,
   createOrderReturnService,
+  getOrderReturnCalculateRefund,
   getOrderReturnLog,
   getOrderReturnReasonService,
   getOrderReturnService,
@@ -157,7 +158,7 @@ function* orderRefundSaga(action: YodyAction) {
 }
 
 function* createOrderExchangeSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { params, handleData, handleError } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
@@ -179,6 +180,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
+    handleError(error);
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
@@ -191,6 +193,33 @@ function* getOrderReturnLogSaga(action: YodyAction) {
     let response: BaseResponse<OrderActionLogResponse[]> = yield call(
       getOrderReturnLog,
       id
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getOrderReturnCalculateRefundSaga(action: YodyAction) {
+  const { customerId, orderId, refund, handleData } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      getOrderReturnCalculateRefund,
+      customerId,
+      orderId,
+      refund
     );
 
     switch (response.code) {
@@ -232,5 +261,9 @@ export function* OrderReturnSaga() {
   yield takeLatest(
     ORDER_RETURN_TYPES.GET_ORDER_RETURN_LOGS,
     getOrderReturnLogSaga
+  );
+  yield takeLatest(
+    ORDER_RETURN_TYPES.GET_ORDER_RETURN_CALCULATE_REFUND,
+    getOrderReturnCalculateRefundSaga
   );
 }
