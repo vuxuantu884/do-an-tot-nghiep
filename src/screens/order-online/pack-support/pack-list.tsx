@@ -73,6 +73,7 @@ function PackList(props: any) {
           rowKey={(item: any) => item.id}
           //loading={tableLoading}
           className="ecommerce-order-list"
+          key={Math.random()}
         />
       </div>
     </Card>

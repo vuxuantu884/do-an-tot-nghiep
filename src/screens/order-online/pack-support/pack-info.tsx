@@ -224,7 +224,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
-              
 
               let datas={...fulfillmentData};
 
@@ -240,6 +239,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               setFulfillmentsPackedItems(datas);
               console.log("fulfillmentData 111")
               console.log(fulfillmentData)
+
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
