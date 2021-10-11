@@ -74,13 +74,15 @@ export const actionOrderRefund = (
 
 export const actionCreateOrderExchange = (
   params: ExchangeRequest,
-  handleData: (data: any) => void
+  handleData: (data: any) => void,
+  handleError: (error: any) => void
 ) => {
   return {
     type: ORDER_RETURN_TYPES.CREATE_ORDER_EXCHANGE,
     payload: {
       params,
       handleData,
+      handleError,
     },
   };
 };

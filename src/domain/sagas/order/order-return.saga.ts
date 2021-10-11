@@ -158,7 +158,7 @@ function* orderRefundSaga(action: YodyAction) {
 }
 
 function* createOrderExchangeSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { params, handleData, handleError } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(
@@ -180,6 +180,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
+    handleError(error);
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
