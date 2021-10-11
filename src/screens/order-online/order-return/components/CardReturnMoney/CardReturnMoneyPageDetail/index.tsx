@@ -10,7 +10,7 @@ import { StyledComponent } from "./styles";
 type PropType = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
-  returnMoneyAmount: number;
+  totalAmountReturnToCustomer: number | undefined;
   isShowPaymentMethod: boolean;
   handleReturnMoney: () => void;
   setIsShowPaymentMethod: (value: boolean) => void;
@@ -19,14 +19,14 @@ type PropType = {
 function CardReturnMoneyPageDetail(props: PropType) {
   const {
     payments,
-    returnMoneyAmount,
+    totalAmountReturnToCustomer = 0,
     listPaymentMethods,
     isShowPaymentMethod,
     handleReturnMoney,
     setIsShowPaymentMethod,
   } = props;
 
-  console.log("listPaymentMethods", listPaymentMethods);
+  console.log("totalAmountReturnToCustomer", totalAmountReturnToCustomer);
 
   const renderCardTitle = () => {
     return (
@@ -87,7 +87,8 @@ function CardReturnMoneyPageDetail(props: PropType) {
                 fontWeight: "bold",
               }}
             >
-              Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
+              Cần hoàn trả khách: {formatCurrency(totalAmountReturnToCustomer)}{" "}
+              đ
               <Button
                 onClick={() => {
                   console.log("333");
@@ -111,7 +112,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
           {isShowPaymentMethod && (
             <ReturnMoneySelect
               listPaymentMethods={listPaymentMethods}
-              totalAmountCustomerNeedToPay={returnMoneyAmount}
+              totalAmountCustomerNeedToPay={-totalAmountReturnToCustomer}
               handleReturnMoney={() => {
                 handleReturnMoney();
               }}
