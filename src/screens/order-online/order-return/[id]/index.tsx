@@ -225,6 +225,8 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch]);
 
   // check open tab url
+  const urlLinkCheck = `${process.env.PUBLIC_URL}${UrlConfig.ORDER_SETTINGS}`;
+  console.log("urlLinkCheck", urlLinkCheck);
   console.log("process.env.PUBLIC_URL", process.env.PUBLIC_URL);
 
   return (
