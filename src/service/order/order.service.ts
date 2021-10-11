@@ -1,6 +1,7 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
+import { promises } from "dns";
 import { BaseQuery } from "model/base/base.query";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
@@ -305,4 +306,20 @@ export const getOrderConfig=():Promise<any>=>{
   return BaseAxios.get(
     `${ApiConfig.ORDER}/orders-config`
   );
+}
+
+export const getFulfillmentsApi=(code:string):Promise<BaseResponse<any>>=>{
+  let link =`${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
+  return BaseAxios.get(link);
+}
+
+export const getFulfillmentsPackedApi=(query:any):Promise<BaseResponse<any>>=>{
+  const queryString = generateQuery(query);
+  const link =`${ApiConfig.ORDER}/fulfillments/packed?${queryString}`;
+  return BaseAxios.get(link);
+}
+
+export const putFulfillmentsPackApi=(request:any):Promise<BaseResponse<any>>=>{
+  let url = `${ApiConfig.ORDER}/fulfillments/pack`;
+  return BaseAxios.put(url, request);
 }

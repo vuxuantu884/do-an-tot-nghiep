@@ -13,6 +13,7 @@ export interface OrderResponse extends BaseObject {
   tax_treatment: string | null;
   source_id: number | null;
   source: string | null;
+  source_code: string | null;
   note: string | null;
   tags: string | null;
   customer_note: string | null;
@@ -70,6 +71,7 @@ export interface OrderResponse extends BaseObject {
   order_return_origin?: OrderReturnModel;
   point_refund?: number;
   money_refund?: number;
+  shipment: ShipmentResponse | null | undefined;
 }
 
 export interface OrderLineItemResponse {
@@ -401,4 +403,9 @@ export interface OrderReturnReasonModel {
 
 export interface OrderConfig extends BaseObject {
   sellable_inventory: boolean;
+}
+
+export interface OrderProductListModel extends OrderLineItemResponse{
+  pick:number;
+  color:string
 }

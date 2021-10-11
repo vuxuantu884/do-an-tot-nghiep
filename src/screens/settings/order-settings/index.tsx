@@ -9,12 +9,18 @@ import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
-  actionConfigureIsAllowToSellWhenNotAvailableStock,
   actionDeleteConfigurationShippingServiceAndShippingFee,
-  actionGetIsAllowToSellWhenNotAvailableStock,
+  actionEditOrderConfig,
+  actionGetOrderConfig,
+  actionGetOrderConfigActionOrderPreview,
+  actionGetOrderConfigPrint,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
+import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
+  OrderConfigActionOrderPreviewResponseModel,
+  OrderConfigPrintResponseModel,
+  OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
@@ -32,14 +38,23 @@ function OrderSettings(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const [isTableLoading, setIsTableLoading] = useState(true);
-  const [
-    isAllowToSellWhenNotAvailableStock,
-    setIsAllowToSellWhenNotAvailableStock,
-  ] = useState(false);
+  const [isLoadedData, setIsLoadedData] = useState(false);
+
+  const [listPrintConfig, setListPrintConfig] = useState<
+    OrderConfigPrintResponseModel[] | null
+  >(null);
+
+  const [listActionsOrderPreview, setListActionsOrderPreview] = useState<
+    OrderConfigActionOrderPreviewResponseModel[] | null
+  >(null);
+
+  const [listOrderConfigs, setListOrderConfigs] =
+    useState<OrderConfigResponseModel | null>(null);
 
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigResponseModel[]
   >([]);
+
   const dispatch = useDispatch();
 
   const handleDeleteShippingService = (id: number) => {
@@ -179,8 +194,6 @@ function OrderSettings(props: PropType) {
     },
   ];
 
-  // const [isTableLoading, setTableLoading] = useState(false);
-
   const history = useHistory();
 
   const renderCardExtra = () => {
@@ -192,23 +205,41 @@ function OrderSettings(props: PropType) {
     );
   };
 
-  const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
-    setIsAllowToSellWhenNotAvailableStock(checked);
-    dispatch(
-      actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
-    );
-  };
-
   const goToPageDetail = (id: string | number) => {
     history.push(
       `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
     );
   };
 
+  const onUpdateOrderConfig = (params: OrderConfigRequestModel) => {
+    dispatch(
+      actionEditOrderConfig(params, (response) => {
+        console.log("response", response);
+      })
+    );
+  };
+
   useEffect(() => {
     dispatch(
-      actionGetIsAllowToSellWhenNotAvailableStock((response) => {
-        setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
+      actionGetOrderConfigPrint((response) => {
+        setListPrintConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfigActionOrderPreview((response) => {
+        setListActionsOrderPreview(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfig((response) => {
+        setListOrderConfigs(response);
+        setIsLoadedData(true);
       })
     );
   }, [dispatch]);
@@ -240,14 +271,17 @@ function OrderSettings(props: PropType) {
           },
         ]}
       >
-        <CardGeneralSettings
-          isAllowToSellWhenNotAvailableStock={
-            isAllowToSellWhenNotAvailableStock
-          }
-          onChangeAllowToSellWhenNotAvailableStock={
-            onChangeAllowToSellWhenNotAvailableStock
-          }
-        />
+        {isLoadedData ? (
+          <CardGeneralSettings
+            listPrintConfig={listPrintConfig}
+            listActionsOrderPreview={listActionsOrderPreview}
+            listOrderConfigs={listOrderConfigs}
+            onUpdateOrderConfig={onUpdateOrderConfig}
+          />
+        ) : (
+          "Đang cập nhật"
+        )}
+
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
           extra={renderCardExtra()}

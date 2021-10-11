@@ -43,7 +43,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CardShipment from "screens/order-online/component/order-detail/CardShipment";
@@ -156,6 +156,8 @@ const ScreenReturnCreate = (props: PropType) => {
     RETURN_MONEY_TYPE.return_now
   );
 
+  const [moneyRefund, setMoneyRefund] = useState(0);
+
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
@@ -231,17 +233,20 @@ const ScreenReturnCreate = (props: PropType) => {
    * if return > exchange: positive
    * else negative
    */
-  let totalAmountCustomerNeedToPay =
-    totalAmountExchange +
-    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-    totalAmountReturnProducts;
+  let totalAmountCustomerNeedToPay = useMemo(() => {
+    let result =
+      totalAmountExchange +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      totalAmountReturnProducts;
+    return result;
+  }, [shippingFeeCustomer, totalAmountExchange, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
     if (!data) {
       setError(true);
     } else {
-      let _data = { ...data };
+      const _data = { ...data };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
           f.status !== FulFillmentStatus.CANCELLED &&
@@ -249,13 +254,14 @@ const ScreenReturnCreate = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      let returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
+      const returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
         return (
           singleFulfillment.status === FulFillmentStatus.SHIPPED ||
           singleFulfillment.status === FulFillmentStatus.UNSHIPPED
         );
       });
-      if (returnFulfillment) {
+      const returnCondition = returnFulfillment || _data.source === "POS";
+      if (returnCondition) {
         setIsCanReturnOrExchange(true);
       }
       let returnProduct: ReturnProductModel[] = _data.items.map((single) => {
@@ -841,6 +847,11 @@ const ScreenReturnCreate = (props: PropType) => {
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
+      moneyRefund,
+      setMoneyRefund,
+      totalAmountReturnProducts,
+      totalAmountExchange,
+      totalAmountCustomerNeedToPay,
     },
     isExchange,
     isStepExchange,
@@ -877,6 +888,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 <CardReturnProductContainer
                   discountRate={discountRate}
                   isDetailPage={false}
+                  orderId={orderId}
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts

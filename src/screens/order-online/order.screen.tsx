@@ -598,6 +598,11 @@ export default function Order() {
               dispatch(
                 CustomerDetail(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
+                  responseCustomer.shipping_addresses.forEach((item) => {
+                    if (item.default === true) {
+                      setShippingAddress(item);
+                    }
+                  });
                 })
               );
             }
@@ -803,11 +808,11 @@ export default function Order() {
             : loyaltyPoint?.loyalty_level_id)
       );
 
-      let curenPoint = !loyaltyPoint
-        ? 0
-        : loyaltyPoint.point === null
-        ? 0
-        : loyaltyPoint.point;
+      // let curenPoint = !loyaltyPoint
+      //   ? 0
+      //   : loyaltyPoint.point === null
+      //   ? 0
+      //   : loyaltyPoint.point;
       let point = !Pointfocus
         ? 0
         : Pointfocus.point === undefined

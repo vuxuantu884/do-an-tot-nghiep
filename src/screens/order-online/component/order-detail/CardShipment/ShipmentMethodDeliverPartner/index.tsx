@@ -130,10 +130,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
-      if (!customerShippingAddress || !orderPrice) {
+      if (!customerShippingAddress || orderPrice === undefined) {
         return;
       }
-      const customerShippingAddressCity = customerShippingAddress.city;
+      const customerShippingAddressCityId = customerShippingAddress.city_id;
 
       if (
         !createOrderContext?.shipping.shippingServiceConfig ||
@@ -165,13 +165,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       };
 
       // check tỉnh giao hàng
-      const checkIfSameProvince = (
-        customerShippingAddressProvince: string,
-        configShippingAddressProvince: string
+      const checkIfSameCity = (
+        customerShippingAddressCityId: number,
+        configShippingAddressCityId: number
       ) => {
-        return (
-          customerShippingAddressProvince === configShippingAddressProvince
-        );
+        return customerShippingAddressCityId === configShippingAddressCityId;
       };
 
       // check giá
@@ -212,9 +210,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               (single) => {
                 console.log("single", single);
                 return (
-                  checkIfSameProvince(
-                    single.city_name,
-                    customerShippingAddressCity
+                  checkIfSameCity(
+                    single.city_id,
+                    customerShippingAddressCityId
                   ) &&
                   checkIfPrice(orderPrice, single.from_price, single.to_price)
                 );
@@ -251,8 +249,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         });
         console.log("result", result);
         form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
+        setShippingFeeInformedCustomer(result);
       } else {
         form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
+        setShippingFeeInformedCustomer(0);
       }
     },
     [
@@ -260,6 +260,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       customerShippingAddress,
       form,
       orderPrice,
+      setShippingFeeInformedCustomer,
     ]
   );
 

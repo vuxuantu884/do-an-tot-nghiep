@@ -1,15 +1,23 @@
 import { Button, Card, Row, Space, Tag } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch } from "react-redux";
+import exportIcon from "assets/icon/export.svg";
+import importIcon from "assets/icon/import.svg";
+import ContentContainer from "component/container/content.container";
 import OrderFilter from "component/filter/order.filter";
+import ButtonCreate from "component/header/ButtonCreate";
+import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import UrlConfig from "config/url.config";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListOrderAction } from "domain/actions/order/order.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import {
   OrderFulfillmentsModel,
   OrderItemModel,
@@ -17,32 +25,22 @@ import {
   OrderPaymentModel,
   OrderSearchQuery,
 } from "model/order/order.model";
-import { AccountResponse } from "model/account/account.model";
-import importIcon from "assets/icon/import.svg";
-import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/url.config";
-import ButtonCreate from "component/header/ButtonCreate";
-import ContentContainer from "component/container/content.container";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { getListOrderAction } from "domain/actions/order/order.action";
-import "./scss/index.screen.scss";
-
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import NumberFormat from "react-number-format";
-import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-
+import { SourceResponse } from "model/response/order/source.response";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import { delivery_service } from "./common/delivery-service";
-import { StyledComponent } from "./index.screen.styles";
+import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
+import "./scss/index.screen.scss";
 
 const actions: Array<MenuAction> = [
   {
@@ -187,25 +185,32 @@ const ListOrderScreen: React.FC = () => {
       width: "5%",
     },
     {
-      title: "Sản phẩm",
+      title: (
+        <div className="productNameQuantityHeader">
+          <span className="productNameWidth">Sản phẩm</span>
+          <span className="quantity quantityWidth">
+            <span>Số lượng</span>
+          </span>
+        </div>
+      ),
       dataIndex: "items",
       key: "items.name11",
+      className: "productNameQuantity",
       render: (items: Array<OrderItemModel>) => {
         return (
           <div className="items">
             {items.map((item, i) => {
               return (
                 <div className="item custom-td">
-                  <div className="product">
+                  <div className="product productNameWidth">
                     <Link
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
                     >
                       {item.variant}
                     </Link>
-                    <p>{item.sku}</p>
                   </div>
-                  <div className="quantity">
-                    <span>SL: {item.quantity}</span>
+                  <div className="quantity quantityWidth">
+                    <span>{item.quantity}</span>
                   </div>
                 </div>
               );
@@ -215,26 +220,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "left",
-      width: "6.5%",
-    },
-    {
-      title: "SL",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<OrderItemModel>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item" style={{ width: "100%" }}>
-                <div className="item-quantity">{item.quantity}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: "1.3%",
+      width: nameQuantityWidth,
     },
     {
       title: "Khách phải trả",

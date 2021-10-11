@@ -29,7 +29,6 @@ import { useParams } from "react-router-dom";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
-import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import OrderMoreDetails from "../components/Sidebar/OrderMoreDetails";
@@ -44,7 +43,6 @@ type OrderParam = {
 const ScreenReturnDetail = (props: PropType) => {
   let { id } = useParams<OrderParam>();
   let returnOrderId = parseInt(id);
-  const isDetailPage = id ? true : false;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
@@ -226,6 +224,9 @@ const ScreenReturnDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
+  // check open tab url
+  console.log("process.env.PUBLIC_URL", process.env.PUBLIC_URL);
+
   return (
     <OrderReturnSingleContext.Provider value={orderReturnSingleContextData}>
       <ContentContainer
@@ -260,18 +261,12 @@ const ScreenReturnDetail = (props: PropType) => {
                   loyaltyPoint={loyaltyPoint}
                   loyaltyUsageRules={loyaltyUsageRules}
                 />
-                {!isDetailPage && (
-                  <CardReturnOrder
-                    isDetailPage={isDetailPage}
-                    isExchange={false}
-                    isStepExchange={false}
-                  />
-                )}
                 <CardShowReturnProducts
                   listReturnProducts={listReturnProducts}
                   discountRate={OrderDetail?.order_discount_rate}
                   pointUsing={OrderDetail?.point_refund}
                   totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                  isDetailPage
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
@@ -284,7 +279,7 @@ const ScreenReturnDetail = (props: PropType) => {
                   handleReturnMoney={handleReturnMoney}
                 />
                 <CardReturnReceiveProducts
-                  isDetailPage={isDetailPage}
+                  isDetailPage
                   isReceivedReturnProducts={isReceivedReturnProducts}
                   handleReceivedReturnProducts={handleReceivedReturnProducts}
                 />

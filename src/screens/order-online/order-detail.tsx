@@ -105,7 +105,7 @@ const OrderDetail = (props: PropType) => {
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [isVisibleShipping, setVisibleShipping] = useState(false);
-
+  const [reload, setReload] = useState(false);
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -346,6 +346,7 @@ const OrderDetail = (props: PropType) => {
   const handleCancelOrder = useCallback(
     (id: any) => {
       dispatch(cancelOrderRequest(id));
+      // dispatch(cancelOrderRequest(id));
     },
     [dispatch]
   );
@@ -426,7 +427,9 @@ const OrderDetail = (props: PropType) => {
           history.push(`${UrlConfig.ORDER}/${id}/update`);
           break;
         case "clone":
-          history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
+          const newTab = window.open(`/unicorn/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`, "_blank")
+          newTab?.focus()
           break;
         default:
           break;
@@ -436,7 +439,7 @@ const OrderDetail = (props: PropType) => {
   );
 
   useEffect(() => {
-    if (isFirstLoad.current) {
+    if (isFirstLoad.current || reload) {
       if (!Number.isNaN(OrderId)) {
         dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
       } else {
@@ -444,7 +447,10 @@ const OrderDetail = (props: PropType) => {
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, OrderId, onGetDetailSuccess]);
+    setReload(false);
+    setVisibleShipping(false);
+    setShowPaymentPartialPayment(false);
+  }, [dispatch, OrderId, onGetDetailSuccess, reload]);
 
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -636,6 +642,7 @@ const OrderDetail = (props: PropType) => {
                 paymentType={paymentType}
                 OrderDetailAllFullfilment={OrderDetailAllFullfilment}
                 orderSettings={orderSettings}
+                onReload={() => setReload(true)}
               />
               {/*--- end shipment ---*/}
 
@@ -844,6 +851,10 @@ const OrderDetail = (props: PropType) => {
                                           stepsStatusValue ===
                                             FulFillmentStatus.SHIPPED
                                         }
+                                        reload={() => {
+                                          setReload(true);
+                                          setVisibleUpdatePayment(false)
+                                        }}
                                       />
                                     )}
                                 </Panel>
@@ -1284,6 +1295,7 @@ const OrderDetail = (props: PropType) => {
               <ActionHistory
                 orderId={id}
                 countChangeSubStatus={countChangeSubStatus}
+                reload={reload}
               />
             </Col>
           </Row>

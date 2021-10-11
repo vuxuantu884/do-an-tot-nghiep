@@ -30,6 +30,7 @@ export const StyledComponent = styled.div`
       align-items: center;
       justify-content: center;
       img {
+        border: 1px dashed #d9d9d9;
         height: 165px;
         width: 165px;
         object-fit: contain;
@@ -93,7 +94,6 @@ export const StyledComponent = styled.div`
       img {
         width: 60px !important;
         height: 60px !important;
-        
         cursor: pointer;
       }
     }
