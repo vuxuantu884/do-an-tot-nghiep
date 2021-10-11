@@ -112,3 +112,8 @@ export interface OrderSearchQuery {
   tags: [];
   reference_code: string|null
 }
+
+export interface EcommerceOrderSearchQuery  extends OrderSearchQuery {
+  shop_ids: [],
+  ecommerce_id: null,
+}
