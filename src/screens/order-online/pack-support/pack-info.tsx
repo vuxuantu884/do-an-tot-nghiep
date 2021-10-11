@@ -129,7 +129,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
         formRef.current?.validateFields(["store_request"]);
         if (formRef.current?.getFieldValue(["store_request"]))
           dispatch(
-            getFulfillments(value, (data: any) => {
+            getFulfillments(value.trim(), (data: any) => {
               if (data && data.length !== 0) {
                 setOrderResponse(data);
                 setDisableStoreId(true);
@@ -152,7 +152,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       if (value.trim()) {
         formRef.current?.validateFields(["store_request"]);
         formRef.current?.validateFields(["order_request"]);
-        formRef.current?.validateFields(["quality_request"]);
+        //formRef.current?.validateFields(["quality_request"]);
 
         btnFinishPackElement?.click();
         ProductRequestElement?.select();
@@ -224,7 +224,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
-              
 
               let datas={...fulfillmentData};
 
@@ -240,6 +239,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               setFulfillmentsPackedItems(datas);
               console.log("fulfillmentData 111")
               console.log(fulfillmentData)
+
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
@@ -276,7 +276,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     if (store_request && order_request && product_request) {
       let indexPack = orderList.findIndex(
         (p) =>
-          p.sku === product_request || p.variant_barcode === product_request
+          p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
       );
 
       if (indexPack !== -1) {

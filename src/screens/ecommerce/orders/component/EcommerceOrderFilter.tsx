@@ -1,3 +1,7 @@
+import { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import moment from "moment";
+
 import {
   Button,
   Col,
@@ -12,26 +16,26 @@ import {
   Tooltip,
   Checkbox,
 } from "antd";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
-import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
-import { OrderSearchQuery } from "model/order/order.model";
-import moment from "moment";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
-import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import BaseFilter from "component/filter/base.filter";
-import { useDispatch } from "react-redux";
+
+
+import { AccountResponse } from "model/account/account.model";
+import { OrderSearchQuery } from "model/order/order.model";
+import { StoreResponse } from "model/core/store.model";
+
+import { SourceResponse } from "model/response/order/source.response";
+import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 
 import {
   getShopEcommerceList,
  } from "domain/actions/ecommerce/ecommerce.actions";
 
+ import search from "assets/img/search.svg";
  import deleteIcon from "assets/icon/deleteIcon.svg"
  import tikiIcon from "assets/icon/e-tiki.svg";
  import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -39,7 +43,6 @@ import {
  import sendoIcon from "assets/icon/e-sendo.svg";
 
 
-const { Panel } = Collapse;
 type OrderFilterProps = {
   params: OrderSearchQuery;
   actions: Array<MenuAction>;
@@ -57,6 +60,7 @@ type OrderFilterProps = {
 
 const { Item } = Form;
 const { Option } = Select;
+const { Panel } = Collapse;
 
 const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
@@ -95,8 +99,8 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
         });
       });
     }
-    setEcommerceShopList(shopList);
 
+    setEcommerceShopList(shopList);
   }, []);
 
   const getShopEcommerce = (ecommerceId: any) => {
@@ -108,7 +112,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
   const removeEcommerce = () => {
     setIsEcommerceSelected(false);
     setShopIdSelected([]);
-    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
   }
 
   const ECOMMERCE_LIST = [
@@ -147,8 +150,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
     }
   }
 
-
-  const onCheckedChange = (shop: any, e: any) => {
+  const onSelectShopChange = (shop: any, e: any) => {
     if (e.target.checked) {
       shop.isSelected = true;
       const shopSelected = [...shopIdSelected];
@@ -168,7 +170,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       <div className="render-shop-list">
         {ecommerceShopList.map((item: any) => (
           <div key={item.id}  className="shop-name">
-            <Checkbox onChange={(e) => onCheckedChange(item, e)} checked={item.isSelected} >
+            <Checkbox onChange={(e) => onSelectShopChange(item, e)} checked={item.isSelected} >
               <span className="check-box-name">
                 <span>
                   <img src={shopeeIcon} alt={item.id} style={{marginRight: "5px", height: "16px"}} />
@@ -250,10 +252,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
   ], []);
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-  // const onChangeOrderOptions = useCallback((e) => {
-  //   console.log('ok lets go', e.target.value);
-  //   onFilter && onFilter({...params, is_online: e.target.value});
-  // }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -414,8 +412,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
     (type, value) => {
     let minValue = null;
     let maxValue = null;
-
-    console.log('value', value);
     
     switch(value) {
       case 'today':
@@ -445,8 +441,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       default:
         break
     }
-    console.log('minValue', minValue);
-    console.log('maxValue', maxValue);
     
     switch(type) {
       case 'issued':
@@ -554,9 +548,10 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
           price_max: values?.price_min,
         }
       }
-      console.log('values filter 2', values);
+
       const valuesForm = {
         ...values,
+        shop_ids: shopIdSelected,
         issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
         issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         finalized_on_min: finalizedOnMin ? moment(finalizedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
@@ -570,11 +565,10 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       }
       onFilter && onFilter(valuesForm);
     },
-    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, finalizedOnMax, finalizedOnMin]
+    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, finalizedOnMax, finalizedOnMin, shopIdSelected]
   );
   let filters = useMemo(() => {
     let list = []
-    // console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {
       let textStores = ""
       initialValues.store_ids.forEach(store_id => {
@@ -816,7 +810,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
         value: initialValues.reference_code
       })
     }
-    // console.log('filters list', list);
     return list
   }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
 
@@ -855,19 +848,21 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               </Select>
             </Item>
 
-            <Item name="shop_ids" className="ecommerce-dropdown">
-              {isEcommerceSelected &&
+            {isEcommerceSelected &&
+              <Item name="shop_ids" className="ecommerce-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading || !isEcommerceSelected}
+                  disabled={tableLoading}
                   placeholder={getPlaceholderSelectShop()}
                   allowClear={shopIdSelected && shopIdSelected.length > 0}
                   dropdownRender={() => renderShopList()}
                   onClear={removeSelectedShop}
                 />
-              }
+              </Item>
+            }
 
-              {!isEcommerceSelected &&
+            {!isEcommerceSelected &&
+              <Item name="shop_ids" className="ecommerce-dropdown">
                 <Tooltip  title="Yêu cầu chọn sàn" color={"blue"}>
                   <Select
                     showSearch
@@ -878,8 +873,8 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
                     onClear={removeSelectedShop}
                   />
                 </Tooltip>
-              }
-            </Item>
+              </Item>
+            }
           </div>
 
           <div className="second-line">
@@ -959,7 +954,8 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
                   <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
-                    <Item name="store_ids">
+                    {/* <Item name="store_ids"> */}
+                    <Item>
                       <CustomSelect
                         mode="multiple"
                         showArrow
@@ -969,7 +965,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
                         style={{
                           width: '100%'
                         }}
-                        optionFilterProp="children"
+                        // optionFilterProp="children"
                         getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listStore?.map((item) => (
@@ -1014,20 +1010,21 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.order_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
-                    <Item name="order_status">
-                    <Select
-                      mode="multiple"
-                      showSearch placeholder="Chọn trạng thái đơn hàng"
-                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                      optionFilterProp="children"
-                      getPopupContainer={trigger => trigger.parentNode}
-                    >
-                      {status?.map((item) => (
-                        <Option key={item.value} value={item.value.toString()}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
+                    {/* <Item name="order_status"> */}
+                    <Item>
+                      <Select
+                        mode="multiple"
+                        showSearch placeholder="Chọn trạng thái đơn hàng"
+                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                        // optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {status?.map((item) => (
+                          <Option key={item.value} value={item.value.toString()}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
                     </Item>
                   </Panel>
                 </Collapse>
@@ -1038,22 +1035,23 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.order_sub_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN HÀNG" key="1" className="header-filter">
-                    <Item name="order_sub_status">
-                    <Select
-                      mode="multiple"
-                      showSearch
-                      placeholder="Chọn trạng thái xử lý đơn"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{width: '100%'}}
-                      optionFilterProp="children"
-                      getPopupContainer={trigger => trigger.parentNode}
-                    >
-                      {subStatus?.map((item: any) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.sub_status}
-                        </Option>
-                      ))}
-                    </Select>
+                    {/* <Item name="order_sub_status"> */}
+                    <Item>
+                      <Select
+                        mode="multiple"
+                        showSearch
+                        placeholder="Chọn trạng thái xử lý đơn"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{width: '100%'}}
+                        // optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {subStatus?.map((item: any) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.sub_status}
+                          </Option>
+                        ))}
+                      </Select>
                     </Item>
                   </Panel>
                 </Collapse>
@@ -1064,10 +1062,12 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_types">
+                    {/* <Item name="delivery_types"> */}
+                    <Item>
                       <Select
                         mode="multiple"
-                        optionFilterProp="children" showSearch
+                        // optionFilterProp="children"
+                        showSearch
                         notFoundContent="Không tìm thấy kết quả"
                         placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
                         getPopupContainer={trigger => trigger.parentNode}
@@ -1089,19 +1089,20 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
                   <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_provider_ids">
-                    <Select
-                      mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
-                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                      optionFilterProp="children"
-                      getPopupContainer={trigger => trigger.parentNode}
-                    >
-                      {deliveryService?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
+                    {/* <Item name="delivery_provider_ids"> */}
+                    <Item>
+                      <Select
+                        mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                        // optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {deliveryService?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
                     </Item>
                   </Panel>
                 </Collapse>
