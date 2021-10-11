@@ -757,16 +757,13 @@ export default function Order() {
           })
         );
       } else {
-        console.log("den day");
         await setInitialForm({
           ...initialRequest,
         });
-
         setCustomer(null);
         setItems([]);
         setItemGifts([]);
         setPayments([]);
-
         setOfficeTime(false);
         setStoreId(null);
         setTag("");
@@ -775,7 +772,6 @@ export default function Order() {
         setDiscountRate(0);
         setDiscountValue(0);
         setOfficeTime(false);
-        console.log("initialForm", initialForm);
         setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
         form.resetFields();
       }
@@ -783,7 +779,6 @@ export default function Order() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, dispatch, isCloneOrder]);
-
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
