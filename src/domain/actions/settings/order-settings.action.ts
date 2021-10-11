@@ -1,5 +1,8 @@
 import { SETTING_TYPES } from "domain/types/settings.type";
-import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
+import {
+  CreateShippingServiceConfigReQuestModel,
+  OrderConfigRequestModel,
+} from "model/request/settings/order-settings.resquest";
 import { OrderSourceResponseModel } from "model/response/order/order-source.response";
 import {
   IsAllowToSellWhenNotAvailableStockResponseModel,
@@ -16,6 +19,19 @@ export const actionGetOrderConfig = (
   return {
     type: SETTING_TYPES.orderSettings.GET_ORDER_CONFIGURATIONS,
     payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionEditOrderConfig = (
+  params: OrderConfigRequestModel,
+  handleData: (data: OrderConfigResponseModel) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings.EDIT_ORDER_CONFIGURATIONS,
+    payload: {
+      params,
       handleData,
     },
   };

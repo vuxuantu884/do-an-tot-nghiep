@@ -14,7 +14,6 @@ type PropType = {
   listReturnProducts: OrderLineItemResponse[];
   discountRate?: number | null;
   pointUsing?: number;
-  pointReturnToCustomer?: number;
   totalAmountReturnToCustomer: number | undefined;
   isDetailPage?: boolean;
 };
@@ -24,7 +23,6 @@ function CardShowReturnProducts(props: PropType) {
     listReturnProducts,
     discountRate,
     pointUsing,
-    pointReturnToCustomer,
     totalAmountReturnToCustomer,
     isDetailPage = false,
   } = props;

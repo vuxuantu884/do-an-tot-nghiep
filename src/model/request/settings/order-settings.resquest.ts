@@ -21,3 +21,11 @@ export interface CreateShippingServiceConfigReQuestFormModel
   start_date: moment.Moment | null;
   end_date: moment.Moment | null;
 }
+
+export interface OrderConfigRequestModel {
+  sellable_inventory: boolean;
+  for_all_order: boolean;
+  allow_choose_item: boolean;
+  order_config_action_id: number;
+  order_config_print_id: number;
+}

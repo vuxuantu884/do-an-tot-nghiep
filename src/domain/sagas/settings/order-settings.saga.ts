@@ -17,6 +17,7 @@ import {
   configureIsAllowToSellWhenNotAvailableStockService,
   createListShippingServiceConfigService,
   deleteShippingServiceConfigService,
+  editOrderConfigActionService,
   getIsAllowToSellWhenNotAvailableStockService,
   getListShippingServiceConfigService,
   getOrderConfigActionService,
@@ -101,7 +102,36 @@ function* getOrderConfigActionSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi api danh sách hành động cho khách hàng xem hàng!");
+    showError("Có lỗi api lấy danh sách cấu hình chung!");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* editOrderConfigActionSaga(action: YodyAction) {
+  const { params, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(
+      editOrderConfigActionService,
+      params
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        showSuccess("Cập nhật cấu hình chung thành công!");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi api cập nhật cấu hình chung!");
   } finally {
     yield put(hideLoading());
   }
@@ -327,6 +357,11 @@ export function* settingOrdersSaga() {
   yield takeLatest(
     SETTING_TYPES.orderSettings.GET_ORDER_CONFIG_ACTION,
     getOrderConfigActionSaga
+  );
+
+  yield takeLatest(
+    SETTING_TYPES.orderSettings.EDIT_ORDER_CONFIGURATIONS,
+    editOrderConfigActionSaga
   );
 
   yield takeLatest(

@@ -9,13 +9,14 @@ import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
-  actionConfigureIsAllowToSellWhenNotAvailableStock,
   actionDeleteConfigurationShippingServiceAndShippingFee,
+  actionEditOrderConfig,
   actionGetOrderConfig,
   actionGetOrderConfigActionOrderPreview,
   actionGetOrderConfigPrint,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
+import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
   OrderConfigActionOrderPreviewResponseModel,
   OrderConfigPrintResponseModel,
@@ -37,7 +38,7 @@ function OrderSettings(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const [isTableLoading, setIsTableLoading] = useState(true);
-  const [isLoadedData, setIsLoadedData] = useState(true);
+  const [isLoadedData, setIsLoadedData] = useState(false);
 
   const [listPrintConfig, setListPrintConfig] = useState<
     OrderConfigPrintResponseModel[] | null
@@ -204,15 +205,17 @@ function OrderSettings(props: PropType) {
     );
   };
 
-  const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
-    dispatch(
-      actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
-    );
-  };
-
   const goToPageDetail = (id: string | number) => {
     history.push(
       `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
+    );
+  };
+
+  const onUpdateOrderConfig = (params: OrderConfigRequestModel) => {
+    dispatch(
+      actionEditOrderConfig(params, (response) => {
+        console.log("response", response);
+      })
     );
   };
 
@@ -270,12 +273,10 @@ function OrderSettings(props: PropType) {
       >
         {isLoadedData ? (
           <CardGeneralSettings
-            onChangeAllowToSellWhenNotAvailableStock={
-              onChangeAllowToSellWhenNotAvailableStock
-            }
             listPrintConfig={listPrintConfig}
             listActionsOrderPreview={listActionsOrderPreview}
             listOrderConfigs={listOrderConfigs}
+            onUpdateOrderConfig={onUpdateOrderConfig}
           />
         ) : (
           "Đang cập nhật"
