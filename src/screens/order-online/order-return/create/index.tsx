@@ -255,13 +255,9 @@ const ScreenReturnCreate = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      const returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
-        return (
-          singleFulfillment.status === FulFillmentStatus.SHIPPED ||
-          singleFulfillment.status === FulFillmentStatus.UNSHIPPED
-        );
-      });
-      const returnCondition = returnFulfillment || _data.source === "POS";
+      const returnCondition =
+        _data.status === OrderStatus.FINISHED ||
+        _data.status === OrderStatus.COMPLETED;
       if (returnCondition) {
         setIsCanReturnOrExchange(true);
       }
