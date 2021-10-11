@@ -69,16 +69,19 @@ const HistoryInventoryQueryField = {
   to_created_date: 'to_created_date',
   from_transaction_date: 'from_transaction_date',
   to_transaction_date: 'to_transaction_date',
+  from_quantity: 'from_quantity',
+  to_quantity: 'to_quantity'  
 }
 
 const AvdHistoryInventoryFilter = {
   created_date: 'created_date',
-  transaction_date: 'transaction_date',
+  // transaction_date: 'transaction_date',
+  quantity_change: 'quantity_change'
 }
 
 const HistoryInventoryMappingField = {
-  [AvdHistoryInventoryFilter.created_date]: 'Ngày khởi tạo',
-  [AvdHistoryInventoryFilter.transaction_date]: 'Cập nhật cuối',
+  [AvdHistoryInventoryFilter.created_date]: 'Thời gian',
+  [AvdHistoryInventoryFilter.quantity_change]: 'Số lượng thay đổi',
 }
 
 export {InventoryQueryField, InventoryMappingField, BasicInventoryFilter, AvdInventoryFilter, HistoryInventoryQueryField, AvdHistoryInventoryFilter, HistoryInventoryMappingField};
