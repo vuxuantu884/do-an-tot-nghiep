@@ -61,17 +61,15 @@ const TabHistoryPrice: React.FC = () => {
     },
     [history, params]
   );
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<ProductHistoryResponse>>
-  >([
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<ProductHistoryResponse>>>([
     {
       title: "Sản phẩm",
       dataIndex: "history_type",
       visible: true,
-      fixed: 'left',
+      fixed: "left",
       width: 200,
       render: (value, item) => {
-        if (IS_PRODUCT_TYPE.includes(value)){
+        if (IS_PRODUCT_TYPE.includes(value)) {
           return (
             <div>
               <Link to="">{item.product_code}</Link>
@@ -81,7 +79,9 @@ const TabHistoryPrice: React.FC = () => {
         }
         return (
           <div>
-            <Link to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>{item.sku}</Link>
+            <Link to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
+              {item.sku}
+            </Link>
             <div>{item.variant_name}</div>
           </div>
         );
@@ -93,14 +93,12 @@ const TabHistoryPrice: React.FC = () => {
       visible: true,
       align: "center",
       render: (value) => {
-        if (value){
+        if (value) {
           const DATA_CONVERT = JSON.parse(value);
-          return (
-            formatCurrency(DATA_CONVERT.import_price)
-          )
+          return formatCurrency(DATA_CONVERT.import_price);
         }
-        return '';
-      }
+        return "";
+      },
     },
     {
       title: "Giá nhập mới",
@@ -109,24 +107,21 @@ const TabHistoryPrice: React.FC = () => {
       align: "center",
       render: (value) => {
         const DATA_CONVERT = JSON.parse(value);
-        return (
-          formatCurrency( DATA_CONVERT.import_price)
-        )
-      }
+        return formatCurrency(DATA_CONVERT.import_price);
+      },
     },
     {
       title: "Giá bán cũ",
       dataIndex: "data_old",
       visible: true,
       align: "center",
-      render: (value) => {if (value){
-        const DATA_CONVERT = JSON.parse(value);
-        return (
-          formatCurrency(DATA_CONVERT.retail_price)
-        )
-      }
-      return '';
-      }
+      render: (value) => {
+        if (value) {
+          const DATA_CONVERT = JSON.parse(value);
+          return formatCurrency(DATA_CONVERT.retail_price);
+        }
+        return "";
+      },
     },
     {
       title: "Giá bán mới",
@@ -135,23 +130,28 @@ const TabHistoryPrice: React.FC = () => {
       align: "center",
       render: (value) => {
         const DATA_CONVERT = JSON.parse(value);
-        return (
-          formatCurrency(DATA_CONVERT.retail_price)
-        )
-      }
+        return formatCurrency(DATA_CONVERT.retail_price);
+      },
     },
     {
       title: "Người sửa",
       dataIndex: "action_name",
       visible: true,
-      align: "center",
+      render: (value, record) => {
+        return (
+          <div>
+            <span style={{ color: "#2a2a86", textTransform: "uppercase" }}>{value}</span>
+            <div>{record.action_by}</div>
+          </div>
+        );
+      },
     },
     {
       title: "Thời gian",
       visible: true,
       align: "center",
       dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value) 
+      render: (value) => ConvertUtcToLocalDate(value),
     },
   ]);
   useEffect(() => {
