@@ -73,28 +73,28 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
       return "";
     }
     let result = text;
-    let docFromText = new DOMParser().parseFromString(
-      text,
-      // "text/xml"
-      "text/html"
-    );
-    let numberOfCopies = 1;
-    if (orderSettings && orderSettings.cauHinhInNhieuLienHoaDon) {
-      // numberOfCopies = orderSettings.cauHinhInNhieuLienHoaDon;
-      numberOfCopies = 1;
-    }
-    let body = docFromText.getElementsByClassName("printerContent")[0];
-    let bodyInner = body.innerHTML;
+    // let docFromText = new DOMParser().parseFromString(
+    //   text,
+    //   // "text/xml"
+    //   "text/html"
+    // );
+    // let numberOfCopies = 1;
+    // if (orderSettings && orderSettings.cauHinhInNhieuLienHoaDon) {
+    //   // numberOfCopies = orderSettings.cauHinhInNhieuLienHoaDon;
+    //   numberOfCopies = 1;
+    // }
+    // let body = docFromText.getElementsByClassName("printerContent")[0];
+    // let bodyInner = body.innerHTML;
 
-    if (numberOfCopies > 1) {
-      let groupCopies = [];
-      for (let i = 1; i <= numberOfCopies; i++) {
-        let textBreakPage = "<div class='pageBreak'></div>";
-        groupCopies[i] = bodyInner + textBreakPage;
-      }
-      let groupCopiesHtml = groupCopies.join("");
-      result = "<div>" + groupCopiesHtml + "</div>";
-    }
+    // if (numberOfCopies > 1) {
+    //   let groupCopies = [];
+    //   for (let i = 1; i <= numberOfCopies; i++) {
+    //     let textBreakPage = "<div class='pageBreak'></div>";
+    //     groupCopies[i] = bodyInner + textBreakPage;
+    //   }
+    //   let groupCopiesHtml = groupCopies.join("");
+    //   result = "<div>" + groupCopiesHtml + "</div>";
+    // }
     return result;
   };
 

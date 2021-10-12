@@ -2,10 +2,7 @@ import { BaseObject } from "model/base/base.response";
 
 export interface OrderConfigResponseModel extends BaseObject {
   sellable_inventory: boolean;
-  order_config_action: {
-    id: number;
-    name: string;
-  };
+  order_config_action: string;
   order_config_print: {
     id: number;
     name: string;
