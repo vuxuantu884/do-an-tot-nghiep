@@ -26,7 +26,6 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
-import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
