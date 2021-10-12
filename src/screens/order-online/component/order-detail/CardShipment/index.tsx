@@ -176,7 +176,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
     if (orderConfig) {
       if (orderConfig.for_all_order) {
         form?.setFieldsValue({
-          requirements: "open_no_try",
+          requirements: orderConfig.order_config_action,
         });
         // form?.resetFields();
       }
