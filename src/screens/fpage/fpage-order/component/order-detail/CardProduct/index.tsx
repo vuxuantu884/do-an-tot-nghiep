@@ -19,7 +19,6 @@ import {
   Tag,
   Tooltip,
   Typography,
-  Modal,
   Popover,
 } from "antd";
 import { DownOutlined } from "@ant-design/icons";
@@ -410,39 +409,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               />
             </div>
           </div>
-          <Popover
-            content={
-              <div className="discount-item-popup">
-                <DiscountGroup
-                  price={discountLineItem ? discountLineItem.price : 0}
-                  index={discountLineItemIndex}
-                  discountRate={
-                    discountLineItem
-                      ? discountLineItem.discount_items[0].rate
-                      : 0
-                  }
-                  discountValue={
-                    discountLineItem
-                      ? discountLineItem.discount_items[0].value
-                      : 0
-                  }
-                  totalAmount={
-                    discountLineItem
-                      ? discountLineItem.discount_items[0].amount
-                      : 0
-                  }
-                  items={items}
-                  handleCardItems={onDiscountItem}
-                  disabled={levelOrder > 3}
-                />
-              </div>
-            }
-            trigger="click"
-          >
-            <Button type="link" className="btn-style">
-              Thay đổi địa chỉ nhận hàng
-            </Button>
-          </Popover>
         </>
       );
     },
@@ -518,19 +484,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     },
   };
 
-  const [isShowAddDiscountItemModal, showAddDiscountItemModal] =
-    useState<boolean>(false);
   const [discountLineItemIndex, setDiscountLineItemIndex] =
     useState<number>(-1);
   const [discountLineItem, setDiscountLineItem] =
     useState<OrderLineItemRequest | null>(null);
 
-  const handleAddDiscountItemModal = () => {
-    showAddDiscountItemModal(false);
-  };
-  const handleCancelDiscountItemModal = () => {
-    showAddDiscountItemModal(false);
-  };
+
   const ActionColumn = {
     title: () => <div className="text-center"></div>,
     width: "3%",
@@ -540,7 +499,44 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       const menu = (
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="1">
-            <Button
+            <Popover
+              content={
+                <div className="discount-item-popup">
+                  <div className="title">Thêm giảm giá</div>
+                  <div className="discount-group">
+                    <DiscountGroup
+                      price={discountLineItem ? discountLineItem.price : 0}
+                      index={discountLineItemIndex}
+                      discountRate={
+                        discountLineItem ? discountLineItem.discount_items[0].rate : 0
+                      }
+                      discountValue={
+                        discountLineItem ? discountLineItem.discount_items[0].value : 0
+                      }
+                      totalAmount={
+                        discountLineItem ? discountLineItem.discount_items[0].amount : 0
+                      }
+                      items={items}
+                      handleCardItems={onDiscountItem}
+                      disabled={levelOrder > 3}
+                    />
+                  </div>
+                </div>
+              }
+              trigger="click"
+            >
+              <Button
+                type="text"
+                onClick={() => {
+                  // showAddDiscountItemModal(true);
+                  setDiscountLineItemIndex(index);
+                  setDiscountLineItem(l);
+                }}
+              >
+                Thêm chiết khấu
+              </Button>
+            </Popover>
+            {/* <Button
               type="text"
               onClick={() => {
                 showAddDiscountItemModal(true);
@@ -549,7 +545,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               }}
             >
               Thêm chiết khấu
-            </Button>
+            </Button> */}
           </Menu.Item>
           <Menu.Item key="2">
             <Button type="text" onClick={() => showAddGiftModal(index)}>
@@ -710,14 +706,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             variantItems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-              variantItems[lastIndex].price -
-              variantItems[lastIndex].discount_items[0].amount,
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
@@ -1177,12 +1173,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               <b className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(
-                      changeMoney +
-                        (props.shippingFeeCustomer
-                          ? props.shippingFeeCustomer
-                          : 0) -
-                        discountValue
-                    )
+                    changeMoney +
+                    (props.shippingFeeCustomer
+                      ? props.shippingFeeCustomer
+                      : 0) -
+                    discountValue
+                  )
                   : "-"}
               </b>
             </Row>
@@ -1212,34 +1208,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         handleCancel={handleInventoryCancel}
         setStoreForm={setStoreForm}
       />
-      <Modal
-        title="Thêm giảm giá"
-        onCancel={handleCancelDiscountItemModal}
-        onOk={handleAddDiscountItemModal}
-        visible={isShowAddDiscountItemModal}
-        cancelText="Hủy"
-        okText="Lưu"
-        className="saleorder-product-modal"
-        cancelButtonProps={{ style: { display: "none" } }}
-        okButtonProps={{ style: { display: "none" } }}
-      >
-        <DiscountGroup
-          price={discountLineItem ? discountLineItem.price : 0}
-          index={discountLineItemIndex}
-          discountRate={
-            discountLineItem ? discountLineItem.discount_items[0].rate : 0
-          }
-          discountValue={
-            discountLineItem ? discountLineItem.discount_items[0].value : 0
-          }
-          totalAmount={
-            discountLineItem ? discountLineItem.discount_items[0].amount : 0
-          }
-          items={items}
-          handleCardItems={onDiscountItem}
-          disabled={levelOrder > 3}
-        />
-      </Modal>
     </Card>
   );
 };
