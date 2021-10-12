@@ -1,24 +1,24 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Button, Checkbox, Col, Modal, Progress, Radio, Row, Space } from "antd";
 import { useMemo, useState } from "react";
-import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
+// import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
 type ExportModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  onOk: (e: React.MouseEvent<HTMLElement>) => void;
+  onOk: (optionExport: number, typeExport: number, fieldsExport?: Array<string>) => void;
   type?: string;
   total: number;
   exportProgress: number;
   statusExport: number;
+  selected?: boolean;
 };
 
 const ExportModal: React.FC<ExportModalProps> = (
   props: ExportModalProps
 ) => {
-  const { visible, onCancel, onOk, type, total, exportProgress, statusExport } = props;
+  const { visible, onCancel, onOk, type, total, exportProgress, statusExport, selected = false } = props;
   // statusExport: 1 not export, 2 exporting, 3 export success, 4 export error
-
-  const [editFields, setEditFields] = useState(false);
   const text = useMemo(
     () => {
       switch (type) { 
@@ -47,29 +47,37 @@ const ExportModal: React.FC<ExportModalProps> = (
     },
     [type]
   );
-  const fields = useMemo(
-    () => {
-      switch (type) { 
-        case "orders":
-          return fields_order
-        case "shipments":
-          return fields_shipment
-        case "returns":
-          return fields_return
-        default:
-          return []
-      }
-    },
-    [type]
-  );
+  // const fields = useMemo(
+  //   () => {
+  //     switch (type) { 
+  //       case "orders":
+  //         return fields_order
+  //       case "shipments":
+  //         return fields_shipment
+  //       case "returns":
+  //         return fields_return
+  //       default:
+  //         return []
+  //     }
+  //   },
+  //   [type]
+  // );
+  const [optionExport, setOptionExport] = useState<number>(selected ? 3 : 1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [typeExport, setTypeExport] = useState<number>(1);
+  // const [fieldsExport, setFieldsExport] = useState<Array<any>>(fields.map(i => {
+  //   return i.value
+  // }));
+  const [editFields, setEditFields] = useState(false);
+  
   return (
     <Modal
       onCancel={onCancel}
-      onOk={onOk}
+      // onOk={onOk}
       visible={visible}
       centered
-      okText="Xuất file"
-      cancelText="Thoát"
+      // okText="Xuất file"
+      // cancelText="Thoát"
       title={[
         <span style={{fontWeight: 600, fontSize: 16}}>
           {editFields && <span style={{ color: '#2a2a86', marginRight: '10px'}}><ArrowLeftOutlined onClick={() => setEditFields(false)}/></span>}
@@ -78,7 +86,7 @@ const ExportModal: React.FC<ExportModalProps> = (
       ]}
       footer={[
         <Button key="ok"
-          onClick={onOk}
+          onClick={() => onOk(optionExport, typeExport)}
           disabled={statusExport !== 1}
           loading={statusExport === 2}
         >
@@ -94,37 +102,36 @@ const ExportModal: React.FC<ExportModalProps> = (
         </Button>,
         
       ]}
-      width={800}
+      width={600}
     >
       {!editFields && statusExport === 1&& (
       <div>
         <p style={{ fontWeight: 500}}>Giới hạn kết quả xuất</p>
-        <Radio.Group name="radiogroup" defaultValue={4}>
+        <Radio.Group name="radiogroup" defaultValue={selected ? 3 : 1} onChange={(e) => setOptionExport(e.target.value)}>
           <Space direction="vertical">
-            <Radio disabled value={1}>Tất cả {text}</Radio>
-            <Radio disabled value={2}>{text1} trên trang này</Radio>
-            <Radio disabled value={3}>Các {text} được chọn</Radio>
+            <Radio value={1}>Tất cả {text}</Radio>
+            <Radio value={2}>{text1} trên trang này</Radio>
+            <Radio value={3} disabled={!selected}>Các {text} được chọn</Radio>
             <Radio value={4}>{total} {text} phù hợp với điều kiện tìm kiếm hiện tại</Radio>
           </Space>
         </Radio.Group>
-        <p style={{ fontWeight: 500}}>Loại file xuất</p>
-        <Radio.Group name="radiogroup1" defaultValue={1}>
+        {/* <p style={{ fontWeight: 500}}>Loại file xuất</p>
+        <Radio.Group name="radiogroup1" defaultValue={1} onChange={(e) => setTypeExport(e.target.value)}>
           <Space direction="vertical">
             <Radio value={1}>File tổng quan theo {text}</Radio>
-            <Radio disabled value={2}>{text1} trên trang này</Radio>
+            <Radio value={2}>File chi tiết</Radio>
           </Space>
         </Radio.Group>
         <div>
         <Button type="link" style={{ padding: 0 }} onClick={() => setEditFields(true)}>Tuỳ chọn trường hiển thị</Button>
-        </div>
+        </div> */}
       </div>
       )}
-      {editFields && statusExport === 1 && (
+      {/* {editFields && statusExport === 1 && (
         <Checkbox.Group
           name="radiogroup"
-          defaultValue={fields.map(i => {
-            return i.value
-          })}
+          defaultValue={fieldsExport}
+          onChange={e => setFieldsExport(e)}
         >
           <Row>
             {fields?.map((field) => (
@@ -143,7 +150,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         //   defaultValue={['Apple']}
         //   // onChange={onChange}
         // />
-      )}
+      )} */}
       {statusExport !== 1 && (
       <Row style={{ justifyContent: 'center'}}>
         <p>Đang tạo file, vui lòng đợi trong giây lát</p>

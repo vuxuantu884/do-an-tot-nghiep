@@ -516,8 +516,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             >
               <Input
                 placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
+                prefix={searchCustomer ? <LoadingOutlined style={{ color: "#2a2a86" }} /> : <SearchOutlined style={{ color: "#ABB4BD" }} />}
+                // suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
               />
             </AutoComplete>
           </div>
