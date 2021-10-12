@@ -231,7 +231,7 @@ export function* accountSaga() {
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
   yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
-  yield takeEvery(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
-  yield takeEvery(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
-  yield takeEvery(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
+  yield takeLatest(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
+  yield takeLatest(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
+  yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
 }

@@ -1,4 +1,4 @@
-import { returnPurchaseOrder } from "./../../../service/purchase-order/purchase-order.service";
+import { cancelPurchaseOrderApi, returnPurchaseOrder } from "./../../../service/purchase-order/purchase-order.service";
 import {
   searchPurchaseOrderApi,
   updatePurchaseOrder,
@@ -206,13 +206,40 @@ function* poReturnSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+
 function* poPrintSaga(action: YodyAction) {
   const { id, updatePrintCallback } = action.payload;
   try {
     let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id);
-    console.log('response print', response);
     updatePrintCallback(response);
   } catch (error) {
+    console.log("error ", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* poCancelSaga(action: YodyAction) {
+  const { id, cancelCallback } = action.payload;
+  try {
+    let response: BaseResponse<PurchaseOrder> = yield call(
+      cancelPurchaseOrderApi,
+      id,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        cancelCallback(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        cancelCallback(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        cancelCallback(false);
+        break;
+    }
+  } catch (error) {
+    cancelCallback(false);
     console.log("error ", error);
     showError("Có lỗi vui lòng thử lại sau");
   }
@@ -229,5 +256,9 @@ export function* poSaga() {
   yield takeLatest(
     POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST,
     poUpdateFinancialStatusSaga
+  );
+  yield takeLatest(
+    POType.CANCEL_PO_REQUEST,
+    poCancelSaga
   );
 }

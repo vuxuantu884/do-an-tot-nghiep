@@ -35,9 +35,8 @@ export const deletePurchaseProcumentService = (
 
 export const updateStatusPO = (
   poId: number,
-  status: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/${status}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/finish`
   );
 };

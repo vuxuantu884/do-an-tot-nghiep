@@ -89,10 +89,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         setDataAccounts
       )
     );
-    return () => {
-      formSupplierAdd.resetFields();
-    };
-  }, [dispatch, formSupplierAdd, setDataAccounts]);
+  }, [dispatch, setDataAccounts]);
 
   return (
     <Modal
