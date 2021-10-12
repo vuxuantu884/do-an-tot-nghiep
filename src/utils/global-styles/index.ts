@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import { globalCssCustomButton } from "./button";
 import { globalCssCustomRadio } from "./radio";
 import { reset } from "./reset";
 import { globalCssSwitch } from "./switch";
@@ -11,4 +12,5 @@ export const GlobalStyle = createGlobalStyle`
   ${reset}
   ${globalCssCustomRadio}
   ${globalCssSwitch}
+  ${globalCssCustomButton}
 `;

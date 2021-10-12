@@ -8,9 +8,9 @@ import {
   Space,
   Switch,
 } from "antd";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
-  OrderConfigActionOrderPreviewResponseModel,
   OrderConfigPrintResponseModel,
   OrderConfigResponseModel,
 } from "model/response/settings/order-settings.response";
@@ -19,7 +19,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   listPrintConfig: OrderConfigPrintResponseModel[] | null;
-  listActionsOrderPreview: OrderConfigActionOrderPreviewResponseModel[] | null;
+  listActionsOrderPreview: BaseBootstrapResponse[] | undefined;
   listOrderConfigs: OrderConfigResponseModel | null;
   onUpdateOrderConfig: (params: OrderConfigRequestModel) => void;
 };
@@ -39,15 +39,15 @@ function CardGeneralSettings(props: PropType) {
         sellable_inventory: listOrderConfigs.sellable_inventory,
         for_all_order: listOrderConfigs.for_all_order,
         allow_choose_item: listOrderConfigs.allow_choose_item,
-        order_config_action_id: listOrderConfigs.order_config_action.id,
+        order_config_action: listOrderConfigs.order_config_action,
         order_config_print_id: listOrderConfigs.order_config_print.id,
       };
     }
     return result;
   };
   const valueCustomerCanViewOrderOption = {
-    isTrue: "luaChonTheoTungDon",
-    isFalse: "chonChoTatCaDonHang",
+    forSingleOrder: "luaChonTheoTungDon",
+    forAllOrders: "chonChoTatCaDonHang",
   };
 
   const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] =
@@ -60,9 +60,10 @@ function CardGeneralSettings(props: PropType) {
     }
     setValueCustomerCanViewOrder(e.target.value);
     const for_all_order =
-      e.target.value === valueCustomerCanViewOrderOption.isTrue;
+      e.target.value === valueCustomerCanViewOrderOption.forSingleOrder;
+
     listOrderConfigs.for_all_order =
-      e.target.value === valueCustomerCanViewOrderOption.isTrue;
+      e.target.value === valueCustomerCanViewOrderOption.forSingleOrder;
 
     const params: OrderConfigRequestModel = {
       ...initParams,
@@ -76,11 +77,13 @@ function CardGeneralSettings(props: PropType) {
     if (!listOrderConfigs || !initParams) {
       return;
     }
-    const order_config_action_id = +value;
-    listOrderConfigs.order_config_action.id = +value;
+    const order_config_action = value;
+
+    listOrderConfigs.order_config_action = value;
+
     const params: OrderConfigRequestModel = {
       ...initParams,
-      order_config_action_id,
+      order_config_action,
     };
     onUpdateOrderConfig(params);
   };
@@ -129,14 +132,18 @@ function CardGeneralSettings(props: PropType) {
 
   useEffect(() => {
     if (listOrderConfigs?.for_all_order) {
-      setValueCustomerCanViewOrder(valueCustomerCanViewOrderOption.isTrue);
+      setValueCustomerCanViewOrder(
+        valueCustomerCanViewOrderOption.forSingleOrder
+      );
     } else {
-      setValueCustomerCanViewOrder(valueCustomerCanViewOrderOption.isFalse);
+      setValueCustomerCanViewOrder(
+        valueCustomerCanViewOrderOption.forAllOrders
+      );
     }
   }, [
     listOrderConfigs,
-    valueCustomerCanViewOrderOption.isFalse,
-    valueCustomerCanViewOrderOption.isTrue,
+    valueCustomerCanViewOrderOption.forAllOrders,
+    valueCustomerCanViewOrderOption.forSingleOrder,
   ]);
 
   return (
@@ -152,12 +159,14 @@ function CardGeneralSettings(props: PropType) {
                   value={valueCustomerCanViewOrder}
                 >
                   <div className="single">
-                    <Radio value={valueCustomerCanViewOrderOption.isTrue}>
+                    <Radio
+                      value={valueCustomerCanViewOrderOption.forSingleOrder}
+                    >
                       Lựa chọn theo từng đơn
                     </Radio>
                   </div>
                   <div className="single">
-                    <Radio value={valueCustomerCanViewOrderOption.isFalse}>
+                    <Radio value={valueCustomerCanViewOrderOption.forAllOrders}>
                       Chọn cho tất cả đơn hàng
                     </Radio>
                   </div>
@@ -169,8 +178,9 @@ function CardGeneralSettings(props: PropType) {
                     key={Math.random()}
                     className="selectChonChoTatCaDonHang"
                     defaultValue={
-                      listOrderConfigs?.order_config_action.id.toString() ||
-                      undefined
+                      listOrderConfigs?.order_config_action
+                        ? listOrderConfigs?.order_config_action
+                        : undefined
                     }
                   >
                     {listActionsOrderPreview &&
@@ -178,8 +188,8 @@ function CardGeneralSettings(props: PropType) {
                       listActionsOrderPreview.map((single) => {
                         return (
                           <Select.Option
-                            value={single.id.toString()}
-                            key={single.id}
+                            value={single.value}
+                            key={single.value}
                           >
                             {single.name}
                           </Select.Option>
@@ -218,7 +228,7 @@ function CardGeneralSettings(props: PropType) {
             </div>
             <div className="singleSetting">
               <h4 className="title">
-                Cấu hình cho phép in nhiều liên đơn hàng
+                Cấu hình cho phép in nhiều liên đơn hàng cho hóa đơn bán lẻ
               </h4>
               <div className="singleSetting__content">
                 <Select

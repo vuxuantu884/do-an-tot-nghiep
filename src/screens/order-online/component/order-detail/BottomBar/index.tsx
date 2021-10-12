@@ -4,7 +4,7 @@ import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import IconPrint from "assets/icon/printer.svg";
+import IconPrint from "assets/icon/printer-blue.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -194,6 +194,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
             >
               <Button
                 type="primary"
+                ghost
                 style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
               >
                 <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} />{" "}
