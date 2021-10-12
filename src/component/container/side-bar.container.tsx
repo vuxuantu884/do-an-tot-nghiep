@@ -55,7 +55,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                           icon={
                             <i
                               className={item.icon}
-                              style={{ fontSize: 8, marginRight: 0, marginLeft: 10 }}
+                              style={{ fontSize: 6, marginRight: 0, marginLeft: 10 }}
                             />
                           }
                           title={item.title}
@@ -66,7 +66,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                               icon={
                                 <i
                                   className={item.icon}
-                                  style={{ fontSize: 8, marginRight: 0, marginLeft: 38 }}
+                                  style={{ fontSize: 6, marginRight: 0, marginLeft: 38 }}
                                 />
                               }
                               key={item2.key}
@@ -82,7 +82,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                         icon={
                           <i
                             className={item.icon}
-                            style={{ fontSize: 8, marginRight: 0, marginLeft: 10 }}
+                            style={{ fontSize: 6, marginRight: 0, marginLeft: 10 }}
                           />
                         }
                         key={item.key}

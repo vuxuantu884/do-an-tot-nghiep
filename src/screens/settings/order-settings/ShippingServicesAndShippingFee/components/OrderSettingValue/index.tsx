@@ -4,6 +4,7 @@ import Column from "antd/lib/table/Column";
 import NumberInput from "component/custom/number-input.custom";
 import { ProvinceModel } from "model/content/district.model";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { optionAllCities } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -91,6 +92,12 @@ function OrderSettingValue(props: PropType) {
                   }
                   notFoundContent="Không tìm thấy tỉnh/thành phố"
                 >
+                  <Select.Option
+                    value={optionAllCities.name}
+                    key={optionAllCities.id}
+                  >
+                    {optionAllCities.name}
+                  </Select.Option>
                   {listProvinces &&
                     listProvinces.map((single) => {
                       return (

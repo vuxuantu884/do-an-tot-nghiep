@@ -43,8 +43,6 @@ function PackList(props: any) {
     }
   }, [data, queryParams]);
 
-  console.log("dataCustom", dataCustom);
-
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",

@@ -13,7 +13,7 @@ import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { POInventoryDraftTable } from "screens/purchase-order/component/po-inventory/POInventoryDraft/styles";
-import { POStatus, ProcumentStatus } from "utils/Constants";
+import { ProcumentStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 
 type ProcurementModalProps = {
@@ -120,7 +120,6 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
         procumentViewDraft[procumentViewDraft.length - 1].expect_receipt_date,
       procurement_items: newProcumentLineItem,
       status: ProcumentStatus.DRAFT,
-      status_po: POStatus.DRAFT,
       note: "",
       fake_id: new Date().getTime(),
     });

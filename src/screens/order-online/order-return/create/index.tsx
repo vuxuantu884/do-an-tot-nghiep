@@ -255,13 +255,9 @@ const ScreenReturnCreate = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      const returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
-        return (
-          singleFulfillment.status === FulFillmentStatus.SHIPPED ||
-          singleFulfillment.status === FulFillmentStatus.UNSHIPPED
-        );
-      });
-      const returnCondition = returnFulfillment || _data.source === "POS";
+      const returnCondition =
+        _data.status === OrderStatus.FINISHED ||
+        _data.status === OrderStatus.COMPLETED;
       if (returnCondition) {
         setIsCanReturnOrExchange(true);
       }
@@ -641,16 +637,16 @@ const ScreenReturnCreate = (props: PropType) => {
           : loyaltyPoint?.loyalty_level_id)
     );
 
-    let curenPoint = !loyaltyPoint
-      ? 0
-      : loyaltyPoint.point === null
-      ? 0
-      : loyaltyPoint.point;
-    let point = !Pointfocus
-      ? 0
-      : Pointfocus.point === undefined
-      ? 0
-      : Pointfocus.point;
+    // let curenPoint = !loyaltyPoint
+    //   ? 0
+    //   : loyaltyPoint.point === null
+    //   ? 0
+    //   : loyaltyPoint.point;
+    // let point = !Pointfocus
+    //   ? 0
+    //   : Pointfocus.point === undefined
+    //   ? 0
+    //   : Pointfocus.point;
 
     // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
     // let limitAmountPointFocus = !rank

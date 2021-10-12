@@ -14,7 +14,6 @@ import {
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
-import { POUtils } from "utils/POUtils";
 import { DeleteOutlined } from "@ant-design/icons";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { HttpStatus } from "config/http-status.config";
@@ -43,7 +42,6 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     onCancel,
     onOk,
     remainPayment,
-    poData,
   } = props;
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
@@ -99,12 +97,6 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     (values: PurchasePayments) => {
       setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
-      values.status_po = POUtils.calculatePOStatus(
-        poData,
-        null,
-        values,
-        "update"
-      );
 
       if (data.id) {
         if (data.status === PoPaymentStatus.REFUND) data.amount = -data.amount;
@@ -114,7 +106,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
         dispatch(PoPaymentCreateAction(poId, values, createCallback));
       }
     },
-    [createCallback, dispatch, formPayment, poData, poId, updateCallback]
+    [createCallback, dispatch, formPayment, poId, updateCallback]
   );
 
   const onDeletePayment = useCallback(() => {

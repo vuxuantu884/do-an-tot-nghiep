@@ -71,16 +71,14 @@ function* poProcumentUpdateSaga(action: YodyAction) {
 }
 
 function* poProcumentFinishSaga(action: YodyAction) {
-  const { poId, status, updateCallback } = action.payload;
+  const { poId, updateCallback } = action.payload;
   try {
     let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
       updateStatusPO,
       poId,
-      status
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         updateCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
