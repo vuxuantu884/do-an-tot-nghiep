@@ -4,53 +4,47 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
+import { DeliveryServicesGetList, getFulfillmentsPackedSaga } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { useDispatch } from "react-redux";
 
 const { TabPane } = Tabs;
 
 const PackSupportScreen: React.FC = () => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   //queryParams
   const [queryParams, setQueryParams] = useState<any>({
     sort_type: "desc",
     sort_column: "id",
-    limit: 10,
+    limit: 1,
     page: 1,
   });
 
   //useState
-  const [tableLoading] = useState(true);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
-      limit: 10,
+      limit: 1,
       page: 1,
       total: 0,
     },
     items: [],
   });
 
-  console.log(data);
+  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
+    DeliveryServiceResponse[]
+  >([]);
 
-
-  // const setFulfillmentsPackedItems = useCallback((data: PageResponse<any>) => {
-  //   setTableLoading(false);
-  //   if (data) {
-  //     setData(data);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   dispatch(
-  //     getFulfillmentsPackedSaga(queryParams, (data: PageResponse<any>) => {
-  //       if (data) {
-  //         setFulfillmentsPackedItems(data);
-  //       } else showError("Lấy danh sách Order thất bại");
-  //     })
-  //   );
-  // }, [dispatch, setFulfillmentsPackedItems, queryParams]);
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setListThirdPartyLogistics(response);
+      })
+    );
+  }, [dispatch]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -58,10 +52,12 @@ const PackSupportScreen: React.FC = () => {
     },
     [queryParams, setQueryParams]
   );
+
+  console.log(data);
   return (
     <React.Fragment>
       <ContentContainer
-        title="Đóng gói và giao hàng"
+        title="Đóng gói và biên bản bàn giao"
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -72,7 +68,7 @@ const PackSupportScreen: React.FC = () => {
             path: UrlConfig.ORDER,
           },
           {
-            name: "Đóng gói và giao hàng",
+            name: "Đóng gói và biên bản bàn giao",
           },
         ]}
       >
@@ -81,7 +77,12 @@ const PackSupportScreen: React.FC = () => {
             <Card>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Đóng gói" key="1">
-                  <PackInfo setFulfillmentsPackedItems={setData} fulfillmentData={data} queryParams={queryParams}></PackInfo>
+                  <PackInfo
+                    setFulfillmentsPackedItems={setData}
+                    fulfillmentData={data}
+                    queryParams={queryParams}
+                    listThirdPartyLogistics={listThirdPartyLogistics}
+                  ></PackInfo>
                 </TabPane>
                 <TabPane tab="Bàn giao" disabled key="2">
                   Tab 2
@@ -92,9 +93,14 @@ const PackSupportScreen: React.FC = () => {
         </Row>
         <Row gutter={24}>
           <Col xs={24}>
-            <PackList data={data} tableLoading={tableLoading} onPageChange={onPageChange} />
+            <PackList
+              data={data}
+              queryParams={queryParams}
+              onPageChange={onPageChange}
+            />
           </Col>
         </Row>
+        
       </ContentContainer>
     </React.Fragment>
   );
