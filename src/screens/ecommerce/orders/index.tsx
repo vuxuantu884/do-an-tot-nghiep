@@ -8,6 +8,7 @@ import { DownloadOutlined } from "@ant-design/icons";
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { generateQuery } from "utils/AppUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
@@ -42,6 +43,7 @@ import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable
 import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
 import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
 import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
+import UpdateConnectionModal from "./component/UpdateConnectionModal";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
@@ -121,6 +123,7 @@ const EcommerceOrderSync: React.FC = () => {
   const dispatch = useDispatch();
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
+  const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] = useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
   const [downloadedOrderData, setDownloadedOrderData] = useState<any>(
     {
@@ -129,6 +132,8 @@ const EcommerceOrderSync: React.FC = () => {
       update_total: 0,
     }
   );
+
+  const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>([]);
   
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
@@ -210,6 +215,24 @@ const EcommerceOrderSync: React.FC = () => {
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
+  const handleUpdateProductConnection = (data: any) => {
+    setUpdateConnectionData(data.items);
+    setIsShowUpdateConnectionModal(true);
+
+    showSuccess("Click mở modal cập nhật ghép nối nè");
+  };
+
+  const cancelUpdateConnectionModal = () => {
+    setIsShowUpdateConnectionModal(false);
+  };
+  
+  const updateProductConnection = () => {
+    setIsShowUpdateConnectionModal(false);
+    
+    showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
+    //thai todo: call API
+  };
+  
 
 
   const [columns, setColumn] = useState<
@@ -393,6 +416,9 @@ const EcommerceOrderSync: React.FC = () => {
               background: "rgba(42, 42, 134, 0.1)",
               borderRadius: "100px",
               color: "#2A2A86",
+              width: "fit-content",
+              padding: "5px 10px",
+              margin: "0 auto",
             }}
           >
             {status?.name}
@@ -401,6 +427,7 @@ const EcommerceOrderSync: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width: "5.5%",
     },
     {
       title: "Đóng gói",
@@ -495,12 +522,14 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "store",
       key: "store",
       visible: true,
+      width: "200px",
     },
     {
       title: "Nguồn đơn hàng",
       dataIndex: "source",
       key: "order_source",
       visible: true,
+      width: "200px",
     },
     {
       title: "Phương thức thanh toán",
@@ -511,6 +540,7 @@ const EcommerceOrderSync: React.FC = () => {
           return <Tag key={payment.id}>{payment.payment_method}</Tag>;
         }),
       visible: true,
+      width: "200px",
     },
     {
       title: "Nhân viên bán hàng",
@@ -520,6 +550,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "assignee",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ngày nhận đơn",
@@ -530,6 +561,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "created_date",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ngày hoàn tất đơn",
@@ -540,6 +572,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "completed_on",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ngày huỷ đơn",
@@ -550,6 +583,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "cancelled_on",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ghi chú của khách",
@@ -561,21 +595,20 @@ const EcommerceOrderSync: React.FC = () => {
       title: <Tooltip overlay="Tình trạng ghép nối của sản phẩm" placement="topRight" color="blue">
                 <img src={ConnectIcon} alt="" />
               </Tooltip>,
-      dataIndex: "connect_status",
       key: "connect_status",
       visible: true,
       width: 50,
       align: "center",
-      render: (connect_status) => {
-        let connectStatusIcon = "";
-        if (connect_status) {
-          connectStatusIcon = SuccessIcon;
+      render: (data) => {
+        if (data.connect_status) {
+          return (
+            <img src={SuccessIcon} alt="" />
+          )
         } else {
-          connectStatusIcon = ErrorIcon;
+          return (
+            <img src={ErrorIcon} alt="" onClick={() => handleUpdateProductConnection(data)} style={{ cursor: "pointer"}} />
+          )
         }
-        return (
-          <img src={connectStatusIcon} alt="" />
-        )
       },
     },
   ]);
@@ -769,6 +802,15 @@ const EcommerceOrderSync: React.FC = () => {
           onCancel={cancelResultGetOrderModal}
           onOk={okResultGetOrderModal}
           data={downloadedOrderData}
+        />
+      }
+      
+      {isShowUpdateConnectionModal &&
+        <UpdateConnectionModal
+          visible={isShowUpdateConnectionModal}
+          onCancel={cancelUpdateConnectionModal}
+          onOk={updateProductConnection}
+          data={updateConnectionData}
         />
       }
 

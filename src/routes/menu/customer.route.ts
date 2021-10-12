@@ -99,7 +99,19 @@ const customers: Array<RouteMenu> = [
     key: "submenu158",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.CUSTOMER}/point-adjustments/:id`,
+        exact: true,
+        title: "Điều chỉnh điểm",
+        icon: 'icon-dot',
+        component: pointAdjustment,
+        key: "submenu1581",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
   },
 ]
 
