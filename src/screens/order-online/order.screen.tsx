@@ -591,7 +591,7 @@ export default function Order() {
     const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
-          OrderDetailAction(+cloneIdParam, (response) => {
+          OrderDetailAction(+cloneIdParam, async (response) => {
             const { customer_id } = response;
 
             if (customer_id) {
@@ -681,7 +681,7 @@ export default function Order() {
                     response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
-              setInitialForm({
+              await setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
                 source_id: response.source_id,
@@ -700,7 +700,7 @@ export default function Order() {
                 note: response.note,
                 tags: response.tags,
               });
-              formRef.current?.resetFields();
+              form.resetFields();
               // load lại form sau khi set initialValue
               setIsLoadForm(true);
               if (
