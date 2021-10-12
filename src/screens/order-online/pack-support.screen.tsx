@@ -4,16 +4,13 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
-import { getFulfillmentsPackedSaga } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { showError } from "utils/ToastUtils";
+import { useCallback, useState } from "react";
 
 const { TabPane } = Tabs;
 
 const PackSupportScreen: React.FC = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   //queryParams
   const [queryParams, setQueryParams] = useState<any>({
@@ -24,7 +21,7 @@ const PackSupportScreen: React.FC = () => {
   });
 
   //useState
-  const [tableLoading, setTableLoading] = useState(true);
+  const [tableLoading] = useState(true);
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {

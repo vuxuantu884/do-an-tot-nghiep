@@ -86,10 +86,51 @@
       &-children {
         .ant {
           &-menu {
+            position: relative;
             background-color: $sider-color;
-            &-submenu-title{
-              .ant-menu-title-content{
+            &-item-selected {
+              position: relative;
+            }
+            &-submenu-inline:hover .ant-menu-submenu-arrow {
+              color: $white;
+            }
+            &-item::after {
+              position: absolute;
+              content: "";
+              border-right: 3px solid #fcaf17;
+              height: 100%;
+              top: 0;
+              bottom: 0;
+              right: 0;
+            }
+            &-submenu-selected {
+              position: relative;
+              & > .ant-menu-submenu-title::after {
+                position: absolute;
+                content: "";
+                border-right: 3px solid #fcaf17;
+                height: 100%;
+                top: 0;
+                bottom: 0;
+                right: 0;
+              }
+            }
+            &-submenu-title {
+              .ant-menu-title-content {
                 margin-left: 13px;
+                font-weight: 500
+              }
+              &:active {
+                background-color: rgba(255, 255, 255, 0.1);
+              }
+              &:active .ant-menu-submenu-arrow {
+                color: $white;
+              }
+              &:hover{
+                background-color: rgba(255, 255, 255, 0.1);
+                .ant-menu-submenu-arrow{
+                  color: $white;
+                }
               }
             }
             &-item {
@@ -97,10 +138,11 @@
               line-height: 40px;
               color: $white;
               padding-left: 16px !important;
-              .ant-menu-title-content{
+              &>.ant-menu-title-content {
                 margin-left: 13px;
+                font-weight: 500;
               }
-              a {
+              a{
                 color: $white;
               }
               &:hover {
@@ -151,6 +193,9 @@
                   height: 40px;
                   line-height: 40px;
                   margin: 0;
+                  .ant-menu-title-content{
+                    font-weight: 400;
+                  }
                 }
               }
             }
@@ -183,9 +228,11 @@
                   line-height: 40px;
                   color: rgba($white, $alpha: 0.5);
                   margin-bottom: 1px;
-                  a,
-                  .ant-menu-item-icon {
+                  a {
                     color: rgba($white, $alpha: 0.5);
+                  }
+                  .ant-menu-item-icon {
+                    color: #434362;
                   }
                   &:hover {
                     color: $white;
@@ -245,15 +292,20 @@
                     color: #fcaf17;
                   }
                 }
+                .ant-menu-item-icon {
+                  color: #434362;
+                }
                 .ant-menu {
                   &-item {
                     height: 40px;
                     line-height: 40px;
                     color: rgba($white, $alpha: 0.5);
                     margin-bottom: 1px;
-                    a,
-                    .ant-menu-item-icon {
+                    a {
                       color: rgba($white, $alpha: 0.5);
+                    }
+                    .ant-menu-item-icon {
+                      color: #434362;
                     }
                     &:hover {
                       color: $white;
