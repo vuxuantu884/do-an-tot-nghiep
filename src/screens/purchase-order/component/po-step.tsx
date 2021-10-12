@@ -7,7 +7,6 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 const statusToStep = {
   [POStatus.DRAFT]: 0,
   [POStatus.FINALIZED]: 1,
-  // [POStatus.DRAFTPO]: 2,
   [POStatus.STORED]: 2,
   [POStatus.COMPLETED]: 3,
   [POStatus.FINISHED]: 4,
@@ -34,6 +33,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     completed_date,
     cancelled_date,
     status: poStatus,
+    is_cancel
   } = poData;
   const getDescription = (step: number) => {
     let currentStep = statusToStep[poStatus];
@@ -41,6 +41,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       procurements &&
       procurements.length > 0 &&
       procurements[procurements.length - 1].updated_date;
+ 
     switch (step) {
       case 0:
         if (currentStep >= 0 && order_date !== null)
@@ -61,10 +62,14 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           return null;
         }
       case 2:
+        console.log(statusToStep[POStatus.STORED]);
         if (currentStep >= statusToStep[POStatus.STORED] && updatedDate)
           return ConvertUtcToLocalDate(updatedDate);
         return null;
       default:
+        if(is_cancel) {
+          return ConvertUtcToLocalDate(cancelled_date);
+        }
         if (
           currentStep === statusToStep[POStatus.CANCELLED] &&
           cancelled_date
@@ -79,15 +84,18 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   };
   const getLastStepName = () => {
     const currentStep = statusToStep[poStatus];
+    if(is_cancel) {
+      return 'Hủy'
+    }
     switch (currentStep) {
       case 4:
         return "Kết thúc";
-      case 5:
-        return "Huỷ";
+    
       default:
         return "Hoàn thành";
     }
   };
+  
   return (
     <Steps
       progressDot={(dot: any, { status, index }: any) => (
@@ -95,13 +103,14 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           {(status === "process" || status === "finish") && <CheckOutlined />}
         </div>
       )}
+      className="create-bill-step"
       size="small"
-      current={statusToStep[poStatus]}
+      current={is_cancel === true ? 3 : statusToStep[poStatus]}
     >
-      <Steps.Step title="Đặt hàng" description={getDescription(0)} />
-      <Steps.Step title="Xác nhận" description={getDescription(1)} />
-      <Steps.Step title="Nhập kho" description={getDescription(2)} />
-      <Steps.Step title={getLastStepName()} description={getDescription(3)} />
+      <Steps.Step title="Đặt hàng" className={is_cancel && statusToStep[poStatus] >= 0 ? "" : "inactive"} description={getDescription(0)} />
+      <Steps.Step title="Xác nhận" description={getDescription(1)} className={is_cancel && statusToStep[poStatus] >= 1 ? "" : "inactive"} />
+      <Steps.Step title="Nhập kho" description={getDescription(2)} className={is_cancel && statusToStep[poStatus] >= 2 ? "" : "inactive"} />
+      <Steps.Step className={is_cancel? 'cancelled' : ''} title={getLastStepName()}  description={getDescription(3)} />
     </Steps>
   );
 };

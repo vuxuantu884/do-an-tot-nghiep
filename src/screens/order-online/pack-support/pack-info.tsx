@@ -237,7 +237,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
         );
       }
     }
-  }, [dispatch, orderList, orderResponse, btnClearPackElement]);
+  }, [dispatch, orderList, orderResponse, btnClearPackElement, queryParams, setFulfillmentsPackedItems]);
 
   useEffect(()=>{
     if(disableOrder===true)
@@ -267,7 +267,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
       if (indexPack !== -1) {
         orderList[indexPack].pick = quality_request;
 
-        if (quality_request == orderList[indexPack].quantity)
+        if (quality_request === orderList[indexPack].quantity)
           orderList[indexPack].color = "#27AE60";
         else orderList[indexPack].color = "#E24343";
 

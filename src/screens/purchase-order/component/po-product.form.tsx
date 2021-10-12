@@ -204,6 +204,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        old_line_items
+      );
       formMain.setFieldsValue({
         line_items: [...old_line_items],
         untaxed_amount: untaxed_amount,
@@ -211,6 +218,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
         total: total,
+        [POField.procurements]: newProcument,
       });
     },
     [formMain]

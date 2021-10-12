@@ -1,5 +1,5 @@
 import { PurchaseOrderQuery } from "./../../model/purchase-order/purchase-order.model";
-import BaseAxios from "base/base.axios";
+import BaseAxios from "base/base-po.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
@@ -39,6 +39,7 @@ export const deletePurchaseOrder = (
 ): Promise<BaseResponse<string>> => {
   return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
 };
+
 export const returnPurchaseOrder = (
   id: number,
   data: PurchaseOrder
@@ -65,8 +66,16 @@ export const searchPurchaseOrderApi = (
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders?${queryString}`
   );
 };
+
 export const getPurchaseOrderApi = (
   id: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
+};
+
+
+export const cancelPurchaseOrderApi = (
+  id: string
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/cancel`);
 };

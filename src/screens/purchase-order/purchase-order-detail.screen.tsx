@@ -3,7 +3,11 @@ import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { PoDetailAction, PoUpdateAction } from "domain/actions/po/po.action";
+import {
+  POCancelAction,
+  PoDetailAction,
+  PoUpdateAction,
+} from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -46,6 +50,7 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 type PurchaseOrderParam = {
   id: string;
@@ -228,10 +233,17 @@ const PODetailScreen: React.FC = () => {
   );
 
   const onCancel = useCallback(() => {
-    formMain.setFieldsValue({ status: POStatus.CANCELLED });
-    setStatusAction(POStatus.CANCELLED);
-    formMain.submit();
-  }, [formMain]);
+    dispatch(showLoading());
+    dispatch(
+      POCancelAction(idNumber, (result) => {
+        dispatch(hideLoading());
+        if (result !== null) {
+          showSuccess("Cập nhật nhập hàng thành công");
+          loadDetail(idNumber, false, false);
+        }
+      })
+    );
+  }, [dispatch, idNumber, loadDetail]);
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -256,7 +268,8 @@ const PODetailScreen: React.FC = () => {
     if (
       poStatus &&
       [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) &&
-      poData.receipt_quantity < 1
+      poData.receipt_quantity < 1 &&
+      !poData.is_cancel
     )
       menuActions.push({
         id: 1,

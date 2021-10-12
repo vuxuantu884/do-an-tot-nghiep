@@ -632,16 +632,16 @@ const ScreenReturnCreate = (props: PropType) => {
           : loyaltyPoint?.loyalty_level_id)
     );
 
-    let curenPoint = !loyaltyPoint
-      ? 0
-      : loyaltyPoint.point === null
-      ? 0
-      : loyaltyPoint.point;
-    let point = !Pointfocus
-      ? 0
-      : Pointfocus.point === undefined
-      ? 0
-      : Pointfocus.point;
+    // let curenPoint = !loyaltyPoint
+    //   ? 0
+    //   : loyaltyPoint.point === null
+    //   ? 0
+    //   : loyaltyPoint.point;
+    // let point = !Pointfocus
+    //   ? 0
+    //   : Pointfocus.point === undefined
+    //   ? 0
+    //   : Pointfocus.point;
 
     // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
     // let limitAmountPointFocus = !rank

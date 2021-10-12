@@ -1,4 +1,4 @@
-import BaseAxios from "base/base.axios";
+import BaseAxios from "base/base-po.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
@@ -35,9 +35,8 @@ export const deletePurchaseProcumentService = (
 
 export const updateStatusPO = (
   poId: number,
-  status: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/${status}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/finish`
   );
 };
