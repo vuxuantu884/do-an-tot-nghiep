@@ -20,7 +20,10 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderProductListModel } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  OrderProductListModel,
+} from "model/response/order/order.response";
 import {
   createRef,
   useCallback,
@@ -38,11 +41,17 @@ import ImageScan from "assets/img/scanbarcode.svg";
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
   queryParams: any;
+  listThirdPartyLogistics: DeliveryServiceResponse[];
   fulfillmentData: PageResponse<any>;
 };
 
 const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
-  const { setFulfillmentsPackedItems, queryParams, fulfillmentData } = props;
+  const {
+    setFulfillmentsPackedItems,
+    queryParams,
+    fulfillmentData,
+    listThirdPartyLogistics,
+  } = props;
 
   const dispatch = useDispatch();
 
@@ -70,6 +79,13 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const ProductRequestElement: any = document.getElementById("product_request");
   const QualityRequestElement: any = document.getElementById("quality_request");
 
+  const shipName =
+    listThirdPartyLogistics.length > 0 && orderResponse.length > 0
+      ? listThirdPartyLogistics.find(
+          (x) => x.id === orderResponse[0].shipment.delivery_service_provider_id
+        )?.name
+      : "";
+
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
@@ -86,28 +102,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
-
-  //event
-
-  // const event = useCallback(
-  //   (event: KeyboardEvent) => {
-  //     console.log(event)
-  //     // if (event.target instanceof HTMLInputElement) {
-  //     //   if (
-  //     //     event.keyCode === 13 &&
-  //     //     event.target.value &&
-  //     //     event.target.id === "order_request"
-  //     //   ) {
-
-  //     //   }
-  //     // }
-  //   },
-  //   []
-  // );
-
-  // useEffect(() => {
-  //   window.addEventListener("keydown", event);
-  // }, [event]);
 
   OrderRequestElement?.addEventListener("focus", (e: any) => {
     OrderRequestElement.select();
@@ -137,7 +131,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               } else {
                 setDisableStoreId(false);
                 setDisableOrder(false);
-                showError("Không tìm thấy đơn giao hàng");
+                showError("Đơn hàng này đã được đóng gói");
               }
             })
           );
@@ -208,7 +202,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       orderResponse.length !== 0 &&
       orderList.length !== 0
     ) {
-      console.log("2222")
       let indexPack = orderList.filter(
         (p: OrderProductListModel) => Number(p.quantity) !== Number(p.pick)
       );
@@ -225,21 +218,20 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             if (data) {
               btnClearPackElement?.click();
 
-              let datas={...fulfillmentData};
+              let datas = { ...fulfillmentData };
 
               datas.metadata.total = Number(datas.metadata.total) + Number(orderList.length);
               datas.items.push({
                 order_id: orderResponse[0].order_id,
                 code: orderResponse[0].order_code,
-                shipment: orderResponse[0].delivery_service_provider_name,
+                shipment: shipName,
                 customer: orderResponse[0].customer,
                 items: orderList,
               });
 
-              setFulfillmentsPackedItems(datas);
-              console.log("fulfillmentData 111")
-              console.log(fulfillmentData)
+             
 
+              setFulfillmentsPackedItems(datas);
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
@@ -251,11 +243,10 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     orderList,
     orderResponse,
     btnClearPackElement,
-    queryParams,
     fulfillmentData,
+    shipName,
     setFulfillmentsPackedItems,
   ]);
-  console.log(fulfillmentData);
   useEffect(() => {
     if (disableOrder === true) {
       setDisableProduct(false);
@@ -265,6 +256,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       setDisableQuality(true);
     }
   }, [disableOrder]);
+
   //useEffect
 
   const FinishPack = useCallback(() => {
@@ -276,7 +268,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     if (store_request && order_request && product_request) {
       let indexPack = orderList.findIndex(
         (p) =>
-          p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
+          p.sku === product_request.trim() ||
+          p.variant_barcode === product_request.trim()
       );
 
       if (indexPack !== -1) {
@@ -295,11 +288,13 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           else orderList[indexPack].color = "#E24343";
 
           setOrderList([...orderList]);
-          // if (Number(orderList[indexPack].quantity) < Number( orderList[indexPack].pick))
-          //   showWarning("");
-        } else showError("Số lượng nhặt lớn hơn số lượng sản phẩm đặt");
+          if (
+            Number(orderList[indexPack].quantity) ===
+            Number(orderList[indexPack].pick)
+          )
+            formRef.current?.setFieldsValue({ product_request: "" });
+        } else showError("Sản phẩm đã nhập đủ số lượng");
 
-        //formRef.current?.setFieldsValue({ product_request: "" });
         formRef.current?.setFieldsValue({ quality_request: "" });
       } else {
         showError("Sản phẩm này không có trong đơn hàng");
@@ -308,7 +303,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       console.log("Chưa đủ thông tin");
     }
   }, [formRef, orderList]);
-  console.log(orderList);
 
   const SttColumn = {
     title: () => (
@@ -467,7 +461,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 addonAfter={<AiOutlinePlusCircle />}
                 onPressEnter={(e: any) => {
                   onKeyupOrder(e.target.value);
-                  console.log(e.target.value);
                 }}
                 disabled={disableOrder}
                 id="order_request"
@@ -553,9 +546,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                       marginLeft: "5px",
                     }}
                   >
-                    {!orderResponse
-                      ? ""
-                      : orderResponse[0].shipment?.shipper_name}
+                    {shipName}
                   </Typography.Text>
                 </span>
               </Space>
