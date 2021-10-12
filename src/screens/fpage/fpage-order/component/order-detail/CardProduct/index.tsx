@@ -20,6 +20,7 @@ import {
   Tooltip,
   Typography,
   Modal,
+  Popover,
 } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { RefSelectProps } from "antd/lib/select";
@@ -285,12 +286,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           />
         </Col>
         <Col span={15}>
-          <span style={{ color: "#37394D" }}>
-            {item.name}
-          </span>
-          <div style={{ color: "#95A1AC" }} >
-            {item.sku}
-          </div>
+          <span style={{ color: "#37394D" }}>{item.name}</span>
+          <div style={{ color: "#95A1AC" }}>{item.sku}</div>
         </Col>
         <Col span={5}>
           <Col style={{ color: "#222222" }}>
@@ -348,67 +345,105 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div
-          className="w-100"
-          style={{
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <div className="d-flex align-items-center">
-            <div
-              style={{
-                float: "left",
-              }}
-            >
-              <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
-                  {l.sku}
-                </Typography.Link>
-              </div>
-              <div className="yody-pos-varian">
-                <Tooltip title={l.variant} className="yody-pos-varian-name">
-                  <span>{l.variant}</span>
-                </Tooltip>
+        <>
+          <div
+            className="w-100"
+            style={{
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div className="d-flex align-items-center">
+              <div
+                style={{
+                  float: "left",
+                }}
+              >
+                <div className="yody-pos-sku">
+                  <Typography.Link style={{ color: "#2A2A86" }}>
+                    {l.sku}
+                  </Typography.Link>
+                </div>
+                <div className="yody-pos-varian">
+                  <Tooltip title={l.variant} className="yody-pos-varian-name">
+                    <span>{l.variant}</span>
+                  </Tooltip>
+                </div>
               </div>
             </div>
-          </div>
-          <div style={{ marginTop: 2 }}>
-            {l.gifts &&
-              l.gifts.map((a, index1) => (
-                <div key={index1} className="yody-pos-addition yody-pos-gift">
-                  <div>
-                    <img src={giftIcon} alt="" />
-                    <i style={{ marginLeft: 7 }}>
-                      {a.variant} ({a.quantity})
-                    </i>
+            <div style={{ marginTop: 2 }}>
+              {l.gifts &&
+                l.gifts.map((a, index1) => (
+                  <div key={index1} className="yody-pos-addition yody-pos-gift">
+                    <div>
+                      <img src={giftIcon} alt="" />
+                      <i style={{ marginLeft: 7 }}>
+                        {a.variant} ({a.quantity})
+                      </i>
+                    </div>
                   </div>
-                </div>
-              ))}
-          </div>
-          <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
-            <Input
-              addonBefore={<EditOutlined />}
-              maxLength={255}
-              allowClear={true}
-              onBlur={() => {
-                if (l.note === "") {
-                  if (!items) {
-                    return;
+                ))}
+            </div>
+            <div
+              className="yody-pos-note"
+              hidden={!l.show_note && l.note === ""}
+            >
+              <Input
+                addonBefore={<EditOutlined />}
+                maxLength={255}
+                allowClear={true}
+                onBlur={() => {
+                  if (l.note === "") {
+                    if (!items) {
+                      return;
+                    }
+                    let _items = [...items];
+                    _items[index].show_note = false;
+                    handleCardItems(_items);
                   }
-                  let _items = [...items];
-                  _items[index].show_note = false;
-                  handleCardItems(_items);
-                }
-              }}
-              className="note"
-              value={l.note}
-              onChange={(e) => onChangeNote(e, index)}
-              placeholder="Ghi chú"
-            />
+                }}
+                className="note"
+                value={l.note}
+                onChange={(e) => onChangeNote(e, index)}
+                placeholder="Ghi chú"
+              />
+            </div>
           </div>
-        </div>
+          <Popover
+            content={
+              <div className="discount-item-popup">
+                <DiscountGroup
+                  price={discountLineItem ? discountLineItem.price : 0}
+                  index={discountLineItemIndex}
+                  discountRate={
+                    discountLineItem
+                      ? discountLineItem.discount_items[0].rate
+                      : 0
+                  }
+                  discountValue={
+                    discountLineItem
+                      ? discountLineItem.discount_items[0].value
+                      : 0
+                  }
+                  totalAmount={
+                    discountLineItem
+                      ? discountLineItem.discount_items[0].amount
+                      : 0
+                  }
+                  items={items}
+                  handleCardItems={onDiscountItem}
+                  disabled={levelOrder > 3}
+                />
+              </div>
+            }
+            trigger="click"
+          >
+            <Button type="link" className="btn-style">
+              Thay đổi địa chỉ nhận hàng
+            </Button>
+          </Popover>
+        </>
       );
     },
   };
@@ -689,7 +724,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         }
       }
       handleCardItems(_items.reverse());
-      getInventory(_items)
+      getInventory(_items);
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
@@ -1118,8 +1153,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     {coupon}{" "}
                   </Tag>
                 ) : (
-                  <span className="font-weight-500" style={{ float: "right" }}>
-                  </span>
+                  <span
+                    className="font-weight-500"
+                    style={{ float: "right" }}
+                  ></span>
                 )}
               </div>
             </Row>
@@ -1143,7 +1180,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                       changeMoney +
                         (props.shippingFeeCustomer
                           ? props.shippingFeeCustomer
-                          : 0) - discountValue
+                          : 0) -
+                        discountValue
                     )
                   : "-"}
               </b>
