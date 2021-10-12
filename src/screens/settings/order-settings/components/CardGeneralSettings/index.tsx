@@ -60,10 +60,10 @@ function CardGeneralSettings(props: PropType) {
     }
     setValueCustomerCanViewOrder(e.target.value);
     const for_all_order =
-      e.target.value === valueCustomerCanViewOrderOption.forSingleOrder;
+      e.target.value === valueCustomerCanViewOrderOption.forAllOrders;
 
     listOrderConfigs.for_all_order =
-      e.target.value === valueCustomerCanViewOrderOption.forSingleOrder;
+      e.target.value === valueCustomerCanViewOrderOption.forAllOrders;
 
     const params: OrderConfigRequestModel = {
       ...initParams,
@@ -133,11 +133,11 @@ function CardGeneralSettings(props: PropType) {
   useEffect(() => {
     if (listOrderConfigs?.for_all_order) {
       setValueCustomerCanViewOrder(
-        valueCustomerCanViewOrderOption.forSingleOrder
+        valueCustomerCanViewOrderOption.forAllOrders
       );
     } else {
       setValueCustomerCanViewOrder(
-        valueCustomerCanViewOrderOption.forAllOrders
+        valueCustomerCanViewOrderOption.forSingleOrder
       );
     }
   }, [
