@@ -18,7 +18,7 @@ type PropType = {
 };
 
 const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
-  const { fulfillment, orderSettings, orderId } = props;
+  const { fulfillment, orderId } = props;
   const dispatch = useDispatch();
   const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
