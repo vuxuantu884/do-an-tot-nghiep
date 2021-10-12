@@ -428,8 +428,11 @@ const OrderDetail = (props: PropType) => {
           break;
         case "clone":
           // history.push(`${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`);
-          const newTab = window.open(`/unicorn/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`, "_blank")
-          newTab?.focus()
+          const newTab = window.open(
+            `/unicorn/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
+            "_blank"
+          );
+          newTab?.focus();
           break;
         default:
           break;
@@ -622,29 +625,6 @@ const OrderDetail = (props: PropType) => {
                     handleReturnMoney={handleReturnMoney}
                   />
                 )}
-
-              {/*--- shipment ---*/}
-              <UpdateShipmentCard
-                shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
-                setVisibleUpdatePayment={setVisibleUpdatePayment}
-                setShipmentMethod={setShipmentMethod}
-                setPaymentType={setPaymentType}
-                setOfficeTime={setOfficeTime}
-                setVisibleShipping={setVisibleShipping}
-                OrderDetail={OrderDetail}
-                customerDetail={customerDetail}
-                storeDetail={storeDetail}
-                stepsStatusValue={stepsStatusValue}
-                totalPaid={totalPaid}
-                officeTime={officeTime}
-                shipmentMethod={shipmentMethod}
-                isVisibleShipping={isVisibleShipping}
-                paymentType={paymentType}
-                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
-                orderSettings={orderSettings}
-                onReload={() => setReload(true)}
-              />
-              {/*--- end shipment ---*/}
 
               {/*--- payment ---*/}
               {OrderDetail !== null &&
@@ -853,7 +833,7 @@ const OrderDetail = (props: PropType) => {
                                         }
                                         reload={() => {
                                           setReload(true);
-                                          setVisibleUpdatePayment(false)
+                                          setVisibleUpdatePayment(false);
                                         }}
                                       />
                                     )}
@@ -985,7 +965,7 @@ const OrderDetail = (props: PropType) => {
                     title={
                       <Space>
                         <div className="d-flex">
-                          <span className="title-card">THANH TOÁN 2</span>
+                          <span className="title-card">THANH TOÁN</span>
                         </div>
                         {checkPaymentStatusToShow(OrderDetail) === 1 && (
                           <Tag
@@ -1123,6 +1103,29 @@ const OrderDetail = (props: PropType) => {
                 )}
 
               {/*--- end payment ---*/}
+
+              {/*--- shipment ---*/}
+              <UpdateShipmentCard
+                shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+                setVisibleUpdatePayment={setVisibleUpdatePayment}
+                setShipmentMethod={setShipmentMethod}
+                setPaymentType={setPaymentType}
+                setOfficeTime={setOfficeTime}
+                setVisibleShipping={setVisibleShipping}
+                OrderDetail={OrderDetail}
+                customerDetail={customerDetail}
+                storeDetail={storeDetail}
+                stepsStatusValue={stepsStatusValue}
+                totalPaid={totalPaid}
+                officeTime={officeTime}
+                shipmentMethod={shipmentMethod}
+                isVisibleShipping={isVisibleShipping}
+                paymentType={paymentType}
+                OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+                orderSettings={orderSettings}
+                onReload={() => setReload(true)}
+              />
+              {/*--- end shipment ---*/}
 
               {OrderDetail?.order_return_origin?.items && (
                 <CardReturnReceiveProducts
