@@ -45,10 +45,7 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
-import {
-  OrderItemDiscountModel,
-  OrderSettingsModel,
-} from "model/other/order/order-model";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
@@ -97,7 +94,6 @@ type CardProductProps = {
     discount_rate: number,
     discount_value: number
   ) => void;
-  orderSettings?: OrderSettingsModel;
   formRef: React.RefObject<FormInstance<any>>;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
@@ -124,7 +120,6 @@ const initQueryVariant: VariantSearchQuery = {
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const {
-    orderSettings,
     formRef,
     items,
     discountRate,
@@ -173,6 +168,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const shippingFeeInformedToCustomer =
     createOrderContext?.shipping.shippingFeeInformedToCustomer;
 
+  const orderConfig = createOrderContext?.orderConfig;
+
+  console.log("createOrderContext", createOrderContext);
+
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
   //Function
@@ -185,7 +184,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           event.keyCode === 13 &&
           event.target.value &&
           event.target.id === "search_product" &&
-          orderSettings?.chonCuaHangTruocMoiChonSanPham &&
+          orderConfig?.allow_choose_item &&
           items &&
           storeId
         ) {
@@ -829,14 +828,23 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   );
 
   const onChangeProductSearch = useCallback(
-    (value: string) => {
-      if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
-        if (value) {
-          formRef.current?.validateFields(["store_id"]);
-        }
-      }
+    async (value: string) => {
       setIsInputSearchProductFocus(true);
       setKeySearchVariant(value);
+      if (orderConfig?.allow_choose_item && value) {
+        let isError = await formRef.current
+          ?.validateFields(["store_id"])
+          .then(() => {
+            return false;
+          })
+          .catch(() => {
+            return true;
+          });
+        if (isError) {
+          return;
+        }
+      }
+
       initQueryVariant.info = value;
       if (value.trim()) {
         (async () => {
@@ -847,6 +855,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               searchVariantsOrderRequestAction(initQueryVariant, (data) => {
                 setResultSearchVariant(data);
                 setSearchProducts(false);
+                setIsShowProductSearch(true);
                 // console.log('setSearchProducts false');
               })
             );
