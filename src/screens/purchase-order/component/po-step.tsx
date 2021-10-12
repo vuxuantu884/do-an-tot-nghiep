@@ -95,7 +95,17 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         return "Hoàn thành";
     }
   };
-  
+  const getClassName = (step: number) => {
+    if(is_cancel) {
+      if( statusToStep[poStatus] >= step) {
+        return '';
+      }
+      return 'inactive';
+     } else {
+      return '';
+    }
+  }
+    
   return (
     <Steps
       progressDot={(dot: any, { status, index }: any) => (
@@ -107,9 +117,9 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       size="small"
       current={is_cancel === true ? 3 : statusToStep[poStatus]}
     >
-      <Steps.Step title="Đặt hàng" className={is_cancel && statusToStep[poStatus] >= 0 ? "" : "inactive"} description={getDescription(0)} />
-      <Steps.Step title="Xác nhận" description={getDescription(1)} className={is_cancel && statusToStep[poStatus] >= 1 ? "" : "inactive"} />
-      <Steps.Step title="Nhập kho" description={getDescription(2)} className={is_cancel && statusToStep[poStatus] >= 2 ? "" : "inactive"} />
+      <Steps.Step title="Đặt hàng" className={getClassName(0)} description={getDescription(0)} />
+      <Steps.Step title="Xác nhận" description={getDescription(1)} className={getClassName(1)} />
+      <Steps.Step title="Nhập kho" description={getDescription(2)} className={getClassName(2)} />
       <Steps.Step className={is_cancel? 'cancelled' : ''} title={getLastStepName()}  description={getDescription(3)} />
     </Steps>
   );
