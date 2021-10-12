@@ -13,7 +13,7 @@ import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
 import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
 import CustomerHistoryInfo from "./customer.history";
-import CustomerCareHistory from "./customer-care-history"
+import CustomerCareHistory from "./customer-care-history";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -76,7 +76,7 @@ const CustomerDetailIndex = () => {
       name: "Trừ tiền tích lũy",
     },
   ];
-  console.log(loyaltyPoint)
+  console.log(loyaltyPoint);
   const [data, setData] = React.useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 10,
@@ -105,7 +105,7 @@ const CustomerDetailIndex = () => {
           break;
         case "#caring-history":
           setActiveTab("caring-history");
-          setIsShowAddBtn(true);
+          setIsShowAddBtn(false);
           break;
         case "#contacts":
           setActiveTab("contacts");
@@ -286,8 +286,23 @@ const CustomerDetailIndex = () => {
     }
   };
 
-  const onMenuClick = React.useCallback((menuId: number) => console.log(menuId),[])
-  
+  const onMenuClick = React.useCallback(
+    (menuId: number) => {
+      switch (menuId) {
+        case 1:
+          history.replace(
+            `${UrlConfig.CUSTOMER}/point-adjustments?customer_ids=${customer?.id}&type=add`
+          );
+          break;
+        case 2:
+          history.replace(
+            `${UrlConfig.CUSTOMER}/point-adjustments?customer_ids=${customer?.id}&type=subtract`
+          );
+          break;
+      }
+    },
+    [customer, history]
+  );
   return (
     <ContentContainer
       title="Thông tin chi tiết"
