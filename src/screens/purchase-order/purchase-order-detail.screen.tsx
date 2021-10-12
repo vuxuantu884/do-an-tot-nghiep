@@ -267,9 +267,7 @@ const PODetailScreen: React.FC = () => {
     let poStatus = poData.status;
     if (
       poStatus &&
-      [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) &&
-      poData.receipt_quantity < 1 &&
-      !poData.is_cancel
+      [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus)
     )
       menuActions.push({
         id: 1,
