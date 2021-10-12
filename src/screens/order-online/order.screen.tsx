@@ -588,7 +588,7 @@ export default function Order() {
   }, []);
 
   useEffect(() => {
-    const fetchData = () => {
+    const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(+cloneIdParam, (response) => {
@@ -757,13 +757,13 @@ export default function Order() {
           })
         );
       } else {
+        await setInitialForm({
+          ...initialRequest,
+        });
         setCustomer(null);
         setItems([]);
         setItemGifts([]);
         setPayments([]);
-        setInitialForm({
-          ...initialRequest,
-        });
         setOfficeTime(false);
         setStoreId(null);
         setTag("");
@@ -773,12 +773,12 @@ export default function Order() {
         setDiscountValue(0);
         setOfficeTime(false);
         setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
+        form.resetFields();
       }
     };
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, dispatch, isCloneOrder]);
-
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));

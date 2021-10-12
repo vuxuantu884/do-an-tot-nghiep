@@ -151,6 +151,8 @@ const ScreenReturnDetail = (props: PropType) => {
     });
   };
 
+  const totalAmountReturnToCustomer = OrderDetail?.total;
+
   /**
    * theme context data
    */
@@ -267,15 +269,13 @@ const ScreenReturnDetail = (props: PropType) => {
                   listReturnProducts={listReturnProducts}
                   discountRate={OrderDetail?.order_discount_rate}
                   pointUsing={OrderDetail?.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isDetailPage
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
                   payments={payments}
-                  returnMoneyAmount={
-                    OrderDetail?.total_line_amount_after_line_discount || 0
-                  }
+                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isShowPaymentMethod={isShowPaymentMethod}
                   setIsShowPaymentMethod={setIsShowPaymentMethod}
                   handleReturnMoney={handleReturnMoney}
