@@ -22,7 +22,6 @@ import POInventoryDraft from "./po-inventory/POInventoryDraft";
 import POInventoryView from "./po-inventory/po-inventory.view";
 import deliveryIcon from "assets/icon/delivery.svg";
 import procument from "assets/icon/procument.svg";
-import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import POEditDraftProcurementModal from "../modal/POEditDraftProcurementModal";
 import { PoUpdateAction } from "domain/actions/po/po.action";
@@ -115,12 +114,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     (value: PurchaseProcument) => {
       if (idNumber) {
         if (!poData) return;
-        value.status_po = POUtils.calculatePOStatus(
-          poData,
-          value,
-          null,
-          "update"
-        );
         setLoadingCreate(true);
         if (isEditProcument) {
           dispatch(
@@ -154,12 +147,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
         if (!poData) return;
-        value.status_po = POUtils.calculatePOStatus(
-          poData,
-          value,
-          null,
-          "delete"
-        );
         setLoadingCreate(true);
         dispatch(
           PoProcumentDeleteAction(idNumber, value.id, onDeleteProcumentCallback)
@@ -186,12 +173,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
         if (!poData) return;
-        value.status_po = POUtils.calculatePOStatus(
-          poData,
-          value,
-          null,
-          "update"
-        );
         setLoadingConfirm(true);
         dispatch(
           PoProcumentUpdateAction(
@@ -232,12 +213,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
         if (!poData) return;
-        value.status_po = POUtils.calculatePOStatus(
-          poData,
-          value,
-          null,
-          "update"
-        );
         setLoadingRecive(true);
         dispatch(
           PoProcumentUpdateAction(

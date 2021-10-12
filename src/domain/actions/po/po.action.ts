@@ -74,6 +74,7 @@ export const PODeleteAction = (
     deleteCallback,
   });
 };
+
 export const POReturnAction = (
   id: number,
   request: PurchaseOrder | null,
@@ -83,5 +84,15 @@ export const POReturnAction = (
     id,
     request,
     returnCallback,
+  });
+};
+
+export const POCancelAction = (
+  id: number,
+  cancelCallback: (result: PurchaseOrder | null) => void
+) => {
+  return BaseAction(POType.CANCEL_PO_REQUEST, {
+    id,
+    cancelCallback,
   });
 };

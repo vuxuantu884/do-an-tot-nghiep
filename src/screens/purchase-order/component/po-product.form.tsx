@@ -2,7 +2,6 @@ import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
-  Checkbox,
   Col,
   Divider,
   Empty,
@@ -58,7 +57,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   // );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   // const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
-  const [splitLine, setSplitLine] = useState<boolean>(false);
+  // const [splitLine, setSplitLine] = useState<boolean>(false);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   // const [costLines, setCostLines] = useState<Array<CostLine>>([]);
   const renderResult = useMemo(() => {
@@ -107,7 +106,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         let new_line_items = POUtils.addProduct(
           old_line_items,
           new_items,
-          splitLine
+          false
         );
         let untaxed_amount = POUtils.totalAmount(new_line_items);
         let tax_lines = POUtils.getVatList(
@@ -156,7 +155,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       }
       setData([]);
     },
-    [data, formMain, splitLine]
+    [data, formMain]
   );
   const onDeleteItem = useCallback(
     (index: number) => {
@@ -205,6 +204,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total_cost_line,
         tax_lines
       );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements
+      );
+      let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        old_line_items
+      );
       formMain.setFieldsValue({
         line_items: [...old_line_items],
         untaxed_amount: untaxed_amount,
@@ -212,6 +218,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_amount: trade_discount_amount,
         payment_discount_amount: payment_discount_amount,
         total: total,
+        [POField.procurements]: newProcument,
       });
     },
     [formMain]
@@ -389,7 +396,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       let new_line_items = POUtils.addProduct(
         old_line_items,
         new_items,
-        splitLine
+        false
       );
       let untaxed_amount = POUtils.totalAmount(new_line_items);
 
@@ -437,7 +444,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         [POField.procurements]: newProcument,
       });
     },
-    [formMain, splitLine]
+    [formMain]
   );
   const onTaxChange = useCallback(
     (vat, index: number) => {
@@ -569,14 +576,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               let status = getFieldValue(POField.status);
               return (
                 <Space size={20}>
-                  {!isEdit && status === POStatus.DRAFT && (
+                  {/* {!isEdit && status === POStatus.DRAFT && (
                     <Checkbox
                       checked={splitLine}
                       onChange={() => setSplitLine(!splitLine)}
                     >
                       Tách dòng
                     </Checkbox>
-                  )}
+                  )} */}
 
                   <span>Chính sách giá:</span>
                   {!isEdit && status === POStatus.DRAFT ? (

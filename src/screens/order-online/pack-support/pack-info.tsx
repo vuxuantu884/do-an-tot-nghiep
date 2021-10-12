@@ -15,7 +15,6 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getFulfillments,
   getFulfillmentsPack,
-  getFulfillmentsPackedSaga,
 } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -32,8 +31,7 @@ import {
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import ImageScan from "assets/img/scanbarcode.svg";
+import { showError, showSuccess, } from "utils/ToastUtils";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
@@ -68,7 +66,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const btnClearPackElement = document.getElementById("btnClearPack");
   const OrderRequestElement: any = document.getElementById("order_request");
   const ProductRequestElement: any = document.getElementById("product_request");
-  const QualityRequestElement: any = document.getElementById("quality_request");
+  // const QualityRequestElement: any = document.getElementById("quality_request");
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];

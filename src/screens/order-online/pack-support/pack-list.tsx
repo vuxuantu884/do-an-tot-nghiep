@@ -2,7 +2,7 @@ import { Card, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 
 function PackList(props: any) {
-  const { data, onPageChange,tableLoading } = props;
+  const { data, onPageChange } = props;
   
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [

@@ -35,7 +35,6 @@ import {
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
-import { POUtils } from "utils/POUtils";
 
 type POPaymentFormProps = {
   poId: number;
@@ -103,18 +102,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         setLoaddingApproval(newLoadings);
         let newItem = { ...item };
         newItem.status = PoPaymentStatus.PAID;
-        newItem.status_po = POUtils.calculatePOStatus(
-          poData,
-          null,
-          newItem,
-          "update"
-        );
         dispatch(
           PoPaymentUpdateAction(props.poId, item.id, newItem, updateCallback)
         );
       }
     },
-    [dispatch, loadingApproval, poData, props.poId, updateCallback]
+    [dispatch, loadingApproval, props.poId, updateCallback]
   );
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
