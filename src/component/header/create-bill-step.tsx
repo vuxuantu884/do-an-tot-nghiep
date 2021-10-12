@@ -47,7 +47,12 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   );
 
   return (
-    <Steps progressDot={progressDot} size="small" current={currentStep} className="create-bill-step">
+    <Steps
+      progressDot={progressDot}
+      size="small"
+      current={currentStep}
+      className="create-bill-step"
+    >
       <Steps.Step
         title="Đặt hàng"
         // description={moment(props.orderDetail?.created_date).format(
@@ -77,10 +82,16 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
-        className={!(props.orderDetail &&
-          props.orderDetail?.fulfillments &&
-          props.orderDetail?.fulfillments.length > 0 &&
-          props.orderDetail?.fulfillments[0].packed_on) && props.status === 'cancelled'? 'inactive' : ''}
+        className={
+          !(
+            props.orderDetail &&
+            props.orderDetail?.fulfillments &&
+            props.orderDetail?.fulfillments.length > 0 &&
+            props.orderDetail?.fulfillments[0].packed_on
+          ) && props.status === "cancelled"
+            ? "inactive"
+            : ""
+        }
       />
       <Steps.Step
         title="Xuất kho"
@@ -93,13 +104,19 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
-        className={!(props.orderDetail &&
-          props.orderDetail?.fulfillments &&
-          props.orderDetail?.fulfillments.length > 0 &&
-          props.orderDetail?.fulfillments[0].export_on) && props.status === 'cancelled' ? 'inactive' : ''}
+        className={
+          !(
+            props.orderDetail &&
+            props.orderDetail?.fulfillments &&
+            props.orderDetail?.fulfillments.length > 0 &&
+            props.orderDetail?.fulfillments[0].export_on
+          ) && props.status === "cancelled"
+            ? "inactive"
+            : ""
+        }
       />
       <Steps.Step
-        title={!(props.status === 'cancelled') ? "Hoàn thành" : "Huỷ đơn"}
+        title={!(props.status === "cancelled") ? "Hoàn thành" : "Huỷ đơn"}
         description={
           props.orderDetail &&
           props.orderDetail?.fulfillments &&
@@ -109,9 +126,8 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             "DD/MM/YYYY HH:mm"
           )
         }
-        className={props.status === 'cancelled'? 'cancelled' : ''}
+        className={props.status === "cancelled" ? "cancelled" : ""}
       />
-      
     </Steps>
   );
 };

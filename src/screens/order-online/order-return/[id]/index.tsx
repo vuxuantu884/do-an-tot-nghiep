@@ -151,6 +151,8 @@ const ScreenReturnDetail = (props: PropType) => {
     });
   };
 
+  const totalAmountReturnToCustomer = OrderDetail?.total;
+
   /**
    * theme context data
    */
@@ -225,6 +227,8 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch]);
 
   // check open tab url
+  const urlLinkCheck = `${process.env.PUBLIC_URL}${UrlConfig.ORDER_SETTINGS}`;
+  console.log("urlLinkCheck", urlLinkCheck);
   console.log("process.env.PUBLIC_URL", process.env.PUBLIC_URL);
 
   return (
@@ -265,15 +269,13 @@ const ScreenReturnDetail = (props: PropType) => {
                   listReturnProducts={listReturnProducts}
                   discountRate={OrderDetail?.order_discount_rate}
                   pointUsing={OrderDetail?.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.money_refund}
+                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isDetailPage
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
                   payments={payments}
-                  returnMoneyAmount={
-                    OrderDetail?.total_line_amount_after_line_discount || 0
-                  }
+                  totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isShowPaymentMethod={isShowPaymentMethod}
                   setIsShowPaymentMethod={setIsShowPaymentMethod}
                   handleReturnMoney={handleReturnMoney}

@@ -8,6 +8,7 @@ import { DownloadOutlined } from "@ant-design/icons";
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { generateQuery } from "utils/AppUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
@@ -16,7 +17,7 @@ import {
   OrderItemModel,
   OrderModel,
   OrderPaymentModel,
-  OrderSearchQuery,
+  EcommerceOrderSearchQuery,
 } from "model/order/order.model";
 import {
   AccountResponse,
@@ -42,11 +43,18 @@ import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable
 import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
 import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
 import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
+import UpdateConnectionModal from "./component/UpdateConnectionModal";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
 import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
+import CircleEmptyIcon from "assets/icon/circle_empty.svg";
+import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
+import CircleFullIcon from "assets/icon/circle_full.svg";
+import ConnectIcon from "assets/icon/connect.svg";
+import SuccessIcon from "assets/icon/success.svg";
+import ErrorIcon from "assets/icon/error.svg";
 
 import "./style.scss"
 
@@ -61,7 +69,7 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: OrderSearchQuery = {
+const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
   limit: 30,
   sort_type: null,
@@ -79,6 +87,8 @@ const initQuery: OrderSearchQuery = {
   ship_on_min: null,
   ship_on_max: null,
   ship_on_predefined: null,
+  shop_ids: [],
+  ecommerce_id: null,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -113,6 +123,7 @@ const EcommerceOrderSync: React.FC = () => {
   const dispatch = useDispatch();
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
+  const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] = useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
   const [downloadedOrderData, setDownloadedOrderData] = useState<any>(
     {
@@ -121,16 +132,18 @@ const EcommerceOrderSync: React.FC = () => {
       update_total: 0,
     }
   );
+
+  const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>([]);
   
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
-  let dataQuery: OrderSearchQuery = {
+  let dataQuery: EcommerceOrderSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+  let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -184,6 +197,43 @@ const EcommerceOrderSync: React.FC = () => {
       name: "DHL",
     },
   ];
+
+  const convertProgressStatus = (value: any) => {
+    switch (value) {
+      case "partial_paid":
+        return CircleHalfFullIcon;
+      case "paid":
+        return CircleFullIcon;
+      default:
+        return CircleEmptyIcon;
+    }
+  }
+
+
+  const convertDateTimeFormat = (dateTimeData: any) => {
+    const formatDateTime = "DD/MM/YYYY HH:mm"
+    return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
+  };
+
+  const handleUpdateProductConnection = (data: any) => {
+    setUpdateConnectionData(data.items);
+    setIsShowUpdateConnectionModal(true);
+
+    showSuccess("Click mở modal cập nhật ghép nối nè");
+  };
+
+  const cancelUpdateConnectionModal = () => {
+    setIsShowUpdateConnectionModal(false);
+  };
+  
+  const updateProductConnection = () => {
+    setIsShowUpdateConnectionModal(false);
+    
+    showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
+    //thai todo: call API
+  };
+  
+
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
@@ -366,6 +416,9 @@ const EcommerceOrderSync: React.FC = () => {
               background: "rgba(42, 42, 134, 0.1)",
               borderRadius: "100px",
               color: "#2A2A86",
+              width: "fit-content",
+              padding: "5px 10px",
+              margin: "0 auto",
             }}
           >
             {status?.name}
@@ -374,28 +427,16 @@ const EcommerceOrderSync: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width: "5.5%",
     },
     {
       title: "Đóng gói",
       dataIndex: "packed_status",
       key: "packed_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -407,22 +448,9 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "received_status",
       key: "received_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -434,22 +462,9 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "payment_status",
       key: "payment_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -461,22 +476,9 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "return_status",
       key: "return_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -520,12 +522,14 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "store",
       key: "store",
       visible: true,
+      width: "200px",
     },
     {
       title: "Nguồn đơn hàng",
       dataIndex: "source",
       key: "order_source",
       visible: true,
+      width: "200px",
     },
     {
       title: "Phương thức thanh toán",
@@ -536,38 +540,50 @@ const EcommerceOrderSync: React.FC = () => {
           return <Tag key={payment.id}>{payment.payment_method}</Tag>;
         }),
       visible: true,
+      width: "200px",
     },
     {
       title: "Nhân viên bán hàng",
-      render: (record) => (
-        <div>{`${record.assignee} - ${record.assignee_code}`}</div>
+      render: (data) => (
+        <div>{`${data.assignee_code} - ${data.assignee}`}</div>
       ),
       key: "assignee",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ngày nhận đơn",
-      render: (record) => (
-        <div>{`${record.account} - ${record.account_code}`}</div>
+      dataIndex: "created_date",
+      render: (created_date) => (
+        <div>{convertDateTimeFormat(created_date)}</div>
       ),
-      key: "account",
+      key: "created_date",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "completed_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      dataIndex: "finalized_on",
+      render: (finalized_on) => (
+        <div>{convertDateTimeFormat(finalized_on)}</div>
+      ),
       key: "completed_on",
       visible: true,
+      align: "center",
+      width: "200px",
     },
     {
       title: "Ngày huỷ đơn",
       dataIndex: "cancelled_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (cancelled_on) => (
+        <div>{convertDateTimeFormat(cancelled_on)}</div>
+      ),
       key: "cancelled_on",
       visible: true,
+      align: "center",
+      width: "200px",
     },
     {
       title: "Ghi chú của khách",
@@ -576,10 +592,24 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
     },
     {
-      title: "Tình trạng ghép nối",
-      dataIndex: "customer_note",
+      title: <Tooltip overlay="Tình trạng ghép nối của sản phẩm" placement="topRight" color="blue">
+                <img src={ConnectIcon} alt="" />
+              </Tooltip>,
       key: "connect_status",
       visible: true,
+      width: 50,
+      align: "center",
+      render: (data) => {
+        if (data.connect_status) {
+          return (
+            <img src={SuccessIcon} alt="" />
+          )
+        } else {
+          return (
+            <img src={ErrorIcon} alt="" onClick={() => handleUpdateProductConnection(data)} style={{ cursor: "pointer"}} />
+          )
+        }
+      },
     },
   ]);
 
@@ -614,7 +644,6 @@ const EcommerceOrderSync: React.FC = () => {
         "print-dialog": true,
       };
       const queryParam = generateQuery(params);
-      console.log(queryParam);
       history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
     },
     [history, selectedRowKeys]
@@ -658,7 +687,6 @@ const EcommerceOrderSync: React.FC = () => {
     setIsShowGetOrderModal(false);
     setIsShowResultGetOrderModal(true);
     setDownloadedOrderData(data);
-    console.log("updateOrderList: ",data);
     
 
     // thai need todo: call api
@@ -741,15 +769,17 @@ const EcommerceOrderSync: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 3630, y: "50vh" }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
+          scroll={{ x: 3630, y: 350 }}
+          pagination={
+            tableLoading ? false : {
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }
+          }
           onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
           dataSource={data.items}
           columns={columnFinal}
@@ -758,30 +788,44 @@ const EcommerceOrderSync: React.FC = () => {
         />
       </Card>
 
-      <DownloadOrderDataModal
-        visible={isShowGetOrderModal}
-        onCancel={cancelGetOrderModal}
-        onOk={updateOrderList}
-      />
+      {isShowGetOrderModal &&
+        <DownloadOrderDataModal
+          visible={isShowGetOrderModal}
+          onCancel={cancelGetOrderModal}
+          onOk={updateOrderList}
+        />
+      }
 
-      <ResultDownloadOrderDataModal
-        visible={isShowResultGetOrderModal}
-        onCancel={cancelResultGetOrderModal}
-        onOk={okResultGetOrderModal}
-        data={downloadedOrderData}
-      />
+      {isShowResultGetOrderModal &&
+        <ResultDownloadOrderDataModal
+          visible={isShowResultGetOrderModal}
+          onCancel={cancelResultGetOrderModal}
+          onOk={okResultGetOrderModal}
+          data={downloadedOrderData}
+        />
+      }
+      
+      {isShowUpdateConnectionModal &&
+        <UpdateConnectionModal
+          visible={isShowUpdateConnectionModal}
+          onCancel={cancelUpdateConnectionModal}
+          onOk={updateProductConnection}
+          data={updateConnectionData}
+        />
+      }
 
-
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        isSetDefaultColumn={true}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
+      {showSettingColumn &&
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          isSetDefaultColumn={true}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+      }
     </ContentContainer>
   );
 };

@@ -1,4 +1,4 @@
-import { Card, Col, Popover, Row, Table } from "antd";
+import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -95,6 +95,32 @@ function CardShowReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      render: (value, record: ReturnProductModel, index: number) => {
+        return (
+          <div className="d-flex align-items-center">
+            <div
+              style={{
+                width: "calc(100% - 32px)",
+                float: "left",
+              }}
+            >
+              <div className="yody-pos-sku">
+                <Typography.Link style={{ color: "#2A2A86" }}>
+                  {record.sku}
+                </Typography.Link>
+              </div>
+              <div className="yody-pos-varian">
+                <Tooltip
+                  title={record.variant}
+                  className="yody-pos-varian-name"
+                >
+                  <span>{record.variant}</span>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: () => (

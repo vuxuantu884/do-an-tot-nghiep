@@ -62,6 +62,7 @@ export interface OrderResponse extends BaseObject {
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
+  sub_status?: string;
   sub_status_id?: number | null;
   reason_name?: string;
   return_date?: string;
@@ -405,7 +406,7 @@ export interface OrderConfig extends BaseObject {
   sellable_inventory: boolean;
 }
 
-export interface OrderProductListModel extends OrderLineItemResponse{
-  pick:number;
-  color:string
+export interface OrderProductListModel extends OrderLineItemResponse {
+  pick: number;
+  color: string;
 }

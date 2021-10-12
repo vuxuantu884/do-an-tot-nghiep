@@ -88,6 +88,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isCanReturnOrExchange, setIsCanReturnOrExchange] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
+  const [isErrorExchange, setIsErrorExchange] = useState(false);
   const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
@@ -254,13 +255,9 @@ const ScreenReturnCreate = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      const returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
-        return (
-          singleFulfillment.status === FulFillmentStatus.SHIPPED ||
-          singleFulfillment.status === FulFillmentStatus.UNSHIPPED
-        );
-      });
-      const returnCondition = returnFulfillment || _data.source === "POS";
+      const returnCondition =
+        _data.status === OrderStatus.FINISHED ||
+        _data.status === OrderStatus.COMPLETED;
       if (returnCondition) {
         setIsCanReturnOrExchange(true);
       }
@@ -511,13 +508,21 @@ const ScreenReturnCreate = (props: PropType) => {
             const handleCreateOrderExchangeByValue = (
               valuesResult: ExchangeRequest
             ) => {
+              if (isErrorExchange) {
+                showError("Đã tạo đơn đổi hàng không thành công!");
+                return;
+              }
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
-                      createOrderExchangeCallback
+                      createOrderExchangeCallback,
+                      (error) => {
+                        console.log("error", error);
+                        setIsErrorExchange(true);
+                      }
                     )
                   );
                 })

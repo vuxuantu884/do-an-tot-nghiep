@@ -15,7 +15,6 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getFulfillments,
   getFulfillmentsPack,
-  getFulfillmentsPackedSaga,
 } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -32,16 +31,16 @@ import {
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, } from "utils/ToastUtils";
 
-type PackInfoProps={
-  setFulfillmentsPackedItems:(items:PageResponse<any>)=>void;
-  queryParams:any;
+type PackInfoProps = {
+  setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
+  queryParams: any;
+  fulfillmentData: PageResponse<any>;
 };
 
-const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
-
-  const {setFulfillmentsPackedItems,queryParams}=props;
+const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
+  const { setFulfillmentsPackedItems, queryParams, fulfillmentData } = props;
 
   const dispatch = useDispatch();
 
@@ -56,8 +55,8 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
 
   const [disableStoreId, setDisableStoreId] = useState(false);
   const [disableOrder, setDisableOrder] = useState(false);
-  const [disableProduct, setDisableProduct]= useState(true);
-  const [disableQuality, setDisableQuality]= useState(true);
+  const [disableProduct, setDisableProduct] = useState(true);
+  const [disableQuality, setDisableQuality] = useState(true);
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -67,7 +66,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
   const btnClearPackElement = document.getElementById("btnClearPack");
   const OrderRequestElement: any = document.getElementById("order_request");
   const ProductRequestElement: any = document.getElementById("product_request");
-  const QualityRequestElement: any = document.getElementById("quality_request");
+  // const QualityRequestElement: any = document.getElementById("quality_request");
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -108,19 +107,19 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
   //   window.addEventListener("keydown", event);
   // }, [event]);
 
-  OrderRequestElement?.addEventListener('focus', (e:any) => {
+  OrderRequestElement?.addEventListener("focus", (e: any) => {
     OrderRequestElement.select();
   });
 
-  ProductRequestElement?.addEventListener('focus', (e:any) => {
+  ProductRequestElement?.addEventListener("focus", (e: any) => {
     ProductRequestElement.select();
   });
 
-  QualityRequestElement?.addEventListener("focus", (e: any) => {
-    if (!formRef.current?.getFieldValue(["quality_request"]))
-      formRef.current?.setFieldsValue({ product_request: "" });
-    console.log(formRef.current?.getFieldValue(["quality_request"]));
-  });
+  // QualityRequestElement?.addEventListener("focus", (e: any) => {
+  //   if (!formRef.current?.getFieldValue(["quality_request"]))
+  //     formRef.current?.setFieldsValue({ product_request: "" });
+  //   console.log(formRef.current?.getFieldValue(["quality_request"]));
+  // });
 
   const onKeyupOrder = useCallback(
     (value: string) => {
@@ -128,7 +127,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
         formRef.current?.validateFields(["store_request"]);
         if (formRef.current?.getFieldValue(["store_request"]))
           dispatch(
-            getFulfillments(value, (data: any) => {
+            getFulfillments(value.trim(), (data: any) => {
               if (data && data.length !== 0) {
                 setOrderResponse(data);
                 setDisableStoreId(true);
@@ -151,7 +150,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
       if (value.trim()) {
         formRef.current?.validateFields(["store_request"]);
         formRef.current?.validateFields(["order_request"]);
-        formRef.current?.validateFields(["quality_request"]);
+        //formRef.current?.validateFields(["quality_request"]);
 
         btnFinishPackElement?.click();
         ProductRequestElement?.select();
@@ -207,6 +206,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
       orderResponse.length !== 0 &&
       orderList.length !== 0
     ) {
+      console.log("2222")
       let indexPack = orderList.filter(
         (p: OrderProductListModel) => Number(p.quantity) !== Number(p.pick)
       );
@@ -223,13 +223,20 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
             if (data) {
               btnClearPackElement?.click();
 
-              dispatch(
-                getFulfillmentsPackedSaga(queryParams, (data: PageResponse<any>) => {
-                  if (data) {
-                    setFulfillmentsPackedItems(data);
-                  } else showError("Lấy danh sách Order thất bại");
-                })
-              );
+              let datas={...fulfillmentData};
+
+              datas.metadata.total = Number(datas.metadata.total) + Number(orderList.length);
+              datas.items.push({
+                order_id: orderResponse[0].order_id,
+                code: orderResponse[0].order_code,
+                shipment: orderResponse[0].delivery_service_provider_name,
+                customer: orderResponse[0].customer,
+                items: orderList,
+              });
+
+              setFulfillmentsPackedItems(datas);
+              console.log("fulfillmentData 111")
+              console.log(fulfillmentData)
 
               showSuccess("Đóng gói đơn hàng thành công");
             }
@@ -237,19 +244,25 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
         );
       }
     }
-  }, [dispatch, orderList, orderResponse, btnClearPackElement, queryParams, setFulfillmentsPackedItems]);
-
-  useEffect(()=>{
-    if(disableOrder===true)
-    {
+  }, [
+    dispatch,
+    orderList,
+    orderResponse,
+    btnClearPackElement,
+    queryParams,
+    fulfillmentData,
+    setFulfillmentsPackedItems,
+  ]);
+  console.log(fulfillmentData);
+  useEffect(() => {
+    if (disableOrder === true) {
       setDisableProduct(false);
       setDisableQuality(false);
-    }
-    else{
+    } else {
       setDisableProduct(true);
       setDisableQuality(true);
     }
-  },[disableOrder]);
+  }, [disableOrder]);
   //useEffect
 
   const FinishPack = useCallback(() => {
@@ -258,23 +271,30 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
     let quality_request = formRef.current?.getFieldValue(["quality_request"]);
     let product_request = formRef.current?.getFieldValue(["product_request"]);
 
-    if (store_request && order_request && quality_request && product_request) {
+    if (store_request && order_request && product_request) {
       let indexPack = orderList.findIndex(
         (p) =>
-          p.sku === product_request || p.variant_barcode === product_request
+          p.sku === product_request.trim() || p.variant_barcode === product_request.trim()
       );
 
       if (indexPack !== -1) {
-        orderList[indexPack].pick = quality_request;
+        if (
+          Number(orderList[indexPack].quantity) >
+          Number(orderList[indexPack].pick)
+        ) {
+          if (!quality_request) {
+            orderList[indexPack].pick = Number(orderList[indexPack].pick) + 1;
+          } else {
+            orderList[indexPack].pick = Number(quality_request);
+          }
 
-        if (quality_request === orderList[indexPack].quantity)
-          orderList[indexPack].color = "#27AE60";
-        else orderList[indexPack].color = "#E24343";
+          if (orderList[indexPack].pick === orderList[indexPack].quantity)
+            orderList[indexPack].color = "#27AE60";
+          else orderList[indexPack].color = "#E24343";
 
-        if (Number(orderList[indexPack].quantity) >= Number(quality_request)) {
           setOrderList([...orderList]);
-          if (Number(orderList[indexPack].quantity) < Number(quality_request))
-            showWarning("");
+          // if (Number(orderList[indexPack].quantity) < Number( orderList[indexPack].pick))
+          //   showWarning("");
         } else showError("Số lượng nhặt lớn hơn số lượng sản phẩm đặt");
 
         //formRef.current?.setFieldsValue({ product_request: "" });
@@ -286,6 +306,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
       console.log("Chưa đủ thông tin");
     }
   }, [formRef, orderList]);
+  console.log(orderList);
 
   const SttColumn = {
     title: () => (
@@ -294,7 +315,7 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "3%",
+    width: "10%",
     render: (l: any, item: any, index: number) => {
       return <div className="yody-pos-qtt">{index + 1}</div>;
     },
@@ -478,19 +499,11 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
                     disabled={disableProduct}
                   />
                 </Form.Item>
-                <Form.Item
-                  noStyle
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập số lượng",
-                    },
-                  ]}
-                  name="quality_request"
-                >
+                <Form.Item noStyle name="quality_request">
                   <Input
                     style={{ width: "50%" }}
                     placeholder="số lượng"
+                    //addonAfter={<img src={ImageScan} alt=""/>}
                     addonAfter={<AiOutlinePlusCircle />}
                     onPressEnter={(e: any) => {
                       onKeyupQuality(e.target.value);
@@ -568,29 +581,10 @@ const PackInfo: React.FC<PackInfoProps> = (props:PackInfoProps) => {
       <div style={{ padding: "24px 24px 0 24px" }}>
         <Row className="sale-product-box" justify="space-between">
           <Table
-            // locale={{
-            //   emptyText: (
-            //     <Button
-            //       type="text"
-            //       className="font-weight-500"
-            //       style={{
-            //         color: "#2A2A86",
-            //         background: "rgba(42,42,134,0.05)",
-            //         borderRadius: 5,
-            //         padding: 8,
-            //         height: "auto",
-            //         marginTop: 15,
-            //         marginBottom: 15,
-            //       }}
-            //     >
-            //       Thêm đơn hàng ngay (F3)
-            //     </Button>
-            //   ),
-            // }}
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={orderList}
-            className="sale-product-box-table2 w-100"
+            className="ecommerce-order-list"
             tableLayout="fixed"
             pagination={false}
             bordered

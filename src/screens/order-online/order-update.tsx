@@ -988,15 +988,20 @@ export default function Order(props: PropType) {
 
   // console.log(inventoryResponse)
 
-  useEffect(()=> {
-    dispatch(configOrderSaga((data:OrderConfig)=>{
-        setConfigOrder(data)
-    }));
+  useEffect(() => {
+    dispatch(
+      configOrderSaga((data: OrderConfig) => {
+        setConfigOrder(data);
+      })
+    );
   }, [dispatch]);
 
-  const setStoreForm = useCallback((id:number|null)=> {
-    formRef.current?.setFieldsValue({ store_id: id});
-  }, [formRef]);
+  const setStoreForm = useCallback(
+    (id: number | null) => {
+      formRef.current?.setFieldsValue({ store_id: id });
+    },
+    [formRef]
+  );
 
   return (
     <React.Fragment>
@@ -1068,7 +1073,6 @@ export default function Order(props: PropType) {
                     storeId={storeId}
                     shippingFeeCustomer={shippingFeeCustomer}
                     setItemGift={setItemGifts}
-                    orderSettings={orderSettings}
                     formRef={formRef}
                     items={items}
                     handleCardItems={handleCardItems}
