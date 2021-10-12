@@ -17,15 +17,15 @@ type PropType = {
 function ActionHistory(props: PropType) {
   const listActionLogDisplay = [
     {
-      code: "create",
+      action: "create",
       displayName: "Tạo mới đơn hàng",
     },
     {
-      code: "update",
+      action: "update",
       displayName: "Cập nhật đơn hàng",
     },
     {
-      code: "cancel",
+      action: "cancel",
       displayName: "Hủy đơn hàng",
     },
   ];
@@ -60,7 +60,7 @@ function ActionHistory(props: PropType) {
     }
     let result = action;
     const resultAction = listActionLogDisplay?.find((singleStatus) => {
-      return singleStatus.code === action;
+      return singleStatus.action === action;
     });
     if (resultAction && resultAction.displayName) {
       result = resultAction.displayName || action;
