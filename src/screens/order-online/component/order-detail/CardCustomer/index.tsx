@@ -826,39 +826,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             </Row>
                           }
                           content={
-                            // <div className="change-shipping-address-content">
-                            //   {customer.shipping_addresses.map(
-                            //     (item, index) => (
-                            //       <div
-                            //         className="shipping-address-row"
-                            //         key={item.id}
-                            //         // onClick={(e) =>
-                            //         //   SelectShippingAddress(item)
-                            //         // }
-                            //       >
-                            //         <div className="shipping-address-name">
-                            //           Địa chỉ 1{" "}
-                            //           <Button
-                            //             type="text"
-                            //             onClick={ShowAddressModal}
-                            //             className="p-0"
-                            //           >
-                            //             <img src={editBlueIcon} alt="" />
-                            //           </Button>
-                            //         </div>
-                            //         <div className="shipping-customer-name">
-                            //           {item.name}
-                            //         </div>
-                            //         <div className="shipping-customer-mobile">
-                            //           {item.phone}
-                            //         </div>
-                            //         <div className="shipping-customer-address">
-                            //           {item.full_address}
-                            //         </div>
-                            //       </div>
-                            //     )
-                            //   )}
-                            // </div>
                             <CustomerShippingAddressOrder
                               customer={customer}
                               handleChangeCustomer={handleChangeCustomer}
