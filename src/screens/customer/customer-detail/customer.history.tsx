@@ -142,55 +142,39 @@ function CustomerHistoryInfo(props: CustomerHistoryInfoProps) {
           width: "5%",
         },
         {
-          title: "Sản phẩm",
-          dataIndex: "items",
-          key: "items.name",
-          render: (items: Array<OrderItemModel>) => (
-            <div className="items">
-              {items.map((item, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="item custom-td"
-                    style={{ width: "100%" }}
-                  >
-                    <Link
-                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                    >
-                      {item.variant}
-                    </Link>
-                    <p>{item.sku}</p>
-                  </div>
-                );
-              })}
+          title: (
+            <div className="product-and-quantity-header">
+              <span className="product-name">Sản phẩm</span>
+              <span className="quantity">Số lượng</span>
             </div>
           ),
+          dataIndex: "items",
+          key: "items.name11",
+          className: "product-and-quantity",
+          render: (items: Array<OrderItemModel>) => {
+            return (
+              <div className="items">
+                {items.map((item, i) => {
+                  return (
+                    <div className="item-custom-td" key={i}>
+                      <div className="product">
+                        <Link
+                          target="_blank"
+                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                        >
+                          {item.variant}
+                        </Link>
+                      </div>
+                      <div className="quantity">{item.quantity}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          },
           visible: true,
           align: "left",
-          width: "6.5%",
-        },
-        {
-          title: "SL",
-          dataIndex: "items",
-          key: "items.name",
-          render: (items: Array<OrderItemModel>) => (
-            <div className="items">
-              {items.map((item, index) => {
-                return (
-                  <div
-                    className="item custom-td"
-                    style={{ width: "100%" }}
-                    key={index}
-                  >
-                    <div className="item-quantity">{item.quantity}</div>
-                  </div>
-                );
-              })}
-            </div>
-          ),
-          visible: true,
-          align: "center",
-          width: "1.3%",
+          width: "280px",
         },
         {
           title: "Khách phải trả",
