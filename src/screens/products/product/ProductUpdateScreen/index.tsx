@@ -171,6 +171,7 @@ const ProductDetailScreen: React.FC = () => {
     let variants: Array<VariantResponse> = form.getFieldValue("variants");
     let variantImages: Array<VariantImage> = [];
     variants.forEach((item) => {
+      if(item.saleable)
       variantImages = [...variantImages, ...item.variant_images];
     });
     setVisiblePickAvatar(true);
@@ -195,6 +196,36 @@ const ProductDetailScreen: React.FC = () => {
     [form]
   );
 
+  const getFirstAvatar = useCallback(() => {
+    const variants: Array<VariantResponse> = form.getFieldValue("variants");
+    let isFind = false;
+    let variantAvatarIndex = 0;
+    let varirantImageIndex = 0;
+
+    const revertVariants = variants.reverse()
+
+    revertVariants.forEach((item, i) => {
+      if (item.saleable && !isFind) {
+        item.variant_images.forEach((item) => {
+          if (!isFind) {
+            if (item.product_avatar) {
+              isFind = true;
+            } else {
+              variantAvatarIndex = i;
+              varirantImageIndex = 0;
+            }
+          }         
+        });
+      }
+    });
+
+    if(!isFind &&  revertVariants[variantAvatarIndex].variant_images[varirantImageIndex] ){
+      revertVariants[variantAvatarIndex].variant_images[varirantImageIndex].product_avatar = true;
+    }
+    
+    form.setFieldsValue({ variants: [...revertVariants.reverse()] });
+  }, [form]);
+  
   const statusValue = useMemo(() => {
     if (!productStatusList) {
       return "";
@@ -286,10 +317,11 @@ const ProductDetailScreen: React.FC = () => {
         onOk: () => {
           setModalConfirm({ visible: false });
           updateStatus(listSelected, true);
+          getFirstAvatar();
         },
       });
     },
-    [updateStatus]
+    [updateStatus, getFirstAvatar]
   );
 
   const onStopSale = useCallback(
@@ -306,10 +338,11 @@ const ProductDetailScreen: React.FC = () => {
         onOk: () => {
           setModalConfirm({ visible: false });
           updateStatus(listSelected, false);
+          getFirstAvatar();
         },
       });
     },
-    [updateStatus]
+    [updateStatus, getFirstAvatar]
   );
 
   const onResultFinish = useCallback(
@@ -352,12 +385,15 @@ const ProductDetailScreen: React.FC = () => {
       );
       if (index !== -1) {
         variants[active].variant_images.splice(index, 1);
-        variants[active].variant_images = [...variants[active].variant_images];
-        let newVariants = [...variants];
-        form.setFieldsValue({ variants: newVariants });
+       if( variants[active].variant_images.length>0){
+        variants[active].variant_images[0].variant_avatar= true;
+       }
+
+        form.setFieldsValue({ variants: variants });
       }
+      getFirstAvatar();
     },
-    [form]
+    [form, getFirstAvatar]
   );
 
   const onAddFile = useCallback((info) => {
@@ -366,49 +402,48 @@ const ProductDetailScreen: React.FC = () => {
 
   const customRequest = useCallback(
     (options, active) => {
-      console.log(options);
       let files: Array<File> = [];
       if (options.file instanceof File) {
         let uuid = options.file.uid;
         files.push(options.file);
         dispatch(
-          productUploadAction(
-            files,
-            "variant",
-            (data: false | Array<ProductUploadModel>) => {
-              let index = fieldList.findIndex((item) => item.uid === uuid);
-              if (!!data) {
-                if (index !== -1) {
-                  let variants: Array<VariantResponse> =
-                    form.getFieldValue("variants");
-                  variants[active].variant_images.push({
-                    image_id: data[0].id,
-                    product_avatar: false,
-                    variant_avatar: true,
-                    variant_id: variants[active].id,
-                    url: data[0].path,
-                    position: null,
-                  });
-                  variants[active].variant_images = [
-                    ...variants[active].variant_images,
-                  ];
-                  let newVariants = [...variants];
-                  form.setFieldsValue({ variants: newVariants });
-                  fieldList[index].status = "done";
-                  fieldList[index].url = data[0].path;
-                  fieldList[index].name = data[0].id.toString();
-                }
-              } else {
-                fieldList.splice(index, 1);
-                showError("Upload ảnh không thành công");
+          productUploadAction(files, "variant", (data: false | Array<ProductUploadModel>) => {
+            let index = fieldList.findIndex((item) => item.uid === uuid);
+            if (!!data) {
+              if (index !== -1) {
+                let variants: Array<VariantResponse> = form.getFieldValue("variants");
+                let hasVariantAvatar = false;
+                variants[active].variant_images.forEach(item=>{
+                  if(item.variant_avatar){
+                    hasVariantAvatar = true;
+                  }
+                })
+                variants[active].variant_images.push({
+                  image_id: data[0].id,
+                  product_avatar: false,
+                  variant_avatar: !hasVariantAvatar,
+                  variant_id: variants[active].id,
+                  url: data[0].path,
+                  position: null,
+                });
+                variants[active].variant_images = [...variants[active].variant_images];
+                let newVariants = [...variants];
+                form.setFieldsValue({ variants: newVariants });
+                fieldList[index].status = "done";
+                fieldList[index].url = data[0].path;
+                fieldList[index].name = data[0].id.toString();
+                getFirstAvatar();
               }
-              setFieldList([...fieldList]);
+            } else {
+              fieldList.splice(index, 1);
+              showError("Upload ảnh không thành công");
             }
-          )
+            setFieldList([...fieldList]);
+          })
         );
       }
     },
-    [dispatch, fieldList, form]
+    [dispatch, fieldList, form, getFirstAvatar]
   );
 
   const onSave = useCallback(() => {
@@ -564,12 +599,7 @@ const ProductDetailScreen: React.FC = () => {
         ]}
       >
         {data !== null && (
-          <Form
-            onFinish={onFinish}
-            form={form}
-            initialValues={data}
-            layout="vertical"
-          >
+          <Form onFinish={onFinish} form={form} initialValues={data} layout="vertical">
             <Item hidden noStyle name="id">
               <Input />
             </Item>
@@ -598,9 +628,14 @@ const ProductDetailScreen: React.FC = () => {
                           <Switch
                             onChange={(checked) => {
                               setStatus(checked ? "active" : "inactive");
-                              let variants: Array<VariantResponse> =
-                                form.getFieldValue("variants");
-                              if (!checked) {
+                              let variants: Array<VariantResponse> = form.getFieldValue("variants");
+                              if (checked) {
+                                variants = [...variants];
+                                variants.forEach((item) => {
+                                  item.status = "active";
+                                  item.saleable = true;
+                                });
+                              } else {
                                 variants = [...variants];
                                 variants.forEach((item) => {
                                   item.status = "inactive";
@@ -616,11 +651,7 @@ const ProductDetailScreen: React.FC = () => {
                             checked={status === "active"}
                           />
                         </Item>
-                        <label
-                          className={
-                            status === "active" ? "text-success" : "text-error"
-                          }
-                        >
+                        <label className={status === "active" ? "text-success" : "text-error"}>
                           {statusValue}
                         </label>
                       </div>
@@ -648,10 +679,7 @@ const ProductDetailScreen: React.FC = () => {
                               placeholder="Chọn ngành hàng "
                             >
                               {goods?.map((item) => (
-                                <CustomSelect.Option
-                                  key={item.value}
-                                  value={item.value}
-                                >
+                                <CustomSelect.Option key={item.value} value={item.value}>
                                   {item.name}
                                 </CustomSelect.Option>
                               ))}
@@ -675,17 +703,11 @@ const ProductDetailScreen: React.FC = () => {
                               // onChange={onCategoryChange}
                               placeholder="Chọn danh mục"
                               suffix={
-                                <Button
-                                  style={{ width: 37, height: 37 }}
-                                  icon={<PlusOutlined />}
-                                />
+                                <Button style={{ width: 37, height: 37 }} icon={<PlusOutlined />} />
                               }
                             >
                               {categoryFilter.map((item) => (
-                                <CustomSelect.Option
-                                  key={item.id}
-                                  value={item.id}
-                                >
+                                <CustomSelect.Option key={item.id} value={item.id}>
                                   {`${item.code} - ${item.name}`}
                                 </CustomSelect.Option>
                               ))}
@@ -735,8 +757,7 @@ const ProductDetailScreen: React.FC = () => {
                               },
                               {
                                 pattern: RegUtil.STRINGUTF8,
-                                message:
-                                  "Tên sản phẩm không báo gồm kí tự đặc biệt",
+                                message: "Tên sản phẩm không báo gồm kí tự đặc biệt",
                               },
                             ]}
                             tooltip={{
@@ -760,10 +781,7 @@ const ProductDetailScreen: React.FC = () => {
                           <Item name="brand" label="Thương hiệu">
                             <CustomSelect placeholder="Chọn thương hiệu">
                               {brandList?.map((item) => (
-                                <CustomSelect.Option
-                                  key={item.value}
-                                  value={item.value}
-                                >
+                                <CustomSelect.Option key={item.value} value={item.value}>
                                   {item.name}
                                 </CustomSelect.Option>
                               ))}
@@ -778,10 +796,7 @@ const ProductDetailScreen: React.FC = () => {
                               placeholder="Chọn xuất xứ"
                             >
                               {listCountry?.map((item) => (
-                                <CustomSelect.Option
-                                  key={item.id}
-                                  value={item.id}
-                                >
+                                <CustomSelect.Option key={item.id} value={item.id}>
                                   {item.name}
                                 </CustomSelect.Option>
                               ))}
@@ -799,10 +814,7 @@ const ProductDetailScreen: React.FC = () => {
                               onChange={onMaterialChange}
                             >
                               {listMaterial?.map((item) => (
-                                <CustomSelect.Option
-                                  key={item.id}
-                                  value={item.id}
-                                >
+                                <CustomSelect.Option key={item.id} value={item.id}>
                                   {item.name}
                                 </CustomSelect.Option>
                               ))}
@@ -813,10 +825,7 @@ const ProductDetailScreen: React.FC = () => {
                           <Item name="unit" label="Đơn vị">
                             <CustomSelect placeholder="Chọn đơn vị">
                               {productUnitList?.map((item) => (
-                                <CustomSelect.Option
-                                  key={item.value}
-                                  value={item.value}
-                                >
+                                <CustomSelect.Option key={item.value} value={item.value}>
                                   {item.name}
                                 </CustomSelect.Option>
                               ))}
@@ -868,13 +877,10 @@ const ProductDetailScreen: React.FC = () => {
                       <div className="a-container">
                         <Item
                           noStyle
-                          shouldUpdate={(prev, current) =>
-                            prev.variants !== current.variants
-                          }
+                          shouldUpdate={(prev, current) => prev.variants !== current.variants}
                         >
                           {({ getFieldValue }) => {
-                            const variants: Array<VariantResponse> =
-                              getFieldValue("variants");
+                            const variants: Array<VariantResponse> = getFieldValue("variants");
                             let url = null;
                             variants.forEach((item) => {
                               item.variant_images.forEach((item1) => {
@@ -886,11 +892,7 @@ const ProductDetailScreen: React.FC = () => {
                             if (url !== null) {
                               return (
                                 <div onClick={onPickAvatar} className="bpa">
-                                  <Image
-                                    preview={false}
-                                    src={url}
-                                    className="product-img"
-                                  />
+                                  <Image preview={false} src={url} className="product-img" />
                                 </div>
                               );
                             }
@@ -916,19 +918,10 @@ const ProductDetailScreen: React.FC = () => {
                           icon: <InfoCircleOutlined />,
                         }}
                       >
-                        <CustomSelect
-                          optionFilterProp="children"
-                          showSearch
-                          showArrow
-                        >
-                          <CustomSelect.Option value="">
-                            Chọn Merchandiser
-                          </CustomSelect.Option>
+                        <CustomSelect optionFilterProp="children" showSearch showArrow>
+                          <CustomSelect.Option value="">Chọn Merchandiser</CustomSelect.Option>
                           {accounts.map((item) => (
-                            <CustomSelect.Option
-                              key={item.code}
-                              value={item.code}
-                            >
+                            <CustomSelect.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
                             </CustomSelect.Option>
                           ))}
@@ -947,14 +940,9 @@ const ProductDetailScreen: React.FC = () => {
                           showSearch
                           placeholder="Chọn thiết kế"
                         >
-                          <CustomSelect.Option value="">
-                            Chọn thiết kế
-                          </CustomSelect.Option>
+                          <CustomSelect.Option value="">Chọn thiết kế</CustomSelect.Option>
                           {accounts.map((item) => (
-                            <CustomSelect.Option
-                              key={item.code}
-                              value={item.code}
-                            >
+                            <CustomSelect.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
                             </CustomSelect.Option>
                           ))}
@@ -981,8 +969,7 @@ const ProductDetailScreen: React.FC = () => {
                     <Divider />
                     <Form.List name="variants">
                       {(fields, { add, remove }) => {
-                        const currentVariantList =
-                          form.getFieldValue("variants");
+                        const currentVariantList = form.getFieldValue("variants");
                         //check already have new item
                         let hasNewItem = currentVariantList?.some(
                           (element: VariantResponse) => !element.id
@@ -1042,627 +1029,468 @@ const ProductDetailScreen: React.FC = () => {
                     <Form.List name="variants">
                       {(fields, { add, remove }) => (
                         <>
-                          {fields.map(
-                            ({ key, name, fieldKey, ...restField }, index) =>
-                              active === index ? (
-                                <React.Fragment key={key}>
-                                  <div className="header-view">
-                                    <div className="header-view-left">
-                                      <b>THÔNG TIN PHIÊN BẢN</b>
-                                    </div>
-                                    <div className="header-view-right">
-                                      <b>Cho phép bán:</b>
-                                      <Item
-                                        valuePropName="checked"
-                                        name={[name, "saleable"]}
-                                        fieldKey={[fieldKey, "saleable"]}
-                                        noStyle
-                                      >
-                                        <Switch
-                                          disabled={status === "inactive"}
-                                          style={{ marginLeft: 10 }}
-                                          className="ant-switch-success"
-                                        />
-                                      </Item>
-                                    </div>
+                          {fields.map(({ key, name, fieldKey, ...restField }, index) =>
+                            active === index ? (
+                              <React.Fragment key={key}>
+                                <div className="header-view">
+                                  <div className="header-view-left">
+                                    <b>THÔNG TIN PHIÊN BẢN</b>
                                   </div>
-                                  <div className="container-view padding-20">
-                                    <Item name={[name, "id"]} hidden noStyle>
-                                      <Input />
-                                    </Item>
-                                    <Item
-                                      name={[name, "status"]}
-                                      hidden
-                                      noStyle
-                                    >
-                                      <Input />
-                                    </Item>
-                                    <Item name={[name, "code"]} hidden noStyle>
-                                      <Input />
-                                    </Item>
+                                  <div className="header-view-right">
+                                    <b>Cho phép bán:</b>
                                     <Form.Item
+                                      valuePropName="checked"
+                                      name={[name, "saleable"]}
+                                      fieldKey={[fieldKey, "saleable"]}
                                       noStyle
-                                      shouldUpdate={(
-                                        prevValues,
-                                        currentValues
-                                      ) =>
-                                        prevValues.variants[active].id !==
-                                        currentValues.variants[active].id
-                                      }
                                     >
-                                      {({ getFieldValue }) => {
-                                        let variants =
-                                          getFieldValue("variants");
-                                        let id = variants[active].id;
-                                        return (
-                                          <Row gutter={50}>
-                                            <Col span={24} md={12}>
-                                              <Item
-                                                name={[name, "sku"]}
-                                                rules={[
-                                                  { required: true },
-                                                  {
-                                                    min: 10,
-                                                    message:
-                                                      "Mã sản phẩm tối thiểu 10 kí tự",
-                                                  },
-                                                ]}
-                                                label="Mã sản phẩm"
-                                              >
-                                                <Input
-                                                  onChange={onChange}
-                                                  disabled={
-                                                    id !== undefined &&
-                                                    id !== null
-                                                  }
-                                                  placeholder="Nhập mã sản phẩm"
-                                                />
-                                              </Item>
-                                            </Col>
-                                            <Col span={24} md={12}>
-                                              <Item
-                                                name={[name, "barcode"]}
-                                                label="Mã vạch"
-                                              >
-                                                <Input
-                                                  onChange={onChange}
-                                                  disabled
-                                                  placeholder="Nhập mã vạch"
-                                                />
-                                              </Item>
-                                            </Col>
-                                          </Row>
-                                        );
-                                      }}
+                                      <Switch
+                                        disabled={status === "inactive"}
+                                        style={{ marginLeft: 10 }}
+                                        className="ant-switch-success"
+                                        onChange={() => {
+                                          getFirstAvatar();
+                                        }}
+                                      />
                                     </Form.Item>
-
-                                    <Row gutter={50}>
-                                      <Col span={24} md={12}>
-                                        <Item
-                                          name={[name, "name"]}
-                                          rules={[{ required: true }]}
-                                          label="Tên sản phẩm"
-                                        >
-                                          <Input
-                                            onChange={onChange}
-                                            placeholder="Nhập tên sản phẩm"
-                                          />
-                                        </Item>
-                                      </Col>
-                                      <Col span={24} md={12}>
-                                        <Item
-                                          name={[name, "supplier_id"]}
-                                          label="Nhà cung cấp"
-                                        >
-                                          <CustomSelect
-                                            onChange={onChange}
-                                            showSearch
-                                            optionFilterProp="children"
-                                            placeholder="Chọn nhà cung cấp"
-                                          >
-                                            {listSupplier?.map((item) => (
-                                              <CustomSelect.Option
-                                                key={item.id}
-                                                value={item.id}
-                                              >
-                                                {item.name}
-                                              </CustomSelect.Option>
-                                            ))}
-                                          </CustomSelect>
-                                        </Item>
-                                      </Col>
-                                    </Row>
-                                    <Form.List name={[name, "variant_prices"]}>
-                                      {(fields, { add, remove }) => (
-                                        <>
-                                          {fields.map(
-                                            (
-                                              {
-                                                key,
-                                                name,
-                                                fieldKey,
-                                                ...restField
-                                              },
-                                              index
-                                            ) => (
-                                              <Row key={key} gutter={24}>
-                                                <Item
-                                                  name={[name, "id"]}
-                                                  hidden
-                                                  noStyle
-                                                >
-                                                  <Input />
-                                                </Item>
-                                                <Col md={4}>
-                                                  <Item
-                                                    label="Giá bán"
-                                                    rules={[
-                                                      {
-                                                        required: true,
-                                                        message:
-                                                          "Giá bán không được để trống",
-                                                      },
-                                                    ]}
-                                                    name={[
-                                                      name,
-                                                      "retail_price",
-                                                    ]}
-                                                    fieldKey={[
-                                                      fieldKey,
-                                                      "retail_price",
-                                                    ]}
-                                                    tooltip={{
-                                                      title: (
-                                                        <div>
-                                                          <b>Giá bán lẻ</b> là
-                                                          giá mà bạn sẽ bán sản
-                                                          phẩm này cho những
-                                                          khách hàng đơn lẻ..
-                                                        </div>
-                                                      ),
-                                                      icon: (
-                                                        <InfoCircleOutlined />
-                                                      ),
-                                                    }}
-                                                  >
-                                                    <NumberInput
-                                                      onChange={onChangePrice}
-                                                      format={(a: string) =>
-                                                        formatCurrency(a)
-                                                      }
-                                                      replace={(a: string) =>
-                                                        replaceFormatString(a)
-                                                      }
-                                                      placeholder="VD: 100,000"
-                                                    />
-                                                  </Item>
-                                                </Col>
-                                                <Col md={4}>
-                                                  <Item
-                                                    name={[
-                                                      name,
-                                                      "wholesale_price",
-                                                    ]}
-                                                    fieldKey={[
-                                                      fieldKey,
-                                                      "wholesale_price",
-                                                    ]}
-                                                    label="Giá buôn"
-                                                    tooltip={{
-                                                      title: () => (
-                                                        <div>
-                                                          <b>Giá buôn</b> là giá
-                                                          mà bạn sẽ bán sản phẩm
-                                                          này cho những khách
-                                                          hàng mua hàng với số
-                                                          lượng lớn.
-                                                        </div>
-                                                      ),
-                                                      icon: (
-                                                        <InfoCircleOutlined />
-                                                      ),
-                                                    }}
-                                                  >
-                                                    <NumberInput
-                                                      onChange={onChangePrice}
-                                                      format={(a: string) =>
-                                                        formatCurrency(a)
-                                                      }
-                                                      replace={(a: string) =>
-                                                        replaceFormatString(a)
-                                                      }
-                                                      placeholder="VD: 100,000"
-                                                    />
-                                                  </Item>
-                                                </Col>
-                                                <Col md={4}>
-                                                  <Item
-                                                    name={[
-                                                      name,
-                                                      "import_price",
-                                                    ]}
-                                                    fieldKey={[
-                                                      fieldKey,
-                                                      "import_price",
-                                                    ]}
-                                                    label="Giá nhập"
-                                                    tooltip={{
-                                                      title: () => (
-                                                        <div>
-                                                          <b>Giá nhập</b> là giá
-                                                          mà nhập sản phẩm từ
-                                                          đơn mua hàng của nhà
-                                                          cung cấp.
-                                                        </div>
-                                                      ),
-                                                      icon: (
-                                                        <InfoCircleOutlined />
-                                                      ),
-                                                    }}
-                                                  >
-                                                    <NumberInput
-                                                      onChange={onChangePrice}
-                                                      format={(a: string) =>
-                                                        formatCurrency(a)
-                                                      }
-                                                      replace={(a: string) =>
-                                                        replaceFormatString(a)
-                                                      }
-                                                      placeholder="VD: 100,000"
-                                                    />
-                                                  </Item>
-                                                </Col>
-                                                <Col md={4}>
-                                                  <Item
-                                                    name={[name, "cost_price"]}
-                                                    fieldKey={[
-                                                      fieldKey,
-                                                      "cost_price",
-                                                    ]}
-                                                    label="Giá vốn"
-                                                    tooltip={{
-                                                      title: () => (
-                                                        <div>
-                                                          <b>Giá vốn</b> là tổng
-                                                          của những loại chi phí
-                                                          để đưa hàng có mặt tại
-                                                          kho. Chúng bao gồm giá
-                                                          mua của nhà cung cấp,
-                                                          thuế giá trị gia tăng,
-                                                          chi phí vận chuyển,
-                                                          bảo hiểm,...
-                                                        </div>
-                                                      ),
-                                                      icon: (
-                                                        <InfoCircleOutlined />
-                                                      ),
-                                                    }}
-                                                  >
-                                                    <NumberInput
-                                                      onChange={onChangePrice}
-                                                      format={(a: string) =>
-                                                        formatCurrency(a)
-                                                      }
-                                                      replace={(a: string) =>
-                                                        replaceFormatString(a)
-                                                      }
-                                                      placeholder="VD: 100,000"
-                                                    />
-                                                  </Item>
-                                                </Col>
-                                                <Col md={3}>
-                                                  <Item
-                                                    label="Thuế"
-                                                    name={[name, "tax_percent"]}
-                                                    fieldKey={[
-                                                      fieldKey,
-                                                      "tax_percent",
-                                                    ]}
-                                                  >
-                                                    <NumberInput
-                                                      onChange={onChangePrice}
-                                                      placeholder="VD: 10"
-                                                      suffix={<span>%</span>}
-                                                    />
-                                                  </Item>
-                                                </Col>
-                                                <Col md={4}>
-                                                  <Item
-                                                    label="Đơn vị tiền tệ"
-                                                    tooltip={{
-                                                      title: "Tooltip",
-                                                      icon: (
-                                                        <InfoCircleOutlined />
-                                                      ),
-                                                    }}
-                                                    rules={[
-                                                      {
-                                                        required: true,
-                                                        message:
-                                                          "Đơn vị tiền tệ không được để trống",
-                                                      },
-                                                    ]}
-                                                    name={[
-                                                      name,
-                                                      "currency_code",
-                                                    ]}
-                                                  >
-                                                    <CustomSelect
-                                                      onChange={onChangePrice}
-                                                      placeholder="Đơn vị tiền tệ"
-                                                    >
-                                                      {currencyList?.map(
-                                                        (item) => (
-                                                          <CustomSelect.Option
-                                                            key={item.value}
-                                                            value={item.value}
-                                                          >
-                                                            {item.name}
-                                                          </CustomSelect.Option>
-                                                        )
-                                                      )}
-                                                    </CustomSelect>
-                                                  </Item>
-                                                </Col>
-                                              </Row>
-                                            )
-                                          )}
-                                        </>
-                                      )}
-                                    </Form.List>
-                                    <Row gutter={50}>
-                                      <Col span={24} sm={12}>
-                                        <Item
-                                          label="Màu sắc"
-                                          name={[name, "color_id"]}
-                                        >
-                                          <CustomSelect
-                                            onChange={onChange}
-                                            notFoundContent={"Không có dữ liệu"}
-                                            showSearch
-                                            optionFilterProp="children"
-                                            maxTagCount="responsive"
-                                            showArrow
-                                            placeholder="Chọn màu sắc"
-                                            suffix={
-                                              <Button
-                                                style={{
-                                                  width: 37,
-                                                  height: 37,
-                                                }}
-                                                icon={<PlusOutlined />}
-                                              />
-                                            }
-                                          >
-                                            {listColor?.map((item) => (
-                                              <CustomSelect.Option
-                                                key={item.id}
-                                                value={item.id}
-                                              >
-                                                {item.name}
-                                              </CustomSelect.Option>
-                                            ))}
-                                          </CustomSelect>
-                                        </Item>
-                                        <Item
-                                          name={[name, "size_id"]}
-                                          label="Kích cỡ"
-                                        >
-                                          <CustomSelect
-                                            onChange={onChange}
-                                            notFoundContent={"Không có dữ liệu"}
-                                            placeholder="Chọn kích cỡ"
-                                            maxTagCount="responsive"
-                                            optionFilterProp="children"
-                                            showSearch
-                                            suffix={
-                                              <Button
-                                                style={{
-                                                  width: 37,
-                                                  height: 37,
-                                                }}
-                                                icon={<PlusOutlined />}
-                                              />
-                                            }
-                                          >
-                                            {listSize?.map((item) => (
-                                              <CustomSelect.Option
-                                                key={item.code}
-                                                value={item.id}
-                                              >
-                                                {item.code}
-                                              </CustomSelect.Option>
-                                            ))}
-                                          </CustomSelect>
-                                        </Item>
-                                        <Item
-                                          label="Kích thước (dài, rộng, cao)"
-                                          tooltip={{
-                                            title:
-                                              "Thông tin kích thước khi đóng gói sản phẩm",
-                                            icon: <InfoCircleOutlined />,
-                                          }}
-                                        >
-                                          <Input.Group compact>
+                                  </div>
+                                </div>
+                                <div className="container-view padding-20">
+                                  <Item name={[name, "id"]} hidden noStyle>
+                                    <Input />
+                                  </Item>
+                                  <Item name={[name, "status"]} hidden noStyle>
+                                    <Input />
+                                  </Item>
+                                  <Item name={[name, "code"]} hidden noStyle>
+                                    <Input />
+                                  </Item>
+                                  <Form.Item
+                                    noStyle
+                                    shouldUpdate={(prevValues, currentValues) =>
+                                      prevValues.variants[active].id !==
+                                      currentValues.variants[active].id
+                                    }
+                                  >
+                                    {({ getFieldValue }) => {
+                                      let variants = getFieldValue("variants");
+                                      let id = variants[active].id;
+                                      return (
+                                        <Row gutter={50}>
+                                          <Col span={24} md={12}>
                                             <Item
-                                              name={[name, "length"]}
-                                              noStyle
-                                            >
-                                              <NumberInput
-                                                onChange={onChange}
-                                                isFloat
-                                                maxLength={6}
-                                                format={(a) =>
-                                                  formatCurrency(a)
-                                                }
-                                                replace={(a) =>
-                                                  replaceFormatString(a)
-                                                }
-                                                style={{
-                                                  width:
-                                                    "calc((100% - 100px) / 3)",
-                                                }}
-                                                placeholder="Dài"
-                                              />
-                                            </Item>
-                                            <Item
-                                              name={[name, "width"]}
-                                              noStyle
-                                            >
-                                              <NumberInput
-                                                onChange={onChange}
-                                                isFloat
-                                                maxLength={6}
-                                                format={(a) =>
-                                                  formatCurrency(a)
-                                                }
-                                                replace={(a) =>
-                                                  replaceFormatString(a)
-                                                }
-                                                style={{
-                                                  width:
-                                                    "calc((100% - 100px) / 3)",
-                                                }}
-                                                placeholder="Rộng"
-                                              />
-                                            </Item>
-                                            <Item
-                                              name={[name, "height"]}
-                                              noStyle
-                                            >
-                                              <NumberInput
-                                                onChange={onChange}
-                                                isFloat
-                                                maxLength={6}
-                                                format={(a) =>
-                                                  formatCurrency(a)
-                                                }
-                                                replace={(a) =>
-                                                  replaceFormatString(a)
-                                                }
-                                                placeholder="Cao"
-                                                style={{
-                                                  width:
-                                                    "calc((100% - 100px) / 3)",
-                                                }}
-                                              />
-                                            </Item>
-                                            <Item
-                                              name={[name, "length_unit"]}
-                                              noStyle
-                                            >
-                                              <Select
-                                                onChange={onChange}
-                                                placeholder="Đơn vị"
-                                                style={{ width: "100px" }}
-                                              >
-                                                {lengthUnitList?.map((item) => (
-                                                  <Select.Option
-                                                    key={item.value}
-                                                    value={item.value}
-                                                  >
-                                                    {item.name}
-                                                  </Select.Option>
-                                                ))}
-                                              </Select>
-                                            </Item>
-                                          </Input.Group>
-                                        </Item>
-                                        <Item
-                                          required
-                                          label="Khối lượng"
-                                          tooltip={{
-                                            title:
-                                              "Nhập khối lượng của sản phẩm",
-                                            icon: <InfoCircleOutlined />,
-                                          }}
-                                        >
-                                          <Input.Group compact>
-                                            <Item
+                                              name={[name, "sku"]}
                                               rules={[
+                                                { required: true },
                                                 {
-                                                  required: true,
-                                                  message:
-                                                    "Khối lượng không được để trống",
+                                                  min: 10,
+                                                  message: "Mã sản phẩm tối thiểu 10 kí tự",
                                                 },
                                               ]}
-                                              name={[name, "weight"]}
-                                              noStyle
+                                              label="Mã sản phẩm"
                                             >
-                                              <NumberInput
+                                              <Input
                                                 onChange={onChange}
-                                                isFloat
-                                                maxLength={6}
-                                                format={(a) =>
-                                                  formatCurrency(a)
-                                                }
-                                                replace={(a) =>
-                                                  replaceFormatString(a)
-                                                }
-                                                placeholder="Khối lượng"
-                                                style={{
-                                                  width: "calc(100% - 100px)",
-                                                }}
+                                                disabled={id !== undefined && id !== null}
+                                                placeholder="Nhập mã sản phẩm"
                                               />
                                             </Item>
-                                            <Item
-                                              name={[name, "weight_unit"]}
-                                              noStyle
-                                            >
-                                              <Select
+                                          </Col>
+                                          <Col span={24} md={12}>
+                                            <Item name={[name, "barcode"]} label="Mã vạch">
+                                              <Input
                                                 onChange={onChange}
-                                                placeholder="Đơn vị"
-                                                style={{ width: "100px" }}
-                                                value="gram"
-                                              >
-                                                {weightUnitList?.map((item) => (
-                                                  <Select.Option
-                                                    key={item.value}
-                                                    value={item.value}
-                                                  >
-                                                    {item.name}
-                                                  </Select.Option>
-                                                ))}
-                                              </Select>
+                                                disabled
+                                                placeholder="Nhập mã vạch"
+                                              />
                                             </Item>
-                                          </Input.Group>
-                                        </Item>
-                                      </Col>
-                                      <Col span={24} sm={12}>
-                                        <Item
-                                          name={[name, "variant_images"]}
-                                          hidden
-                                          noStyle
-                                        >
-                                          <Input />
-                                        </Item>
+                                          </Col>
+                                        </Row>
+                                      );
+                                    }}
+                                  </Form.Item>
 
-                                        <Upload
-                                          style={{ width: "100%" }}
-                                          multiple
-                                          maxCount={6}
-                                          beforeUpload={beforeUpload}
-                                          fileList={fieldList}
-                                          onChange={(info) => {
-                                            onAddFile(info);
-                                          }}
-                                          customRequest={(options) => {
-                                            customRequest(options, active);
-                                          }}
-                                          listType="picture-card"
-                                          onRemove={(file) => {
-                                            onRemoveFile(file, active);
-                                          }}
+                                  <Row gutter={50}>
+                                    <Col span={24} md={12}>
+                                      <Item
+                                        name={[name, "name"]}
+                                        rules={[{ required: true }]}
+                                        label="Tên sản phẩm"
+                                      >
+                                        <Input
+                                          onChange={onChange}
+                                          placeholder="Nhập tên sản phẩm"
+                                        />
+                                      </Item>
+                                    </Col>
+                                    <Col span={24} md={12}>
+                                      <Item name={[name, "supplier_id"]} label="Nhà cung cấp">
+                                        <CustomSelect
+                                          onChange={onChange}
+                                          showSearch
+                                          optionFilterProp="children"
+                                          placeholder="Chọn nhà cung cấp"
                                         >
-                                          {fieldList.length >= 6
-                                            ? null
-                                            : uploadButton}
-                                        </Upload>
-                                      </Col>
-                                    </Row>
-                                  </div>
-                                </React.Fragment>
-                              ) : null
+                                          {listSupplier?.map((item) => (
+                                            <CustomSelect.Option key={item.id} value={item.id}>
+                                              {item.name}
+                                            </CustomSelect.Option>
+                                          ))}
+                                        </CustomSelect>
+                                      </Item>
+                                    </Col>
+                                  </Row>
+                                  <Form.List name={[name, "variant_prices"]}>
+                                    {(fields, { add, remove }) => (
+                                      <>
+                                        {fields.map(
+                                          ({ key, name, fieldKey, ...restField }, index) => (
+                                            <Row key={key} gutter={24}>
+                                              <Item name={[name, "id"]} hidden noStyle>
+                                                <Input />
+                                              </Item>
+                                              <Col md={4}>
+                                                <Item
+                                                  label="Giá bán"
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message: "Giá bán không được để trống",
+                                                    },
+                                                  ]}
+                                                  name={[name, "retail_price"]}
+                                                  fieldKey={[fieldKey, "retail_price"]}
+                                                  tooltip={{
+                                                    title: (
+                                                      <div>
+                                                        <b>Giá bán lẻ</b> là giá mà bạn sẽ bán sản
+                                                        phẩm này cho những khách hàng đơn lẻ..
+                                                      </div>
+                                                    ),
+                                                    icon: <InfoCircleOutlined />,
+                                                  }}
+                                                >
+                                                  <NumberInput
+                                                    onChange={onChangePrice}
+                                                    format={(a: string) => formatCurrency(a)}
+                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    placeholder="VD: 100,000"
+                                                  />
+                                                </Item>
+                                              </Col>
+                                              <Col md={4}>
+                                                <Item
+                                                  name={[name, "wholesale_price"]}
+                                                  fieldKey={[fieldKey, "wholesale_price"]}
+                                                  label="Giá buôn"
+                                                  tooltip={{
+                                                    title: () => (
+                                                      <div>
+                                                        <b>Giá buôn</b> là giá mà bạn sẽ bán sản
+                                                        phẩm này cho những khách hàng mua hàng với
+                                                        số lượng lớn.
+                                                      </div>
+                                                    ),
+                                                    icon: <InfoCircleOutlined />,
+                                                  }}
+                                                >
+                                                  <NumberInput
+                                                    onChange={onChangePrice}
+                                                    format={(a: string) => formatCurrency(a)}
+                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    placeholder="VD: 100,000"
+                                                  />
+                                                </Item>
+                                              </Col>
+                                              <Col md={4}>
+                                                <Item
+                                                  name={[name, "import_price"]}
+                                                  fieldKey={[fieldKey, "import_price"]}
+                                                  label="Giá nhập"
+                                                  tooltip={{
+                                                    title: () => (
+                                                      <div>
+                                                        <b>Giá nhập</b> là giá mà nhập sản phẩm từ
+                                                        đơn mua hàng của nhà cung cấp.
+                                                      </div>
+                                                    ),
+                                                    icon: <InfoCircleOutlined />,
+                                                  }}
+                                                >
+                                                  <NumberInput
+                                                    onChange={onChangePrice}
+                                                    format={(a: string) => formatCurrency(a)}
+                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    placeholder="VD: 100,000"
+                                                  />
+                                                </Item>
+                                              </Col>
+                                              <Col md={4}>
+                                                <Item
+                                                  name={[name, "cost_price"]}
+                                                  fieldKey={[fieldKey, "cost_price"]}
+                                                  label="Giá vốn"
+                                                  tooltip={{
+                                                    title: () => (
+                                                      <div>
+                                                        <b>Giá vốn</b> là tổng của những loại chi
+                                                        phí để đưa hàng có mặt tại kho. Chúng bao
+                                                        gồm giá mua của nhà cung cấp, thuế giá trị
+                                                        gia tăng, chi phí vận chuyển, bảo hiểm,...
+                                                      </div>
+                                                    ),
+                                                    icon: <InfoCircleOutlined />,
+                                                  }}
+                                                >
+                                                  <NumberInput
+                                                    onChange={onChangePrice}
+                                                    format={(a: string) => formatCurrency(a)}
+                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    placeholder="VD: 100,000"
+                                                  />
+                                                </Item>
+                                              </Col>
+                                              <Col md={3}>
+                                                <Item
+                                                  label="Thuế"
+                                                  name={[name, "tax_percent"]}
+                                                  fieldKey={[fieldKey, "tax_percent"]}
+                                                >
+                                                  <NumberInput
+                                                    onChange={onChangePrice}
+                                                    placeholder="VD: 10"
+                                                    suffix={<span>%</span>}
+                                                  />
+                                                </Item>
+                                              </Col>
+                                              <Col md={4}>
+                                                <Item
+                                                  label="Đơn vị tiền tệ"
+                                                  tooltip={{
+                                                    title: "Tooltip",
+                                                    icon: <InfoCircleOutlined />,
+                                                  }}
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message: "Đơn vị tiền tệ không được để trống",
+                                                    },
+                                                  ]}
+                                                  name={[name, "currency_code"]}
+                                                >
+                                                  <CustomSelect
+                                                    onChange={onChangePrice}
+                                                    placeholder="Đơn vị tiền tệ"
+                                                  >
+                                                    {currencyList?.map((item) => (
+                                                      <CustomSelect.Option
+                                                        key={item.value}
+                                                        value={item.value}
+                                                      >
+                                                        {item.name}
+                                                      </CustomSelect.Option>
+                                                    ))}
+                                                  </CustomSelect>
+                                                </Item>
+                                              </Col>
+                                            </Row>
+                                          )
+                                        )}
+                                      </>
+                                    )}
+                                  </Form.List>
+                                  <Row gutter={50}>
+                                    <Col span={24} sm={12}>
+                                      <Item label="Màu sắc" name={[name, "color_id"]}>
+                                        <CustomSelect
+                                          onChange={onChange}
+                                          notFoundContent={"Không có dữ liệu"}
+                                          showSearch
+                                          optionFilterProp="children"
+                                          maxTagCount="responsive"
+                                          showArrow
+                                          placeholder="Chọn màu sắc"
+                                          suffix={
+                                            <Button
+                                              style={{
+                                                width: 37,
+                                                height: 37,
+                                              }}
+                                              icon={<PlusOutlined />}
+                                            />
+                                          }
+                                        >
+                                          {listColor?.map((item) => (
+                                            <CustomSelect.Option key={item.id} value={item.id}>
+                                              {item.name}
+                                            </CustomSelect.Option>
+                                          ))}
+                                        </CustomSelect>
+                                      </Item>
+                                      <Item name={[name, "size_id"]} label="Kích cỡ">
+                                        <CustomSelect
+                                          onChange={onChange}
+                                          notFoundContent={"Không có dữ liệu"}
+                                          placeholder="Chọn kích cỡ"
+                                          maxTagCount="responsive"
+                                          optionFilterProp="children"
+                                          showSearch
+                                          suffix={
+                                            <Button
+                                              style={{
+                                                width: 37,
+                                                height: 37,
+                                              }}
+                                              icon={<PlusOutlined />}
+                                            />
+                                          }
+                                        >
+                                          {listSize?.map((item) => (
+                                            <CustomSelect.Option key={item.code} value={item.id}>
+                                              {item.code}
+                                            </CustomSelect.Option>
+                                          ))}
+                                        </CustomSelect>
+                                      </Item>
+                                      <Item
+                                        label="Kích thước (dài, rộng, cao)"
+                                        tooltip={{
+                                          title: "Thông tin kích thước khi đóng gói sản phẩm",
+                                          icon: <InfoCircleOutlined />,
+                                        }}
+                                      >
+                                        <Input.Group compact>
+                                          <Item name={[name, "length"]} noStyle>
+                                            <NumberInput
+                                              onChange={onChange}
+                                              isFloat
+                                              maxLength={6}
+                                              format={(a) => formatCurrency(a)}
+                                              replace={(a) => replaceFormatString(a)}
+                                              style={{
+                                                width: "calc((100% - 100px) / 3)",
+                                              }}
+                                              placeholder="Dài"
+                                            />
+                                          </Item>
+                                          <Item name={[name, "width"]} noStyle>
+                                            <NumberInput
+                                              onChange={onChange}
+                                              isFloat
+                                              maxLength={6}
+                                              format={(a) => formatCurrency(a)}
+                                              replace={(a) => replaceFormatString(a)}
+                                              style={{
+                                                width: "calc((100% - 100px) / 3)",
+                                              }}
+                                              placeholder="Rộng"
+                                            />
+                                          </Item>
+                                          <Item name={[name, "height"]} noStyle>
+                                            <NumberInput
+                                              onChange={onChange}
+                                              isFloat
+                                              maxLength={6}
+                                              format={(a) => formatCurrency(a)}
+                                              replace={(a) => replaceFormatString(a)}
+                                              placeholder="Cao"
+                                              style={{
+                                                width: "calc((100% - 100px) / 3)",
+                                              }}
+                                            />
+                                          </Item>
+                                          <Item name={[name, "length_unit"]} noStyle>
+                                            <Select
+                                              onChange={onChange}
+                                              placeholder="Đơn vị"
+                                              style={{ width: "100px" }}
+                                            >
+                                              {lengthUnitList?.map((item) => (
+                                                <Select.Option key={item.value} value={item.value}>
+                                                  {item.name}
+                                                </Select.Option>
+                                              ))}
+                                            </Select>
+                                          </Item>
+                                        </Input.Group>
+                                      </Item>
+                                      <Item
+                                        required
+                                        label="Khối lượng"
+                                        tooltip={{
+                                          title: "Nhập khối lượng của sản phẩm",
+                                          icon: <InfoCircleOutlined />,
+                                        }}
+                                      >
+                                        <Input.Group compact>
+                                          <Item
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: "Khối lượng không được để trống",
+                                              },
+                                            ]}
+                                            name={[name, "weight"]}
+                                            noStyle
+                                          >
+                                            <NumberInput
+                                              onChange={onChange}
+                                              isFloat
+                                              maxLength={6}
+                                              format={(a) => formatCurrency(a)}
+                                              replace={(a) => replaceFormatString(a)}
+                                              placeholder="Khối lượng"
+                                              style={{
+                                                width: "calc(100% - 100px)",
+                                              }}
+                                            />
+                                          </Item>
+                                          <Item name={[name, "weight_unit"]} noStyle>
+                                            <Select
+                                              onChange={onChange}
+                                              placeholder="Đơn vị"
+                                              style={{ width: "100px" }}
+                                              value="gram"
+                                            >
+                                              {weightUnitList?.map((item) => (
+                                                <Select.Option key={item.value} value={item.value}>
+                                                  {item.name}
+                                                </Select.Option>
+                                              ))}
+                                            </Select>
+                                          </Item>
+                                        </Input.Group>
+                                      </Item>
+                                    </Col>
+                                    <Col span={24} sm={12}>
+                                      <Item name={[name, "variant_images"]} hidden noStyle>
+                                        <Input />
+                                      </Item>
+
+                                      <Upload
+                                        style={{ width: "100%" }}
+                                        multiple
+                                        maxCount={6}
+                                        beforeUpload={beforeUpload}
+                                        fileList={fieldList}
+                                        onChange={(info) => {
+                                          onAddFile(info);
+                                        }}
+                                        customRequest={(options) => {
+                                          customRequest(options, active);                                                                                  
+                                        }}
+                                        listType="picture-card"
+                                        onRemove={(file) => {
+                                          onRemoveFile(file, active);
+                                        }}
+                                      >
+                                        {fieldList.length >= 6 ? null : uploadButton}
+                                      </Upload>
+                                    </Col>
+                                  </Row>
+                                </div>
+                              </React.Fragment>
+                            ) : null
                           )}
                         </>
                       )}
@@ -1703,7 +1531,7 @@ const ProductDetailScreen: React.FC = () => {
           onCancel={() => {
             // check has new item => remove new item
             setActive(tempActive);
-            resetProductDetail()
+            resetProductDetail();
             const variants = form.getFieldValue("variants");
             variants.forEach((item: VariantResponse, index: number) => {
               if (!item.id) {

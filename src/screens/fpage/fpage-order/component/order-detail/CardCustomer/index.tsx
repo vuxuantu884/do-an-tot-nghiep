@@ -875,7 +875,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           disabled={levelOrder > 3}
                           onClick={() => setVisibleShippingAddressPopover(true)}
                         >
-                          Thay đổi địa chỉ giao hàng
+                          Thay đổi địa chỉ nhận hàng
                         </Button>
                       </Popover>
                     </Row>
@@ -1089,7 +1089,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               setVisibleBillingAddressPopover(true)
                             }
                           >
-                            Thay đổi địa chỉ giao hàng
+                            Thay đổi địa chỉ gửi hóa đơn
                           </Button>
                         </Popover>
                       </Row>

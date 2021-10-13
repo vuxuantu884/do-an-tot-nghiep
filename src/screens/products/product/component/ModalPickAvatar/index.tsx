@@ -20,13 +20,16 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
+
   const onOkClick = useCallback(() => {
     onOk(selected);
   }, [onOk, selected]);
+
   const avatar = useMemo(() => {
-    let index  = variantImages.findIndex((item) => item.image_id === selected);
+    let index = variantImages.findIndex((item) => item.image_id === selected);
     return index === -1 ? "" : variantImages[index].url;
-  }, [selected, variantImages])
+  }, [selected, variantImages]);
+
   useEffect(() => {
     if (visible) {
       variantImages.forEach((item, index) => {
@@ -36,6 +39,7 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (
       });
     }
   }, [variantImages, visible]);
+
   return (
     <Modal
       onOk={onOkClick}
@@ -48,29 +52,22 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (
         <Row gutter={24}>
           <Col span={24} md={7}>
             <div className="avatar-show">
-              {selected === -1 ? (
-                <img src={variantdefault} alt="" />
-              ) : (
-                <img src={avatar} alt="" />
-              )}
+              {avatar ? <img src={avatar} alt="" /> : <img src={variantdefault} alt="" />}
             </div>
           </Col>
           <Col span={24} md={17}>
-          
             <div className="avatar-list">
-              {variantImages.map((item:VariantImage)=>
-              <div className="img-frame" onClick={(e) => {
-                
-                setSelected(item.image_id);
-              
-            }} >
-              <img src={item.url} alt="" />
-              <Checkbox
-                    checked={item.image_id === selected}
-                    className="av-checkbox"
-                  />
-              </div>
-              )}
+              {variantImages.map((item: VariantImage) => (
+                <div
+                  className="img-frame"
+                  onClick={(e) => {
+                    setSelected(item.image_id);
+                  }}
+                >
+                  <img src={item.url} alt="" />
+                  <Checkbox checked={item.image_id === selected} className="av-checkbox" />
+                </div>
+              ))}
             </div>
           </Col>
         </Row>

@@ -12,13 +12,12 @@ import {
   actionDeleteConfigurationShippingServiceAndShippingFee,
   actionEditOrderConfig,
   actionGetOrderConfig,
-  actionGetOrderConfigActionOrderPreview,
   actionGetOrderConfigPrint,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
-  OrderConfigActionOrderPreviewResponseModel,
   OrderConfigPrintResponseModel,
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
@@ -26,7 +25,7 @@ import {
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import CardGeneralSettings from "./components/CardGeneralSettings";
@@ -44,12 +43,13 @@ function OrderSettings(props: PropType) {
     OrderConfigPrintResponseModel[] | null
   >(null);
 
-  const [listActionsOrderPreview, setListActionsOrderPreview] = useState<
-    OrderConfigActionOrderPreviewResponseModel[] | null
-  >(null);
-
   const [listOrderConfigs, setListOrderConfigs] =
     useState<OrderConfigResponseModel | null>(null);
+
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
 
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigResponseModel[]
@@ -229,14 +229,6 @@ function OrderSettings(props: PropType) {
 
   useEffect(() => {
     dispatch(
-      actionGetOrderConfigActionOrderPreview((response) => {
-        setListActionsOrderPreview(response);
-      })
-    );
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(
       actionGetOrderConfig((response) => {
         setListOrderConfigs(response);
         setIsLoadedData(true);
@@ -274,7 +266,7 @@ function OrderSettings(props: PropType) {
         {isLoadedData ? (
           <CardGeneralSettings
             listPrintConfig={listPrintConfig}
-            listActionsOrderPreview={listActionsOrderPreview}
+            listActionsOrderPreview={shipping_requirements}
             listOrderConfigs={listOrderConfigs}
             onUpdateOrderConfig={onUpdateOrderConfig}
           />

@@ -114,3 +114,20 @@ export const fields_return = [
   {value: "store", name: "Cửa hàng"},
 
 ];
+
+export const fields_order_standard = [
+  {value: "orderReturnCode", name: "Mã đơn trả"},
+  {value: "orderCode", name: "Mã đơn hàng"},
+  {value: "createdDate", name: "Ngày tạo"},
+  {value: "receivedDate", name: "Ngày nhận"},
+  {value: "customerName", name: "Khách hàng"},
+  {value: "customerEmail", name: "Email"},
+  {value: "customerPhoneNumber", name: "SĐT"},
+
+  {value: "sku", name: "Mã sản phẩm"},
+  {value: "itemName", name: "Tên sản phẩm"},
+  {value: "totalAmount", name: "Giá trị"},
+  {value: "returnMethod", name: "Phương thức trả"},
+  {value: "store", name: "Cửa hàng"},
+
+];

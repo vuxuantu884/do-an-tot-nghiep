@@ -1,11 +1,9 @@
 import { Card, Col, Row } from "antd";
 import { actionGetOrderActionLogs } from "domain/actions/order/order.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { OrderStatus } from "utils/Constants";
+import { useDispatch } from "react-redux";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
@@ -17,23 +15,26 @@ type PropType = {
 };
 
 function ActionHistory(props: PropType) {
+  const listActionLogDisplay = [
+    {
+      action: "create",
+      displayName: "Tạo mới đơn hàng",
+    },
+    {
+      action: "update",
+      displayName: "Cập nhật đơn hàng",
+    },
+    {
+      action: "cancel",
+      displayName: "Hủy đơn hàng",
+    },
+  ];
   const { orderId, countChangeSubStatus, reload } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number | undefined>(undefined);
-
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-
-  const LIST_FULFILLMENT_STATUS = bootstrapReducer.data?.fulfillment_status;
-  const extraStatus = {
-    name: "Đã xác nhận",
-    value: OrderStatus.FINALIZED,
-  };
-  let LIST_STATUS_EXTRA = LIST_FULFILLMENT_STATUS?.concat(extraStatus);
 
   const showModal = (actionId: number) => {
     setIsModalVisible(true);
@@ -58,11 +59,11 @@ function ActionHistory(props: PropType) {
       return;
     }
     let result = action;
-    const resultAction = LIST_STATUS_EXTRA?.find((singleStatus) => {
-      return singleStatus.value === action;
+    const resultAction = listActionLogDisplay?.find((singleStatus) => {
+      return singleStatus.action === action;
     });
-    if (resultAction && resultAction.name) {
-      result = resultAction.name || action;
+    if (resultAction && resultAction.displayName) {
+      result = resultAction.displayName || action;
     }
     return result;
   };

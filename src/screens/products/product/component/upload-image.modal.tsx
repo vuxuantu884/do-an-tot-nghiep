@@ -59,8 +59,10 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
           newVariantImage.splice(indexItem, 1);
         }
       });
+
       console.log('newVariantImage', newVariantImage)
       console.log('filedList', filedList)
+
       filedList.forEach((file) => {
         let index = newVariantImage.findIndex(
           (item) => file.uid === item.image_id?.toString()
@@ -76,6 +78,7 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
           });
         }
       });
+
       newVariantImage.map((item, index) => {
         if(avatar === index) {
           item.variant_avatar = true;
@@ -84,10 +87,12 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
         }
         return item;
       })
+      
       console.log('final', newVariantImage)
       onSave(newVariantImage);
     }
   }, [avatar, filedList, onSave, variant]);
+
   useEffect(() => {
     if (visible && variant) {
       let arr: Array<UploadFile> = [];
@@ -120,11 +125,11 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
       footer={
         <div
           className="display-flex"
-          style={{justifyContent: 'space-between', alignItems: 'center'}}
+          style={{ justifyContent: "space-between", alignItems: "center" }}
         >
-          <i style={{color: '#00000050'}}>
-            Lưu ý: Các định dạng hình ảnh cho phép: .JPG, .JPEG, .PNG. Dung
-            lượng không vượt quá 5MB.
+          <i style={{ color: "#00000050" }}>
+            Lưu ý: Các định dạng hình ảnh cho phép: .JPG, .JPEG, .PNG. Dung lượng không vượt quá
+            5MB.
           </i>
           <div>
             <Button onClick={onCancel}>Huỷ</Button>
@@ -139,12 +144,16 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
         <div className="upload-image">
           <div className="upload-image-left">
             <div className="upload-image-result">
-              {avatar !== -1 ? (
+              { console.log('avatar',filedList[avatar], 'index', avatar,'filedList', filedList )
+              
+              }
+              {avatar !== -1 && filedList[avatar] ? (
+                
                 <Image src={filedList[avatar].url} preview={false} />
               ) : (
                 <div className="upload-image-result-noimg">
                   <img src={noImage} alt="Empty" width={180} />
-                  <i className="margin-top-10" style={{color: '#939393'}}>
+                  <i className="margin-top-10" style={{ color: "#939393" }}>
                     Chưa có hình đại diện
                   </i>
                 </div>
@@ -164,11 +173,9 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
               listType="picture-card"
               fileList={filedList}
               onChange={(info) => {
-                console.log('info', info)
                 setFileList(info.fileList);
               }}
               customRequest={(options) => {
-                console.log(options);
                 let files: Array<File> = [];
                 if (options.file instanceof File) {
                   let uuid = options.file.uid;
@@ -176,20 +183,21 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                   dispatch(
                     productUploadAction(
                       files,
-                      'variant',
+                      "variant",
                       (data: false | Array<ProductUploadModel>) => {
-                        let index = filedList.findIndex(
-                          (item) => item.uid === uuid
-                        );
+                        let index = filedList.findIndex((item) => item.uid === uuid);
                         if (!!data) {
                           if (index !== -1) {
-                            filedList[index].status = 'done';
+                            filedList[index].status = "done";
                             filedList[index].url = data[0].path;
                             filedList[index].name = data[0].id.toString();
+                            if (filedList.length > 0 && avatar === -1) {
+                              setAvatar(0);
+                            }
                           }
                         } else {
                           filedList.splice(index, 1);
-                          showError('Upload ảnh không thành công');
+                          showError("Upload ảnh không thành công");
                         }
                         setFileList([...filedList]);
                       }
@@ -198,70 +206,76 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                 }
               }}
               onRemove={(file) => {
-                let index = filedList.findIndex(
-                  (item) => item.uid === file.uid
-                );
+                let index = filedList.findIndex((item) => item.uid === file.uid);
+                let currentAvatarId: number = parseInt(avatar.toString());
+                if (
+                  currentAvatarId !== -1 &&
+                  (filedList.length === 0 || filedList[avatar]?.uid === file.uid)
+                ) {
+                  currentAvatarId = -1;
+                }
                 if (index !== -1) {
                   filedList.splice(index, 1);
                 }
-                if (avatar !== -1 && filedList[avatar].uid === file.uid) {
-                  setAvatar(-1);
+
+                if (currentAvatarId === -1 && filedList.length > 0) {
+                  currentAvatarId = 0;
                 }
+
+                setAvatar(currentAvatarId);
+               
                 setFileList([...filedList]);
               }}
+
               beforeUpload={beforeUpload}
               itemRender={(
                 originNode: ReactElement,
                 file: UploadFile,
                 fileList: UploadFile[],
                 actions
-              ) => (
-                <>
-                  <Image
-                    src={file.status === 'uploading' ? file.thumbUrl : file.url}
-                    preview={file.status === 'done'}
-                    fallback={noImage}
-                  />
-                  {file.status === 'uploading' && (
-                    <div className="upload-progress">
-                      <Spin
-                        indicator={
-                          <LoadingOutlined style={{fontSize: 24}} spin />
-                        }
+              ) => {
+                let index = fileList.findIndex((item) => item.uid === file.uid);
+                return (
+                  <div
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setAvatar(index);
+                    }}
+                  >
+                    <Image
+                      src={file.status === "uploading" ? file.thumbUrl : file.url}
+                      preview={false}
+                      fallback={noImage}
+                    />
+                    {file.status === "uploading" && (
+                      <div className="upload-progress">
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+                      </div>
+                    )}
+                    <Tooltip overlay="Xoá ảnh sản phẩm" placement="top">
+                      <Button
+                        className="upload-image-list-item-delete"
+                        icon={<CloseCircleOutlined />}
+                        onClick={(e) => {
+                          actions.remove();
+                          e.stopPropagation();
+                        }}
                       />
-                    </div>
-                  )}
-                  <Tooltip overlay="Xoá ảnh sản phẩm" placement="top">
-                    <Button
-                      className="upload-image-list-item-delete"
-                      icon={<CloseCircleOutlined />}
-                      onClick={() => actions.remove()}
-                    />
-                  </Tooltip>
-                  <Tooltip overlay="Chọn làm ảnh đại diện" placement="top">
-                    <Checkbox
-                      checked={fileList.findIndex(item => item.uid === file.uid) === avatar}
-                      onChange={(e) => {
-                        let index = fileList.findIndex((item) => item.uid === file.uid);
-                        if(e.target.checked) {
-                          setAvatar(index);
-                        } else {
-                          setAvatar(-1);
-                        }
-                      }}
-                      className="upload-image-list-item-checkbox"
-                    />
-                  </Tooltip>
-                </>
-              )}
+                    </Tooltip>
+                    <Tooltip overlay="Chọn làm ảnh đại diện" placement="top">
+                      <Checkbox
+                        checked={fileList.findIndex((item) => item.uid === file.uid) === avatar}
+                        className="upload-image-list-item-checkbox"
+                      />
+                    </Tooltip>
+                  </div>
+                );
+              }}
             >
               <UploadOutlined className="upload-image-zone-icon" />
               <div className="upload-image-zone-text">
                 <span>Kéo và thả ảnh vào đây hoặc</span>
-                <Button
-                  type="primary"
-                  className="upload-image-zone-btn ant-btn-secondary"
-                >
+                <Button type="primary" className="upload-image-zone-btn ant-btn-secondary">
                   Chọn ảnh
                 </Button>
               </div>
