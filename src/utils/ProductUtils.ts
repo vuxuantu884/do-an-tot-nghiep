@@ -1,5 +1,7 @@
+import { FormInstance } from "antd";
 import { MaterialResponse } from "model/product/material.model";
-import {FormInstance} from "antd"
+import { VariantResponse } from "model/product/product.model";
+
 export const handleChangeMaterial = (material: MaterialResponse | false, form: FormInstance) => {
     if (material) {
       const formatDescription = `<p>
@@ -20,4 +22,43 @@ export const handleChangeMaterial = (material: MaterialResponse | false, form: F
     `;
       form.setFieldsValue({ description: formatDescription });
     }
+  };
+
+  export const getFirstProductAvatarByVariantResponse = (variants: Array<VariantResponse>) => {
+    let isFind = false;
+    let variantAvatarIndex = 0;
+    const FIRST_VARIANT_IMAGE_INDEX = 0;
+
+    const revertVariants = variants.reverse();
+    //check existed product avatar, if not => set first variant image for product avatar
+    revertVariants.forEach((item, i) => {
+      if (item.saleable && !isFind) {
+        item.variant_images.forEach((item) => {
+          if (!isFind) {
+            if (item.product_avatar) {
+              isFind = true;
+            } else {
+              variantAvatarIndex = i;
+            }
+          }
+        });
+      }
+    });
+
+    if (!isFind && revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX]) {
+      //reset product avatar
+      revertVariants.forEach((item) => {
+        item.variant_images.forEach((item) => {
+          item.product_avatar = false;
+        });
+      });
+
+      //set product avatar
+      if (revertVariants[variantAvatarIndex].saleable)
+        revertVariants[variantAvatarIndex].variant_images[
+          FIRST_VARIANT_IMAGE_INDEX
+        ].product_avatar = true;
+    }
+
+    return revertVariants.reverse();
   };
