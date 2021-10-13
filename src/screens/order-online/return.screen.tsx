@@ -256,6 +256,15 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, params]
   );
+
+  const onClearFilter = useCallback(
+    () => {
+      setPrams(initQuery);
+      let queryParam = generateQuery(initQuery);
+      history.push(`${UrlConfig.ORDERS_RETURN}?${queryParam}`);
+    },
+    [history]
+  );
   const [showExportModal, setShowExportModal] = useState(false);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -442,6 +451,7 @@ const ListOrderScreen: React.FC = () => {
             accounts={accounts}
             reasons={reasons}
             onShowColumnSetting={() => setShowSettingColumn(true)}
+            onClearFilter={() => onClearFilter()}
           />
           <CustomTable
             isRowSelection

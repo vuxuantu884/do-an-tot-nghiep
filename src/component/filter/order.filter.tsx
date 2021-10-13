@@ -390,6 +390,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [listSource]);
   
   const initialValues = useMemo(() => {
+    console.log('params', params);
+    
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
@@ -562,6 +564,19 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
+    // if (initialValues.return_status.length) {
+    //   let textStatus = ""
+    //   initialValues.return_status.forEach(i => {
+    //     const findStatus = paymentStatus?.find(item => item.value === i)
+    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+    //   })
+    //   list.push({
+    //     key: 'return_status',
+    //     name: 'Trạng thái thanh toán',
+    //     value: textStatus
+    //   })
+    // }
+
     if (initialValues.assignee_codes.length) {
       let textAccount = ""
       initialValues.assignee_codes.forEach(i => {
@@ -694,8 +709,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div>
       <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="">
-          <Radio.Button value="">Tất cả đơn hàng</Radio.Button>
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+          <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
           <Radio.Button value="true">Đơn hàng online</Radio.Button>
           <Radio.Button value="false">Đơn hàng offline</Radio.Button>
         </Radio.Group>
@@ -733,7 +748,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={() => {
+            onClearFilter && onClearFilter();
+            setVisible(false);
+          }}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -946,7 +964,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       getPopupContainer={trigger => trigger.parentNode}
                     >
                       {subStatus?.map((item: any) => (
-                        <Option key={item.id} value={item.id}>
+                        <Option key={item.id} value={item.id.toString()}>
                           {item.sub_status}
                         </Option>
                       ))}
@@ -1013,7 +1031,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
                   <Panel header="TRẢ HÀNG" key="1" className="header-filter">
-                    <Item name="payment_status">
+                    <Item name="return_status">
                       <Select
                         mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
