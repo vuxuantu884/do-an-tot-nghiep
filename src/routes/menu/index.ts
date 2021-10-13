@@ -29,17 +29,6 @@ const menu: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: "/kho",
-    exact: true,
-    title: "Kho hàng",
-    icon: 'icon-inventory',
-    component: null,
-    key: "3",
-    isShow: true,
-    header: null,
-    subMenu: [],
-  },
-  {
     path: "/products",
     exact: true,
     title: "Sản phẩm",
@@ -51,8 +40,17 @@ const menu: Array<RouteMenu> = [
     subMenu: product,
 
   },
-  
- 
+  {
+    path: "/kho",
+    exact: true,
+    title: "Kho hàng",
+    icon: 'icon-inventory',
+    component: null,
+    key: "3",
+    isShow: true,
+    header: null,
+    subMenu: [],
+  },
   {
     path: UrlConfig.ORDER,
     exact: true,
