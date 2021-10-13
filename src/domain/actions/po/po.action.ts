@@ -27,12 +27,10 @@ export const PoCreateAction = (
 };
 export const PoUpdateFinancialStatusAction = (
   id: number,
-  financialstatus: string,
   updateCallback: (result: PurchaseOrder | null) => void
 ) => {
   return BaseAction(POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST, {
     id,
-    financialstatus,
     updateCallback,
   });
 };

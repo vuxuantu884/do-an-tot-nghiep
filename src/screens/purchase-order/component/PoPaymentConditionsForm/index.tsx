@@ -180,7 +180,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                     <Col md={8}>
                       {" "}
                       <strong className="po-payment-row-title">
-                        {item.amount ? formatCurrency(item.amount) : ""}
+                        {item.amount ? formatCurrency(Math.round(item.amount)) : ""}
                       </strong>
                     </Col>
                     <Col md={8}>
@@ -353,7 +353,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                   <Col md={8}>
                     {" "}
                     <strong className="po-payment-row-title">
-                      {item.amount ? formatCurrency(item.amount) : ""}
+                      {item.amount ? formatCurrency(Math.round(item.amount)) : ""}
                     </strong>
                   </Col>
                   <Col md={8}>
