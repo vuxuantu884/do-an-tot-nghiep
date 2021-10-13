@@ -297,15 +297,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
 
   return (
     <StyledComponent>
-      <Card
-        className="margin-top-20"
-        title={
-          <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
-          </div>
-        }
-      >
-        <div className="padding-24 orders-shipment">
+      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+        <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>
               <span className="orders-shipment__dateLabel">Hẹn giao:</span>

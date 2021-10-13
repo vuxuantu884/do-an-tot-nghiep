@@ -1286,11 +1286,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
                   : "Cần trả lại khách: "}
               </strong>
               <strong className="text-success font-size-price">
-                {formatCurrency(
-                  totalAmountCustomerNeedToPay >= 0
-                    ? totalAmountCustomerNeedToPay
-                    : -totalAmountCustomerNeedToPay
-                )}
+                {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
               </strong>
             </Row>
           </Col>
