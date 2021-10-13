@@ -447,7 +447,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </span>
           <Form.Item
             name="source_id"
-            style={{ margin: "10px 0px" }}
+            style={{ margin: "0px" }}
             rules={[
               {
                 required: true,
@@ -520,7 +520,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             >
               <Input
                 placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                prefix={searchCustomer ? <LoadingOutlined style={{ color: "#2a2a86" }} /> : <SearchOutlined style={{ color: "#ABB4BD" }} />}
+                prefix={
+                  searchCustomer ? (
+                    <LoadingOutlined style={{ color: "#2a2a86" }} />
+                  ) : (
+                    <SearchOutlined style={{ color: "#ABB4BD" }} />
+                  )
+                }
                 // suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
               />
             </AutoComplete>
