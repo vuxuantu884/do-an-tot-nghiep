@@ -385,11 +385,12 @@ const ProductCreateScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: ProductRequestView) => {
       setLoadingSaveButton(true);
-      let request = Products.convertProductViewToRequest(
-        values,
-        variants,
-        status
-      );
+      let variantsHasProductAvatar: VariantRequestView[] = variants;
+      if (values.saleable) {
+        variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
+      }
+
+      let request = Products.convertProductViewToRequest(values, variantsHasProductAvatar, status);
       dispatch(productCreateAction(request, createCallback));
     },
     [createCallback, dispatch, status, variants]
@@ -494,6 +495,38 @@ const ProductCreateScreen: React.FC = () => {
     });
     return avatar;
   }, [variants]);
+
+  
+  const getFirstProductAvatarCreate =  (variants: Array<VariantRequestView>)  => {
+    console.log('variants', variants)
+    
+    let isFind = false;
+    let variantAvatarIndex = 0;
+    let varirantImageIndex = 0;
+
+    const revertVariants = variants.reverse()
+    console.log('revertVariants', revertVariants)
+
+    revertVariants.forEach((item, i) => {
+      if (!isFind) {
+        item.variant_images.forEach((item, j) => {
+          if (item.product_avatar) {
+            isFind = true;
+          } else {
+            variantAvatarIndex = i;
+            varirantImageIndex = 0; // first image of variant
+          }
+        });
+      }
+    });
+
+    if(!isFind && revertVariants[variantAvatarIndex].variant_images[varirantImageIndex] ){
+      revertVariants[variantAvatarIndex].variant_images[varirantImageIndex].product_avatar = true;
+    }
+
+  return revertVariants.reverse() 
+    
+  } 
 
   const onSaveImage = useCallback(
     (imageId: number) => {
@@ -953,7 +986,7 @@ const ProductCreateScreen: React.FC = () => {
                       </div>
                     ) : (
                       <div className="bpa" onClick={onPickAvatar}>
-                        <Image src={productAvatar} />
+                        <Image src={productAvatar} preview={false}/>
                       </div>
                     )}
                   </div>
@@ -1381,6 +1414,7 @@ const ProductCreateScreen: React.FC = () => {
                 variants[index].variant_images = variant_images;
               }
               setVariants([...variants]);
+              // getFirstProductAvatarCreate(variants)
               setVisibleUpload(false);
             }}
           />
