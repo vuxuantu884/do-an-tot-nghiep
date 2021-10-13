@@ -121,7 +121,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
             return (
               <Fragment>
                 {showPayment && (
-                  <div className="padding-20">
+                  <div>
                     <Row gutter={24} className="margin-top-20">
                       <List name="payments">
                         {(fields) =>

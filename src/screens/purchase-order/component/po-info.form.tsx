@@ -26,7 +26,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             </div>
           }
         >
-          <div className="padding-20">
+          <div>
             <Form.Item name={POField.code} noStyle hidden>
               <Input />
             </Form.Item>
@@ -159,7 +159,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             </div>
           }
         >
-          <div className="padding-20">
+          <div>
             <Form.Item noStyle hidden name={POField.note}>
               <Input />
             </Form.Item>
@@ -220,7 +220,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           </div>
         }
       >
-        <div className="padding-20">
+        <div>
           <Form.Item
             noStyle
             shouldUpdate={(prev, current) => prev.status !== current.status}
@@ -443,7 +443,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           </div>
         }
       >
-        <div className="padding-20">
+        <div>
           <Form.Item label="Ghi chú nội bộ" name="note">
             <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
           </Form.Item>

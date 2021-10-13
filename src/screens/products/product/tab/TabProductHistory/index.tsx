@@ -10,7 +10,7 @@ interface IProps {
 const TabProductHistory: React.FC<IProps> = (props: IProps) => {
   const { data, onChange } = props;
   return (
-    <div className="padding-20">
+    <div>
       <CustomTable
         dataSource={data.items}
         pagination={{
