@@ -33,7 +33,8 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     completed_date,
     cancelled_date,
     status: poStatus,
-    is_cancel
+    receipt_quantity,
+    is_cancel,
   } = poData;
   const getDescription = (step: number) => {
     let currentStep = statusToStep[poStatus];
@@ -41,7 +42,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       procurements &&
       procurements.length > 0 &&
       procurements[procurements.length - 1].updated_date;
- 
+
     switch (step) {
       case 0:
         if (currentStep >= 0 && order_date !== null)
@@ -62,14 +63,10 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           return null;
         }
       case 2:
-        console.log(statusToStep[POStatus.STORED]);
-        if (currentStep >= statusToStep[POStatus.STORED] && updatedDate)
+        if (currentStep >= statusToStep[POStatus.STORED] && updatedDate && receipt_quantity > 0)
           return ConvertUtcToLocalDate(updatedDate);
         return null;
       default:
-        if(is_cancel) {
-          return ConvertUtcToLocalDate(cancelled_date);
-        }
         if (
           currentStep === statusToStep[POStatus.CANCELLED] &&
           cancelled_date
@@ -84,18 +81,32 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   };
   const getLastStepName = () => {
     const currentStep = statusToStep[poStatus];
-    if(is_cancel) {
-      return 'Hủy'
-    }
+    console.log(poStatus, currentStep);
     switch (currentStep) {
       case 4:
         return "Kết thúc";
-    
+      case 5:
+        return "Huỷ";
       default:
         return "Hoàn thành";
     }
   };
-  
+  const getClassName = (step: number) => {
+    if (statusToStep[poStatus] === 5) {
+      if(step === 0) {
+        return ''
+      }
+      if(step === 1 && !activated_date) {
+        return ''
+      }
+      if(step === 2 && receipt_quantity > 0) {
+        return ''
+      }
+      return "inactive";
+    } else {
+    }
+  };
+
   return (
     <Steps
       progressDot={(dot: any, { status, index }: any) => (
@@ -107,10 +118,26 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       size="small"
       current={is_cancel === true ? 3 : statusToStep[poStatus]}
     >
-      <Steps.Step title="Đặt hàng" className={is_cancel && statusToStep[poStatus] >= 0 ? "" : "inactive"} description={getDescription(0)} />
-      <Steps.Step title="Xác nhận" description={getDescription(1)} className={is_cancel && statusToStep[poStatus] >= 1 ? "" : "inactive"} />
-      <Steps.Step title="Nhập kho" description={getDescription(2)} className={is_cancel && statusToStep[poStatus] >= 2 ? "" : "inactive"} />
-      <Steps.Step className={is_cancel? 'cancelled' : ''} title={getLastStepName()}  description={getDescription(3)} />
+      <Steps.Step
+        title="Đặt hàng"
+        className={getClassName(0)}
+        description={getDescription(0)}
+      />
+      <Steps.Step
+        title="Xác nhận"
+        description={getDescription(1)}
+        className={getClassName(1)}
+      />
+      <Steps.Step
+        title="Nhập kho"
+        description={getDescription(2)}
+        className={getClassName(2)}
+      />
+      <Steps.Step
+        className={statusToStep[poStatus] === 5 ? "cancelled" : ""}
+        title={getLastStepName()}
+        description={getDescription(3)}
+      />
     </Steps>
   );
 };
