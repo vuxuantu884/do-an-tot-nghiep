@@ -19,6 +19,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import imgdefault from "assets/icon/img-default.svg";
 
 import { StyledProductListDropdown, StyledYodyProductColumn } from "screens/ecommerce/products/tab/not-connected-items/styles";
+import { StyledUpdateConnectionModal } from "screens/ecommerce/orders/orderStyles";
 
 
 type UpdateConnectionModalType = {
@@ -330,14 +331,15 @@ const UpdateConnectionModal: React.FC<UpdateConnectionModalType> = (
         <Button onClick={onCancel}>Hủy</Button>
       }
     >
-      <div>
+      <StyledUpdateConnectionModal>
         <CustomTable
           isLoading={tableLoading}
           dataSource={data}
           columns={columns}
           pagination={false}
+          className="not-connected-item-list"
         />
-      </div>
+      </StyledUpdateConnectionModal>
     </Modal>
   );
 };

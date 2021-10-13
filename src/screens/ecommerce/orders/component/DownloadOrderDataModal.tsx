@@ -16,6 +16,8 @@ import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import successIcon from "assets/icon/success_2.svg";
 
+import { StyledDownloadOrderData } from "screens/ecommerce/orders/orderStyles";
+
 
 type DownloadOrderDataModalType = {
   visible: boolean;
@@ -202,7 +204,6 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
   return (
     <Modal
       width="600px"
-      className="download-order-data-modal"
       visible={visible}
       title="Tải dữ liệu đơn hàng"
       okText="Tải dữ liệu"
@@ -213,7 +214,7 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
       maskClosable={false}
       confirmLoading={isLoading}
     >
-      <div style={{margin: "20px 0"}}>
+      <StyledDownloadOrderData>
         <Form layout="vertical">
           <div className="ecommerce-list">
             {ecommerceList.map((item) => (
@@ -283,7 +284,7 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
         
           <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
         </Form>
-      </div>
+      </StyledDownloadOrderData>
     </Modal>
   );
 };

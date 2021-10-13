@@ -16,11 +16,11 @@ type PropType = {
   status?: string | null;
   orderId?: number;
   fulfillments?: FulFillmentResponse[] | null;
-  handleChangeSubStatus: () => void;
+  handleUpdateSubStatus: () => void;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments, subStatusId, handleChangeSubStatus } =
+  const { status, orderId, fulfillments, subStatusId, handleUpdateSubStatus } =
     props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<
@@ -33,7 +33,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   const handleChange = (statusId: number) => {
     if (orderId) {
       setValueSubStatusId(statusId);
-      dispatch(setSubStatusAction(orderId, statusId, handleChangeSubStatus));
+      dispatch(setSubStatusAction(orderId, statusId, handleUpdateSubStatus));
     }
   };
 
