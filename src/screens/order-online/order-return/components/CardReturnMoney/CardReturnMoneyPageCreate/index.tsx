@@ -312,7 +312,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
 
   const renderWhenReturnMoneyToCustomer = () => {
     return (
-      <div className="padding-20 create-order-payment">
+      <div className="create-order-payment">
         <Radio.Group
           value={returnMoneyType}
           onChange={(e) => {

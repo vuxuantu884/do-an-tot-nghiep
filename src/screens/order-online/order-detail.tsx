@@ -24,6 +24,7 @@ import {
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
+  getListSubStatusAction,
   OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction,
@@ -40,6 +41,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderResponse,
+  OrderSubStatusResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -66,32 +68,30 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
+import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
+import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
-import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
 const { Panel } = Collapse;
 
 type PropType = {
   id?: string;
-  isCloneOrder?: boolean;
 };
 type OrderParam = {
   id: string;
 };
 
 const OrderDetail = (props: PropType) => {
-  const { isCloneOrder } = props;
   let { id } = useParams<OrderParam>();
   const history = useHistory();
-  if (!id && props.id && isCloneOrder) {
+  if (!id && props.id) {
     id = props.id;
   }
   let OrderId = parseInt(id);
@@ -99,8 +99,6 @@ const OrderDetail = (props: PropType) => {
 
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  // const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
@@ -141,39 +139,17 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
 
+  // xác nhận đơn
+  const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] =
+    useState(false);
+  const [subStatusId, setSubStatusId] = useState<number | undefined>(undefined);
+
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
       setVisibleShipping(true);
     }
     setPaymentType(paymentType);
   };
-
-  // const CreateFulFillmentRequest = () => {
-  //   let request: UpdateFulFillmentRequest = {
-  //     id: null,
-  //     order_id: null,
-  //     store_id: OrderDetail?.store_id,
-  //     account_code: OrderDetail?.account_code,
-  //     assignee_code: OrderDetail?.assignee_code,
-  //     delivery_type: "",
-  //     stock_location_id: null,
-  //     payment_status: "",
-  //     total: null,
-  //     total_tax: null,
-  //     total_discount: null,
-  //     total_quantity: null,
-  //     discount_rate: null,
-  //     discount_value: null,
-  //     discount_amount: null,
-  //     total_line_amount_after_line_discount: null,
-  //     shipment: null,
-  //     items: OrderDetail?.items,
-  //     shipping_fee_informed_to_customer: null,
-  //   };
-  //   let listFullfillmentRequest = [];
-  //   listFullfillmentRequest.push(request);
-  //   return listFullfillmentRequest;
-  // };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
     showSuccess("Thanh toán thành công!");
@@ -338,10 +314,16 @@ const OrderDetail = (props: PropType) => {
       setIsReceivedReturnProducts(
         _data.order_return_origin?.received ? true : false
       );
+      if (_data.sub_status_id) {
+        setSubStatusId(_data.sub_status_id);
+      }
+      if (_data.status === OrderStatus.DRAFT) {
+        setIsShowConfirmOrderButton(true);
+      }
     }
   }, []);
 
-  const handleChangeSubStatus = () => {
+  const handleUpdateSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
   };
 
@@ -442,6 +424,15 @@ const OrderDetail = (props: PropType) => {
     },
     [OrderDetail?.fulfillments, cancelModal, history, id]
   );
+
+  /**
+   * xác nhận đơn
+   */
+  const onConfirmOrder = () => {
+    console.log("onConfirmOrder");
+    // const choXacNhanId = 1;
+    // setSubStatusId(choXacNhanId);
+  };
 
   useEffect(() => {
     if (isFirstLoad.current || reload) {
@@ -569,7 +560,7 @@ const OrderDetail = (props: PropType) => {
           name: "Đơn hàng",
         },
         {
-          name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
+          name: `Đơn hàng ${id}`,
         },
       ]}
       extra={
@@ -1141,11 +1132,11 @@ const OrderDetail = (props: PropType) => {
             <Col md={6}>
               <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
               <SubStatusOrder
-                subStatusId={OrderDetail?.sub_status_id}
+                subStatusId={subStatusId}
                 status={OrderDetail?.status}
                 orderId={OrderId}
                 fulfillments={OrderDetail?.fulfillments}
-                handleChangeSubStatus={handleChangeSubStatus}
+                handleUpdateSubStatus={handleUpdateSubStatus}
               />
               <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               <ActionHistory
@@ -1161,6 +1152,8 @@ const OrderDetail = (props: PropType) => {
             stepsStatusValue={stepsStatusValue}
             orderActionsClick={orderActionsClick}
             orderDetail={OrderDetailAllFullfilment}
+            onConfirmOrder={onConfirmOrder}
+            isShowConfirmOrderButton={isShowConfirmOrderButton}
           />
         </Form>
       </div>
