@@ -367,7 +367,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       <Form.Item hidden noStyle name={POField.receive_status}>
         <Input />
       </Form.Item>
-      <div className="padding-20">
+      <div>
         {status && status !== POStatus.DRAFT ? (
           <POInventoryView
             tabs={TAB}

@@ -11,7 +11,7 @@ import {
   deleteOneMaterialAction,
   getMaterialAction,
 } from "domain/actions/product/material.action";
-import {  PageResponse } from "model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
@@ -43,7 +43,7 @@ const ListMaterial: React.FC = () => {
   const query = useQuery();
   let [params, setPrams] = useState<MaterialQuery>(getQueryParams(query));
   const [data, setData] = useState<PageResponse<MaterialResponse>>({
-    items: [], 
+    items: [],
     metadata: {
       limit: 0,
       page: 1,
@@ -55,42 +55,41 @@ const ListMaterial: React.FC = () => {
     {
       title: "Mã chất liệu",
       dataIndex: "code",
-      key: 'code',
+      key: "code",
       render: (value: string, item: MaterialResponse) => {
-        return (
-          <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>
-            {value}
-          </Link>
-        );
+        return <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>;
       },
     },
     {
       title: "Tên chất liệu",
       dataIndex: "name",
-      key: 'name',
+      key: "name",
     },
     {
       title: "Thành phần",
       dataIndex: "component",
-      key: 'component',
+      key: "component",
     },
     {
       title: "Người tạo",
       dataIndex: "created_name",
-      key: 'created_name',
+      key: "created_name",
     },
     {
       title: "Ghi chú",
       dataIndex: "description",
-      key: 'description',
+      key: "description",
     },
   ];
-  const onGetSuccess = useCallback((data: PageResponse<MaterialResponse>|false) => {
-    setLoading(false);
-    if(!!data){
-      setData(data);
-    }
-  }, [])
+  const onGetSuccess = useCallback(
+    (data: PageResponse<MaterialResponse> | false) => {
+      setLoading(false);
+      if (!!data) {
+        setData(data);
+      }
+    },
+    []
+  );
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     setSelected([...selected]);
@@ -181,29 +180,22 @@ const ListMaterial: React.FC = () => {
       title="Quản lý chất liệu"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Sản phẩm',
+          name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: 'Chất liệu',
+          name: "Chất liệu",
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.MATERIALS}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.MATERIALS}/create`} />}
     >
       <Card>
-        <div className="padding-20">
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form
-            onFinish={onFinish}
-            initialValues={params}
-            layout="inline"
-          >
+          <Form onFinish={onFinish} initialValues={params} layout="inline">
             <Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -226,10 +218,7 @@ const ListMaterial: React.FC = () => {
               />
             </Item>
             <Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-              >
+              <Button type="primary" htmlType="submit">
                 Lọc
               </Button>
             </Item>
@@ -256,7 +245,6 @@ const ListMaterial: React.FC = () => {
           onSelectedChange={onSelect}
           rowKey={(item: MaterialResponse) => item.id}
         />
-        </div>
       </Card>
     </ContentContainer>
   );

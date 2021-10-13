@@ -152,7 +152,7 @@ const BarcodeProductScreen: React.FC = () => {
     >
       <StyledComponent>
         <Card>
-          <div className="padding-20">
+          <div>
             <Input.Group className="display-flex">
               <CustomAutoComplete
                 id="#product_search"

@@ -8,21 +8,21 @@ import {
   Row,
   Select,
   Space,
-} from 'antd';
-import {ColorCreateRequest, ColorResponse} from 'model/product/color.model';
-import {PageResponse} from 'model/base/base-metadata.response';
-import {createRef, useCallback, useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
-import {useHistory} from 'react-router';
+} from "antd";
+import { ColorCreateRequest, ColorResponse } from "model/product/color.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { createRef, useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
 import {
   colorCreateAction,
   getColorAction,
-} from 'domain/actions/product/color.action';
-import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/url.config';
-import ColorUpload from './color-upload.component';
-import { showSuccess } from 'utils/ToastUtils';
-import { RegUtil } from 'utils/RegUtils';
+} from "domain/actions/product/color.action";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/url.config";
+import ColorUpload from "./color-upload.component";
+import { showSuccess } from "utils/ToastUtils";
+import { RegUtil } from "utils/RegUtils";
 
 let initialRequest: ColorCreateRequest = {
   code: "",
@@ -57,7 +57,6 @@ const ColorCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: ColorCreateRequest) => {
-      
       setLoadingSaveButton(true);
       dispatch(colorCreateAction(values, createCallback));
     },
@@ -98,106 +97,104 @@ const ColorCreateScreen: React.FC = () => {
         layout="vertical"
       >
         <Card title="Thông tin cơ bản">
-          <div className="padding-20">
-            <Row gutter={50}>
-              <Col
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                }}
-                span={24}
-                sm={24}
-                md={24}
-                lg={4}
-              >
-                <Form.Item name="image_id" noStyle >
-                  <ColorUpload />
-                </Form.Item>
-                <div className="upload-bottom">Ảnh màu</div>
-              </Col>
-              <Col span={24} lg={20} sm={24} md={24}>
-                <Row gutter={50}>
-                  <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item
-                      rules={[
-                        { required: true, message: "Vui lòng nhập tên màu" },
-                        {
-                          pattern: RegUtil.NO_ALL_SPACE,
-                          message: "Tên màu sắc chưa đúng định dạng",
-                        },
-                      ]}
-                      label="Tên màu"
-                      name="name"
-                    >
-                      <Input placeholder="Nhập tên màu" maxLength={50}/>
-                    </Form.Item>
-                  </Col>
-                  <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn màu chủ đạo",
-                        },
-                      ]}
-                      name="parent_id"
-                      label="Màu chủ đạo"
-                    >
-                      <Select placeholder="Chọn màu chủ đạo">
-                        {selector.items.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={50}>
-                  <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item
-                      rules={[
-                        { required: true, message: "Vui lòng nhập mã màu" },
-                      ]}
-                      name="code"
-                      labelAlign="right"
-                      label="Mã màu"
-                      normalize={(value) => (value || "").toUpperCase()}
-                    >
-                      <Input placeholder="Nhập mã màu" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item
-                      name="hex_code"
-                      label="Mã hex"
-                      rules={[
-                        {
-                          pattern: RegUtil.HEX_COLOR,
-                          message:
-                            "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
-                        },
-                      ]}
-                    >
-                      <Input
-                        placeholder="Nhập mã hex"
-                        prefix="#"
-                        maxLength={6}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </div>
+          <Row gutter={50}>
+            <Col
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+              }}
+              span={24}
+              sm={24}
+              md={24}
+              lg={4}
+            >
+              <Form.Item name="image_id" noStyle>
+                <ColorUpload />
+              </Form.Item>
+              <div className="upload-bottom">Ảnh màu</div>
+            </Col>
+            <Col span={24} lg={20} sm={24} md={24}>
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      { required: true, message: "Vui lòng nhập tên màu" },
+                      {
+                        pattern: RegUtil.NO_ALL_SPACE,
+                        message: "Tên màu sắc chưa đúng định dạng",
+                      },
+                    ]}
+                    label="Tên màu"
+                    name="name"
+                  >
+                    <Input placeholder="Nhập tên màu" maxLength={50} />
+                  </Form.Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn màu chủ đạo",
+                      },
+                    ]}
+                    name="parent_id"
+                    label="Màu chủ đạo"
+                  >
+                    <Select placeholder="Chọn màu chủ đạo">
+                      {selector.items.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      { required: true, message: "Vui lòng nhập mã màu" },
+                    ]}
+                    name="code"
+                    labelAlign="right"
+                    label="Mã màu"
+                    normalize={(value) => (value || "").toUpperCase()}
+                  >
+                    <Input placeholder="Nhập mã màu" />
+                  </Form.Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    name="hex_code"
+                    label="Mã hex"
+                    rules={[
+                      {
+                        pattern: RegUtil.HEX_COLOR,
+                        message:
+                          "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Nhập mã hex" prefix="#" maxLength={6} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
         </Card>
         <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
               Hủy
             </Button>
-            <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
+            <Button
+              htmlType="submit"
+              type="primary"
+              loading={loadingSaveButton}
+            >
               Lưu
             </Button>
           </Space>

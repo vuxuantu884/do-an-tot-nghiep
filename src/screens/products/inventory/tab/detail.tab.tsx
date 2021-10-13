@@ -196,7 +196,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     [columns]
   );
   return (
-    <div className="padding-20">
+    <div>
       <InventoryFilter
         openColumn={() => setShowSettingColumn(true)}
         id="detail"

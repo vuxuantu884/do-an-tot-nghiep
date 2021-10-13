@@ -134,7 +134,7 @@ const Category = () => {
   const onMenuClick = useCallback(
     (index: number) => {
       if (selected.length > 0) {
-        console.log('selected', selected)
+        console.log("selected", selected);
         let id = selected[0].id;
         switch (index) {
           case 1:
@@ -169,7 +169,7 @@ const Category = () => {
       selectedRow.filter(function (el) {
         return el !== undefined;
       })
-    )
+    );
   }, []);
   useEffect(() => {
     setLoading(true);
@@ -195,52 +195,50 @@ const Category = () => {
       extra={<ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />}
     >
       <Card>
-        <div className="padding-20">
-          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-            <Form onFinish={onFinish} layout="inline" initialValues={params}>
-              <Item name="query">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  style={{ width: 200 }}
-                  placeholder="Tên/Mã danh mục"
-                />
-              </Item>
-              <Item name="goods">
-                <Select
-                  style={{
-                    width: 200,
-                  }}
-                >
-                  <Select.Option value="">Ngành hàng</Select.Option>
-                  {goods.map((item, index) => (
-                    <Select.Option key={index} value={item.value}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Item>
-              <Item>
-                <Button htmlType="submit" type="primary">
-                  Lọc
-                </Button>
-              </Item>
-              <Item>
-                <Tooltip overlay="Lưu bộ lọc" placement="top">
-                  <Button icon={<StarOutlined />} />
-                </Tooltip>
-              </Item>
-            </Form>
-          </CustomFilter>
-          <CustomTable
-            isRowSelection
-            isLoading={loading}
-            onSelectedChange={onSelect}
-            pagination={false}
-            dataSource={data}
-            columns={columns}
-            rowKey={(item: CategoryResponse) => item.id}
-          />
-        </div>
+        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+          <Form onFinish={onFinish} layout="inline" initialValues={params}>
+            <Item name="query">
+              <Input
+                prefix={<img src={search} alt="" />}
+                style={{ width: 200 }}
+                placeholder="Tên/Mã danh mục"
+              />
+            </Item>
+            <Item name="goods">
+              <Select
+                style={{
+                  width: 200,
+                }}
+              >
+                <Select.Option value="">Ngành hàng</Select.Option>
+                {goods.map((item, index) => (
+                  <Select.Option key={index} value={item.value}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Item>
+            <Item>
+              <Button htmlType="submit" type="primary">
+                Lọc
+              </Button>
+            </Item>
+            <Item>
+              <Tooltip overlay="Lưu bộ lọc" placement="top">
+                <Button icon={<StarOutlined />} />
+              </Tooltip>
+            </Item>
+          </Form>
+        </CustomFilter>
+        <CustomTable
+          isRowSelection
+          isLoading={loading}
+          onSelectedChange={onSelect}
+          pagination={false}
+          dataSource={data}
+          columns={columns}
+          rowKey={(item: CategoryResponse) => item.id}
+        />
       </Card>
       <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}

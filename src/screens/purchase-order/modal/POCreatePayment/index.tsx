@@ -73,12 +73,14 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       note: formPayment.getFieldValue("note"),
       is_refund: formPayment.getFieldValue("is_refund")
     };
+    let old_payments: any = formMain.getFieldValue("payments");
+    if(!old_payments  || old_payments === null) {
+      old_payments = [];
+    }
     if (indexPurchasePayment) {
-      const old_payments = formMain.getFieldValue("payments");
       old_payments[indexPurchasePayment] = paymentNewData;
       onChangeDataPayments(old_payments);
     } else {
-      const old_payments = formMain.getFieldValue("payments");
       const new_payments = [...old_payments];
       new_payments.push(paymentNewData);
       onChangeDataPayments(new_payments);
