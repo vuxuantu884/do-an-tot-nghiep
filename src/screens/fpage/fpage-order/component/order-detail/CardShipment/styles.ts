@@ -1,13 +1,11 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-
   .ant-tabs-nav {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      position: relative !important;
-    }
+    position: relative !important;
+    z-index: 1 !important;
+    width: 100%;
+  }
   .orders-shipment {
     .ant-row {
       justify-content: space-between;

@@ -1,5 +1,10 @@
 export const VietNamId = 233;
 
+export const optionAllCities = {
+  name: "Tất cả tỉnh thành",
+  id: -1,
+};
+
 export const PaymentMethodCode = {
   CASH: "cash",
   CARD: "card",

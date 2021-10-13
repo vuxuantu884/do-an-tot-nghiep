@@ -261,9 +261,45 @@ const ListOrderScreen: React.FC = () => {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
 
-  const onExport = useCallback(() => {
+  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const onSelectedChange = useCallback((selectedRow) => {
+    const selectedRowCodes = selectedRow.map((row: any) => row.code);
+    setSelectedRowCodes(selectedRowCodes);
+  }, []);
 
-    let queryParams = generateQuery(params);
+  const onExport = useCallback((optionExport, typeExport) => {
+    let newParams:any = {...params};
+    // let hiddenFields = [];
+    console.log('selectedRowCodes', selectedRowCodes);
+    switch (optionExport) {
+      case 1: newParams = {}
+        break
+      case 2: break
+      case 3:
+        newParams.code_order_return = selectedRowCodes;
+        console.log('newParams', newParams);
+        break
+      case 4:
+        delete newParams.page
+        delete newParams.limit
+        break
+      default: break  
+    }
+    // console.log('newParams', newParams);
+    
+    // switch (optionExport) {
+    //   case 1:
+    //     hiddenFields
+    //     break
+    //   case 2:
+    //     delete newParams.page
+    //     delete newParams.limit
+    //     break
+    //   default: break  
+    // }
+    // }
+        
+    let queryParams = generateQuery(newParams);
     exportFile({
       conditions: queryParams,
       type: "TYPE_EXPORT_ORDER_RETURN",
@@ -280,7 +316,8 @@ const ListOrderScreen: React.FC = () => {
         console.log("orders export file error", error);
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-  }, [params, listExportFile]);
+  }, [params, selectedRowCodes, listExportFile]);
+
   const checkExportFile = useCallback(() => {
     console.log('start check status');
     
@@ -420,6 +457,9 @@ const ListOrderScreen: React.FC = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
+            onSelectedChange={(selectedRows) =>
+              onSelectedChange(selectedRows)
+            }
             // expandable={{
             //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
             // }}
@@ -448,11 +488,12 @@ const ListOrderScreen: React.FC = () => {
             setExportProgress(0)
             setStatusExport(1)
           }}
-          onOk={() => onExport()}
+          onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
           type="returns"
           total={data.metadata.total}
           exportProgress={exportProgress}
           statusExport={statusExport}
+          selected={selectedRowCodes.length ? true : false}
         />}
     </ContentContainer>
   );

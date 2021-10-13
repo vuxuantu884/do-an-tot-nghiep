@@ -31,7 +31,7 @@
   content: url("assets/icon/menu-pos.svg");
 }
 .icon-customer:before {
-  content: "\e901";
+  content: url("assets/icon/menu-customer.svg");
 }
 .icon-dashboard:before {
   content: url("assets/icon/menu-dash-board.svg");
@@ -52,10 +52,10 @@
   content: url("assets/icon/menu-clothe.svg");
 }
 .icon-promotion:before {
-  content: "\e90a";
+  content: url("assets/icon/menu-promotion.svg");
 }
 .icon-setting:before {
-  content: "\e90b";
+  content: url("assets/icon/menu-setting.svg");
 }
 .icon-transport:before {
   content: url("assets/icon/menu-transport.svg");

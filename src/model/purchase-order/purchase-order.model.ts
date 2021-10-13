@@ -25,7 +25,7 @@ export interface PurchaseOrder extends BaseObject {
   note: string;
   tags: string;
   policy_price_code: string;
-
+  is_cancel: boolean;
   payments: Array<PurchasePayments>;
   trade_discount_rate: number;
   trade_discount_value: number;

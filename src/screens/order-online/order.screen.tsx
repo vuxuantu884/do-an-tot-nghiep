@@ -19,11 +19,13 @@ import {
   orderCreateAction,
   OrderDetailAction,
 } from "domain/actions/order/order.action";
-import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import {
+  actionGetOrderConfig,
+  actionListConfigurationShippingServiceAndShippingFee,
+} from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
-import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -42,11 +44,13 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import {
   FulFillmentResponse,
   OrderConfig,
-  // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
-import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
+import {
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel,
+} from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -128,10 +132,8 @@ export default function Order() {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
+  const [listOrderConfigs, setListOrderConfigs] =
+    useState<OrderConfigResponseModel | null>(null);
 
   const [pointUsing, setPointUsing] = useState<{
     point: number;
@@ -577,21 +579,11 @@ export default function Order() {
     };
   }, [scroll]);
 
-  /**
-   * orderSettings
-   */
-  useEffect(() => {
-    setOrderSettings({
-      chonCuaHangTruocMoiChonSanPham: true,
-      cauHinhInNhieuLienHoaDon: 3,
-    });
-  }, []);
-
   useEffect(() => {
     const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
-          OrderDetailAction(+cloneIdParam, (response) => {
+          OrderDetailAction(+cloneIdParam, async (response) => {
             const { customer_id } = response;
 
             if (customer_id) {
@@ -681,7 +673,7 @@ export default function Order() {
                     response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
-              setInitialForm({
+              await setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
                 source_id: response.source_id,
@@ -700,7 +692,7 @@ export default function Order() {
                 note: response.note,
                 tags: response.tags,
               });
-              formRef.current?.resetFields();
+              form.resetFields();
               // load lại form sau khi set initialValue
               setIsLoadForm(true);
               if (
@@ -779,6 +771,7 @@ export default function Order() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, dispatch, isCloneOrder]);
+
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
@@ -788,6 +781,17 @@ export default function Order() {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     dispatch(getLoyaltyRate(setLoyaltyRate));
   }, [dispatch, customer]);
+
+  /**
+   * orderSettings
+   */
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfig((response) => {
+        setListOrderConfigs(response);
+      })
+    );
+  }, [dispatch]);
 
   const checkPointfocus = useCallback(
     (value: any) => {
@@ -975,6 +979,7 @@ export default function Order() {
     order: {
       orderAmount,
     },
+    orderConfig: listOrderConfigs,
   };
 
   return (
@@ -1047,7 +1052,6 @@ export default function Order() {
                       storeId={storeId}
                       shippingFeeCustomer={shippingFeeInformedToCustomer}
                       setItemGift={setItemGifts}
-                      orderSettings={orderSettings}
                       formRef={formRef}
                       items={items}
                       handleCardItems={setItems}
@@ -1060,6 +1064,23 @@ export default function Order() {
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
                       pointUsing={pointUsing}
+                    />
+                    <CardPayments
+                      setSelectedPaymentMethod={handlePaymentMethod}
+                      payments={payments}
+                      setPayments={onPayments}
+                      paymentMethod={paymentMethod}
+                      shipmentMethod={shipmentMethod}
+                      amount={
+                        orderAmount +
+                        (shippingFeeInformedToCustomer
+                          ? shippingFeeInformedToCustomer
+                          : 0) -
+                        discountValue
+                      }
+                      isCloneOrder={isCloneOrder}
+                      loyaltyRate={loyaltyRate}
+                      setPointUsing={setPointUsing}
                     />
                     <CardShipment
                       setShipmentMethodProps={onShipmentSelect}
@@ -1086,23 +1107,6 @@ export default function Order() {
                       onPayments={onPayments}
                       fulfillments={fulfillments}
                       isCloneOrder={isCloneOrder}
-                    />
-                    <CardPayments
-                      setSelectedPaymentMethod={handlePaymentMethod}
-                      payments={payments}
-                      setPayments={onPayments}
-                      paymentMethod={paymentMethod}
-                      shipmentMethod={shipmentMethod}
-                      amount={
-                        orderAmount +
-                        (shippingFeeInformedToCustomer
-                          ? shippingFeeInformedToCustomer
-                          : 0) -
-                        discountValue
-                      }
-                      isCloneOrder={isCloneOrder}
-                      loyaltyRate={loyaltyRate}
-                      setPointUsing={setPointUsing}
                     />
                   </Col>
                   <Col md={6}>

@@ -126,7 +126,7 @@ const bill: Array<RouteMenu> = [
   {
     path: `/orders-pack-support`,
     exact: true,
-    title: "Đóng gói và giao hàng",
+    title: "Đóng gói và biên bản bàn giao",
     icon: "icon-dot",
     component: PackSupportScreen,
     key: "submenu56",

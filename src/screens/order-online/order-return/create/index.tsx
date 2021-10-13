@@ -637,16 +637,16 @@ const ScreenReturnCreate = (props: PropType) => {
           : loyaltyPoint?.loyalty_level_id)
     );
 
-    let curenPoint = !loyaltyPoint
-      ? 0
-      : loyaltyPoint.point === null
-      ? 0
-      : loyaltyPoint.point;
-    let point = !Pointfocus
-      ? 0
-      : Pointfocus.point === undefined
-      ? 0
-      : Pointfocus.point;
+    // let curenPoint = !loyaltyPoint
+    //   ? 0
+    //   : loyaltyPoint.point === null
+    //   ? 0
+    //   : loyaltyPoint.point;
+    // let point = !Pointfocus
+    //   ? 0
+    //   : Pointfocus.point === undefined
+    //   ? 0
+    //   : Pointfocus.point;
 
     // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
     // let limitAmountPointFocus = !rank
@@ -915,6 +915,18 @@ const ScreenReturnCreate = (props: PropType) => {
                   />
                 )}
 
+                {isExchange && (
+                  <CardReturnMoneyPageCreate
+                    listPaymentMethods={listPaymentMethods}
+                    payments={payments}
+                    handlePayments={setPayments}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    isExchange={isExchange}
+                    isStepExchange={isStepExchange}
+                    returnMoneyType={returnMoneyType}
+                    setReturnMoneyType={setReturnMoneyType}
+                  />
+                )}
                 {isExchange && isStepExchange && (
                   <CardShipment
                     setShipmentMethodProps={setShipmentMethod}
@@ -942,18 +954,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     fulfillments={fulfillments}
                     isCloneOrder={false}
                     totalAmountReturnProducts={totalAmountReturnProducts}
-                  />
-                )}
-                {isExchange && (
-                  <CardReturnMoneyPageCreate
-                    listPaymentMethods={listPaymentMethods}
-                    payments={payments}
-                    handlePayments={setPayments}
-                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                    isExchange={isExchange}
-                    isStepExchange={isStepExchange}
-                    returnMoneyType={returnMoneyType}
-                    setReturnMoneyType={setReturnMoneyType}
                   />
                 )}
                 <CardReturnReceiveProducts
