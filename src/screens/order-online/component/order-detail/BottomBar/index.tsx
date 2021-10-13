@@ -15,10 +15,12 @@ type PropType = {
   stepsStatusValue?: string;
   formRef?: React.RefObject<FormInstance<any>>;
   creating?: boolean;
+  isShowConfirmOrderButton?: boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
   updateCancelClick?: () => void;
+  onConfirmOrder?: () => void;
 };
 
 const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
@@ -30,10 +32,12 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     stepsStatusValue,
     formRef,
     creating,
+    isShowConfirmOrderButton,
     handleTypeButton,
     showSaveAndConfirmModal,
     orderActionsClick,
     updateCancelClick,
+    onConfirmOrder,
   } = props;
 
   return (
@@ -201,12 +205,15 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 In đơn hàng
               </Button>
             </Dropdown>
-            <Button
-              type="primary"
-              style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-            >
-              Xác nhận đơn
-            </Button>
+            {isShowConfirmOrderButton && (
+              <Button
+                type="primary"
+                style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                onClick={onConfirmOrder}
+              >
+                Xác nhận đơn
+              </Button>
+            )}
           </Col>
         )}
       </Row>
