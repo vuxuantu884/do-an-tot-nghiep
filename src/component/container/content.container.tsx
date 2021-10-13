@@ -1,7 +1,7 @@
-import {Button, Card,  Result, Skeleton} from 'antd';
-import React from 'react';
-import {useHistory} from 'react-router-dom';
-import HeaderContainer, {BreadcrumbProps} from './breadcrumb.container';
+import { Button, Card, Result, Skeleton } from "antd";
+import React from "react";
+import { useHistory } from "react-router-dom";
+import HeaderContainer, { BreadcrumbProps } from "./breadcrumb.container";
 
 type ContentContainerProps = {
   children: React.ReactNode;
@@ -42,9 +42,7 @@ const ContentContainer: React.FC<ContentContainerProps> = (
           />
           {props.isLoading ? (
             <Card>
-              <div className="padding-20">
-                <Skeleton loading={true} />
-              </div>
+              <Skeleton loading={true} />
             </Card>
           ) : (
             props.children

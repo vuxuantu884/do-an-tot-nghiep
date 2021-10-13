@@ -230,7 +230,7 @@ const CreateSupplierScreen: React.FC = () => {
             </Space>
           }
         >
-          <div className="padding-20">
+       
             <Row>
               <Item
                 rules={[
@@ -432,7 +432,6 @@ const CreateSupplierScreen: React.FC = () => {
                 </Item>
               </Col>
             </Row>
-          </div>
         </Card>
         <Collapse
           defaultActiveKey="1"

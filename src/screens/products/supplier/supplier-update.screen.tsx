@@ -236,7 +236,7 @@ const UpdateSupplierScreen: React.FC = () => {
               </Space>
             }
           >
-            <div className="padding-20">
+            <div>
               <Row>
                 <Item
                   rules={[

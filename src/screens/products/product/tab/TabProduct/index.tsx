@@ -399,7 +399,7 @@ const TabProduct: React.FC = () => {
     dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (
-    <div className="padding-20">
+    <div>
       <ProductFilter
         onMenuClick={onMenuClick}
         actions={actions}

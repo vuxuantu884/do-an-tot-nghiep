@@ -238,7 +238,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         <Form.Item hidden noStyle name={POField.financial_status}>
           <Input />
         </Form.Item>
-        <div className="padding-20">
+        <div>
           <div className="card__section shortInformation">
             <Row gutter={24} className="margin-bottom-40">
               <Col md={12}>

@@ -270,58 +270,56 @@ const ListSupplierScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.SUPPLIERS}/create`} />}
     >
       <Card>
-        <div className="padding-20">
-          <SupplierFilter
-            onMenuClick={onMenuClick}
-            listDistrict={listDistrict}
-            actions={actions}
-            onFilter={onFilter}
-            goods={goods}
-            supplierStatus={supplierStatus}
-            scorecard={scorecard}
-            params={params}
-            initValue={initQuery}
-            listSupplierType={listSupplierType}
-          />
-          <CustomTable
-            isRowSelection
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            columns={columnFinal}
-            onSelectedChange={onSelect}
-            dataSource={data.items}
-            rowKey={(item: SupplierResponse) => item.id}
-          />
-          <ModalSettingColumn
-            visible={showSettingColumn}
-            onCancel={() => setShowSettingColumn(false)}
-            onOk={(data) => {
-              setShowSettingColumn(false);
-              setColumn(data);
-            }}
-            data={columns}
-          />
-          <ModalDeleteConfirm
-            onCancel={() => setConfirmDelete(false)}
-            onOk={() => {
-              setConfirmDelete(false);
-              // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-              onDelete();
-            }}
-            title="Bạn chắc chắn xóa nhà cung cấp ?"
-            subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-            visible={isConfirmDelete}
-          />
-        </div>
+        <SupplierFilter
+          onMenuClick={onMenuClick}
+          listDistrict={listDistrict}
+          actions={actions}
+          onFilter={onFilter}
+          goods={goods}
+          supplierStatus={supplierStatus}
+          scorecard={scorecard}
+          params={params}
+          initValue={initQuery}
+          listSupplierType={listSupplierType}
+        />
+        <CustomTable
+          isRowSelection
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          isLoading={tableLoading}
+          showColumnSetting={true}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
+          columns={columnFinal}
+          onSelectedChange={onSelect}
+          dataSource={data.items}
+          rowKey={(item: SupplierResponse) => item.id}
+        />
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa nhà cung cấp ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
+        />
       </Card>
     </ContentContainer>
   );

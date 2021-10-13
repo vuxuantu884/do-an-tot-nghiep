@@ -209,7 +209,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
           </div>
         }
       >
-        <div className="padding-20">
+        <div>
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
@@ -226,7 +226,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                   <Row
                     align="middle"
                     justify="space-between"
-                    className="row-customer-detail"
                   >
                     <Space>
                       <Avatar src={avatarDefault} />
@@ -250,8 +249,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     </Space>
                   </Row>
                   <Divider
-                    className="margin-0"
-                    style={{ padding: 0, marginBottom: 0 }}
+                    style={{ padding: 0, marginTop: 10, marginBottom: 0 }}
                   />
                 </div>
               ) : (
@@ -304,7 +302,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
               <Input />
             </Form.Item>
 
-            <div className="padding-lef-right">
+            <div>
               {showBillingAddress && (
                 <Row gutter={24}>
                   <Col
@@ -330,7 +328,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                           getFieldValue("billing_address");
 
                         return supplier_id ? (
-                          <div>
+                          <div className="padding-top-20">
                             <div className="title-address">
                               Địa chỉ nhận hóa đơn :
                             </div>
@@ -386,6 +384,14 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                               <Button
                                 type="link"
                                 className="btn-style"
+                                style={{
+                                  padding: 0,
+                                  color: "#5d5d8a",
+                                  margin: 0,
+                                  fontWeight: 400,
+                                  fontSize: '14px',
+                                  marginTop: '5px',
+                                }}
                                 onClick={() =>
                                   ShowEditAddressModal(
                                     billing_address,

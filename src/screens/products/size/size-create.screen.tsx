@@ -73,58 +73,56 @@ const SizeCreateScreen: React.FC = () => {
     >
       <Form ref={formRef} onFinish={onFinish} layout="vertical">
         <Card title="Thông tin cơ bản">
-          <div className="padding-20">
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  className="form-group form-group-with-search"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập kích cỡ" },
-                    {
-                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                      message: "Kích cỡ không chứa ký tự đặc biệt",
-                    },
-                  ]}
-                  label="Kích cỡ"
-                  name="code"
-                  normalize={value => (value || '').toUpperCase()}
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Form.Item
+                className="form-group form-group-with-search"
+                rules={[
+                  { required: true, message: "Vui lòng nhập kích cỡ" },
+                  {
+                    pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                    message: "Kích cỡ không chứa ký tự đặc biệt",
+                  },
+                ]}
+                label="Kích cỡ"
+                name="code"
+                normalize={(value) => (value || "").toUpperCase()}
+              >
+                <Input
+                  className="r-5"
+                  maxLength={3}
+                  placeholder="Nhập kích cỡ"
+                  size="large"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Form.Item
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn ít nhất 1 danh mục",
+                  },
+                ]}
+                className="form-group form-group-with-search"
+                name="category_ids"
+                label="Danh mục"
+              >
+                <Select
+                  className="selector"
+                  mode="multiple"
+                  placeholder="Chọn danh mục"
+                  showArrow
                 >
-                  <Input
-                    className="r-5"
-                    maxLength={3}
-                    placeholder="Nhập kích cỡ"
-                    size="large"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn ít nhất 1 danh mục",
-                    },
-                  ]}
-                  className="form-group form-group-with-search"
-                  name="category_ids"
-                  label="Danh mục"
-                >
-                  <Select
-                    className="selector"
-                    mode="multiple"
-                    placeholder="Chọn danh mục"
-                    showArrow
-                  >
-                    {categories.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-          </div>
+                  {categories.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
         </Card>
         <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
