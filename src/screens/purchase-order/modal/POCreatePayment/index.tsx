@@ -20,8 +20,9 @@ import {
   PurchasePayments,
   PurchasePaymentsCreate,
 } from "model/purchase-order/purchase-payment.model";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { POField } from "model/purchase-order/po-field";
+import CustomInputChange from "component/custom/custom-input-change";
 
 const initPOCreatePaymentValue = {
   payment_method_code: "",
@@ -60,6 +61,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
   } = props;
   const [disabledRef, setDisabledRef] = React.useState(false);
   const [remainPaymentNumber, setRemainPaymentNumber] = React.useState(0);
+  const [totalPayment, setTotalPayment] = React.useState(0);
   const [formPayment] = Form.useForm();
 
   const onFinish = useCallback(() => {
@@ -100,6 +102,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
 
   const loadRemainPayment = useCallback(() => {
     let remainPaymentTotal = formMain.getFieldValue(POField.total);
+    setTotalPayment(remainPaymentTotal);
     const payments = formMain.getFieldValue(POField.payments);
 
     if (payments && payments.length > 0) {
@@ -237,23 +240,19 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                     message: "Vui lòng nhập số tiền thanh toán",
                   },
                 ]}
+                tooltip={{
+                  title: "<b>Thanh toán</b> là % sẽ tính dựa trên tổng tiền",
+                  icon: <InfoCircleOutlined />,
+                }}
                 help={
                   <div className="text-muted">
                     {`Số tiền còn phải trả: ${formatCurrency(
-                      remainPaymentNumber
+                      Math.round(remainPaymentNumber)
                     )}`}
                   </div>
                 }
               >
-                <NumberInput
-                  format={(a: string) =>
-                    formatCurrency(a ? Math.abs(parseInt(a)) : 0)
-                  }
-                  replace={(a: string) => replaceFormatString(a)}
-                  min={0}
-                  default={0}
-                  placeholder="Nhập số tiền cần thanh toán"
-                />
+                <CustomInputChange dataPercent={totalPayment} placeholder="0" />
               </Item>
             </Col>
             <Col xs={24} lg={12}>

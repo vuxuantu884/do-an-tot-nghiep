@@ -41,7 +41,7 @@ type POPaymentFormProps = {
   loadDetail: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   poData: PurchaseOrder;
   isSuggest: boolean;
-  setSuggest: (isSuggest: boolean) => void
+  setSuggest: (isSuggest: boolean) => void;
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
@@ -53,9 +53,11 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const [indexPaymentItem, setIndexPaymentItem] = useState<string>("");
   const [loadingApproval, setLoaddingApproval] = useState<any>({});
   const { poData } = props;
-  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({visible: false})
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
 
-  const [initValue, setInitValue] = useState<PurchasePayments|null>(null);
+  const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
 
   const CancelPaymentModal = useCallback(() => {
     setVisiblePaymentModal(false);
@@ -116,35 +118,36 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
 
   const editPayment = useCallback((item: PurchasePayments, index: number) => {
     setPaymentItem(item);
-    setIndexPaymentItem(index.toString());    
+    setIndexPaymentItem(index.toString());
     setVisiblePaymentModal(true);
   }, []);
-  
+
   const onDeletePayment = useCallback(() => {
     setIndexPaymentItem("");
   }, []);
 
   useEffect(() => {
-    if(poData) {
-      if(poData.receive_status === ProcumentStatus.FINISHED) {
-        if(props.isSuggest && poData.total_payment < poData.total_paid) {
+    if (poData) {
+      if (poData.receive_status === ProcumentStatus.FINISHED) {
+        if (props.isSuggest && poData.total_payment < poData.total_paid) {
           props.setSuggest(false);
           setModalConfirm({
             visible: true,
-            subTitle: 'Bạn có xác nhận tạo yêu cầu thanh toán chênh lệch hay không?',
-            title: 'Tổng tiền thanh toán lớn giá trị nhập kho thực tế',
+            subTitle:
+              "Bạn có xác nhận tạo yêu cầu thanh toán chênh lệch hay không?",
+            title: "Tổng tiền thanh toán lớn giá trị nhập kho thực tế",
             onCancel: () => {
-              setModalConfirm({visible: false})
+              setModalConfirm({ visible: false });
             },
             onOk: () => {
-              setModalConfirm({visible: false})
+              setModalConfirm({ visible: false });
               setInitValue({
                 is_refund: true,
                 amount: poData.total_paid - poData.total_payment,
-              })
+              });
               setVisiblePaymentModal(true);
-            }
-          })
+            },
+          });
         }
       }
     }
@@ -232,6 +235,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           </Form.Item>
         }
       >
+        <Form.Item hidden noStyle name={POField.financial_status}>
+          <Input />
+        </Form.Item>
         <div className="padding-20">
           <div className="card__section shortInformation">
             <Row gutter={24} className="margin-bottom-40">
@@ -244,7 +250,11 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                   <span>
                     {" "}
                     <strong className="po-payment-row-title">
-                      <Form.Item name={POField.payment_condition_id} noStyle hidden>
+                      <Form.Item
+                        name={POField.payment_condition_id}
+                        noStyle
+                        hidden
+                      >
                         <Input />
                       </Form.Item>
                       <Form.Item
@@ -297,15 +307,20 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       shouldUpdate={(prev, current) =>
                         prev[POField.total_paid] !==
                           current[POField.total_paid] ||
-                        prev[POField.total_payment] !== current[POField.total_payment]
+                        prev[POField.total_payment] !==
+                          current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
-                        let total_payment = getFieldValue(POField.total_payment);
+                        let total_payment = getFieldValue(
+                          POField.total_payment
+                        );
                         let percent = 0;
                         if (total_paid && total_payment) {
-                          percent = Math.round((total_paid / total_payment) * 100);
+                          percent = Math.round(
+                            (total_paid / total_payment) * 100
+                          );
                         }
 
                         return (
@@ -361,13 +376,18 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       shouldUpdate={(prev, current) =>
                         prev[POField.total_paid] !==
                           current[POField.total_paid] ||
-                        prev[POField.total_payment] !== current[POField.total_payment]
+                        prev[POField.total_payment] !==
+                          current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
-                        let total_payment = getFieldValue(POField.total_payment);
-                        return formatCurrency(Math.round(total_payment - total_paid));
+                        let total_payment = getFieldValue(
+                          POField.total_payment
+                        );
+                        return formatCurrency(
+                          Math.round(total_payment - total_paid)
+                        );
                       }}
                     </Form.Item>
                   </strong>
@@ -411,7 +431,10 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                         : "Tiền mặt"}
                                     </h3>
                                     <div>
-                                      {item.is_refund ? 'Yêu cầu hoàn tiền' : 'Yêu cầu thanh toán'} : <br />
+                                      {item.is_refund
+                                        ? "Yêu cầu hoàn tiền"
+                                        : "Yêu cầu thanh toán"}{" "}
+                                      : <br />
                                       <strong>
                                         {ConvertUtcToLocalDate(
                                           item.transaction_date,
@@ -425,7 +448,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                   {" "}
                                   <strong className="po-payment-row-title">
                                     {item.amount
-                                      ? formatCurrency(item.amount)
+                                      ? formatCurrency(Math.round(item.amount))
                                       : ""}
                                   </strong>
                                 </Col>
@@ -450,7 +473,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                   PoPaymentStatus.CANCELLED ? (
                                   <Col md={8}>
                                     <div className="timeline__groupButtons">
-                                      <Button onClick={() => editPayment(item, index)}>
+                                      <Button
+                                        onClick={() => editPayment(item, index)}
+                                      >
                                         <EditOutlined
                                           style={{ fontSize: "18px" }}
                                         />{" "}
@@ -580,7 +605,6 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           dispatch(
             PoUpdateFinancialStatusAction(
               props.poId,
-              PoFinancialStatus.FINISHED,
               updateFinancialStatusCallback
             )
           );

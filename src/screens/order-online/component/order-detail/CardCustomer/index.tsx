@@ -1,6 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //#region Import
-import { CloseOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import {
   AutoComplete,
   Avatar,
@@ -137,10 +141,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
-  const autoCompleteElement:any = document.getElementById("search_customer");
+  const autoCompleteElement: any = document.getElementById("search_customer");
 
   const [timeRef, setTimeRef] = React.useState<any>();
-  const [typingTimer,setTypingTimer]= useState(0);
+  const [typingTimer, setTypingTimer] = useState(0);
 
   //#region Modal
   const ShowBillingAddress = (e: any) => {
@@ -189,55 +193,60 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setIsVisibleShippingModal(false);
   };
 
-  const event =useCallback((event: KeyboardEvent)=>{
-    if (event.target instanceof HTMLInputElement) {
-      if (event.keyCode === 13 && event.target.id==="search_customer") 
-      {
+  const event = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) {
+        if (event.keyCode === 13 && event.target.id === "search_customer") {
           setTypingTimer(5000);
           const initQueryCustomer: any = {
-              request: "",
-              limit: 5,
-              page: 1,
+            request: "",
+            limit: 5,
+            page: 1,
           };
 
-          if(autoCompleteRef.current?.props.value){
+          if (autoCompleteRef.current?.props.value) {
             initQueryCustomer.request = autoCompleteRef.current?.props.value;
-            dispatch(CustomerSearch(initQueryCustomer, (data:Array<CustomerResponse>)=>{
-              if(data && data.length!==0)
-              {
-                handleCustomer(data[0]);
-                //set Shipping Address
-                if (data[0].shipping_addresses) {
-                  data[0].shipping_addresses.forEach((item, index2) => {
-                    if (item.default === true) {
-                      setShippingAddress(item);
-                      props.ShippingAddressChange(item);
+            dispatch(
+              CustomerSearch(
+                initQueryCustomer,
+                (data: Array<CustomerResponse>) => {
+                  if (data && data.length !== 0) {
+                    handleCustomer(data[0]);
+                    //set Shipping Address
+                    if (data[0].shipping_addresses) {
+                      data[0].shipping_addresses.forEach((item, index2) => {
+                        if (item.default === true) {
+                          setShippingAddress(item);
+                          props.ShippingAddressChange(item);
+                        }
+                      });
                     }
-                  });
-                }
 
-                //set Billing Address
-                if (data[0].billing_addresses) {
-                  data[0].billing_addresses.forEach((item, index2) => {
-                    if (item.default === true) {
-                      props.BillingAddressChange(item);
+                    //set Billing Address
+                    if (data[0].billing_addresses) {
+                      data[0].billing_addresses.forEach((item, index2) => {
+                        if (item.default === true) {
+                          props.BillingAddressChange(item);
+                        }
+                      });
                     }
-                  });
-                }    
-              }
-              else{
-                showError("Không tìm thấy khách hàng từ hệ thống");
-              }
-              setKeySearchCustomer("");
-            }));
+                  } else {
+                    showError("Không tìm thấy khách hàng từ hệ thống");
+                  }
+                  setKeySearchCustomer("");
+                }
+              )
+            );
           }
+        }
       }
-  }
-  },[dispatch,autoCompleteElement, customer]);
+    },
+    [dispatch, autoCompleteElement, customer]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", event);
-}, [event]);
+  }, [event]);
 
   //#end region
 
@@ -246,14 +255,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const CustomerChangeSearch = useCallback(
     (value) => {
-
       clearTimeout(timeRef);
       setKeySearchCustomer(value);
-      setSearchCustomer(true)
+      setSearchCustomer(true);
       let time = setTimeout(() => {
-          initQueryCustomer.request = value.trim();
-          dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-          setSearchCustomer(false)
+        initQueryCustomer.request = value.trim();
+        dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+        setSearchCustomer(false);
       }, typingTimer);
       setTimeRef(time);
       setTypingTimer(3000);
@@ -425,11 +433,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   return (
     <Card
-      title={
-        <div className="d-flex">
-          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
-        </div>
-      }
+      title="THÔNG TIN KHÁCH HÀNG"
       extra={
         <div>
           <span
@@ -443,7 +447,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </span>
           <Form.Item
             name="source_id"
-            style={{ margin: "10px 0px" }}
+            style={{ margin: "0px" }}
             rules={[
               {
                 required: true,
@@ -516,7 +520,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             >
               <Input
                 placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                prefix={searchCustomer ? <LoadingOutlined style={{ color: "#2a2a86" }} /> : <SearchOutlined style={{ color: "#ABB4BD" }} />}
+                prefix={
+                  searchCustomer ? (
+                    <LoadingOutlined style={{ color: "#2a2a86" }} />
+                  ) : (
+                    <SearchOutlined style={{ color: "#ABB4BD" }} />
+                  )
+                }
                 // suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
               />
             </AutoComplete>

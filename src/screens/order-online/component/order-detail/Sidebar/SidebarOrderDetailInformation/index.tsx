@@ -6,15 +6,11 @@ type PropType = {
   OrderDetail: OrderResponse | null;
 };
 
-/**
- * Input: OrderDetail
- */
-function OrderShortDetails(props: PropType) {
+function SidebarOrderDetailInformation(props: PropType) {
   const { OrderDetail } = props;
-  console.log("OrderDetail", OrderDetail);
   return (
     <StyledComponent>
-      <Card className="card-block card-block-normal" title="THÔNG TIN ĐƠN HÀNG">
+      <Card title="THÔNG TIN ĐƠN HÀNG">
         <Row className="" gutter={5}>
           <Col span={11}>Cửa hàng:</Col>
           <Col span={13}>
@@ -26,7 +22,7 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Điện thoại:</Col>
           <Col span={13}>
             <span style={{ fontWeight: 500, color: "#222222" }}>
@@ -34,7 +30,7 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Địa chỉ:</Col>
           <Col span={13}>
             <span style={{ fontWeight: 500, color: "#222222" }}>
@@ -42,7 +38,7 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Nhân viên bán hàng:</Col>
           <Col span={13}>
             <span
@@ -53,7 +49,7 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Nhân viên marketing:</Col>
           <Col span={13}>
             <span
@@ -64,7 +60,7 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Nhân viên điều phối:</Col>
           <Col span={13}>
             <span
@@ -75,7 +71,7 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Người tạo:</Col>
           <Col span={13}>
             <span
@@ -86,13 +82,13 @@ function OrderShortDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row className="margin-top-10" gutter={5}>
+        <Row gutter={5}>
           <Col span={11}>Đường dẫn:</Col>
           <Col span={13} style={{ wordWrap: "break-word" }}>
             {OrderDetail?.url ? (
               <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
             ) : (
-              <span className="text-focus">-</span>
+              <span className="text-focus">Không</span>
             )}
           </Col>
         </Row>
@@ -101,4 +97,4 @@ function OrderShortDetails(props: PropType) {
   );
 }
 
-export default OrderShortDetails;
+export default SidebarOrderDetailInformation;

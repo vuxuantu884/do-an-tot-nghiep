@@ -34,7 +34,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     cancelled_date,
     status: poStatus,
     receipt_quantity,
-    is_cancel,
   } = poData;
   const getDescription = (step: number) => {
     let currentStep = statusToStep[poStatus];
@@ -54,11 +53,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           activated_date !== null
         ) {
           return ConvertUtcToLocalDate(activated_date);
-        } else if (
-          currentStep >= statusToStep[POStatus.FINALIZED] &&
-          updatedDate
-        ) {
-          return ConvertUtcToLocalDate(updatedDate);
         } else {
           return null;
         }
@@ -92,18 +86,28 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     }
   };
   const getClassName = (step: number) => {
-    if (statusToStep[poStatus] === 5) {
-      if(step === 0) {
-        return ''
+    const currentStep = statusToStep[poStatus];
+    if (currentStep=== 5) {
+      switch(step) {
+        case 0:
+          return ''
+        case 1:
+          if(activated_date === null) {
+            return 'inactive'
+          } else {
+            return '';
+          }
+        case 2:
+          if(receipt_quantity > 0) {
+            return '';
+          } else {
+            return 'inactive'
+          }
+        default:
+          return '';
       }
-      if(step === 1 && !activated_date) {
-        return ''
-      }
-      if(step === 2 && receipt_quantity > 0) {
-        return ''
-      }
-      return "inactive";
     } else {
+      return '';
     }
   };
 
@@ -116,7 +120,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       )}
       className="create-bill-step"
       size="small"
-      current={is_cancel === true ? 3 : statusToStep[poStatus]}
+      current={statusToStep[poStatus]}
     >
       <Steps.Step
         title="Đặt hàng"

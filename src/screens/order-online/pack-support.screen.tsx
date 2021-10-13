@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
-import { DeliveryServicesGetList, getFulfillmentsPackedSaga } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useState } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";

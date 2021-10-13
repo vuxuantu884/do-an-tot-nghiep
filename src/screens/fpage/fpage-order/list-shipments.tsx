@@ -52,7 +52,7 @@ const initQuery: ShipmentSearchQuery = {
   sort_type: null,
   sort_column: null,
   search_term: null,
-  status: [],
+  status: null,
   stock_location_ids: [],
   delivery_provider_ids: [],
   delivery_types: [],

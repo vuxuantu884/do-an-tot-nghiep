@@ -419,7 +419,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={() => {
+            onClearFilter && onClearFilter();
+            setVisible(false);
+          }}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}

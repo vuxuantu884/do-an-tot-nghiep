@@ -70,6 +70,7 @@ export interface OrderModel {
 export interface OrderSearchQuery {
   page: number;
   limit: number;
+  is_online?: string|null;
   sort_type: string|null;
   sort_column: string|null;
   code: string|null;

@@ -79,12 +79,11 @@ function* poUpdateSaga(action: YodyAction) {
 }
 
 function* poUpdateFinancialStatusSaga(action: YodyAction) {
-  const { id, financialstatus, updateCallback } = action.payload;
+  const { id, updateCallback } = action.payload;
   try {
     let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
       updatePurchaseOrderFinancialStatus,
       id,
-      financialstatus
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

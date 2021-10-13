@@ -1,0 +1,18 @@
+import { css } from "styled-components";
+import { dangerColor } from "./variables";
+
+export const globalCssCustomForm = css`
+  .ant-form-item-label
+    label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after {
+    position: absolute;
+    display: inline-block;
+    margin: 0;
+    color: ${dangerColor};
+    font-size: 14px;
+    font-family: SimSun, sans-serif;
+    line-height: 24px;
+    right: -10px;
+    top: -4px;
+    content: "*";
+  }
+`;

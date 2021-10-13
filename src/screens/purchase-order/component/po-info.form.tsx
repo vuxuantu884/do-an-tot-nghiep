@@ -98,11 +98,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       <div className="row-view-result">
                         {`${qc_code} - ${qc}`}
                       </div>
-                    ) : (
-                      <div className="row-view-result row-view-result-empty">
-                        ---
-                      </div>
-                    )}
+                    ) : null}
                   </div>
                 );
               }}
@@ -126,11 +122,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                         <div className="row-view-result">
                           {`${designer_code} - ${designer}`}
                         </div>
-                      ) : (
-                        <div className="row-view-result row-view-result-empty">
-                          ---
-                        </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -152,11 +144,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
 
                     {reference !== null ? (
                       <div className="row-view-result">{`${reference}`}</div>
-                    ) : (
-                      <div className="row-view-result row-view-result-empty">
-                        Không có mã tham chiếu
-                      </div>
-                    )}
+                    ) : null}
                   </div>
                 );
               }}
@@ -185,7 +173,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 let note = getFieldValue(POField.note);
                 return (
                   <div className="row-view">
-                    {note !== null && note !== "" ? note : "Không có ghi chú"}
+                    {note !== null && note !== "" ? note : ""}
                   </div>
                 );
               }}
@@ -320,11 +308,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                               <div className="row-view-result">
                                 {`${qc_code} - ${qc}`}
                               </div>
-                            ) : (
-                              <div className="row-view-result row-view-result-empty">
-                                ---
-                              </div>
-                            )}
+                            ) : null}
                           </div>
                         );
                       }}
@@ -350,11 +334,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                                 <div className="row-view-result">
                                   {`${designer_code} - ${designer}`}
                                 </div>
-                              ) : (
-                                <div className="row-view-result row-view-result-empty">
-                                  ---
-                                </div>
-                              )}
+                              ) : null}
                             </div>
                           </div>
                         );
@@ -376,11 +356,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
 
                             {reference !== null ? (
                               <div className="row-view-result">{`${reference}`}</div>
-                            ) : (
-                              <div className="row-view-result row-view-result-empty">
-                                Không có mã tham chiếu
-                              </div>
-                            )}
+                            ) : null}
                           </div>
                         );
                       }}

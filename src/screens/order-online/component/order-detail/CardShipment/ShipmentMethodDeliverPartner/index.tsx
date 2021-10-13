@@ -209,6 +209,14 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
               (single) => {
                 console.log("single", single);
+                console.log(
+                  "customerShippingAddressCityId",
+                  customerShippingAddressCityId
+                );
+                console.log(
+                  "checkIfPrice(orderPrice, single.from_price, single.to_price)",
+                  checkIfPrice(orderPrice, single.from_price, single.to_price)
+                );
                 return (
                   checkIfSameCity(
                     single.city_id,
