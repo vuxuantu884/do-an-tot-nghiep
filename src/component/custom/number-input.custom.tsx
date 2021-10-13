@@ -22,7 +22,7 @@ interface NumberInputProps {
   default?: number;
   prefix?: React.ReactNode;
   autoFocus?: boolean;
-  onFocus?: () => void;
+  onFocus?: (e: any) => void;
   disabled?: boolean
 }
 
@@ -116,7 +116,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       minLength={minLength}
       onFocus={(e) => {
         e.target.select();
-        onFocus && onFocus();
+        onFocus && onFocus(e);
       }}
       prefix={prefix}
       autoFocus={props.autoFocus}

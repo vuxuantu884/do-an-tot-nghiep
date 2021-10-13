@@ -2,8 +2,7 @@ import { Button, Checkbox, Col, Form, Input, Modal, Radio, Row } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { showSuccess } from "utils/ToastUtils";
 import {
@@ -14,9 +13,10 @@ import {
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { HttpStatus } from "config/http-status.config";
+import CustomInputChange from "component/custom/custom-input-change";
 
 type PaymentModalProps = {
   visible: boolean;
@@ -237,21 +237,17 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               rules={[
                 { required: true, message: "Vui lòng nhập số tiền thanh toán" },
               ]}
+              tooltip={{
+                title: (<div><b>Số thanh toán</b> là <b>%</b> sẽ tính dựa trên tổng tiền</div>),
+                icon: <InfoCircleOutlined />,
+              }}
               help={
                 <div className="text-muted">
-                  {`Số tiền còn phải trả: ${formatCurrency(remainPayment)}`}
+                  {`Số tiền còn phải trả: ${formatCurrency(Math.round(remainPayment))}`}
                 </div>
               }
             >
-              <NumberInput
-                format={(a: string) =>
-                  formatCurrency(a ? Math.abs(parseInt(a)) : 0)
-                }
-                replace={(a: string) => replaceFormatString(a)}
-                min={1}
-                default={0}
-                placeholder="Nhập số tiền cần thanh toán"
-              />
+              <CustomInputChange dataPercent={remainPayment} placeholder="0" />
             </Item>
           </Col>
           <Col xs={24} lg={12}>
