@@ -1,4 +1,5 @@
 import { css } from "styled-components";
+import { bodyFontSize, textBodyColor } from "./variables";
 
 export const reset = css`
   * {
@@ -18,5 +19,11 @@ export const reset = css`
   ::-webkit-scrollbar-thumb,
   .ant-table-sticky-scroll-bar {
     background: rgba(79, 104, 125, 0.4);
+  }
+  html {
+    font-size: ${bodyFontSize};
+  }
+  body {
+    color: ${textBodyColor};
   }
 `;
