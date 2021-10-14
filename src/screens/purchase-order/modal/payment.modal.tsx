@@ -37,6 +37,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const dispatch = useDispatch();
   const {
     poId,
+    poData,
     purchasePayment,
     visible,
     onCancel,
@@ -247,7 +248,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                 </div>
               }
             >
-              <CustomInputChange dataPercent={remainPayment} placeholder="0" />
+              <CustomInputChange dataPercent={poData.total_payment} placeholder="0" />
             </Item>
           </Col>
           <Col xs={24} lg={12}>
