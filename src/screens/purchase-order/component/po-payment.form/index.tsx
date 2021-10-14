@@ -15,13 +15,13 @@ import {
   Tag,
   Timeline,
 } from "antd";
-import ModalConfirm from "component/modal/ModalConfirm";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
 import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import PaymentModal from "screens/purchase-order/modal/payment.modal";
@@ -35,12 +35,13 @@ import {
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
-import { POUtils } from "utils/POUtils";
 
 type POPaymentFormProps = {
   poId: number;
-  loadDetail: (poId: number, isLoading: boolean) => void;
+  loadDetail: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
   poData: PurchaseOrder;
+  isSuggest: boolean;
+  setSuggest: (isSuggest: boolean) => void
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
@@ -52,6 +53,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const [indexPaymentItem, setIndexPaymentItem] = useState<string>("");
   const [loadingApproval, setLoaddingApproval] = useState<any>({});
   const { poData } = props;
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({visible: false})
+
+  const [initValue, setInitValue] = useState<PurchasePayments|null>(null);
 
   const CancelPaymentModal = useCallback(() => {
     setVisiblePaymentModal(false);
@@ -60,7 +64,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     (isReload: boolean) => {
       setVisiblePaymentModal(false);
       if (isReload) {
-        props.loadDetail(props.poId, false);
+        props.loadDetail(props.poId, false, false);
       }
     },
     [props]
@@ -70,7 +74,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     (result: PurchasePayments | null) => {
       if (result !== null && result !== undefined) {
         showSuccess("cập nhật dữ liệu thành công");
-        props.loadDetail(props.poId, false);
+        props.loadDetail(props.poId, false, false);
       }
     },
     [props]
@@ -80,7 +84,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     (result: PurchaseOrder | null) => {
       if (result !== null && result !== undefined) {
         showSuccess("cập nhật dữ liệu thành công");
-        props.loadDetail(props.poId, false);
+        props.loadDetail(props.poId, false, false);
       }
     },
     [props]
@@ -98,18 +102,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         setLoaddingApproval(newLoadings);
         let newItem = { ...item };
         newItem.status = PoPaymentStatus.PAID;
-        newItem.status_po = POUtils.calculatePOStatus(
-          poData,
-          null,
-          newItem,
-          "update"
-        );
         dispatch(
           PoPaymentUpdateAction(props.poId, item.id, newItem, updateCallback)
         );
       }
     },
-    [dispatch, loadingApproval, poData, props.poId, updateCallback]
+    [dispatch, loadingApproval, props.poId, updateCallback]
   );
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
@@ -125,6 +123,32 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const onDeletePayment = useCallback(() => {
     setIndexPaymentItem("");
   }, []);
+
+  useEffect(() => {
+    if(poData) {
+      if(poData.receive_status === ProcumentStatus.FINISHED) {
+        if(props.isSuggest && poData.total_payment < poData.total_paid) {
+          props.setSuggest(false);
+          setModalConfirm({
+            visible: true,
+            subTitle: 'Bạn có xác nhận tạo yêu cầu thanh toán chênh lệch hay không?',
+            title: 'Tổng tiền thanh toán lớn giá trị nhập kho thực tế',
+            onCancel: () => {
+              setModalConfirm({visible: false})
+            },
+            onOk: () => {
+              setModalConfirm({visible: false})
+              setInitValue({
+                is_refund: true,
+                amount: poData.total_paid - poData.total_payment,
+              })
+              setVisiblePaymentModal(true);
+            }
+          })
+        }
+      }
+    }
+  }, [poData, props]);
 
   return (
     <StyledComponent>
@@ -532,6 +556,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           let remainPayment = total_payment - total_paid;
           return (
             <PaymentModal
+              initValue={initValue}
               poData={poData}
               visible={isVisiblePaymentModal}
               onOk={OkPaymentModal}
@@ -545,6 +570,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           );
         }}
       </Form.Item>
+      <ModalConfirm {...modalConfirm} />
       <ModalConfirm
         onCancel={() => {
           setConfirmPayment(false);

@@ -14,7 +14,6 @@ import {
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
-import { POUtils } from "utils/POUtils";
 import { DeleteOutlined } from "@ant-design/icons";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { HttpStatus } from "config/http-status.config";
@@ -29,6 +28,7 @@ type PaymentModalProps = {
   onCancel: () => void;
   deletePayment: () => void;
   onOk: (isLoad: boolean) => void;
+  initValue: PurchasePayments|null,
 };
 const { Item } = Form;
 const PaymentModal: React.FC<PaymentModalProps> = (
@@ -42,7 +42,6 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     onCancel,
     onOk,
     remainPayment,
-    poData,
   } = props;
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
@@ -98,12 +97,6 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     (values: PurchasePayments) => {
       setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
-      values.status_po = POUtils.calculatePOStatus(
-        poData,
-        null,
-        values,
-        "update"
-      );
 
       if (data.id) {
         if (data.status === PoPaymentStatus.REFUND) data.amount = -data.amount;
@@ -113,7 +106,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
         dispatch(PoPaymentCreateAction(poId, values, createCallback));
       }
     },
-    [createCallback, dispatch, formPayment, poData, poId, updateCallback]
+    [createCallback, dispatch, formPayment, poId, updateCallback]
   );
 
   const onDeletePayment = useCallback(() => {
@@ -150,6 +143,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       }
     }
   }, [formPayment, purchasePayment, visible]);
+  useEffect(() => {
+    if(props.initValue) {
+      formPayment.setFieldsValue(props.initValue);
+    }
+  }, [formPayment, props.initValue])
   return (
     <Modal
       title={purchasePayment?.id ? "Sửa thanh toán " : "Tạo thanh toán "}
@@ -250,7 +248,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                   formatCurrency(a ? Math.abs(parseInt(a)) : 0)
                 }
                 replace={(a: string) => replaceFormatString(a)}
-                min={0}
+                min={1}
                 default={0}
                 placeholder="Nhập số tiền cần thanh toán"
               />

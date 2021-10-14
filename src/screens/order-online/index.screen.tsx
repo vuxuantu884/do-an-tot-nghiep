@@ -1,15 +1,23 @@
 import { Button, Card, Row, Space, Tag } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch } from "react-redux";
+import exportIcon from "assets/icon/export.svg";
+import importIcon from "assets/icon/import.svg";
+import ContentContainer from "component/container/content.container";
 import OrderFilter from "component/filter/order.filter";
+import ButtonCreate from "component/header/ButtonCreate";
+import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import UrlConfig from "config/url.config";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListOrderAction } from "domain/actions/order/order.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import {
   OrderFulfillmentsModel,
   OrderItemModel,
@@ -17,32 +25,26 @@ import {
   OrderPaymentModel,
   OrderSearchQuery,
 } from "model/order/order.model";
-import { AccountResponse } from "model/account/account.model";
-import importIcon from "assets/icon/import.svg";
-import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/url.config";
-import ButtonCreate from "component/header/ButtonCreate";
-import ContentContainer from "component/container/content.container";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { getListOrderAction } from "domain/actions/order/order.action";
-import "./scss/index.screen.scss";
-
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import NumberFormat from "react-number-format";
-import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-
+import { SourceResponse } from "model/response/order/source.response";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import { delivery_service } from "./common/delivery-service";
-import { StyledComponent } from "./index.screen.styles";
+import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
+import "./scss/index.screen.scss";
+import { exportFile, getFile } from "service/other/export.service";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { HttpStatus } from "config/http-status.config";
+// import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
   {
@@ -205,17 +207,14 @@ const ListOrderScreen: React.FC = () => {
               return (
                 <div className="item custom-td">
                   <div className="product productNameWidth">
-                    <div>
-                      <Link
-                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                      >
-                        {item.variant}
-                      </Link>
-                      <p>{item.sku}</p>
-                    </div>
+                    <Link
+                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                    >
+                      {item.variant}
+                    </Link>
                   </div>
                   <div className="quantity quantityWidth">
-                    <span>SL: {item.quantity}</span>
+                    <span>{item.quantity}</span>
                   </div>
                 </div>
               );
@@ -225,7 +224,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "left",
-      width: "280px",
+      width: nameQuantityWidth,
     },
     {
       title: "Khách phải trả",
@@ -623,10 +622,14 @@ const ListOrderScreen: React.FC = () => {
     },
   ]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
 
   const onSelectedChange = useCallback((selectedRow) => {
     const selectedRowKeys = selectedRow.map((row: any) => row.id);
     setSelectedRowKeys(selectedRowKeys);
+
+    const selectedRowCodes = selectedRow.map((row: any) => row.code);
+    setSelectedRowCodes(selectedRowCodes);
   }, []);
 
   const onPageChange = useCallback(
@@ -679,6 +682,97 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, selectedRowKeys]
   );
+
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+
+  const onExport = useCallback((optionExport, typeExport) => {
+    let newParams:any = {...params};
+    // let hiddenFields = [];
+    console.log('selectedRowCodes', selectedRowCodes);
+    switch (optionExport) {
+      case 1: newParams = {}
+        break
+      case 2: break
+      case 3:
+        newParams.code = selectedRowCodes;
+        console.log('newParams', newParams);
+        break
+      case 4:
+        delete newParams.page
+        delete newParams.limit
+        break
+      default: break  
+    }
+    // console.log('newParams', newParams);
+    
+    // switch (optionExport) {
+    //   case 1:
+    //     hiddenFields
+    //     break
+    //   case 2:
+    //     delete newParams.page
+    //     delete newParams.limit
+    //     break
+    //   default: break  
+    // }
+    // }
+        
+    let queryParams = generateQuery(newParams);
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_ORDER",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(2)
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        setStatusExport(4)
+        console.log("orders export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [params, selectedRowCodes, listExportFile]);
+  const checkExportFile = useCallback(() => {
+    console.log('start check status');
+    
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (exportProgress < 95) {
+            setExportProgress(exportProgress + 3)
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(3)
+            console.log('finishhh');
+            setExportProgress(100)
+            const fileCode = response.data.code
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [exportProgress, listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+    
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
@@ -825,12 +919,20 @@ const ListOrderScreen: React.FC = () => {
           }}
           data={columns}
         />
-        <ExportModal
+        {showExportModal && <ExportModal
           visible={showExportModal}
-          onCancel={() => setShowExportModal(false)}
-          onOk={() => console.log("123")}
+          onCancel={() => {
+            setShowExportModal(false)
+            setExportProgress(0)
+            setStatusExport(1)
+          }}
+          onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
           type="orders"
-        />
+          total={data.metadata.total}
+          exportProgress={exportProgress}
+          statusExport={statusExport}
+          selected={selectedRowCodes.length ? true : false}
+        />}
       </ContentContainer>
     </StyledComponent>
   );

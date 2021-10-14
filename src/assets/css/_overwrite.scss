@@ -86,12 +86,63 @@
       &-children {
         .ant {
           &-menu {
+            position: relative;
             background-color: $sider-color;
+            &-item-selected {
+              position: relative;
+            }
+            &-submenu-inline:hover .ant-menu-submenu-arrow {
+              color: $white;
+            }
+            &-item::after {
+              position: absolute;
+              content: "";
+              border-right: 3px solid #fcaf17;
+              height: 100%;
+              top: 0;
+              bottom: 0;
+              right: 0;
+            }
+            &-submenu-selected {
+              position: relative;
+              & > .ant-menu-submenu-title::after {
+                position: absolute;
+                content: "";
+                border-right: 3px solid #fcaf17;
+                height: 100%;
+                top: 0;
+                bottom: 0;
+                right: 0;
+              }
+            }
+            &-submenu-title {
+              .ant-menu-title-content {
+                margin-left: 13px;
+                font-weight: 500
+              }
+              &:active {
+                background-color: rgba(255, 255, 255, 0.1);
+              }
+              &:active .ant-menu-submenu-arrow {
+                color: $white;
+              }
+              &:hover{
+                background-color: rgba(255, 255, 255, 0.1);
+                .ant-menu-submenu-arrow{
+                  color: $white;
+                }
+              }
+            }
             &-item {
               height: 40px;
               line-height: 40px;
               color: $white;
-              a {
+              padding-left: 16px !important;
+              &>.ant-menu-title-content {
+                margin-left: 13px;
+                font-weight: 500;
+              }
+              a{
                 color: $white;
               }
               &:hover {
@@ -142,6 +193,9 @@
                   height: 40px;
                   line-height: 40px;
                   margin: 0;
+                  .ant-menu-title-content{
+                    font-weight: 400;
+                  }
                 }
               }
             }
@@ -152,6 +206,9 @@
                   vertical-align: middle;
                 }
               }
+            }
+            .ant-menu-submenu-title {
+              padding-left: 16px !important;
             }
             &-submenu {
               padding: 0;
@@ -171,9 +228,11 @@
                   line-height: 40px;
                   color: rgba($white, $alpha: 0.5);
                   margin-bottom: 1px;
-                  a,
-                  .ant-menu-item-icon {
+                  a {
                     color: rgba($white, $alpha: 0.5);
+                  }
+                  .ant-menu-item-icon {
+                    color: #434362;
                   }
                   &:hover {
                     color: $white;
@@ -233,15 +292,20 @@
                     color: #fcaf17;
                   }
                 }
+                .ant-menu-item-icon {
+                  color: #434362;
+                }
                 .ant-menu {
                   &-item {
                     height: 40px;
                     line-height: 40px;
                     color: rgba($white, $alpha: 0.5);
                     margin-bottom: 1px;
-                    a,
-                    .ant-menu-item-icon {
+                    a {
                       color: rgba($white, $alpha: 0.5);
+                    }
+                    .ant-menu-item-icon {
+                      color: #434362;
                     }
                     &:hover {
                       color: $white;
@@ -838,7 +902,7 @@
     &-footer {
       border-radius: 0 0 5px 5px;
       // box-shadow: 0px -1px 6px rgba(82, 150, 199, 0.25);
-      &-nostyle { 
+      &-nostyle {
         .ant-modal-footer {
           display: none;
         }
@@ -918,8 +982,8 @@
         border-color: $primary-color;
       }
       .ant-checkbox-inner {
-          background-color: $primary-color;
-          border-color: $primary-color;
+        background-color: $primary-color;
+        border-color: $primary-color;
       }
     }
     &-indeterminate {

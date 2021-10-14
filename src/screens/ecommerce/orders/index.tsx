@@ -1,76 +1,75 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, Tag } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import NumberFormat from "react-number-format";
+import { Button, Card, Tag, Tooltip } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
+
+import UrlConfig from "config/url.config";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { generateQuery } from "utils/AppUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
-import EcommerceOrderFilter from "component/filter/ecommerce.order.filter";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+
+import { StoreResponse } from "model/core/store.model";
 import {
   OrderFulfillmentsModel,
   OrderItemModel,
   OrderModel,
   OrderPaymentModel,
-  OrderSearchQuery,
+  EcommerceOrderSearchQuery,
 } from "model/order/order.model";
 import {
   AccountResponse,
-  AccountSearchQuery,
 } from "model/account/account.model";
-import UrlConfig from "config/url.config";
-import ContentContainer from "component/container/content.container";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
+
 import { getListOrderAction } from "domain/actions/order/order.action";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import NumberFormat from "react-number-format";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
+
+import { PageResponse } from "model/base/base-metadata.response";
+import { SourceResponse } from "model/response/order/source.response";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
 
+import ContentContainer from "component/container/content.container";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
+import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
+import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
+import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
+import UpdateConnectionModal from "./component/UpdateConnectionModal";
+
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
 import ImageVTP from "assets/img/imageVTP.svg";
 import ImageDHL from "assets/img/imageDHL.svg";
+import CircleEmptyIcon from "assets/icon/circle_empty.svg";
+import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
+import CircleFullIcon from "assets/icon/circle_full.svg";
+import ConnectIcon from "assets/icon/connect.svg";
+import SuccessIcon from "assets/icon/success.svg";
+import ErrorIcon from "assets/icon/error.svg";
+
+import "./style.scss"
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
-    name: "Xóa",
-  },
-  {
-    id: 2,
-    name: "Export",
-  },
-  // {
-  //   id: 3,
-  //   name: "Clone đơn hàng",
-  // },
-  {
-    id: 4,
     name: "In phiếu giao hàng",
   },
   {
-    id: 5,
+    id: 2,
     name: "In phiếu xuất kho",
   },
 ];
 
-const initQuery: OrderSearchQuery = {
+const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
   limit: 30,
   sort_type: null,
@@ -88,6 +87,8 @@ const initQuery: OrderSearchQuery = {
   ship_on_min: null,
   ship_on_max: null,
   ship_on_predefined: null,
+  shop_ids: [],
+  ecommerce_id: null,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -116,33 +117,40 @@ const initQuery: OrderSearchQuery = {
   reference_code: null,
 };
 
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
-};
-
 const EcommerceOrderSync: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const listStatus = useSelector((state: RootReducerType) => {
-    return state.bootstrapReducer.data?.variant_status;
-  });
+  const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
+  const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] = useState(false);
+  const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
+  const [downloadedOrderData, setDownloadedOrderData] = useState<any>(
+    {
+      total: 0,
+      create_total: 0,
+      update_total: 0,
+    }
+  );
+
+  const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>([]);
+  
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
-  const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
-  let dataQuery: OrderSearchQuery = {
+  let dataQuery: EcommerceOrderSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+  let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -162,6 +170,7 @@ const EcommerceOrderSync: React.FC = () => {
     { name: "Đã huỷ", value: "cancelled" },
     { name: "Đã hết hạn", value: "expired" },
   ];
+
   const delivery_service = [
     {
       code: "ghtk",
@@ -188,11 +197,50 @@ const EcommerceOrderSync: React.FC = () => {
       name: "DHL",
     },
   ];
+
+  const convertProgressStatus = (value: any) => {
+    switch (value) {
+      case "partial_paid":
+        return CircleHalfFullIcon;
+      case "paid":
+        return CircleFullIcon;
+      default:
+        return CircleEmptyIcon;
+    }
+  }
+
+
+  const convertDateTimeFormat = (dateTimeData: any) => {
+    const formatDateTime = "DD/MM/YYYY HH:mm"
+    return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
+  };
+
+  const handleUpdateProductConnection = (data: any) => {
+    setUpdateConnectionData(data.items);
+    setIsShowUpdateConnectionModal(true);
+
+    showSuccess("Click mở modal cập nhật ghép nối nè");
+  };
+
+  const cancelUpdateConnectionModal = () => {
+    setIsShowUpdateConnectionModal(false);
+  };
+  
+  const updateProductConnection = () => {
+    setIsShowUpdateConnectionModal(false);
+    
+    showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
+    //thai todo: call API
+  };
+  
+
+
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
   >([
     {
       title: "ID đơn hàng",
+      key: "order_id",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => (
         <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
@@ -208,7 +256,13 @@ const EcommerceOrderSync: React.FC = () => {
         record.shipping_address ? (
           <div className="customer custom-td">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {record.shipping_address.name}
+              <Link
+                target="_blank"
+                to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+                style={{ fontSize: "16px" }}
+              >
+                {record.shipping_address.name}
+              </Link>{" "}
             </div>
             <div className="p-b-3">{record.shipping_address.phone}</div>
             <div className="p-b-3">{record.shipping_address.full_address}</div>
@@ -228,20 +282,46 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Sản phẩm",
       dataIndex: "items",
-      key: "items.name",
+      key: "items_variant_id",
       render: (items: Array<OrderItemModel>) => (
-        <div className="items">
-          {items.map((item, i) => {
+        <div className="cell-items">
+          {items.length > 1 && items.map((item, i) => {
             return (
-              <div
-                key={item.variant_id}
-                className="item custom-td"
-                style={{ width: "100%" }}
-              >
-                <div className="item-sku">{item.variant}</div>
+              <div className="item" key={i}>
+                {item.variant.length > 33 &&
+                  <div className="tooltip-item">
+                    <Tooltip title={item.variant} color="#1890ff">
+                      <Link
+                        target="_blank"
+                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                      >
+                        {item.variant}
+                      </Link>
+                    </Tooltip>
+                  </div>
+                }
+
+                {item.variant.length <= 31 &&
+                  <div>
+                    <Link
+                      target="_blank"
+                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                    >
+                      {item.variant}
+                    </Link>
+                  </div>
+                }
               </div>
             );
           })}
+
+          {items.length === 1 &&
+            <div className="item">
+              <Link target="_blank" to={`${UrlConfig.PRODUCT}/${items[0].product_id}/variants/${items[0].variant_id}`}>
+                {items[0].variant}
+              </Link>
+            </div>
+          }
         </div>
       ),
       visible: true,
@@ -249,23 +329,21 @@ const EcommerceOrderSync: React.FC = () => {
       width: "6.5%",
     },
     {
-      title: "SL",
+      title: "Số lượng",
       dataIndex: "items",
-      key: "items.name",
+      key: "items_quantity",
       render: (items: Array<OrderItemModel>) => (
-        <div className="items">
+        <div className="cell-items">
           {items.map((item, i) => {
             return (
-              <div key={i} className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-quantity">{item.quantity}</div>
-              </div>
+              <div key={i} className="item">{item.quantity}</div>
             );
           })}
         </div>
       ),
       visible: true,
       align: "center",
-      width: "1.3%",
+      width: "2.5%",
     },
     {
       title: "Khách phải trả",
@@ -293,15 +371,15 @@ const EcommerceOrderSync: React.FC = () => {
           </span>
         </>
       ),
-      key: "customer.amount_money",
+      key: "customer_amount_money",
       visible: true,
       align: "right",
       width: "3.5%",
     },
     {
-      title: "HTVC",
+      title: "Phí ship trả sàn",
       dataIndex: "fulfillments",
-      key: "shipment.type",
+      key: "shipment_type",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
         const service_id =
           fulfillments.length && fulfillments[0].shipment
@@ -327,7 +405,7 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
-      key: "status",
+      key: "order_status",
       render: (status_value: string) => {
         const status = status_order.find(
           (status) => status.value === status_value
@@ -338,6 +416,9 @@ const EcommerceOrderSync: React.FC = () => {
               background: "rgba(42, 42, 134, 0.1)",
               borderRadius: "100px",
               color: "#2A2A86",
+              width: "fit-content",
+              padding: "5px 10px",
+              margin: "0 auto",
             }}
           >
             {status?.name}
@@ -346,28 +427,16 @@ const EcommerceOrderSync: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width: "5.5%",
     },
     {
       title: "Đóng gói",
       dataIndex: "packed_status",
       key: "packed_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -379,22 +448,9 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "received_status",
       key: "received_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -406,22 +462,9 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "payment_status",
       key: "payment_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -433,22 +476,9 @@ const EcommerceOrderSync: React.FC = () => {
       dataIndex: "return_status",
       key: "return_status",
       render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+        const processIcon = convertProgressStatus(value);
         return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
+          <img src={processIcon} alt="" />
         );
       },
       visible: true,
@@ -458,10 +488,8 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
-      key: "item.quantity.total",
+      key: "item_quantity_total",
       render: (items) => {
-        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
-
         return items.reduce(
           (total: number, item: any) => total + item.quantity,
           0
@@ -471,7 +499,7 @@ const EcommerceOrderSync: React.FC = () => {
       align: "center",
     },
     {
-      title: "Khu vực",
+      title: "Địa chỉ",
       dataIndex: "shipping_address",
       render: (shipping_address: any) => {
         const ward = shipping_address?.ward ? shipping_address.ward + "," : "";
@@ -490,107 +518,72 @@ const EcommerceOrderSync: React.FC = () => {
       width: "300px",
     },
     {
-      title: "Kho cửa hàng",
+      title: "Gian hàng",
       dataIndex: "store",
       key: "store",
       visible: true,
+      width: "200px",
     },
     {
       title: "Nguồn đơn hàng",
       dataIndex: "source",
-      key: "source",
+      key: "order_source",
       visible: true,
-    },
-    {
-      title: "Khách đã trả",
-      dataIndex: "payments",
-      key: "customer.paid",
-      render: (payments: Array<OrderPaymentModel>) => {
-        let total = 0;
-        payments.forEach((payment) => {
-          total += payment.amount;
-        });
-        return (
-          <NumberFormat
-            value={total}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
-        );
-      },
-      visible: true,
-    },
-
-    {
-      title: "Còn phải trả",
-      key: "customer.pay",
-      render: (order: OrderModel) => {
-        let paid = 0;
-        order.payments.forEach((payment) => {
-          paid += payment.amount;
-        });
-        const missingPaid = order.total_line_amount_after_line_discount
-          ? order.total_line_amount_after_line_discount - paid
-          : 0;
-        return (
-          <NumberFormat
-            value={missingPaid > 0 ? missingPaid : 0}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
-        );
-      },
-      visible: true,
+      width: "200px",
     },
     {
       title: "Phương thức thanh toán",
       dataIndex: "payments",
-      key: "payments.type",
+      key: "payments_type",
       render: (payments: Array<OrderPaymentModel>) =>
         payments.map((payment) => {
           return <Tag key={payment.id}>{payment.payment_method}</Tag>;
         }),
       visible: true,
+      width: "200px",
     },
     {
       title: "Nhân viên bán hàng",
-      render: (record) => (
-        <div>{`${record.assignee} - ${record.assignee_code}`}</div>
+      render: (data) => (
+        <div>{`${data.assignee_code} - ${data.assignee}`}</div>
       ),
       key: "assignee",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
-      title: "Nhân viên tạo đơn",
-      render: (record) => (
-        <div>{`${record.account} - ${record.account_code}`}</div>
+      title: "Ngày nhận đơn",
+      dataIndex: "created_date",
+      render: (created_date) => (
+        <div>{convertDateTimeFormat(created_date)}</div>
       ),
-      key: "account",
+      key: "created_date",
       visible: true,
       align: "center",
+      width: "200px",
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "completed_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      dataIndex: "finalized_on",
+      render: (finalized_on) => (
+        <div>{convertDateTimeFormat(finalized_on)}</div>
+      ),
       key: "completed_on",
       visible: true,
+      align: "center",
+      width: "200px",
     },
     {
       title: "Ngày huỷ đơn",
       dataIndex: "cancelled_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (cancelled_on) => (
+        <div>{convertDateTimeFormat(cancelled_on)}</div>
+      ),
       key: "cancelled_on",
       visible: true,
-    },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
-      visible: true,
+      align: "center",
+      width: "200px",
     },
     {
       title: "Ghi chú của khách",
@@ -599,26 +592,26 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
     },
     {
-      title: "Tag",
-      dataIndex: "tags",
-      // render: (tags: Array<string>) => (
-      //   tags?.map(tag => {
-      //     return (
-      //       <Tag>{tag}</Tag>
-      //     )
-      //   })
-      // ),
-      key: "tags",
+      title: <Tooltip overlay="Tình trạng ghép nối của sản phẩm" placement="topRight" color="blue">
+                <img src={ConnectIcon} alt="" />
+              </Tooltip>,
+      key: "connect_status",
       visible: true,
-    },
-    {
-      title: "Mã tham chiếu",
-      dataIndex: "reference_code",
-      key: "reference_code",
-      visible: true,
+      width: 50,
+      align: "center",
+      render: (data) => {
+        if (data.connect_status) {
+          return (
+            <img src={SuccessIcon} alt="" />
+          )
+        } else {
+          return (
+            <img src={ErrorIcon} alt="" onClick={() => handleUpdateProductConnection(data)} style={{ cursor: "pointer"}} />
+          )
+        }
+      },
     },
   ]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const onSelectedChange = useCallback((selectedRow) => {
     const selectedRowKeys = selectedRow.map((row: any) => row.id);
@@ -629,49 +622,29 @@ const EcommerceOrderSync: React.FC = () => {
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
-    [history, params]
+    [params]
   );
+
   const onFilter = useCallback(
     (values) => {
-      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
-      let queryParam = generateQuery(newPrams);
-      // console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
-      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
-    [history, params]
+    [params]
   );
+
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
         action: "print",
         ids: selectedRowKeys,
-        "print-type": index === 4 ? "shipment" : "stock_export",
+        "print-type": index === 1 ? "shipment" : "stock_export",
         "print-dialog": true,
       };
       const queryParam = generateQuery(params);
-      console.log(queryParam);
-      switch (index) {
-        case 1:
-          break;
-        case 2:
-          break;
-        case 3:
-          break;
-        case 4:
-          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          break;
-        case 5:
-          history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
-          break;
-        default:
-          break;
-      }
+      history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`);
     },
     [history, selectedRowKeys]
   );
@@ -701,11 +674,35 @@ const EcommerceOrderSync: React.FC = () => {
     []
   );
 
+  // handle get order
+  const openGetOrderModal = () => {
+    setIsShowGetOrderModal(true);
+  }
+
+  const cancelGetOrderModal = () => {
+    setIsShowGetOrderModal(false);
+  };
+
+  const updateOrderList = (data: any) => {
+    setIsShowGetOrderModal(false);
+    setIsShowResultGetOrderModal(true);
+    setDownloadedOrderData(data);
+    
+
+    // thai need todo: call api
+  };
+
+  const cancelResultGetOrderModal = () => {
+    setIsShowResultGetOrderModal(false);
+  };
+
+  const okResultGetOrderModal = () => {
+    setIsShowResultGetOrderModal(false);
+  };
+
+
+
   useEffect(() => {
-    if (isFirstLoad.current) {
-      setTableLoading(true);
-    }
-    isFirstLoad.current = false;
     setTableLoading(true);
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
@@ -723,6 +720,7 @@ const EcommerceOrderSync: React.FC = () => {
       )
     );
   }, [dispatch, setDataAccounts]);
+
   return (
     <ContentContainer
       title="Danh sách đơn hàng"
@@ -742,18 +740,20 @@ const EcommerceOrderSync: React.FC = () => {
       extra={
         <>
           <Button
-            //  onClick={handleGetProductsFromEcommerce}
+            disabled={tableLoading}
+            onClick={openGetOrderModal}
             className="ant-btn-outline ant-btn-primary"
             size="large"
             icon={<DownloadOutlined />}
           >
-            Tải đơn hàng từ sàn về
+            Tải đơn hàng về
           </Button>
         </>
       }
     >
-      <Card style={{ padding: "0 20px 20px" }}>
+      <Card style={{ padding: "20px" }}>
         <EcommerceOrderFilter
+          tableLoading={tableLoading}
           onMenuClick={onMenuClick}
           actions={actions}
           onFilter={onFilter}
@@ -769,33 +769,63 @@ const EcommerceOrderSync: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 3630, y: "50vh" }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
+          scroll={{ x: 3630, y: 350 }}
+          pagination={
+            tableLoading ? false : {
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }
+          }
           onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
           rowKey={(item: OrderModel) => item.id}
-          className="order-list"
+          className="ecommerce-order-list"
         />
       </Card>
 
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
+      {isShowGetOrderModal &&
+        <DownloadOrderDataModal
+          visible={isShowGetOrderModal}
+          onCancel={cancelGetOrderModal}
+          onOk={updateOrderList}
+        />
+      }
+
+      {isShowResultGetOrderModal &&
+        <ResultDownloadOrderDataModal
+          visible={isShowResultGetOrderModal}
+          onCancel={cancelResultGetOrderModal}
+          onOk={okResultGetOrderModal}
+          data={downloadedOrderData}
+        />
+      }
+      
+      {isShowUpdateConnectionModal &&
+        <UpdateConnectionModal
+          visible={isShowUpdateConnectionModal}
+          onCancel={cancelUpdateConnectionModal}
+          onOk={updateProductConnection}
+          data={updateConnectionData}
+        />
+      }
+
+      {showSettingColumn &&
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          isSetDefaultColumn={true}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+      }
     </ContentContainer>
   );
 };

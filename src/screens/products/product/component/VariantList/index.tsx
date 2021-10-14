@@ -151,14 +151,14 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                       <div className="item-new">Phiên bản mới</div>
                     )}
                   </div>
-                  <td className="variant-price">
+                  <div className="variant-price">
                     {" "}
                     {`${
                       item.variant_prices[0].retail_price
                         ? formatCurrency(item.variant_prices[0].retail_price)
                         : "-"
                     }`}
-                  </td>
+                  </div>
                 </div>
               </div>
             </List.Item>

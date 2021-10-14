@@ -43,7 +43,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CardShipment from "screens/order-online/component/order-detail/CardShipment";
@@ -88,6 +88,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isCanReturnOrExchange, setIsCanReturnOrExchange] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
+  const [isErrorExchange, setIsErrorExchange] = useState(false);
   const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
@@ -155,6 +156,8 @@ const ScreenReturnCreate = (props: PropType) => {
   const [returnMoneyType, setReturnMoneyType] = useState(
     RETURN_MONEY_TYPE.return_now
   );
+
+  const [moneyRefund, setMoneyRefund] = useState(0);
 
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -231,17 +234,20 @@ const ScreenReturnCreate = (props: PropType) => {
    * if return > exchange: positive
    * else negative
    */
-  let totalAmountCustomerNeedToPay =
-    totalAmountExchange +
-    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-    totalAmountReturnProducts;
+  let totalAmountCustomerNeedToPay = useMemo(() => {
+    let result =
+      totalAmountExchange +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      totalAmountReturnProducts;
+    return result;
+  }, [shippingFeeCustomer, totalAmountExchange, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
     if (!data) {
       setError(true);
     } else {
-      let _data = { ...data };
+      const _data = { ...data };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
           f.status !== FulFillmentStatus.CANCELLED &&
@@ -249,13 +255,10 @@ const ScreenReturnCreate = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
-      let returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
-        return (
-          singleFulfillment.status === FulFillmentStatus.SHIPPED ||
-          singleFulfillment.status === FulFillmentStatus.UNSHIPPED
-        );
-      });
-      if (returnFulfillment) {
+      const returnCondition =
+        _data.status === OrderStatus.FINISHED ||
+        _data.status === OrderStatus.COMPLETED;
+      if (returnCondition) {
         setIsCanReturnOrExchange(true);
       }
       let returnProduct: ReturnProductModel[] = _data.items.map((single) => {
@@ -505,13 +508,21 @@ const ScreenReturnCreate = (props: PropType) => {
             const handleCreateOrderExchangeByValue = (
               valuesResult: ExchangeRequest
             ) => {
+              if (isErrorExchange) {
+                showError("Đã tạo đơn đổi hàng không thành công!");
+                return;
+              }
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
-                      createOrderExchangeCallback
+                      createOrderExchangeCallback,
+                      (error) => {
+                        console.log("error", error);
+                        setIsErrorExchange(true);
+                      }
                     )
                   );
                 })
@@ -626,16 +637,16 @@ const ScreenReturnCreate = (props: PropType) => {
           : loyaltyPoint?.loyalty_level_id)
     );
 
-    let curenPoint = !loyaltyPoint
-      ? 0
-      : loyaltyPoint.point === null
-      ? 0
-      : loyaltyPoint.point;
-    let point = !Pointfocus
-      ? 0
-      : Pointfocus.point === undefined
-      ? 0
-      : Pointfocus.point;
+    // let curenPoint = !loyaltyPoint
+    //   ? 0
+    //   : loyaltyPoint.point === null
+    //   ? 0
+    //   : loyaltyPoint.point;
+    // let point = !Pointfocus
+    //   ? 0
+    //   : Pointfocus.point === undefined
+    //   ? 0
+    //   : Pointfocus.point;
 
     // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
     // let limitAmountPointFocus = !rank
@@ -841,6 +852,11 @@ const ScreenReturnCreate = (props: PropType) => {
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
+      moneyRefund,
+      setMoneyRefund,
+      totalAmountReturnProducts,
+      totalAmountExchange,
+      totalAmountCustomerNeedToPay,
     },
     isExchange,
     isStepExchange,
@@ -877,6 +893,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 <CardReturnProductContainer
                   discountRate={discountRate}
                   isDetailPage={false}
+                  orderId={orderId}
                 />
                 {isExchange && isStepExchange && (
                   <CardExchangeProducts
@@ -898,6 +915,18 @@ const ScreenReturnCreate = (props: PropType) => {
                   />
                 )}
 
+                {isExchange && (
+                  <CardReturnMoneyPageCreate
+                    listPaymentMethods={listPaymentMethods}
+                    payments={payments}
+                    handlePayments={setPayments}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    isExchange={isExchange}
+                    isStepExchange={isStepExchange}
+                    returnMoneyType={returnMoneyType}
+                    setReturnMoneyType={setReturnMoneyType}
+                  />
+                )}
                 {isExchange && isStepExchange && (
                   <CardShipment
                     setShipmentMethodProps={setShipmentMethod}
@@ -925,18 +954,6 @@ const ScreenReturnCreate = (props: PropType) => {
                     fulfillments={fulfillments}
                     isCloneOrder={false}
                     totalAmountReturnProducts={totalAmountReturnProducts}
-                  />
-                )}
-                {isExchange && (
-                  <CardReturnMoneyPageCreate
-                    listPaymentMethods={listPaymentMethods}
-                    payments={payments}
-                    handlePayments={setPayments}
-                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                    isExchange={isExchange}
-                    isStepExchange={isStepExchange}
-                    returnMoneyType={returnMoneyType}
-                    setReturnMoneyType={setReturnMoneyType}
                   />
                 )}
                 <CardReturnReceiveProducts

@@ -2,13 +2,20 @@ import { Button, Card, Row, Space } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import ShipmentFilter from "component/filter/shipment.filter";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { Item, Shipment, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
+import {
+  Item,
+  Shipment,
+  ShipmentModel,
+  ShipmentSearchQuery,
+} from "model/order/shipment.model";
 import { AccountResponse } from "model/account/account.model";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
@@ -16,8 +23,11 @@ import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { getListReasonRequest, getShipmentsAction } from "domain/actions/order/order.action";
-import './scss/index.screen.scss'
+import {
+  getListReasonRequest,
+  getShipmentsAction,
+} from "domain/actions/order/order.action";
+import "./scss/index.screen.scss";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -27,6 +37,11 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { delivery_service } from "./common/delivery-service";
 import ShipmentDetailsModal from "./modal/shipment-details.modal";
+import { StyledComponent } from "./list-shipments.styles";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/http-status.config";
+import { showError, showSuccess } from "utils/ToastUtils";
+import ExportModal from "./modal/export.modal";
 
 const actions: Array<MenuAction> = [
   {
@@ -78,8 +93,6 @@ const initQuery: ShipmentSearchQuery = {
   cancel_reason: [],
 };
 
-
-
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -90,7 +103,7 @@ const ListOrderScreen: React.FC = () => {
   const [details, setDetails] = useState(false);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-    useState<Array<AccountResponse>>();
+  useState<Array<AccountResponse>>();
   let dataQuery: ShipmentSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -99,8 +112,10 @@ const ListOrderScreen: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [reasons, setReasons] = useState<Array<{id: number; name: string}>>([]);
-  
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
+    []
+  );
+
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,
@@ -109,26 +124,25 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  
+
   const status_order = [
-    {name: "Nháp", value: "draft"},
-    {name: "Đóng gói", value: "packed"},
-    {name: "Xuất kho", value: "shipping"},
-    {name: "Đã xác nhận", value: "finalized"},
-    {name: "Hoàn thành", value: "completed"},
-    {name: "Kết thúc", value: "finished"},
-    {name: "Đã huỷ", value: "cancelled"},
-    {name: "Đã hết hạn", value: "expired"},
-  ]
-  
-  const shipmentDetailModal = useCallback(
-    (record: any) => {
-      setShowDetails(true)
-      setDetails(record)
-    },
-    []
-  );
-  const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
+    { name: "Nháp", value: "draft" },
+    { name: "Đóng gói", value: "packed" },
+    { name: "Xuất kho", value: "shipping" },
+    { name: "Đã xác nhận", value: "finalized" },
+    { name: "Hoàn thành", value: "completed" },
+    { name: "Kết thúc", value: "finished" },
+    { name: "Đã huỷ", value: "cancelled" },
+    { name: "Đã hết hạn", value: "expired" },
+  ];
+
+  const shipmentDetailModal = useCallback((record: any) => {
+    setShowDetails(true);
+    setDetails(record);
+  }, []);
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<ShipmentModel>>
+  >([
     {
       title: "Mã đơn giao",
       // dataIndex: "code",
@@ -139,40 +153,84 @@ const ListOrderScreen: React.FC = () => {
         <div>
           <div
             onClick={() => shipmentDetailModal(record)}
-            className="name p-b-3" style={{ color: "#2A2A86" }}
+            className="name p-b-3"
+            style={{ color: "#2A2A86" }}
           >
             {record.code}
           </div>
-          <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
+          <div>
+            {record.created_date
+              ? ConvertUtcToLocalDate(record.created_date)
+              : ""}
+          </div>
         </div>
       ),
       visible: true,
-      fixed: 'left',
-      width:"120px",
+      fixed: "left",
+      width: "120px",
     },
     {
       title: "Mã vận đơn",
       dataIndex: "shipment",
-      render: (shipment: any) => (
-        shipment?.tracking_code
-      ),
+      render: (shipment: any) => shipment?.tracking_code,
       visible: true,
-      width:"120px",
+      width: "120px",
     },
     {
       title: "Người nhận",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
+      render: (shipping_address: any) =>
         shipping_address && (
-        <div className="customer">
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}>{shipping_address.name}</div>
-          <div className="p-b-3">{shipping_address.phone}</div>
-          <div className="p-b-3">{shipping_address.full_address}</div>
-        </div>
-      )),
+          <div className="customer">
+            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+              {shipping_address.name}
+            </div>
+            <div className="p-b-3">{shipping_address.phone}</div>
+            <div className="p-b-3">{shipping_address.full_address}</div>
+          </div>
+        ),
       key: "customer",
       visible: true,
       width: "5%",
+    },
+    {
+      title: (
+        <div className="productNameQuantityHeader">
+          <span className="productNameWidth">Sản phẩm</span>
+          <span className="quantity quantityWidth">
+            <span>Số lượng</span>
+          </span>
+        </div>
+      ),
+      dataIndex: "items",
+      key: "items",
+      className: "productNameQuantity",
+      render: (items: Array<Item>) => {
+        return (
+          <div className="items">
+            {items.map((item, i) => {
+              return (
+                <div className="item custom-td">
+                  <div className="product productNameWidth">
+                    <div>
+                      <Link to={`${UrlConfig.PRODUCT}/${item.variant_id}`}>
+                        {item.variant}
+                      </Link>
+                      <p>{item.sku}</p>
+                    </div>
+                  </div>
+                  <div className="quantity quantityWidth">
+                    <span>SL: {item.quantity}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
+      visible: true,
+      align: "left",
+      width: "280px",
     },
     {
       title: "Sản phẩm",
@@ -180,7 +238,7 @@ const ListOrderScreen: React.FC = () => {
       key: "items.name",
       render: (items: Array<Item>) => (
         <div className="items">
-           {items.map((item, i) => {
+          {items.map((item, i) => {
             return (
               <div className="item custom-td" style={{ width: "100%" }}>
                 <div className="item-sku">{item.variant}</div>
@@ -213,7 +271,7 @@ const ListOrderScreen: React.FC = () => {
       align: "center",
       width: "1.3%",
     },
-    
+
     {
       title: "Tiền COD",
       dataIndex: "shipment",
@@ -227,15 +285,17 @@ const ListOrderScreen: React.FC = () => {
       ),
       key: "cod",
       visible: true,
-      align:"right"
+      align: "right",
     },
     {
       title: "HTVC",
       dataIndex: "shipment",
       render: (shipment: Shipment) => {
-        const service_id = shipment.delivery_service_provider_id
-        const service = delivery_service.find(service => service.id === service_id)
-        return(
+        const service_id = shipment.delivery_service_provider_id;
+        const service = delivery_service.find(
+          (service) => service.id === service_id
+        );
+        return (
           service && (
             <img
               src={service.logo ? service.logo : ""}
@@ -243,26 +303,38 @@ const ListOrderScreen: React.FC = () => {
               style={{ width: "100%" }}
             />
           )
-        )
+        );
       },
       key: "shipment.type",
       visible: true,
       width: "3.5%",
-      align:"center"
+      align: "center",
     },
     {
       title: "Trạng thái giao vận",
       dataIndex: "status",
       key: "status",
       render: (status_value: string) => {
-        const status = status_order.find(status => status.value === status_value)
-        return <div style={{background:"rgba(42, 42, 134, 0.1)", borderRadius:"100px", color:"#2A2A86"}}>{status?.name}</div>;
+        const status = status_order.find(
+          (status) => status.value === status_value
+        );
+        return (
+          <div
+            style={{
+              background: "rgba(42, 42, 134, 0.1)",
+              borderRadius: "100px",
+              color: "#2A2A86",
+            }}
+          >
+            {status?.name}
+          </div>
+        );
       },
       visible: true,
       align: "center",
-      width:"4.3%"
+      width: "4.3%",
     },
-    
+
     {
       title: "Tổng SL sản phẩm",
       dataIndex: "total_quantity",
@@ -270,7 +342,7 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-    
+
     {
       title: "Phí trả đối tác",
       dataIndex: "shipment",
@@ -284,7 +356,7 @@ const ListOrderScreen: React.FC = () => {
     //   key: "total",
     //   visible: true,
     // },
-    
+
     {
       title: "Ngày giao hàng",
       dataIndex: "shipped_on",
@@ -337,16 +409,16 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Tỉnh thành",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
-        shipping_address && (shipping_address.city)),
+      render: (shipping_address: any) =>
+        shipping_address && shipping_address.city,
       key: "city",
       visible: true,
     },
     {
       title: "Quận huyện",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
-        shipping_address && (shipping_address.district)),
+      render: (shipping_address: any) =>
+        shipping_address && shipping_address.district,
       key: "district",
       visible: true,
     },
@@ -355,7 +427,7 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "reference_code",
       key: "reference_code",
       visible: true,
-    }
+    },
   ]);
 
   const onPageChange = useCallback(
@@ -370,29 +442,130 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log('values filter 1', values)
+      console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log('filter start', `${UrlConfig.SHIPMENTS}?${queryParam}`)
+      console.log("filter start", `${UrlConfig.SHIPMENTS}?${queryParam}`);
       history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
     },
     [history, params]
   );
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+
+  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const onSelectedChange = useCallback((selectedRow) => {
+    const selectedRowCodes = selectedRow.map((row: any) => row.code);
+    setSelectedRowCodes(selectedRowCodes);
+  }, []);
+
+  const onExport = useCallback((optionExport, typeExport) => {
+    let newParams:any = {...params};
+    // let hiddenFields = [];
+    console.log('selectedRowCodes', selectedRowCodes);
+    switch (optionExport) {
+      case 1: newParams = {}
+        break
+      case 2: break
+      case 3:
+        newParams.fulfillment_code = selectedRowCodes;
+        console.log('newParams', newParams);
+        break
+      case 4:
+        delete newParams.page
+        delete newParams.limit
+        break
+      default: break  
+    }
+    // console.log('newParams', newParams);
+    
+    // switch (optionExport) {
+    //   case 1:
+    //     hiddenFields
+    //     break
+    //   case 2:
+    //     delete newParams.page
+    //     delete newParams.limit
+    //     break
+    //   default: break  
+    // }
+    // }
+        
+    let queryParams = generateQuery(newParams);
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_FULFILMENT",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(2)
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        setStatusExport(4)
+        console.log("orders export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [params, selectedRowCodes, listExportFile]);
+  const checkExportFile = useCallback(() => {
+    console.log('start check status');
+    
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (exportProgress < 95) {
+            setExportProgress(exportProgress + 3)
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(3)
+            console.log('finishhh');
+            setExportProgress(100)
+            const fileCode = response.data.code
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [exportProgress, listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+    
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
+
   const onMenuClick = useCallback((index: number) => {}, []);
 
   const setSearchResult = useCallback(
-    (result: PageResponse<ShipmentModel>|false) => {
+    (result: PageResponse<ShipmentModel> | false) => {
       setTableLoading(false);
-      if(!!result) {
+      if (!!result) {
         setData(result);
       }
     },
     []
   );
-  
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
-  
+
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
+
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -402,7 +575,7 @@ const ListOrderScreen: React.FC = () => {
     },
     []
   );
-  
+
   useEffect(() => {
     if (isFirstLoad.current) {
       setTableLoading(true);
@@ -418,104 +591,129 @@ const ListOrderScreen: React.FC = () => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListReasonRequest(setReasons));
   }, [dispatch, setDataAccounts]);
-  
+
   return (
-    <ContentContainer
-      title="Danh sách đơn giao hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-         path: UrlConfig.HOME,
-        },
-        {
-          name: "Danh sách đơn giao hàng",
-        },
-      ]}
-      extra={
-        <Row>
-          <Space>
-            <Button
-              type="default"
-              className="light"
-              size="large"
-              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => {}}
-            >
-              Nhập file
-            </Button>
-            <Button
-              type="default"
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              // onClick={onExport}
-              onClick={() => {
-                // setShowExportModal(true);
+    <StyledComponent>
+      <ContentContainer
+        title="Danh sách đơn giao hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Danh sách đơn giao hàng",
+          },
+        ]}
+        extra={
+          <Row>
+            <Space>
+              <Button
+                type="default"
+                className="light"
+                size="large"
+                icon={
+                  <img src={importIcon} style={{ marginRight: 8 }} alt="" />
+                }
+                onClick={() => {}}
+              >
+                Nhập file
+              </Button>
+              <Button
+                type="default"
+                className="light"
+                size="large"
+                icon={
+                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
+                }
+                // onClick={onExport}
+                onClick={() => {
+                  setShowExportModal(true);
+                }}
+              >
+                Xuất file
+              </Button>
+              <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+            </Space>
+          </Row>
+        }
+      >
+        <Card>
+          <div className="padding-20">
+            <ShipmentFilter
+              onMenuClick={onMenuClick}
+              actions={actions}
+              onFilter={onFilter}
+              isLoading={tableLoading}
+              params={params}
+              listSource={listSource}
+              listStore={listStore}
+              accounts={accounts}
+              reasons={reasons}
+              deliveryService={delivery_service}
+              onShowColumnSetting={() => setShowSettingColumn(true)}
+            />
+            <CustomTable
+              isRowSelection
+              isLoading={tableLoading}
+              showColumnSetting={true}
+              scroll={{ x: 3630 }}
+              sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
               }}
-            >
-              Xuất file
-            </Button>
-            <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
-          </Space>
-        </Row>
-      }
-    >
-      <Card>
-        <div className="padding-20">
-        <ShipmentFilter
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          isLoading={tableLoading}
-          params={params}
-          listSource={listSource}
-          listStore={listStore}
-          accounts={accounts}
-          reasons={reasons}
-          deliveryService={delivery_service}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
+              onSelectedChange={(selectedRows) =>
+                onSelectedChange(selectedRows)
+              }
+              // expandable={{
+              //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
+              // }}
+              onShowColumnSetting={() => setShowSettingColumn(true)}
+              dataSource={data.items}
+              columns={columnFinal}
+              rowKey={(item: ShipmentModel) => item.id}
+              className="order-list"
+            />
+          </div>
+        </Card>
+
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
         />
-        <CustomTable
-           isRowSelection
-           isLoading={tableLoading}
-           showColumnSetting={true}
-           scroll={{ x: 3630}}
-           sticky={{offsetScroll: 10, offsetHeader: 55}}
-           pagination={{
-             pageSize: data.metadata.limit,
-             total: data.metadata.total,
-             current: data.metadata.page,
-             showSizeChanger: true,
-             onChange: onPageChange,
-             onShowSizeChange: onPageChange,
-           }}
-          // expandable={{
-          //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-          // }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: ShipmentModel) => item.id}
-          className="order-list"
+        <ShipmentDetailsModal
+          visible={showDetails}
+          onOk={() => {
+            setShowDetails(false);
+          }}
+          shipmentDetails={details}
         />
-        </div>
-      </Card>
-      
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data)
-        }}
-        data={columns}
-      />
-      <ShipmentDetailsModal
-        visible={showDetails}
-        onOk={() => {setShowDetails(false)}}
-        shipmentDetails={details}
-      />
-    </ContentContainer>
+        {showExportModal && <ExportModal
+          visible={showExportModal}
+          onCancel={() => {
+            setShowExportModal(false)
+            setExportProgress(0)
+            setStatusExport(1)
+          }}
+          onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+          type="shipments"
+          total={data.metadata.total}
+          exportProgress={exportProgress}
+          statusExport={statusExport}
+          selected={selectedRowCodes.length ? true : false}
+        />}
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 

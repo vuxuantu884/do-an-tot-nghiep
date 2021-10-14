@@ -213,17 +213,17 @@ function CardPayments(props: CardPaymentsProps) {
 
   return (
     <Card
-      className="margin-top-20"
       title={
         <div className="d-flex">
-          <span className="title-card">THANH TOÁN</span>
+          <span className="title-card">THANH TOÁN 1</span>
         </div>
       }
     >
-      <div className="padding-20 create-order-payment">
+      <div className="create-order-payment ">
         <Form.Item
-        // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
-        // required
+          // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+          // required
+          style={{ marginBottom: 0 }}
         >
           <Radio.Group
             value={paymentMethod}

@@ -1,4 +1,4 @@
-import { Card, Col, Popover, Row, Table } from "antd";
+import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -6,7 +6,7 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -15,6 +15,7 @@ type PropType = {
   discountRate?: number | null;
   pointUsing?: number;
   totalAmountReturnToCustomer: number | undefined;
+  isDetailPage?: boolean;
 };
 
 function CardShowReturnProducts(props: PropType) {
@@ -23,6 +24,7 @@ function CardShowReturnProducts(props: PropType) {
     discountRate,
     pointUsing,
     totalAmountReturnToCustomer,
+    isDetailPage = false,
   } = props;
 
   const getProductDiscountPerOrder = useCallback(
@@ -93,6 +95,32 @@ function CardShowReturnProducts(props: PropType) {
       title: "Sản phẩm",
       dataIndex: "variant",
       key: "variant",
+      render: (value, record: ReturnProductModel, index: number) => {
+        return (
+          <div className="d-flex align-items-center">
+            <div
+              style={{
+                width: "calc(100% - 32px)",
+                float: "left",
+              }}
+            >
+              <div className="yody-pos-sku">
+                <Typography.Link style={{ color: "#2A2A86" }}>
+                  {record.sku}
+                </Typography.Link>
+              </div>
+              <div className="yody-pos-varian">
+                <Tooltip
+                  title={record.variant}
+                  className="yody-pos-varian-name"
+                >
+                  <span>{record.variant}</span>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: () => (
@@ -204,10 +232,24 @@ function CardShowReturnProducts(props: PropType) {
                 )}
               </span>
             </Row>
-            <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">Tiêu điểm: </span>
-              {`${pointUsing ? pointUsing : 0} điểm`}
-            </Row>
+            {isDetailPage ? (
+              <React.Fragment>
+                {/* <Row className="payment-row" justify="space-between">
+                  <span className="font-size-text">Điểm trừ: </span>
+                  {`${pointReturnToCustomer ? pointReturnToCustomer : 0} điểm`}
+                </Row> */}
+                <Row className="payment-row" justify="space-between">
+                  {/* <span className="font-size-text">Điểm hoàn: </span> */}
+                  <span className="font-size-text">Điểm trừ: </span>
+                  {`${pointUsing ? pointUsing : 0} điểm`}
+                </Row>
+              </React.Fragment>
+            ) : (
+              <Row className="payment-row" justify="space-between">
+                <span className="font-size-text">Tiêu điểm: </span>
+                {`${pointUsing ? pointUsing : 0} điểm`}
+              </Row>
+            )}
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>

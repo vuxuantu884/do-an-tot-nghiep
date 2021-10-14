@@ -2,6 +2,7 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 import OrderUpdate from "screens/order-online/order-update";
+import PackSupportScreen from "screens/order-online/pack-support.screen";
 
 const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
 const OrderDetail = React.lazy(
@@ -121,6 +122,17 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
+  },
+  {
+    path: `/orders-pack-support`,
+    exact: true,
+    title: "Đóng gói và biên bản bàn giao",
+    icon: "icon-dot",
+    component: PackSupportScreen,
+    key: "submenu56",
+    isShow: true,
+    header: null,
+    subMenu: [],
   },
 ];
 

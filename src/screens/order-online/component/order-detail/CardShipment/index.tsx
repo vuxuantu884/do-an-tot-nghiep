@@ -13,6 +13,7 @@ import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   // DeliveryServicesGetList,
@@ -33,6 +34,7 @@ import {
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, {
+  useContext,
   // useCallback,
   useEffect,
   useLayoutEffect,
@@ -110,6 +112,12 @@ const CardShipment: React.FC<CardShipmentProps> = (
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
 
+  // data context
+  const createOrderContext = useContext(OrderCreateContext);
+
+  const orderConfig = createOrderContext?.orderConfig;
+  const form = createOrderContext?.form;
+
   const ShipMethodOnChange = (value: number) => {
     setServiceType(undefined);
     setShipmentMethodProps(value);
@@ -163,6 +171,17 @@ const CardShipment: React.FC<CardShipmentProps> = (
   useLayoutEffect(() => {
     // dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (orderConfig) {
+      if (orderConfig.for_all_order) {
+        form?.setFieldsValue({
+          requirements: orderConfig.order_config_action,
+        });
+        // form?.resetFields();
+      }
+    }
+  }, [form, orderConfig]);
 
   // shipment button action
   interface ShipmentButtonModel {
@@ -278,15 +297,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
 
   return (
     <StyledComponent>
-      <Card
-        className="margin-top-20"
-        title={
-          <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
-          </div>
-        }
-      >
-        <div className="padding-24 orders-shipment">
+      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+        <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>
               <span className="orders-shipment__dateLabel">Hẹn giao:</span>
@@ -324,6 +336,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
                   notFoundContent="Không tìm thấy kết quả"
                   style={{ width: "100%" }}
                   placeholder="Chọn yêu cầu"
+                  disabled={orderConfig?.for_all_order}
                   filterOption={(input, option) => {
                     if (option) {
                       return (

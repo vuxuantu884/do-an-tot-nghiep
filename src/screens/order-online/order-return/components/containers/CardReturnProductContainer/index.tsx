@@ -1,30 +1,36 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import imgDefault from "assets/icon/img-default.svg";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
 import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import { formatCurrency } from "utils/AppUtils";
 import CardReturnProducts from "../../CardReturnProducts";
 
 type PropType = {
-  handleCanReturn?: (value: boolean) => void;
   isDetailPage?: boolean;
   discountRate?: number;
+  orderId: number | undefined;
+  handleCanReturn?: (value: boolean) => void;
 };
 
 function CardReturnProductContainer(props: PropType) {
-  const { handleCanReturn, isDetailPage, discountRate } = props;
+  const { handleCanReturn, isDetailPage, discountRate, orderId } = props;
 
-  const pointPaymentMethod = "Tiêu điểm";
+  const dispatch = useDispatch();
+
+  const pointPaymentMethodId = 1;
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
   console.log("createOrderReturnContext", createOrderReturnContext);
 
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
+  const [pointRefund, setPointRefund] = useState(0);
 
   const listReturnProducts =
     createOrderReturnContext?.return.listReturnProducts;
@@ -32,6 +38,10 @@ function CardReturnProductContainer(props: PropType) {
     createOrderReturnContext?.return.setListReturnProducts;
   const setTotalAmountReturnProducts =
     createOrderReturnContext?.return.setTotalAmountReturnProducts;
+  const totalAmountReturnProducts =
+    createOrderReturnContext?.return.totalAmountReturnProducts;
+  const moneyRefund = createOrderReturnContext?.return.moneyRefund;
+  const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
   const listOrderProducts = OrderDetail?.items;
   const isStepExchange = createOrderReturnContext?.isStepExchange;
@@ -241,33 +251,33 @@ function CardReturnProductContainer(props: PropType) {
     [discountRate]
   );
 
-  const pointAmountUsing = useMemo(() => {
-    let result = 0;
-    let paymentPointArray = OrderDetail?.payments?.filter((single) => {
-      return single.payment_method === pointPaymentMethod;
-    });
-    if (paymentPointArray) {
-      paymentPointArray.forEach((single) => {
-        result += single.paid_amount;
-      });
-    }
-    return result;
-  }, [OrderDetail]);
+  // const pointAmountUsing = useMemo(() => {
+  //   let result = 0;
+  //   let paymentPointArray = OrderDetail?.payments?.filter((single) => {
+  //     return single.payment_method === pointPaymentMethodId;
+  //   });
+  //   if (paymentPointArray) {
+  //     paymentPointArray.forEach((single) => {
+  //       result += single.paid_amount;
+  //     });
+  //   }
+  //   return result;
+  // }, [OrderDetail]);
 
-  const pointUsing = useMemo(() => {
-    let result = 0;
-    let paymentPointArray = OrderDetail?.payments?.filter((single) => {
-      return single.payment_method === pointPaymentMethod;
-    });
-    if (paymentPointArray) {
-      paymentPointArray.forEach((single) => {
-        if (single.point) {
-          result += single.point;
-        }
-      });
-    }
-    return result;
-  }, [OrderDetail]);
+  // const pointUsing = useMemo(() => {
+  //   let result = 0;
+  //   let paymentPointArray = OrderDetail?.payments?.filter((single) => {
+  //     return single.payment_method === pointPaymentMethodId;
+  //   });
+  //   if (paymentPointArray) {
+  //     paymentPointArray.forEach((single) => {
+  //       if (single.point) {
+  //         result += single.point;
+  //       }
+  //     });
+  //   }
+  //   return result;
+  // }, [OrderDetail]);
 
   const getTotalPrice = useCallback(
     (listReturnProducts: ReturnProductModel[]) => {
@@ -279,12 +289,9 @@ function CardReturnProductContainer(props: PropType) {
           single.price - discountPerProduct - discountPerOrder;
         totalPrice = totalPrice + single.quantity * singleTotalPrice;
       });
-      if (totalPrice > pointAmountUsing) {
-        totalPrice = totalPrice - pointAmountUsing;
-      }
       return totalPrice;
     },
-    [pointAmountUsing, getProductDiscountPerOrder]
+    [getProductDiscountPerOrder]
   );
 
   const getProductDiscountPerProduct = (product: ReturnProductModel) => {
@@ -303,14 +310,108 @@ function CardReturnProductContainer(props: PropType) {
     return result;
   };
 
+  // const totalPriceReturnToCustomer = useMemo(() => {
+  //   let result = listReturnProducts
+  //     ? Math.round(getTotalPrice(listReturnProducts))
+  //     : 0;
+  //   let isUsingPoint = OrderDetail?.payments?.some((single) => {
+  //     return single.payment_method_id === 1;
+  //   });
+  //   const refund = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
+  //   if (isUsingPoint) {
+  //     if (OrderDetail?.customer_id && orderId && refund > 0) {
+  //       console.log("refund", refund);
+  //       dispatch(
+  //         actionGetOrderReturnCalculateRefund(
+  //           OrderDetail.customer_id,
+  //           orderId,
+  //           refund,
+  //           (response) => {
+  //             console.log("response", response);
+  //           }
+  //         )
+  //       );
+  //     }
+  //   }
+  //   return result;
+  // }, [OrderDetail, dispatch, getTotalPrice, listReturnProducts, orderId]);
+
+  /**
+   * tính toán refund khi tiêu điểm
+   */
   useEffect(() => {
     if (!listReturnProducts) {
       return;
     }
-    if (setTotalAmountReturnProducts) {
-      setTotalAmountReturnProducts(getTotalPrice(listReturnProducts));
+    let isUsingPoint = OrderDetail?.payments?.some((single) => {
+      return single.payment_method_id === pointPaymentMethodId;
+    });
+    const refund = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
+    if (isUsingPoint) {
+      if (OrderDetail?.customer_id && orderId && refund > 0) {
+        console.log("refund", refund);
+        dispatch(
+          actionGetOrderReturnCalculateRefund(
+            OrderDetail.customer_id,
+            orderId,
+            refund,
+            (response) => {
+              console.log("response", response);
+              setPointRefund(response.point_refund);
+              if (setMoneyRefund) {
+                setMoneyRefund(response.money_refund);
+              }
+            }
+          )
+        );
+      } else {
+        setPointRefund(0);
+        if (setMoneyRefund) {
+          setMoneyRefund(0);
+        }
+      }
     }
-  }, [getTotalPrice, listReturnProducts, setTotalAmountReturnProducts]);
+  }, [
+    OrderDetail?.customer_id,
+    OrderDetail?.payments,
+    dispatch,
+    getTotalPrice,
+    listReturnProducts,
+    orderId,
+    setMoneyRefund,
+  ]);
+
+  useEffect(() => {
+    if (!listReturnProducts) {
+      return;
+    }
+    let result = 0;
+    let isUsingPoint = OrderDetail?.payments?.some((single) => {
+      return single.payment_method_id === pointPaymentMethodId;
+    });
+    if (!isUsingPoint) {
+      if (setTotalAmountReturnProducts) {
+        result = getTotalPrice(listReturnProducts);
+        console.log("result", result);
+        // làm tròn đến trăm đồng
+        result = Math.round(result / 100) * 100;
+      }
+    } else {
+      if (moneyRefund) {
+        result = moneyRefund;
+      }
+    }
+
+    if (setTotalAmountReturnProducts) {
+      setTotalAmountReturnProducts(result);
+    }
+  }, [
+    OrderDetail?.payments,
+    getTotalPrice,
+    listReturnProducts,
+    moneyRefund,
+    setTotalAmountReturnProducts,
+  ]);
 
   return (
     <CardReturnProducts
@@ -324,12 +425,9 @@ function CardReturnProductContainer(props: PropType) {
       onChangeProductQuantity={onChangeProductQuantity}
       onChangeProductSearchValue={onChangeProductSearchValue}
       onSelectSearchedVariant={onSelectSearchedVariant}
-      pointAmountUsing={pointAmountUsing}
-      pointUsing={pointUsing}
+      pointUsing={pointRefund}
       searchVariantInputValue={searchVariantInputValue}
-      totalPriceReturnToCustomer={
-        listReturnProducts ? Math.round(getTotalPrice(listReturnProducts)) : 0
-      }
+      totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={isShowProductSearch()}
     />
   );

@@ -9,18 +9,23 @@ import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
-  actionConfigureIsAllowToSellWhenNotAvailableStock,
   actionDeleteConfigurationShippingServiceAndShippingFee,
-  actionGetIsAllowToSellWhenNotAvailableStock,
+  actionEditOrderConfig,
+  actionGetOrderConfig,
+  actionGetOrderConfigPrint,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
+  OrderConfigPrintResponseModel,
+  OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import CardGeneralSettings from "./components/CardGeneralSettings";
@@ -32,14 +37,24 @@ function OrderSettings(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const [isTableLoading, setIsTableLoading] = useState(true);
-  const [
-    isAllowToSellWhenNotAvailableStock,
-    setIsAllowToSellWhenNotAvailableStock,
-  ] = useState(false);
+  const [isLoadedData, setIsLoadedData] = useState(false);
+
+  const [listPrintConfig, setListPrintConfig] = useState<
+    OrderConfigPrintResponseModel[] | null
+  >(null);
+
+  const [listOrderConfigs, setListOrderConfigs] =
+    useState<OrderConfigResponseModel | null>(null);
+
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
 
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigResponseModel[]
   >([]);
+
   const dispatch = useDispatch();
 
   const handleDeleteShippingService = (id: number) => {
@@ -179,8 +194,6 @@ function OrderSettings(props: PropType) {
     },
   ];
 
-  // const [isTableLoading, setTableLoading] = useState(false);
-
   const history = useHistory();
 
   const renderCardExtra = () => {
@@ -192,23 +205,33 @@ function OrderSettings(props: PropType) {
     );
   };
 
-  const onChangeAllowToSellWhenNotAvailableStock = (checked: boolean) => {
-    setIsAllowToSellWhenNotAvailableStock(checked);
-    dispatch(
-      actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
-    );
-  };
-
   const goToPageDetail = (id: string | number) => {
     history.push(
       `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
     );
   };
 
+  const onUpdateOrderConfig = (params: OrderConfigRequestModel) => {
+    dispatch(
+      actionEditOrderConfig(params, (response) => {
+        console.log("response", response);
+      })
+    );
+  };
+
   useEffect(() => {
     dispatch(
-      actionGetIsAllowToSellWhenNotAvailableStock((response) => {
-        setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
+      actionGetOrderConfigPrint((response) => {
+        setListPrintConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfig((response) => {
+        setListOrderConfigs(response);
+        setIsLoadedData(true);
       })
     );
   }, [dispatch]);
@@ -240,14 +263,17 @@ function OrderSettings(props: PropType) {
           },
         ]}
       >
-        <CardGeneralSettings
-          isAllowToSellWhenNotAvailableStock={
-            isAllowToSellWhenNotAvailableStock
-          }
-          onChangeAllowToSellWhenNotAvailableStock={
-            onChangeAllowToSellWhenNotAvailableStock
-          }
-        />
+        {isLoadedData ? (
+          <CardGeneralSettings
+            listPrintConfig={listPrintConfig}
+            listActionsOrderPreview={shipping_requirements}
+            listOrderConfigs={listOrderConfigs}
+            onUpdateOrderConfig={onUpdateOrderConfig}
+          />
+        ) : (
+          "Đang cập nhật"
+        )}
+
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
           extra={renderCardExtra()}

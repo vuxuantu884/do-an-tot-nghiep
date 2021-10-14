@@ -17,7 +17,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { useCallback } from "react";
 import moment from "moment";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { POStatus, ProcumentStatus } from "utils/Constants";
+import { ProcumentStatus } from "utils/Constants";
 
 type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
@@ -76,7 +76,6 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         procument_items[procument_items.length - 1].expect_receipt_date,
       procurement_items: newProcumentLineItem,
       status: ProcumentStatus.DRAFT,
-      status_po: POStatus.DRAFT,
       note: "",
       fake_id: new Date().getTime(),
     });

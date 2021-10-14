@@ -1,11 +1,9 @@
 import { Card, Col, Row } from "antd";
 import { actionGetOrderActionLogs } from "domain/actions/order/order.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { OrderStatus } from "utils/Constants";
+import { useDispatch } from "react-redux";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
@@ -13,26 +11,30 @@ import { StyledComponent } from "./styles";
 type PropType = {
   countChangeSubStatus: number;
   orderId: string;
+  reload?: boolean;
 };
 
 function ActionHistory(props: PropType) {
-  const { orderId, countChangeSubStatus } = props;
+  const listActionLogDisplay = [
+    {
+      action: "create",
+      displayName: "Tạo mới đơn hàng",
+    },
+    {
+      action: "update",
+      displayName: "Cập nhật đơn hàng",
+    },
+    {
+      action: "cancel",
+      displayName: "Hủy đơn hàng",
+    },
+  ];
+  const { orderId, countChangeSubStatus, reload } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number | undefined>(undefined);
-
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-
-  const LIST_FULFILLMENT_STATUS = bootstrapReducer.data?.fulfillment_status;
-  const extraStatus = {
-    name: "Đã xác nhận",
-    value: OrderStatus.FINALIZED,
-  };
-  let LIST_STATUS_EXTRA = LIST_FULFILLMENT_STATUS?.concat(extraStatus);
 
   const showModal = (actionId: number) => {
     setIsModalVisible(true);
@@ -57,11 +59,11 @@ function ActionHistory(props: PropType) {
       return;
     }
     let result = action;
-    const resultAction = LIST_STATUS_EXTRA?.find((singleStatus) => {
-      return singleStatus.value === action;
+    const resultAction = listActionLogDisplay?.find((singleStatus) => {
+      return singleStatus.action === action;
     });
-    if (resultAction && resultAction.name) {
-      result = resultAction.name || action;
+    if (resultAction && resultAction.displayName) {
+      result = resultAction.displayName || action;
     }
     return result;
   };
@@ -82,7 +84,7 @@ function ActionHistory(props: PropType) {
   };
 
   useEffect(() => {
-    if (orderId) {
+    if (orderId || reload) {
       dispatch(
         actionGetOrderActionLogs(
           +orderId,
@@ -92,62 +94,60 @@ function ActionHistory(props: PropType) {
         )
       );
     }
-  }, [dispatch, orderId, countChangeSubStatus]);
+  }, [dispatch, orderId, countChangeSubStatus, reload]);
 
   return (
     <StyledComponent>
       <Card className="margin-top-20" title={renderCardTitle()}>
-        <div className="padding-24">
-          {actionLog &&
-            actionLog.length > 0 &&
-            actionLog.map((singleActionHistory, index) => {
-              return (
-                <div
-                  className="singleActionHistory"
-                  key={index}
-                  onClick={() => {
-                    showModal(singleActionHistory.id);
-                  }}
-                >
-                  <Row className="" gutter={15}>
-                    <Col span={12}>
-                      <div className="singleActionHistory__info">
-                        {singleActionHistory?.store && (
-                          <h4 className="singleActionHistory__title">
-                            {singleActionHistory?.updated_name}
-                          </h4>
-                        )}
-                        {singleActionHistory?.updated_date && (
-                          <div className="singleActionHistory__date">
-                            {moment(singleActionHistory?.updated_date).format(
-                              "HH:mm DD/MM/YYYY"
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </Col>
-                    <Col span={12}>
-                      <div className="singleActionHistory__status">
-                        {singleActionHistory?.action && (
-                          <h4 className="singleActionHistory__mainStatus">
-                            {renderSingleActionLogTitle(
-                              singleActionHistory?.action
-                            )}
-                          </h4>
-                        )}
-                        <div className="singleActionHistory__subStatus">
-                          {renderSingleSubStatus(
-                            singleActionHistory?.status_before,
-                            singleActionHistory?.status_after
+        {actionLog &&
+          actionLog.length > 0 &&
+          actionLog.map((singleActionHistory, index) => {
+            return (
+              <div
+                className="singleActionHistory"
+                key={index}
+                onClick={() => {
+                  showModal(singleActionHistory.id);
+                }}
+              >
+                <Row className="" gutter={15}>
+                  <Col span={12}>
+                    <div className="singleActionHistory__info">
+                      {singleActionHistory?.store && (
+                        <h4 className="singleActionHistory__title">
+                          {singleActionHistory?.updated_name}
+                        </h4>
+                      )}
+                      {singleActionHistory?.updated_date && (
+                        <div className="singleActionHistory__date">
+                          {moment(singleActionHistory?.updated_date).format(
+                            "HH:mm DD/MM/YYYY"
                           )}
                         </div>
+                      )}
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div className="singleActionHistory__status">
+                      {singleActionHistory?.action && (
+                        <h4 className="singleActionHistory__mainStatus">
+                          {renderSingleActionLogTitle(
+                            singleActionHistory?.action
+                          )}
+                        </h4>
+                      )}
+                      <div className="singleActionHistory__subStatus">
+                        {renderSingleSubStatus(
+                          singleActionHistory?.status_before,
+                          singleActionHistory?.status_after
+                        )}
                       </div>
-                    </Col>
-                  </Row>
-                </div>
-              );
-            })}
-        </div>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            );
+          })}
       </Card>
       <ActionHistoryModal
         isModalVisible={isModalVisible}

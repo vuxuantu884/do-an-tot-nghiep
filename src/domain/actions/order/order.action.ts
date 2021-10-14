@@ -127,7 +127,11 @@ export const UpdateFulFillmentStatusAction = (
   setData: (data: OrderResponse) => void,
   setError?: (error: boolean) => void
 ) => {
-  return BaseAction(OrderType.UPDATE_FULFILLMENT_METHOD, { request, setData, setError });
+  return BaseAction(OrderType.UPDATE_FULFILLMENT_METHOD, {
+    request,
+    setData,
+    setError,
+  });
 };
 
 export const UpdatePaymentAction = (
@@ -141,7 +145,7 @@ export const UpdatePaymentAction = (
     request,
     order_id,
     setData,
-    setError
+    setError,
   });
 };
 
@@ -150,7 +154,11 @@ export const UpdateShipmentAction = (
   setData: (data: OrderResponse) => void,
   setError?: (error: boolean) => void
 ) => {
-  return BaseAction(OrderType.UPDATE_SHIPPING_METHOD, { request, setData, setError });
+  return BaseAction(OrderType.UPDATE_SHIPPING_METHOD, {
+    request,
+    setData,
+    setError,
+  });
 };
 
 export const DeliveryServicesGetList = (
@@ -351,4 +359,42 @@ export const cancelOrderRequest = (id: number | undefined) => {
 
 export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
+};
+
+export const getFulfillments = (
+  code: string,
+  setData: (data: Array<any>) => void
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENTS, { code, setData });
+};
+
+export const getFulfillmentsPack = (
+  request: any,
+  setData: (data: any) => void
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENTS_PACK, { request, setData });
+};
+
+export const getFulfillmentsPackedSaga = (
+  query: any,
+  setData: (data: PageResponse<any>) => void
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENTS_PACKED, {
+    query,
+    setData,
+  });
+};
+
+export const confirmDraftOrderAction = (
+  id: number,
+  params: any,
+  handleData: (data: Array<DeliveryMappedStoreType>) => void
+) => {
+  return {
+    type: OrderType.GET_MAPPED_STORES,
+    payload: {
+      id,
+      handleData,
+    },
+  };
 };

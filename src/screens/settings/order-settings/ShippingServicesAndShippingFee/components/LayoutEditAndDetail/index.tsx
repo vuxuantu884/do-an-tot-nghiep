@@ -15,8 +15,9 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { VietNamId } from "utils/Constants";
+import { optionAllCities, VietNamId } from "utils/Constants";
 import { LAYOUT_CREATE_AND_DETAIL } from "utils/OrderSettings.constants";
+import { showError } from "utils/ToastUtils";
 import OrderSettingInformation from "../OrderSettingInformation";
 import OrderSettingValue from "../OrderSettingValue";
 import SelectThirdPartyLogistic from "../SelectThirdPartyLogistic";
@@ -44,6 +45,10 @@ function LayoutEditAndDetail(props: PropType) {
     form
       .validateFields()
       .then((formValue: any) => {
+        if (moment(formValue.end_date).isSameOrBefore(formValue.start_date)) {
+          showError("Ngày kết thúc cần sau ngày bắt đầu chương trình!");
+          return;
+        }
         const formValueFormatted = {
           ...formValue,
           // format necessary field
@@ -51,15 +56,27 @@ function LayoutEditAndDetail(props: PropType) {
           end_date: moment(formValue.end_date).utc().format(),
           shipping_fee_configs: formValue.shipping_fee_configs.map(
             (single: any) => {
+              const provinceSelected = listProvinces.find((singleCity) => {
+                return singleCity.name === single.city_name;
+              });
+              let city_id = undefined;
+              if (single.city_name === optionAllCities.name) {
+                city_id = optionAllCities.id;
+              } else if (provinceSelected) {
+                city_id = provinceSelected.id;
+              }
               return {
                 from_price: single.from_price,
                 to_price: single.to_price,
                 city_name: single.city_name,
+                city_id,
                 transport_fee: single.transport_fee,
               };
             }
           ),
         };
+        console.log("formValueFormatted", formValueFormatted);
+
         if (action === LAYOUT_CREATE_AND_DETAIL.create) {
           dispatch(
             actionCreateConfigurationShippingServiceAndShippingFee(

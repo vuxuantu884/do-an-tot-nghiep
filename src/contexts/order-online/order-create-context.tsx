@@ -1,6 +1,9 @@
 import { FormInstance } from "antd";
 import { ShippingAddress } from "model/response/order/order.response";
-import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
+import {
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel,
+} from "model/response/settings/order-settings.response";
 import { createContext } from "react";
 
 type OrderCreateContextType = {
@@ -18,6 +21,7 @@ type OrderCreateContextType = {
   order: {
     orderAmount: number;
   };
+  orderConfig: OrderConfigResponseModel | null;
 };
 // tạo context
 export const OrderCreateContext = createContext<OrderCreateContextType | null>(

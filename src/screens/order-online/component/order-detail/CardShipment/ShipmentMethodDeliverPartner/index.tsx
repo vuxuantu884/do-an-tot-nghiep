@@ -130,10 +130,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
-      if (!customerShippingAddress || !orderPrice) {
+      if (!customerShippingAddress || orderPrice === undefined) {
         return;
       }
-      const customerShippingAddressCity = customerShippingAddress.city;
+      const customerShippingAddressCityId = customerShippingAddress.city_id;
 
       if (
         !createOrderContext?.shipping.shippingServiceConfig ||
@@ -165,13 +165,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       };
 
       // check tỉnh giao hàng
-      const checkIfSameProvince = (
-        customerShippingAddressProvince: string,
-        configShippingAddressProvince: string
+      const checkIfSameCity = (
+        customerShippingAddressCityId: number,
+        configShippingAddressCityId: number
       ) => {
-        return (
-          customerShippingAddressProvince === configShippingAddressProvince
-        );
+        return customerShippingAddressCityId === configShippingAddressCityId;
       };
 
       // check giá
@@ -211,10 +209,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
               (single) => {
                 console.log("single", single);
+                console.log(
+                  "customerShippingAddressCityId",
+                  customerShippingAddressCityId
+                );
+                console.log(
+                  "checkIfPrice(orderPrice, single.from_price, single.to_price)",
+                  checkIfPrice(orderPrice, single.from_price, single.to_price)
+                );
                 return (
-                  checkIfSameProvince(
-                    single.city_name,
-                    customerShippingAddressCity
+                  checkIfSameCity(
+                    single.city_id,
+                    customerShippingAddressCityId
                   ) &&
                   checkIfPrice(orderPrice, single.from_price, single.to_price)
                 );
@@ -299,7 +305,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách:"
+              label="Phí ship báo khách: 333"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput

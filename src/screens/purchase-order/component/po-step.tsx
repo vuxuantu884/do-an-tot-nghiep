@@ -7,7 +7,6 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 const statusToStep = {
   [POStatus.DRAFT]: 0,
   [POStatus.FINALIZED]: 1,
-  // [POStatus.DRAFTPO]: 2,
   [POStatus.STORED]: 2,
   [POStatus.COMPLETED]: 3,
   [POStatus.FINISHED]: 4,
@@ -34,6 +33,8 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     completed_date,
     cancelled_date,
     status: poStatus,
+    receipt_quantity,
+    is_cancel,
   } = poData;
   const getDescription = (step: number) => {
     let currentStep = statusToStep[poStatus];
@@ -41,6 +42,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       procurements &&
       procurements.length > 0 &&
       procurements[procurements.length - 1].updated_date;
+
     switch (step) {
       case 0:
         if (currentStep >= 0 && order_date !== null)
@@ -61,7 +63,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           return null;
         }
       case 2:
-        if (currentStep >= statusToStep[POStatus.STORED] && updatedDate)
+        if (currentStep >= statusToStep[POStatus.STORED] && updatedDate && receipt_quantity > 0)
           return ConvertUtcToLocalDate(updatedDate);
         return null;
       default:
@@ -79,6 +81,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   };
   const getLastStepName = () => {
     const currentStep = statusToStep[poStatus];
+    console.log(poStatus, currentStep);
     switch (currentStep) {
       case 4:
         return "Kết thúc";
@@ -88,6 +91,22 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         return "Hoàn thành";
     }
   };
+  const getClassName = (step: number) => {
+    if (statusToStep[poStatus] === 5) {
+      if(step === 0) {
+        return ''
+      }
+      if(step === 1 && !activated_date) {
+        return ''
+      }
+      if(step === 2 && receipt_quantity > 0) {
+        return ''
+      }
+      return "inactive";
+    } else {
+    }
+  };
+
   return (
     <Steps
       progressDot={(dot: any, { status, index }: any) => (
@@ -95,13 +114,30 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           {(status === "process" || status === "finish") && <CheckOutlined />}
         </div>
       )}
+      className="create-bill-step"
       size="small"
-      current={statusToStep[poStatus]}
+      current={is_cancel === true ? 3 : statusToStep[poStatus]}
     >
-      <Steps.Step title="Đặt hàng" description={getDescription(0)} />
-      <Steps.Step title="Xác nhận" description={getDescription(1)} />
-      <Steps.Step title="Nhập kho" description={getDescription(2)} />
-      <Steps.Step title={getLastStepName()} description={getDescription(3)} />
+      <Steps.Step
+        title="Đặt hàng"
+        className={getClassName(0)}
+        description={getDescription(0)}
+      />
+      <Steps.Step
+        title="Xác nhận"
+        description={getDescription(1)}
+        className={getClassName(1)}
+      />
+      <Steps.Step
+        title="Nhập kho"
+        description={getDescription(2)}
+        className={getClassName(2)}
+      />
+      <Steps.Step
+        className={statusToStep[poStatus] === 5 ? "cancelled" : ""}
+        title={getLastStepName()}
+        description={getDescription(3)}
+      />
     </Steps>
   );
 };

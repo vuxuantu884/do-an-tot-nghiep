@@ -1,5 +1,25 @@
 import { BaseObject } from "model/base/base.response";
 
+export interface OrderConfigResponseModel extends BaseObject {
+  sellable_inventory: boolean;
+  order_config_action: string;
+  order_config_print: {
+    id: number;
+    name: string;
+  };
+  for_all_order: boolean;
+  allow_choose_item: boolean;
+}
+
+export interface OrderConfigPrintResponseModel extends BaseObject {
+  id: number;
+  name: string;
+}
+
+export interface OrderConfigActionOrderPreviewResponseModel extends BaseObject {
+  id: number;
+  name: string;
+}
 export interface IsAllowToSellWhenNotAvailableStockResponseModel
   extends BaseObject {
   sellable_inventory: boolean;
@@ -25,6 +45,7 @@ export interface ShippingServiceConfigDetailResponseModel {
       to_price: number;
       city_name: string;
       transport_fee: number;
+      city_id: number;
     }
   ];
   external_service_transport_types: [

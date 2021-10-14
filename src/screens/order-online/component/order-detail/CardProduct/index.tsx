@@ -45,10 +45,7 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
-import {
-  OrderItemDiscountModel,
-  OrderSettingsModel,
-} from "model/other/order/order-model";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
@@ -85,6 +82,7 @@ import { MoneyType } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DiscountGroup from "../../discount-group";
 import CardProductBottom from "./CardProductBottom";
+import { StyledComponent } from "./styles";
 
 type CardProductProps = {
   storeId: number | null;
@@ -97,7 +95,6 @@ type CardProductProps = {
     discount_rate: number,
     discount_value: number
   ) => void;
-  orderSettings?: OrderSettingsModel;
   formRef: React.RefObject<FormInstance<any>>;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
@@ -124,7 +121,6 @@ const initQueryVariant: VariantSearchQuery = {
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const {
-    orderSettings,
     formRef,
     items,
     discountRate,
@@ -173,6 +169,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const shippingFeeInformedToCustomer =
     createOrderContext?.shipping.shippingFeeInformedToCustomer;
 
+  const orderConfig = createOrderContext?.orderConfig;
+
+  console.log("createOrderContext", createOrderContext);
+
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
   //Function
@@ -185,7 +185,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           event.keyCode === 13 &&
           event.target.value &&
           event.target.id === "search_product" &&
-          orderSettings?.chonCuaHangTruocMoiChonSanPham &&
+          orderConfig?.allow_choose_item &&
           items &&
           storeId
         ) {
@@ -829,14 +829,23 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   );
 
   const onChangeProductSearch = useCallback(
-    (value: string) => {
-      if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
-        if (value) {
-          formRef.current?.validateFields(["store_id"]);
-        }
-      }
+    async (value: string) => {
       setIsInputSearchProductFocus(true);
       setKeySearchVariant(value);
+      if (orderConfig?.allow_choose_item && value) {
+        let isError = await formRef.current
+          ?.validateFields(["store_id"])
+          .then(() => {
+            return false;
+          })
+          .catch(() => {
+            return true;
+          });
+        if (isError) {
+          return;
+        }
+      }
+
       initQueryVariant.info = value;
       if (value.trim()) {
         (async () => {
@@ -847,6 +856,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               searchVariantsOrderRequestAction(initQueryVariant, (data) => {
                 setResultSearchVariant(data);
                 setSearchProducts(false);
+                setIsShowProductSearch(true);
                 // console.log('setSearchProducts false');
               })
             );
@@ -985,43 +995,38 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   }, []);
 
   return (
-    <Card
-      className="margin-top-20 product-auto-complete"
-      title={
-        <div className="d-flex">
-          <span className="title-card">SẢN PHẨM</span>
-        </div>
-      }
-      extra={
-        <Space size={20}>
-          <Checkbox onChange={() => setSplitLine(!splitLine)}>
-            Tách dòng
-          </Checkbox>
-          <span>Chính sách giá:</span>
-          <Form.Item name="price_type" style={{ margin: "0px" }}>
-            <Select
-              style={{ minWidth: 145, height: 38 }}
-              placeholder="Chính sách giá"
+    <StyledComponent>
+      <Card
+        title="SẢN PHẨM 1"
+        extra={
+          <Space size={20}>
+            <Checkbox onChange={() => setSplitLine(!splitLine)}>
+              Tách dòng
+            </Checkbox>
+            <span>Chính sách giá:</span>
+            <Form.Item name="price_type">
+              <Select
+                style={{ minWidth: 145, height: 38 }}
+                placeholder="Chính sách giá"
+              >
+                <Select.Option value="retail_price" color="#222222">
+                  Giá bán lẻ
+                </Select.Option>
+                <Select.Option value="whole_sale_price">
+                  Giá bán buôn
+                </Select.Option>
+              </Select>
+            </Form.Item>
+            <Button
+              onClick={() => {
+                ShowInventoryModal();
+              }}
             >
-              <Select.Option value="retail_price" color="#222222">
-                Giá bán lẻ
-              </Select.Option>
-              <Select.Option value="whole_sale_price">
-                Giá bán buôn
-              </Select.Option>
-            </Select>
-          </Form.Item>
-          <Button
-            onClick={() => {
-              ShowInventoryModal();
-            }}
-          >
-            Kiểm tra tồn
-          </Button>
-        </Space>
-      }
-    >
-      <div style={{ padding: "24px 24px 0 24px" }}>
+              Kiểm tra tồn
+            </Button>
+          </Space>
+        }
+      >
         <Row gutter={24}>
           <Col md={8}>
             <Form.Item
@@ -1124,7 +1129,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   size="middle"
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
-                  prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  prefix={searchProducts ? (
+                    <LoadingOutlined style={{ color: "#2a2a86" }} />
+                  ) : <SearchOutlined style={{ color: "#ABB4BD" }} />}
                   suffix={
                     searchProducts ? (
                       <LoadingOutlined style={{ color: "#ABB4BD" }} />
@@ -1136,137 +1143,137 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Form.Item>
           </Col>
         </Row>
-      </div>
-      <AddGiftModal
-        items={itemGifts}
-        onUpdateData={onUpdateData}
-        onCancel={onCancleConfirm}
-        onOk={onOkConfirm}
-        visible={isVisibleGift}
-      />
-      <Table
-        locale={{
-          emptyText: (
-            <div className="sale_order_empty_product">
-              <img src={emptyProduct} alt="empty product"></img>
-              <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-              <Button
-                type="text"
-                className="font-weight-500"
-                style={{
-                  background: "rgba(42,42,134,0.05)",
-                }}
-                onClick={() => {
-                  autoCompleteRef.current?.focus();
-                }}
-                disabled={levelOrder > 3}
-              >
-                Thêm sản phẩm ngay (F3)
-              </Button>
-            </div>
-          ),
-        }}
-        rowKey={(record) => record.id}
-        columns={columns}
-        dataSource={items}
-        className="sale-product-box-table2 w-100"
-        tableLayout="fixed"
-        pagination={false}
-        scroll={{ y: 300 }}
-        sticky
-        footer={() =>
-          items && items.length > 0 ? (
-            <div className="row-footer-custom">
-              <div
-                className="yody-foot-total-text"
-                style={{
-                  width: "37%",
-                  float: "left",
-                  fontWeight: 700,
-                }}
-              >
-                TỔNG
+        <AddGiftModal
+          items={itemGifts}
+          onUpdateData={onUpdateData}
+          onCancel={onCancleConfirm}
+          onOk={onOkConfirm}
+          visible={isVisibleGift}
+        />
+        <Table
+          locale={{
+            emptyText: (
+              <div className="sale_order_empty_product">
+                <img src={emptyProduct} alt="empty product"></img>
+                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
+                <Button
+                  type="text"
+                  className="font-weight-500"
+                  style={{
+                    background: "rgba(42,42,134,0.05)",
+                  }}
+                  onClick={() => {
+                    autoCompleteRef.current?.focus();
+                  }}
+                  disabled={levelOrder > 3}
+                >
+                  Thêm sản phẩm ngay (F3)
+                </Button>
               </div>
+            ),
+          }}
+          rowKey={(record) => record.id}
+          columns={columns}
+          dataSource={items}
+          className="sale-product-box-table2 w-100"
+          tableLayout="fixed"
+          pagination={false}
+          // scroll={{ y: 300 }}
+          sticky
+          footer={() =>
+            items && items.length > 0 ? (
+              <div className="row-footer-custom">
+                <div
+                  className="yody-foot-total-text"
+                  style={{
+                    width: "37%",
+                    float: "left",
+                    fontWeight: 700,
+                  }}
+                >
+                  TỔNG
+                </div>
 
-              <div
-                style={{
-                  width: "16%",
-                  float: "left",
-                  textAlign: "right",
-                  fontWeight: 400,
-                }}
-              >
-                {formatCurrency(getTotalAmount(items))}
+                <div
+                  style={{
+                    width: "16%",
+                    float: "left",
+                    textAlign: "right",
+                    fontWeight: 400,
+                  }}
+                >
+                  {formatCurrency(getTotalAmount(items))}
+                </div>
+
+                <div
+                  style={{
+                    width: "21%",
+                    float: "left",
+                    textAlign: "right",
+                    fontWeight: 400,
+                  }}
+                >
+                  {formatCurrency(getTotalDiscount(items))}
+                </div>
+
+                <div
+                  style={{
+                    width: "14.5%",
+                    float: "left",
+                    textAlign: "right",
+                    color: "#000000",
+                    fontWeight: 700,
+                  }}
+                >
+                  {formatCurrency(getTotalAmountAfferDiscount(items))}
+                </div>
               </div>
+            ) : (
+              <div />
+            )
+          }
+        />
 
-              <div
-                style={{
-                  width: "21%",
-                  float: "left",
-                  textAlign: "right",
-                  fontWeight: 400,
-                }}
-              >
-                {formatCurrency(getTotalDiscount(items))}
-              </div>
+        <CardProductBottom
+          amount={amount}
+          calculateChangeMoney={calculateChangeMoney}
+          changeMoney={changeMoney}
+          coupon={coupon}
+          discountRate={discountRate}
+          discountValue={discountValue}
+          setDiscountRate={setDiscountRate}
+          setDiscountValue={setDiscountValue}
+          showDiscountModal={ShowDiscountModal}
+          totalAmountOrder={amount}
+          items={items}
+          pointUsing={pointUsing}
+          shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+        />
 
-              <div
-                style={{
-                  width: "14.5%",
-                  float: "left",
-                  textAlign: "right",
-                  color: "#000000",
-                  fontWeight: 700,
-                }}
-              >
-                {formatCurrency(getTotalAmountAfferDiscount(items))}
-              </div>
-            </div>
-          ) : (
-            <div />
-          )
-        }
-      />
-
-      <CardProductBottom
-        amount={amount}
-        calculateChangeMoney={calculateChangeMoney}
-        changeMoney={changeMoney}
-        coupon={coupon}
-        discountRate={discountRate}
-        discountValue={discountValue}
-        setDiscountRate={setDiscountRate}
-        setDiscountValue={setDiscountValue}
-        showDiscountModal={ShowDiscountModal}
-        totalAmountOrder={amount}
-        items={items}
-        pointUsing={pointUsing}
-        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-      />
-
-      <PickDiscountModal
-        amount={amount}
-        type={discountType}
-        value={discountValue}
-        rate={discountRate}
-        coupon={coupon}
-        onCancel={onCancelDiscountConfirm}
-        onOk={onOkDiscountConfirm}
-        visible={isVisiblePickDiscount}
-      />
-      <InventoryModal
-        isModalVisible={isInventoryModalVisible}
-        setInventoryModalVisible={setInventoryModalVisible}
-        storeId={storeId}
-        setStoreId={selectStore}
-        columnsItem={items}
-        inventoryArray={inventoryResponse}
-        setResultSearchStore={setResultSearchStore}
-        dataSearchCanAccess={dataSearchCanAccess}
-        handleCancel={handleInventoryCancel}
-        setStoreForm={setStoreForm}
-      />
-    </Card>
+        <PickDiscountModal
+          amount={amount}
+          type={discountType}
+          value={discountValue}
+          rate={discountRate}
+          coupon={coupon}
+          onCancel={onCancelDiscountConfirm}
+          onOk={onOkDiscountConfirm}
+          visible={isVisiblePickDiscount}
+        />
+        <InventoryModal
+          isModalVisible={isInventoryModalVisible}
+          setInventoryModalVisible={setInventoryModalVisible}
+          storeId={storeId}
+          setStoreId={selectStore}
+          columnsItem={items}
+          inventoryArray={inventoryResponse}
+          setResultSearchStore={setResultSearchStore}
+          dataSearchCanAccess={dataSearchCanAccess}
+          handleCancel={handleInventoryCancel}
+          setStoreForm={setStoreForm}
+        />
+      </Card>
+    </StyledComponent>
   );
 };
 

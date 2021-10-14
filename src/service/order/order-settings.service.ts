@@ -1,9 +1,15 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
+import {
+  CreateShippingServiceConfigReQuestModel,
+  OrderConfigRequestModel,
+} from "model/request/settings/order-settings.resquest";
 import { SourceResponse } from "model/response/order/source.response";
 import {
+  OrderConfigActionOrderPreviewResponseModel,
+  OrderConfigPrintResponseModel,
+  OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
@@ -24,6 +30,30 @@ export const configureIsAllowToSellWhenNotAvailableStockService = (
   let params = {
     sellable_inventory,
   };
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders-config`, params);
+};
+
+export const getOrderConfigService = (): Promise<
+  BaseResponse<OrderConfigResponseModel>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
+};
+
+export const getOrderConfigPrintService = (): Promise<
+  BaseResponse<OrderConfigPrintResponseModel>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders-config-sprint`);
+};
+
+export const getOrderConfigActionService = (): Promise<
+  BaseResponse<OrderConfigActionOrderPreviewResponseModel>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders-config-action`);
+};
+
+export const editOrderConfigActionService = (
+  params: OrderConfigRequestModel
+): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders-config`, params);
 };
 

@@ -15,7 +15,7 @@ import {
   UpdatePaymentAction,
 } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   OrderStatus,
@@ -37,12 +37,14 @@ import {
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
+import { OrderDetailContext } from "contexts/order-online/order-detail-context";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
   setTotalPaid: (value: number) => void;
+  reload?: () => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
   shipmentMethod: number;
@@ -57,7 +59,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
   const dispatch = useDispatch();
-  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
+  const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
@@ -65,6 +67,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const [paymentData, setPaymentData] = useState<
     Array<UpdateOrderPaymentRequest>
   >([]);
+
+  const orderDetailContextData = useContext(OrderDetailContext);
+  const setPayments = orderDetailContextData.payment.setPayments;
 
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
@@ -96,7 +101,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     paymentData[index].amount = point * PointConfig.VALUE;
     paymentData[index].paid_amount = point * PointConfig.VALUE;
     setPaymentData([...paymentData]);
-    props.setPayments([...paymentData]);
+    setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
@@ -145,17 +150,26 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       paymentData[index].paid_amount = amount;
     }
     setPaymentData([...paymentData]);
-    props.setPayments([...paymentData]);
+    setPayments([...paymentData]);
   };
 
-  const onUpdateSuccess = useCallback((value: OrderResponse) => {
-    showSuccess("Thanh toán thành công");
-    setCreatePayment(false);
-    window.location.reload();
-  }, []);
+  const onUpdateSuccess = useCallback(
+    (value: OrderResponse) => {
+      showSuccess("Thanh toán thành công");
+      setCreatePayment(false);
+      // window.location.reload();
+      setVisibleConfirmPayment(false);
+      setPaymentData([]);
+      props.reload && props.reload();
+    },
+    [props]
+  );
 
   const onError = (error: boolean) => {
-    setCreatePayment(error);
+    if (error) {
+      setVisibleConfirmPayment(false);
+      setCreatePayment(false);
+    }
   };
 
   const ShowConfirmPayment = () => {
@@ -210,9 +224,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       // console.log('setSearchProducts true');
       setCreatePayment(true);
       try {
-        await dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError));
+        await dispatch(
+          UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError)
+        );
       } catch {}
-    })()
+    })();
     // dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
 
@@ -247,7 +263,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       <SaveAndConfirmOrder
         onCancel={onCancleConfirm}
         onOk={onOkConfirm}
-        visible={isibleConfirmPayment}
+        visible={visibleConfirmPayment}
         updateShipment={createPayment}
         icon={WarningIcon}
         okText="Đồng ý"
@@ -268,7 +284,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           }
         >
           {props.isVisibleUpdatePayment === true && (
-            <div className="padding-20 create-order-payment">
+            <div className="create-order-payment">
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <Radio.Group
                   value={props.paymentMethod}
@@ -905,33 +921,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   </Row>
                 );
               })}
-
-              {/* <Row
-                gutter={20}
-                className="row-price total-customer-pay"
-                style={{ height: 38, margin: "10px 0" }}
-              >
-                <Col
-                  lg={10}
-                  xxl={7}
-                  className="row-large-title"
-                  style={{ padding: "8px 0" }}
-                >
-                  <b>Tổng số tiền khách trả:</b>
-                </Col>
-                <Col
-                  className="lbl-money"
-                  lg={9}
-                  xxl={6}
-                  style={{
-                    textAlign: "right",
-                    fontWeight: 500,
-                    fontSize: "20px",
-                  }}
-                >
-                  <span>{formatCurrency(totalAmountPaid)}</span>
-                </Col>
-              </Row> */}
               <Row
                 gutter={20}
                 className="row-price"
@@ -977,7 +966,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         marginRight: "10px",
                         padding: "0 25px",
                       }}
-                      onClick={() => window.location.reload()}
+                      onClick={() => props.reload && props.reload()}
                     >
                       Hủy
                     </Button>

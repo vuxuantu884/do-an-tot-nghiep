@@ -1,9 +1,9 @@
-import { Layout, Menu, Tooltip } from "antd";
+import { Layout, Menu } from "antd";
 import React, { useMemo } from "react";
+import { Scrollbars } from "react-custom-scrollbars";
 import { Link } from "react-router-dom";
 import menu from "routes/menu";
 import { findCurrentRoute } from "utils/AppUtils";
-import { Scrollbars } from "react-custom-scrollbars";
 
 type SidebarContainerProps = {
   path: string;
@@ -24,24 +24,24 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
     defaultOpenKeys = [...defaultOpenKeys, ...currentRoute.subMenu];
   }
   return (
-    <Sider collapsed={collapsed} collapsedWidth={60} width={240} style={{zIndex: 2}}>
+    <Sider
+      collapsed={collapsed}
+      collapsedWidth={52}
+      width={240}
+      style={{ zIndex: 2 }}
+    >
       <Scrollbars autoHide>
         <Menu
           defaultOpenKeys={collapsed ? [] : defaultOpenKeys}
           defaultSelectedKeys={defaultSelectedKeys}
           mode="inline"
-          style={{borderRight: 'none'}}
+          style={{ borderRight: "none" }}
         >
           {menu.map((route) => {
             if (route.subMenu.length > 0) {
               return (
                 <Menu.SubMenu
-                  icon={
-                    <i
-                      className={route.icon}
-                      style={{ fontSize: 24, marginRight: 10 }}
-                    />
-                  }
+                  icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                   title={route.title}
                   key={route.key}
                 >
@@ -55,7 +55,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                           icon={
                             <i
                               className={item.icon}
-                              style={{ fontSize: 8, marginRight: 0 }}
+                              style={{ fontSize: 6, marginRight: 0, marginLeft: 10 }}
                             />
                           }
                           title={item.title}
@@ -66,7 +66,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                               icon={
                                 <i
                                   className={item.icon}
-                                  style={{ fontSize: 8, marginRight: 0 }}
+                                  style={{ fontSize: 6, marginRight: 0, marginLeft: 38 }}
                                 />
                               }
                               key={item2.key}
@@ -82,15 +82,23 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                         icon={
                           <i
                             className={item.icon}
-                            style={{ fontSize: 8, marginRight: 0 }}
+                            style={{ fontSize: 6, marginRight: 0, marginLeft: 10 }}
                           />
                         }
                         key={item.key}
                       >
-                        {item.subTitle ? (
+                        {
+                          <Link
+                            to={item.path}
+                            title={item.subTitle || item.title}
+                          >
+                            {item.title}
+                          </Link>
+                        }
+                        {/* {item.subTitle ? (
                           <Tooltip
                             title={item.subTitle}
-                            color="#FCAF17"
+                            color="red"
                             mouseEnterDelay={0}
                             mouseLeaveDelay={0}
                             overlayInnerStyle={{
@@ -98,11 +106,11 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                               padding: "5px 10px",
                             }}
                           >
-                            <Link to={item.path}>{item.title}</Link>
+                            <Link to={item.path} title={item.subTitle}>{item.title}</Link>
                           </Tooltip>
                         ) : (
                           <Link to={item.path}>{item.title}</Link>
-                        )}
+                        )} */}
                       </Menu.Item>
                     );
                   })}
@@ -116,12 +124,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                     window.location.href = route.path;
                   }
                 }}
-                icon={
-                  <i
-                    className={route.icon}
-                    style={{ fontSize: 24, marginRight: 10 }}
-                  />
-                }
+                icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                 key={route.key}
               >
                 {route.isShow ? (

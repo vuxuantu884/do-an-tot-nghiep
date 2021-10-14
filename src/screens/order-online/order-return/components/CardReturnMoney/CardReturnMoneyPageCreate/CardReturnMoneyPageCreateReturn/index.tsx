@@ -29,7 +29,7 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
       className="margin-top-20"
       title={<span className="title-card">Hoàn tiền</span>}
     >
-      <div className="padding-20 create-order-payment">
+      <div className="create-order-payment">
         <Radio.Group
           value={returnMoneyType}
           onChange={(e) => {

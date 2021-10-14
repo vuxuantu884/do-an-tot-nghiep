@@ -1,7 +1,6 @@
 import { Row, Col } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import { PlusOutlined } from "@ant-design/icons";
 import CustomerModal from "../../customer-modal";
 
 import {
@@ -20,20 +19,37 @@ import FormCustomerContact from "screens/customer/customer-detail/customer-conta
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import actionColumn from "../../common/action.column";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
-function CustomerContactInfo(props: any) {
-  const { customer, customerDetailState, setModalAction, modalAction } = props;
+
+type CustomerContactInfoProps = {
+  customer: CustomerResponse | undefined,
+  customerDetailState: string,
+  modalAction: modalActionType ,
+  isShowModalContacts: boolean,
+  setIsShowModalContacts: (value: boolean) => void,
+  setModalAction: (value: modalActionType) => void,
+}
+
+const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: CustomerContactInfoProps) => {
+  const {
+    customer,
+    customerDetailState,
+    setModalAction,
+    modalAction,
+    setIsShowModalContacts,
+    isShowModalContacts,
+  } = props;
   const dispatch = useDispatch();
   const history = useHistory();
-  const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
   const [isVisibleContactModal, setIsVisibleContactModal] =
     React.useState<boolean>(false);
   const [modalSingleContact, setModalSingleContact] =
     React.useState<CustomerContact>();
   // contact column
   const gotoFirstPage = (customerId: any) => {
-    history.replace(`${UrlConfig.CUSTOMER}/` + customerId);
-    window.scrollTo(0, 0);
+    history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
   };
   const handleContactEdit = () => {
     setIsShowModalContacts(true);
@@ -177,24 +193,6 @@ function CustomerContactInfo(props: any) {
   };
   return (
     <Row style={{ marginTop: 16 }}>
-      <div className="customer-create-info">
-        <div className="customer-create-info-btn">
-          <div>
-            <PlusOutlined />
-          </div>
-          <span
-            style={{
-              marginLeft: 10,
-            }}
-            onClick={() => {
-              setModalAction("create");
-              setIsShowModalContacts(true);
-            }}
-          >
-            Thêm liên hệ
-          </span>
-        </div>
-      </div>
       <Col span={24}>
         <CustomTable
           showColumnSetting={false}
