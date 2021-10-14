@@ -46,22 +46,7 @@
         padding: 0 34px;
         justify-content: flex-end;
         align-items: center;
-        .button-notify {
-          border: none;
-          padding: 0;
-          display: flex;
-          width: auto;
-          height: auto;
-          font-size: 20px;
-          line-height: normal;
-          align-items: center;
-          background-color: transparent;
-          &:focus,
-          &:active {
-            background-color: transparent;
-            border: none;
-          }
-        }
+
         .layout-user {
           height: 44px;
           background: #f5f5f5;
@@ -118,7 +103,7 @@
             &-submenu-title {
               .ant-menu-title-content {
                 margin-left: 13px;
-                font-weight: 500
+                font-weight: 500;
               }
               &:active {
                 background-color: rgba(255, 255, 255, 0.1);
@@ -126,9 +111,9 @@
               &:active .ant-menu-submenu-arrow {
                 color: $white;
               }
-              &:hover{
+              &:hover {
                 background-color: rgba(255, 255, 255, 0.1);
-                .ant-menu-submenu-arrow{
+                .ant-menu-submenu-arrow {
                   color: $white;
                 }
               }
@@ -138,11 +123,11 @@
               line-height: 40px;
               color: $white;
               padding-left: 16px !important;
-              &>.ant-menu-title-content {
+              & > .ant-menu-title-content {
                 margin-left: 13px;
                 font-weight: 500;
               }
-              a{
+              a {
                 color: $white;
               }
               &:hover {
@@ -193,7 +178,7 @@
                   height: 40px;
                   line-height: 40px;
                   margin: 0;
-                  .ant-menu-title-content{
+                  .ant-menu-title-content {
                     font-weight: 400;
                   }
                 }
@@ -352,11 +337,6 @@
           background-color: rgba($white, 0.15);
         }
       }
-    }
-    &-content {
-      padding: 0 30px;
-      padding-top: 55px;
-      padding-bottom: 55px;
     }
   }
   &-badge-count {

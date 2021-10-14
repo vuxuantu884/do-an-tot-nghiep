@@ -382,3 +382,8 @@ export interface GetFeesRequest {
   coupon: string | null;
   cod: number | 0;
 }
+
+export interface ConfirmDraftOrderRequest {
+  updated_by: string;
+  updated_name: string;
+}

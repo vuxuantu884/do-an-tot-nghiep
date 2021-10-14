@@ -6,6 +6,7 @@ import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
+  ConfirmDraftOrderRequest,
   GetFeesRequest,
   GHNFeeRequest,
   OrderRequest,
@@ -289,36 +290,51 @@ export const getChannelApi = (): Promise<
   return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
 };
 
-export const getReasonsApi = (): Promise<
-  BaseResponse<Array<any>>
-> => {
+export const getReasonsApi = (): Promise<BaseResponse<Array<any>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
 };
 
-export const cancelOrderApi = (order_id: number): Promise<
-  BaseResponse<any>
-> => {
+export const cancelOrderApi = (
+  order_id: number
+): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/cancel`);
 };
 
-export const getOrderConfig=():Promise<any>=>{
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/orders-config`
-  );
-}
+export const getOrderConfig = (): Promise<any> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
+};
 
-export const getFulfillmentsApi=(code:string):Promise<BaseResponse<any>>=>{
-  let link =`${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
+export const getFulfillmentsApi = (
+  code: string
+): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
   return BaseAxios.get(link);
-}
+};
 
-export const getFulfillmentsPackedApi=(query:any):Promise<BaseResponse<any>>=>{
+export const getFulfillmentsPackedApi = (
+  query: any
+): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
-  const link =`${ApiConfig.ORDER}/fulfillments/packed?${queryString}`;
+  const link = `${ApiConfig.ORDER}/fulfillments/packed?${queryString}`;
   return BaseAxios.get(link);
-}
+};
 
-export const putFulfillmentsPackApi=(request:any):Promise<BaseResponse<any>>=>{
+export const putFulfillmentsPackApi = (
+  request: any
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.ORDER}/fulfillments/pack`;
   return BaseAxios.put(url, request);
-}
+};
+
+/**
+ * xác nhận đơn nháp
+ */
+export const confirmDraftOrderService = (
+  orderId: number,
+  params: ConfirmDraftOrderRequest
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/orders/${orderId}/finalized`,
+    params
+  );
+};

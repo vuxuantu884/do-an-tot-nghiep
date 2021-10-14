@@ -1006,7 +1006,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               fulfillment.shipment && (
                 <div
                   key={fulfillment.id}
-                  className="padding-24"
                   style={{ paddingTop: 6, paddingBottom: 4 }}
                 >
                   <Collapse
@@ -1719,7 +1718,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             )}
         </div>
         {isVisibleShipping === true && (
-          <div className="padding-24">
+          <div>
             <Form
               initialValues={initialFormUpdateShipment}
               ref={formRefShipment}

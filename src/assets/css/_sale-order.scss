@@ -240,14 +240,6 @@
         }
       }
       &-process {
-        .ant-steps-item-tail {
-          top: 11px !important;
-          background-color: #2a2a86;
-          &::after {
-            background-color: #2a2a86 !important;
-            margin-left: 10px !important;
-          }
-        }
         .ant-steps-icon-dot {
           background-color: #2a2a86;
         }
@@ -481,12 +473,12 @@
       width: 40px;
     }
   }
-  .yody-table-discount-converted {
-    font-size: 12px;
-    position: absolute;
-    right: 1px;
-    top: calc(100% + 2px);
-  }
+  // .yody-table-discount-converted {
+  //   font-size: 12px;
+  //   position: absolute;
+  //   right: 1px;
+  //   top: calc(100% + 2px);
+  // }
   .ant-table-body {
     overflow: hidden;
   }
@@ -882,76 +874,7 @@
   color: "#222222";
   border: "1px solid #E5E5E5";
 }
-.saleorder_shipment_method_btn {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 60px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #2a2a86;
-}
-.saleorder_shipment_button_active {
-  border: 1px solid #2a2a86;
-  border-bottom: none;
-  height: 55px;
-  padding: 10px;
-  border-radius: 3px 3px 0 0;
-  background-color: white;
-  margin-top: 6px;
-  flex: 1;
-  img {
-    margin-right: 8px;
-    width: 18px;
-    height: 18px;
-    filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
-      brightness(66%) contrast(100%);
-  }
-  span {
-    height: 18px;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 1px;
-    letter-spacing: 0.2px;
-    color: #2a2a86;
-  }
-}
 
-.saleorder_shipment_button {
-  border: 1px solid #e5e5e5;
-  padding: 10px;
-  border-radius: 3px;
-  cursor: pointer;
-  flex: 1;
-  img {
-    margin-right: 8px;
-    width: 18px;
-    height: 18px;
-  }
-  span {
-    height: 18px;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 1px;
-    letter-spacing: 0.2px;
-    color: #222222;
-  }
-}
-
-.saleorder_shipment_button_border {
-  border: 1px solid #2a2a86;
-  span {
-    color: #2a2a86;
-  }
-  img {
-    margin-right: 8px;
-    width: 18px;
-    height: 18px;
-    filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
-      brightness(66%) contrast(100%);
-  }
-}
 // shipment đơn hàng
 
 .saleorder_shipment_order_colapse {
@@ -1338,12 +1261,7 @@
       }
     }
   }
-  .ant-card-head {
-    border: none;
-    .ant-card-head-wrapper {
-      border-bottom: 1px solid #e5e5e5;
-    }
-  }
+
   .ant-collapse-content-box {
     padding: 0;
   }
@@ -1473,26 +1391,6 @@
     }
   }
 }
-.saleorder-product-card-action {
-  .saleorder-input-group-wrapper {
-    height: 28px;
-    button {
-      border: 1px solid #e5e5e5;
-      width: 34px;
-      height: 28px;
-    }
-  }
-  .saleorder-close-btn {
-    button {
-      width: 34px;
-      height: 28px;
-    }
-  }
-}
-
-.product-auto-complete {
-}
-
 .ant-select-item-option-content {
   white-space: normal;
 }
@@ -1522,15 +1420,6 @@
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
     padding: 5px 0;
-  }
-}
-// update payment
-.orders-update-payment {
-  .ant-card-head {
-    border: none;
-  }
-  .ant-card-head-wrapper {
-    border-bottom: 1px solid #e5e5e5;
   }
 }
 

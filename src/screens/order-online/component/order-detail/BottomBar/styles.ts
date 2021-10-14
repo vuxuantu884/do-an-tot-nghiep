@@ -3,12 +3,12 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
   position: fixed;
   text-align: right;
-  width: 100%;
-  padding: 5px 0;
+  left: ${240 + 20}px;
+  padding: 5px 10px;
   bottom: 0%;
   background-color: #fff;
-  margin-left: -25px;
+  margin-left: -20px;
   margin-top: 10px;
+  right: 0;
   z-index: 99;
-  
 `;

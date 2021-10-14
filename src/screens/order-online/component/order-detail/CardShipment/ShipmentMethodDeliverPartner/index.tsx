@@ -276,7 +276,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
         {addressError && (
-          <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
+          <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>
             {addressError}
           </div>
         )}
@@ -305,7 +305,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách:"
+              label="Phí ship báo khách: 333"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput

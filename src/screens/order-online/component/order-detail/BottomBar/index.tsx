@@ -43,17 +43,14 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
   return (
     <StyledComponent>
       <Row gutter={24}>
-        <Col
-          md={10}
-          style={{ marginLeft: "-10px", marginTop: "3px", padding: "3px" }}
-        >
+        <Col md={12}>
           <CreateBillStep status={stepsStatusValue} orderDetail={orderDetail} />
         </Col>
         {isVisibleGroupButtons &&
           formRef &&
           handleTypeButton &&
           showSaveAndConfirmModal && (
-            <Col md={9} style={{ marginTop: "8px" }}>
+            <Col md={12} style={{ marginTop: "8px" }}>
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
@@ -65,6 +62,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
+                ghost
                 onClick={showSaveAndConfirmModal}
                 loading={creating}
               >
@@ -93,7 +91,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
           formRef &&
           handleTypeButton &&
           showSaveAndConfirmModal && (
-            <Col md={9} style={{ marginTop: "8px" }}>
+            <Col md={12} style={{ marginTop: "8px" }}>
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
@@ -121,7 +119,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
             </Col>
           )}
         {isVisibleActionsButtons && (
-          <Col md={10} style={{ marginTop: "8px" }}>
+          <Col md={12} style={{ marginTop: "8px" }}>
             <Dropdown
               // overlayStyle={{ minWidth: "15rem" }}
               getPopupContainer={(trigger) => trigger}
