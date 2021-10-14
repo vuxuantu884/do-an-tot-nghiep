@@ -149,17 +149,15 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     props.setPayments([...paymentData]);
   };
 
-  const onUpdateSuccess = useCallback(
-    (value: OrderResponse) => {
-      showSuccess("Thanh toán thành công");
-      setCreatePayment(false);
-      // window.location.reload();
-      setVisibleConfirmPayment(false);
-      setPaymentData([]);
-      props.reload && props.reload();
-    },
-    [props]
-  );
+  const onUpdateSuccess = useCallback((value: OrderResponse) => {
+    props.reload && props.reload();
+    showSuccess("Thanh toán thành công");
+    setCreatePayment(false);
+    // window.location.reload();
+    setVisibleConfirmPayment(false);
+    setPaymentData([]);
+    
+  }, [props]);
 
   const onError = (error: boolean) => {
     if (error) {
@@ -217,7 +215,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       fulfillments: fulfillment,
     };
     (async () => {
-      // console.log('setSearchProducts true');
       setCreatePayment(true);
       try {
         await dispatch(
