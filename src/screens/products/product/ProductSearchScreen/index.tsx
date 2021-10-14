@@ -11,6 +11,7 @@ import TabProductWrapper from "../tab/TabProductWrapper";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import { StickyContainer, Sticky } from "react-sticky";
+import { StyledWrapper } from "./style";
 const { TabPane } = Tabs;
 
 const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
@@ -92,7 +93,8 @@ const ListProductScreen: React.FC = () => {
           </Row>
         }
       >
-        <Card>
+        <StyledWrapper>
+        <Card className="card-tab">
           <Tabs
             style={{ overflow: "initial" }}
             activeKey={activeTab}
@@ -115,6 +117,7 @@ const ListProductScreen: React.FC = () => {
             </TabPane>
           </Tabs>
         </Card>
+        </StyledWrapper>
       </ContentContainer>
     </StickyContainer>
   );

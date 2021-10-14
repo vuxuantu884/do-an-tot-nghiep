@@ -3,11 +3,11 @@ import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
 import {
   Vat,
-  PurchaseOrderLineReturnItem,
   PurchaseOrderLineItemDraft,
 } from "./purchase-item.model";
 import { PurchaseProcument } from "./purchase-procument";
 import { PurchasePayments } from "./purchase-payment.model";
+import { PurchaseReturnOrder } from "./purchase-return.model";
 
 export interface PurchaseOrder extends BaseObject {
   companyId: number;
@@ -19,8 +19,8 @@ export interface PurchaseOrder extends BaseObject {
   billing_address: PurchaseAddress;
   supplier_address: PurchaseAddress;
   line_items: Array<PurchaseOrderLineItemDraft>;
-  line_return_items: Array<PurchaseOrderLineReturnItem>;
   procurements: Array<PurchaseProcument>;
+  return_orders: Array<PurchaseReturnOrder>;
   expect_return_date: string;
   note: string;
   tags: string;

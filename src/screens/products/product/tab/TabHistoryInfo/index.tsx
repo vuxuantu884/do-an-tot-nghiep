@@ -130,7 +130,7 @@ const TabHistoryInfo: React.FC = () => {
   }, [dispatch, onResult, params]);
 
   return (
-    <div className="padding-20">
+    <div>
       <HistoryProductFilter
         onFinish={(values) => {
           let newParams = { ...params, ...values, page: 1 };
