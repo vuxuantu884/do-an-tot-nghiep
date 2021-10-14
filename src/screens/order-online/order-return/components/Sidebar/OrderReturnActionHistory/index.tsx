@@ -54,10 +54,7 @@ function OrderReturnActionHistory(props: PropType) {
     return result;
   };
 
-  const renderSingleSubStatus = (
-    status_before?: string,
-    status_after?: string
-  ) => {
+  const renderSingleSubStatus = (status_before?: string, status_after?: string) => {
     let result = "";
     if (status_before && status_after) {
       result = `${status_before} -> ${status_after}`;
@@ -72,20 +69,17 @@ function OrderReturnActionHistory(props: PropType) {
   useEffect(() => {
     if (orderId) {
       dispatch(
-        actionGetOrderReturnLog(
-          +orderId,
-          (response: OrderActionLogResponse[]) => {
-            setActionLog(response);
-          }
-        )
+        actionGetOrderReturnLog(+orderId, (response: OrderActionLogResponse[]) => {
+          setActionLog(response);
+        })
       );
     }
   }, [dispatch, orderId, countChangeSubStatus]);
 
   return (
     <StyledComponent>
-      <Card className="margin-top-20" title={renderCardTitle()}>
-        <div className="padding-24">
+      <Card title={renderCardTitle()}>
+        <div>
           {actionLog &&
             actionLog.length > 0 &&
             actionLog.map((singleActionHistory, index) => {
@@ -118,9 +112,7 @@ function OrderReturnActionHistory(props: PropType) {
                       <div className="singleActionHistory__status">
                         {singleActionHistory?.action && (
                           <h4 className="singleActionHistory__mainStatus">
-                            {renderSingleActionLogTitle(
-                              singleActionHistory?.action
-                            )}
+                            {renderSingleActionLogTitle(singleActionHistory?.action)}
                           </h4>
                         )}
                         <div className="singleActionHistory__subStatus">

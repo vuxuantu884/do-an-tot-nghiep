@@ -32,6 +32,7 @@ export const StyledComponent = styled.div`
     border-radius: 3px;
     cursor: pointer;
     flex: 1;
+    margin-bottom: -1px;
     img {
       margin-right: 8px;
       width: 18px;
@@ -43,8 +44,8 @@ export const StyledComponent = styled.div`
         color: #2a2a86;
       }
       img {
-        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
-          brightness(66%) contrast(100%);
+        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%)
+          contrast(100%);
       }
     }
     &.active {
@@ -52,12 +53,7 @@ export const StyledComponent = styled.div`
       border-bottom: none;
       border-radius: 3px 3px 0 0;
       background-color: white;
-      margin-top: 6px;
       padding-bottom: 25px;
-      img {
-        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
-          brightness(66%) contrast(100%);
-      }
       span {
         color: ${primaryColor};
       }
