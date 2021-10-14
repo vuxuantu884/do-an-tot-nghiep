@@ -32,8 +32,7 @@ function CardShowReturnProducts(props: PropType) {
       let discountPerOrder = 0;
       let discountPerProduct = getProductDiscountPerProduct(product);
       if (discountRate) {
-        discountPerOrder =
-          ((product.price - discountPerProduct) * discountRate) / 100;
+        discountPerOrder = ((product.price - discountPerProduct) * discountRate) / 100;
       }
       return discountPerOrder;
     },
@@ -82,9 +81,7 @@ function CardShowReturnProducts(props: PropType) {
           style={{ display: "flex", justifyContent: "space-between" }}
         >
           <p>Chiết khấu/đơn hàng: </p>
-          <p style={{ marginLeft: 20 }}>
-            {formatCurrency(Math.round(discountPerOrder))}
-          </p>
+          <p style={{ marginLeft: 20 }}>{formatCurrency(Math.round(discountPerOrder))}</p>
         </div>
       </div>
     );
@@ -110,10 +107,7 @@ function CardShowReturnProducts(props: PropType) {
                 </Typography.Link>
               </div>
               <div className="yody-pos-varian">
-                <Tooltip
-                  title={record.variant}
-                  className="yody-pos-varian-name"
-                >
+                <Tooltip title={record.variant} className="yody-pos-varian-name">
                   <span>{record.variant}</span>
                 </Tooltip>
               </div>
@@ -139,11 +133,7 @@ function CardShowReturnProducts(props: PropType) {
           <span style={{ color: "#222222", textAlign: "right" }}>
             Đơn giá sau giảm giá
           </span>
-          <span
-            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
-          >
-            ₫
-          </span>
+          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
       dataIndex: "price",
@@ -153,10 +143,7 @@ function CardShowReturnProducts(props: PropType) {
         let discountPerOrder = getProductDiscountPerOrder(record);
         return (
           <Popover
-            content={renderPopOverPriceContent(
-              discountPerProduct,
-              discountPerOrder
-            )}
+            content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
             title={renderPopOverPriceTitle(record.price)}
           >
             {formatCurrency(
@@ -170,11 +157,7 @@ function CardShowReturnProducts(props: PropType) {
       title: () => (
         <div>
           <span style={{ color: "#222222" }}>Tổng tiền</span>
-          <span
-            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
-          >
-            ₫
-          </span>
+          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
       key: "total",
@@ -240,7 +223,7 @@ function CardShowReturnProducts(props: PropType) {
                 </Row> */}
                 <Row className="payment-row" justify="space-between">
                   {/* <span className="font-size-text">Điểm hoàn: </span> */}
-                  <span className="font-size-text">Điểm trừ: </span>
+                  <span className="font-size-text">Điểm hoàn: </span>
                   {`${pointUsing ? pointUsing : 0} điểm`}
                 </Row>
               </React.Fragment>
