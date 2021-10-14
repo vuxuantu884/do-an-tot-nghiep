@@ -310,8 +310,9 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               POField.procurements
             );
             let receive_status: string = getFieldValue(POField.receive_status);
+            console.log(status);
             if (
-              (receive_status === ProcumentStatus.DRAFT || status === ProcumentStatus.DRAFT)
+              (status === ProcumentStatus.DRAFT)
             ) {
               if(!props.isEdit) {
                 return null;

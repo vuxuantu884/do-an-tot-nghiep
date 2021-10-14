@@ -15,7 +15,7 @@ import {
   UpdatePaymentAction,
 } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   OrderStatus,
@@ -37,6 +37,8 @@ import {
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
+import { OrderDetailContext } from "contexts/order-online/order-detail-context";
+import { StyledComponent } from "./update-payment-card.styles";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
@@ -71,6 +73,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     Array<UpdateOrderPaymentRequest>
   >([]);
 
+  const orderDetailContextData = useContext(OrderDetailContext);
+  const setPayments = orderDetailContextData.payment.setPayments;
+
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === PaymentMethodOption.PREPAYMENT) {
@@ -101,7 +106,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     paymentData[index].amount = point * PointConfig.VALUE;
     paymentData[index].paid_amount = point * PointConfig.VALUE;
     setPaymentData([...paymentData]);
-    props.setPayments([...paymentData]);
+    setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
@@ -150,7 +155,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       paymentData[index].paid_amount = amount;
     }
     setPaymentData([...paymentData]);
-    props.setPayments([...paymentData]);
+    setPayments([...paymentData]);
   };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
@@ -268,7 +273,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     props.setTotalPaid(totalAmountPaid);
   }, [props, totalAmountPaid]);
   return (
-    <div>
+    <StyledComponent>
       <SaveAndConfirmOrder
         onCancel={onCancleConfirm}
         onOk={onOkConfirm}
@@ -938,33 +943,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   </Row>
                 );
               })}
-
-              {/* <Row
-                gutter={20}
-                className="row-price total-customer-pay"
-                style={{ height: 38, margin: "10px 0" }}
-              >
-                <Col
-                  lg={10}
-                  xxl={7}
-                  className="row-large-title"
-                  style={{ padding: "8px 0" }}
-                >
-                  <b>Tổng số tiền khách trả:</b>
-                </Col>
-                <Col
-                  className="lbl-money"
-                  lg={9}
-                  xxl={6}
-                  style={{
-                    textAlign: "right",
-                    fontWeight: 500,
-                    fontSize: "20px",
-                  }}
-                >
-                  <span>{formatCurrency(totalAmountPaid)}</span>
-                </Col>
-              </Row> */}
               <Row
                 gutter={20}
                 className="row-price"
@@ -1023,7 +1001,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           </Row>
         </div>
       )}
-    </div>
+    </StyledComponent>
   );
 };
 

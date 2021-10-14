@@ -8,11 +8,7 @@ type PropType = {
   handleReceivedReturnProducts: (value: boolean) => void;
 };
 function CardReturnReceiveProducts(props: PropType) {
-  const {
-    isDetailPage,
-    isReceivedReturnProducts,
-    handleReceivedReturnProducts,
-  } = props;
+  const { isDetailPage, isReceivedReturnProducts, handleReceivedReturnProducts } = props;
 
   const renderCardTitle = () => {
     return (
@@ -61,17 +57,10 @@ function CardReturnReceiveProducts(props: PropType) {
 
   const mainRender = () => {
     if (isDetailPage) {
-      return (
-        <Card
-          className="margin-top-20"
-          title={<div className="title-card">{renderCardTitle()}</div>}
-          extra={renderCardExtra()}
-        />
-      );
+      return <Card title={renderCardTitle()} extra={renderCardExtra()} />;
     }
     return (
       <Card
-        className="margin-top-20"
         title={!isDetailPage ? "Nhận hàng" : "Đã nhận hàng trả lại"}
         extra={renderCardExtra()}
       />

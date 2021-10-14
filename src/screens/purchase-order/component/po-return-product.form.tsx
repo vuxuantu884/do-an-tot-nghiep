@@ -15,7 +15,7 @@ import {
 } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect, useMemo } from "react";
 import POProgressView from "./po-progress-view";
 import {
   PurchaseOrderLineReturnItem,
@@ -36,13 +36,12 @@ type POReturnFormProps = {
   formMain: FormInstance;
   totalReturn: number;
   totalVat: number;
-  tax_lines: Array<Vat>;
   listStore: Array<StoreResponse>;
 };
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
-  const { formMain, totalReturn, totalVat, tax_lines, listStore } = props;
+  const { formMain, totalReturn, totalVat, listStore } = props;
   // const [allChecked, setAllChecked] = useState(false);
   let [currentLineReturn, setCurrentLineReturn] = useState<
     Array<PurchaseOrderLineReturnItem>
@@ -56,6 +55,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     index: number
   ) => {
     item.quantity_return = value;
+    item.amount_tax_refunds = item.quantity_return * item.price * item.tax_rate / 100;
     let valueIndex = currentLineReturn.findIndex(
       (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
@@ -68,6 +68,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     index: number
   ) => {
     item.price = value;
+    item.amount_tax_refunds = item.quantity_return * item.price * item.tax_rate / 100;
     let valueIndex = currentLineReturn.findIndex(
       (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
@@ -85,6 +86,22 @@ const POReturnForm: React.FC<POReturnFormProps> = (
       });
     setCurrentLineReturn(currentLineReturn);
   };
+
+  const vatLine = useMemo(() => {
+    let vats: Array<Vat> = [];
+    currentLineReturn.forEach((item) => {
+      let index = vats.findIndex((item1) => item.tax_rate === item1.rate );
+      if(index === -1) {
+        vats.push({
+          rate:  item.tax_rate,
+          amount: item.amount_tax_refunds ? item.amount_tax_refunds : 0,
+        })
+      } else {
+        vats[index].amount = vats[index].amount + item.amount_tax_refunds;
+      }
+    })
+    return vats;
+  }, [currentLineReturn])
 
   useEffect(() => {
     let allLineReturn = formMain.getFieldValue(POField.line_items);
@@ -105,7 +122,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
         </div>
       }
     >
-      <div className="padding-20">
+      <div>
         <Form.Item
           shouldUpdate={(prevValues, curValues) =>
             prevValues.receipt_quantity !== curValues.receipt_quantity ||
@@ -154,7 +171,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                     message: "Vui lòng chọn kho nhận hàng",
                                   },
                                 ]}
-                                label="Kho nhận hàng"
+                                label="Kho trả hàng"
                               >
                                 <Select
                                   showSearch
@@ -163,7 +180,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                   placeholder="Chọn kho"
                                 >
                                   <Select.Option value="">
-                                    Chọn kho nhận
+                                    Chọn kho trả hàng
                                   </Select.Option>
                                   {listStore.map((item) => (
                                     <Select.Option
@@ -179,7 +196,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                             <Col span={24} md={12}>
                               <Form.Item
                                 name={POProcumentField.expect_receipt_date}
-                                label={"Ngày nhận dự kiến:"}
+                                label={"Ngày trả hàng"}
                                 rules={[{ required: true, message: "Vui lòng chọn ngày nhận" }]}
                               >
                                 <DatePicker
@@ -577,7 +594,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               {formatCurrency(totalReturn)}
                             </div>
                           </div>
-                          {tax_lines.map((item: Vat) => {
+                          {vatLine.map((item: Vat) => {
                             return (
                               <div className="po-payment-row">
                                 <div>{`VAT (${item.rate}%):`}</div>

@@ -75,7 +75,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   };
   const getLastStepName = () => {
     const currentStep = statusToStep[poStatus];
-    console.log(poStatus, currentStep);
     switch (currentStep) {
       case 4:
         return "Kết thúc";

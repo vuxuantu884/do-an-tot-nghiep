@@ -22,6 +22,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import {
   cancelOrderApi,
+  confirmDraftOrderService,
   createDeliveryMappedStoreServices,
   deleteDeliveryMappedStoreServices,
   getChannelApi,
@@ -240,7 +241,7 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    setError(true)
+    setError(true);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -258,12 +259,12 @@ function* updatePaymentSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
-        setError(true)
+        setError(true);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    setError(true)
+    setError(true);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -284,7 +285,7 @@ function* updateShipmentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    setError(true)
+    setError(true);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -708,7 +709,10 @@ function* getFulfillmentsSaga(action: YodyAction) {
 function* putFulfillmentsSagaPack(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(putFulfillmentsPackApi, request);
+    let response: BaseResponse<any> = yield call(
+      putFulfillmentsPackApi,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response);
@@ -740,6 +744,34 @@ function* getFulfillmentsPackedSaga(action: YodyAction) {
         break;
     }
   } catch (error) {}
+}
+
+function* confirmDraftOrderSaga(action: YodyAction) {
+  let { orderId, params, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(
+      confirmDraftOrderService,
+      orderId,
+      params
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess(`Xác nhận đơn nháp ${orderId} thành công!`);
+        handleData();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError(`Xác nhận đơn nháp ${orderId} xảy ra lỗi!`);
+  } finally {
+    yield put(hideLoading());
+  }
 }
 
 export function* OrderOnlineSaga() {
@@ -802,5 +834,9 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_ORDER_CONFIG, configOrderSaga);
   yield takeLatest(OrderType.GET_FULFILLMENTS, getFulfillmentsSaga);
   yield takeLatest(OrderType.GET_FULFILLMENTS_PACK, putFulfillmentsSagaPack);
-  yield takeLatest(OrderType.GET_FULFILLMENTS_PACKED, getFulfillmentsPackedSaga);
+  yield takeLatest(
+    OrderType.GET_FULFILLMENTS_PACKED,
+    getFulfillmentsPackedSaga
+  );
+  yield takeLatest(OrderType.CONFIRM_DRAFT_ORDER, confirmDraftOrderSaga);
 }

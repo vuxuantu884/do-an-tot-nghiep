@@ -35,6 +35,7 @@ import {
 } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import {StyledComponent} from "./styles"
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
@@ -47,7 +48,6 @@ type CardPaymentsProps = {
   updateOrder?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
   setSelectedPaymentMethod: (paymentType: number) => void;
-  setPointUsing?: (value: { point: number; amount: number } | null) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
 };
 
@@ -60,7 +60,6 @@ function CardPayments(props: CardPaymentsProps) {
     shipmentMethod,
     loyaltyRate,
     setPayments,
-    setPointUsing,
   } = props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
@@ -183,42 +182,9 @@ function CardPayments(props: CardPaymentsProps) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [paymentMethod]);
 
-  useEffect(() => {
-    if (payments) {
-      let paymentByPoint = payments.filter((singlePayment) => {
-        return singlePayment.payment_method_code === PaymentMethodCode.POINT;
-      });
-      if (paymentByPoint) {
-        let totalPoint = 0;
-        let totalAmountPoint = 0;
-        paymentByPoint.forEach((single) => {
-          if (single.point) {
-            totalPoint += single.point;
-            totalAmountPoint += single.paid_amount;
-          }
-        });
-        if (setPointUsing) {
-          if (totalPoint > 0) {
-            setPointUsing({
-              point: totalPoint,
-              amount: totalAmountPoint,
-            });
-          } else {
-            setPointUsing(null);
-          }
-        }
-      }
-    }
-  }, [payments, setPointUsing]);
-
   return (
-    <Card
-      title={
-        <div className="d-flex">
-          <span className="title-card">THANH TOÁN 1</span>
-        </div>
-      }
-    >
+    <StyledComponent>
+    <Card title="THANH TOÁN 1">
       <div className="create-order-payment ">
         <Form.Item
           // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
@@ -228,7 +194,6 @@ function CardPayments(props: CardPaymentsProps) {
           <Radio.Group
             value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
-            style={{ margin: "18px 0" }}
             disabled={levelOrder > 2}
           >
             <Space size={20}>
@@ -598,6 +563,7 @@ function CardPayments(props: CardPaymentsProps) {
         </Row>
       </div>
     </Card>
+    </StyledComponent>
   );
 }
 

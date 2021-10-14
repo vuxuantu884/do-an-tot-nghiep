@@ -11,6 +11,7 @@ type StepStatusProps = {
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
+  const formatDate = "DD/MM/YY - HH:mm";
   const [currentStep, setCurrentStep] = useState(0);
   const point = useCallback(() => {
     switch (props.status) {
@@ -55,9 +56,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     >
       <Steps.Step
         title="Đặt hàng"
-        // description={moment(props.orderDetail?.created_date).format(
-        //   "DD/MM/YYYY HH:mm"
-        // )}
+        description={moment(props.orderDetail?.created_date).format(formatDate)}
       />
       <Steps.Step
         title="Xác nhận"
@@ -67,7 +66,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].created_date &&
           moment(props.orderDetail?.fulfillments[0].created_date).format(
-            "DD/MM/YYYY HH:mm"
+            formatDate
           )
         }
       />
@@ -79,7 +78,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].packed_on &&
           moment(props.orderDetail?.fulfillments[0].packed_on).format(
-            "DD/MM/YYYY HH:mm"
+            formatDate
           )
         }
         className={
@@ -101,7 +100,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].export_on &&
           moment(props.orderDetail?.fulfillments[0].export_on).format(
-            "DD/MM/YYYY HH:mm"
+            formatDate
           )
         }
         className={
@@ -123,7 +122,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].shipped_on &&
           moment(props.orderDetail?.fulfillments[0].shipped_on).format(
-            "DD/MM/YYYY HH:mm"
+            formatDate
           )
         }
         className={props.status === "cancelled" ? "cancelled" : ""}

@@ -280,8 +280,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
               <div
                 className={
                   shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                    ? "saleorder_shipment_button saleorder_shipment_button_border"
-                    : "saleorder_shipment_button_active"
+                    ? "saleorder_shipment_button border"
+                    : "saleorder_shipment_button active"
                 }
                 key={button.value}
               >
@@ -371,47 +371,58 @@ const CardShipment: React.FC<CardShipmentProps> = (
                   : { borderBottom: "1px solid #2A2A86" }
               }
             >
-              <Space size={10}>{renderShipmentTabHeader()}</Space>
+              <Space size={10} align="start">
+                {renderShipmentTabHeader()}
+              </Space>
             </div>
           </Row>
-          {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
-            <ShipmentMethodDeliverPartner
-              amount={amount}
-              serviceType={serviceType}
-              changeServiceType={changeServiceType}
-              // deliveryServices={deliveryServices}
-              discountValue={discountValue}
-              infoFees={infoFees}
-              setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-              shippingFeeCustomer={shippingFeeCustomer}
-              OrderDetail={OrderDetail}
-              payments={payments}
-              fulfillments={fulfillments}
-              isCloneOrder={isCloneOrder}
-              addressError={addressError}
-              levelOrder={levelOrder}
-              totalAmountReturnProducts={totalAmountReturnProducts}
-            />
-          )}
+          <div
+            className="saleorder_shipment_method_content"
+            style={
+              shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
+                ? { marginTop: 10 }
+                : undefined
+            }
+          >
+            {/*--- Chuyển hãng vận chuyển ----*/}
+            {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+              <ShipmentMethodDeliverPartner
+                amount={amount}
+                serviceType={serviceType}
+                changeServiceType={changeServiceType}
+                // deliveryServices={deliveryServices}
+                discountValue={discountValue}
+                infoFees={infoFees}
+                setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
+                shippingFeeCustomer={shippingFeeCustomer}
+                OrderDetail={OrderDetail}
+                payments={payments}
+                fulfillments={fulfillments}
+                isCloneOrder={isCloneOrder}
+                addressError={addressError}
+                levelOrder={levelOrder}
+                totalAmountReturnProducts={totalAmountReturnProducts}
+              />
+            )}
 
-          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
-            <ShipmentMethodSelfDelivery
-              amount={amount}
-              discountValue={discountValue}
-              paymentMethod={paymentMethod}
-              setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-              shipper={shipper}
-              shippingFeeCustomer={shippingFeeCustomer}
-              totalAmountReturnProducts={totalAmountReturnProducts}
-              levelOrder={levelOrder}
-            />
-          )}
+            {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
+              <ShipmentMethodSelfDelivery
+                amount={amount}
+                discountValue={discountValue}
+                paymentMethod={paymentMethod}
+                setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
+                shipper={shipper}
+                shippingFeeCustomer={shippingFeeCustomer}
+                totalAmountReturnProducts={totalAmountReturnProducts}
+                levelOrder={levelOrder}
+              />
+            )}
 
-          {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-            <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
-          )}
+            {/*--- Nhận tại cửa hàng ----*/}
+            {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
+              <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
+            )}
+          </div>
         </div>
       </Card>
     </StyledComponent>

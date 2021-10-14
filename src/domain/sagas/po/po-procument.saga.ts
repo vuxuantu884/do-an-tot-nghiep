@@ -105,8 +105,7 @@ function* poProcumentDeleteSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
-        deleteCallback(response.data);
+        deleteCallback(true);
         break;
       case HttpStatus.UNAUTHORIZED:
         deleteCallback(null);

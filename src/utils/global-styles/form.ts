@@ -2,6 +2,9 @@ import { css } from "styled-components";
 import { dangerColor } from "./variables";
 
 export const globalCssCustomForm = css`
+  .ant-form label {
+    font-size: 1rem;
+  }
   .ant-form-item-label
     label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after {
     position: absolute;

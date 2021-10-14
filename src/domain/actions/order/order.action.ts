@@ -12,6 +12,7 @@ import {
   // UpdatePaymentRequest,
   VTPFeeRequest,
   GetFeesRequest,
+  ConfirmDraftOrderRequest,
 } from "model/request/order.request";
 import {
   ActionLogDetailResponse,
@@ -386,14 +387,15 @@ export const getFulfillmentsPackedSaga = (
 };
 
 export const confirmDraftOrderAction = (
-  id: number,
-  params: any,
-  handleData: (data: Array<DeliveryMappedStoreType>) => void
+  orderId: number,
+  params: ConfirmDraftOrderRequest,
+  handleData: (data: PageResponse<any>) => void
 ) => {
   return {
-    type: OrderType.GET_MAPPED_STORES,
+    type: OrderType.CONFIRM_DRAFT_ORDER,
     payload: {
-      id,
+      orderId,
+      params,
       handleData,
     },
   };

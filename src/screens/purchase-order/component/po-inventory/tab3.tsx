@@ -1,4 +1,4 @@
-import { Button, Form, Table, } from "antd";
+import { Button, Form, Table } from "antd";
 import { POField } from "model/purchase-order/po-field";
 import {
   POProcumentField,
@@ -28,9 +28,11 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
           POField.procurements
         );
         let items =
-          procurements !== undefined
+          procurements !== undefined && procurements !== null
             ? procurements.filter(
-                (item) => (item.status === ProcumentStatus.NOT_RECEIVED || item.status === ProcumentStatus.CANCELLED)
+                (item) =>
+                  item.status === ProcumentStatus.NOT_RECEIVED ||
+                  item.status === ProcumentStatus.CANCELLED
               )
             : [];
         return (

@@ -108,10 +108,6 @@ type CardProductProps = {
   setStoreForm: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
-  pointUsing?: {
-    point: number;
-    amount: number;
-  } | null;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -129,7 +125,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setDiscountValue,
     storeId,
     inventoryResponse,
-    pointUsing,
     selectStore,
     setStoreForm,
     handleCardItems,
@@ -430,7 +425,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
-    width: "30%",
+    width: "28%",
     className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -538,7 +533,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-price text-right",
-    width: "17%",
+    width: "18%",
     align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -668,12 +663,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             padding: "0 4px",
           }}
         >
-          <div
-            className="site-input-group-wrapper saleorder-input-group-wrapper"
-            style={{
-              borderRadius: 5,
-            }}
-          >
+          <div>
             <Dropdown
               overlay={menu}
               trigger={["click"]}
@@ -684,8 +674,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
-          </div>
-          <div className="saleorder-close-btn">
             <Button
               style={{ background: "transparent" }}
               type="text"
@@ -1027,10 +1015,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           </Space>
         }
       >
-        <Row gutter={24}>
+        <Row gutter={15} className="rowSelectStoreAndProducts">
           <Col md={8}>
             <Form.Item
-              label="Cửa hàng"
               name="store_id"
               rules={[
                 {
@@ -1042,7 +1029,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               <Select
                 className="select-with-search"
                 showSearch
-                // allowClear
+                allowClear
                 style={{ width: "100%" }}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
@@ -1075,7 +1062,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Form.Item>
           </Col>
           <Col md={16}>
-            <Form.Item label="Sản phẩm">
+            <Form.Item>
               <AutoComplete
                 notFoundContent={
                   keySearchVariant.length >= 3
@@ -1241,7 +1228,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           showDiscountModal={ShowDiscountModal}
           totalAmountOrder={amount}
           items={items}
-          pointUsing={pointUsing}
           shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
         />
 
