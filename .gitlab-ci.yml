@@ -18,7 +18,6 @@ docker build:
   only:
     - develop
     - uat
-    - master
   variables:
     DOCKER_FILE: Dockerfile
     SERVICE_NAME: yody-app-admin
@@ -44,6 +43,8 @@ deploy to dev:
 deploy to uat:
   stage: deploy
   when: manual
+  tags:
+    - nonprod-deploy
   only:
     - uat
   variables:
