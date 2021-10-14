@@ -17,5 +17,8 @@
         "Sachkho",
         "trên",
         "variantdefault"
-    ]
+    ],
+    "[source.css.styled]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

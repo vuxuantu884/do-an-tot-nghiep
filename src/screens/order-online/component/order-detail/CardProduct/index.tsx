@@ -1132,11 +1132,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   prefix={searchProducts ? (
                     <LoadingOutlined style={{ color: "#2a2a86" }} />
                   ) : <SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  suffix={
-                    searchProducts ? (
-                      <LoadingOutlined style={{ color: "#ABB4BD" }} />
-                    ) : null
-                  }
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>

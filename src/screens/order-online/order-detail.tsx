@@ -824,7 +824,6 @@ const OrderDetail = (props: PropType) => {
                                         }
                                         reload={() => {
                                           setReload(true);
-                                          setVisibleUpdatePayment(false);
                                         }}
                                       />
                                     )}
@@ -1090,6 +1089,9 @@ const OrderDetail = (props: PropType) => {
                       stepsStatusValue === OrderStatus.CANCELLED ||
                       stepsStatusValue === FulFillmentStatus.SHIPPED
                     }
+                    reload={() => {
+                      setReload(true);
+                    }}
                   />
                 )}
 
