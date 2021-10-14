@@ -1583,6 +1583,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   <Button
                     onClick={cancelFullfilment}
                     loading={cancelShipment}
+                    disabled={updateShipment}
                     type="default"
                     className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{
@@ -1609,6 +1610,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
+                disabled={cancelShipment}
               >
                 Nhặt hàng
               </Button>
@@ -1625,6 +1627,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
+                disabled={cancelShipment}
               >
                 Nhặt hàng & đóng gói
               </Button>
@@ -1637,6 +1640,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{ marginLeft: "10px" }}
               onClick={onOkShippingConfirm}
               loading={updateShipment}
+              disabled={cancelShipment}
             >
               Đóng gói
             </Button>
@@ -1652,6 +1656,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippingConfirm(true)}
                 loading={updateShipment}
+                disabled={cancelShipment}
               >
                 Xuất kho
               </Button>
@@ -1663,6 +1668,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => setIsvibleShippedConfirm(true)}
               loading={updateShipment}
+              disabled={cancelShipment}
             >
               Đã giao hàng
             </Button>
@@ -1679,6 +1685,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippedConfirm(true)}
                 loading={updateShipment}
+                disabled={cancelShipment}
               >
                 Xuất kho & giao hàng
               </Button>
@@ -1704,7 +1711,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 loading={updateShipment}
                 disabled={
                   props.stepsStatusValue === OrderStatus.CANCELLED ||
-                  props.stepsStatusValue === FulFillmentStatus.SHIPPED
+                  props.stepsStatusValue === FulFillmentStatus.SHIPPED || cancelShipment
                 }
               >
                 Giao hàng

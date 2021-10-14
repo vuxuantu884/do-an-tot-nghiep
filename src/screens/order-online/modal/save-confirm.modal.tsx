@@ -25,6 +25,7 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
       centered
       okText={okText}
       cancelText={cancelText}
+      closable={!(updateShipment || cancelShipment)}
       title={[
         <div key="1">
           <img src={icon} alt="" />
@@ -39,7 +40,7 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
           <Button onClick={onOk} loading={updateShipment || cancelShipment}>
             {okText}
           </Button>
-          <Button onClick={onCancel}>
+          <Button onClick={onCancel} disabled={updateShipment || cancelShipment}>
             {cancelText}
           </Button>
         </div>,

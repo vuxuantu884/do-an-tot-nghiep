@@ -538,7 +538,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <SearchOutlined style={{ color: "#ABB4BD" }} />
                   )
                 }
-                // suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
               />
             </AutoComplete>
           </div>
