@@ -24,7 +24,7 @@ const ReportHandOver: React.FC = () => {
 
   return (
     <Card
-      title="Đơn đã đóng gói"
+      title="Cho vào biên bản bàn giao "
       bordered={false}
       style={{ marginTop: "24px" }}
     >
