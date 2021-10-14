@@ -24,7 +24,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
         let procurements: Array<PurchaseProcument> = getFieldValue(
           POField.procurements
         );
-        let items = procurements
+        let items = procurements !== undefined && procurements !== null
           ? procurements.filter((item) => item.status === ProcumentStatus.DRAFT)
           : [];
         return (

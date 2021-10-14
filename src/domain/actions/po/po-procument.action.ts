@@ -41,7 +41,7 @@ export const PoProcumentFinishAction = (
 export const PoProcumentDeleteAction = (
   poId: number,
   procumentId: number,
-  deleteCallback: (result: PurchaseProcument | null) => void
+  deleteCallback: (result: boolean) => void
 ) => {
   return BaseAction(POProcumentType.DELETE_PO_PROCUMENT_REQUEST, {
     poId,

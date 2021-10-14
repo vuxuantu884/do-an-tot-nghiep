@@ -24,7 +24,6 @@ import {
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
-  getListSubStatusAction,
   OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction,
@@ -41,7 +40,6 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderResponse,
-  OrderSubStatusResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";

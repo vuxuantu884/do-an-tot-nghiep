@@ -45,11 +45,12 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
   }, [history, id]);
   const onFinish = useCallback(
-    (values: PurchaseOrder) => {
+    (values: any) => {
       values.line_return_items = values.line_return_items.filter(
-        (item) => item.quantity_return > 0
+        (item: any) => item.quantity_return > 0
       );
       dispatch(POReturnAction(idNumber, values, onUpdateCall));
+      console.log(values);
     },
     [dispatch, idNumber, onUpdateCall]
   );
