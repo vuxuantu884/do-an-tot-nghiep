@@ -24,6 +24,7 @@ import {
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
+  confirmDraftOrderAction,
   OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction,
@@ -31,6 +32,7 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderPaymentRequest,
   UpdateOrderPaymentRequest,
@@ -50,7 +52,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
   checkPaymentAll,
@@ -94,6 +96,9 @@ const OrderDetail = (props: PropType) => {
   }
   let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
 
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -270,6 +275,10 @@ const OrderDetail = (props: PropType) => {
     cauHinhInNhieuLienHoaDon: 1,
   });
 
+  const handleReload = () => {
+    window.location.reload();
+  };
+
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
     if (OrderDetail?.order_return_origin?.id) {
@@ -427,9 +436,18 @@ const OrderDetail = (props: PropType) => {
    * xác nhận đơn
    */
   const onConfirmOrder = () => {
-    console.log("onConfirmOrder");
-    // const choXacNhanId = 1;
-    // setSubStatusId(choXacNhanId);
+    if (userReducer.account?.full_name && userReducer.account?.user_name) {
+      const params = {
+        updated_by: userReducer.account.full_name,
+        updated_name: userReducer.account.user_name,
+      };
+      dispatch(
+        confirmDraftOrderAction(OrderId, params, (response) => {
+          console.log("response", response);
+          handleReload();
+        })
+      );
+    }
   };
 
   useEffect(() => {
