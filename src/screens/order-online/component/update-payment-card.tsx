@@ -38,6 +38,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { OrderDetailContext } from "contexts/order-online/order-detail-context";
+import { StyledComponent } from "./update-payment-card.styles";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
@@ -256,7 +257,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     props.setTotalPaid(totalAmountPaid);
   }, [props, totalAmountPaid]);
   return (
-    <div>
+    <StyledComponent>
       <SaveAndConfirmOrder
         onCancel={onCancleConfirm}
         onOk={onOkConfirm}
@@ -974,7 +975,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           </Row>
         </div>
       )}
-    </div>
+    </StyledComponent>
   );
 };
 

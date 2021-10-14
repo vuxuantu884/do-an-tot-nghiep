@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .order-cod-payment-footer {
-    margin-top: 15px;
+z-index: 88;
+.order-cod-payment-footer {
+	margin-top: 15px;
     border-radius: 5px;
     border: 1px solid #2a2a86;
     height: 54px;

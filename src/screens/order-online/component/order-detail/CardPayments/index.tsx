@@ -35,6 +35,7 @@ import {
 } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import {StyledComponent} from "./styles"
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
@@ -182,6 +183,7 @@ function CardPayments(props: CardPaymentsProps) {
   // }, [paymentMethod]);
 
   return (
+    <StyledComponent>
     <Card title="THANH TOÁN 1">
       <div className="create-order-payment ">
         <Form.Item
@@ -192,7 +194,6 @@ function CardPayments(props: CardPaymentsProps) {
           <Radio.Group
             value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
-            style={{ margin: "18px 0" }}
             disabled={levelOrder > 2}
           >
             <Space size={20}>
@@ -562,6 +563,7 @@ function CardPayments(props: CardPaymentsProps) {
         </Row>
       </div>
     </Card>
+    </StyledComponent>
   );
 }
 
