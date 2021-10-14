@@ -47,7 +47,6 @@ type CardPaymentsProps = {
   updateOrder?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
   setSelectedPaymentMethod: (paymentType: number) => void;
-  setPointUsing?: (value: { point: number; amount: number } | null) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
 };
 
@@ -60,7 +59,6 @@ function CardPayments(props: CardPaymentsProps) {
     shipmentMethod,
     loyaltyRate,
     setPayments,
-    setPointUsing,
   } = props;
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
@@ -183,42 +181,8 @@ function CardPayments(props: CardPaymentsProps) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [paymentMethod]);
 
-  useEffect(() => {
-    if (payments) {
-      let paymentByPoint = payments.filter((singlePayment) => {
-        return singlePayment.payment_method_code === PaymentMethodCode.POINT;
-      });
-      if (paymentByPoint) {
-        let totalPoint = 0;
-        let totalAmountPoint = 0;
-        paymentByPoint.forEach((single) => {
-          if (single.point) {
-            totalPoint += single.point;
-            totalAmountPoint += single.paid_amount;
-          }
-        });
-        if (setPointUsing) {
-          if (totalPoint > 0) {
-            setPointUsing({
-              point: totalPoint,
-              amount: totalAmountPoint,
-            });
-          } else {
-            setPointUsing(null);
-          }
-        }
-      }
-    }
-  }, [payments, setPointUsing]);
-
   return (
-    <Card
-      title={
-        <div className="d-flex">
-          <span className="title-card">THANH TOÁN 1</span>
-        </div>
-      }
-    >
+    <Card title="THANH TOÁN 1">
       <div className="create-order-payment ">
         <Form.Item
           // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}

@@ -1,6 +1,7 @@
 import { css } from "styled-components";
 import {
   borderColor,
+  colorLuminance,
   dangerColor,
   primaryColor,
   secondaryColor,
@@ -32,12 +33,12 @@ export const globalCssCustomButton = css`
       padding: 0 20px;
       font-size: 1em;
     }
-    &:hover,
+    /* &:hover,
     &:focus {
       color: ${primaryColor};
-      border-color: rgba(${primaryColor}, 0.1);
-      background-color: rgba(${primaryColor}, 0.1);
-    }
+      border-color: ${colorLuminance(primaryColor, 0.1)};
+      background-color: ${colorLuminance(primaryColor, 0.1)};
+    } */
     &-link {
       border-color: transparent;
       background-color: transparent;

@@ -276,7 +276,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
         {addressError && (
-          <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
+          <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>
             {addressError}
           </div>
         )}

@@ -8,13 +8,13 @@ export const globalCssCustomCard = css`
     margin-bottom: 20px;
   }
   .ant-card-head {
-    padding: 9px ${cardPaddingLeftAndRight};
+    padding: 11px ${cardPaddingLeftAndRight} 7px ${cardPaddingLeftAndRight};
     min-height: 40px;
     border-bottom: 1px solid ${borderColor};
   }
   .ant-card-head-title {
     font-weight: ${headingFontWeight};
-    font-size: 0.875rem;
+    font-size: 1rem;
     line-height: 1.5715;
     text-transform: uppercase;
     position: relative;

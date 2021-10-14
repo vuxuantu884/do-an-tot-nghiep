@@ -135,11 +135,6 @@ export default function Order() {
   const [listOrderConfigs, setListOrderConfigs] =
     useState<OrderConfigResponseModel | null>(null);
 
-  const [pointUsing, setPointUsing] = useState<{
-    point: number;
-    amount: number;
-  } | null>(null);
-
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
   >([]);
@@ -1063,7 +1058,6 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
-                      pointUsing={pointUsing}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
@@ -1080,7 +1074,6 @@ export default function Order() {
                       }
                       isCloneOrder={isCloneOrder}
                       loyaltyRate={loyaltyRate}
-                      setPointUsing={setPointUsing}
                     />
                     <CardShipment
                       setShipmentMethodProps={onShipmentSelect}
