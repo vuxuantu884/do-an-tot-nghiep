@@ -2,7 +2,6 @@ import {
   Form,
   Col,
   Input,
-  Modal,
   Radio,
   Row,
   Select,
@@ -24,7 +23,6 @@ import {
 } from "domain/actions/customer/customer.action";
 import * as CONSTANTS from "utils/Constants";
 import moment from "moment";
-import arrowDownIcon from "assets/img/drow-down.svg";
 import {
   BarcodeOutlined,
   CalendarOutlined,
@@ -74,7 +72,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     handleChangeCustomer,
     formItem,
     modalAction,
-    visible,
     districtId,
     onCancel,
     //onOk,
@@ -82,7 +79,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
 
-  const [titleNotify, setTitleNotify] = useState("Thêm mới dữ liệu thành công");
+  const [titleNotify] = useState("Thêm mới dữ liệu thành công");
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValue: FormValueType =
