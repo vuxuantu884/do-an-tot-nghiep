@@ -358,6 +358,8 @@ const PODetailScreen: React.FC = () => {
             </Button>
           </>
         );
+      case POStatus.CANCELLED:
+        return null;
       default:
         return (
           <Button

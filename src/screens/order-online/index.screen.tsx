@@ -60,6 +60,7 @@ const actions: Array<MenuAction> = [
 const initQuery: OrderSearchQuery = {
   page: 1,
   limit: 30,
+  is_online: null,
   sort_type: null,
   sort_column: null,
   code: null,
@@ -208,6 +209,7 @@ const ListOrderScreen: React.FC = () => {
                 <div className="item custom-td">
                   <div className="product productNameWidth">
                     <Link
+                      target="_blank"
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
                     >
                       {item.variant}
@@ -653,6 +655,14 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, params]
   );
+  const onClearFilter = useCallback(
+    () => {
+      setPrams(initQuery);
+      let queryParam = generateQuery(initQuery);
+      history.push(`${UrlConfig.ORDER}?${queryParam}`);
+    },
+    [history]
+  );
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -883,6 +893,7 @@ const ListOrderScreen: React.FC = () => {
               deliveryService={delivery_service}
               subStatus={listOrderProcessingStatus}
               onShowColumnSetting={() => setShowSettingColumn(true)}
+              onClearFilter={() => onClearFilter()}
             />
             <CustomTable
               isRowSelection

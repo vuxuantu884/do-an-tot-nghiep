@@ -56,7 +56,7 @@ import ConnectIcon from "assets/icon/connect.svg";
 import SuccessIcon from "assets/icon/success.svg";
 import ErrorIcon from "assets/icon/error.svg";
 
-import "./style.scss"
+import { nameQuantityWidth, StyledComponent } from "screens/ecommerce/orders/orderStyles";
 
 const actions: Array<MenuAction> = [
   {
@@ -242,16 +242,19 @@ const EcommerceOrderSync: React.FC = () => {
       title: "ID đơn hàng",
       key: "order_id",
       dataIndex: "code",
-      render: (value: string, i: OrderModel) => (
-        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-      ),
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
       width: "3.2%",
+      render: (value: string, i: OrderModel) => (
+        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+      ),
     },
     {
       title: "Khách hàng",
+      key: "customer",
+      visible: true,
+      width: "5%",
       render: (record) =>
         record.shipping_address ? (
           <div className="customer custom-td">
@@ -275,34 +278,24 @@ const EcommerceOrderSync: React.FC = () => {
             <div className="p-b-3">{record.customer_phone_number}</div>
           </div>
         ),
-      key: "customer",
-      visible: true,
-      width: "5%",
     },
     {
-      title: "Sản phẩm",
+      title: (
+        <div className="product-and-quantity-header">
+          <span className="product-name">Sản phẩm</span>
+          <span className="quantity">Số lượng</span>
+        </div>
+      ),
       dataIndex: "items",
-      key: "items_variant_id",
-      render: (items: Array<OrderItemModel>) => (
-        <div className="cell-items">
-          {items.length > 1 && items.map((item, i) => {
-            return (
-              <div className="item" key={i}>
-                {item.variant.length > 33 &&
-                  <div className="tooltip-item">
-                    <Tooltip title={item.variant} color="#1890ff">
-                      <Link
-                        target="_blank"
-                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                      >
-                        {item.variant}
-                      </Link>
-                    </Tooltip>
-                  </div>
-                }
-
-                {item.variant.length <= 31 &&
-                  <div>
+      key: "items.name11",
+      className: "product-and-quantity",
+      render: (items: Array<OrderItemModel>) => {
+        return (
+          <div className="items">
+            {items.map((item, i) => {
+              return (
+                <div className="item-custom-td" key={i}>
+                  <div className="product">
                     <Link
                       target="_blank"
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
@@ -310,44 +303,23 @@ const EcommerceOrderSync: React.FC = () => {
                       {item.variant}
                     </Link>
                   </div>
-                }
-              </div>
-            );
-          })}
-
-          {items.length === 1 &&
-            <div className="item">
-              <Link target="_blank" to={`${UrlConfig.PRODUCT}/${items[0].product_id}/variants/${items[0].variant_id}`}>
-                {items[0].variant}
-              </Link>
-            </div>
-          }
-        </div>
-      ),
+                  <div className="quantity">{item.quantity}</div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      },
       visible: true,
       align: "left",
-      width: "6.5%",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "items",
-      key: "items_quantity",
-      render: (items: Array<OrderItemModel>) => (
-        <div className="cell-items">
-          {items.map((item, i) => {
-            return (
-              <div key={i} className="item">{item.quantity}</div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: "2.5%",
+      width: nameQuantityWidth,
     },
     {
       title: "Khách phải trả",
-      // dataIndex: "",
+      key: "customer_amount_money",
+      visible: true,
+      align: "right",
+      width: "3.5%",
       render: (record: any) => (
         <>
           <span>
@@ -371,15 +343,14 @@ const EcommerceOrderSync: React.FC = () => {
           </span>
         </>
       ),
-      key: "customer_amount_money",
-      visible: true,
-      align: "right",
-      width: "3.5%",
     },
     {
       title: "Phí ship trả sàn",
       dataIndex: "fulfillments",
       key: "shipment_type",
+      visible: true,
+      width: "3.5%",
+      align: "center",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
         const service_id =
           fulfillments.length && fulfillments[0].shipment
@@ -398,14 +369,14 @@ const EcommerceOrderSync: React.FC = () => {
           )
         );
       },
-      visible: true,
-      width: "3.5%",
-      align: "center",
     },
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
       key: "order_status",
+      visible: true,
+      align: "center",
+      width: "5.5%",
       render: (status_value: string) => {
         const status = status_order.find(
           (status) => status.value === status_value
@@ -425,82 +396,82 @@ const EcommerceOrderSync: React.FC = () => {
           </div>
         );
       },
-      visible: true,
-      align: "center",
-      width: "5.5%",
     },
     {
       title: "Đóng gói",
       dataIndex: "packed_status",
       key: "packed_status",
+      visible: true,
+      align: "center",
+      width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return (
           <img src={processIcon} alt="" />
         );
       },
-      visible: true,
-      align: "center",
-      width: 120,
     },
     {
       title: "Xuất kho",
       dataIndex: "received_status",
       key: "received_status",
+      visible: true,
+      align: "center",
+      width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return (
           <img src={processIcon} alt="" />
         );
       },
-      visible: true,
-      align: "center",
-      width: 120,
     },
     {
       title: "Thanh toán",
       dataIndex: "payment_status",
       key: "payment_status",
+      visible: true,
+      align: "center",
+      width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return (
           <img src={processIcon} alt="" />
         );
       },
-      visible: true,
-      align: "center",
-      width: 120,
     },
     {
       title: "Trả hàng",
       dataIndex: "return_status",
       key: "return_status",
+      visible: true,
+      align: "center",
+      width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
         return (
           <img src={processIcon} alt="" />
         );
       },
-      visible: true,
-      align: "center",
-      width: 120,
     },
     {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
       key: "item_quantity_total",
+      visible: true,
+      align: "center",
       render: (items) => {
         return items.reduce(
           (total: number, item: any) => total + item.quantity,
           0
         );
       },
-      visible: true,
-      align: "center",
     },
     {
       title: "Địa chỉ",
       dataIndex: "shipping_address",
+      key: "area",
+      visible: true,
+      width: "300px",
       render: (shipping_address: any) => {
         const ward = shipping_address?.ward ? shipping_address.ward + "," : "";
         const district = shipping_address?.district
@@ -513,9 +484,6 @@ const EcommerceOrderSync: React.FC = () => {
           )
         );
       },
-      key: "area",
-      visible: true,
-      width: "300px",
     },
     {
       title: "Gian hàng",
@@ -535,55 +503,55 @@ const EcommerceOrderSync: React.FC = () => {
       title: "Phương thức thanh toán",
       dataIndex: "payments",
       key: "payments_type",
+      visible: true,
+      width: "200px",
       render: (payments: Array<OrderPaymentModel>) =>
         payments.map((payment) => {
           return <Tag key={payment.id}>{payment.payment_method}</Tag>;
         }),
-      visible: true,
-      width: "200px",
     },
     {
       title: "Nhân viên bán hàng",
-      render: (data) => (
-        <div>{`${data.assignee_code} - ${data.assignee}`}</div>
-      ),
       key: "assignee",
       visible: true,
       align: "center",
       width: "200px",
+      render: (data) => (
+        <div>{`${data.assignee_code} - ${data.assignee}`}</div>
+      ),
     },
     {
       title: "Ngày nhận đơn",
       dataIndex: "created_date",
-      render: (created_date) => (
-        <div>{convertDateTimeFormat(created_date)}</div>
-      ),
       key: "created_date",
       visible: true,
       align: "center",
       width: "200px",
+      render: (created_date) => (
+        <div>{convertDateTimeFormat(created_date)}</div>
+      ),
     },
     {
       title: "Ngày hoàn tất đơn",
       dataIndex: "finalized_on",
-      render: (finalized_on) => (
-        <div>{convertDateTimeFormat(finalized_on)}</div>
-      ),
       key: "completed_on",
       visible: true,
       align: "center",
       width: "200px",
+      render: (finalized_on) => (
+        <div>{convertDateTimeFormat(finalized_on)}</div>
+      ),
     },
     {
       title: "Ngày huỷ đơn",
       dataIndex: "cancelled_on",
-      render: (cancelled_on) => (
-        <div>{convertDateTimeFormat(cancelled_on)}</div>
-      ),
       key: "cancelled_on",
       visible: true,
       align: "center",
       width: "200px",
+      render: (cancelled_on) => (
+        <div>{convertDateTimeFormat(cancelled_on)}</div>
+      ),
     },
     {
       title: "Ghi chú của khách",
@@ -722,111 +690,114 @@ const EcommerceOrderSync: React.FC = () => {
   }, [dispatch, setDataAccounts]);
 
   return (
-    <ContentContainer
-      title="Danh sách đơn hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Sàn TMĐT",
-          path: `${UrlConfig.ECOMMERCE}`,
-        },
-        {
-          name: "Danh sách đơn hàng",
-        },
-      ]}
-      extra={
-        <>
-          <Button
-            disabled={tableLoading}
-            onClick={openGetOrderModal}
-            className="ant-btn-outline ant-btn-primary"
-            size="large"
-            icon={<DownloadOutlined />}
-          >
-            Tải đơn hàng về
-          </Button>
-        </>
-      }
-    >
-      <Card style={{ padding: "20px" }}>
-        <EcommerceOrderFilter
-          tableLoading={tableLoading}
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          params={params}
-          listSource={listSource}
-          listStore={listStore}
-          accounts={accounts}
-          deliveryService={delivery_service}
-          subStatus={listOrderProcessingStatus}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-        />
-        <CustomTable
-          isRowSelection
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 3630, y: 350 }}
-          pagination={
-            tableLoading ? false : {
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
+    <StyledComponent>
+      <ContentContainer
+        title="Danh sách đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Sàn TMĐT",
+            path: `${UrlConfig.ECOMMERCE}`,
+          },
+          {
+            name: "Danh sách đơn hàng",
+          },
+        ]}
+        extra={
+          <>
+            <Button
+              disabled={tableLoading}
+              onClick={openGetOrderModal}
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<DownloadOutlined />}
+            >
+              Tải đơn hàng về
+            </Button>
+          </>
+        }
+      >
+        <Card style={{ padding: "20px" }}>
+          <EcommerceOrderFilter
+            tableLoading={tableLoading}
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            deliveryService={delivery_service}
+            subStatus={listOrderProcessingStatus}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+          />
+
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 3630, y: 350 }}
+            pagination={
+              tableLoading ? false : {
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }
             }
-          }
-          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: OrderModel) => item.id}
-          className="ecommerce-order-list"
-        />
-      </Card>
+            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: OrderModel) => item.id}
+            className="ecommerce-order-list"
+          />
+        </Card>
 
-      {isShowGetOrderModal &&
-        <DownloadOrderDataModal
-          visible={isShowGetOrderModal}
-          onCancel={cancelGetOrderModal}
-          onOk={updateOrderList}
-        />
-      }
+        {isShowGetOrderModal &&
+          <DownloadOrderDataModal
+            visible={isShowGetOrderModal}
+            onCancel={cancelGetOrderModal}
+            onOk={updateOrderList}
+          />
+        }
 
-      {isShowResultGetOrderModal &&
-        <ResultDownloadOrderDataModal
-          visible={isShowResultGetOrderModal}
-          onCancel={cancelResultGetOrderModal}
-          onOk={okResultGetOrderModal}
-          data={downloadedOrderData}
-        />
-      }
-      
-      {isShowUpdateConnectionModal &&
-        <UpdateConnectionModal
-          visible={isShowUpdateConnectionModal}
-          onCancel={cancelUpdateConnectionModal}
-          onOk={updateProductConnection}
-          data={updateConnectionData}
-        />
-      }
+        {isShowResultGetOrderModal &&
+          <ResultDownloadOrderDataModal
+            visible={isShowResultGetOrderModal}
+            onCancel={cancelResultGetOrderModal}
+            onOk={okResultGetOrderModal}
+            data={downloadedOrderData}
+          />
+        }
+        
+        {isShowUpdateConnectionModal &&
+          <UpdateConnectionModal
+            visible={isShowUpdateConnectionModal}
+            onCancel={cancelUpdateConnectionModal}
+            onOk={updateProductConnection}
+            data={updateConnectionData}
+          />
+        }
 
-      {showSettingColumn &&
-        <ModalSettingColumn
-          visible={showSettingColumn}
-          isSetDefaultColumn={true}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data);
-          }}
-          data={columns}
-        />
-      }
-    </ContentContainer>
+        {showSettingColumn &&
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            isSetDefaultColumn={true}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumn(data);
+            }}
+            data={columns}
+          />
+        }
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 

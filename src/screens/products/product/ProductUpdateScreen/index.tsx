@@ -200,10 +200,10 @@ const ProductDetailScreen: React.FC = () => {
     const variants: Array<VariantResponse> = form.getFieldValue("variants");
     let isFind = false;
     let variantAvatarIndex = 0;
-    let varirantImageIndex = 0;
+    const FIRST_VARIANT_IMAGE_INDEX = 0;
 
-    const revertVariants = variants.reverse()
-
+    const revertVariants = variants.reverse();
+    //check existed product avatar, if not => set first variant image for product avatar
     revertVariants.forEach((item, i) => {
       if (item.saleable && !isFind) {
         item.variant_images.forEach((item) => {
@@ -212,15 +212,22 @@ const ProductDetailScreen: React.FC = () => {
               isFind = true;
             } else {
               variantAvatarIndex = i;
-              varirantImageIndex = 0;
             }
-          }         
+          }
         });
       }
     });
 
-    if(!isFind &&  revertVariants[variantAvatarIndex].variant_images[varirantImageIndex] ){
-      revertVariants[variantAvatarIndex].variant_images[varirantImageIndex].product_avatar = true;
+    if (!isFind && revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX]) {
+      //reset product avatar
+      revertVariants.forEach((item) => {
+        item.variant_images.forEach((item) => {
+          item.product_avatar = false;
+        });
+      });
+
+      //set product avatar
+      revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX].product_avatar = true;
     }
     
     form.setFieldsValue({ variants: [...revertVariants.reverse()] });
@@ -633,7 +640,6 @@ const ProductDetailScreen: React.FC = () => {
                                 variants = [...variants];
                                 variants.forEach((item) => {
                                   item.status = "active";
-                                  item.saleable = true;
                                 });
                               } else {
                                 variants = [...variants];
@@ -883,6 +889,7 @@ const ProductDetailScreen: React.FC = () => {
                             const variants: Array<VariantResponse> = getFieldValue("variants");
                             let url = null;
                             variants.forEach((item) => {
+                              if(item.saleable)
                               item.variant_images.forEach((item1) => {
                                 if (item1.product_avatar) {
                                   url = item1.url;

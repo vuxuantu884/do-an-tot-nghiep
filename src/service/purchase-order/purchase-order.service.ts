@@ -27,10 +27,9 @@ export const updatePurchaseOrder = (
 
 export const updatePurchaseOrderFinancialStatus = (
   id: number,
-  financialstatus: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/financial-status/${financialstatus}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/financial-status/finish`
   );
 };
 

@@ -124,61 +124,55 @@ const SizeUpdateScreen: React.FC = () => {
           layout="vertical"
         >
           <Card title="Thông tin cơ bản">
-            <div className="padding-20">
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Form.Item hidden noStyle label="Kích cỡ" name="version">
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Form.Item
-                    rules={[
-                      { required: true, message: "Vui lòng nhập kích cỡ" },
-                      {
-                        pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                        message: "Kích cỡ không chứa ký tự đặc biệt",
-                      },
-                    ]}
-                    label="Kích cỡ"
-                    name="code"
-                    normalize={(value) => (value || "").toUpperCase()}
-                  >
-                    <Input
-                      maxLength={3}
-                      placeholder="Nhập kích cỡ"
-                      size="large"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Form.Item
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn ít nhất 1 danh mục",
-                      },
-                    ]}
-                    name="category_ids"
-                    label="Danh mục"
-                  >
-                    <Select
-                      mode="multiple"
-                      placeholder="Chọn danh mục"
-                      showArrow
-                    >
-                      {categories.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </div>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item hidden noStyle label="Kích cỡ" name="version">
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  rules={[
+                    { required: true, message: "Vui lòng nhập kích cỡ" },
+                    {
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      message: "Kích cỡ không chứa ký tự đặc biệt",
+                    },
+                  ]}
+                  label="Kích cỡ"
+                  name="code"
+                  normalize={(value) => (value || "").toUpperCase()}
+                >
+                  <Input
+                    maxLength={3}
+                    placeholder="Nhập kích cỡ"
+                    size="large"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ít nhất 1 danh mục",
+                    },
+                  ]}
+                  name="category_ids"
+                  label="Danh mục"
+                >
+                  <Select mode="multiple" placeholder="Chọn danh mục" showArrow>
+                    {categories.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
           </Card>
           <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>

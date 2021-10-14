@@ -368,7 +368,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
-      status: Array.isArray(params.status) ? params.status : [params.status],
+      // status: Array.isArray(params.status) ? params.status : [params.status],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
       shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
@@ -723,8 +723,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div>
       <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="">
-          <Radio.Button value="">Tất cả đơn giao hàng</Radio.Button>
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.status}>
+          <Radio.Button value={null}>Tất cả đơn giao hàng</Radio.Button>
           <Radio.Button value="unshipped">Chờ lấy hàng</Radio.Button>
           <Radio.Button value="picked">Đã lấy hàng</Radio.Button>
           <Radio.Button value="shipping">Đang giao hàng</Radio.Button>
@@ -766,7 +766,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={() => {
+            onClearFilter && onClearFilter();
+            setVisible(false);
+          }}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -810,7 +813,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.source_ids.length ? ["1"]: []}>
                   <Panel header="NGUỒN ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="source_ids" style={{ margin: "10px 0px" }}>
                       <CustomSelect

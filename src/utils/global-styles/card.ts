@@ -8,18 +8,19 @@ export const globalCssCustomCard = css`
     margin-bottom: 20px;
   }
   .ant-card-head {
+    padding: 9px ${cardPaddingLeftAndRight};
     min-height: 40px;
     border-bottom: 1px solid ${borderColor};
   }
   .ant-card-head-title {
     font-weight: ${headingFontWeight};
     font-size: 0.875rem;
-    line-height: 1.143;
+    line-height: 1.5715;
     text-transform: uppercase;
     position: relative;
-    padding: 12px 0;
+    padding: 0;
   }
   .ant-card-body {
-    padding: 24px ${cardPaddingLeftAndRight};
+    padding: 20px ${cardPaddingLeftAndRight};
   }
 `;

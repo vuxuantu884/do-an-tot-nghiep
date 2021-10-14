@@ -59,7 +59,7 @@ const ColorUpdateScreen: React.FC = () => {
   }, [history]);
   const getColorCallback = useCallback((result: ColorResponse | false) => {
     // setLoadingData(false);
-    
+
     if (!result) {
       setError(true);
     } else {
@@ -108,88 +108,86 @@ const ColorUpdateScreen: React.FC = () => {
             <Input />
           </Form.Item>
           <Card title="Thông tin cơ bản">
-            <div className="padding-20">
-              <Row gutter={50}>
-                <Col
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                  }}
-                  span={24}
-                  sm={24}
-                  md={24}
-                  lg={4}
-                >
-                  <Form.Item name="image_id" noStyle>
-                    <ColorUpload url={color.image} />
-                  </Form.Item>
-                  <div className="upload-bottom">Ảnh màu</div>
-                </Col>
-                <Col span={24} lg={20} sm={24} md={24}>
-                  <Row gutter={50}>
-                    <Col span={24} lg={8} md={12} sm={24}>
-                      <Form.Item
-                        rules={[
-                          { required: true, message: "Vui lòng nhập tên màu" },
-                          {
-                            pattern: RegUtil.NO_ALL_SPACE,
-                            message: "Tên màu sắc chưa đúng định dạng",
-                          },
-                        ]}
-                        label="Tên màu"
-                        name="name"
+            <Row gutter={50}>
+              <Col
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                }}
+                span={24}
+                sm={24}
+                md={24}
+                lg={4}
+              >
+                <Form.Item name="image_id" noStyle>
+                  <ColorUpload url={color.image} />
+                </Form.Item>
+                <div className="upload-bottom">Ảnh màu</div>
+              </Col>
+              <Col span={24} lg={20} sm={24} md={24}>
+                <Row gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <Form.Item
+                      rules={[
+                        { required: true, message: "Vui lòng nhập tên màu" },
+                        {
+                          pattern: RegUtil.NO_ALL_SPACE,
+                          message: "Tên màu sắc chưa đúng định dạng",
+                        },
+                      ]}
+                      label="Tên màu"
+                      name="name"
+                    >
+                      <Input placeholder="Nhập tên màu" maxLength={50} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <Form.Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn màu chủ đạo",
+                        },
+                      ]}
+                      name="parent_id"
+                      label="Màu chủ đạo"
+                    >
+                      <Select
+                        placeholder="Chọn màu chủ đạo"
+                        className="selector"
                       >
-                        <Input placeholder="Nhập tên màu" maxLength={50} />
-                      </Form.Item>
-                    </Col>
-                    <Col span={24} lg={8} md={12} sm={24}>
-                      <Form.Item
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn màu chủ đạo",
-                          },
-                        ]}
-                        name="parent_id"
-                        label="Màu chủ đạo"
-                      >
-                        <Select
-                          placeholder="Chọn màu chủ đạo"
-                          className="selector"
-                        >
-                          {selector.items.map((item) => (
-                            <Option key={item.id} value={item.id}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={50}>
-                    <Col span={24} lg={8} md={12} sm={24}>
-                      <Form.Item
-                        rules={[
-                          { required: true, message: "Vui lòng nhập mã màu" },
-                        ]}
-                        name="code"
-                        labelAlign="right"
-                        label="Mã màu"
-                        normalize={(value) => (value || "").toUpperCase()}
-                      >
-                        <Input placeholder="Nhập mã màu" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={24} lg={8} md={12} sm={24}>
-                      <Form.Item name="hex_code" label="Mã hex">
-                        <Input placeholder="Nhập mã hex" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            </div>
+                        {selector.items.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={50}>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <Form.Item
+                      rules={[
+                        { required: true, message: "Vui lòng nhập mã màu" },
+                      ]}
+                      name="code"
+                      labelAlign="right"
+                      label="Mã màu"
+                      normalize={(value) => (value || "").toUpperCase()}
+                    >
+                      <Input placeholder="Nhập mã màu" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <Form.Item name="hex_code" label="Mã hex">
+                      <Input placeholder="Nhập mã hex" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
           </Card>
           <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>

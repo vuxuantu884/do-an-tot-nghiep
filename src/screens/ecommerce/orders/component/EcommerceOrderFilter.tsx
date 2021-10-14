@@ -35,12 +35,14 @@ import {
   getShopEcommerceList,
  } from "domain/actions/ecommerce/ecommerce.actions";
 
- import search from "assets/img/search.svg";
- import deleteIcon from "assets/icon/deleteIcon.svg"
- import tikiIcon from "assets/icon/e-tiki.svg";
- import shopeeIcon from "assets/icon/e-shopee.svg";
- import lazadaIcon from "assets/icon/e-lazada.svg";
- import sendoIcon from "assets/icon/e-sendo.svg";
+import search from "assets/img/search.svg";
+import deleteIcon from "assets/icon/deleteIcon.svg"
+import tikiIcon from "assets/icon/e-tiki.svg";
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import sendoIcon from "assets/icon/e-sendo.svg";
+ 
+import { StyledComponent, StyledEcommerceOrderBaseFilter } from "screens/ecommerce/orders/orderStyles";
 
 
 type OrderFilterProps = {
@@ -167,26 +169,28 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
 
   const renderShopList = () => {
     return (
-      <div className="render-shop-list">
-        {ecommerceShopList.map((item: any) => (
-          <div key={item.id}  className="shop-name">
-            <Checkbox onChange={(e) => onSelectShopChange(item, e)} checked={item.isSelected} >
-              <span className="check-box-name">
-                <span>
-                  <img src={shopeeIcon} alt={item.id} style={{marginRight: "5px", height: "16px"}} />
+      <StyledComponent>
+        <div className="render-shop-list">
+          {ecommerceShopList.map((item: any) => (
+            <div key={item.id}  className="shop-name">
+              <Checkbox onChange={(e) => onSelectShopChange(item, e)} checked={item.isSelected} >
+                <span className="check-box-name">
+                  <span>
+                    <img src={shopeeIcon} alt={item.id} style={{marginRight: "5px", height: "16px"}} />
+                  </span>
+                  <Tooltip title={item.name} color="#1890ff" placement="right">
+                    <span className="name">{item.name}</span>
+                  </Tooltip>
                 </span>
-                <Tooltip title={item.name} color="#1890ff" placement="right">
-                  <span className="name">{item.name}</span>
-                </Tooltip>
-              </span>
-            </Checkbox>
-          </div>
-        ))}
+              </Checkbox>
+            </div>
+          ))}
 
-        {ecommerceShopList.length === 0 &&
-          <div style={{color: "#737373", padding: 10}}>Không có dữ liệu</div>
-        }
-      </div>
+          {ecommerceShopList.length === 0 &&
+            <div style={{color: "#737373", padding: 10}}>Không có dữ liệu</div>
+          }
+        </div>
+      </StyledComponent>
     )
   }
 
@@ -943,173 +947,175 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
             </div>
           }
         >
-          <Form
-            onFinish={onFinish}
-            ref={formRef}
-            initialValues={params}
-            layout="vertical"
-          >
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
-                  <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
-                    {/* <Item name="store_ids"> */}
-                    <Item>
-                      <CustomSelect
-                        mode="multiple"
-                        showArrow
-                        showSearch
-                        placeholder="Cửa hàng"
-                        notFoundContent="Không tìm thấy kết quả"
-                        style={{
-                          width: '100%'
-                        }}
-                        // optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {listStore?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.issued_on_min && initialValues.issued_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('issued', 'yesterday')} className={issuedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'today')} className={issuedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'thisweek')} className={issuedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('issued', 'lastweek')} className={issuedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'thismonth')} className={issuedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'lastmonth')} className={issuedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <span  style={{margin: "10px 0"}}><SettingOutlined style={{marginRight: "5px"}}/>Tuỳ chọn khoảng thời gian:</span>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null, issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'issued')}
-                    />
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.order_status.length ? ["1"]: []}>
-                  <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
-                    {/* <Item name="order_status"> */}
-                    <Item>
-                      <Select
-                        mode="multiple"
-                        showSearch placeholder="Chọn trạng thái đơn hàng"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        // optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {status?.map((item) => (
-                          <Option key={item.value} value={item.value.toString()}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
+          <StyledEcommerceOrderBaseFilter>
+            <Form
+              onFinish={onFinish}
+              ref={formRef}
+              initialValues={params}
+              layout="vertical"
+            >
+              
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
+                    <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
+                      {/* <Item name="store_ids"> */}
+                      <Item>
+                        <CustomSelect
+                          mode="multiple"
+                          showArrow
+                          showSearch
+                          placeholder="Cửa hàng"
+                          notFoundContent="Không tìm thấy kết quả"
+                          style={{
+                            width: '100%'
+                          }}
+                          // optionFilterProp="children"
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {listStore?.map((item) => (
+                            <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                              {item.name}
+                            </CustomSelect.Option>
+                          ))}
+                        </CustomSelect>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+              
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse defaultActiveKey={initialValues.issued_on_min && initialValues.issued_on_max ? ["1"]: []}>
+                    <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
+                      <div className="date-option">
+                        <Button onClick={() => clickOptionDate('issued', 'yesterday')} className={issuedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                        <Button onClick={() => clickOptionDate('issued', 'today')} className={issuedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                        <Button onClick={() => clickOptionDate('issued', 'thisweek')} className={issuedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                      </div>
+                      <div className="date-option">
+                        <Button onClick={() => clickOptionDate('issued', 'lastweek')} className={issuedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                        <Button onClick={() => clickOptionDate('issued', 'thismonth')} className={issuedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                        <Button onClick={() => clickOptionDate('issued', 'lastmonth')} className={issuedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                      </div>
+                      <span  style={{margin: "10px 0"}}><SettingOutlined style={{marginRight: "5px"}}/>Tuỳ chọn khoảng thời gian:</span>
+                      <DatePicker.RangePicker
+                        format="DD-MM-YYYY"
+                        style={{width: "100%"}}
+                        value={[issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null, issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null]}
+                        onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'issued')}
+                      />
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+              
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse defaultActiveKey={initialValues.order_status.length ? ["1"]: []}>
+                    <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn trạng thái đơn hàng"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          // optionFilterProp="children"
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
 
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.order_sub_status.length ? ["1"]: []}>
-                  <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN HÀNG" key="1" className="header-filter">
-                    {/* <Item name="order_sub_status"> */}
-                    <Item>
-                      <Select
-                        mode="multiple"
-                        showSearch
-                        placeholder="Chọn trạng thái xử lý đơn"
-                        notFoundContent="Không tìm thấy kết quả"
-                        style={{width: '100%'}}
-                        // optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {subStatus?.map((item: any) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.sub_status}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
-                  <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    {/* <Item name="delivery_types"> */}
-                    <Item>
-                      <Select
-                        mode="multiple"
-                        // optionFilterProp="children"
-                        showSearch
-                        notFoundContent="Không tìm thấy kết quả"
-                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {/* <Option value="">Hình thức vận chuyển</Option> */}
-                        {serviceType?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
-                  <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
-                    {/* <Item name="delivery_provider_ids"> */}
-                    <Item>
-                      <Select
-                        mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        // optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {deliveryService?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-          </Form>
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse defaultActiveKey={initialValues.order_sub_status.length ? ["1"]: []}>
+                    <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN HÀNG" key="1" className="header-filter">
+                      {/* <Item name="order_sub_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch
+                          placeholder="Chọn trạng thái xử lý đơn"
+                          notFoundContent="Không tìm thấy kết quả"
+                          style={{width: '100%'}}
+                          // optionFilterProp="children"
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {subStatus?.map((item: any) => (
+                            <Option key={item.id} value={item.id}>
+                              {item.sub_status}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+              
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
+                    <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
+                      {/* <Item name="delivery_types"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          // optionFilterProp="children"
+                          showSearch
+                          notFoundContent="Không tìm thấy kết quả"
+                          placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* <Option value="">Hình thức vận chuyển</Option> */}
+                          {serviceType?.map((item) => (
+                            <Option key={item.value} value={item.value}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+              
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
+                    <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
+                      {/* <Item name="delivery_provider_ids"> */}
+                      <Item>
+                        <Select
+                          mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          // optionFilterProp="children"
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {deliveryService?.map((item) => (
+                            <Option key={item.id} value={item.id}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+              
+            </Form>
+          </StyledEcommerceOrderBaseFilter>
         </BaseFilter>
       </div>
       <div className="order-filter-tags">

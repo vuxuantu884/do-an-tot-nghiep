@@ -497,15 +497,12 @@ const ProductCreateScreen: React.FC = () => {
   }, [variants]);
 
   
-  const getFirstProductAvatarCreate =  (variants: Array<VariantRequestView>)  => {
-    console.log('variants', variants)
-    
+  const getFirstProductAvatarCreate = (variants: Array<VariantRequestView>) => {
     let isFind = false;
     let variantAvatarIndex = 0;
-    let varirantImageIndex = 0;
+    const FIRST_VARIANT_IMAGE_INDEX = 0;
 
-    const revertVariants = variants.reverse()
-    console.log('revertVariants', revertVariants)
+    const revertVariants = variants.reverse();
 
     revertVariants.forEach((item, i) => {
       if (!isFind) {
@@ -514,19 +511,17 @@ const ProductCreateScreen: React.FC = () => {
             isFind = true;
           } else {
             variantAvatarIndex = i;
-            varirantImageIndex = 0; // first image of variant
           }
         });
       }
     });
 
-    if(!isFind && revertVariants[variantAvatarIndex].variant_images[varirantImageIndex] ){
-      revertVariants[variantAvatarIndex].variant_images[varirantImageIndex].product_avatar = true;
+    if (!isFind && revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX]) {
+      revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX].product_avatar = true;
     }
 
-  return revertVariants.reverse() 
-    
-  } 
+    return revertVariants.reverse();
+  }; 
 
   const onSaveImage = useCallback(
     (imageId: number) => {

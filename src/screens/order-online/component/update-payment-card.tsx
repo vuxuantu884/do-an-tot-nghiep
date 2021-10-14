@@ -149,21 +149,23 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     props.setPayments([...paymentData]);
   };
 
-  const onUpdateSuccess = useCallback((value: OrderResponse) => {
-    showSuccess("Thanh toán thành công");
-    setCreatePayment(false);
-    // window.location.reload();
-    setVisibleConfirmPayment(false);
-    setPaymentData([]);
-    props.reload && props.reload();
-  }, [props]);
+  const onUpdateSuccess = useCallback(
+    (value: OrderResponse) => {
+      showSuccess("Thanh toán thành công");
+      setCreatePayment(false);
+      // window.location.reload();
+      setVisibleConfirmPayment(false);
+      setPaymentData([]);
+      props.reload && props.reload();
+    },
+    [props]
+  );
 
   const onError = (error: boolean) => {
     if (error) {
       setVisibleConfirmPayment(false);
       setCreatePayment(false);
     }
-    
   };
 
   const ShowConfirmPayment = () => {
@@ -218,9 +220,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       // console.log('setSearchProducts true');
       setCreatePayment(true);
       try {
-        await dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError));
+        await dispatch(
+          UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError)
+        );
       } catch {}
-    })()
+    })();
     // dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
 
@@ -276,7 +280,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           }
         >
           {props.isVisibleUpdatePayment === true && (
-            <div className="padding-20 create-order-payment">
+            <div className="create-order-payment">
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <Radio.Group
                   value={props.paymentMethod}

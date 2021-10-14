@@ -24,6 +24,7 @@ import {
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
+  getListSubStatusAction,
   OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction,
@@ -40,6 +41,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderResponse,
+  OrderSubStatusResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -66,9 +68,11 @@ import {
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
-import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
+import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
+import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
+import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
@@ -79,17 +83,15 @@ const { Panel } = Collapse;
 
 type PropType = {
   id?: string;
-  isCloneOrder?: boolean;
 };
 type OrderParam = {
   id: string;
 };
 
 const OrderDetail = (props: PropType) => {
-  const { isCloneOrder } = props;
   let { id } = useParams<OrderParam>();
   const history = useHistory();
-  if (!id && props.id && isCloneOrder) {
+  if (!id && props.id) {
     id = props.id;
   }
   let OrderId = parseInt(id);
@@ -97,8 +99,6 @@ const OrderDetail = (props: PropType) => {
 
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  // const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
@@ -139,39 +139,17 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
 
+  // xác nhận đơn
+  const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] =
+    useState(false);
+  const [subStatusId, setSubStatusId] = useState<number | undefined>(undefined);
+
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
       setVisibleShipping(true);
     }
     setPaymentType(paymentType);
   };
-
-  // const CreateFulFillmentRequest = () => {
-  //   let request: UpdateFulFillmentRequest = {
-  //     id: null,
-  //     order_id: null,
-  //     store_id: OrderDetail?.store_id,
-  //     account_code: OrderDetail?.account_code,
-  //     assignee_code: OrderDetail?.assignee_code,
-  //     delivery_type: "",
-  //     stock_location_id: null,
-  //     payment_status: "",
-  //     total: null,
-  //     total_tax: null,
-  //     total_discount: null,
-  //     total_quantity: null,
-  //     discount_rate: null,
-  //     discount_value: null,
-  //     discount_amount: null,
-  //     total_line_amount_after_line_discount: null,
-  //     shipment: null,
-  //     items: OrderDetail?.items,
-  //     shipping_fee_informed_to_customer: null,
-  //   };
-  //   let listFullfillmentRequest = [];
-  //   listFullfillmentRequest.push(request);
-  //   return listFullfillmentRequest;
-  // };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
     showSuccess("Thanh toán thành công!");
@@ -336,10 +314,16 @@ const OrderDetail = (props: PropType) => {
       setIsReceivedReturnProducts(
         _data.order_return_origin?.received ? true : false
       );
+      if (_data.sub_status_id) {
+        setSubStatusId(_data.sub_status_id);
+      }
+      if (_data.status === OrderStatus.DRAFT) {
+        setIsShowConfirmOrderButton(true);
+      }
     }
   }, []);
 
-  const handleChangeSubStatus = () => {
+  const handleUpdateSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
   };
 
@@ -440,6 +424,15 @@ const OrderDetail = (props: PropType) => {
     },
     [OrderDetail?.fulfillments, cancelModal, history, id]
   );
+
+  /**
+   * xác nhận đơn
+   */
+  const onConfirmOrder = () => {
+    console.log("onConfirmOrder");
+    // const choXacNhanId = 1;
+    // setSubStatusId(choXacNhanId);
+  };
 
   useEffect(() => {
     if (isFirstLoad.current || reload) {
@@ -567,7 +560,7 @@ const OrderDetail = (props: PropType) => {
           name: "Đơn hàng",
         },
         {
-          name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
+          name: `Đơn hàng ${id}`,
         },
       ]}
       extra={
@@ -1137,164 +1130,15 @@ const OrderDetail = (props: PropType) => {
             </Col>
 
             <Col md={6}>
-              <Card
-                className="card-block card-block-normal"
-                title={
-                  <div className="d-flex">
-                    <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-                  </div>
-                }
-              >
-                <div className="padding-24">
-                  <Row className="" gutter={5}>
-                    <Col span={11}>Cửa hàng:</Col>
-                    <Col span={13}>
-                      <span
-                        style={{ fontWeight: 500, color: "#2A2A86" }}
-                        className="text-focus"
-                      >
-                        {OrderDetail?.store}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Điện thoại:</Col>
-                    <Col span={13}>
-                      <span style={{ fontWeight: 500, color: "#222222" }}>
-                        {OrderDetail?.customer_phone_number}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Địa chỉ:</Col>
-                    <Col span={13}>
-                      <span style={{ fontWeight: 500, color: "#222222" }}>
-                        {OrderDetail?.shipping_address?.full_address}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Nhân viên bán hàng:</Col>
-                    <Col span={13}>
-                      <span
-                        style={{ fontWeight: 500, color: "#222222" }}
-                        className="text-focus"
-                      >
-                        {OrderDetail?.assignee}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Nhân viên marketing:</Col>
-                    <Col span={13}>
-                      <span
-                        style={{ fontWeight: 500, color: "#222222" }}
-                        className="text-focus"
-                      >
-                        {OrderDetail?.marketer}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Nhân viên điều phối:</Col>
-                    <Col span={13}>
-                      <span
-                        style={{ fontWeight: 500, color: "#222222" }}
-                        className="text-focus"
-                      >
-                        {OrderDetail?.coordinator}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Người tạo:</Col>
-                    <Col span={13}>
-                      <span
-                        style={{ fontWeight: 500, color: "#222222" }}
-                        className="text-focus"
-                      >
-                        {OrderDetail?.account}
-                      </span>
-                    </Col>
-                  </Row>
-                  <Row className="margin-top-10" gutter={5}>
-                    <Col span={11}>Đường dẫn:</Col>
-                    <Col span={13} style={{ wordWrap: "break-word" }}>
-                      {OrderDetail?.url ? (
-                        <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
-                      ) : (
-                        <span className="text-focus">Không</span>
-                      )}
-                    </Col>
-                  </Row>
-                </div>
-              </Card>
+              <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
               <SubStatusOrder
-                subStatusId={OrderDetail?.sub_status_id}
+                subStatusId={subStatusId}
                 status={OrderDetail?.status}
                 orderId={OrderId}
                 fulfillments={OrderDetail?.fulfillments}
-                handleChangeSubStatus={handleChangeSubStatus}
+                handleUpdateSubStatus={handleUpdateSubStatus}
               />
-              <Card
-                className="margin-top-20"
-                title={
-                  <div className="d-flex">
-                    <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                  </div>
-                }
-              >
-                <div className="padding-24">
-                  <Row
-                    className=""
-                    gutter={5}
-                    style={{ flexDirection: "column" }}
-                  >
-                    <Col span={24} style={{ marginBottom: 6 }}>
-                      <b>Ghi chú nội bộ:</b>
-                    </Col>
-                    <Col span={24}>
-                      <span
-                        className="text-focus"
-                        style={{ wordWrap: "break-word" }}
-                      >
-                        {OrderDetail?.note !== ""
-                          ? OrderDetail?.note
-                          : "Không có ghi chú"}
-                      </span>
-                    </Col>
-                  </Row>
-
-                  <Row
-                    className="margin-top-10"
-                    gutter={5}
-                    style={{ flexDirection: "column" }}
-                  >
-                    <Col span={24} style={{ marginBottom: 6 }}>
-                      <b>Tags:</b>
-                    </Col>
-                    <Col span={24}>
-                      <span className="text-focus">
-                        {OrderDetail?.tags
-                          ? OrderDetail?.tags.split(",").map((item, index) => (
-                              <Tag
-                                key={index}
-                                className="orders-tag"
-                                style={{
-                                  backgroundColor: "#F5F5F5",
-                                  color: "#737373",
-                                  padding: "5px 10px",
-                                }}
-                              >
-                                {item}
-                              </Tag>
-                            ))
-                          : "Không có tags"}
-                      </span>
-                    </Col>
-                  </Row>
-                </div>
-              </Card>
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
               <ActionHistory
                 orderId={id}
                 countChangeSubStatus={countChangeSubStatus}
@@ -1308,6 +1152,8 @@ const OrderDetail = (props: PropType) => {
             stepsStatusValue={stepsStatusValue}
             orderActionsClick={orderActionsClick}
             orderDetail={OrderDetailAllFullfilment}
+            onConfirmOrder={onConfirmOrder}
+            isShowConfirmOrderButton={isShowConfirmOrderButton}
           />
         </Form>
       </div>

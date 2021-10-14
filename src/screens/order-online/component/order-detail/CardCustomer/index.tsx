@@ -458,7 +458,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </span>
           <Form.Item
             name="source_id"
-            style={{ margin: "10px 0px" }}
+            style={{ margin: "0px" }}
             rules={[
               {
                 required: true,

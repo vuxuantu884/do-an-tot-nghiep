@@ -528,7 +528,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               <Button
                 type="text"
                 onClick={() => {
-                  // showAddDiscountItemModal(true);
                   setDiscountLineItemIndex(index);
                   setDiscountLineItem(l);
                 }}
@@ -536,16 +535,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 Thêm chiết khấu
               </Button>
             </Popover>
-            {/* <Button
-              type="text"
-              onClick={() => {
-                showAddDiscountItemModal(true);
-                setDiscountLineItemIndex(index);
-                setDiscountLineItem(l);
-              }}
-            >
-              Thêm chiết khấu
-            </Button> */}
           </Menu.Item>
           <Menu.Item key="2">
             <Button type="text" onClick={() => showAddGiftModal(index)}>
