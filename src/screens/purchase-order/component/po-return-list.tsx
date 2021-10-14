@@ -84,7 +84,7 @@ const POReturnList: React.FC<POReturnListProps> = (
                 );
             });
             return (
-              <Timeline style={{marginTop: 10}}>
+              <Timeline key={item.id} style={{marginTop: 10}}>
                 <Timeline.Item className="active">
                   <Row>
                     <Col span={12}>

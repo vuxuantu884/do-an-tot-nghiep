@@ -30,6 +30,7 @@ import {
   PoFinancialStatus,
   PoPaymentMethod,
   PoPaymentStatus,
+  POStatus,
   ProcumentStatus,
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -210,11 +211,14 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           >
             {({ getFieldValue }) => {
               let financial_status = getFieldValue(POField.financial_status);
+              let status = getFieldValue(POField.status);
               let checkStatus =
                 financial_status !== PoFinancialStatus.CANCELLED &&
                 financial_status !== PoFinancialStatus.PAID &&
                 financial_status !== PoFinancialStatus.FINISHED;
-
+              if(status === POStatus.CANCELLED) {
+                checkStatus = false;
+              }
               return (
                 checkStatus && (
                   <Button
