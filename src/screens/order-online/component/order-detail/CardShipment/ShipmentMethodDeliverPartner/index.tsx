@@ -305,7 +305,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách:"
+              label="Phí ship báo khách: 333"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput

@@ -1338,12 +1338,7 @@
       }
     }
   }
-  .ant-card-head {
-    border: none;
-    .ant-card-head-wrapper {
-      border-bottom: 1px solid #e5e5e5;
-    }
-  }
+
   .ant-collapse-content-box {
     padding: 0;
   }
@@ -1522,15 +1517,6 @@
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
     padding: 5px 0;
-  }
-}
-// update payment
-.orders-update-payment {
-  .ant-card-head {
-    border: none;
-  }
-  .ant-card-head-wrapper {
-    border-bottom: 1px solid #e5e5e5;
   }
 }
 
