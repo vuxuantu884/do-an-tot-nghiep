@@ -71,7 +71,7 @@ const ListStatus: Array<BaseBootstrapResponse> = [
   },
   {
     value: "transferring",
-    name: "Hàng đang chuyển đến",
+    name: "Đang chuyển đến",
   },
   {
     name: "Hàng đang giao",

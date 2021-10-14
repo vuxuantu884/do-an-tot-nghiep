@@ -1116,18 +1116,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   size="middle"
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
-                  prefix={
-                    searchProducts ? (
-                      <LoadingOutlined style={{ color: "#2a2a86" }} />
-                    ) : (
-                      <SearchOutlined style={{ color: "#ABB4BD" }} />
-                    )
-                  }
-                  suffix={
-                    searchProducts ? (
-                      <LoadingOutlined style={{ color: "#ABB4BD" }} />
-                    ) : null
-                  }
+                  prefix={searchProducts ? (
+                    <LoadingOutlined style={{ color: "#2a2a86" }} />
+                  ) : <SearchOutlined style={{ color: "#ABB4BD" }} />}
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>

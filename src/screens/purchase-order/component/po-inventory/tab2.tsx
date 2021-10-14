@@ -27,7 +27,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
           POField.procurements
         );
         let items =
-          procurements !== undefined
+          procurements !== undefined && procurements !== null
             ? procurements.filter(
                 (item) => item.status === ProcumentStatus.RECEIVED
               )

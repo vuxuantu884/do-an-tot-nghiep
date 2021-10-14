@@ -105,7 +105,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
         </div>
       }
     >
-      <div className="padding-20">
+      <div>
         <Form.Item
           shouldUpdate={(prevValues, curValues) =>
             prevValues.receipt_quantity !== curValues.receipt_quantity ||

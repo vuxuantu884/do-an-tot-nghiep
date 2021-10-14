@@ -773,10 +773,15 @@ export default function Order() {
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-    dispatch(getLoyaltyRate(setLoyaltyRate));
+    
   }, [dispatch, customer]);
 
+  useEffect(()=>{
+    
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(getLoyaltyRate(setLoyaltyRate));
+
+  },[dispatch]);
   /**
    * orderSettings
    */

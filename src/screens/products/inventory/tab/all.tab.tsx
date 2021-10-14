@@ -117,17 +117,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
     },
     {
-      title: "Giá nhập",
-      visible: true,
-      align: "right",
-      dataIndex: "prices",
-      render: (value, record, index) => {
-        let price = Products.findPrice(value, AppConfig.currency);
-        return formatCurrency(price ? price.import_price : 0);
-      },
-    },
-    {
-      title: "Giá bán",
+      title: "Giá",
       visible: true,
       dataIndex: "prices",
       align: "right",
@@ -219,7 +209,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                 },
                 {
                   align: "right",
-                  title: "Hàng tạm giữ",
+                  title: "Tạm giữ",
                   dataIndex: "on_hold",
                 },
                 {
@@ -234,12 +224,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
                 },
                 {
                   align: "right",
-                  title: "Hàng đang chuyển đến",
+                  title: "Đang chuyển đến",
                   dataIndex: "transferring",
                 },
                 {
                   align: "right",
-                  title: "Hàng đang chuyển đi",
+                  title: "Đang chuyển đi",
                   dataIndex: "on_way",
                 },
               ]}

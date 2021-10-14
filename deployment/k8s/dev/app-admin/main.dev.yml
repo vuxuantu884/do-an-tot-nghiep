@@ -29,14 +29,7 @@ spec:
           ports:
             - name: http
               containerPort: 80
-          envFrom:
-            - configMapRef:
-                name: $SERVICE_NAME
-            - secretRef:
-                name: $SERVICE_NAME
       restartPolicy: Always
-      imagePullSecrets:
-        - name: docker-image-pull-secret
 ---
 apiVersion: v1
 kind: Service
