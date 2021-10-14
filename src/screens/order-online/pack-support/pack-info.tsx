@@ -46,7 +46,6 @@ type PackInfoProps = {
 const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const {
     setFulfillmentsPackedItems,
-    queryParams,
     fulfillmentData,
     listThirdPartyLogistics,
   } = props;

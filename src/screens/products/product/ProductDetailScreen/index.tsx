@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
 import Slider from "react-slick";
 import { Products } from "utils/AppUtils";
+import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
 import { showSuccess } from "utils/ToastUtils";
 import RowDetail from "../component/RowDetail";
 import VariantList from "../component/VariantList";
@@ -146,6 +147,7 @@ const ProductDetailScreen: React.FC = () => {
             item.saleable = true;
           }
         });
+        data.variants = getFirstProductAvatarByVariantResponse(data.variants);
         update(data);
       }
     },
@@ -173,6 +175,7 @@ const ProductDetailScreen: React.FC = () => {
             item.saleable = false;
           }
         });
+        data.variants = getFirstProductAvatarByVariantResponse(data.variants);
         update(data);
       }
     },
@@ -193,6 +196,7 @@ const ProductDetailScreen: React.FC = () => {
       if (data !== null) {
         setLoadingVariantUpdate(true);
         data.variants[active].saleable = e;
+        data.variants = getFirstProductAvatarByVariantResponse(data.variants);
         dispatch(productUpdateAction(idNumber, data, onUpdateSaleable));
       }
     },
@@ -342,6 +346,7 @@ const tab= document.getElementById("tab");
                               item.saleable = checked;
                             }
                           });
+                          newData.variants = getFirstProductAvatarByVariantResponse(newData.variants);
                           setLoadingSwitch(true);
                           dispatch(
                             productUpdateAction(idNumber, newData, (result) => {

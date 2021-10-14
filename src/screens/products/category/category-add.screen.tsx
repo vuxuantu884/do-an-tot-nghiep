@@ -103,7 +103,6 @@ const AddCategory: React.FC = () => {
         layout="vertical"
       >
         <Card title="Thông tin cơ bản">
-          <div className="padding-20">
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
@@ -171,7 +170,6 @@ const AddCategory: React.FC = () => {
                 </Form.Item>
               </Col>
             </Row>
-          </div>
         </Card>
         <div className="margin-top-10" style={{textAlign: 'right'}}>
           <Space size={12}>

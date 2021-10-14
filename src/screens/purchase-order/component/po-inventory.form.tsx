@@ -1,4 +1,4 @@
-import { Card, Form, Space, Tag } from "antd";
+import { Card, Form, Input, Space, Tag } from "antd";
 import { Button } from "antd";
 import {
   PoProcumentCreateAction,
@@ -134,13 +134,15 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     [idNumber, poData, isEditProcument, dispatch, onAddProcumentCallback]
   );
 
-  const onDeleteProcumentCallback = useCallback(() => {
-    setLoadingCreate(false);
-    showSuccess("Xóa phiếu nháp thành công");
-    setVisible(false);
-    setVisibleDraft(false);
-    setVisibleConfirm(false);
-    onAddProcumentSuccess && onAddProcumentSuccess(false);
+  const onDeleteProcumentCallback = useCallback((result) => {
+    if(result !== null) {
+      setLoadingCreate(false);
+      showSuccess("Xóa phiếu nháp thành công");
+      setVisible(false);
+      setVisibleDraft(false);
+      setVisibleConfirm(false);
+      onAddProcumentSuccess && onAddProcumentSuccess(false);
+    }
   }, [onAddProcumentSuccess]);
 
   const onDeleteProcument = useCallback(
@@ -362,7 +364,10 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         </Form.Item>
       }
     >
-      <div className="padding-20">
+      <Form.Item hidden noStyle name={POField.receive_status}>
+        <Input />
+      </Form.Item>
+      <div>
         {status && status !== POStatus.DRAFT ? (
           <POInventoryView
             tabs={TAB}

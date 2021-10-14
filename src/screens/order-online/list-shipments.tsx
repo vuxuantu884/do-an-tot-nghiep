@@ -60,7 +60,7 @@ const initQuery: ShipmentSearchQuery = {
   sort_type: null,
   sort_column: null,
   search_term: null,
-  status: [],
+  status: null,
   stock_location_ids: [],
   delivery_provider_ids: [],
   delivery_types: [],
@@ -451,6 +451,15 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, params]
   );
+
+  const onClearFilter = useCallback(
+    () => {
+      setPrams(initQuery);
+      let queryParam = generateQuery(initQuery);
+      history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
+    },
+    [history]
+  );
   const [showExportModal, setShowExportModal] = useState(false);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -652,6 +661,7 @@ const ListOrderScreen: React.FC = () => {
               reasons={reasons}
               deliveryService={delivery_service}
               onShowColumnSetting={() => setShowSettingColumn(true)}
+              onClearFilter={() => onClearFilter()}
             />
             <CustomTable
               isRowSelection

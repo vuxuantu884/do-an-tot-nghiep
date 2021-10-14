@@ -22,7 +22,7 @@ interface NumberInputProps {
   default?: number;
   prefix?: React.ReactNode;
   autoFocus?: boolean;
-  onFocus?: () => void;
+  onFocus?: (e: any) => void;
   disabled?: boolean
 }
 
@@ -57,7 +57,6 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       }
       if (isFloat) {
         if (RegUtil.FLOATREG.test(valueS)) {
-          console.log('vào đây FLOATREG');
           setData(valueS);
           if(valueS[valueS.length - 1] !== '.') {
             onChange && onChange(parseFloat(valueS));
@@ -116,7 +115,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       minLength={minLength}
       onFocus={(e) => {
         e.target.select();
-        onFocus && onFocus();
+        onFocus && onFocus(e);
       }}
       prefix={prefix}
       autoFocus={props.autoFocus}

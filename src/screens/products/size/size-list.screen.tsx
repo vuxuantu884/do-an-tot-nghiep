@@ -238,66 +238,64 @@ const SizeListScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.SIZES}/create`} />}
     >
       <Card>
-        <div className="padding-20">
-          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-            <Form layout="inline" initialValues={params} onFinish={onFinish}>
-              <Form.Item name="code">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  style={{ width: 200 }}
-                  placeholder="Kích cỡ"
-                />
-              </Form.Item>
-              <Form.Item name="category_id">
-                <Select style={{ width: 200 }}>
-                  <Option value="">Chọn danh mục</Option>
-                  {categories.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Form.Item>
-              <Form.Item>
-                <Tooltip overlay="Lưu bộ lọc" placement="top">
-                  <Button icon={<StarOutlined />} />
-                </Tooltip>
-              </Form.Item>
-            </Form>
-          </CustomFilter>
-          <CustomTable
-            isRowSelection
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            isLoading={loadingTable}
-            dataSource={data.items}
-            columns={columns}
-            onSelectedChange={onSelectedChange}
-            rowKey={(item: SizeResponse) => item.id}
-          />
-          <ModalDeleteConfirm
-            onCancel={() => setConfirmDelete(false)}
-            onOk={() => {
-              setConfirmDelete(false);
-              // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-              onDelete();
-            }}
-            title="Bạn chắc chắn xóa kích cỡ ?"
-            subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-            visible={isConfirmDelete}
-          />
-        </div>
+        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+          <Form layout="inline" initialValues={params} onFinish={onFinish}>
+            <Form.Item name="code">
+              <Input
+                prefix={<img src={search} alt="" />}
+                style={{ width: 200 }}
+                placeholder="Kích cỡ"
+              />
+            </Form.Item>
+            <Form.Item name="category_id">
+              <Select style={{ width: 200 }}>
+                <Option value="">Chọn danh mục</Option>
+                {categories.map((item) => (
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Lọc
+              </Button>
+            </Form.Item>
+            <Form.Item>
+              <Tooltip overlay="Lưu bộ lọc" placement="top">
+                <Button icon={<StarOutlined />} />
+              </Tooltip>
+            </Form.Item>
+          </Form>
+        </CustomFilter>
+        <CustomTable
+          isRowSelection
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          isLoading={loadingTable}
+          dataSource={data.items}
+          columns={columns}
+          onSelectedChange={onSelectedChange}
+          rowKey={(item: SizeResponse) => item.id}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa kích cỡ ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
+        />
       </Card>
     </ContentContainer>
   );

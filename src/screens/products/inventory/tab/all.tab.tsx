@@ -158,7 +158,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     dispatch(inventoryGetListAction(params, onResult));
   }, [dispatch, onResult, params]);
   return (
-    <div className="padding-20">
+    <div>
       <AllInventoryFilter
         openColumn={openColumn}
         onFilter={onFilter}

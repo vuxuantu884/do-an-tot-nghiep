@@ -27,7 +27,14 @@ export const TYPE_PAYMENTS = {
 const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
   props: POPaymentConditionsFormProps
 ) => {
-  const { isEdit, formMain, listPayment, poDataPayments, formMainEdit, isEditDetail } = props;
+  const {
+    isEdit,
+    formMain,
+    listPayment,
+    poDataPayments,
+    formMainEdit,
+    isEditDetail,
+  } = props;
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [paymentsData, setPaymentsData] = useState<Array<PurchasePayments>>([]);
   const [paymentsDataDraft, setPaymentsDataDraft] = useState<
@@ -122,7 +129,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
             </Button>
           }
         >
-          <div className="padding-20">
+          <div>
             <Row gutter={50}>
               <Col span={24} md={10}>
                 <Form.Item
@@ -172,15 +179,16 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                             {ConvertUtcToLocalDate(
                               item.transaction_date,
                               "DD/MM/YYYY"
-                            )}{" "}
-                          </strong>{" "}
+                            )}
+                          </strong>
                         </div>
                       </div>
                     </Col>
                     <Col md={8}>
-                      {" "}
                       <strong className="po-payment-row-title">
-                        {item.amount ? formatCurrency(item.amount) : ""}
+                        {item.amount
+                          ? formatCurrency(Math.round(item.amount))
+                          : 0}
                       </strong>
                     </Col>
                     <Col md={8}>
@@ -250,7 +258,11 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                   <span>
                     {" "}
                     <strong className="po-payment-row-title">
-                      <Form.Item name={POField.payment_condition_id} noStyle hidden>
+                      <Form.Item
+                        name={POField.payment_condition_id}
+                        noStyle
+                        hidden
+                      >
                         <Input />
                       </Form.Item>
                       <Form.Item
@@ -353,7 +365,9 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                   <Col md={8}>
                     {" "}
                     <strong className="po-payment-row-title">
-                      {item.amount ? formatCurrency(item.amount) : ""}
+                      {item.amount
+                        ? formatCurrency(Math.round(item.amount))
+                        : ""}
                     </strong>
                   </Col>
                   <Col md={8}>
