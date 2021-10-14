@@ -146,6 +146,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
+  const [titleForm, setTitleForm] = useState("THÔNG TIN KHÁCH HÀNG");
+
   //#region Modal
   const ShowBillingAddress = (e: any) => {
     setVisibleBilling(e.target.checked);
@@ -160,9 +162,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
+    setTitleForm("Thêm thông tin khách hàng");
     setVisibleCustomer(true);
   };
   const OkConfirmCustomerEdit = () => {
+    setTitleForm("Cập nhập thông tin khách hàng");
     setModalAction("edit");
     setVisibleCustomer(true);
   };
@@ -423,6 +427,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
+
+  useEffect(()=>{
+    if(isVisibleCustomer===false){
+      setTitleForm("THÔNG TIN KHÁCH HÀNG")
+    }
+  },[isVisibleCustomer]);
+
   const rankName = loyaltyUsageRules.find(
     (x) =>
       x.rank_id ===
@@ -433,7 +444,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   return (
     <Card
-      title="THÔNG TIN KHÁCH HÀNG"
+      title={titleForm}
       extra={
         <div>
           <span
@@ -486,7 +497,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         </div>
       }
     >
-      {customer === null && (
+      {customer === null && isVisibleCustomer !== true && (
         <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
           <div>
             <AutoComplete
@@ -534,7 +545,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         </div>
       )}
       <div>
-        {customer !== null && (
+        {customer !== null && isVisibleCustomer !== true && (
           <div>
             <Row
               align="middle"
@@ -681,37 +692,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           </Row>
                         }
                         content={
-                          // <div className="change-shipping-address-content">
-                          //   {customer.shipping_addresses.map((item, index) => (
-                          //     <div
-                          //       className="shipping-address-row"
-                          //       key={item.id}
-                          //       // onClick={(e) =>
-                          //       //   SelectShippingAddress(item)
-                          //       // }
-                          //     >
-                          //       <div className="shipping-address-name">
-                          //         Địa chỉ 1{" "}
-                          //         <Button
-                          //           type="text"
-                          //           onClick={ShowAddressModal}
-                          //           className="p-0"
-                          //         >
-                          //           <img src={editBlueIcon} alt="" />
-                          //         </Button>
-                          //       </div>
-                          //       <div className="shipping-customer-name">
-                          //         {item.name}
-                          //       </div>
-                          //       <div className="shipping-customer-mobile">
-                          //         {item.phone}
-                          //       </div>
-                          //       <div className="shipping-customer-address">
-                          //         {item.full_address}
-                          //       </div>
-                          //     </div>
-                          //   ))}
-                          // </div>
                           <CustomerShippingAddressOrder
                             customer={customer}
                             handleChangeCustomer={handleChangeCustomer}
@@ -836,39 +816,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             </Row>
                           }
                           content={
-                            // <div className="change-shipping-address-content">
-                            //   {customer.shipping_addresses.map(
-                            //     (item, index) => (
-                            //       <div
-                            //         className="shipping-address-row"
-                            //         key={item.id}
-                            //         // onClick={(e) =>
-                            //         //   SelectShippingAddress(item)
-                            //         // }
-                            //       >
-                            //         <div className="shipping-address-name">
-                            //           Địa chỉ 1{" "}
-                            //           <Button
-                            //             type="text"
-                            //             onClick={ShowAddressModal}
-                            //             className="p-0"
-                            //           >
-                            //             <img src={editBlueIcon} alt="" />
-                            //           </Button>
-                            //         </div>
-                            //         <div className="shipping-customer-name">
-                            //           {item.name}
-                            //         </div>
-                            //         <div className="shipping-customer-mobile">
-                            //           {item.phone}
-                            //         </div>
-                            //         <div className="shipping-customer-address">
-                            //           {item.full_address}
-                            //         </div>
-                            //       </div>
-                            //     )
-                            //   )}
-                            // </div>
                             <CustomerShippingAddressOrder
                               customer={customer}
                               handleChangeCustomer={handleChangeCustomer}
@@ -921,6 +868,22 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             </div>
           </div>
         )}
+        {isVisibleCustomer === true && (
+          <div>
+            <EditCustomerModal
+              areas={areas}
+              wards={wards}
+              groups={groups}
+              formItem={customer}
+              modalAction={modalAction}
+              visible={isVisibleCustomer}
+              districtId={districtId}
+              handleChangeArea={handleChangeArea}
+              handleChangeCustomer={handleChangeCustomer}
+              onCancel={CancelConfirmCustomer}
+            />
+          </div>
+        )}
       </div>
 
       <AddAddressModal
@@ -932,18 +895,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
       />
-      <EditCustomerModal
-        areas={areas}
-        wards={wards}
-        groups={groups}
-        formItem={customer}
-        modalAction={modalAction}
-        visible={isVisibleCustomer}
-        districtId={districtId}
-        handleChangeArea={handleChangeArea}
-        handleChangeCustomer={handleChangeCustomer}
-        onCancel={CancelConfirmCustomer}
-      />
+
       <SaveAndConfirmOrder
         onCancel={onCancelShippingDelete}
         onOk={onOkShippingDelete}
