@@ -2,8 +2,12 @@ import styled from "styled-components";
 import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
-  width: auto !important;
-  z-index: 9;
+  .ant-table-tbody > tr > td,
+  .ant-table-thead > tr > th,
+  .ant-table tfoot > tr > td,
+  .ant-table tfoot > tr > th {
+    padding: 10px;
+  }
   .ant-card-extra {
     .ant-form-item {
       margin-bottom: 0;
@@ -30,7 +34,7 @@ export const StyledComponent = styled.div`
     }
   }
   td.saleorder-product-card-action {
-    padding: 0 5px;
+    padding: 0 5px !important;
     button {
       border: 1px solid #e5e5e5;
       width: 28px;

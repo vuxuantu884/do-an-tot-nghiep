@@ -14,6 +14,10 @@ export const dangerColor = "#E24343";
 export const textMutedColor = "#666666";
 export const textLinkColor = "#5656A2";
 export const grayF5Color = "#F5F5F5";
+export const focusBorderColor = primaryColor;
+
+//
+export const borderRadius = "5px";
 
 //font
 export const headingFontWeight = 600;

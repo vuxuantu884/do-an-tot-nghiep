@@ -14,6 +14,7 @@ export const globalCssCustomButton = css`
     height: 38px;
     line-height: 36px;
     padding: 0 20px;
+    font-size: 1rem;
     font-weight: normal;
     color: inherit;
     border-color: ${borderColor};
@@ -36,8 +37,8 @@ export const globalCssCustomButton = css`
     /* &:hover,
     &:focus {
       color: ${primaryColor};
-      border-color: ${colorLuminance(primaryColor, 0.1)};
-      background-color: ${colorLuminance(primaryColor, 0.1)};
+      border-color: ${colorLuminance(primaryColor, 0)};
+      background-color: ${colorLuminance(primaryColor, 0)};
     } */
     &-link {
       border-color: transparent;

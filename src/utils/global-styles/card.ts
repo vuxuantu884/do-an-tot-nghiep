@@ -5,9 +5,14 @@ const cardPaddingLeftAndRight = "20px";
 
 export const globalCssCustomCard = css`
   .ant-card {
+    font-size: 1rem;
     margin-bottom: 20px;
   }
+  .ant-card-extra {
+    font-size: 1rem;
+  }
   .ant-card-head {
+    font-size: 1.143rem;
     padding: 11px ${cardPaddingLeftAndRight} 7px ${cardPaddingLeftAndRight};
     min-height: 40px;
     border-bottom: 1px solid ${borderColor};

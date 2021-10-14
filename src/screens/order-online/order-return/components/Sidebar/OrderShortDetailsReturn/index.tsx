@@ -18,93 +18,71 @@ function OrderShortDetailsReturn(props: PropType) {
   console.log("OrderDetail", OrderDetail);
   return (
     <StyledComponent>
-      <Card
-        className="card-block card-block-normal"
-        title={
-          <div className="d-flex">
-            <span className="title-card">Thông tin Đơn TRẢ hàng</span>
-          </div>
-        }
-      >
-        <div className="padding-24">
-          <Row className="" gutter={5}>
-            <Col span={9}>Mã đơn hàng:</Col>
-            <Col span={15}>
-              <span
-                style={{ fontWeight: 500, color: "#2A2A86" }}
-                className="text-focus"
-              >
-                {OrderDetail?.code}
-              </span>
-            </Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Mã đơn đổi hàng:</Col>
-            <Col span={15}>
-              <span
-                style={{ fontWeight: 500, color: "#2A2A86" }}
-                className="text-focus"
-              >
-                {OrderDetail?.order_code && OrderDetail.order_id ? (
-                  <Link
-                    to={`${UrlConfig.ORDER}/${OrderDetail.order_id}`}
-                    target="_blank"
-                  >
-                    {OrderDetail?.order_code}
-                  </Link>
-                ) : (
-                  "-"
-                )}
-              </span>
-            </Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Lý do trả:</Col>
-            <Col span={15}>{OrderDetail?.reason_name}</Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Ngày trả:</Col>
-            <Col span={15}>
-              {OrderDetail?.return_date
-                ? moment(OrderDetail?.return_date).format(
-                    DATE_FORMAT.DDMMYY_HHmm
-                  )
-                : "-"}
-            </Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Ngày nhận hàng:</Col>
-            <Col span={15}>
-              {OrderDetail?.receive_date
-                ? moment(OrderDetail?.receive_date).format(
-                    DATE_FORMAT.DDMMYY_HHmm
-                  )
-                : "-"}
-            </Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Ngày hoàn tiền:</Col>
-            <Col span={15}>
-              {OrderDetail?.payments && OrderDetail?.payments[0]
-                ? moment(OrderDetail?.payments[0].created_date).format(
-                    DATE_FORMAT.DDMMYY_HHmm
-                  )
-                : "-"}
-            </Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Nhân viên trả hàng:</Col>
-            <Col span={15} style={{ wordWrap: "break-word" }}>
-              {OrderDetail?.account ? OrderDetail?.account : "-"}
-            </Col>
-          </Row>
-          <Row className="margin-top-10" gutter={5}>
-            <Col span={9}>Ghi chú:</Col>
-            <Col span={15} style={{ wordWrap: "break-word" }}>
-              {OrderDetail?.note ? OrderDetail?.note : "-"}
-            </Col>
-          </Row>
-        </div>
+      <Card className="card-block card-block-normal" title="Thông tin Đơn TRẢ hàng">
+        <Row className="" gutter={5}>
+          <Col span={9}>Mã đơn hàng:</Col>
+          <Col span={15}>
+            <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
+              {OrderDetail?.code}
+            </span>
+          </Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Mã đơn đổi hàng:</Col>
+          <Col span={15}>
+            <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
+              {OrderDetail?.order_code && OrderDetail.order_id ? (
+                <Link to={`${UrlConfig.ORDER}/${OrderDetail.order_id}`} target="_blank">
+                  {OrderDetail?.order_code}
+                </Link>
+              ) : (
+                "-"
+              )}
+            </span>
+          </Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Lý do trả:</Col>
+          <Col span={15}>{OrderDetail?.reason_name}</Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Ngày trả:</Col>
+          <Col span={15}>
+            {OrderDetail?.return_date
+              ? moment(OrderDetail?.return_date).format(DATE_FORMAT.DDMMYY_HHmm)
+              : "-"}
+          </Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Ngày nhận hàng:</Col>
+          <Col span={15}>
+            {OrderDetail?.receive_date
+              ? moment(OrderDetail?.receive_date).format(DATE_FORMAT.DDMMYY_HHmm)
+              : "-"}
+          </Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Ngày hoàn tiền:</Col>
+          <Col span={15}>
+            {OrderDetail?.payments && OrderDetail?.payments[0]
+              ? moment(OrderDetail?.payments[0].created_date).format(
+                  DATE_FORMAT.DDMMYY_HHmm
+                )
+              : "-"}
+          </Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Nhân viên trả hàng:</Col>
+          <Col span={15} style={{ wordWrap: "break-word" }}>
+            {OrderDetail?.account ? OrderDetail?.account : "-"}
+          </Col>
+        </Row>
+        <Row className="rowDetail" gutter={5}>
+          <Col span={9}>Ghi chú:</Col>
+          <Col span={15} style={{ wordWrap: "break-word" }}>
+            {OrderDetail?.note ? OrderDetail?.note : "-"}
+          </Col>
+        </Row>
       </Card>
     </StyledComponent>
   );
