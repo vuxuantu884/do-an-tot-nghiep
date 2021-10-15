@@ -732,7 +732,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="district_id"
-                        label="Khu vực"
+                        //label="Khu vực"
                         // rules={[
                         //   {
                         //     required: true,
@@ -764,7 +764,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="ward_id"
-                        label="Phường xã"
+                        //label="Phường xã"
                         // rules={[
                         //   {
                         //     required: true,
@@ -792,7 +792,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Col>
 
                     <Col xs={24} lg={12}>
-                      <Form.Item name="full_address" label="Địa chỉ">
+                      <Form.Item name="full_address" 
+                      //label="Địa chỉ"
+                      >
                         <Input
                           placeholder="Địa chỉ"
                           prefix={<EnvironmentOutlined />}
@@ -801,7 +803,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Col>
 
                     <Col xs={24} lg={12}>
-                      <Form.Item name="email_note" label="Email">
+                      <Form.Item name="email_note" 
+                      //label="Email"
+                      >
                         <Input
                           placeholder="Điền email"
                           prefix={<MailOutlined />}
