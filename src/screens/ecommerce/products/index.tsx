@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { Card, Tabs, Form, Button, Modal, Select, DatePicker, Tooltip } from "antd";
 import moment from "moment";
 import { DATE_FORMAT } from 'utils/DateUtils';
-import {DownloadOutlined} from "@ant-design/icons"
+import { DownloadOutlined } from "@ant-design/icons"
 
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductEcommerceQuery } from "model/query/ecommerce.query";
@@ -38,7 +38,7 @@ const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
   const dispatch = useDispatch();
-  
+
   const [isLoading, setIsLoading] = React.useState(false);
   const [isShowGetItemModal, setIsShowGetItemModal] = React.useState(false);
   const [isShowResultGetItemModal, setIsShowResultGetItemModal] = React.useState(false);
@@ -73,7 +73,7 @@ const Products: React.FC = () => {
     items: [],
   });
 
-  const [query, ] = useState<ProductEcommerceQuery>({
+  const [query,] = useState<ProductEcommerceQuery>({
     page: 1,
     limit: 30,
     ecommerce_id: null,
@@ -83,6 +83,7 @@ const Products: React.FC = () => {
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
+    connection_start_date: null,
   });
 
   const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
@@ -100,7 +101,7 @@ const Products: React.FC = () => {
   const updateCategoryData = React.useCallback((result) => {
     if (!!result && result.items) {
       setCategoryList(result.items);
-    }    
+    }
   }, []);
 
   useEffect(() => {
@@ -110,8 +111,8 @@ const Products: React.FC = () => {
   }, [dispatch, updateCategoryData, query, updateVariantData]);
 
   useEffect(() => {
-    const requestQuery = {...query};
-    
+    const requestQuery = { ...query };
+
     if (history.location.hash) {
       switch (history.location.hash) {
         case "#total-item":
@@ -129,7 +130,7 @@ const Products: React.FC = () => {
       }
     }
     getProductUpdated(requestQuery);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.location.hash]);
 
   const handleGetProductsFromEcommerce = () => {
@@ -182,16 +183,16 @@ const Products: React.FC = () => {
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
   }
-  
+
   const convertEndDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
     const today = new Date();
     let time = "23:59:59";
 
     if ((Number(myDate[0]) === Number(today.getDate())) &&
-        (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
-        (Number(myDate[2]) === Number(today.getFullYear()))
-      ) {
+      (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
+      (Number(myDate[2]) === Number(today.getFullYear()))
+    ) {
       time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     }
 
@@ -208,7 +209,7 @@ const Products: React.FC = () => {
 
     setValue(dates);
   };
-  
+
   //end handle date
 
   const updateEcommerceList = React.useCallback((data) => {
@@ -231,7 +232,7 @@ const Products: React.FC = () => {
       update_time_from: startDate || null,
       update_time_to: endDate || null
     }
-    
+
     setIsLoading(true);
     dispatch(postProductEcommerceList(params, updateEcommerceList));
   };
@@ -296,7 +297,7 @@ const Products: React.FC = () => {
   const getShopEcommerce = (ecommerceId: any) => {
     setShopIdSelected(null);
     setIsEcommerceSelected(false);
-    dispatch(getShopEcommerceList({ecommerce_id: ecommerceId}, updateEcommerceShopList));
+    dispatch(getShopEcommerceList({ ecommerce_id: ecommerceId }, updateEcommerceShopList));
   }
 
   const selectShopEcommerce = (shop_id: any) => {
@@ -304,7 +305,7 @@ const Products: React.FC = () => {
   }
 
   const handleOnchangeTab = (active: any) => {
-    const requestQuery = {...query};
+    const requestQuery = { ...query };
     switch (active) {
       case "total-item":
         requestQuery.connect_status = null;
@@ -319,7 +320,7 @@ const Products: React.FC = () => {
     getProductUpdated(requestQuery);
     history.replace(`${history.location.pathname}#${active}`);
   }
-  
+
 
   return (
     <StyledComponent>
@@ -351,39 +352,39 @@ const Products: React.FC = () => {
           </>
         }
       >
-          <Card>
-            <Tabs
-              activeKey={activeTab}
-              onChange={(active) => {handleOnchangeTab(active)}}
-            >
-              <TabPane tab="Tất cả sản phẩm" key="total-item">
-                <TotalItemsEcommerce
-                  tableLoading={tableLoading}
-                  categoryList={categoryList}
-                  variantData={variantData}
-                  getProductUpdated={getProductUpdated}
-                />
-              </TabPane>
+        <Card>
+          <Tabs
+            activeKey={activeTab}
+            onChange={(active) => { handleOnchangeTab(active) }}
+          >
+            <TabPane tab="Tất cả sản phẩm" key="total-item">
+              <TotalItemsEcommerce
+                tableLoading={tableLoading}
+                categoryList={categoryList}
+                variantData={variantData}
+                getProductUpdated={getProductUpdated}
+              />
+            </TabPane>
 
-              <TabPane tab="Sản phẩm đã ghép" key="connected-item">
-                <ConnectedItems
-                  tableLoading={tableLoading}
-                  categoryList={categoryList}
-                  variantData={variantData}
-                  getProductUpdated={getProductUpdated}
-                />
-              </TabPane>
-              
-              <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
-                <NotConnectedItems
-                  tableLoading={tableLoading}
-                  categoryList={categoryList}
-                  variantData={variantData}
-                  getProductUpdated={getProductUpdated}
-                />
-              </TabPane>
-            </Tabs>
-          </Card>
+            <TabPane tab="Sản phẩm đã ghép" key="connected-item">
+              <ConnectedItems
+                tableLoading={tableLoading}
+                categoryList={categoryList}
+                variantData={variantData}
+                getProductUpdated={getProductUpdated}
+              />
+            </TabPane>
+
+            <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
+              <NotConnectedItems
+                tableLoading={tableLoading}
+                categoryList={categoryList}
+                variantData={variantData}
+                getProductUpdated={getProductUpdated}
+              />
+            </TabPane>
+          </Tabs>
+        </Card>
       </ContentContainer>
 
       <Modal
@@ -395,17 +396,17 @@ const Products: React.FC = () => {
         cancelText="Hủy"
         onCancel={cancelGetItemModal}
         onOk={getProductsFromEcommerce}
-        okButtonProps={{disabled: isDisableGetItemOkButton()}}
+        okButtonProps={{ disabled: isDisableGetItemOkButton() }}
         maskClosable={false}
         confirmLoading={isLoading}
       >
-        <div style={{margin: "20px 0"}}>
+        <div style={{ margin: "20px 0" }}>
           <Form
-          // form={formAdvance}
-          // onFinish={onFinish}
-          // //ref={formRef}
-          // initialValues={params}
-          layout="vertical"
+            // form={formAdvance}
+            // onFinish={onFinish}
+            // //ref={formRef}
+            // initialValues={params}
+            layout="vertical"
           >
             <StyledEcommerceList>
               {ecommerceList.map((item) => (
@@ -427,7 +428,7 @@ const Products: React.FC = () => {
 
             <Form.Item
               name="shop_id"
-              label={<b>Lựa chọn gian hàng <span style={{color: 'red'}}>*</span></b>}
+              label={<b>Lựa chọn gian hàng <span style={{ color: 'red' }}>*</span></b>}
             >
               {!isEcommerceSelected &&
                 <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
@@ -458,12 +459,12 @@ const Products: React.FC = () => {
                 </Select>
               }
             </Form.Item>
-          
-            <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>
+
+            <Form.Item name="start_time" label={<b>Thời gian <span style={{ color: 'red' }}>*</span></b>}>
               <RangePicker
                 disabled={isLoading}
                 placeholder={["Từ ngày", "Đến ngày"]}
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 format={DATE_FORMAT.DDMMYYY}
                 value={hackValue || value}
                 disabledDate={disabledDate}
@@ -472,7 +473,7 @@ const Products: React.FC = () => {
                 onOpenChange={onOpenChange}
               />
             </Form.Item>
-          
+
             <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
           </Form>
         </div>
@@ -491,11 +492,11 @@ const Products: React.FC = () => {
         <div>
           <div>
             <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-            <span>Có <p style={{color: "orange", display: "inline-block"}}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
+            <span>Có <p style={{ color: "orange", display: "inline-block" }}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
           </div>
           <div>
             <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-            <span>Có <p style={{color: "green", display: "inline-block"}}>{itemsUpdated}</p> sản phẩm đã update thành công</span>
+            <span>Có <p style={{ color: "green", display: "inline-block" }}>{itemsUpdated}</p> sản phẩm đã update thành công</span>
           </div>
         </div>
       </Modal>
