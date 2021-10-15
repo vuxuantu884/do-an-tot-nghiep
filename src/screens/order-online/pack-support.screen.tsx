@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import PackReportHandOver from "./pack-support/pack-report-hand-over";
 
 const { TabPane } = Tabs;
 
@@ -99,7 +100,7 @@ const PackSupportScreen: React.FC = () => {
                   ></PackInfo>
                 </TabPane>
                 <TabPane tab="Bàn giao" key="2">
-                  Tab 2
+                  <PackReportHandOver/>
                 </TabPane>
               </Tabs>
             </Card>
