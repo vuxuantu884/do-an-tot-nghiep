@@ -281,6 +281,8 @@ const OrderDetail = (props: PropType) => {
         _data.payments?.length !== 0
       ) {
         setIsShowConfirmOrderButton(true);
+      } else {
+        setIsShowConfirmOrderButton(false);
       }
     }
   }, []);
@@ -289,9 +291,17 @@ const OrderDetail = (props: PropType) => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
   };
 
+  const onSuccessCancel = () => {
+    setReload(true)
+  }
+    
+  const onError = () => {
+    // setReload(true)
+  }
+
   const handleCancelOrder = useCallback(
     (id: any) => {
-      dispatch(cancelOrderRequest(id));
+      dispatch(cancelOrderRequest(id, onSuccessCancel, onError));
       // dispatch(cancelOrderRequest(id));
     },
     [dispatch]
@@ -1024,6 +1034,8 @@ const OrderDetail = (props: PropType) => {
                                   key={index}
                                   type="primary"
                                   className="ant-btn-outline fixed-button"
+                                  disabled={stepsStatusValue === OrderStatus.CANCELLED ||
+                                    stepsStatusValue === FulFillmentStatus.SHIPPED || disabledBottomActions}
                                 >
                                   Thanh toán
                                 </Button>
