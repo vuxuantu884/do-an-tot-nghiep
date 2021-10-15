@@ -1,4 +1,4 @@
-import { Button, Row, Col, Form, Input, Steps } from "antd";
+import { Button, Row, Col, Form, Input } from "antd";
 import POSupplierForm from "./component/po-supplier.form";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -37,7 +37,6 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
-import { CheckOutlined } from "@ant-design/icons";
 import POStep from "./component/po-step";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 
@@ -317,22 +316,7 @@ const POCreateScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            {
-              <Steps
-                progressDot={() => (
-                  <div className="ant-steps-icon-dot">
-                    <CheckOutlined />
-                  </div>
-                )}
-                size="small"
-                current={0}
-              >
-                <Steps.Step title="Đặt hàng" />
-                <Steps.Step title="Xác nhận" />
-                <Steps.Step title="Nhập kho" />
-                <Steps.Step title="Hoàn Thành" />
-              </Steps>
-            }
+            <POStep poData={initPurchaseOrder} />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

@@ -89,17 +89,21 @@ const POReturnForm: React.FC<POReturnFormProps> = (
 
   const vatLine = useMemo(() => {
     let vats: Array<Vat> = [];
+    console.log(currentLineReturn);
     currentLineReturn.forEach((item) => {
       let index = vats.findIndex((item1) => item.tax_rate === item1.rate );
       if(index === -1) {
-        vats.push({
-          rate:  item.tax_rate,
-          amount: item.amount_tax_refunds ? item.amount_tax_refunds : 0,
-        })
+        if(item.tax_rate > 0) {
+          vats.push({
+            rate:  item.tax_rate,
+            amount: item.amount_tax_refunds ? item.amount_tax_refunds : 0,
+          })
+        }
       } else {
-        vats[index].amount = vats[index].amount + item.amount_tax_refunds;
+        vats[index].amount = vats[index].amount + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
       }
     })
+    console.log(vats);
     return vats;
   }, [currentLineReturn])
 
