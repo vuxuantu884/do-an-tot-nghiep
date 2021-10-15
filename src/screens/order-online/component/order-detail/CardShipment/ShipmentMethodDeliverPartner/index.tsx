@@ -165,8 +165,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
       // check tỉnh giao hàng ( config -1 là tất cả tỉnh thành)
       const checkIfSameCity = (
-        customerShippingAddressCityId: number,
-        configShippingAddressCityId: number
+        configShippingAddressCityId: number,
+        customerShippingAddressCityId: number
       ) => {
         if (configShippingAddressCityId === -1) {
           return true;

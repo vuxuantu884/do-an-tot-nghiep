@@ -29,6 +29,7 @@ export const StyledComponent = styled.div`
       padding-top: 0;
     }
     &:not(:last-child) {
+      padding-bottom: 10px;
       border-bottom: 1px solid #e5e5e5;
     }
     &__title {
