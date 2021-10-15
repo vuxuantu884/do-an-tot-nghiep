@@ -1,9 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  EditOutlined,
-  LoadingOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -46,10 +42,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderItemDiscountModel } from "model/other/order/order-model";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, {
@@ -154,8 +147,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
-  const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
-    useState(false);
+  const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -206,9 +198,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   discountValue
                 );
               } else {
-                let variantItems = _items.filter(
-                  (item) => item.variant_id === data.id
-                );
+                let variantItems = _items.filter((item) => item.variant_id === data.id);
                 let lastIndex = variantItems.length - 1;
                 variantItems[lastIndex].quantity += 1;
                 variantItems[lastIndex].line_amount_after_line_discount +=
@@ -408,14 +398,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const convertResultSearchVariant = useMemo(() => {
     let options: any[] = [];
-    resultSearchVariant.items.forEach(
-      (item: VariantResponse, index: number) => {
-        options.push({
-          label: renderSearchVariant(item),
-          value: item.id ? item.id.toString() : "",
-        });
-      }
-    );
+    resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: renderSearchVariant(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
     return options;
   }, [resultSearchVariant]);
 
@@ -445,9 +433,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               }}
             >
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
-                  {l.sku}
-                </Typography.Link>
+                <Typography.Link style={{ color: "#2A2A86" }}>{l.sku}</Typography.Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -527,9 +513,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     title: () => (
       <div>
         <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     className: "yody-pos-price text-right",
@@ -590,9 +574,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     title: () => (
       <div className="text-center">
         <span style={{ color: "#222222" }}>Tổng tiền</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     align: "right",
@@ -769,9 +751,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
       let newV = parseInt(v);
       let _items = [...items].reverse();
-      let indexSearch = resultSearchVariant.items.findIndex(
-        (s) => s.id === newV
-      );
+      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       const item: OrderLineItemRequest = createItem(r);
@@ -780,12 +760,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         if (splitLine || index === -1) {
           _items.push(item);
           setAmount(amount + item.price);
-          calculateChangeMoney(
-            _items,
-            amount + item.price,
-            discountRate,
-            discountValue
-          );
+          calculateChangeMoney(_items, amount + item.price, discountRate, discountValue);
         } else {
           let variantItems = _items.filter((item) => item.variant_id === newV);
           let lastIndex = variantItems.length - 1;
@@ -857,9 +832,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     [formRef]
   );
 
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const ShowDiscountModal = useCallback(() => {
     setVisiblePickDiscount(true);
@@ -957,9 +930,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setVisibleGift(false);
     let _items = [...items];
     let _itemGifts = [...itemGifts];
-    _itemGifts.forEach(
-      (itemGift) => (itemGift.position = _items[indexItem].position)
-    );
+    _itemGifts.forEach((itemGift) => (itemGift.position = _items[indexItem].position));
     _items[indexItem].gifts = itemGifts;
     handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
@@ -985,24 +956,17 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   return (
     <StyledComponent>
       <Card
-        title="SẢN PHẨM 1"
+        title="SẢN PHẨM"
         extra={
           <Space size={20}>
-            <Checkbox onChange={() => setSplitLine(!splitLine)}>
-              Tách dòng
-            </Checkbox>
+            <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
             <span>Chính sách giá:</span>
             <Form.Item name="price_type">
-              <Select
-                style={{ minWidth: 145, height: 38 }}
-                placeholder="Chính sách giá"
-              >
+              <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">
                   Giá bán lẻ
                 </Select.Option>
-                <Select.Option value="whole_sale_price">
-                  Giá bán buôn
-                </Select.Option>
+                <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
             </Form.Item>
             <Button
@@ -1044,9 +1008,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 filterOption={(input, option) => {
                   if (option) {
                     return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     );
                   }
                   return false;
@@ -1065,9 +1027,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Form.Item>
               <AutoComplete
                 notFoundContent={
-                  keySearchVariant.length >= 3
-                    ? "Không tìm thấy sản phẩm"
-                    : undefined
+                  keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
                 }
                 id="search_product"
                 value={keySearchVariant}
@@ -1116,9 +1076,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   size="middle"
                   className="yody-search"
                   placeholder="Tìm sản phẩm mã 7... (F3)"
-                  prefix={searchProducts ? (
-                    <LoadingOutlined style={{ color: "#2a2a86" }} />
-                  ) : <SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  prefix={
+                    searchProducts ? (
+                      <LoadingOutlined style={{ color: "#2a2a86" }} />
+                    ) : (
+                      <SearchOutlined style={{ color: "#ABB4BD" }} />
+                    )
+                  }
                   disabled={levelOrder > 3}
                 />
               </AutoComplete>

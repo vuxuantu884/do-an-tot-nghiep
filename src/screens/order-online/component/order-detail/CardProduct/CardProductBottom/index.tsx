@@ -45,38 +45,23 @@ function CardProductBottom(props: PropType) {
       <Row gutter={24}>
         <Col xs={24} lg={11}>
           <div className="optionRow">
-            <Checkbox
-              className=""
-              style={{ fontWeight: 500 }}
-              disabled={levelOrder > 3}
-            >
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Bỏ chiết khấu tự động
             </Checkbox>
           </div>
           <div className="optionRow">
-            <Checkbox
-              className=""
-              style={{ fontWeight: 500 }}
-              disabled={levelOrder > 3}
-            >
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Không tính thuế VAT
             </Checkbox>
           </div>
           <div className="optionRow">
-            <Checkbox
-              className=""
-              style={{ fontWeight: 500 }}
-              disabled={levelOrder > 3}
-            >
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Bỏ tích điểm tự động
             </Checkbox>
           </div>
         </Col>
         <Col xs={24} lg={10}>
-          <Row
-            className="paymentRow"
-            style={{ justifyContent: "space-between" }}
-          >
+          <Row className="paymentRow" style={{ justifyContent: "space-between" }}>
             <div>Tổng tiền:</div>
             <div className="font-weight-500" style={{ fontWeight: 500 }}>
               {formatCurrency(totalAmountOrder)}

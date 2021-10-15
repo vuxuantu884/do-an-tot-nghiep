@@ -6,6 +6,8 @@ export const StyledComponent = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
+    height: auto;
+    margin: 0;
     border-bottom: 1px solid ${primaryColor};
   }
   .orders-shipment {
