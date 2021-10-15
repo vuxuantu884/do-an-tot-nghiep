@@ -54,84 +54,88 @@ export const StyledComponent = styled.div`
   }
 
   .ecommerce-order-list {
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td{
-        border-right: 1px solid #E5E5E5;
-        padding: 10px 10px;
+    .ant-table.ant-table-middle .ant-table-tbody > tr > td {
+      border-right: 1px solid #e5e5e5;
+      padding: 10px 10px;
     }
 
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child{
-        border-left: 1px solid #E5E5E5;
+    .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child {
+      border-left: 1px solid #e5e5e5;
     }
 
     .ant-table.ant-table-middle .ant-table-thead > tr > th {
-      border-right: 1px solid #E5E5E5;
+      border-right: 1px solid #e5e5e5;
     }
 
-    .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child{
-      border-left: 1px solid #E5E5E5;
+    .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child {
+      border-left: 1px solid #e5e5e5;
     }
 
     .cell-items {
-        margin: 0 -10px;
-        .item {
-            width: 100%;
-            border-bottom: 1px solid #f4f4f7;
-            padding: 10px;
-        }
-        .item:last-child {
-            border-bottom: none;
-        }
-        .tooltip-item {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+      margin: 0 -10px;
+      .item {
+        width: 100%;
+        border-bottom: 1px solid #f4f4f7;
+        padding: 10px;
+      }
+      .item:last-child {
+        border-bottom: none;
+      }
+      .tooltip-item {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
-
   }
 
   .ecommerce-order-filter {
     .order-filter {
-        .first-line {
-            display: flex;
-            .ecommerce-dropdown {
-                margin-right: 15px;
-                margin-bottom: 20px;
-                width: 287px;
-            }
+      .first-line {
+        display: flex;
+        .ecommerce-dropdown {
+          margin-right: 10px;
+          margin-bottom: 20px;
+          width: 287px;
         }
-        .second-line {
-            display: flex;
-            justify-content: space-between;
-            .page-filter {
-                padding: 0;
-            }
-            .id_order_ecommerce {
-                width: 170px;
-            }
-            .input-search {
-                width: 380px;
-            }
+      }
+      .second-line {
+        display: flex;
+        justify-content: space-between;
+        .page-filter {
+          padding: 0;
+        }
+        .id_order_ecommerce {
+          width: 170px;
+          margin-right: 10px;
+        }
+        .input-search {
+          width: 380px;
+          margin-right: 10px;
+        }
+
+        button {
+          margin-right: 10px;
+        }
       }
     }
   }
 
   .render-shop-list {
     .shop-name {
-        padding: 5px 10px;
-        white-space: nowrap;
-        &:hover{
+      padding: 5px 10px;
+      white-space: nowrap;
+      &:hover {
         background-color: #f4f4f7;
-        }
-        .check-box-name {
+      }
+      .check-box-name {
         display: flex;
-            .name {
-                width: 230px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
+        .name {
+          width: 230px;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
+      }
     }
   }
 `;
@@ -149,7 +153,7 @@ export const StyledDownloadOrderData = styled.div`
       background-color: #ffffff;
       border: 1px solid #e5e5e5;
       img {
-      margin-right: 10px;
+        margin-right: 10px;
       }
     }
 
@@ -166,7 +170,7 @@ export const StyledDownloadOrderData = styled.div`
 `;
 
 export const StyledEcommerceOrderBaseFilter = styled.div`
-  .ant-form{
+  .ant-form {
     .ant-row {
       .ant-collapse-content-box {
         .date-option {
@@ -192,21 +196,21 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
 
 export const StyledUpdateConnectionModal = styled.div`
   .not-connected-item-list {
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td{
-      border-right: 1px solid #E5E5E5;
+    .ant-table.ant-table-middle .ant-table-tbody > tr > td {
+      border-right: 1px solid #e5e5e5;
       padding: 10px 10px;
     }
 
-    .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child{
-      border-left: 1px solid #E5E5E5;
+    .ant-table.ant-table-middle .ant-table-tbody > tr > td:first-child {
+      border-left: 1px solid #e5e5e5;
     }
 
     .ant-table.ant-table-middle .ant-table-thead > tr > th {
-      border-right: 1px solid #E5E5E5;
+      border-right: 1px solid #e5e5e5;
     }
 
-    .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child{
-      border-left: 1px solid #E5E5E5;
+    .ant-table.ant-table-middle .ant-table-thead > tr > th:first-child {
+      border-left: 1px solid #e5e5e5;
     }
   }
 `;
