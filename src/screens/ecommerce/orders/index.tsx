@@ -247,11 +247,11 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: "3.2%",
+      width: "3.5%",
       render: (value: string, i: OrderModel) => (
         <div>
           <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-          <span>({value})</span>
+          <div>({value})</div>
         </div>
       ),
     },
