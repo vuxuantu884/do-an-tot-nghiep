@@ -889,10 +889,7 @@ const OrderDetail = (props: PropType) => {
                       (checkPaymentAll(OrderDetail) !== 1 &&
                         isShowPaymentPartialPayment === false &&
                         checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                          <div
-                            className="padding-24 text-right"
-                            style={{ paddingTop: 0 }}
-                          >
+                          <div className="text-right">
                             <Divider style={{ margin: "10px 0" }} />
                             <Button
                               type="primary"
