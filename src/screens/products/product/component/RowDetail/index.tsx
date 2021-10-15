@@ -5,7 +5,6 @@ type RowDetailProps = {
   value: string|null,
 }
 
-
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
   return (
     <StyledComponent>

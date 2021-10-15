@@ -456,7 +456,7 @@ export const Products = {
   },
   findAvatar: (images: Array<VariantImage>): VariantImage | null => {
     let image: VariantImage | null = null;
-    images.forEach((imageRequest) => {
+    images?.forEach((imageRequest) => {
       if (imageRequest.variant_avatar) {
         image = imageRequest;
       }
