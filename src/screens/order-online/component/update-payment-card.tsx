@@ -620,7 +620,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           )}
 
           {props.isVisibleUpdatePayment === false && (
-            <div className="padding-lef-right">
+            <div>
               <label
                 className="text-left"
                 style={{ marginTop: "20px", lineHeight: "40px" }}
