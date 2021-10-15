@@ -1,4 +1,4 @@
-import { Button, Card, Image, Input } from "antd";
+import { Button, Card, Image, Input, Tooltip } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -25,7 +25,7 @@ import variantdefault from "assets/icon/variantdefault.jpg";
 import { AppConfig } from "config/app.config";
 import NumberInput from "component/custom/number-input.custom";
 import { showSuccess } from "utils/ToastUtils";
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router";
 import ModalPickManyProduct from "../component/ModalPickManyProduct";
 
@@ -116,7 +116,7 @@ const BarcodeProductScreen: React.FC = () => {
           (item) => item.id === data[index].id
         );
         if (indexItem === -1) {
-          dataSelected.push({ ...data[index], quantity_req: 1 });
+          dataSelected.unshift({ ...data[index], quantity_req: 1 });
           setDataSelected([...dataSelected]);
         }
       }
@@ -157,7 +157,7 @@ const BarcodeProductScreen: React.FC = () => {
               <CustomAutoComplete
                 id="#product_search"
                 dropdownClassName="product"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                placeholder="Tên/Mã sản phẩm"
                 onSearch={onSearch}
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%" }}
@@ -219,7 +219,7 @@ const BarcodeProductScreen: React.FC = () => {
                   },
                 },
                 {
-                  title: "Số lượng tem",
+                  title:<div> Số lượng tem<Tooltip title="SL tem in chia hết cho 3" > <InfoCircleOutlined /> </Tooltip></div>,
                   dataIndex: "quantity_req",
                   width: 140,
                   render: (value: number, record, index) => {
@@ -272,9 +272,9 @@ const BarcodeProductScreen: React.FC = () => {
           result.forEach((item: VariantResponse) => {
             let index = dataSelected.findIndex((item1) => item.id === item1.id);
             if (index === -1) {
-              dataSelect1.push({...item, quantity_req: 1});
+              dataSelect1.unshift({...item, quantity_req: 1});
             } else {
-              dataSelect1.push({...item, quantity_req: dataSelected[index].quantity_req});
+              dataSelect1.unshift({...item, quantity_req: dataSelected[index].quantity_req});
             }
           });
           setDataSelected(dataSelect1);

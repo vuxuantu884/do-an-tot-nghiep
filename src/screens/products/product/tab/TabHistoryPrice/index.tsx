@@ -179,7 +179,7 @@ const TabHistoryPrice: React.FC = () => {
         columns={columns}
         dataSource={data.items}
         isLoading={loading}
-        sticky={{offsetScroll: 5, offsetHeader: 55}}
+        sticky={{offsetScroll: 5, offsetHeader: 109}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
