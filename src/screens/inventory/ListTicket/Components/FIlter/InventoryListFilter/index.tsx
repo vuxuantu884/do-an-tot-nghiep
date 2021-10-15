@@ -59,66 +59,66 @@ const InventoryFilters: React.FC<InventoryFiltersProps> = (
     <InventoryFiltersWrapper>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
-              <Item
-                name="from_store_id"
-                className="select-item"
-              >
-                <Select
-                  placeholder="Kho gửi"
-                  showArrow
-                >
-                  {Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option
-                        key={"from_store_id" + index}
-                        value={item.id.toString()}
-                      >
-                        {item.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Item>
-              <Item
-                name="to_store_id"
-                className="select-item"
-              >
-                <Select
-                  placeholder="Kho nhận"
-                  showArrow
-                  optionFilterProp="children"
-                >
-                  {Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option
-                        key={"to_store_id" + index}
-                        value={item.id.toString()}
-                      >
-                        {item.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Item>
-              <Item name="info" className="search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tên/Mã sản phẩm"
-                />
-              </Item>
-              <Item>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Item>
-              <Item>
-                <Button icon={<FilterOutlined />} onClick={() => {}}>
-                  Thêm bộ lọc
-                </Button>
-              </Item>
-              <Item>
-                <ButtonSetting onClick={onClickOpen} />
-              </Item>
+          <Item
+            name="from_store_id"
+            className="select-item"
+          >
+            <Select
+              placeholder="Kho gửi"
+              showArrow
+            >
+              {Array.isArray(stores) &&
+                stores.length > 0 &&
+                stores.map((item, index) => (
+                  <Option
+                    key={"from_store_id" + index}
+                    value={item.id.toString()}
+                  >
+                    {item.name}
+                  </Option>
+                ))}
+            </Select>
+          </Item>
+          <Item
+            name="to_store_id"
+            className="select-item"
+          >
+            <Select
+              placeholder="Kho nhận"
+              showArrow
+              optionFilterProp="children"
+            >
+              {Array.isArray(stores) &&
+                stores.length > 0 &&
+                stores.map((item, index) => (
+                  <Option
+                    key={"to_store_id" + index}
+                    value={item.id.toString()}
+                  >
+                    {item.name}
+                  </Option>
+                ))}
+            </Select>
+          </Item>
+          <Item name="info" className="search">
+            <Input
+              prefix={<img src={search} alt="" />}
+              placeholder="Tên/Mã sản phẩm"
+            />
+          </Item>
+          <Item>
+            <Button type="primary" htmlType="submit">
+              Lọc
+            </Button>
+          </Item>
+          <Item>
+            <Button icon={<FilterOutlined />} onClick={() => {}}>
+              Thêm bộ lọc
+            </Button>
+          </Item>
+          <Item>
+            <ButtonSetting onClick={onClickOpen} />
+          </Item>
         </Form>
       </CustomFilter>
     </InventoryFiltersWrapper>

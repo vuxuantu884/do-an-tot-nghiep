@@ -60,7 +60,6 @@ const getListInventoryTransferAction = (
   queryParams: InventoryTransferSearchQuery,
   onResult: (data: PageResponse<Array<InventoryTransferDetailItem>>) => void
 ) => {
-  console.log('queryParams action', queryParams);
   return BaseAction(InventoryType.GET_LIST_INVENTORY_TRANSFER, {
     queryParams,
     onResult,

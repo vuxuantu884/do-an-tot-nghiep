@@ -16,6 +16,8 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PaperClipOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
+import { generateQuery } from "utils/AppUtils";
+import { useHistory } from "react-router-dom";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -82,10 +84,12 @@ const actions: Array<MenuAction> = [
 
 const InventoryTransferTab: React.FC = () => {
 
+  const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [tableLoading, setTableLoading] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
@@ -102,7 +106,6 @@ const InventoryTransferTab: React.FC = () => {
     items: [],
   });
   
-
   const [columns, setColumn] = useState<Array<any>>([
     {
       title: "ID phiếu chuyển",
@@ -256,6 +259,49 @@ const InventoryTransferTab: React.FC = () => {
     []
   );
 
+  const printTicketAction = useCallback((index: number) => {
+    let printType = "";
+    if (index === ACTIONS_INDEX.PRINT) {
+      printType = "inventory_transfer_bill";
+    } else if (index === ACTIONS_INDEX.PRINT_TICKET) {
+      printType = "inventory_transfer";
+    }
+    console.log('selectedRowKeys', selectedRowKeys);
+
+    let params = {
+      ids: selectedRowKeys,
+      "type": printType,
+    };
+    const queryParam = generateQuery(params);
+    
+    history.push(`${UrlConfig.INVENTORY_TRANSFER}/print-preview?${queryParam}`);
+  }, [history, selectedRowKeys]);
+
+
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ACTIONS_INDEX.PRINT_TICKET:
+          printTicketAction(index);
+          break;
+        case ACTIONS_INDEX.PRINT:
+          printTicketAction(index);
+          break;
+      
+        default:
+          break;
+      }
+    },
+    [printTicketAction]
+  );
+
+  const onSelectedChange = useCallback((selectedRow) => {
+    
+    const selectedRowKeys = selectedRow.map((row: any) => row.id);    
+    setSelectedRowKeys(selectedRowKeys);
+
+  }, []);
+
   //get store
   useEffect(() => {
     dispatch(
@@ -268,7 +314,6 @@ const InventoryTransferTab: React.FC = () => {
 
   //get list
   useEffect(() => {
-    console.log('params', params);
     dispatch(getListInventoryTransferAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
@@ -278,7 +323,7 @@ const InventoryTransferTab: React.FC = () => {
         params={[]}
         stores={stores}
         actions={actions}
-        onMenuClick={() => {}}
+        onMenuClick={onMenuClick}
         onClickOpen={() => setShowSettingColumn(true)}
       />
       <CustomTable
@@ -294,6 +339,7 @@ const InventoryTransferTab: React.FC = () => {
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
+        onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}

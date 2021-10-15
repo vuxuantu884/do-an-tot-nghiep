@@ -4,6 +4,7 @@ import { ApiConfig } from "config/api.config";
 import { BaseQuery } from "model/base/base.query";
 import {
   BasePrinterModel,
+  PrinterInventoryTransferResponseModel,
   PrinterResponseModel,
   PrinterVariableResponseModel,
 } from "model/response/printer.response";
@@ -52,4 +53,17 @@ export const getPrintFormByOrderIdsService = (
   };
   const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/print_forms?${queryString}`);
+};
+
+export const getPrintTicketIdsService = (
+  ids: string[],
+  type: string
+): Promise<Array<PrinterInventoryTransferResponseModel>> => {
+  const queryParams = {
+    ids,
+    type,
+  };
+  const queryString = generateQuery(queryParams);
+  
+  return BaseAxios.get(`${ApiConfig.INVENTORY}/inventory-transfers/print_forms?${queryString}`);
 };
