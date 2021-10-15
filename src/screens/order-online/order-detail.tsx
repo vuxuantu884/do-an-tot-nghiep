@@ -194,7 +194,11 @@ const OrderDetail = (props: PropType) => {
       return FulFillmentStatus.SHIPPED;
     }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
-      if (OrderDetail.fulfillments === undefined || OrderDetail.fulfillments === null) {
+      if (
+        OrderDetail.fulfillments === undefined ||
+        OrderDetail.fulfillments === null ||
+        OrderDetail.fulfillments.length === 0
+      ) {
         return OrderStatus.FINALIZED;
       } else {
         if (
