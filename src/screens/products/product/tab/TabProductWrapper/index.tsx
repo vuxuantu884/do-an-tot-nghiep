@@ -352,7 +352,7 @@ const TabProductWrapper: React.FC = () => {
         isLoading={tableLoading}
         onSelectedChange={onSelect}
         scroll={{ x: 1500 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

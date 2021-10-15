@@ -32,7 +32,7 @@ export interface PurchaseOrderLineItem {
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {
   quantity_return: number;
   untaxed_amount_refunds: null;
-  amount_tax_refunds: null;
+  amount_tax_refunds: number;
   return_reason: null;
   payment_return_note: null;
 }

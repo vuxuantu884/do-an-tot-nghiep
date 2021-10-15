@@ -17,7 +17,6 @@ import { POField } from "model/purchase-order/po-field";
 import { POUtils } from "utils/POUtils";
 import {
   PurchaseOrderLineReturnItem,
-  Vat,
 } from "model/purchase-order/purchase-item.model";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -111,8 +110,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
         />
         <Form.Item shouldUpdate={(prevValues, curValues) => true} noStyle>
           {({ getFieldValue }) => {
-            let tax_lines = getFieldValue(POField.tax_lines),
-              line_return_items = getFieldValue(POField.line_return_items);
+            let line_return_items = getFieldValue(POField.line_return_items);
             let totalReturn = 0,
               totalVat = 0;
             line_return_items &&
@@ -125,17 +123,14 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                     item.discount_rate,
                     item.discount_value
                   );
+                  totalVat = totalVat + item.amount_tax_refunds ;
               });
-            tax_lines.forEach((item: Vat) => {
-              totalVat += item.amount;
-            });
             return (
               <Fragment>
                 <POReturnProductForm
                   formMain={formMain}
                   totalVat={totalVat}
                   totalReturn={totalReturn}
-                  tax_lines={tax_lines}
                   listStore={listStore}
                 />
                 <POReturnPaymentForm

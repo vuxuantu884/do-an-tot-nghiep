@@ -96,6 +96,7 @@ type UpdateShipmentCardProps = {
   setVisibleShipping: (value: boolean) => void;
   setOfficeTime: (value: boolean) => void;
   onReload?: () => void;
+  disabledActions?: (type: string) => void;
   OrderDetail: OrderResponse | null;
   storeDetail?: StoreResponse;
   stepsStatusValue?: string;
@@ -107,6 +108,7 @@ type UpdateShipmentCardProps = {
   customerDetail: CustomerResponse | null;
   OrderDetailAllFullfilment: OrderResponse | null;
   orderSettings?: OrderSettingsModel;
+  disabledBottomActions?: boolean;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -121,8 +123,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setPaymentType,
     setShipmentMethod,
     onReload,
+    disabledActions,
     OrderDetail,
     orderSettings,
+    disabledBottomActions,
   } = props;
 
   const history = useHistory();
@@ -874,10 +878,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     getRequirementName();
   }, [getRequirementName]);
 
+  useEffect(() => {
+    if (updateShipment || cancelShipment) {
+      // console.log('updateShipment cancelShipment ok ok');
+      // disabled orther actions
+      disabledActions && disabledActions("shipment");
+    } else {
+      // console.log('updateShipment cancelShipment');
+      disabledActions && disabledActions("none");
+    }
+  }, [updateShipment, cancelShipment, disabledActions]);
+
   return (
     <div>
       <Card
-        className="orders-update-shipment "
+        className="margin-top-20 orders-update-shipment "
         title={
           <Space>
             <div className="d-flex">
@@ -952,7 +967,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     defaultActiveKey={[
                       fulfillment.status !== FulFillmentStatus.RETURNED ? "1" : "",
                     ]}
-                    onChange={(e) => console.log(e[0])}
+                    // onChange={(e) => console.log(e[0])}
                     expandIcon={({ isActive }) => (
                       <div className="saleorder-header-arrow">
                         <img
@@ -1620,7 +1635,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 disabled={
                   props.stepsStatusValue === OrderStatus.CANCELLED ||
                   props.stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                  cancelShipment
+                  cancelShipment ||
+                  disabledBottomActions
                 }
               >
                 Giao hàng
@@ -1798,13 +1814,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Button>
                       <Button
                         className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                        onClick={() => window.location.reload()}
+                        onClick={() => setVisibleShipping(false)}
                         loading={cancelShipment}
                         style={{
                           float: "right",
                           padding: "0 25px",
                           letterSpacing: "0.2px",
                         }}
+                        disabled={updateShipment}
                       >
                         Huỷ
                       </Button>
@@ -1931,9 +1948,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                          onClick={() => window.location.reload()}
+                          onClick={() => setVisibleShipping(false)}
                           style={{ float: "right" }}
                           loading={cancelShipment}
+                          disabled={updateShipment}
                         >
                           Huỷ
                         </Button>
@@ -1991,9 +2009,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                          onClick={() => window.location.reload()}
+                          onClick={() => setVisibleShipping(false)}
                           loading={cancelShipment}
                           style={{ float: "right" }}
+                          disabled={updateShipment}
                         >
                           Hủy
                         </Button>

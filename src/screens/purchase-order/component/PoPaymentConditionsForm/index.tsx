@@ -103,7 +103,6 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
   useEffect(() => {
     poDataPayments && setPaymentsDataDraft(poDataPayments);
   }, [poDataPayments]);
-
   if (!isEdit) {
     return (
       <POPaymentConditionsFormStyled>
@@ -221,7 +220,6 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
       </POPaymentConditionsFormStyled>
     );
   }
-
   return (
     <POPaymentConditionsFormStyled>
       <Card

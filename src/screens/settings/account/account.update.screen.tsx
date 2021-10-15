@@ -73,12 +73,12 @@ const initRoleQuery: RoleSearchQuery = {
   size: 200,
 };
 type AccountParam = {
-  id: string;
+  code: string;
 };
 
 const AccountUpdateScreen: React.FC = () => {
-  const { id } = useParams<AccountParam>();
-  let idNumber = parseInt(id);
+  const { code: userCode } = useParams<AccountParam>();
+ 
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const history = useHistory();
@@ -92,7 +92,8 @@ const AccountUpdateScreen: React.FC = () => {
 
   const listStoreRoot = useRef<Array<AccountStoreResponse>>();
   const listRolesRoot = useRef<Array<AccountRolesResponse>>();
-
+  const idNumber = useRef<number>(0);
+ 
   //State
   const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
     {
@@ -110,6 +111,7 @@ const AccountUpdateScreen: React.FC = () => {
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
   //EndState
+
   //Callback
 
   const setDataDistrict = useCallback((data: Array<DistrictResponse>) => {
@@ -219,7 +221,9 @@ const AccountUpdateScreen: React.FC = () => {
         account_jobs: [...accJobs],
         version: values.version,
       };
-      dispatch(AccountUpdateAction(idNumber, accountModel, onUpdateSuccess));
+      if (idNumber) {
+        dispatch(AccountUpdateAction(idNumber.current, accountModel, onUpdateSuccess));
+      } 
     },
     [dispatch, idNumber, listaccountJob, onUpdateSuccess]
   );
@@ -266,6 +270,7 @@ const AccountUpdateScreen: React.FC = () => {
       status: data.status,
       version: data.version,
     };
+    idNumber.current= data.id;
     setAccountDetail(accountView);
   }, []);
   //End callback
@@ -361,8 +366,8 @@ const AccountUpdateScreen: React.FC = () => {
     dispatch(StoreGetListAction(setStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
-    dispatch(AccountGetByIdtAction(idNumber, setAccount));
-  }, [dispatch, setDataDistrict, idNumber, setAccount]);
+    dispatch(AccountGetByIdtAction(userCode, setAccount));
+  }, [dispatch, setDataDistrict, userCode, setAccount]);
   if (accountDetail == null) {
     return (
       <Card>

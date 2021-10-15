@@ -59,7 +59,7 @@ const InventoryScreen: React.FC = () => {
         },
       ]}
     >
-      <Card style={{padding: 0}}>
+      <Card style={{padding: 0}} className="card-tab">
         <Tabs style={{overflow: 'initial'}} activeKey={activeTab} onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}>
           <TabPane tab="Toàn hệ thống" key="1">
             <AllTab stores={stores} current={activeTab} />

@@ -17,5 +17,6 @@ export const StyledComponent = styled.div`
     width: 45px;
     height: 45px;
     border-radius: 3px;
+    object-fit: cover;
   }
 `;
