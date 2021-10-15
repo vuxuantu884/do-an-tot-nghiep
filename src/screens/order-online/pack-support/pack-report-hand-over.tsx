@@ -1,18 +1,15 @@
 import PackFilter from "component/filter/pack.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { generateQuery } from "utils/AppUtils";
-import { showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import PackTable from "./pack-table";
+import { useCallback, useMemo, useState } from "react";
+
 
 const PackReportHandOver: React.FC = () => {
   
   let [params, setPrams] = useState<any>();
-  const [tableLoading, setTableLoading] = useState(true);
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [data, setData] = useState<PageResponse<any>>({
+  const [tableLoading] = useState(true);
+    // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [data] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -27,7 +24,7 @@ const PackReportHandOver: React.FC = () => {
 
   
 
-  const [columns, setColumn] = useState<
+  const [columns] = useState<
     Array<ICustomTableColumType<any>>
   >([
     {
@@ -52,27 +49,11 @@ const PackReportHandOver: React.FC = () => {
     },
   ]);
 
-  const dataTest = [];
-  for (let i = 0; i < 100; i++) {
-    dataTest.push({
-      key: i,
-      name: `Edrward ${i}`,
-      age: 32,
-      address: `London Park no. ${i}`,
-    });
-  }
 
   const columnFinal = useMemo(
     () => columns.filter((item:any) => item.visible === true),
     [columns]
   );
-
-  useEffect(() => {
-    if(dataTest.length>0)
-    {
-      
-    }
-  }, [dataTest])
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -84,8 +65,8 @@ const PackReportHandOver: React.FC = () => {
   );
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
-    setSelectedRowKeys(selectedRowKeys);
+    // const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    // setSelectedRowKeys(selectedRowKeys);
   }, []);
 
   return (

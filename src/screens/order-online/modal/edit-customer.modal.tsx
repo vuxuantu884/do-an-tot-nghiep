@@ -34,7 +34,6 @@ import {
 } from "@ant-design/icons";
 
 import CustomerShippingAddressOrder from "../component/order-detail/CardCustomer/customer-shipping";
-import { ShippingAddress } from "model/response/order/order.response";
 
 
 type EditCustomerModalProps = {
@@ -43,7 +42,6 @@ type EditCustomerModalProps = {
   groups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
-  setShippingAddress:any;
   formItem: any;
   modalAction: string;
   isVisibleCollapseCustomer: boolean;
@@ -80,7 +78,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     groups,
     handleChangeArea,
     handleChangeCustomer,
-    setShippingAddress,
     formItem,
     modalAction,
     districtId,
@@ -260,6 +257,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               },
             ]}
             name="full_name"
+            //label="Tên khách hàng"
           >
             <Input
               placeholder="Nhập Tên khách hàng"
@@ -272,6 +270,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         <Col xs={24} lg={12}>
           <Form.Item
             name="district_id"
+            //label="Khu vực"
             rules={[
               {
                 required: true,
@@ -316,6 +315,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               },
             ]}
             name="phone"
+            //label="Số điện thoại"
           >
             <Input
               placeholder="Nhập số điện thoại"
@@ -327,6 +327,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         <Col xs={24} lg={12}>
           <Form.Item
             name="ward_id"
+            //label="Phường xã"
             rules={[
               {
                 required: true,
@@ -352,17 +353,20 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         </Col>
 
         <Col xs={24} lg={12}>
-          <Form.Item name="card_number" >
+          <Form.Item name="card_number" 
+          //label="Mã thẻ"
+          >
             <Input placeholder="Nhập mã thẻ" prefix={<BarcodeOutlined />} />
           </Form.Item>
         </Col>
 
         <Col xs={24} lg={12}>
-          <Form.Item name="full_address" >
+          <Form.Item name="full_address" 
+          //</Col>label="Địa chỉ"
+          >
             <Input placeholder="Địa chỉ" prefix={<IdcardOutlined />} />
           </Form.Item>
         </Col>
-       
       </Row>
 
       {isVisibleCollapseCustomer===false &&(
@@ -415,7 +419,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                          handleSingleShippingAddress={
                            setSingleShippingAddress
                          }
-                         handleShippingAddress={setShippingAddress}
                        />
                      }
                      trigger="click"
@@ -432,7 +435,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         <Row gutter={24}>
 
         <Col xs={24} lg={12}>
-          <Form.Item name="gender">
+          <Form.Item name="gender" 
+          //label="Giới tính"
+          >
             <Select
               showSearch
               allowClear
@@ -450,6 +455,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         <Col xs={24} lg={12}>
           <Form.Item
             name="birthday"
+           // label="Ngày sinh"
             rules={[
               {
                 validator: async (_, birthday) => {
@@ -472,7 +478,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         </Col>
 
         <Col xs={24} lg={12}>
-          <Form.Item name="customer_group_id">
+          <Form.Item name="customer_group_id" 
+         // label="Nhóm"
+          >
             <Select
               showSearch
               allowClear
@@ -490,7 +498,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           </Form.Item>
         </Col>
         {isVisibleCollapseCustomer===true&&(
-          <Col xs={24} lg={12} style={{paddingTop:"30px", paddingRight:"12px"}}>
+          <Col xs={24} lg={12} style={{paddingRight:"12px"}}>
         <Button
             type="primary"
             style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
