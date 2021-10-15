@@ -354,8 +354,12 @@ export const getListReasonRequest = (
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };
 
-export const cancelOrderRequest = (id: number | undefined) => {
-  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id });
+export const cancelOrderRequest = (
+  id: number | undefined,
+  onSuccess: (success: any) => void,
+  onError: (error: any) => void,  
+  ) => {
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, onSuccess, onError });
 };
 
 export const configOrderSaga = (setData: (data: OrderConfig) => void) => {

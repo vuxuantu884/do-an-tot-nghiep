@@ -1016,7 +1016,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 disabled={levelOrder > 1}
               >
                 {dataCanAccess.map((item, index) => (
-                  <Select.Option key={index.toString()} value={item.id}>
+                  <Select.Option key={index} value={item.id}>
                     {item.name}
                   </Select.Option>
                 ))}

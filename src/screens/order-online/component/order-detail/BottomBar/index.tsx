@@ -211,6 +211,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 type="primary"
                 style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                 onClick={onConfirmOrder}
+                disabled={disabledBottomActions}
               >
                 Xác nhận đơn
               </Button>
