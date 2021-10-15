@@ -843,8 +843,6 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
   const event = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement) {
-        console.log("storeId");
-        console.log(storeId);
         if (
           event.keyCode === 13 &&
           event.target.value &&

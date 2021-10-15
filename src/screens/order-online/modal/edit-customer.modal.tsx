@@ -8,9 +8,10 @@ import {
   Button,
   Divider,
   Popover,
+  FormInstance,
 } from "antd";
 import { useDispatch } from "react-redux";
-import React, { useCallback, useEffect } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { showSuccess } from "utils/ToastUtils";
 import {
@@ -83,7 +84,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     districtId,
     titleNotify,
     isVisibleCollapseCustomer,
-    onCancel,
     ShowAddressModalAdd,
     ShowAddressModalEdit,
     showAddressModalDelete,
@@ -92,6 +92,48 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   } = props;
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
+  const formRef = createRef<FormInstance>();
+
+  const [isVisibleBtnUpdate,setVisibleBtnUpdate]=useState(false);
+  //element
+  const fullNameElement: any = document.getElementById("customer_add_full_name");
+  const phoneElement: any = document.getElementById("customer_add_phone");
+  const cardNumberElement: any = document.getElementById("customer_add_card_number");
+  const districtElement: any = document.getElementById("customer_add_district_id");
+  const wardElement: any = document.getElementById("customer_add_ward_id_list");
+  const fullAddressElement: any = document.getElementById("customer_add_full_address");
+  const genreElement: any = document.getElementById("customer_add_gender");
+  const birthdayElement: any = document.getElementById("customer_add_birthday");
+  const groupElement: any = document.getElementById("customer_add_customer_group_id");
+
+  //event
+  fullNameElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  phoneElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  cardNumberElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  districtElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  wardElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  fullAddressElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  genreElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  birthdayElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  groupElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValue: FormValueType =
@@ -129,11 +171,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   const onOkPress = useCallback(() => {
     customerForm.submit();
   }, [customerForm]);
-
-  const handleCancel = () => {
-    customerForm.resetFields();
-    onCancel();
-  };
 
   const createCustomerCallback = useCallback(
     (result: CustomerResponse) => {
@@ -238,6 +275,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   return (
     <Form
       form={customerForm}
+      ref={formRef}
       name="customer_add"
       onFinish={handleSubmit}
       layout="vertical"
@@ -287,6 +325,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               onChange={(value) => {
                 handleChangeArea(value);
                 DefaultWard();
+                setVisibleBtnUpdate(true);
               }}
               optionFilterProp="children"
             >
@@ -342,6 +381,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               optionFilterProp="children"
               style={{ width: "100%" }}
               placeholder="Chọn phường/xã"
+              onChange={()=>{
+                setVisibleBtnUpdate(true);
+              }}
             >
               {wards.map((ward: any) => (
                 <Select.Option key={ward.id} value={ward.id}>
@@ -369,7 +411,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         </Col>
       </Row>
 
-      {isVisibleCollapseCustomer===false &&(
+      {isVisibleCollapseCustomer===false&&isVisibleBtnUpdate===true &&(
       <Row gutter={24}>
         <Col
           md={24}
@@ -444,6 +486,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               optionFilterProp="children"
               placeholder="Giới tính"
               className="select-with-search"
+              onChange={()=>{setVisibleBtnUpdate(true)}}
             >
                   <Select.Option key={1} value={"male"}>Nam</Select.Option>
                   <Select.Option key={2} value={"female"}>Nữ</Select.Option>
@@ -473,6 +516,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               placeholder="Chọn ngày sinh"
               format={"DD/MM/YYYY"}
               suffixIcon={<CalendarOutlined />}
+              onChange={()=>{setVisibleBtnUpdate(true)}}
             />
           </Form.Item>
         </Col>
@@ -487,6 +531,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               optionFilterProp="children"
               placeholder="Nhóm"
               className="select-with-search"
+              onChange={()=>{setVisibleBtnUpdate(true)}}
             >
               {groups &&
                 groups.map((group: any) => (
@@ -497,7 +542,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             </Select>
           </Form.Item>
         </Col>
-        {isVisibleCollapseCustomer===true&&(
+        {isVisibleCollapseCustomer===true&&isVisibleBtnUpdate===true&&(
           <Col xs={24} lg={12} style={{paddingRight:"12px"}}>
         <Button
             type="primary"
