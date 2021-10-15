@@ -177,6 +177,60 @@ export default function Order(props: PropType) {
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
+  const stepsStatus = () => {
+    if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return OrderStatus.DRAFT;
+    }
+
+    if (OrderDetail?.status === OrderStatus.CANCELLED) {
+      return OrderStatus.CANCELLED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINALIZED) {
+      if (
+        OrderDetail.fulfillments === undefined ||
+        OrderDetail.fulfillments === null
+      ) {
+        return OrderStatus.FINALIZED;
+      } else {
+        if (
+          OrderDetail.fulfillments !== undefined &&
+          OrderDetail.fulfillments !== null &&
+          OrderDetail.fulfillments.length > 0
+        ) {
+          if (
+            OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+          ) {
+            return OrderStatus.FINALIZED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
+            return FulFillmentStatus.PICKED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
+            return FulFillmentStatus.PACKED;
+          }
+          if (
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING
+          ) {
+            return FulFillmentStatus.SHIPPING;
+          }
+          if (
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED
+          ) {
+            return FulFillmentStatus.SHIPPED;
+          }
+        }
+      }
+    } else if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    return "";
+  };
+
+  let stepsStatusValue = stepsStatus();
+
   const setLevelOrder = useCallback(() => {
     console.log("OrderDetail 111", OrderDetail);
     switch (OrderDetail?.status) {
@@ -199,8 +253,8 @@ export default function Order(props: PropType) {
           }
         } else {
           if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED ||
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED
+            // || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
             // return 1
             if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
@@ -936,7 +990,7 @@ export default function Order(props: PropType) {
             name: "Tạo mới đơn hàng",
           },
         ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
+        extra={<CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />}
       >
         <div className="orders">
           {isLoadForm && (
@@ -1924,6 +1978,7 @@ export default function Order(props: PropType) {
               {isShowBillStep && (
                 <OrderDetailBottomBar
                   isVisibleUpdateButtons={true}
+                  stepsStatusValue={stepsStatusValue}
                   formRef={formRef}
                   handleTypeButton={handleTypeButton}
                   isVisibleGroupButtons={false}

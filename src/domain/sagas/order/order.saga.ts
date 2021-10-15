@@ -641,16 +641,13 @@ function* getListReasonSaga(action: YodyAction) {
 
 function* cancelOrderSaga(action: YodyAction) {
   yield put(showLoading());
-  let { id } = action.payload;
+  let { id, onSuccess, onError } = action.payload;
   try {
     let response: BaseResponse<any> = yield call(cancelOrderApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        // setData(response.data);
         showSuccess("Huỷ đơn hàng thành công!");
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+        onSuccess()
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -660,6 +657,7 @@ function* cancelOrderSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    onError()
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());

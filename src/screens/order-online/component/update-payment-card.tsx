@@ -630,6 +630,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 className="ant-btn-outline fixed-button text-right"
                 style={{ float: "right", padding: "0 25px" }}
                 onClick={ShowPayment}
+                disabled={props.disabled}
               >
                 Thanh toán
               </Button>
