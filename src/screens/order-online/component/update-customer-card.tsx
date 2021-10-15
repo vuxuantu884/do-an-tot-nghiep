@@ -160,7 +160,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
           )}
         </Row>
         <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
-        <div className="padding-lef-right">
+        <div>
           <Row gutter={24}>
             <Col
               xs={24}

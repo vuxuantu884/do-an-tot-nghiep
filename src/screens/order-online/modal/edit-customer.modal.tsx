@@ -381,14 +381,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             className="create-button-custom ant-btn-outline fixed-button"
             onClick={onOkPress}
           >
-            Lưu
-          </Button>
-          <Button
-            style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-            className="create-button-custom ant-btn-outline fixed-button"
-            onClick={handleCancel}
-          >
-            Hủy
+            Cập nhật
           </Button>
         </Col>
         </Row>
@@ -512,14 +505,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             className="create-button-custom ant-btn-outline fixed-button"
             onClick={onOkPress}
           >
-            Lưu
-          </Button>
-          <Button
-            style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-            className="create-button-custom ant-btn-outline fixed-button"
-            onClick={handleCancel}
-          >
-            Hủy
+            Cập nhật
           </Button>
         </Col>
 
