@@ -365,9 +365,9 @@
   }
   &-timeline {
     .ant-collapse-item:first-child:nth-last-child(1):not(.ant-collapse-item-active) {
-      &::before {
-        content: unset !important;
-      }
+      // &::before {
+      //   content: unset !important;
+      // }
     }
     .ant-collapse-item {
       position: relative;
