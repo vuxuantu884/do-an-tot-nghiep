@@ -132,7 +132,7 @@ const OrderDetail = (props: PropType) => {
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
   const [totalAmountReturnProducts] = useState<number>(0);
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
+  // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
     useState(false);
 
@@ -198,7 +198,7 @@ const OrderDetail = (props: PropType) => {
         payments: payments,
         fulfillments: fulfillment,
       };
-      console.log("request", request);
+      // console.log("request", request);
       if (OrderDetail?.id) {
         dispatch(
           UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess)
@@ -344,7 +344,7 @@ const OrderDetail = (props: PropType) => {
 
   const cancelModal = useCallback(
     (type) => {
-      console.log("OrderDetail", OrderDetail);
+      // console.log("OrderDetail", OrderDetail);
       switch (type) {
         case 1:
           Modal.confirm({
@@ -367,7 +367,7 @@ const OrderDetail = (props: PropType) => {
             maskClosable: true,
             width: "600px",
             onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => console.log("cancel"),
+            onCancel: () => {},
             okText: "Xác nhận",
             cancelText: "Huỷ",
           });
@@ -385,7 +385,7 @@ const OrderDetail = (props: PropType) => {
             maskClosable: true,
             width: "600px",
             onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => console.log("cancel"),
+            onCancel: () => {},
             okText: "Xác nhận",
             cancelText: "Huỷ",
           });
@@ -450,6 +450,31 @@ const OrderDetail = (props: PropType) => {
     }
   };
 
+  const [disabledBottomActions, setDisabledBottomActions] = useState(false);
+
+  const disabledActions = useCallback(
+    (type: string) => {
+      console.log('disabledActions', type);
+      console.log('setShowPaymentPartialPayment', isShowPaymentPartialPayment);
+      switch (type) {
+        case "shipment":
+          setShowPaymentPartialPayment(false);
+          setDisabledBottomActions(true)
+          break
+        case "payment":
+          setVisibleShipping(false);
+          setDisabledBottomActions(true)
+          break
+        case "none":
+          
+          setDisabledBottomActions(false)
+          break
+        default: break
+      }
+    },
+    [isShowPaymentPartialPayment]
+  );
+
   useEffect(() => {
     if (isFirstLoad.current || reload) {
       if (!Number.isNaN(OrderId)) {
@@ -462,7 +487,8 @@ const OrderDetail = (props: PropType) => {
     setReload(false);
     setVisibleShipping(false);
     setShowPaymentPartialPayment(false);
-  }, [dispatch, OrderId, onGetDetailSuccess, reload]);
+    setPaymentType(2)
+  }, [dispatch, OrderId, onGetDetailSuccess, reload, OrderDetail]);
 
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -843,6 +869,7 @@ const OrderDetail = (props: PropType) => {
                                         reload={() => {
                                           setReload(true);
                                         }}
+                                        disabledActions={disabledActions}
                                       />
                                     )}
                                 </Panel>
@@ -940,7 +967,7 @@ const OrderDetail = (props: PropType) => {
                               style={{ marginTop: 10 }}
                               disabled={
                                 stepsStatusValue === OrderStatus.CANCELLED ||
-                                stepsStatusValue === FulFillmentStatus.SHIPPED
+                                stepsStatusValue === FulFillmentStatus.SHIPPED || disabledBottomActions
                               }
                             >
                               Thanh toán
@@ -1110,6 +1137,7 @@ const OrderDetail = (props: PropType) => {
                     reload={() => {
                       setReload(true);
                     }}
+                    disabledActions={disabledActions}
                   />
                 )}
 
@@ -1135,6 +1163,8 @@ const OrderDetail = (props: PropType) => {
                 OrderDetailAllFullfilment={OrderDetailAllFullfilment}
                 orderSettings={orderSettings}
                 onReload={() => setReload(true)}
+                disabledActions={disabledActions}
+                disabledBottomActions={disabledBottomActions}
               />
               {/*--- end shipment ---*/}
 
@@ -1172,6 +1202,7 @@ const OrderDetail = (props: PropType) => {
             orderDetail={OrderDetailAllFullfilment}
             onConfirmOrder={onConfirmOrder}
             isShowConfirmOrderButton={isShowConfirmOrderButton}
+            disabledBottomActions={disabledBottomActions}
           />
         </Form>
       </div>

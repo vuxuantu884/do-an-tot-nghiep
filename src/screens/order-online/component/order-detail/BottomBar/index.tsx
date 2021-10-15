@@ -16,6 +16,7 @@ type PropType = {
   formRef?: React.RefObject<FormInstance<any>>;
   creating?: boolean;
   isShowConfirmOrderButton?: boolean;
+  disabledBottomActions?: boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
@@ -33,6 +34,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     formRef,
     creating,
     isShowConfirmOrderButton,
+    disabledBottomActions,
     handleTypeButton,
     showSaveAndConfirmModal,
     orderActionsClick,
@@ -75,10 +77,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 id="save-and-confirm"
                 onClick={() => {
                   handleTypeButton(OrderStatus.FINALIZED);
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
+                  // console.log(
+                  //   "formRef.current.value",
+                  //   formRef?.current?.getFieldsValue()
+                  // );
                   formRef.current?.submit();
                 }}
                 loading={creating}
@@ -107,10 +109,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 id="save-and-confirm"
                 onClick={() => {
                   handleTypeButton(OrderStatus.FINALIZED);
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
+                  // console.log(
+                  //   "formRef.current.value",
+                  //   formRef?.current?.getFieldsValue()
+                  // );
                   formRef.current?.submit();
                 }}
               >
@@ -123,6 +125,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
             <Dropdown
               // overlayStyle={{ minWidth: "15rem" }}
               getPopupContainer={(trigger) => trigger}
+              disabled={disabledBottomActions}
               overlay={
                 <Menu>
                   <Menu.Item
@@ -177,7 +180,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   <Menu.Item
                     onClick={() =>
                       props.orderActionsClick &&
-                      props.orderActionsClick("cancel")
+                      props.orderActionsClick("print")
                     }
                   >
                     In nhanh
@@ -185,7 +188,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   <Menu.Item
                     onClick={() =>
                       props.orderActionsClick &&
-                      props.orderActionsClick("clone")
+                      props.orderActionsClick("print")
                     }
                   >
                     In tuỳ chọn

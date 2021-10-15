@@ -46,6 +46,7 @@ type PaymentCardUpdateProps = {
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
   setTotalPaid: (value: number) => void;
   reload?: () => void;
+  disabledActions?: (type: string) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
   shipmentMethod: number;
@@ -59,6 +60,9 @@ type PaymentCardUpdateProps = {
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
+  const {
+    disabledActions
+  } = props
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
@@ -155,12 +159,13 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
-    props.reload && props.reload();
     showSuccess("Thanh toán thành công");
     setCreatePayment(false);
+    console.log('onUpdateSuccess payment')
     // window.location.reload();
     setVisibleConfirmPayment(false);
     setPaymentData([]);
+    props.reload && props.reload();
     
   }, [props]);
 
@@ -249,6 +254,17 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const canclePayment = () => {
     props.setVisibleUpdatePayment(false);
   };
+
+  useEffect(() => {
+    if (createPayment) {
+      console.log('createPayment createPayment payment');
+      
+      disabledActions && disabledActions('payment')
+    } else {
+      console.log('createPayment createPayment none');
+      disabledActions && disabledActions('none')
+    }
+  }, [createPayment, disabledActions]);
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -343,7 +359,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   )}
               </div>
 
-              <Row gutter={24} hidden={props.paymentMethod !== 2}>
+              <Row
+                gutter={24}
+                // hidden={props.paymentMethod !== 2}
+              >
                 {/* <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
                     <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
@@ -617,6 +636,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           style={{ float: "right", padding: "0 25px" }}
                           htmlType="submit"
                           onClick={ShowConfirmPayment}
+                          loading={createPayment}
                         >
                           Tạo thanh toán
                         </Button>
@@ -629,6 +649,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                             padding: "0 25px",
                           }}
                           onClick={canclePayment}
+                          disabled={createPayment}
                         >
                           Hủy
                         </Button>
@@ -712,7 +733,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               )}
           </div> */}
 
-          <Row gutter={24} hidden={props.paymentMethod === 2}>
+          <Row
+            gutter={24}
+            // hidden={props.paymentMethod === 2}
+          >
             {/* <Col xs={24} lg={24}>
               <div className="form-group form-group-with-search">
                 <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
@@ -952,6 +976,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       style={{ float: "right", padding: "0 25px" }}
                       htmlType="submit"
                       onClick={ShowConfirmPayment}
+                      loading={createPayment}
                     >
                       Tạo thanh toán
                     </Button>
@@ -965,6 +990,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         padding: "0 25px",
                       }}
                       onClick={() => props.reload && props.reload()}
+                      disabled={createPayment}
                     >
                       Hủy
                     </Button>
