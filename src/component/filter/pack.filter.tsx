@@ -22,7 +22,6 @@ import {
 } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import CustomFilter from "component/table/custom.filter";
 import {
   SettingOutlined,
   FilterOutlined,
@@ -32,7 +31,7 @@ import {
 import "./order.filter.scss";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 
 const { Panel } = Collapse;
 type PackFilterProps = {
@@ -46,7 +45,7 @@ type PackFilterProps = {
 const { Item } = Form;
 
 const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
-  const { params, onMenuClick, onClearFilter, onFilter, onShowColumnSetting } =
+  const { params, onClearFilter, onFilter, onShowColumnSetting } =
     props;
   const [visible, setVisible] = useState(false);
 
@@ -74,12 +73,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
     console.log(dates, dateString, type);
@@ -124,7 +118,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
       //     onFilter && onFilter({...params, store_ids: []});
       //     break;
     },
-    [onFilter, params]
+    []
   );
   const [issuedClick, setIssuedClick] = useState("");
   const [finalizedClick, setFinalizedClick] = useState("");

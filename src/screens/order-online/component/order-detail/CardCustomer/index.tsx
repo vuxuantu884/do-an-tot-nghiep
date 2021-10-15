@@ -4,10 +4,8 @@ import {
   CloseOutlined,
   DownOutlined,
   EnvironmentOutlined,
-  IdcardOutlined,
   LoadingOutlined,
   MailOutlined,
-  PlusOutlined,
   SearchOutlined,
   UpOutlined,
 } from "@ant-design/icons";
@@ -30,10 +28,8 @@ import {
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import noteCustomer from "assets/img/note-customer.svg";
+
 import pointIcon from "assets/img/point.svg";
-import addressIcon from "assets/img/user-pin.svg";
 import CustomSelect from "component/custom/select.custom";
 import {
   DistrictGetByCountryAction,
