@@ -135,12 +135,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
-  const [isvibleShippedConfirm, setIsvibleShippedConfirm] =
-    useState<boolean>(false);
+  const [isvibleShippedConfirm, setIsvibleShippedConfirm] = useState<boolean>(false);
   const [requirementName, setRequirementName] = useState<string | null>(null);
-  const [requirementNameView, setRequirementNameView] = useState<string | null>(
-    null
-  );
+  const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
   const [updateShipment, setUpdateShipment] = useState(false);
   const [cancelShipment, setCancelShipment] = useState(false);
 
@@ -155,8 +152,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [cancelReason, setCancelReason] = useState<string>("");
 
   const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
   //#endregion
   // show shipping
@@ -207,12 +203,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     props.shippingFeeInformedCustomer(value);
   };
 
-  const changeServiceType = (
-    id: number,
-    code: string,
-    item: any,
-    fee: number
-  ) => {
+  const changeServiceType = (id: number, code: string, item: any, fee: number) => {
     setHvc(id);
     setServiceType(item);
     setFee(fee);
@@ -354,58 +345,44 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           value.status = FulFillmentStatus.PICKED;
           value.action = FulFillmentStatus.PICKED;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onPickSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess, onError));
           break;
         case 2:
           value.status = FulFillmentStatus.PACKED;
           value.action = FulFillmentStatus.PACKED;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onPackSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
 
           break;
         case 3:
           value.status = FulFillmentStatus.SHIPPING;
           value.action = FulFillmentStatus.SHIPPING;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onShippingSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess, onError));
           break;
         case 4:
           value.status = FulFillmentStatus.SHIPPED;
           value.action = FulFillmentStatus.SHIPPED;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onShipedSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess, onError));
           break;
         case 5:
           value.status = FulFillmentStatus.CANCELLED;
           value.action = FulFillmentStatus.CANCELLED;
           setCancelShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onCancelSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         case 6:
           value.status = FulFillmentStatus.RETURNING;
           value.action = FulFillmentStatus.RETURNING;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onCancelSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         case 7:
           value.status = FulFillmentStatus.RETURNED;
           value.action = FulFillmentStatus.RETURNED;
           setCancelShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onCancelSuccess, onError)
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         default:
           return;
@@ -413,17 +390,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     })();
   };
   // shipping confirm
-  const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
-    useState<boolean>(false);
+  const [isvibleShippingConfirm, setIsvibleShippingConfirm] = useState<boolean>(false);
   const onOkShippingConfirm = () => {
     if (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].status ===
-        FulFillmentStatus.UNSHIPPED &&
-      props.OrderDetail?.fulfillments[0].shipment
-        ?.delivery_service_provider_type !== "pick_at_store"
+      props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+      props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+        "pick_at_store"
     ) {
       fulfillmentTypeOrderRequest(1);
     } else if (
@@ -431,10 +406,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       (props.OrderDetail?.fulfillments &&
         props.OrderDetail?.fulfillments.length > 0 &&
         props.OrderDetail?.fulfillments[0].shipment &&
-        props.OrderDetail?.fulfillments[0].status ===
-          FulFillmentStatus.UNSHIPPED &&
-        props.OrderDetail?.fulfillments[0].shipment
-          ?.delivery_service_provider_type === "pick_at_store")
+        props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+        props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type ===
+          "pick_at_store")
     ) {
       fulfillmentTypeOrderRequest(2);
     } else if (
@@ -442,8 +416,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment
-        ?.delivery_service_provider_type !== "pick_at_store"
+      props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+        "pick_at_store"
     ) {
       fulfillmentTypeOrderRequest(3);
     } else if (
@@ -451,10 +425,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       (props.OrderDetail?.fulfillments &&
         props.OrderDetail?.fulfillments.length > 0 &&
         props.OrderDetail?.fulfillments[0].shipment &&
-        props.OrderDetail?.fulfillments[0].status ===
-          FulFillmentStatus.PACKED &&
-        props.OrderDetail?.fulfillments[0].shipment
-          ?.delivery_service_provider_type === "pick_at_store")
+        props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.PACKED &&
+        props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type ===
+          "pick_at_store")
     ) {
       fulfillmentTypeOrderRequest(4);
     }
@@ -467,8 +440,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment
-        .delivery_service_provider_type === "pick_at_store"
+      props.OrderDetail?.fulfillments[0].shipment.delivery_service_provider_type ===
+        "pick_at_store"
     ) {
       let money = props.OrderDetail.total;
       props.OrderDetail?.payments?.forEach((p) => {
@@ -479,12 +452,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment
-        .shipping_fee_informed_to_customer
+      props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
     ) {
       return (
-        props.OrderDetail?.fulfillments[0].shipment
-          .shipping_fee_informed_to_customer +
+        props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
         props.OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
@@ -590,10 +561,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
     if (props.OrderDetail != null) {
       FulFillmentRequest.order_id = props.OrderDetail.id;
-      if (
-        props.OrderDetail.fulfillments &&
-        props.OrderDetail.fulfillments.length !== 0
-      ) {
+      if (props.OrderDetail.fulfillments && props.OrderDetail.fulfillments.length !== 0) {
         FulFillmentRequest.id = props.OrderDetail.fulfillments[0].id;
       }
     }
@@ -620,8 +588,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
-      FulFillmentRequest.shipping_fee_informed_to_customer =
-        shippingFeeInformedCustomer;
+      FulFillmentRequest.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
     }
     if (shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.total =
@@ -629,8 +596,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         props.OrderDetail?.total_line_amount_after_line_discount +
           shippingFeeInformedCustomer;
     } else {
-      FulFillmentRequest.total =
-        props.OrderDetail?.total_line_amount_after_line_discount;
+      FulFillmentRequest.total = props.OrderDetail?.total_line_amount_after_line_discount;
     }
 
     let UpdateLineFulFillment: UpdateLineFulFillment = {
@@ -638,21 +604,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       fulfillment: FulFillmentRequest,
       action: OrderStatus.FINALIZED,
     };
-    if (
-      shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-      !serviceType
-    ) {
+    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
       showError("Vui lòng chọn đơn vị vận chuyển");
     } else {
       setUpdateShipment(true);
       (async () => {
         try {
           await dispatch(
-            UpdateShipmentAction(
-              UpdateLineFulFillment,
-              onUpdateSuccess,
-              onError
-            )
+            UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess, onError)
           );
         } catch {}
       })();
@@ -707,9 +666,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     ) {
       let requirement =
         props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
-      const reqObj = shipping_requirements?.find(
-        (r) => r.value === requirement
-      );
+      const reqObj = shipping_requirements?.find((r) => r.value === requirement);
       setRequirementNameView(reqObj ? reqObj?.name : "");
     }
   }, [props.OrderDetail, shipping_requirements]);
@@ -728,9 +685,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         shippingFeeInformedCustomer -
         props.totalPaid! -
         (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
-        (props.OrderDetail?.total_discount
-          ? props.OrderDetail?.total_discount
-          : 0)
+        (props.OrderDetail?.total_discount ? props.OrderDetail?.total_discount : 0)
       );
     } else if (props.OrderDetail?.total_line_amount_after_line_discount) {
       return (
@@ -781,12 +736,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment
-        .shipping_fee_informed_to_customer
+      props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
     ) {
       return (
-        props.OrderDetail?.fulfillments[0].shipment
-          .shipping_fee_informed_to_customer +
+        props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
         props.OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (props.OrderDetail?.discounts &&
@@ -815,9 +768,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [isvibleCancelandGetGoodsBack, setIsvibleCancelandGetGoodsBack] =
     useState<boolean>(false);
   const [isvibleGoodsReturn, setIsvibleGoodsReturn] = useState<boolean>(false);
-  const [fullfilmentIdGoodReturn, setFullfilmentIdGoodReturn] = useState<
-    number | null
-  >(null);
+  const [fullfilmentIdGoodReturn, setFullfilmentIdGoodReturn] = useState<number | null>(
+    null
+  );
 
   const cancelFullfilment = useCallback(() => {
     if (
@@ -882,17 +835,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         from_district_id: props.storeDetail?.district_id,
         from_district: props.storeDetail?.district_name,
         from_ward_id: props.storeDetail?.ward_id,
-        to_country_id: getShippingAddressDefault(props.customerDetail)
-          ?.country_id,
+        to_country_id: getShippingAddressDefault(props.customerDetail)?.country_id,
         to_city_id: getShippingAddressDefault(props.customerDetail)?.city_id,
         to_city: getShippingAddressDefault(props.customerDetail)?.city,
-        to_district_id: getShippingAddressDefault(props.customerDetail)
-          ?.district_id,
+        to_district_id: getShippingAddressDefault(props.customerDetail)?.district_id,
         to_district: getShippingAddressDefault(props.customerDetail)?.district,
         to_ward_id: getShippingAddressDefault(props.customerDetail)?.ward_id,
         from_address: props.storeDetail?.address,
-        to_address: getShippingAddressDefault(props.customerDetail)
-          ?.full_address,
+        to_address: getShippingAddressDefault(props.customerDetail)?.full_address,
         price: OrderDetail?.total_line_amount_after_line_discount,
         quantity: 1,
         weight: SumWeight(OrderDetail?.items),
@@ -927,7 +877,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   return (
     <div>
       <Card
-        className="margin-top-20 orders-update-shipment "
+        className="orders-update-shipment "
         title={
           <Space>
             <div className="d-flex">
@@ -935,8 +885,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
-              props.OrderDetail?.fulfillments[0].status ===
-                FulFillmentStatus.SHIPPED && (
+              props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.SHIPPED && (
                 <Tag
                   className="orders-tag text-menu"
                   style={{
@@ -953,19 +902,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           <Space size={26}>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
-              props.OrderDetail?.fulfillments[0].shipment
-                ?.expected_received_date && (
+              props.OrderDetail?.fulfillments[0].shipment?.expected_received_date && (
                 <div className="text-menu">
-                  <img
-                    src={calendarOutlined}
-                    style={{ marginRight: 9.5 }}
-                    alt=""
-                  ></img>
+                  <img src={calendarOutlined} style={{ marginRight: 9.5 }} alt=""></img>
                   <span style={{ color: "#222222", lineHeight: "16px" }}>
                     {props.OrderDetail?.fulfillments &&
                     props.OrderDetail?.fulfillments.length > 0 &&
-                    props.OrderDetail?.fulfillments[0].shipment
-                      ?.expected_received_date
+                    props.OrderDetail?.fulfillments[0].shipment?.expected_received_date
                       ? moment(
                           props.OrderDetail?.fulfillments[0].shipment
                             ?.expected_received_date
@@ -974,8 +917,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </span>
                   {props.OrderDetail?.fulfillments &&
                     props.OrderDetail?.fulfillments.length > 0 &&
-                    props.OrderDetail?.fulfillments[0].shipment
-                      ?.office_time && (
+                    props.OrderDetail?.fulfillments[0].shipment?.office_time && (
                       <span
                         style={{
                           marginLeft: 6,
@@ -1004,16 +946,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           props.OrderDetailAllFullfilment?.fulfillments.map(
             (fulfillment) =>
               fulfillment.shipment && (
-                <div
-                  key={fulfillment.id}
-                  style={{ paddingTop: 6, paddingBottom: 4 }}
-                >
+                <div key={fulfillment.id} style={{ paddingTop: 6, paddingBottom: 4 }}>
                   <Collapse
                     className="saleorder_shipment_order_colapse payment_success"
                     defaultActiveKey={[
-                      fulfillment.status !== FulFillmentStatus.RETURNED
-                        ? "1"
-                        : "",
+                      fulfillment.status !== FulFillmentStatus.RETURNED ? "1" : "",
                     ]}
                     onChange={(e) => console.log(e[0])}
                     expandIcon={({ isActive }) => (
@@ -1022,9 +959,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           alt=""
                           src={doubleArrow}
                           style={{
-                            transform: `${
-                              !isActive ? "rotate(270deg)" : "rotate(0deg)"
-                            }`,
+                            transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"}`,
                           }}
                         />
                       </div>
@@ -1065,9 +1000,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               }}
                             >
                               <img
-                                onClick={(e) =>
-                                  copyOrderID(e, fulfillment.code)
-                                }
+                                onClick={(e) => copyOrderID(e, fulfillment.code)}
                                 src={copyFileBtn}
                                 alt=""
                                 style={{ width: 23 }}
@@ -1082,15 +1015,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           </div>
 
                           <div className="saleorder-header-content__date">
-                            <span
-                              style={{ color: "#000000d9", marginRight: 6 }}
-                            >
+                            <span style={{ color: "#000000d9", marginRight: 6 }}>
                               Ngày tạo:
                             </span>
                             <span style={{ color: "#000000d9" }}>
-                              {moment(
-                                fulfillment.shipment?.created_date
-                              ).format("DD/MM/YYYY")}
+                              {moment(fulfillment.shipment?.created_date).format(
+                                "DD/MM/YYYY"
+                              )}
                             </span>
                           </div>
                         </div>
@@ -1156,28 +1087,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             <Col span={24}>
                               <b>
                                 {/* Lấy ra đối tác */}
-                                {fulfillment.shipment
-                                  ?.delivery_service_provider_type ===
+                                {fulfillment.shipment?.delivery_service_provider_type ===
                                   "external_service" && (
                                   <img
                                     style={{ width: "112px", height: 25 }}
                                     src={InfoServiceDeliveryDetail(
                                       delivery_service,
-                                      fulfillment.shipment
-                                        .delivery_service_provider_id
+                                      fulfillment.shipment.delivery_service_provider_id
                                     )}
                                     alt=""
                                   ></img>
                                 )}
 
-                                {fulfillment.shipment
-                                  ?.delivery_service_provider_type ===
+                                {fulfillment.shipment?.delivery_service_provider_type ===
                                   "Shipper" &&
                                   shipper &&
                                   shipper.find(
-                                    (s) =>
-                                      fulfillment.shipment?.shipper_code ===
-                                      s.code
+                                    (s) => fulfillment.shipment?.shipper_code === s.code
                                   )?.full_name}
                               </b>
                             </Col>
@@ -1204,8 +1130,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <b className="text-field">
                                 {props.OrderDetail?.fulfillments &&
                                   formatCurrency(
-                                    fulfillment.shipment
-                                      ?.shipping_fee_paid_to_three_pls
+                                    fulfillment.shipment?.shipping_fee_paid_to_three_pls
                                       ? fulfillment.shipment
                                           ?.shipping_fee_paid_to_three_pls
                                       : 0
@@ -1221,8 +1146,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             <Col span={24}>
                               <b className="text-field">
                                 {formatCurrency(
-                                  fulfillment.shipment
-                                    ?.shipping_fee_informed_to_customer
+                                  fulfillment.shipment?.shipping_fee_informed_to_customer
                                     ? fulfillment.shipment
                                         ?.shipping_fee_informed_to_customer
                                     : 0
@@ -1240,13 +1164,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <Col span={24}>
                                 <b className="text-field">
                                   {props.OrderDetail?.fulfillments &&
-                                    props.OrderDetail?.fulfillments.length >
-                                      0 &&
+                                    props.OrderDetail?.fulfillments.length > 0 &&
                                     formatCurrency(
                                       props.OrderDetail.items &&
-                                        SumWeightResponse(
-                                          props.OrderDetail.items
-                                        )
+                                        SumWeightResponse(props.OrderDetail.items)
                                     )}
                                   g
                                 </b>
@@ -1279,16 +1200,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             key="1"
                           >
                             {props.OrderDetail?.items.map((item, index) => (
-                              <div
-                                className="orders-shipment-item-view"
-                                key={index}
-                              >
+                              <div className="orders-shipment-item-view" key={index}>
                                 <div className="orders-shipment-item-view-wrap">
                                   <div className="orders-shipment-item-name">
                                     <div>
-                                      <Link style={{ color: "#2A2A86" }}>
-                                        {item.sku}
-                                      </Link>
+                                      <Link style={{ color: "#2A2A86" }}>{item.sku}</Link>
                                     </div>
                                     <Badge
                                       status="default"
@@ -1320,8 +1236,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           </Panel>
                         </Collapse>
                       </Row>
-                      {CheckShipmentType(props.OrderDetail!) ===
-                        "external_service" &&
+                      {CheckShipmentType(props.OrderDetail!) === "external_service" &&
                         fulfillment.status !== FulFillmentStatus.CANCELLED &&
                         fulfillment.status !== FulFillmentStatus.RETURNING &&
                         fulfillment.status !== FulFillmentStatus.RETURNED && (
@@ -1406,42 +1321,38 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                     ghost
                                     defaultActiveKey={["0"]}
                                   >
-                                    {trackingLogFulfillment?.map(
-                                      (item, index) => (
-                                        <Panel
-                                          className="orders-timeline-custom orders-dot-status"
-                                          header={
-                                            <div>
-                                              <b
-                                                style={{
-                                                  paddingLeft: "14px",
-                                                  color: "#222222",
-                                                }}
-                                              >
-                                                {item.message}
-                                              </b>
-                                              <i
-                                                className="icon-dot"
-                                                style={{
-                                                  fontSize: "4px",
-                                                  margin: "16px 10px 10px 10px",
-                                                  color: "#737373",
-                                                }}
-                                              ></i>{" "}
-                                              <span
-                                                style={{ color: "#737373" }}
-                                              >
-                                                {moment(
-                                                  item.created_date
-                                                ).format("DD/MM/YYYY HH:mm")}
-                                              </span>
-                                            </div>
-                                          }
-                                          key={index}
-                                          showArrow={false}
-                                        ></Panel>
-                                      )
-                                    )}
+                                    {trackingLogFulfillment?.map((item, index) => (
+                                      <Panel
+                                        className="orders-timeline-custom orders-dot-status"
+                                        header={
+                                          <div>
+                                            <b
+                                              style={{
+                                                paddingLeft: "14px",
+                                                color: "#222222",
+                                              }}
+                                            >
+                                              {item.message}
+                                            </b>
+                                            <i
+                                              className="icon-dot"
+                                              style={{
+                                                fontSize: "4px",
+                                                margin: "16px 10px 10px 10px",
+                                                color: "#737373",
+                                              }}
+                                            ></i>{" "}
+                                            <span style={{ color: "#737373" }}>
+                                              {moment(item.created_date).format(
+                                                "DD/MM/YYYY HH:mm"
+                                              )}
+                                            </span>
+                                          </div>
+                                        }
+                                        key={index}
+                                        showArrow={false}
+                                      ></Panel>
+                                    ))}
                                   </Collapse>
                                 </Panel>
                               </Collapse>
@@ -1464,8 +1375,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             FulFillmentStatus.SHIPPING && (
                             <div
                               className={
-                                fulfillment.status ===
-                                FulFillmentStatus.RETURNED
+                                fulfillment.status === FulFillmentStatus.RETURNED
                                   ? "saleorder-steps-two saleorder-steps dot-active hide-steps-two-line"
                                   : "saleorder-steps-two saleorder-steps dot-active"
                               }
@@ -1491,14 +1401,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           )}
                           {fulfillment.status_before_cancellation ===
                             FulFillmentStatus.SHIPPING &&
-                            fulfillment.status ===
-                              FulFillmentStatus.RETURNED && (
+                            fulfillment.status === FulFillmentStatus.RETURNED && (
                               <div className="saleorder-steps-three saleorder-steps dot-active">
                                 <span>Ngày nhận lại</span>
                                 <span>
-                                  {moment(
-                                    fulfillment?.receive_cancellation_on
-                                  ).format("DD/MM/YYYY HH:mm")}
+                                  {moment(fulfillment?.receive_cancellation_on).format(
+                                    "DD/MM/YYYY HH:mm"
+                                  )}
                                 </span>
                               </div>
                             )}
@@ -1600,8 +1509,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment &&
-            props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type !== "pick_at_store" && (
+            props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !==
+              "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1618,8 +1527,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === OrderStatus.FINALIZED &&
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
-            props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type === "pick_at_store" && (
+            props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type ===
+              "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px" }}
@@ -1647,8 +1556,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.PACKED &&
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
-            props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type !== "pick_at_store" && (
+            props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !==
+              "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1676,8 +1585,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.PACKED &&
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
-            props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type === "pick_at_store" && (
+            props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type ===
+              "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1710,7 +1619,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 loading={updateShipment}
                 disabled={
                   props.stepsStatusValue === OrderStatus.CANCELLED ||
-                  props.stepsStatusValue === FulFillmentStatus.SHIPPED || cancelShipment
+                  props.stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                  cancelShipment
                 }
               >
                 Giao hàng
@@ -1728,9 +1638,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 );
                 element?.focus();
                 const y =
-                  element?.getBoundingClientRect()?.top +
-                  window.pageYOffset +
-                  -250;
+                  element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
                 window.scrollTo({ top: y, behavior: "smooth" });
               }}
               onFinish={onFinishUpdateFulFillment}
@@ -1753,9 +1661,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       style={{ width: "100%" }}
                       className="r-5 w-100 ip-search"
                       placeholder="dd/mm/yyyy"
-                      disabledDate={(current: any) =>
-                        moment().add(-1, "days") >= current
-                      }
+                      disabledDate={(current: any) => moment().add(-1, "days") >= current}
                     />
                   </Form.Item>
                 </Col>
@@ -1793,9 +1699,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       filterOption={(input, option) => {
                         if (option) {
                           return (
-                            option.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
+                            option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                            0
                           );
                         }
                         return false;
@@ -1837,8 +1742,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         ) : (
                           <div
                             className={
-                              shipmentMethod ===
-                              ShipmentMethodOption.DELIVER_LATER
+                              shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                                 ? "saleorder_shipment_button saleorder_shipment_button_border"
                                 : "saleorder_shipment_button_active"
                             }
@@ -1862,9 +1766,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       changeServiceType={changeServiceType}
                       discountValue={OrderDetail?.total_discount}
                       infoFees={infoFees}
-                      setShippingFeeInformedCustomer={
-                        changeShippingFeeInformedCustomer
-                      }
+                      setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
                       shippingFeeCustomer={shippingFeeInformedCustomer}
                       OrderDetail={OrderDetail}
                       payments={OrderDetail?.payments}
@@ -1874,10 +1776,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     />
                   )}
 
-                  <Col
-                    md={24}
-                    style={{ margin: "20px 0", padding: "20px 0 25px 0" }}
-                  >
+                  <Col md={24} style={{ margin: "20px 0", padding: "20px 0 25px 0" }}>
                     <div>
                       <Button
                         type="primary"
@@ -2010,9 +1909,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           }}
                           maxLength={15}
                           minLength={0}
-                          onChange={(e: any) =>
-                            changeShippingFeeInformedCustomer(e)
-                          }
+                          onChange={(e: any) => changeShippingFeeInformedCustomer(e)}
                         />
                       </Form.Item>
                     </Col>
@@ -2049,12 +1946,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
                 <div className="receive-at-store">
                   <b>
-                    <img
-                      style={{ marginRight: 12 }}
-                      src={storeBluecon}
-                      alt=""
-                    />{" "}
-                    THÔNG TIN CỬA HÀNG
+                    <img style={{ marginRight: 12 }} src={storeBluecon} alt="" /> THÔNG
+                    TIN CỬA HÀNG
                   </b>
 
                   <Row style={{ paddingTop: "19px" }}>
@@ -2071,17 +1964,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     <Col md={3} lg={2}>
                       <div>Số điện thoại:</div>
                     </Col>
-                    <b className="row-info-content">
-                      {props.storeDetail?.hotline}
-                    </b>
+                    <b className="row-info-content">{props.storeDetail?.hotline}</b>
                   </Row>
                   <Row className="row-info padding-top-10">
                     <Col md={3} lg={2}>
                       <div>Địa chỉ:</div>
                     </Col>
-                    <b className="row-info-content">
-                      {props.storeDetail?.address}
-                    </b>
+                    <b className="row-info-content">{props.storeDetail?.address}</b>
                   </Row>
                   <Row>
                     <Col md={24}>
@@ -2131,8 +2020,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title=""
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " +
-              formatCurrency(confirmExportAndFinishValue()!)
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } không?`}
       />
