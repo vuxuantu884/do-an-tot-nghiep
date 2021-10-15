@@ -4,10 +4,8 @@ import {
   CloseOutlined,
   DownOutlined,
   EnvironmentOutlined,
-  IdcardOutlined,
   LoadingOutlined,
   MailOutlined,
-  PlusOutlined,
   SearchOutlined,
   UpOutlined,
 } from "@ant-design/icons";
@@ -30,10 +28,7 @@ import {
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import noteCustomer from "assets/img/note-customer.svg";
 import pointIcon from "assets/img/point.svg";
-import addressIcon from "assets/img/user-pin.svg";
 import CustomSelect from "component/custom/select.custom";
 import {
   DistrictGetByCountryAction,
@@ -524,7 +519,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     >
       {customer === null && isVisibleCustomer !== true && (
-        <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
+        <div>
           <div>
             <AutoComplete
               notFoundContent={
@@ -576,7 +571,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             <Row
               align="middle"
               justify="space-between"
-              className="row-customer-detail padding-custom"
+              className="row-customer-detail"
             >
               <Space>
                 <Avatar size={32}>A</Avatar>
@@ -621,8 +616,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              {customer?.birthday !== null && (
-                <Space className="customer-detail-birthday">
+<Space className="customer-detail-birthday">
                   <span className="customer-detail-icon">
                     <img
                       src={birthdayIcon}
@@ -631,10 +625,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     />
                   </span>
                   <span className="customer-detail-text">
-                    {customerBirthday}
+                    {customer?.birthday !== null ? customerBirthday : "Không xác định"}
                   </span>
                 </Space>
-              )}
 
               <Space className="customer-detail-action">
                 <CloseOutlined
@@ -651,7 +644,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         )}
       </div>
       {(isVisibleCustomer === true || customer !== null) && (
-        <div className="padding-lef-right">
+        <div>
           <div>
             {isVisibleCustomer === true && (
               <div>
