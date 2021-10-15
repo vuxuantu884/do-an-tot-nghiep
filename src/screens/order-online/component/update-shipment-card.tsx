@@ -961,7 +961,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           props.OrderDetailAllFullfilment?.fulfillments.map(
             (fulfillment) =>
               fulfillment.shipment && (
-                <div key={fulfillment.id} style={{ paddingTop: 6, paddingBottom: 4 }}>
+                <div key={fulfillment.id} style={{ paddingTop: 0, paddingBottom: 20 }}>
                   <Collapse
                     className="saleorder_shipment_order_colapse payment_success"
                     defaultActiveKey={[
@@ -1463,7 +1463,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            margin: "14px 25px 19px 0",
           }}
         >
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
@@ -1737,7 +1736,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </Row>
               <Row>
                 <div
-                  className="saleorder_shipment_method_btn"
+                  className="saleorder_shipment_method_btn 1"
                   style={
                     shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                       ? { border: "none" }

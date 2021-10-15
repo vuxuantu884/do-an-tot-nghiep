@@ -1,41 +1,23 @@
 import { Col, Form, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { AccountResponse } from "model/account/account.model";
-import React from "react";
+import React, { useContext } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  amount: number;
   shipper: AccountResponse[] | null;
-  paymentMethod: number;
-  shippingFeeCustomer: number | null;
-  discountValue: number | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
-  totalAmountReturnProducts?: number;
   levelOrder?: number;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
-  const {
-    amount,
-    shipper,
-    // paymentMethod,
-    shippingFeeCustomer,
-    discountValue,
-    totalAmountReturnProducts,
-    setShippingFeeInformedCustomer,
-    levelOrder = 0,
-  } = props;
+  const { shipper, setShippingFeeInformedCustomer, levelOrder = 0 } = props;
 
-  const totalAmountCustomerNeedToPayShipper = () => {
-    return (
-      amount +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      (discountValue ? discountValue : 0) -
-      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
-    );
-  };
+  const createOrderContextData = useContext(OrderCreateContext);
+  const totalAmountCustomerNeedToPayShipper =
+    createOrderContextData?.price.totalAmountCustomerNeedToPay;
 
   return (
     <StyledComponent>
@@ -61,9 +43,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 filterOption={(input, option) => {
                   if (option) {
                     return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     );
                   }
                   return false;
@@ -83,14 +63,15 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
 
             {/* {paymentMethod === PaymentMethodOption.COD && ( */}
-            <Form.Item label="Tiền thu hộ">
+            <Form.Item label="Tiền thu hộ 2">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPayShipper() > 0
-                    ? totalAmountCustomerNeedToPayShipper()
+                  totalAmountCustomerNeedToPayShipper &&
+                  totalAmountCustomerNeedToPayShipper > 0
+                    ? totalAmountCustomerNeedToPayShipper
                     : 0
                 }
                 style={{
