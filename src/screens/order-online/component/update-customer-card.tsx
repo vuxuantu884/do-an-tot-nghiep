@@ -112,7 +112,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         <Row
           align="middle"
           justify="space-between"
-          className="row-customer-detail padding-custom"
+          className="row-customer-detail"
         >
           <Space>
             <Avatar size={32}>A</Avatar>
@@ -140,24 +140,24 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               <img src={pointIcon} alt="" />
             </span>
             <span className="customer-detail-text">
-              Tổng điểm{" "}
+              Tổng điểm: 
               <Typography.Text
                 type="success"
-                style={{ color: "#0080FF" }}
+                style={{ color: "#FCAF17", marginLeft: "5px" }}
                 strong
               >
                 {loyaltyPoint?.point === undefined ? "0" : loyaltyPoint?.point}
               </Typography.Text>
             </span>
           </Space>
-          {props.customerDetail?.birthday !== null && (
-            <Space className="customer-detail-birthday">
+         
+
+<Space className="customer-detail-birthday">
               <span className="customer-detail-icon">
                 <img src={bithdayIcon} alt="" />
               </span>
-              <span className="customer-detail-text">{customerBirthday}</span>
+              <span className="customer-detail-text">{props.customerDetail?.birthday !== null ?customerBirthday:"Không xác định"}</span>
             </Space>
-          )}
         </Row>
         <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
         <div>
