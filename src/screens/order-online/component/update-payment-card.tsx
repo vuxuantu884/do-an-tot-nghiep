@@ -24,11 +24,7 @@ import {
   PointConfig,
   ShipmentMethodOption,
 } from "utils/Constants";
-import {
-  formatCurrency,
-  formatSuffixPoint,
-  replaceFormat,
-} from "utils/AppUtils";
+import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
 import {
   UpdateFulFillmentRequest,
   UpdateOrderPaymentRequest,
@@ -60,18 +56,14 @@ type PaymentCardUpdateProps = {
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
-  const {
-    disabledActions
-  } = props
+  const { disabledActions } = props;
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-  const [paymentData, setPaymentData] = useState<
-    Array<UpdateOrderPaymentRequest>
-  >([]);
+  const [paymentData, setPaymentData] = useState<Array<UpdateOrderPaymentRequest>>([]);
 
   const orderDetailContextData = useContext(OrderDetailContext);
   const setPayments = orderDetailContextData.payment.setPayments;
@@ -96,9 +88,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const ListMaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter(
-      (item) => item.code !== PaymentMethodCode.CARD
-    );
+    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {
@@ -158,16 +148,18 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     setPayments([...paymentData]);
   };
 
-  const onUpdateSuccess = useCallback((value: OrderResponse) => {
-    showSuccess("Thanh toán thành công");
-    setCreatePayment(false);
-    console.log('onUpdateSuccess payment')
-    // window.location.reload();
-    setVisibleConfirmPayment(false);
-    setPaymentData([]);
-    props.reload && props.reload();
-    
-  }, [props]);
+  const onUpdateSuccess = useCallback(
+    (value: OrderResponse) => {
+      showSuccess("Thanh toán thành công");
+      setCreatePayment(false);
+      console.log("onUpdateSuccess payment");
+      // window.location.reload();
+      setVisibleConfirmPayment(false);
+      setPaymentData([]);
+      props.reload && props.reload();
+    },
+    [props]
+  );
 
   const onError = (error: boolean) => {
     if (error) {
@@ -257,12 +249,12 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   useEffect(() => {
     if (createPayment) {
-      console.log('createPayment createPayment payment');
-      
-      disabledActions && disabledActions('payment')
+      console.log("createPayment createPayment payment");
+
+      disabledActions && disabledActions("payment");
     } else {
-      console.log('createPayment createPayment none');
-      disabledActions && disabledActions('none')
+      console.log("createPayment createPayment none");
+      disabledActions && disabledActions("none");
     }
   }, [createPayment, disabledActions]);
 
@@ -289,10 +281,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         <Card
           className="margin-top-20 orders-update-payment"
           title={
-            <div
-              className="d-flex"
-              style={{ marginTop: "5px", border: "none" }}
-            >
+            <div className="d-flex" style={{ marginTop: "5px", border: "none" }}>
               <span className="title-card">THANH TOÁN</span>
             </div>
           }
@@ -308,43 +297,31 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 >
                   <Space size={20}>
                     <Radio value={PaymentMethodOption.COD}>COD</Radio>
-                    <Radio value={PaymentMethodOption.PREPAYMENT}>
-                      Thanh toán trước
-                    </Radio>
-                    <Radio value={PaymentMethodOption.POSTPAYMENT}>
-                      Thanh toán sau
-                    </Radio>
+                    <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
+                    <Radio value={PaymentMethodOption.POSTPAYMENT}>Thanh toán sau</Radio>
                   </Space>
                 </Radio.Group>
                 {props.paymentMethod === PaymentMethodOption.COD &&
-                  props.shipmentMethod ===
-                    ShipmentMethodOption.SELF_DELIVER && (
+                  props.shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
                     <div className="order-cod-payment-footer">
                       <span>
-                        Vui lòng chọn hình thức{" "}
-                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
-                        trị Tiền thu hộ
+                        Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
+                        thể nhập giá trị Tiền thu hộ
                       </span>
                     </div>
                   )}
                 {props.paymentMethod === PaymentMethodOption.COD &&
-                  props.shipmentMethod ===
-                    ShipmentMethodOption.DELIVER_LATER && (
+                  props.shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
                     <div className="order-cod-payment-footer">
                       <span>
-                        Vui lòng chọn hình thức{" "}
-                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
-                        trị Tiền thu hộ
+                        Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
+                        thể nhập giá trị Tiền thu hộ
                       </span>
                     </div>
                   )}
                 {props.paymentMethod === PaymentMethodOption.COD &&
-                  props.shipmentMethod ===
-                    ShipmentMethodOption.PICK_AT_STORE && (
-                    <div
-                      className="order-cod-payment-footer"
-                      style={{ height: 83 }}
-                    >
+                  props.shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
+                    <div className="order-cod-payment-footer" style={{ height: 83 }}>
                       <div>
                         <div>
                           <div>
@@ -379,9 +356,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       let icon = null;
                       switch (method.code) {
                         case PaymentMethodCode.CASH:
-                          icon = (
-                            <Cash paymentData={paymentData} method={method} />
-                          );
+                          icon = <Cash paymentData={paymentData} method={method} />;
                           break;
                         case PaymentMethodCode.CARD:
                         case PaymentMethodCode.BANK_TRANSFER:
@@ -394,16 +369,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           break;
                         case PaymentMethodCode.QR_CODE:
                           icon = (
-                            <QrcodeOutlined
-                              paymentData={paymentData}
-                              method={method}
-                            />
+                            <QrcodeOutlined paymentData={paymentData} method={method} />
                           );
                           break;
                         case PaymentMethodCode.POINT:
-                          icon = (
-                            <YdCoin paymentData={paymentData} method={method} />
-                          );
+                          icon = <YdCoin paymentData={paymentData} method={method} />;
                           break;
                         default:
                           icon = <BugOutlined />;
@@ -496,9 +466,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                   formatter={(value) =>
                                     formatSuffixPoint(value ? value : "0")
                                   }
-                                  parser={(value) =>
-                                    replaceFormat(value ? value : "0")
-                                  }
+                                  parser={(value) => replaceFormat(value ? value : "0")}
                                   min={0}
                                   max={caculateMax(props.amount, index) / 1000}
                                   onChange={(value) => {
@@ -518,10 +486,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                 <Input
                                   placeholder="Tham chiếu"
                                   onChange={(e: any) =>
-                                    handleTransferReference(
-                                      index,
-                                      e.target.value
-                                    )
+                                    handleTransferReference(index, e.target.value)
                                   }
                                 />
                               </Col>
@@ -542,18 +507,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                               value={method.amount}
                               disabled={method.code === PaymentMethodCode.POINT}
                               className="yody-payment-input hide-number-handle"
-                              formatter={(value) =>
-                                formatCurrency(value ? value : "0")
-                              }
+                              formatter={(value) => formatCurrency(value ? value : "0")}
                               placeholder="Nhập tiền mặt"
                               style={{
                                 textAlign: "right",
                                 width: "100%",
                                 borderRadius: 5,
                               }}
-                              onChange={(value) =>
-                                handleInputMoney(index, value)
-                              }
+                              onChange={(value) => handleInputMoney(index, value)}
                               onFocus={(e) => e.target.select()}
                             />
                           </Col>
@@ -758,24 +719,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     case PaymentMethodCode.CARD:
                     case PaymentMethodCode.BANK_TRANSFER:
                       icon = (
-                        <CreditCardOutlined
-                          paymentData={paymentData}
-                          method={method}
-                        />
+                        <CreditCardOutlined paymentData={paymentData} method={method} />
                       );
                       break;
                     case PaymentMethodCode.QR_CODE:
-                      icon = (
-                        <QrcodeOutlined
-                          paymentData={paymentData}
-                          method={method}
-                        />
-                      );
+                      icon = <QrcodeOutlined paymentData={paymentData} method={method} />;
                       break;
                     case PaymentMethodCode.POINT:
-                      icon = (
-                        <YdCoin paymentData={paymentData} method={method} />
-                      );
+                      icon = <YdCoin paymentData={paymentData} method={method} />;
                       break;
                     default:
                       icon = <BugOutlined />;
@@ -828,9 +779,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     fontSize: "20px",
                   }}
                 >
-                  <span className="t-result-blue">
-                    {formatCurrency(props.amount)}
-                  </span>
+                  <span className="t-result-blue">{formatCurrency(props.amount)}</span>
                 </Col>
               </Row>
 
@@ -868,9 +817,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                               formatter={(value) =>
                                 formatSuffixPoint(value ? value : "0")
                               }
-                              parser={(value) =>
-                                replaceFormat(value ? value : "0")
-                              }
+                              parser={(value) => replaceFormat(value ? value : "0")}
                               min={0}
                               max={caculateMax(props.amount, index) / 1000}
                               onChange={(value) => {
@@ -911,9 +858,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           value={method.amount}
                           disabled={method.code === PaymentMethodCode.POINT}
                           className="yody-payment-input hide-number-handle"
-                          formatter={(value) =>
-                            formatCurrency(value ? value : "0")
-                          }
+                          formatter={(value) => formatCurrency(value ? value : "0")}
                           placeholder="Nhập tiền mặt"
                           style={{
                             textAlign: "right",

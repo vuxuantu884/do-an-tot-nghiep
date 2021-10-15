@@ -1,15 +1,4 @@
-import {
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Divider,
-  Form,
-  Modal,
-  Row,
-  Space,
-  Tag,
-} from "antd";
+import { Button, Card, Col, Collapse, Divider, Form, Modal, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -17,10 +6,7 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import {
-  getLoyaltyPoint,
-  getLoyaltyUsage,
-} from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
@@ -40,18 +26,9 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import {
-  OrderResponse,
-  StoreCustomResponse,
-} from "model/response/order/order.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
@@ -61,11 +38,7 @@ import {
   getAmountPayment,
   SumCOD,
 } from "utils/AppUtils";
-import {
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-} from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, PaymentMethodCode } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -96,9 +69,7 @@ const OrderDetail = (props: PropType) => {
   }
   let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -115,9 +86,7 @@ const OrderDetail = (props: PropType) => {
   const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
     useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
-    null
-  );
+  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
   // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
@@ -133,8 +102,7 @@ const OrderDetail = (props: PropType) => {
   //   useState<number>(0);
   const [totalAmountReturnProducts] = useState<number>(0);
   // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
-  const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
-    useState(false);
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -143,8 +111,7 @@ const OrderDetail = (props: PropType) => {
   >([]);
 
   // xác nhận đơn
-  const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] =
-    useState(false);
+  const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusId, setSubStatusId] = useState<number | undefined>(undefined);
 
   const onPaymentSelect = (paymentType: number) => {
@@ -200,9 +167,7 @@ const OrderDetail = (props: PropType) => {
       };
       // console.log("request", request);
       if (OrderDetail?.id) {
-        dispatch(
-          UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess)
-        );
+        dispatch(UpdatePaymentAction(request, OrderDetail?.id, onUpdateSuccess));
       }
     });
   };
@@ -215,8 +180,7 @@ const OrderDetail = (props: PropType) => {
       setShippingFeeInformedCustomer(value);
     }
   };
-  const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] =
-    useState(false);
+  const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
@@ -230,10 +194,7 @@ const OrderDetail = (props: PropType) => {
       return FulFillmentStatus.SHIPPED;
     }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
-      if (
-        OrderDetail.fulfillments === undefined ||
-        OrderDetail.fulfillments === null
-      ) {
+      if (OrderDetail.fulfillments === undefined || OrderDetail.fulfillments === null) {
         return OrderStatus.FINALIZED;
       } else {
         if (
@@ -241,9 +202,7 @@ const OrderDetail = (props: PropType) => {
           OrderDetail.fulfillments !== null &&
           OrderDetail.fulfillments.length > 0
         ) {
-          if (
-            OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
-          ) {
+          if (OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED) {
             return OrderStatus.FINALIZED;
           }
           if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
@@ -252,14 +211,10 @@ const OrderDetail = (props: PropType) => {
           if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
             return FulFillmentStatus.PACKED;
           }
-          if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING
-          ) {
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING) {
             return FulFillmentStatus.SHIPPING;
           }
-          if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED
-          ) {
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED) {
             return FulFillmentStatus.SHIPPED;
           }
         }
@@ -283,27 +238,21 @@ const OrderDetail = (props: PropType) => {
     setIsReceivedReturnProducts(true);
     if (OrderDetail?.order_return_origin?.id) {
       dispatch(
-        actionSetIsReceivedOrderReturn(
-          OrderDetail?.order_return_origin?.id,
-          () => {
-            dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
-          }
-        )
+        actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
+          dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
+        })
       );
     }
   };
 
   let stepsStatusValue = stepsStatus();
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      // setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    // setAccounts(data.items);
+  }, []);
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -318,9 +267,7 @@ const OrderDetail = (props: PropType) => {
       );
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
-      setIsReceivedReturnProducts(
-        _data.order_return_origin?.received ? true : false
-      );
+      setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
       if (_data.sub_status_id) {
         setSubStatusId(_data.sub_status_id);
       }
@@ -352,13 +299,13 @@ const OrderDetail = (props: PropType) => {
             content: (
               <div>
                 <p>
-                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>?
-                  Thao tác này không thể khôi phục và tác động:
+                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>? Thao tác này
+                  không thể khôi phục và tác động:
                 </p>
                 <p>- Thay đổi thông số kho các sản phẩm trong đơn hàng</p>
                 <p>
-                  - Huỷ các chứng từ liên quan: vận đơn, phiếu thu thanh toán
-                  đơn hàng, phiếu thu đặt cọc shipper
+                  - Huỷ các chứng từ liên quan: vận đơn, phiếu thu thanh toán đơn hàng,
+                  phiếu thu đặt cọc shipper
                 </p>
                 <p>- Cập nhật công nợ khách hàng, công nợ đối tác vận chuyển</p>
                 <p>- Cập nhật lịch sử khuyến mãi, lịch sử tích điểm</p>
@@ -404,10 +351,7 @@ const OrderDetail = (props: PropType) => {
     (type) => {
       switch (type) {
         case "cancel":
-          if (
-            OrderDetail?.fulfillments &&
-            OrderDetail?.fulfillments[0]?.export_on
-          ) {
+          if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
             cancelModal(1);
           } else {
             cancelModal(2);
@@ -454,22 +398,22 @@ const OrderDetail = (props: PropType) => {
 
   const disabledActions = useCallback(
     (type: string) => {
-      console.log('disabledActions', type);
-      console.log('setShowPaymentPartialPayment', isShowPaymentPartialPayment);
+      console.log("disabledActions", type);
+      console.log("setShowPaymentPartialPayment", isShowPaymentPartialPayment);
       switch (type) {
         case "shipment":
           setShowPaymentPartialPayment(false);
-          setDisabledBottomActions(true)
-          break
+          setDisabledBottomActions(true);
+          break;
         case "payment":
           setVisibleShipping(false);
-          setDisabledBottomActions(true)
-          break
+          setDisabledBottomActions(true);
+          break;
         case "none":
-          
-          setDisabledBottomActions(false)
-          break
-        default: break
+          setDisabledBottomActions(false);
+          break;
+        default:
+          break;
       }
     },
     [isShowPaymentPartialPayment]
@@ -487,7 +431,7 @@ const OrderDetail = (props: PropType) => {
     setReload(false);
     setVisibleShipping(false);
     setShowPaymentPartialPayment(false);
-    setPaymentType(2)
+    setPaymentType(2);
   }, [dispatch, OrderId, onGetDetailSuccess, reload, OrderDetail]);
 
   useLayoutEffect(() => {
@@ -531,8 +475,7 @@ const OrderDetail = (props: PropType) => {
       OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
     ) {
       return (
-        OrderDetail?.fulfillments[0].shipment
-          .shipping_fee_informed_to_customer +
+        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
@@ -565,9 +508,7 @@ const OrderDetail = (props: PropType) => {
   }, []);
 
   const initialFormValue = {
-    returnMoneyField: [
-      { returnMoneyMethod: undefined, returnMoneyNote: undefined },
-    ],
+    returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
   };
 
   useEffect(() => {
@@ -580,9 +521,7 @@ const OrderDetail = (props: PropType) => {
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
-        let result = response.filter(
-          (single) => single.code !== PaymentMethodCode.CARD
-        );
+        let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
       })
     );
@@ -705,20 +644,15 @@ const OrderDetail = (props: PropType) => {
                           <b>
                             {(OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].status ===
-                                "shipped" &&
+                              OrderDetail?.fulfillments[0].status === "shipped" &&
                               formatCurrency(customerNeedToPayValue)) ||
-                              formatCurrency(
-                                getAmountPayment(OrderDetail.payments)
-                              )}
+                              formatCurrency(getAmountPayment(OrderDetail.payments))}
                           </b>
                         </Col>
                         <Col span={12}>
                           <span className="text-field margin-right-40">
                             {customerNeedToPayValue -
-                              (OrderDetail?.total_paid
-                                ? OrderDetail?.total_paid
-                                : 0) >=
+                              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
                             0
                               ? `Còn phải trả:`
                               : `Hoàn tiền cho khách:`}
@@ -761,8 +695,7 @@ const OrderDetail = (props: PropType) => {
                                       return true;
                                     }
                                     return (
-                                      payment.payment_method !== "cod" &&
-                                      payment.amount
+                                      payment.payment_method !== "cod" && payment.amount
                                     );
                                   })
                                   .map((payment: any, index: number) => (
@@ -781,11 +714,8 @@ const OrderDetail = (props: PropType) => {
                                                   : payment.payment_method}
                                               </b>
                                               <span>{payment.reference}</span>
-                                              {payment.payment_method_id ===
-                                                5 && (
-                                                <span
-                                                  style={{ marginLeft: 10 }}
-                                                >
+                                              {payment.payment_method_id === 5 && (
+                                                <span style={{ marginLeft: 10 }}>
                                                   {payment.amount / 1000} điểm
                                                 </span>
                                               )}
@@ -811,77 +741,63 @@ const OrderDetail = (props: PropType) => {
                                   ))}
                               </>
                             )}
-                            {isShowPaymentPartialPayment &&
-                              OrderDetail !== null && (
-                                <Panel
-                                  className="orders-timeline-custom orders-dot-status"
-                                  showArrow={false}
-                                  header={
-                                    <b
-                                      style={{
-                                        paddingLeft: "14px",
-                                        color: "#222222",
-                                        textTransform: "uppercase",
-                                      }}
-                                    >
-                                      Lựa chọn 1 hoặc nhiều phương thức thanh
-                                      toán
-                                    </b>
-                                  }
-                                  key="100"
-                                >
-                                  {isShowPaymentPartialPayment &&
-                                    OrderDetail !== null && (
-                                      <UpdatePaymentCard
-                                        setSelectedPaymentMethod={
-                                          onPaymentSelect
-                                        }
-                                        setVisibleUpdatePayment={
-                                          setVisibleUpdatePayment
-                                        }
-                                        setPayments={onPayments}
-                                        setTotalPaid={setTotalPaid}
-                                        orderDetail={OrderDetail}
-                                        paymentMethod={paymentType}
-                                        shipmentMethod={shipmentMethod}
-                                        order_id={OrderDetail.id}
-                                        showPartialPayment={true}
-                                        isVisibleUpdatePayment={
-                                          isVisibleUpdatePayment
-                                        }
-                                        amount={
-                                          OrderDetail.total_line_amount_after_line_discount -
-                                          getAmountPayment(
-                                            OrderDetail.payments
-                                          ) -
-                                          (OrderDetail?.discounts &&
-                                          OrderDetail?.discounts.length > 0 &&
-                                          OrderDetail?.discounts[0].amount
-                                            ? OrderDetail?.discounts[0].amount
-                                            : 0)
-                                        }
-                                        disabled={
-                                          stepsStatusValue ===
-                                            OrderStatus.CANCELLED ||
-                                          stepsStatusValue ===
-                                            FulFillmentStatus.SHIPPED
-                                        }
-                                        reload={() => {
-                                          setReload(true);
-                                        }}
-                                        disabledActions={disabledActions}
-                                      />
-                                    )}
-                                </Panel>
-                              )}
+                            {isShowPaymentPartialPayment && OrderDetail !== null && (
+                              <Panel
+                                className="orders-timeline-custom orders-dot-status"
+                                showArrow={false}
+                                header={
+                                  <b
+                                    style={{
+                                      paddingLeft: "14px",
+                                      color: "#222222",
+                                      textTransform: "uppercase",
+                                    }}
+                                  >
+                                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                                  </b>
+                                }
+                                key="100"
+                              >
+                                {isShowPaymentPartialPayment && OrderDetail !== null && (
+                                  <UpdatePaymentCard
+                                    setSelectedPaymentMethod={onPaymentSelect}
+                                    setVisibleUpdatePayment={setVisibleUpdatePayment}
+                                    setPayments={onPayments}
+                                    setTotalPaid={setTotalPaid}
+                                    orderDetail={OrderDetail}
+                                    paymentMethod={paymentType}
+                                    shipmentMethod={shipmentMethod}
+                                    order_id={OrderDetail.id}
+                                    showPartialPayment={true}
+                                    isVisibleUpdatePayment={isVisibleUpdatePayment}
+                                    amount={
+                                      OrderDetail.total_line_amount_after_line_discount -
+                                      getAmountPayment(OrderDetail.payments) -
+                                      (OrderDetail?.discounts &&
+                                      OrderDetail?.discounts.length > 0 &&
+                                      OrderDetail?.discounts[0].amount
+                                        ? OrderDetail?.discounts[0].amount
+                                        : 0)
+                                    }
+                                    disabled={
+                                      stepsStatusValue === OrderStatus.CANCELLED ||
+                                      stepsStatusValue === FulFillmentStatus.SHIPPED
+                                    }
+                                    reload={() => {
+                                      setReload(true);
+                                    }}
+                                    disabledActions={disabledActions}
+                                  />
+                                )}
+                              </Panel>
+                            )}
                             {OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
                               OrderDetail?.fulfillments[0].shipment &&
                               OrderDetail?.fulfillments[0].shipment.cod && (
                                 <Panel
                                   className={
-                                    OrderDetail?.fulfillments[0].status !==
-                                    "shipped"
+                                    OrderDetail?.fulfillments[0].status !== "shipped"
                                       ? "orders-timeline-custom orders-dot-status"
                                       : "orders-timeline-custom "
                                   }
@@ -892,8 +808,8 @@ const OrderDetail = (props: PropType) => {
                                         <div className="orderPaymentItem__left">
                                           <b>
                                             COD
-                                            {OrderDetail.fulfillments[0]
-                                              .status !== "shipped" ? (
+                                            {OrderDetail.fulfillments[0].status !==
+                                            "shipped" ? (
                                               <Tag
                                                 className="orders-tag orders-tag-warning"
                                                 style={{ marginLeft: 10 }}
@@ -918,15 +834,15 @@ const OrderDetail = (props: PropType) => {
                                             {OrderDetail !== null &&
                                             OrderDetail?.fulfillments
                                               ? formatCurrency(
-                                                  OrderDetail.fulfillments[0]
-                                                    .shipment?.cod
+                                                  OrderDetail.fulfillments[0].shipment
+                                                    ?.cod
                                                 )
                                               : 0}
                                           </span>
                                         </div>
                                         <div className="orderPaymentItem__right">
-                                          {OrderDetail?.fulfillments[0]
-                                            .status === "shipped" && (
+                                          {OrderDetail?.fulfillments[0].status ===
+                                            "shipped" && (
                                             <div>
                                               <span className="date">
                                                 {ConvertUtcToLocalDate(
@@ -967,7 +883,8 @@ const OrderDetail = (props: PropType) => {
                               style={{ marginTop: 10 }}
                               disabled={
                                 stepsStatusValue === OrderStatus.CANCELLED ||
-                                stepsStatusValue === FulFillmentStatus.SHIPPED || disabledBottomActions
+                                stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                disabledBottomActions
                               }
                             >
                               Thanh toán
@@ -983,8 +900,7 @@ const OrderDetail = (props: PropType) => {
                 OrderDetail.fulfillments.length > 0 &&
                 OrderDetail.fulfillments[0].shipment &&
                 OrderDetail.fulfillments[0].shipment?.cod ===
-                  (OrderDetail?.fulfillments[0].shipment
-                    .shipping_fee_informed_to_customer
+                  (OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
                     ? OrderDetail?.fulfillments[0].shipment
                         .shipping_fee_informed_to_customer
                     : 0) +
@@ -1081,9 +997,7 @@ const OrderDetail = (props: PropType) => {
                             {OrderDetail?.payments &&
                               OrderDetail?.payments.map((item, index) => (
                                 <Col span={12} key={item.id}>
-                                  <p className="text-field">
-                                    {item.payment_method}
-                                  </p>
+                                  <p className="text-field">{item.payment_method}</p>
                                   <p>{formatCurrency(item.paid_amount)}</p>
                                 </Col>
                               ))}
