@@ -275,7 +275,11 @@ const OrderDetail = (props: PropType) => {
       if (_data.sub_status_id) {
         setSubStatusId(_data.sub_status_id);
       }
-      if (_data.status === OrderStatus.DRAFT) {
+      if (
+        _data.status === OrderStatus.DRAFT &&
+        _data.fulfillments?.length !== 0 &&
+        _data.payments?.length !== 0
+      ) {
         setIsShowConfirmOrderButton(true);
       }
     }

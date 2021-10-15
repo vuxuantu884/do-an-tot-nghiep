@@ -1038,7 +1038,7 @@ export default function Order() {
                       setPayments={onPayments}
                       paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
-                      amount={totalAmountCustomerNeedToPay}
+                      amount={orderAmount}
                       isCloneOrder={isCloneOrder}
                       loyaltyRate={loyaltyRate}
                     />
