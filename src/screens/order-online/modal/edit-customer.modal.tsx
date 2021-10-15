@@ -34,7 +34,6 @@ import {
 } from "@ant-design/icons";
 
 import CustomerShippingAddressOrder from "../component/order-detail/CardCustomer/customer-shipping";
-import { ShippingAddress } from "model/response/order/order.response";
 
 
 type EditCustomerModalProps = {

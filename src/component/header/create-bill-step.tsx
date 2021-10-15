@@ -49,7 +49,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       default:
         return 0;
     }
-  }, [orderDetail?.sub_status_id, props.status]);
+  }, [orderDetail, props.status]);
 
   useEffect(() => {
     point();
