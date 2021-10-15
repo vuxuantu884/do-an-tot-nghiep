@@ -112,7 +112,7 @@ const setting: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.ACCOUNTS}/:id`,
+        path: `${UrlConfig.ACCOUNTS}/:code`,
         exact: true,
         title: "Chỉnh sửa người dùng",
         icon: "icon-dot",

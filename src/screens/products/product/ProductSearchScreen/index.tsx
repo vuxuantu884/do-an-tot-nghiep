@@ -1,28 +1,24 @@
 import { Button, Card, Row, Space, Tabs } from "antd";
-import UrlConfig from "config/url.config";
-import ButtonCreate from "component/header/ButtonCreate";
+import exportIcon from "assets/icon/export.svg";
+import importIcon from "assets/icon/import.svg";
 import ContentContainer from "component/container/content.container";
+import StickyUnderNavbar from "component/container/StickyUnderNavbar";
+import ButtonCreate from "component/header/ButtonCreate";
+import UrlConfig from "config/url.config";
 import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import importIcon from "assets/icon/import.svg";
-import exportIcon from "assets/icon/export.svg";
-import TabProduct from "../tab/TabProduct";
-import TabProductWrapper from "../tab/TabProductWrapper";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
-import { StickyContainer, Sticky } from "react-sticky";
-import { StyledWrapper } from "./style";
+import TabProduct from "../tab/TabProduct";
+import TabProductWrapper from "../tab/TabProductWrapper";
 const { TabPane } = Tabs;
 
 const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-  <Sticky>
-    {({ style }) => (
-      <DefaultTabBar
+  <StickyUnderNavbar>
+    <DefaultTabBar
         {...props}
-        style={{ zIndex: 1000, backgroundColor: "white", ...style }}
       />
-    )}
-  </Sticky>
+  </StickyUnderNavbar>
 );
 
 const ListProductScreen: React.FC = () => {
@@ -49,7 +45,6 @@ const ListProductScreen: React.FC = () => {
     }
   }, [history.location.hash, history.location.search]);
   return (
-    <StickyContainer>
       <ContentContainer
         title="Quản lý sản phẩm"
         breadcrumb={[
@@ -92,8 +87,7 @@ const ListProductScreen: React.FC = () => {
             </Space>
           </Row>
         }
-      >
-        <StyledWrapper>
+      >      
         <Card className="card-tab">
           <Tabs
             style={{ overflow: "initial" }}
@@ -117,9 +111,7 @@ const ListProductScreen: React.FC = () => {
             </TabPane>
           </Tabs>
         </Card>
-        </StyledWrapper>
       </ContentContainer>
-    </StickyContainer>
   );
 };
 

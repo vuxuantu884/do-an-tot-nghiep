@@ -141,11 +141,11 @@ function* AccountDeleteSaga(action: YodyAction) {
 }
 
 function* AccountGetByIdSaga(action: YodyAction) {
-  const { id, setData } = action.payload;
+  const { code, setData } = action.payload;
   try {
     let response: BaseResponse<AccountResponse> = yield call(
       AccountGetByIdService,
-      id
+      code
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

@@ -10,6 +10,7 @@ import {
   InventoryQueryField,
 } from "model/inventory/field";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import ButtonSetting from "component/table/ButtonSetting";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -87,8 +88,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     actions,
     listStore,
     onMenuClick,
-    // onClearFilter,
     onFilter,
+    openColumn
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [formBaseFilter] = Form.useForm();
@@ -176,6 +177,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               Lọc
             </Button>
           </Item>
+          <Item>
+              <ButtonSetting onClick={openColumn} />
+            </Item>
         </Form>
       </CustomFilter>
     </div>

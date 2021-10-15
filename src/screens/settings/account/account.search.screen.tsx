@@ -80,7 +80,7 @@ const ListAccountScreen: React.FC = () => {
       title: "Mã nhân viên",
       render: (value: AccountResponse) => {
         return (
-          <Link to={`${UrlConfig.ACCOUNTS}/${value.id}`}>{value.code}</Link>
+          <Link to={`${UrlConfig.ACCOUNTS}/${value.code}`}>{value.code}</Link>
         );
       },
     },
