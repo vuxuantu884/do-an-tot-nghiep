@@ -1130,67 +1130,60 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
           </div>
 
           <div className="second-line">
-            <div style={{ display: "flex" }}>
-              <CustomFilter
-                onMenuClick={onActionClick}
-                menu={actions}
-                actionDisable={tableLoading}
-                children={undefined}
-              />
+            <CustomFilter
+              onMenuClick={onActionClick}
+              menu={actions}
+              actionDisable={tableLoading}
+              children={undefined}
+            />
 
-              <Item name="id_order_ecommerce" className="id_order_ecommerce">
-                <Input
-                  disabled={tableLoading}
-                  prefix={<img src={search} alt="" />}
-                  placeholder="ID đơn hàng (sàn)"
-                  onBlur={(e) => {
-                    formSearchRef?.current?.setFieldsValue({
-                      search_term: e.target.value.trim(),
-                    });
-                  }}
-                />
-              </Item>
-
-              <Item name="search_term" className="input-search">
-                <Input
-                  disabled={tableLoading}
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
-                  onBlur={(e) => {
-                    formSearchRef?.current?.setFieldsValue({
-                      search_term: e.target.value.trim(),
-                    });
-                  }}
-                />
-              </Item>
-            </div>
-
-            <div style={{ display: "flex" }}>
-              <Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  disabled={tableLoading}
-                >
-                  Lọc
-                </Button>
-              </Item>
-
-              <Item>
-                <Button
-                  icon={<FilterOutlined />}
-                  onClick={openFilter}
-                  disabled={tableLoading}
-                >
-                  Thêm bộ lọc
-                </Button>
-              </Item>
-              <Button
-                icon={<SettingOutlined />}
-                onClick={onShowColumnSetting}
+            <Item name="id_order_ecommerce" className="id_order_ecommerce">
+              <Input
                 disabled={tableLoading}
+                prefix={<img src={search} alt="" />}
+                placeholder="ID đơn hàng (sàn)"
+                onBlur={(e) => {
+                  formSearchRef?.current?.setFieldsValue({
+                    search_term: e.target.value.trim(),
+                  });
+                }}
               />
-            </div>
+            </Item>
+
+            <Item name="search_term" className="input-search">
+              <Input
+                disabled={tableLoading}
+                prefix={<img src={search} alt="" />}
+                placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+                onBlur={(e) => {
+                  formSearchRef?.current?.setFieldsValue({
+                    search_term: e.target.value.trim(),
+                  });
+                }}
+              />
+            </Item>
+
+            <Item>
+              <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                Lọc
+              </Button>
+            </Item>
+
+            <Item>
+              <Button
+                icon={<FilterOutlined />}
+                onClick={openFilter}
+                disabled={tableLoading}
+              >
+                Thêm bộ lọc
+              </Button>
+            </Item>
+            <Button
+              className="setting-button"
+              icon={<SettingOutlined />}
+              onClick={onShowColumnSetting}
+              disabled={tableLoading}
+            />
           </div>
         </Form>
 

@@ -106,16 +106,21 @@ export const StyledComponent = styled.div`
           padding: 0;
         }
         .id_order_ecommerce {
-          width: 170px;
+          width: 26%;
+          min-width: 100px;
           margin-right: 10px;
         }
         .input-search {
-          width: 380px;
+          width: 80%;
+          min-width: 100px;
           margin-right: 10px;
         }
 
         button {
           margin-right: 10px;
+        }
+        .setting-button {
+          margin-right: 0;
         }
       }
     }
