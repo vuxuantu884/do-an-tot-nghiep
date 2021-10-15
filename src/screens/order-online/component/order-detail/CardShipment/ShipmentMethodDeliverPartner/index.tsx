@@ -163,11 +163,14 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         return result;
       };
 
-      // check tỉnh giao hàng
+      // check tỉnh giao hàng ( config -1 là tất cả tỉnh thành)
       const checkIfSameCity = (
         customerShippingAddressCityId: number,
         configShippingAddressCityId: number
       ) => {
+        if (configShippingAddressCityId === -1) {
+          return true;
+        }
         return customerShippingAddressCityId === configShippingAddressCityId;
       };
 
@@ -269,7 +272,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         )}
         <Row gutter={20}>
           <Col md={12}>
-            <Form.Item label="Tiền thu hộ: 1">
+            <Form.Item label="Tiền thu hộ:">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
@@ -287,7 +290,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách: 333"
+              label="Phí ship báo khách:"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput
@@ -302,7 +305,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             </Form.Item>
           </Col>
         </Row>
-        <div className="ant-table ant-table-bordered custom-table">
+        <div
+          className="ant-table ant-table-bordered custom-table"
+          style={{ marginTop: 20 }}
+        >
           <div className="ant-table-container">
             <div className="ant-table-content">
               <table

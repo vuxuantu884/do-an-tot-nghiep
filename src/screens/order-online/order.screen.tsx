@@ -79,6 +79,7 @@ let typeButton = "";
 export default function Order() {
   const dispatch = useDispatch();
   const history = useHistory();
+  const [isSaveDraft, setIsSaveDraft] = useState(false);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -413,6 +414,7 @@ export default function Order() {
 
   const onOkSaveAndConfirm = () => {
     typeButton = OrderStatus.DRAFT;
+    setIsSaveDraft(true);
     formRef.current?.submit();
     setIsVisibleSaveAndConfirm(false);
   };
@@ -479,7 +481,10 @@ export default function Order() {
         element?.focus();
       } else {
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-          if (values.delivery_service_provider_id === null) {
+          if (
+            values.delivery_service_provider_id === null &&
+            typeButton !== OrderStatus.DRAFT
+          ) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
             setCreating(true);
@@ -942,6 +947,9 @@ export default function Order() {
       totalAmountCustomerNeedToPay,
     },
     orderConfig: listOrderConfigs,
+    buttonSave: {
+      isSaveDraft,
+    },
   };
 
   return (

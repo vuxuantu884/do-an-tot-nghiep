@@ -31,6 +31,9 @@ type OrderCreateContextType = {
     totalAmountCustomerNeedToPay: number;
   };
   orderConfig: OrderConfigResponseModel | null;
+  buttonSave: {
+    isSaveDraft: boolean;
+  };
 };
 // tạo context
 export const OrderCreateContext = createContext<OrderCreateContextType | null>(null);
