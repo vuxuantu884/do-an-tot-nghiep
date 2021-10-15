@@ -277,8 +277,8 @@ const OrderDetail = (props: PropType) => {
       }
       if (
         _data.status === OrderStatus.DRAFT &&
-        _data.fulfillments?.length !== 0 &&
-        _data.payments?.length !== 0
+        _data.fulfillments?.length === 0 &&
+        _data.payments?.length === 0
       ) {
         setIsShowConfirmOrderButton(true);
       } else {
@@ -292,12 +292,12 @@ const OrderDetail = (props: PropType) => {
   };
 
   const onSuccessCancel = () => {
-    setReload(true)
-  }
-    
+    setReload(true);
+  };
+
   const onError = () => {
     // setReload(true)
-  }
+  };
 
   const handleCancelOrder = useCallback(
     (id: any) => {
@@ -1034,8 +1034,11 @@ const OrderDetail = (props: PropType) => {
                                   key={index}
                                   type="primary"
                                   className="ant-btn-outline fixed-button"
-                                  disabled={stepsStatusValue === OrderStatus.CANCELLED ||
-                                    stepsStatusValue === FulFillmentStatus.SHIPPED || disabledBottomActions}
+                                  disabled={
+                                    stepsStatusValue === OrderStatus.CANCELLED ||
+                                    stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                    disabledBottomActions
+                                  }
                                 >
                                   Thanh toán
                                 </Button>
