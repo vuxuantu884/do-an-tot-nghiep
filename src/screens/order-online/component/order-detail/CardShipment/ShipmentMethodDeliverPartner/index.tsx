@@ -61,8 +61,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   const createOrderContext = useContext(OrderCreateContext);
   console.log("createOrderContext", createOrderContext);
 
-  const [selectedShipmentMethod, setSelectedShipmentMethod] =
-    useState(serviceType);
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
 
   const totalAmountPaid = () => {
     let total = 0;
@@ -173,11 +172,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       };
 
       // check giá
-      const checkIfPrice = (
-        orderPrice: number,
-        fromPrice: number,
-        toPrice: number
-      ) => {
+      const checkIfPrice = (orderPrice: number, fromPrice: number, toPrice: number) => {
         return fromPrice <= orderPrice && orderPrice <= toPrice;
       };
 
@@ -195,10 +190,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           );
         });
 
-      console.log(
-        "filteredShippingServiceConfig",
-        filteredShippingServiceConfig
-      );
+      console.log("filteredShippingServiceConfig", filteredShippingServiceConfig);
 
       // filter city
       let listCheckedShippingFeeConfig = [];
@@ -206,26 +198,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       if (filteredShippingServiceConfig) {
         for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
           const checkedShippingFeeConfig =
-            singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
-              (single) => {
-                console.log("single", single);
-                console.log(
-                  "customerShippingAddressCityId",
-                  customerShippingAddressCityId
-                );
-                console.log(
-                  "checkIfPrice(orderPrice, single.from_price, single.to_price)",
-                  checkIfPrice(orderPrice, single.from_price, single.to_price)
-                );
-                return (
-                  checkIfSameCity(
-                    single.city_id,
-                    customerShippingAddressCityId
-                  ) &&
-                  checkIfPrice(orderPrice, single.from_price, single.to_price)
-                );
-              }
-            );
+            singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
+              console.log("single", single);
+              console.log("customerShippingAddressCityId", customerShippingAddressCityId);
+              console.log(
+                "checkIfPrice(orderPrice, single.from_price, single.to_price)",
+                checkIfPrice(orderPrice, single.from_price, single.to_price)
+              );
+              return (
+                checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
+                checkIfPrice(orderPrice, single.from_price, single.to_price)
+              );
+            });
           console.log("checkedShippingFeeConfig", checkedShippingFeeConfig);
           listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
         }
@@ -276,9 +260,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
         {addressError && (
-          <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
-            {addressError}
-          </div>
+          <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>{addressError}</div>
         )}
         {levelOrder > 3 && (
           <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
@@ -287,7 +269,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         )}
         <Row gutter={20}>
           <Col md={12}>
-            <Form.Item label="Tiền thu hộ:">
+            <Form.Item label="Tiền thu hộ: 1">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
@@ -305,7 +287,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           </Col>
           <Col md={12}>
             <Form.Item
-              label="Phí ship báo khách:"
+              label="Phí ship báo khách: 333"
               name="shipping_fee_informed_to_customer"
             >
               <NumberInput
@@ -331,10 +313,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                   <tr>
                     <th className="ant-table-cell">Hãng vận chuyển</th>
                     <th className="ant-table-cell">Dịch vụ chuyển phát</th>
-                    <th
-                      className="ant-table-cell"
-                      style={{ textAlign: "right" }}
-                    >
+                    <th className="ant-table-cell" style={{ textAlign: "right" }}>
                       Cước phí
                     </th>
                   </tr>
@@ -349,11 +328,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                               <td>
                                 <img
                                   className="logoHVC"
-                                  src={
-                                    (deliveryService as any)[
-                                      deliveryServiceName
-                                    ].logo
-                                  }
+                                  src={(deliveryService as any)[deliveryServiceName].logo}
                                   alt=""
                                 />
                               </td>
@@ -377,10 +352,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             }
                                             onChange={(e) => {
                                               console.log("change shipping");
-                                              console.log(
-                                                "sercivesFee",
-                                                sercivesFee
-                                              );
+                                              console.log("sercivesFee", sercivesFee);
                                               console.log(
                                                 "service.transport_type",
                                                 service.transport_type
@@ -405,8 +377,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                               );
                                             }}
                                             disabled={
-                                              service.total_fee === 0 ||
-                                              levelOrder > 3
+                                              service.total_fee === 0 || levelOrder > 3
                                             }
                                           />
                                           <span className="checkmark"></span>

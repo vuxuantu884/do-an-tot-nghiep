@@ -17,7 +17,6 @@ export const StyledComponent = styled.div`
     }
   }
   .singleActionHistory {
-    padding-bottom: 8px;
     padding-top: 10px;
     &:hover {
       cursor: pointer;

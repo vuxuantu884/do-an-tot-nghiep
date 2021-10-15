@@ -13,10 +13,6 @@ type PropType = {
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
-  pointUsing?: {
-    point: number;
-    amount: number;
-  } | null;
   showDiscountModal: () => void;
   setDiscountRate: (value: number) => void;
   setDiscountValue: (value: number) => void;
@@ -39,7 +35,6 @@ function CardProductBottom(props: PropType) {
     changeMoney,
     shippingFeeInformedToCustomer,
     amount,
-    pointUsing,
     showDiscountModal,
     setDiscountRate,
     setDiscountValue,
@@ -49,51 +44,24 @@ function CardProductBottom(props: PropType) {
     <StyledComponent>
       <Row gutter={24}>
         <Col xs={24} lg={11}>
-          <div className="paymentRow">
-            <Checkbox
-              className=""
-              style={{ fontWeight: 500 }}
-              disabled={levelOrder > 3}
-            >
+          <div className="optionRow">
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Bỏ chiết khấu tự động
             </Checkbox>
           </div>
-          <div className="paymentRow">
-            <Checkbox
-              className=""
-              style={{ fontWeight: 500 }}
-              disabled={levelOrder > 3}
-            >
+          <div className="optionRow">
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Không tính thuế VAT
             </Checkbox>
           </div>
-          <div className="paymentRow">
-            <Checkbox
-              className=""
-              style={{ fontWeight: 500 }}
-              disabled={levelOrder > 3}
-            >
+          <div className="optionRow">
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Bỏ tích điểm tự động
             </Checkbox>
           </div>
         </Col>
         <Col xs={24} lg={10}>
-          <Row className="paymentRow" justify="space-between">
-            <div>Tiêu điểm:</div>
-            <div className="font-weight-500 paymentRow-money">
-              {pointUsing?.point ? <span>{pointUsing.point} điểm</span> : "-"}
-              {pointUsing?.amount && (
-                <span>
-                  {" "}
-                  &nbsp; {`(${formatCurrency(pointUsing.amount)} đ)`}
-                </span>
-              )}
-            </div>
-          </Row>
-          <Row
-            className="paymentRow"
-            style={{ justifyContent: "space-between" }}
-          >
+          <Row className="paymentRow" style={{ justifyContent: "space-between" }}>
             <div>Tổng tiền:</div>
             <div className="font-weight-500" style={{ fontWeight: 500 }}>
               {formatCurrency(totalAmountOrder)}

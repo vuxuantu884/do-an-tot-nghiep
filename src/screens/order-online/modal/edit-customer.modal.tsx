@@ -96,8 +96,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
 
-
-
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValue: FormValueType =
     !isCreateForm && formItem

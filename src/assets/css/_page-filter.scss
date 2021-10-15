@@ -1,5 +1,5 @@
 .page-filter {
-  padding: 5px 0px 20px 0px;
+  padding: 20px 0px 20px 0px;
 
   &-heading {
     display: flex;
@@ -49,5 +49,18 @@
     color: $white;
     background-color: $primary-color;
     border-color: $primary-color;
+  }
+}
+
+.card-tab {
+  .ant-card-body {
+      padding-top: 0;
+      .ant-tabs-nav {
+          margin-bottom: 0;
+          padding: 0;
+          .ant-tabs-tab {
+              padding: 16px 0;
+          }
+      }
   }
 }

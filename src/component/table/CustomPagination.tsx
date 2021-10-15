@@ -79,17 +79,17 @@ const CustomPagination = (props: ICustomPaginationProps) => {
       {pagination && (
         <div className="custom-table-pagination">
           <Row justify="space-between">
-            <Col span={7}>
+            <Col span={6}>
               <span className="custom-table-pagination__showTotal">
                 {showTotal(pagination)}
               </span>
             </Col>
             {pagination.showSizeChanger && (
-              <Col span={7}>
+              <Col span={6}>
                 <div className="custom-table-pagination__sizeChange">
                   <label
                     htmlFor="custom-pagination-size-changer"
-                    style={{ marginRight: 12 }}
+                    style={{ marginRight: 4 }}
                   >
                     Hiển thị:{" "}
                   </label>
@@ -107,11 +107,11 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                         </Select.Option>
                       ))}
                   </Select>
-                  <span style={{ marginLeft: 12 }}>Kết quả</span>
+                  <span style={{ marginLeft: 10 }}>Kết quả</span>
                 </div>
               </Col>
             )}
-            <Col span={pagination.showSizeChanger ? 10 : 17}>
+            <Col span={pagination.showSizeChanger ? 12 : 18}>
               <div className="custom-table-pagination__main">
                 <div title="Trang đầu" className="ant-pagination-first">
                   <button

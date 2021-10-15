@@ -87,8 +87,7 @@ function CardReturnMoneyPageDetail(props: PropType) {
                 fontWeight: "bold",
               }}
             >
-              Cần hoàn trả khách: {formatCurrency(totalAmountReturnToCustomer)}{" "}
-              đ
+              Cần hoàn trả khách: {formatCurrency(totalAmountReturnToCustomer)} đ
               <Button
                 onClick={() => {
                   console.log("333");
@@ -106,20 +105,18 @@ function CardReturnMoneyPageDetail(props: PropType) {
 
   return (
     <StyledComponent>
-      <Card className="margin-top-20" title={renderCardTitle()}>
-        <div className="padding-24">
-          {renderPayments()}
-          {isShowPaymentMethod && (
-            <ReturnMoneySelect
-              listPaymentMethods={listPaymentMethods}
-              totalAmountCustomerNeedToPay={-totalAmountReturnToCustomer}
-              handleReturnMoney={() => {
-                handleReturnMoney();
-              }}
-              isShowButtonReturnMoney={true}
-            />
-          )}
-        </div>
+      <Card title={renderCardTitle()}>
+        {renderPayments()}
+        {isShowPaymentMethod && (
+          <ReturnMoneySelect
+            listPaymentMethods={listPaymentMethods}
+            totalAmountCustomerNeedToPay={-totalAmountReturnToCustomer}
+            handleReturnMoney={() => {
+              handleReturnMoney();
+            }}
+            isShowButtonReturnMoney={true}
+          />
+        )}
       </Card>
     </StyledComponent>
   );

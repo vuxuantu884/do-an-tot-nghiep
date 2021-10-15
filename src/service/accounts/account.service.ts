@@ -33,8 +33,8 @@ export const AccountUpdateService = (id: number, request: AccountRequest): Promi
   return BaseAxios.put(`${ApiConfig.ACCOUNTS}/accounts/${id}`, request)
 }
 
-export const AccountGetByIdService = (id: number): Promise<BaseResponse<AccountResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/${id}`)
+export const AccountGetByIdService = (code: string): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/code/${code}`)
 }
 
 

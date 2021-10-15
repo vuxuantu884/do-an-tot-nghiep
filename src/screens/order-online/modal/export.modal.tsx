@@ -104,7 +104,7 @@ const ExportModal: React.FC<ExportModalProps> = (
       ]}
       width={600}
     >
-      {!editFields && statusExport === 1&& (
+      {!editFields && statusExport === 1 && (
       <div>
         <p style={{ fontWeight: 500}}>Giới hạn kết quả xuất</p>
         <Radio.Group name="radiogroup" defaultValue={selected ? 3 : 1} onChange={(e) => setOptionExport(e.target.value)}>
@@ -153,7 +153,9 @@ const ExportModal: React.FC<ExportModalProps> = (
       )} */}
       {statusExport !== 1 && (
       <Row style={{ justifyContent: 'center'}}>
-        <p>Đang tạo file, vui lòng đợi trong giây lát</p>
+        {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
+        {statusExport === 3 && <p>Đã tạo file thành công</p>}
+        {statusExport === 4 && <p>Đã có lỗi xảy ra!!!</p>}
         <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
           type="circle"
           strokeColor={{
