@@ -42,7 +42,6 @@ type EditCustomerModalProps = {
   groups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
-  setShippingAddress:any;
   formItem: any;
   modalAction: string;
   isVisibleCollapseCustomer: boolean;
@@ -79,7 +78,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     groups,
     handleChangeArea,
     handleChangeCustomer,
-    setShippingAddress,
     formItem,
     modalAction,
     districtId,
@@ -428,7 +426,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                          handleSingleShippingAddress={
                            setSingleShippingAddress
                          }
-                         handleShippingAddress={setShippingAddress}
                        />
                      }
                      trigger="click"

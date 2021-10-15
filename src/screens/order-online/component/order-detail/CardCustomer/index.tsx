@@ -136,8 +136,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+  // const [shippingAddress, setShippingAddress] =
+  //   useState<ShippingAddress | null>(null);
 
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
@@ -226,7 +226,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     if (data[0].shipping_addresses) {
                       data[0].shipping_addresses.forEach((item, index2) => {
                         if (item.default === true) {
-                          setShippingAddress(item);
                           props.ShippingAddressChange(item);
                         }
                       });
@@ -344,7 +343,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
-              setShippingAddress(item);
               props.ShippingAddressChange(item);
             }
           });
@@ -393,19 +391,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
-
-  useEffect(() => {
-    if (customer && customer.shipping_addresses[0]) {
-      const addressDefault = customer.shipping_addresses.filter(
-        (item) => item.default
-      );
-      setShippingAddress(
-        addressDefault.length
-          ? addressDefault[0]
-          : customer.shipping_addresses[0]
-      );
-    }
-  }, [customer]);
 
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
@@ -664,7 +649,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     handleChangeArea={handleChangeArea}
                     handleChangeCustomer={handleChangeCustomer}
                     onCancel={CustomerDeleteInfo}
-                    setShippingAddress={setShippingAddress}
                     ShowAddressModalAdd={ShowAddressModalAdd}
                     ShowAddressModalEdit={ShowAddressModalEdit}
                     showAddressModalDelete={showAddressModalDelete}
