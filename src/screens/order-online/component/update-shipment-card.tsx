@@ -1463,7 +1463,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            margin: "14px 25px 19px 0",
           }}
         >
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (

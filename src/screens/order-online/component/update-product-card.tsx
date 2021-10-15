@@ -179,7 +179,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
         </Row>
       }
     >
-      <div style={{ padding: "10px 0 24px 0" }}>
+      <div>
         <Row className="sale-product-box" justify="space-between">
           <Table
             locale={{
@@ -273,11 +273,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           />
         </Row>
 
-        <Row
-          className="sale-product-box-payment padding-24"
-          gutter={24}
-          style={{ paddingTop: "30px" }}
-        >
+        <Row className="sale-product-box-payment" gutter={24} style={{ paddingTop: 20 }}>
           <Col xs={24} lg={12}>
             <div className="payment-row">
               <Checkbox className="margin-bottom-15">Bỏ chiết khấu tự động</Checkbox>
@@ -289,7 +285,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <Checkbox className="margin-bottom-15">Bỏ tích điểm tự động</Checkbox>
             </div>
           </Col>
-          <Col xs={24} lg={11}>
+          <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Tổng tiền</div>
               <div className="font-weight-500">

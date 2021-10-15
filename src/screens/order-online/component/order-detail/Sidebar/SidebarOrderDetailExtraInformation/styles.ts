@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .ant-row {
-    margin-bottom: 12px;
+    &:not(:last-child) {
+      margin-bottom: 12px;
+    }
   }
 `;

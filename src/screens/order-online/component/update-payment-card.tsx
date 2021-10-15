@@ -292,7 +292,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 <Radio.Group
                   value={props.paymentMethod}
                   onChange={(e) => changePaymentMethod(e.target.value)}
-                  style={{ margin: "18px 0" }}
+                  style={{ margin: "0 0 5px 0" }}
                   disabled={props.disabled}
                 >
                   <Space size={20}>
@@ -336,10 +336,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   )}
               </div>
 
-              <Row
-                gutter={24}
-                // hidden={props.paymentMethod !== 2}
-              >
+              <Row gutter={24} hidden={props.paymentMethod !== 2}>
                 {/* <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
                     <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
@@ -623,7 +620,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           )}
 
           {props.isVisibleUpdatePayment === false && (
-            <div className="padding-lef-right" style={{ paddingTop: "20px" }}>
+            <div className="padding-lef-right">
               <label
                 className="text-left"
                 style={{ marginTop: "20px", lineHeight: "40px" }}
@@ -631,7 +628,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right"
-                style={{ float: "right", padding: "0 25px", marginBottom: 25 }}
+                style={{ float: "right", padding: "0 25px" }}
                 onClick={ShowPayment}
               >
                 Thanh toán
