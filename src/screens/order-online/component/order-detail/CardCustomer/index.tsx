@@ -4,10 +4,8 @@ import {
   CloseOutlined,
   DownOutlined,
   EnvironmentOutlined,
-  IdcardOutlined,
   LoadingOutlined,
   MailOutlined,
-  PlusOutlined,
   SearchOutlined,
   UpOutlined,
 } from "@ant-design/icons";
@@ -30,10 +28,7 @@ import {
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import noteCustomer from "assets/img/note-customer.svg";
 import pointIcon from "assets/img/point.svg";
-import addressIcon from "assets/img/user-pin.svg";
 import CustomSelect from "component/custom/select.custom";
 import {
   DistrictGetByCountryAction,
@@ -140,8 +135,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+  // const [shippingAddress, setShippingAddress] =
+  //   useState<ShippingAddress | null>(null);
 
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
@@ -230,7 +225,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     if (data[0].shipping_addresses) {
                       data[0].shipping_addresses.forEach((item, index2) => {
                         if (item.default === true) {
-                          setShippingAddress(item);
                           props.ShippingAddressChange(item);
                         }
                       });
@@ -348,7 +342,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
-              setShippingAddress(item);
               props.ShippingAddressChange(item);
             }
           });
@@ -397,19 +390,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
-
-  useEffect(() => {
-    if (customer && customer.shipping_addresses[0]) {
-      const addressDefault = customer.shipping_addresses.filter(
-        (item) => item.default
-      );
-      setShippingAddress(
-        addressDefault.length
-          ? addressDefault[0]
-          : customer.shipping_addresses[0]
-      );
-    }
-  }, [customer]);
 
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
@@ -524,7 +504,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     >
       {customer === null && isVisibleCustomer !== true && (
-        <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
+        <div>
           <div>
             <AutoComplete
               notFoundContent={
@@ -576,7 +556,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             <Row
               align="middle"
               justify="space-between"
-              className="row-customer-detail padding-custom"
+              className="row-customer-detail"
             >
               <Space>
                 <Avatar size={32}>A</Avatar>
@@ -621,8 +601,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              {customer?.birthday !== null && (
-                <Space className="customer-detail-birthday">
+<Space className="customer-detail-birthday">
                   <span className="customer-detail-icon">
                     <img
                       src={birthdayIcon}
@@ -631,10 +610,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     />
                   </span>
                   <span className="customer-detail-text">
-                    {customerBirthday}
+                    {customer?.birthday !== null ? customerBirthday : "Không xác định"}
                   </span>
                 </Space>
-              )}
 
               <Space className="customer-detail-action">
                 <CloseOutlined
@@ -651,7 +629,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         )}
       </div>
       {(isVisibleCustomer === true || customer !== null) && (
-        <div className="padding-lef-right">
+        <div>
           <div>
             {isVisibleCustomer === true && (
               <div>
@@ -668,7 +646,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     handleChangeArea={handleChangeArea}
                     handleChangeCustomer={handleChangeCustomer}
                     onCancel={CustomerDeleteInfo}
-                    setShippingAddress={setShippingAddress}
                     ShowAddressModalAdd={ShowAddressModalAdd}
                     ShowAddressModalEdit={ShowAddressModalEdit}
                     showAddressModalDelete={showAddressModalDelete}
@@ -732,7 +709,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="district_id"
-                        label="Khu vực"
+                        //label="Khu vực"
                         // rules={[
                         //   {
                         //     required: true,
@@ -764,7 +741,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="ward_id"
-                        label="Phường xã"
+                        //label="Phường xã"
                         // rules={[
                         //   {
                         //     required: true,
@@ -792,7 +769,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Col>
 
                     <Col xs={24} lg={12}>
-                      <Form.Item name="full_address" label="Địa chỉ">
+                      <Form.Item name="full_address" 
+                      //label="Địa chỉ"
+                      >
                         <Input
                           placeholder="Địa chỉ"
                           prefix={<EnvironmentOutlined />}
@@ -801,7 +780,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Col>
 
                     <Col xs={24} lg={12}>
-                      <Form.Item name="email_note" label="Email">
+                      <Form.Item name="email_note" 
+                      //label="Email"
+                      >
                         <Input
                           placeholder="Điền email"
                           prefix={<MailOutlined />}
