@@ -1,5 +1,5 @@
 import { css } from "styled-components";
-import { bodyFontSize, textBodyColor } from "./variables";
+import { bodyFontSize, textBodyColor, textLinkColor } from "./variables";
 const scrollBarThumb = "#c1c1c1";
 const scrollBarColor = "#f1f1f1";
 
@@ -32,5 +32,8 @@ export const reset = css`
   }
   body {
     color: ${textBodyColor};
+  }
+  a {
+    color: ${textLinkColor};
   }
 `;

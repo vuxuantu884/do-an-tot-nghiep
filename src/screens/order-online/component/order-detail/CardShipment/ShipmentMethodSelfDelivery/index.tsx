@@ -27,12 +27,17 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             <Form.Item
               label="Đối tác giao hàng"
               name="shipper_code"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn đối tác giao hàng",
-                },
-              ]}
+              rules={
+                // khi lưu nháp không validate
+                !createOrderContextData?.buttonSave.isSaveDraft
+                  ? [
+                      {
+                        required: true,
+                        message: "Vui lòng chọn đối tác giao hàng",
+                      },
+                    ]
+                  : undefined
+              }
             >
               <CustomSelect
                 className="select-with-search"

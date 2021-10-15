@@ -63,6 +63,6 @@ export const StyledComponent = styled.div`
     margin-right: 5px;
   }
   .selectShopId {
-    width: 300px;
+    width: 240px;
   }
 `;
