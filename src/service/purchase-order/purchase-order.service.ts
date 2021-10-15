@@ -1,5 +1,5 @@
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
-import BaseAxios from "base/base-po.axios";
+import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
