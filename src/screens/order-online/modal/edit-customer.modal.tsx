@@ -133,7 +133,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   });
   groupElement?.addEventListener("change", (e: any) => {
     setVisibleBtnUpdate(true);
-  });
+  }); 
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValue: FormValueType =
