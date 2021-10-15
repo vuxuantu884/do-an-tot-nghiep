@@ -339,7 +339,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             }
         
             return (
-              receive_status !== ProcumentStatus.DRAFT &&
+              status !== POStatus.CANCELLED &&
               receive_status !== ProcumentStatus.FINISHED &&
               receive_status !== ProcumentStatus.CANCELLED && (
                 <Button
