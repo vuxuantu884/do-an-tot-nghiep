@@ -52,7 +52,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getAmountPaymentRequest, getTotalAmountAfferDiscount } from "utils/AppUtils";
@@ -668,9 +668,7 @@ export default function Order() {
                 setPayments(new_payments);
               }
 
-              setOrderAmount(
-                response.total - (response.shipping_fee_informed_to_customer || 0)
-              );
+              setOrderAmount(response.total_line_amount_after_line_discount);
 
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (
@@ -896,6 +894,27 @@ export default function Order() {
     [formRef]
   );
 
+  // khách cần trả
+
+  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
+    let value = 0;
+    if (items !== null) {
+      if (items.length > 0) {
+        items.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+    return value;
+  };
+  const totalAmountPayment = getAmountPayment(payments);
+  const totalAmountCustomerNeedToPay = useMemo(() => {
+    return (
+      orderAmount +
+      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+      discountValue -
+      totalAmountPayment
+    );
+  }, [discountValue, orderAmount, shippingFeeInformedToCustomer, totalAmountPayment]);
+
   /**
    * theme context data
    */
@@ -917,8 +936,10 @@ export default function Order() {
     price: {
       orderAmount,
       payments,
+      totalAmountPayment,
       fee,
       shippingFeeInformedToCustomer,
+      totalAmountCustomerNeedToPay,
     },
     orderConfig: listOrderConfigs,
   };
@@ -1009,13 +1030,7 @@ export default function Order() {
                       setPayments={onPayments}
                       paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
-                      amount={
-                        orderAmount +
-                        (shippingFeeInformedToCustomer
-                          ? shippingFeeInformedToCustomer
-                          : 0) -
-                        discountValue
-                      }
+                      amount={totalAmountCustomerNeedToPay}
                       isCloneOrder={isCloneOrder}
                       loyaltyRate={loyaltyRate}
                     />

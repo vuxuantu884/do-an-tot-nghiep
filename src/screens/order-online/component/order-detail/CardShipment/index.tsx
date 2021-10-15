@@ -1,14 +1,5 @@
 // @ts-ignore
-import {
-  Card,
-  Checkbox,
-  Col,
-  DatePicker,
-  Form,
-  Row,
-  Select,
-  Space,
-} from "antd";
+import { Card, Checkbox, Col, DatePicker, Form, Row, Select, Space } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
@@ -21,10 +12,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import {
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-} from "model/request/order.request";
+import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   // DeliveryServiceResponse,
@@ -78,9 +66,7 @@ type CardShipmentProps = {
   totalAmountReturnProducts?: number;
 };
 
-const CardShipment: React.FC<CardShipmentProps> = (
-  props: CardShipmentProps
-) => {
+const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => {
   const {
     OrderDetail,
     paymentMethod,
@@ -147,16 +133,10 @@ const CardShipment: React.FC<CardShipmentProps> = (
   };
 
   const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const changeServiceType = (
-    id: number,
-    code: string,
-    item: any,
-    fee: number
-  ) => {
+  const changeServiceType = (id: number, code: string, item: any, fee: number) => {
     console.log("changeServiceType", item);
 
     setHVC(id);
@@ -269,9 +249,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               <div
                 className="saleorder_shipment_button 2"
                 key={button.value}
-                onClick={() =>
-                  levelOrder < 4 && ShipMethodOnChange(button.value)
-                }
+                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
               >
                 <img src={button.icon} alt="icon"></img>
                 <span>{button.name}</span>
@@ -308,9 +286,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
                   style={{ width: "100%" }}
                   className="r-5 w-100 ip-search"
                   placeholder="Chọn ngày giao"
-                  disabledDate={(current: any) =>
-                    moment().add(-1, "days") >= current
-                  }
+                  disabledDate={(current: any) => moment().add(-1, "days") >= current}
                 />
               </Form.Item>
             </Col>
@@ -340,9 +316,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
                   filterOption={(input, option) => {
                     if (option) {
                       return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
+                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                       );
                     }
                     return false;
@@ -364,7 +338,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
 
           <Row>
             <div
-              className="saleorder_shipment_method_btn"
+              className="saleorder_shipment_method_btn 2"
               style={
                 shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                   ? { border: "none" }
@@ -380,7 +354,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
             className="saleorder_shipment_method_content"
             style={
               shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
-                ? { marginTop: 10 }
+                ? { marginTop: 15 }
                 : undefined
             }
           >
@@ -407,13 +381,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
 
             {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <ShipmentMethodSelfDelivery
-                amount={amount}
-                discountValue={discountValue}
-                paymentMethod={paymentMethod}
                 setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
                 shipper={shipper}
-                shippingFeeCustomer={shippingFeeCustomer}
-                totalAmountReturnProducts={totalAmountReturnProducts}
                 levelOrder={levelOrder}
               />
             )}

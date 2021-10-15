@@ -7,7 +7,7 @@ export const StyledComponent = styled.div`
     align-items: center;
     width: 100%;
     height: auto;
-    margin: 0;
+    margin: 20px 0 0 0;
     border-bottom: 1px solid ${primaryColor};
   }
   .orders-shipment {
@@ -21,6 +21,9 @@ export const StyledComponent = styled.div`
     }
     .ant-form-item {
       margin-bottom: 20px;
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
   .formInputAmount {
@@ -55,7 +58,7 @@ export const StyledComponent = styled.div`
       border-bottom: none;
       border-radius: 3px 3px 0 0;
       background-color: white;
-      padding-bottom: 25px;
+      padding-bottom: 20px;
       span {
         color: ${primaryColor};
       }

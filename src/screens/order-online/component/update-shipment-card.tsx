@@ -1736,7 +1736,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </Row>
               <Row>
                 <div
-                  className="saleorder_shipment_method_btn"
+                  className="saleorder_shipment_method_btn 1"
                   style={
                     shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                       ? { border: "none" }
