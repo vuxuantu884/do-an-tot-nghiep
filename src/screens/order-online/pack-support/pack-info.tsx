@@ -1,3 +1,4 @@
+import { ScanOutlined } from "@ant-design/icons";
 import {
   Button,
   Row,
@@ -11,7 +12,8 @@ import {
   Tooltip,
   FormInstance,
 } from "antd";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+// import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getFulfillments,
   getFulfillmentsPack,
@@ -26,19 +28,18 @@ import {
 import {
   createRef,
   useCallback,
+  useContext,
   useEffect,
-  useLayoutEffect,
+  // useLayoutEffect,
   useMemo,
   useState,
 } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, } from "utils/ToastUtils";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
-  queryParams: any;
   listThirdPartyLogistics: DeliveryServiceResponse[];
   fulfillmentData: PageResponse<any>;
 };
@@ -57,7 +58,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const [form] = Form.useForm();
 
   //useState
-  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+ 
   const [orderResponse, setOrderResponse] = useState<Array<any>>([]);
   const [orderList, setOrderList] = useState<Array<any>>([]);
 
@@ -75,6 +76,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const OrderRequestElement: any = document.getElementById("order_request");
   const ProductRequestElement: any = document.getElementById("product_request");
   // const QualityRequestElement: any = document.getElementById("quality_request");
+
+  //context
+  const orderPackContextData = useContext(OrderPackContext);
+
+  const listStores= orderPackContextData?.listStores;
+  //const setListStores= orderPackContextData?.setListStores;
 
   const shipName =
     listThirdPartyLogistics.length > 0 && orderResponse.length > 0
@@ -96,9 +103,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     return newData;
   }, [listStores, userReducer.account]);
 
-  useLayoutEffect(() => {
-    dispatch(StoreGetListAction(setListStores));
-  }, [dispatch]);
+
 
   OrderRequestElement?.addEventListener("focus", (e: any) => {
     OrderRequestElement.select();
@@ -455,7 +460,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 className="select-with-search"
                 style={{ width: "100%" }}
                 placeholder="ID đơn hàng/ Mã đơn giao"
-                addonAfter={<AiOutlinePlusCircle />}
+                addonAfter={<ScanOutlined />}
                 onPressEnter={(e: any) => {
                   onKeyupOrder(e.target.value);
                 }}
@@ -496,7 +501,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                     style={{ width: "50%" }}
                     placeholder="số lượng"
                     //addonAfter={<img src={ImageScan} alt=""/>}
-                    addonAfter={<AiOutlinePlusCircle />}
+                    addonAfter={<ScanOutlined />}
                     onPressEnter={(e: any) => {
                       onKeyupQuality(e.target.value);
                     }}

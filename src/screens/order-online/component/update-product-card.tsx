@@ -54,9 +54,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           <div className="d-flex align-items-center">
             <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
-                  {l.sku}
-                </Typography.Link>
+                <Typography.Link style={{ color: "#2A2A86" }}>{l.sku}</Typography.Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -66,9 +64,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </div>
           </div>
           {props.OrderDetail?.items
-            .filter(
-              (item) => item.position === l.position && item.type === Type.GIFT
-            )
+            .filter((item) => item.position === l.position && item.type === Type.GIFT)
             .map((gift) => (
               <div key={gift.sku} className="yody-pos-addition yody-pos-gift">
                 <i>
@@ -86,10 +82,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       <div className="text-center">
         <div>Số lượng</div>
         <span style={{ color: "#2A2A86" }}>
-          (
-          {props.OrderDetail?.items &&
-            getTotalQuantity(props.OrderDetail?.items)}
-          )
+          ({props.OrderDetail?.items && getTotalQuantity(props.OrderDetail?.items)})
         </span>
       </div>
     ),
@@ -104,9 +97,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     title: () => (
       <div>
         <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     className: "yody-pos-price text-right",
@@ -141,9 +132,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     title: () => (
       <div>
         <span style={{ color: "#222222" }}>Tổng tiền</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     align: "right",
@@ -190,7 +179,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
         </Row>
       }
     >
-      <div style={{ padding: "10px 0 24px 0" }}>
+      <div>
         <Row className="sale-product-box" justify="space-between">
           <Table
             locale={{
@@ -255,8 +244,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   >
                     {formatCurrency(
                       props.OrderDetail?.items.reduce(
-                        (a, b) =>
-                          a + (b.amount - b.line_amount_after_line_discount),
+                        (a, b) => a + (b.amount - b.line_amount_after_line_discount),
                         0
                       )
                     )}
@@ -285,36 +273,24 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           />
         </Row>
 
-        <Row
-          className="sale-product-box-payment padding-24"
-          gutter={24}
-          style={{ paddingTop: "30px" }}
-        >
+        <Row className="sale-product-box-payment" gutter={24} style={{ paddingTop: 20 }}>
           <Col xs={24} lg={12}>
             <div className="payment-row">
-              <Checkbox className="margin-bottom-15">
-                Bỏ chiết khấu tự động
-              </Checkbox>
+              <Checkbox className="margin-bottom-15">Bỏ chiết khấu tự động</Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox className="margin-bottom-15">
-                Không tính thuế VAT
-              </Checkbox>
+              <Checkbox className="margin-bottom-15">Không tính thuế VAT</Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox className="margin-bottom-15">
-                Bỏ tích điểm tự động
-              </Checkbox>
+              <Checkbox className="margin-bottom-15">Bỏ tích điểm tự động</Checkbox>
             </div>
           </Col>
-          <Col xs={24} lg={11}>
+          <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Tổng tiền</div>
               <div className="font-weight-500">
-                {props.OrderDetail?.total_line_amount_after_line_discount !==
-                  undefined &&
-                  props.OrderDetail?.total_line_amount_after_line_discount !==
-                    null &&
+                {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
+                  props.OrderDetail?.total_line_amount_after_line_discount !== null &&
                   formatCurrency(
                     props.OrderDetail?.total_line_amount_after_line_discount
                   )}
@@ -328,30 +304,21 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               style={{ marginTop: "5px" }}
             >
               <Space align="center">
-                <Typography.Link
-                  className="font-weight-400"
-                  style={{
-                    borderBottom: "1px solid #5D5D8A",
-                    color: "#5D5D8A",
-                  }}
-                >
-                  Chiết khấu:
-                </Typography.Link>
-                {props.OrderDetail?.discounts &&
-                  props.OrderDetail?.discounts.length > 0 && (
-                    <div>
-                      <Tag
-                        style={{
-                          marginTop: 0,
-                          color: "#E24343",
-                          backgroundColor: "#F5F5F5",
-                        }}
-                        className="orders-tag orders-tag-danger"
-                      >
-                        {props.OrderDetail?.discounts[0].rate} %
-                      </Tag>
-                    </div>
-                  )}
+                Chiết khấu:
+                {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
+                  <div>
+                    <Tag
+                      style={{
+                        marginTop: 0,
+                        color: "#E24343",
+                        backgroundColor: "#F5F5F5",
+                      }}
+                      className="orders-tag orders-tag-danger"
+                    >
+                      {props.OrderDetail?.discounts[0].rate} %
+                    </Tag>
+                  </div>
+                )}
               </Space>
               <div className="font-weight-400 ">
                 {props.OrderDetail?.discounts &&
@@ -367,17 +334,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               align="middle"
               style={{ marginTop: "5px" }}
             >
-              <Space align="center">
-                <Typography.Link
-                  className="font-weight-400"
-                  style={{
-                    borderBottom: "1px solid #5D5D8A",
-                    color: "#5D5D8A",
-                  }}
-                >
-                  Mã giảm giá:
-                </Typography.Link>
-              </Space>
+              <Space align="center">Mã giảm giá:</Space>
               <div className="font-weight-500 ">0</div>
             </Row>
 
@@ -406,9 +363,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <span className="font-size-text">
-                {totalAmountReturnProducts
-                  ? "Tổng tiền hàng mua:"
-                  : "Khách cần trả:"}
+                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
               </span>
               <span>{formatCurrency(props.customerNeedToPayValue)}</span>
             </Row>
@@ -426,16 +381,13 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                 />
                 <Row className="payment-row" justify="space-between">
                   <strong className="font-size-text">
-                    {props.customerNeedToPayValue - totalAmountReturnProducts <
-                    0
+                    {props.customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}
                   </strong>
                   <strong className="text-success font-size-price ">
                     {formatCurrency(
-                      Math.abs(
-                        props.customerNeedToPayValue - totalAmountReturnProducts
-                      )
+                      Math.abs(props.customerNeedToPayValue - totalAmountReturnProducts)
                     )}
                   </strong>
                 </Row>

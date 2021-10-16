@@ -1,9 +1,6 @@
-import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
 import { AccountGetListAction } from "domain/actions/account/account.action";
@@ -15,10 +12,7 @@ import {
   productWrapperUpdateAction,
   searchProductWrapperRequestAction,
 } from "domain/actions/product/products.action";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { MaterialResponse } from "model/product/material.model";
@@ -32,13 +26,12 @@ import {
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { convertCategory, generateQuery } from "utils/AppUtils";
+import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
+import { convertCategory } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
-
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
   PRINT_BAR_CODE: 2,
@@ -70,21 +63,9 @@ const initAccountQuery: AccountSearchQuery = {
   department_ids: [4],
 };
 
-const initQuery: ProductWrapperSearchQuery = {
-  info: "",
-  category_id: "",
-  designer_code: "",
-  material_id: "",
-  merchandiser_code: "",
-  status: "",
-  goods: "",
-  from_create_date: "",
-  to_create_date: "",
-};
 var idDelete = -1;
 
 const TabProductWrapper: React.FC = () => {
-  const history = useHistory();
   const dispatch = useDispatch();
 
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
@@ -92,8 +73,7 @@ const TabProductWrapper: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
-  const [listMerchandiser, setMerchandiser] =
-    useState<Array<AccountResponse>>();
+  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const goods = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.goods
@@ -111,14 +91,12 @@ const TabProductWrapper: React.FC = () => {
     },
     items: [],
   });
-  let dataQuery: ProductWrapperSearchQuery = {
-    ...initQuery,
-  };
-  let [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<ProductResponse>>
-  >([
+  const [params, setParams] = useState<ProductWrapperSearchQuery>(
+    {} as ProductWrapperSearchQuery
+  );
+
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
     {
       title: "Ảnh",
       fixed: "left",
@@ -139,7 +117,7 @@ const TabProductWrapper: React.FC = () => {
     },
     {
       width: 300,
-      title: "Tên sản phẩm",
+      title: "Sản phẩm",
       dataIndex: "code",
       fixed: "left",
       render: (value: string, i: ProductWrapperResponse) => {
@@ -152,6 +130,17 @@ const TabProductWrapper: React.FC = () => {
           </>
         );
       },
+      visible: true,
+    },
+    {
+      align: "right",
+      title: "SL Phiên bản",
+      dataIndex: "variants",
+      render: (value: Array<VariantResponse>) => (
+        <>
+          <div>{value ? value.length : ""}</div>
+        </>
+      ),
       visible: true,
     },
     {
@@ -177,25 +166,32 @@ const TabProductWrapper: React.FC = () => {
       visible: true,
     },
     {
-      align: "right",
-      title: "SL Phiên bản",
-      dataIndex: "variants",
-      render: (value: Array<VariantResponse>) => (
-        <>
-          <div>{value ? value.length : ""}</div>
-        </>
+      title: "Trạng thái",
+      dataIndex: "status",
+      align: "center",
+      render: (value: string, row: ProductWrapperResponse) => (
+        <div className={row.status === "active" ? "text-success" : "text-error"}>
+          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
+        </div>
       ),
+      visible: true,
+    },
+    {
+      title: "Ngày khởi tạo",
+      align: "center",
+      dataIndex: "created_date",
+      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY HH:mm"),
       visible: true,
     },
     {
       title: "Nhà thiết kế",
       dataIndex: "designer",
-      visible: true,
+      visible: false,
     },
     {
       title: "Merchandiser",
       dataIndex: "merchandiser",
-      visible: true,
+      visible: false,
     },
     {
       title: "Danh mục",
@@ -212,26 +208,6 @@ const TabProductWrapper: React.FC = () => {
       dataIndex: "material",
       visible: false,
     },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      align: "center",
-      render: (value: string, row: ProductWrapperResponse) => (
-        <div
-          className={row.status === "active" ? "text-success" : "text-error"}
-        >
-          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
-        </div>
-      ),
-      visible: true,
-    },
-    {
-      title: "Ngày khởi tạo",
-      align: "center",
-      dataIndex: "created_date",
-      render: (value) => ConvertUtcToLocalDate(value, "DD/MM/YYYY HH:mm"),
-      visible: true,
-    },
   ]);
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
@@ -239,26 +215,19 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<ProductResponse> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
+    setTableLoading(false);
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
 
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-
-      let queryParam = generateQuery(params);
-      setParams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}?${queryParam}`);
+      let newParams = { ...params, page, limit: size };
+      setParams(newParams);
     },
-    [history, params]
+    [params]
   );
 
   const columnFinal = useMemo(
@@ -270,10 +239,8 @@ const TabProductWrapper: React.FC = () => {
     (values) => {
       let newParams = { ...params, ...values, page: 1 };
       setParams(newParams);
-      let queryParam = generateQuery(newParams);
-      history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
     },
-    [history, params]
+    [params]
   );
 
   const onDeleteSuccess = useCallback(() => {
@@ -304,9 +271,7 @@ const TabProductWrapper: React.FC = () => {
         status: "active",
       };
 
-      dispatch(
-        productWrapperUpdateAction(selected.id, request, onUpdateSuccess)
-      );
+      dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
     },
     [dispatch, onUpdateSuccess]
   );
@@ -318,9 +283,7 @@ const TabProductWrapper: React.FC = () => {
         status: "inactive",
       };
 
-      dispatch(
-        productWrapperUpdateAction(selected.id, request, onUpdateSuccess)
-      );
+      dispatch(productWrapperUpdateAction(selected.id, request, onUpdateSuccess));
     },
     [dispatch, onUpdateSuccess]
   );
@@ -362,14 +325,14 @@ const TabProductWrapper: React.FC = () => {
     dispatch(AccountGetListAction(initAccountQuery, setMerchandiser));
     dispatch(materialSearchAll(setListMaterial));
     setTableLoading(true);
-  }, [dispatch, params, setSearchResult, setDataCategory]);
+  }, [dispatch, params, setDataCategory]);
 
   useEffect(() => {
     dispatch(searchProductWrapperRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
   return (
-    <div className="padding-20">
+    <div>
       <ProductWrapperFilter
         onClickOpen={() => setShowSettingColumn(true)}
         onMenuClick={onMenuClick}
@@ -380,7 +343,7 @@ const TabProductWrapper: React.FC = () => {
         listMaterial={listMaterial}
         listCategory={listCategory}
         goods={goods}
-        initValue={initQuery}
+        initValue={{} as ProductWrapperSearchQuery}
       />
       <CustomTable
         selectedRowKey={rowKey}
@@ -389,7 +352,7 @@ const TabProductWrapper: React.FC = () => {
         isLoading={tableLoading}
         onSelectedChange={onSelect}
         scroll={{ x: 1500 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

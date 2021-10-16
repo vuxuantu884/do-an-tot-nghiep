@@ -139,8 +139,10 @@ const POUtils = {
     let discount_amount =
       POUtils.caculateDiscountAmount(price, discount_rate, discount_value) *
       quantity;
+    let tax = amount * data.tax_rate / 100;
     return {
       ...data,
+      tax: tax,
       price: price,
       quantity: newQuantity,
       amount: amount,

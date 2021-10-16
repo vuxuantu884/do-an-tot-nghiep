@@ -1,9 +1,9 @@
 import { Form, Row, Col, Button } from "antd";
 import { Fragment, useState, useCallback, useEffect } from "react";
-import { useParams, useLocation, useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { POReturnAction } from "domain/actions/po/po.action";
+import { PoDetailAction, POReturnAction } from "domain/actions/po/po.action";
 import UrlConfig from "config/url.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import ContentContainer from "component/container/content.container";
@@ -17,24 +17,27 @@ import { POField } from "model/purchase-order/po-field";
 import { POUtils } from "utils/POUtils";
 import {
   PurchaseOrderLineReturnItem,
-  Vat,
 } from "model/purchase-order/purchase-item.model";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import { VietNamId } from "utils/Constants";
 
-interface POReturnProps {}
+interface POReturnProps { }
 type PurchaseOrderReturnParams = {
   id: string;
 };
 
 const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
-  const [isError] = useState(false);
+  const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [poData, setPurchaseItem] = useState<PurchaseOrder|null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
+  const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
+  const [listDistrict, setDistrict] = useState<Array<DistrictResponse>>([]);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
   const [formMain] = Form.useForm();
-  const location = useLocation();
   const history = useHistory();
   const dispatch = useDispatch();
   const collapse = useSelector(
@@ -45,11 +48,12 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
   }, [history, id]);
   const onFinish = useCallback(
-    (values: PurchaseOrder) => {
+    (values: any) => {
       values.line_return_items = values.line_return_items.filter(
-        (item) => item.quantity_return > 0
+        (item: any) => item.quantity_return > 0
       );
       dispatch(POReturnAction(idNumber, values, onUpdateCall));
+      console.log(values);
     },
     [dispatch, idNumber, onUpdateCall]
   );
@@ -63,16 +67,41 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
       onFinish(values);
     });
   }, [formMain, onFinish]);
-
+  const onDetail = useCallback(
+    (result: PurchaseOrder | null) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+      } else {
+        formMain.setFieldsValue(result);
+        setPurchaseItem(result);
+      }
+    },
+    [formMain]
+  );
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
+    dispatch(CountryGetAllAction((data) => {
+      setCountries(data);
+    }))
+    dispatch(DistrictGetByCountryAction(VietNamId, (data) => {
+      setDistrict(data);
+    }));
   }, [dispatch]);
-
-  const state: any = location.state;
-  if (!state) return <Fragment></Fragment>;
-  const params: PurchaseOrder = state.params;
-  const listCountries: Array<CountryResponse> = state.listCountries;
-  const listDistrict: Array<DistrictResponse> = state.listDistrict;
+  const loadDetail = useCallback(
+    (id: number,) => {
+      dispatch(PoDetailAction(id, onDetail));
+    },
+    [dispatch, onDetail]
+  );
+  useEffect(() => {
+    if (!isNaN(idNumber)) {
+      setLoading(true);
+      loadDetail(idNumber);
+    } else {
+      setError(true);
+    }
+  }, [idNumber, loadDetail])
   return (
     <ContentContainer
       isLoading={isLoading}
@@ -95,97 +124,100 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     >
       <Form
         form={formMain}
-        initialValues={params}
+        initialValues={{}}
         layout="vertical"
-        // onFinish={onFinish}
+      // onFinish={onFinish}
       >
-        <POSupplierForm
-          showSupplierAddress={true}
-          showBillingAddress={false}
-          isEdit={true}
-          hideExpand={true}
-          listCountries={listCountries}
-          listDistrict={listDistrict}
-          formMain={formMain}
-        />
-        <Form.Item shouldUpdate={(prevValues, curValues) => true} noStyle>
-          {({ getFieldValue }) => {
-            let tax_lines = getFieldValue(POField.tax_lines),
-              line_return_items = getFieldValue(POField.line_return_items);
-            let totalReturn = 0,
-              totalVat = 0;
-            line_return_items &&
-              line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
-                if (!item.quantity_return) return;
-                totalReturn +=
-                  item.quantity_return *
-                  POUtils.caculatePrice(
-                    item.price,
-                    item.discount_rate,
-                    item.discount_value
+        {
+          poData !== null && (
+            <Fragment>
+              <POSupplierForm
+                showSupplierAddress={true}
+                showBillingAddress={false}
+                isEdit={true}
+                hideExpand={true}
+                listCountries={listCountries}
+                listDistrict={listDistrict}
+                formMain={formMain}
+              />
+              <Form.Item shouldUpdate={(prevValues, curValues) => true} noStyle>
+                {({ getFieldValue }) => {
+                  let line_return_items = getFieldValue(POField.line_return_items);
+                  let totalReturn = 0,
+                    totalVat = 0;
+                  line_return_items &&
+                    line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
+                      if (!item.quantity_return) return;
+                      totalReturn +=
+                        item.quantity_return *
+                        POUtils.caculatePrice(
+                          item.price,
+                          item.discount_rate,
+                          item.discount_value
+                        );
+                      totalVat = totalVat + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
+                    });
+                  return (
+                    <Fragment>
+                      <POReturnProductForm
+                        formMain={formMain}
+                        totalVat={totalVat}
+                        totalReturn={totalReturn}
+                        listStore={listStore}
+                      />
+                      <POReturnPaymentForm
+                        formMain={formMain}
+                        totalReturn={totalReturn}
+                        totalVat={totalVat}
+                      />
+                    </Fragment>
                   );
-              });
-            tax_lines.forEach((item: Vat) => {
-              totalVat += item.amount;
-            });
-            return (
-              <Fragment>
-                <POReturnProductForm
-                  formMain={formMain}
-                  totalVat={totalVat}
-                  totalReturn={totalReturn}
-                  tax_lines={tax_lines}
-                  listStore={listStore}
-                />
-                <POReturnPaymentForm
-                  formMain={formMain}
-                  totalReturn={totalReturn}
-                  totalVat={totalVat}
-                />
-              </Fragment>
-            );
-          }}
-        </Form.Item>
-        <Row
-          gutter={24}
-          className="margin-top-10 "
-          style={{
-            position: "fixed",
-            textAlign: "right",
-            width: "100%",
-            height: "55px",
-            bottom: "0%",
-            zIndex: 10,
-            backgroundColor: "#FFFFFF",
-            marginLeft: collapse ? "-25px" : "-30px",
-            // display: `${isShowBillStep ? "" : "none"}`,
-          }}
-        >
-          <Col
-            md={10}
-            style={{
-              marginLeft: "-20px",
-              marginTop: "3px",
-              padding: "3px",
-              zIndex: 100,
-            }}
-          >
-            <POStep poData={params} />
-          </Col>
+                }}
+              </Form.Item>
+              <Row
+                gutter={24}
+                className="margin-top-10 "
+                style={{
+                  position: "fixed",
+                  textAlign: "right",
+                  width: "100%",
+                  height: "55px",
+                  bottom: "0%",
+                  zIndex: 10,
+                  backgroundColor: "#FFFFFF",
+                  marginLeft: collapse ? "-25px" : "-30px",
+                  // display: `${isShowBillStep ? "" : "none"}`,
+                }}
+              >
+                <Col
+                  md={10}
+                  style={{
+                    marginLeft: "-20px",
+                    marginTop: "3px",
+                    padding: "3px",
+                    zIndex: 100,
+                  }}
+                >
+                  <POStep poData={poData} />
+                </Col>
 
-          <Col md={9} style={{ marginTop: "8px" }}>
-            <Button type="default" className="light" onClick={onCancelButton}>
-              Hủy
-            </Button>
-            <Button
-              type="primary"
-              onClick={onConfirmButton}
-              className="create-button-custom"
-            >
-              Hoàn trả
-            </Button>
-          </Col>
-        </Row>
+                <Col md={9} style={{ marginTop: "8px" }}>
+                  <Button type="default" className="light" onClick={onCancelButton}>
+                    Hủy
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={onConfirmButton}
+                    className="create-button-custom"
+                  >
+                    Hoàn trả
+                  </Button>
+                </Col>
+              </Row>
+            </Fragment>
+          )
+        }
+
       </Form>
     </ContentContainer>
   );

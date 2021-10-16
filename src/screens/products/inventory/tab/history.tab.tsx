@@ -135,7 +135,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     dispatch(inventoryGetHistoryAction(params, onResult));
   }, [dispatch, onResult, params])
   return (
-    <div className="padding-20">
+    <div>
       <HistoryInventoryFilter
         openColumn={() => setShowSettingColumn(true)}
         onFilter={onFilter}

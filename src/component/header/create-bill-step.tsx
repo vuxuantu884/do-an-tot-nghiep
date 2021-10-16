@@ -11,6 +11,10 @@ type StepStatusProps = {
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
+  const { orderDetail } = props;
+  console.log("props.status", props.status);
+  console.log("orderDetail", orderDetail);
+  const formatDate = "DD/MM/YY - HH:mm";
   const [currentStep, setCurrentStep] = useState(0);
   const point = useCallback(() => {
     switch (props.status) {
@@ -18,6 +22,17 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(0);
         break;
       case "finalized":
+        const confirmDraftOrderSubStatusId = 1;
+        if (orderDetail) {
+          if (
+            orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
+            (orderDetail.payments && orderDetail.payments?.length > 0) ||
+            (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
+          ) {
+            setCurrentStep(1);
+          }
+        }
+        break;
       case "picked":
         setCurrentStep(1);
         break;
@@ -34,7 +49,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       default:
         return 0;
     }
-  }, [props.status]);
+  }, [orderDetail, props.status]);
 
   useEffect(() => {
     point();
@@ -55,9 +70,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     >
       <Steps.Step
         title="Đặt hàng"
-        // description={moment(props.orderDetail?.created_date).format(
-        //   "DD/MM/YYYY HH:mm"
-        // )}
+        description={moment(props.orderDetail?.created_date).format(formatDate)}
       />
       <Steps.Step
         title="Xác nhận"
@@ -66,9 +79,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments &&
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].created_date &&
-          moment(props.orderDetail?.fulfillments[0].created_date).format(
-            "DD/MM/YYYY HH:mm"
-          )
+          moment(props.orderDetail?.fulfillments[0].created_date).format(formatDate)
         }
       />
       <Steps.Step
@@ -78,9 +89,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments &&
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].packed_on &&
-          moment(props.orderDetail?.fulfillments[0].packed_on).format(
-            "DD/MM/YYYY HH:mm"
-          )
+          moment(props.orderDetail?.fulfillments[0].packed_on).format(formatDate)
         }
         className={
           !(
@@ -100,9 +109,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments &&
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].export_on &&
-          moment(props.orderDetail?.fulfillments[0].export_on).format(
-            "DD/MM/YYYY HH:mm"
-          )
+          moment(props.orderDetail?.fulfillments[0].export_on).format(formatDate)
         }
         className={
           !(
@@ -122,9 +129,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments &&
           props.orderDetail?.fulfillments.length > 0 &&
           props.orderDetail?.fulfillments[0].shipped_on &&
-          moment(props.orderDetail?.fulfillments[0].shipped_on).format(
-            "DD/MM/YYYY HH:mm"
-          )
+          moment(props.orderDetail?.fulfillments[0].shipped_on).format(formatDate)
         }
         className={props.status === "cancelled" ? "cancelled" : ""}
       />

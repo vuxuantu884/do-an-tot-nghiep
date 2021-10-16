@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { Card, Row, Tabs, Col } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
+import ReportHandOver from "./pack-support/report-hand-over";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useState } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useDispatch } from "react-redux";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import PackReportHandOver from "./pack-support/pack-report-hand-over";
 
 const { TabPane } = Tabs;
 
@@ -34,9 +39,16 @@ const PackSupportScreen: React.FC = () => {
     items: [],
   });
 
-  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
-    DeliveryServiceResponse[]
-  >([]);
+  
+  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
+  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+
+  const packSupportContextData={
+    listThirdPartyLogistics,
+    setListThirdPartyLogistics,
+    listStores,
+    setListStores,
+  };
 
   useEffect(() => {
     dispatch(
@@ -45,6 +57,10 @@ const PackSupportScreen: React.FC = () => {
       })
     );
   }, [dispatch]);
+
+  useLayoutEffect(() => {
+    dispatch(StoreGetListAction(setListStores));
+  }, [dispatch, setListStores]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -55,7 +71,7 @@ const PackSupportScreen: React.FC = () => {
 
   console.log(data);
   return (
-    <React.Fragment>
+    <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer
         title="Đóng gói và biên bản bàn giao"
         breadcrumb={[
@@ -80,12 +96,11 @@ const PackSupportScreen: React.FC = () => {
                   <PackInfo
                     setFulfillmentsPackedItems={setData}
                     fulfillmentData={data}
-                    queryParams={queryParams}
                     listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
-                <TabPane tab="Bàn giao" disabled key="2">
-                  Tab 2
+                <TabPane tab="Bàn giao" key="2">
+                  <PackReportHandOver/>
                 </TabPane>
               </Tabs>
             </Card>
@@ -100,9 +115,15 @@ const PackSupportScreen: React.FC = () => {
             />
           </Col>
         </Row>
+
+        <Row gutter={24}>
+          <Col xs={24}>
+            <ReportHandOver/>
+          </Col>
+        </Row>
         
       </ContentContainer>
-    </React.Fragment>
+    </OrderPackContext.Provider>
   );
 };
 

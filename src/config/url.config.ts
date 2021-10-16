@@ -29,6 +29,7 @@ const UrlConfig = {
   ECOMMERCE: "/ecommerce",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
+  PROCUREMENT: '/procurement'
 };
 
 export default UrlConfig;

@@ -1,4 +1,5 @@
 import { FormInstance } from "antd";
+import { OrderPaymentRequest } from "model/request/order.request";
 import { ShippingAddress } from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
@@ -21,9 +22,18 @@ type OrderCreateContextType = {
   order: {
     orderAmount: number;
   };
+  price: {
+    orderAmount: number;
+    payments: OrderPaymentRequest[];
+    totalAmountPayment: number;
+    fee: number | null;
+    shippingFeeInformedToCustomer: number | null;
+    totalAmountCustomerNeedToPay: number;
+  };
   orderConfig: OrderConfigResponseModel | null;
+  buttonSave: {
+    isSaveDraft: boolean;
+  };
 };
 // tạo context
-export const OrderCreateContext = createContext<OrderCreateContextType | null>(
-  null
-);
+export const OrderCreateContext = createContext<OrderCreateContextType | null>(null);

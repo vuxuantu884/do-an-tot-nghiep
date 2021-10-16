@@ -16,6 +16,7 @@ type PropType = {
   formRef?: React.RefObject<FormInstance<any>>;
   creating?: boolean;
   isShowConfirmOrderButton?: boolean;
+  disabledBottomActions?: boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
@@ -33,6 +34,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     formRef,
     creating,
     isShowConfirmOrderButton,
+    disabledBottomActions,
     handleTypeButton,
     showSaveAndConfirmModal,
     orderActionsClick,
@@ -43,17 +45,14 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
   return (
     <StyledComponent>
       <Row gutter={24}>
-        <Col
-          md={10}
-          style={{ marginLeft: "-10px", marginTop: "3px", padding: "3px" }}
-        >
+        <Col md={12}>
           <CreateBillStep status={stepsStatusValue} orderDetail={orderDetail} />
         </Col>
         {isVisibleGroupButtons &&
           formRef &&
           handleTypeButton &&
           showSaveAndConfirmModal && (
-            <Col md={9} style={{ marginTop: "8px" }}>
+            <Col md={12} style={{ marginTop: "8px" }}>
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
@@ -65,6 +64,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
+                ghost
                 onClick={showSaveAndConfirmModal}
                 loading={creating}
               >
@@ -77,10 +77,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 id="save-and-confirm"
                 onClick={() => {
                   handleTypeButton(OrderStatus.FINALIZED);
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
+                  // console.log(
+                  //   "formRef.current.value",
+                  //   formRef?.current?.getFieldsValue()
+                  // );
                   formRef.current?.submit();
                 }}
                 loading={creating}
@@ -93,7 +93,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
           formRef &&
           handleTypeButton &&
           showSaveAndConfirmModal && (
-            <Col md={9} style={{ marginTop: "8px" }}>
+            <Col md={12} style={{ marginTop: "8px" }}>
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
@@ -109,10 +109,10 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 id="save-and-confirm"
                 onClick={() => {
                   handleTypeButton(OrderStatus.FINALIZED);
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
+                  // console.log(
+                  //   "formRef.current.value",
+                  //   formRef?.current?.getFieldsValue()
+                  // );
                   formRef.current?.submit();
                 }}
               >
@@ -121,10 +121,11 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
             </Col>
           )}
         {isVisibleActionsButtons && (
-          <Col md={10} style={{ marginTop: "8px" }}>
+          <Col md={12} style={{ marginTop: "8px" }}>
             <Dropdown
               // overlayStyle={{ minWidth: "15rem" }}
               getPopupContainer={(trigger) => trigger}
+              disabled={disabledBottomActions}
               overlay={
                 <Menu>
                   <Menu.Item
@@ -179,7 +180,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   <Menu.Item
                     onClick={() =>
                       props.orderActionsClick &&
-                      props.orderActionsClick("cancel")
+                      props.orderActionsClick("print")
                     }
                   >
                     In nhanh
@@ -187,7 +188,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   <Menu.Item
                     onClick={() =>
                       props.orderActionsClick &&
-                      props.orderActionsClick("clone")
+                      props.orderActionsClick("print")
                     }
                   >
                     In tuỳ chọn
@@ -210,6 +211,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 type="primary"
                 style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                 onClick={onConfirmOrder}
+                disabled={disabledBottomActions}
               >
                 Xác nhận đơn
               </Button>

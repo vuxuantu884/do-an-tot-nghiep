@@ -3,9 +3,7 @@ import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
 import CustomModal from "component/modal/CustomModal";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   actionAddOrderSource,
@@ -30,9 +28,7 @@ const OrderSources: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
   const dispatch = useDispatch();
-  const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>(
-    []
-  );
+  const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
@@ -181,14 +177,11 @@ const OrderSources: React.FC = () => {
      */
     setTableLoading(true);
     dispatch(
-      actionFetchListOrderSources(
-        queryParams,
-        (data: OrderSourceResponseModel) => {
-          setListOrderSources(data.items);
-          setTotal(data.metadata.total);
-          setTableLoading(false);
-        }
-      )
+      actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
+        setListOrderSources(data.items);
+        setTotal(data.metadata.total);
+        setTableLoading(false);
+      })
     );
   }, [dispatch, queryParams]);
 
@@ -212,11 +205,11 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{ padding: "35px 15px" }}>
+          <Card>
             <CustomTable
               isLoading={tableLoading}
               showColumnSetting={false}
-              scroll={{ x: 1080 }}
+              // scroll={{ x: 1080 }}
               pagination={{
                 pageSize: queryParams.limit,
                 total: total,
@@ -242,9 +235,7 @@ const OrderSources: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
-          onCreate={(formValue: OrderSourceModel) =>
-            handleForm.create(formValue)
-          }
+          onCreate={(formValue: OrderSourceModel) => handleForm.create(formValue)}
           onEdit={(formValue: OrderSourceModel) => handleForm.edit(formValue)}
           onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}

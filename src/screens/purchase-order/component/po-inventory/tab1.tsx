@@ -38,22 +38,27 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
         );
         let receive_status: string = getFieldValue(POField.receive_status);
         let items =
-          procurements !== undefined
+          procurements !== undefined && procurements !== null
             ? procurements.filter(
                 (item) => item.status === ProcumentStatus.RECEIVED
               )
             : [];
         let new_line_items: Array<PurchaseOrderLineItem> = [];
         line_items.forEach((item) => {
-          let index = new_line_items.findIndex((item1) => item1.sku === item.sku);
-          if(index === -1) {
-            new_line_items.push({...item});
+          let index = new_line_items.findIndex(
+            (item1) => item1.sku === item.sku
+          );
+          if (index === -1) {
+            new_line_items.push({ ...item });
           } else {
-            new_line_items[index].quantity = new_line_items[index].quantity + item.quantity;
-            new_line_items[index].planned_quantity = new_line_items[index].planned_quantity + item.planned_quantity;
-            new_line_items[index].receipt_quantity = new_line_items[index].receipt_quantity + item.receipt_quantity;
+            new_line_items[index].quantity =
+              new_line_items[index].quantity + item.quantity;
+            new_line_items[index].planned_quantity =
+              new_line_items[index].planned_quantity + item.planned_quantity;
+            new_line_items[index].receipt_quantity =
+              new_line_items[index].receipt_quantity + item.receipt_quantity;
           }
-        })
+        });
         return (
           <div>
             <Table

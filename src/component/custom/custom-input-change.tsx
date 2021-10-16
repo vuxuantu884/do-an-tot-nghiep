@@ -47,12 +47,12 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
           <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
         </Select>
         <NumberInput
-          format={(a: string) => formatCurrency(a ? Math.abs(parseInt(a)) : 0)}
+          format={(a: string) => formatCurrency(a)}
           replace={(a: string) => replaceFormatString(a)}
-          min={1}
-          default={0}
           placeholder={props.placeholder}
           isFloat={selected === MoneyType.PERCENT}
+          min={0}
+          default={0}
           onChange={(value) => {
             if (value !== null) {
               if (selected === MoneyType.PERCENT) {
@@ -61,6 +61,8 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
               } else {
                 props.onChange && props.onChange(value);
               }
+            } else {
+              props.onChange &&  props.onChange(0)
             }
           }}
           max={selected === MoneyType.PERCENT ? 100 : undefined}
@@ -74,7 +76,7 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
                 ? (props.value / props.dataPercent) * 100
                 : 0
               ).toFixed(1)
-            : formatCurrency(props.value ? props.value : 0)}
+            : formatCurrency(props.value ? Math.round(props.value) : 0)}
         </Typography.Text>
       </div>
     </div>

@@ -11,6 +11,7 @@
     width: 20px;
     height: 20px;
     position: absolute;
+    object-fit: cover;
   }
   &-upload {
     z-index: 100;
@@ -22,7 +23,7 @@
   }
   &-path {
     width: 40px !important;
-    height: 40px !important;
+    height: 36px !important;
     object-fit: contain;
     border-radius: 5px;
   }
@@ -35,3 +36,4 @@
     }
   }
 }
+

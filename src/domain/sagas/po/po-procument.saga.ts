@@ -2,16 +2,18 @@ import {
   updatePurchaseProcumentService,
   updateStatusPO,
   deletePurchaseProcumentService,
+  searchProcurementApi,
 } from "service/purchase-order/purchase-procument.service";
 import { createPurchaseProcumentService } from "service/purchase-order/purchase-procument.service";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { call, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";
 import { POProcumentType } from "domain/types/purchase-order.type";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { PageResponse } from "model/base/base-metadata.response";
 
 function* poProcumentCreateSaga(action: YodyAction) {
   const { poId, request, createCallback } = action.payload;
@@ -105,8 +107,7 @@ function* poProcumentDeleteSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
-        deleteCallback(response.data);
+        deleteCallback(true);
         break;
       case HttpStatus.UNAUTHORIZED:
         deleteCallback(null);
@@ -120,6 +121,31 @@ function* poProcumentDeleteSaga(action: YodyAction) {
   } catch (error) {
     deleteCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* searchProcurementSaga(action: YodyAction) {
+  const { query, onResult } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<PurchaseProcument>> = yield call(
+      searchProcurementApi,
+      query,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error: any) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau "+ error.message);
   }
 }
 
@@ -140,4 +166,10 @@ export function* poProcumentSaga() {
     POProcumentType.DELETE_PO_PROCUMENT_REQUEST,
     poProcumentDeleteSaga
   );
+  yield takeEvery(
+    POProcumentType.SEARCH_PROCUREMENT,
+    searchProcurementSaga
+  );
 }
+
+

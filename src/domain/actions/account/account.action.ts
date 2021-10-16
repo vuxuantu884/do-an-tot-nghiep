@@ -43,11 +43,11 @@ export const ShipperGetListAction = (
 };
 
 export const AccountGetByIdtAction = (
-  id: number,
+  code: string,
   setData: (data: AccountResponse) => void
 ) => {
   
-  return BaseAction(AccountType.GET_ACCOUNT_DETAIL_REQUEST, { id, setData });
+  return BaseAction(AccountType.GET_ACCOUNT_DETAIL_REQUEST, { code, setData });
 };
 
 export const AccountCreateAction = (

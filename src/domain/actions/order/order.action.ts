@@ -12,6 +12,7 @@ import {
   // UpdatePaymentRequest,
   VTPFeeRequest,
   GetFeesRequest,
+  ConfirmDraftOrderRequest,
 } from "model/request/order.request";
 import {
   ActionLogDetailResponse,
@@ -353,8 +354,12 @@ export const getListReasonRequest = (
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };
 
-export const cancelOrderRequest = (id: number | undefined) => {
-  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id });
+export const cancelOrderRequest = (
+  id: number | undefined,
+  onSuccess: (success: any) => void,
+  onError: (error: any) => void,  
+  ) => {
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, onSuccess, onError });
 };
 
 export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
@@ -386,14 +391,15 @@ export const getFulfillmentsPackedSaga = (
 };
 
 export const confirmDraftOrderAction = (
-  id: number,
-  params: any,
-  handleData: (data: Array<DeliveryMappedStoreType>) => void
+  orderId: number,
+  params: ConfirmDraftOrderRequest,
+  handleData: (data: PageResponse<any>) => void
 ) => {
   return {
-    type: OrderType.GET_MAPPED_STORES,
+    type: OrderType.CONFIRM_DRAFT_ORDER,
     payload: {
-      id,
+      orderId,
+      params,
       handleData,
     },
   };

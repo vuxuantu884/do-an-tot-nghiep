@@ -1,36 +1,24 @@
-import {
-  Button,
-  Collapse,
-  Form,
-  FormInstance,
-  Input,
-  Select,
-  Space,
-  Tag,
-} from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { createRef, useCallback, useState } from "react";
+import { Button, Collapse, Form, Input, Select, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.model";
-import {
-  ProductWrapperSearchQuery,
-  VariantSearchQuery,
-} from "model/product/product.model";
-import CustomFilter from "component/table/custom.filter";
 import BaseFilter from "component/filter/base.filter";
-import { StyledComponent } from "./styled";
+import CustomRangePicker from "component/filter/component/range-picker.custom";
+import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
+import CustomFilter from "component/table/custom.filter";
+import { AccountResponse } from "model/account/account.model";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import { CategoryView } from "model/product/category.model";
+import { MaterialResponse } from "model/product/material.model";
 import {
   SearchVariantWrapperField,
-  SearchVariantWrapperMapping,
+  SearchVariantWrapperMapping
 } from "model/product/product-mapping";
-import CustomRangePicker from "component/filter/component/range-picker.custom";
-import moment from "moment";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
-import { MaterialResponse } from "model/product/material.model";
-import { CategoryView } from "model/product/category.model";
+import { ProductWrapperSearchQuery, VariantSearchQuery } from "model/product/product.model";
 import { StatusFilterResponse } from "model/product/status.model";
+import moment from "moment";
+import { Fragment, useCallback, useState } from "react";
+import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import { StyledComponent } from "./styled";
 
 type ProductFilterProps = {
   params: ProductWrapperSearchQuery;
@@ -49,18 +37,16 @@ const { Item } = Form;
 const { Option } = Select;
 const listStatus = [
   {
-  name: 'Ngừng hoạt động',
-  value: 'inactive'
+    name: "Ngừng hoạt động",
+    value: "inactive",
   },
   {
-    name: 'Đang hoạt động',
-    value: 'active'
-  }
+    name: "Đang hoạt động",
+    value: "active",
+  },
 ];
 
-const ProductWrapperFilter: React.FC<ProductFilterProps> = (
-  props: ProductFilterProps
-) => {
+const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
   const {
     params,
     listMerchandisers,
@@ -74,7 +60,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
-  const formRef = createRef<FormInstance>();
+  const [form] = Form.useForm();
   const onFinish = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
@@ -88,16 +74,20 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
         const [from_create_date, to_create_date] = values.created_date;
         values.from_create_date = from_create_date;
         values.to_create_date = to_create_date;
-        values.created_date = undefined;
+      } else {
+        values.from_create_date = null;
+        values.to_create_date = null;
       }
+      console.log("form filter", values);
+
       onFilter && onFilter(values);
     },
     [onFilter]
   );
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
+    form.submit();
+  }, [form]);
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
@@ -111,19 +101,18 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     [onMenuClick]
   );
   const onClearFilterClick = useCallback(() => {
-    formRef.current?.resetFields();
-    formRef.current?.submit();
+    form.resetFields();
+    form.submit();
     setVisible(false);
-  }, [formRef]);
+  }, [form]);
   const resetField = useCallback(
     (field: string) => {
-      formRef.current?.setFieldsValue({
-        ...formRef.current?.getFieldsValue(true),
-        [field]: undefined,
+      form.setFieldsValue({
+        [field]: null,
       });
-      formRef.current?.submit();
+      form.submit();
     },
-    [formRef]
+    [form]
   );
 
   return (
@@ -157,6 +146,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
           listMaterial={listMaterial}
           listCategory={listCategory}
           goods={goods}
+          form={form}
         />
         <BaseFilter
           onClearFilter={onClearFilterClick}
@@ -165,17 +155,8 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
           visible={visible}
           width={500}
         >
-          <Form
-            onFinish={onFinishAvd}
-            ref={formRef}
-            initialValues={{}}
-            layout="vertical"
-          >
-            <Space
-              className="po-filter"
-              direction="vertical"
-              style={{ width: "100%" }}
-            >
+          <Form onFinish={onFinishAvd} form={form} initialValues={{}} layout="vertical">
+            <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
               {Object.keys(SearchVariantWrapperMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
@@ -209,7 +190,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                         <Option value="">TRẠNG THÁI</Option>
                         <Option value="inactive">Ngừng hoạt động</Option>
                         <Option value="active">Đang hoạt động</Option>
-                    </Select>
+                      </Select>
                     );
                     break;
                   case SearchVariantWrapperField.category_id:
@@ -221,7 +202,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                             {`${item.name}`}
                           </Option>
                         ))}
-                    </Select>
+                      </Select>
                     );
                     break;
                   case SearchVariantWrapperField.goods:
@@ -233,21 +214,21 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                             {item.name}
                           </Option>
                         ))}
-                    </Select>
+                      </Select>
                     );
                     break;
-                    case SearchVariantWrapperField.material_id:
-                      component = (
-                        <Select>
-                          <Option value="">CHẤT LIỆU</Option>
-                          {listMaterial?.map((item) => (
-                            <Option key={item.id} value={item.id}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      );
-                      break;
+                  case SearchVariantWrapperField.material_id:
+                    component = (
+                      <Select>
+                        <Option value="">CHẤT LIỆU</Option>
+                        {listMaterial?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
                   case SearchVariantWrapperField.created_date:
                     component = <CustomRangePicker />;
                     break;
@@ -256,11 +237,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                   <Collapse key={key}>
                     <Collapse.Panel
                       key="1"
-                      header={
-                        <span>
-                          {SearchVariantWrapperMapping[key].toUpperCase()}
-                        </span>
-                      }
+                      header={<span>{SearchVariantWrapperMapping[key].toUpperCase()}</span>}
                     >
                       <Item name={key}>{component}</Item>
                     </Collapse.Panel>
@@ -282,71 +259,84 @@ const FilterList = ({
   listCategory,
   goods,
   listMerchandisers,
+  form,
 }: any) => {
   let filtersKeys = Object.keys(filters);
-  console.log('goods', goods);
-  
-  let renderTxt: any = null;
-  return (
-    <Space wrap={true} style={{ marginBottom: 20 }}>
-      {filtersKeys.map((filterKey) => {
-        let value = filters[filterKey];
-        if (!value) return null;
-        if (!SearchVariantWrapperMapping[filterKey]) return null;
-        switch (filterKey) {
-          case SearchVariantWrapperField.created_date:
-            let [from, to] = value;
-            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
-              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
-            let fixedDate = checkFixedDate(from, to);
-            if (fixedDate)
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${fixedDate}`;
-            else
-              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
-            break;
-          case SearchVariantWrapperField.category_id:
-            let index2 = listCategory.findIndex(
-              (item: CategoryView) => item.id === value
-            );
-            renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listCategory[index2].name}`;
-            break;
+  let renderTxt = "";
+
+  const formValue = form.getFieldsValue(true);
+  let hasFilter = false;
+  Object.keys(formValue).forEach((item) => {
+    if (formValue[item]) {
+      hasFilter = true;
+    }
+  });
+
+  if (!hasFilter) {
+    return <Fragment />;
+  } else {
+    return (
+      <Space wrap={true} style={{ marginBottom: 20 }}>
+        {filtersKeys.map((filterKey) => {
+          let value = filters[filterKey];
+          if (!value) return null;
+          if (!SearchVariantWrapperMapping[filterKey]) return null;
+          switch (filterKey) {
+            case SearchVariantWrapperField.created_date:
+              let [from, to] = value;
+              let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
+                formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+              let fixedDate = checkFixedDate(from, to);
+              if (fixedDate) renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${fixedDate}`;
+              else
+                renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+              break;
+            case SearchVariantWrapperField.category_id:
+              let index2 = listCategory.findIndex((item: CategoryView) => item.id === value);
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listCategory[index2].name}`;
+              break;
             case SearchVariantWrapperField.material_id:
-              let index3 = listMaterial.findIndex(
-                (item: MaterialResponse) => item.id === value
-                );
-                renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listMaterial[index3].name}`;
+              let index3 = listMaterial.findIndex((item: MaterialResponse) => item.id === value);
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listMaterial[index3].name}`;
               break;
             case SearchVariantWrapperField.goods:
-              let index4 = goods.findIndex(
-                (item: BaseBootstrapResponse) => item.value === value
-                );
-                renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${goods[index4].name}`;
+              let index4 = goods.findIndex((item: BaseBootstrapResponse) => item.value === value);
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${goods[index4].name}`;
               break;
             case SearchVariantWrapperField.status:
               let index6 = listStatus.findIndex(
                 (item: StatusFilterResponse) => item.value === value
               );
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listStatus[index6].name}`;
-            break;
-          case SearchVariantWrapperField.merchandiser_code:
-          case SearchVariantWrapperField.designer_code:
-            let index5 = listMerchandisers.findIndex(
-              (item: AccountResponse) => item.code === value
-            );
-            renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
-            break;
-        }
-        return (
-          <Tag
-            onClose={() => resetField(filterKey)}
-            key={filterKey}
-            className="fade"
-            closable
-          >{`${renderTxt}`}</Tag>
-        );
-      })}
-    </Space>
-  );
+              break;
+            case SearchVariantWrapperField.merchandiser_code:
+            case SearchVariantWrapperField.designer_code:
+              let index5 = listMerchandisers.findIndex(
+                (item: AccountResponse) => item.code === value
+              );
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
+              break;
+          }
+          return (
+            <Tag
+              onClose={() => {
+                if (filterKey === "created_date") {
+                  resetField("from_create_date");
+                  resetField("to_create_date");
+                  resetField(filterKey);
+                } else {
+                  resetField(filterKey);
+                }
+              }}
+              key={filterKey}
+              className="fade"
+              closable
+            >{`${renderTxt}`}</Tag>
+          );
+        })}
+      </Space>
+    );
+  }
 };
 
 export default ProductWrapperFilter;

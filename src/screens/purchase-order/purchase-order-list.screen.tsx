@@ -489,7 +489,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       }
     >
       <Card>
-        <div className="purchase-order-list padding-20">
+        <div className="purchase-order-list">
           <PurchaseOrderFilter
             params={params}
             onMenuClick={onMenuClick}

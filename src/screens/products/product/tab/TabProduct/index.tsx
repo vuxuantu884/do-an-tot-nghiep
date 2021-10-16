@@ -399,7 +399,7 @@ const TabProduct: React.FC = () => {
     dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (
-    <div className="padding-20">
+    <div>
       <ProductFilter
         onMenuClick={onMenuClick}
         actions={actions}
@@ -421,7 +421,7 @@ const TabProduct: React.FC = () => {
         isRowSelection
         isLoading={tableLoading}
         scroll={{ x: 1300 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

@@ -46,22 +46,7 @@
         padding: 0 34px;
         justify-content: flex-end;
         align-items: center;
-        .button-notify {
-          border: none;
-          padding: 0;
-          display: flex;
-          width: auto;
-          height: auto;
-          font-size: 20px;
-          line-height: normal;
-          align-items: center;
-          background-color: transparent;
-          &:focus,
-          &:active {
-            background-color: transparent;
-            border: none;
-          }
-        }
+
         .layout-user {
           height: 44px;
           background: #f5f5f5;
@@ -118,7 +103,7 @@
             &-submenu-title {
               .ant-menu-title-content {
                 margin-left: 13px;
-                font-weight: 500
+                font-weight: 500;
               }
               &:active {
                 background-color: rgba(255, 255, 255, 0.1);
@@ -126,9 +111,9 @@
               &:active .ant-menu-submenu-arrow {
                 color: $white;
               }
-              &:hover{
+              &:hover {
                 background-color: rgba(255, 255, 255, 0.1);
-                .ant-menu-submenu-arrow{
+                .ant-menu-submenu-arrow {
                   color: $white;
                 }
               }
@@ -138,11 +123,11 @@
               line-height: 40px;
               color: $white;
               padding-left: 16px !important;
-              &>.ant-menu-title-content {
+              & > .ant-menu-title-content {
                 margin-left: 13px;
                 font-weight: 500;
               }
-              a{
+              a {
                 color: $white;
               }
               &:hover {
@@ -193,7 +178,7 @@
                   height: 40px;
                   line-height: 40px;
                   margin: 0;
-                  .ant-menu-title-content{
+                  .ant-menu-title-content {
                     font-weight: 400;
                   }
                 }
@@ -353,11 +338,6 @@
         }
       }
     }
-    &-content {
-      padding: 0 30px;
-      padding-top: 55px;
-      padding-bottom: 55px;
-    }
   }
   &-badge-count {
     font-size: 8px;
@@ -502,9 +482,6 @@
       }
     }
     &-body {
-      height: auto;
-      opacity: 1;
-      padding: 0;
       transition: all 0.1s;
     }
   }
@@ -626,54 +603,7 @@
     }
   }
   //Input
-  &-input {
-    height: 38px;
-    padding: 7px 14px;
-    border-color: $border-color;
-    font-size: 14px;
-    border-radius: $border-radius;
-    color: $label-color;
-    &-lg {
-      font-size: 1em;
-    }
-    &:hover,
-    &:focus {
-      border-color: $focus-border-color;
-      box-shadow: unset;
-    }
-    &-affix-wrapper {
-      padding: 0;
-      padding-right: 11px;
-      border-color: $border-color;
-      border-radius: $border-radius;
-      &-focused {
-        border-color: $focus-border-color;
-      }
-      &:hover,
-      &:focus {
-        border-color: $focus-border-color;
-        box-shadow: unset;
-      }
-      &:not(&-disabled) {
-        &:hover,
-        &:focus {
-          border-color: $focus-border-color;
-          box-shadow: unset;
-        }
-      }
-      .ant-input-prefix {
-        margin-left: 10px;
-        margin-right: 0;
-      }
-      & > input.ant-input {
-        height: 36px;
-        padding: 4px 14px;
-      }
-      & > .ant-input-prefix + input.ant-input {
-        padding-left: 5px;
-      }
-    }
-  }
+
   //Image
   &-image {
     &-img {
@@ -1062,12 +992,8 @@
 .ant-input-group.ant-input-group-compact
   > .ant-cascader-picker-focused:last-child
   .ant-input,
-.ant-input-group.ant-input-group-compact
-  > .ant-cascader-picker:last-child
-  .ant-input,
-.ant-input-group.ant-input-group-compact
-  > .ant-select:last-child
-  > .ant-select-selector,
+.ant-input-group.ant-input-group-compact > .ant-cascader-picker:last-child .ant-input,
+.ant-input-group.ant-input-group-compact > .ant-select:last-child > .ant-select-selector,
 .ant-input-group.ant-input-group-compact > :last-child {
   border-top-right-radius: $border-radius;
   border-bottom-right-radius: $border-radius;

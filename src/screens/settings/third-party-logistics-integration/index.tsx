@@ -42,7 +42,7 @@ function ThirdPartyLogisticsIntegration() {
           },
         ]}
       >
-        <Card style={{ padding: "35px 15px" }}>
+        <Card>
           <Row>
             {listThirdPartyLogistics &&
               listThirdPartyLogistics.length > 0 &&

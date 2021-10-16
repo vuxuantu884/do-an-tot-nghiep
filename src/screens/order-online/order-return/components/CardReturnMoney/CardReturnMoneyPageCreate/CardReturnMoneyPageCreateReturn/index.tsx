@@ -25,10 +25,7 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
   console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   return (
-    <Card
-      className="margin-top-20"
-      title={<span className="title-card">Hoàn tiền</span>}
-    >
+    <Card className="margin-top-20" title={<span className="title-card">Hoàn tiền</span>}>
       <div className="create-order-payment">
         <Radio.Group
           value={returnMoneyType}
@@ -37,7 +34,7 @@ function CardReturnMoneyPageCreateReturn(props: PropType) {
               setReturnMoneyType(e.target.value);
             }
           }}
-          style={{ margin: "18px 0" }}
+          style={{ margin: "0 0 18px 0" }}
         >
           <Space size={20}>
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>

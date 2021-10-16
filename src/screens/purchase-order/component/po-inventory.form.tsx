@@ -310,8 +310,9 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               POField.procurements
             );
             let receive_status: string = getFieldValue(POField.receive_status);
+            console.log(status);
             if (
-              (receive_status === ProcumentStatus.DRAFT || status === ProcumentStatus.DRAFT)
+              (status === ProcumentStatus.DRAFT)
             ) {
               if(!props.isEdit) {
                 return null;
@@ -338,7 +339,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             }
         
             return (
-              receive_status !== ProcumentStatus.DRAFT &&
+              status !== POStatus.CANCELLED &&
               receive_status !== ProcumentStatus.FINISHED &&
               receive_status !== ProcumentStatus.CANCELLED && (
                 <Button
@@ -367,7 +368,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       <Form.Item hidden noStyle name={POField.receive_status}>
         <Input />
       </Form.Item>
-      <div className="padding-20">
+      <div>
         {status && status !== POStatus.DRAFT ? (
           <POInventoryView
             tabs={TAB}

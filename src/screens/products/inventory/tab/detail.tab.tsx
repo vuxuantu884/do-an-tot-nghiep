@@ -130,7 +130,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     },
     {
       align: 'right',
-      title: 'Hàng tạm giữ',
+      title: 'Tạm giữ',
       visible: true,
       dataIndex: 'on_hold'
     },
@@ -148,31 +148,19 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     },
     {
       align: 'right',
-      title: 'Hàng đang chuyển đến',
+      title: 'Đang chuyển đến',
       visible: true,
       dataIndex: 'transferring'
     },
     {
       align: 'right',
-      title: 'Hàng đang chuyển đi',
+      title: 'Đang chuyển đi',
       visible: true,
       dataIndex: 'on_way'
     },
     {
       align: 'right',
-      title: 'Hàng đang giao',
-      visible: true,
-      dataIndex: 'shipping'
-    },
-    {
-      align: 'right',
-      title: 'Giá nhập',
-      visible: true,
-      dataIndex: 'shipping'
-    },
-    {
-      align: 'right',
-      title: 'Giá bán',
+      title: 'Đang giao',
       visible: true,
       dataIndex: 'shipping'
     },
@@ -196,7 +184,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     [columns]
   );
   return (
-    <div className="padding-20">
+    <div>
       <InventoryFilter
         openColumn={() => setShowSettingColumn(true)}
         id="detail"

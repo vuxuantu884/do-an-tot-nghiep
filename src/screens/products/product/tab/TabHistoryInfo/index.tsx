@@ -82,7 +82,9 @@ const TabHistoryInfo: React.FC = () => {
         }
         return (
           <div>
-            <Link to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
+            <Link
+              to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+            >
               {item.sku}
             </Link>
             <div>{item.variant_name}</div>
@@ -92,18 +94,18 @@ const TabHistoryInfo: React.FC = () => {
     },
     {
       title: "Người sửa",
-      dataIndex: "action_name",
+      dataIndex: "action_by",
       visible: true,
       align: "left",
-      render : (value, record) => {return (
-        <div>
-          <span style={{color:"#2a2a86", textTransform: "uppercase"}}>
-            {value}
-          </span>
-          <div>{record.action_by}</div>
-        </div>
-      ); 
-    }},
+      render: (value, record) => {
+        return (
+          <div>
+            <Link to={`${UrlConfig.ACCOUNTS}/${value}`}>{value}</Link>
+            <div>{record.action_name}</div>
+          </div>
+        );
+      },
+    },
     {
       title: "Log ID",
       dataIndex: "code",
@@ -130,7 +132,7 @@ const TabHistoryInfo: React.FC = () => {
   }, [dispatch, onResult, params]);
 
   return (
-    <div className="padding-20">
+    <div>
       <HistoryProductFilter
         onFinish={(values) => {
           let newParams = { ...params, ...values, page: 1 };
@@ -148,7 +150,7 @@ const TabHistoryInfo: React.FC = () => {
         columns={columns}
         dataSource={data.items}
         isLoading={loading}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

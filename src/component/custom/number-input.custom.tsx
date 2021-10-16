@@ -57,7 +57,6 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       }
       if (isFloat) {
         if (RegUtil.FLOATREG.test(valueS)) {
-          console.log('vào đây FLOATREG');
           setData(valueS);
           if(valueS[valueS.length - 1] !== '.') {
             onChange && onChange(parseFloat(valueS));

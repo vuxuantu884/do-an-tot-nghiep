@@ -2,8 +2,12 @@
 //#region Import
 import {
   CloseOutlined,
+  DownOutlined,
+  EnvironmentOutlined,
   LoadingOutlined,
+  MailOutlined,
   SearchOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
 import {
   AutoComplete,
@@ -15,7 +19,7 @@ import {
   Divider,
   Form,
   Input,
-  Popover,
+  Select,
   Row,
   Space,
   Tag,
@@ -24,10 +28,7 @@ import {
 import imageDefault from "assets/icon/img-default.svg";
 import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import noteCustomer from "assets/img/note-customer.svg";
 import pointIcon from "assets/img/point.svg";
-import addressIcon from "assets/img/user-pin.svg";
 import CustomSelect from "component/custom/select.custom";
 import {
   DistrictGetByCountryAction,
@@ -66,7 +67,6 @@ import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { showError, showSuccess } from "utils/ToastUtils";
-import CustomerShippingAddressOrder from "./customer-shipping";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -112,7 +112,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     levelOrder = 0,
   } = props;
   //State
-  console.log("customer customer", customer);
+  const [addressesForm] = Form.useForm();
+  const shippingWarRef: any = useRef(null);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -128,10 +129,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
+  //Shipping
+  const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
+  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
+    []
+  );
+
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+  // const [shippingAddress, setShippingAddress] =
+  //   useState<ShippingAddress | null>(null);
 
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
@@ -139,12 +146,22 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleShippingModal, setIsVisibleShippingModal] =
     React.useState<boolean>(false);
 
+  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
+    useState(false);
+
+  const [titleNotify, setTitleNotify] = useState("Thêm mới dữ liệu thành công");
+
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
   const autoCompleteElement: any = document.getElementById("search_customer");
 
   const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
+
+  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+
+  //element
+  const btnUpdateCustomerElement = document.getElementById("btnUpdateCustomer");
 
   //#region Modal
   const ShowBillingAddress = (e: any) => {
@@ -160,15 +177,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
+    setTitleNotify("Thêm mới dữ liệu thành công");
     setVisibleCustomer(true);
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
+    setTitleNotify("Cập nhập dữ liệu thành công");
     setVisibleCustomer(true);
   };
-  const CancelConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
 
   const ShowAddressModalAdd = () => {
     setModalAction("create");
@@ -216,7 +232,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     if (data[0].shipping_addresses) {
                       data[0].shipping_addresses.forEach((item, index2) => {
                         if (item.default === true) {
-                          setShippingAddress(item);
                           props.ShippingAddressChange(item);
                         }
                       });
@@ -314,6 +329,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
     setVisibleBilling(false);
+    setVisibleCustomer(false);
   };
 
   //#end region
@@ -326,13 +342,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
+        OkConfirmCustomerEdit();
         handleCustomer(resultSearch[index]);
 
         //set Shipping Address
         if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
-              setShippingAddress(item);
               props.ShippingAddressChange(item);
             }
           });
@@ -373,21 +389,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   }, [dispatch, districtId]);
 
   useEffect(() => {
-    dispatch(CustomerGroups(setGroups));
-  }, [dispatch]);
+    if (shippingDistrictId) {
+      dispatch(WardGetByDistrictAction(shippingDistrictId, setShippingWards));
+    }
+  }, [dispatch, shippingDistrictId]);
 
   useEffect(() => {
-    if (customer && customer.shipping_addresses[0]) {
-      const addressDefault = customer.shipping_addresses.filter(
-        (item) => item.default
-      );
-      setShippingAddress(
-        addressDefault.length
-          ? addressDefault[0]
-          : customer.shipping_addresses[0]
-      );
-    }
-  }, [customer]);
+    dispatch(CustomerGroups(setGroups));
+  }, [dispatch]);
 
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
@@ -395,8 +404,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
+  const handleShippingChangeArea = (districtId: string) => {
+    if (districtId) {
+      setShippingDistrictId(districtId);
+      if (shippingWarRef.current) shippingWarRef.current.value = null;
+    }
+  };
+
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
+      OkConfirmCustomerEdit();
       handleCustomer(customers);
     }
   };
@@ -421,6 +438,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           )
         );
     }
+  };
+
+  const DefaultWard = () => {
+    let value = addressesForm.getFieldsValue();
+    value.ward_id = null;
+    addressesForm.setFieldsValue(value);
   };
 
   const rankName = loyaltyUsageRules.find(
@@ -486,8 +509,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         </div>
       }
     >
-      {customer === null && (
-        <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
+      {customer === null && isVisibleCustomer !== true && (
+        <div>
           <div>
             <AutoComplete
               notFoundContent={
@@ -527,19 +550,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <SearchOutlined style={{ color: "#ABB4BD" }} />
                   )
                 }
-                // suffix={searchCustomer ? <LoadingOutlined style={{ color: "#ABB4BD" }} /> : null}
               />
             </AutoComplete>
           </div>
         </div>
       )}
+
       <div>
         {customer !== null && (
           <div>
             <Row
               align="middle"
               justify="space-between"
-              className="row-customer-detail padding-custom"
+              className="row-customer-detail"
             >
               <Space>
                 <Avatar size={32}>A</Avatar>
@@ -550,13 +573,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   style={{ fontSize: "16px" }}
                 >
                   {customer.full_name}
-                </Link>{" "}
-                {levelOrder < 3 && (
-                  <CloseOutlined
-                    onClick={CustomerDeleteInfo}
-                    style={{ marginRight: "5px" }}
-                  />
-                )}
+                </Link>
                 <Tag className="orders-tag orders-tag-vip">
                   <b>{!rankName ? "Default" : rankName}</b>
                 </Tag>
@@ -590,338 +607,232 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              {customer?.birthday !== null && (
-                <Space className="customer-detail-birthday">
-                  <span className="customer-detail-icon">
-                    <img
-                      src={birthdayIcon}
-                      alt=""
-                      className="icon-customer-info"
-                    />
-                  </span>
-                  <span className="customer-detail-text">
-                    {customerBirthday}
-                  </span>
-                </Space>
-              )}
+              <Space className="customer-detail-birthday">
+                <span className="customer-detail-icon">
+                  <img
+                    src={birthdayIcon}
+                    alt=""
+                    className="icon-customer-info"
+                  />
+                </span>
+                <span className="customer-detail-text">
+                  {customer?.birthday !== null
+                    ? customerBirthday
+                    : "Không xác định"}
+                </span>
+              </Space>
 
               <Space className="customer-detail-action">
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  onClick={OkConfirmCustomerEdit}
-                >
-                  <img
-                    src={editBlueIcon}
-                    alt=""
-                    style={{ width: "24px", height: "24px" }}
-                  />
-                </Button>
+                <CloseOutlined
+                  onClick={CustomerDeleteInfo}
+                  style={{ marginRight: "5px" }}
+                />
               </Space>
             </Row>
             <Divider
               className="margin-0"
               style={{ padding: 0, marginBottom: 0 }}
             />
-
-            <div className="padding-lef-right">
-              {customer.shipping_addresses !== undefined && (
-                <Row gutter={24}>
-                  <Col
-                    xs={24}
-                    lg={12}
-                    style={{
-                      borderRight: "1px solid #E5E5E5",
-                      paddingTop: "14px",
-                    }}
-                    className="font-weight-500 customer-info-left"
-                  >
-                    <div className="title-address">
-                      <img
-                        src={addressIcon}
-                        alt=""
-                        style={{
-                          width: "24px",
-                          height: "24px",
-                          marginRight: "10px",
-                        }}
-                      />
-                      Địa chỉ giao hàng:
-                    </div>
-                    <Row className="customer-row-info">
-                      <span>{shippingAddress?.name}</span>
-                    </Row>
-                    <Row className="customer-row-info">
-                      <span>{shippingAddress?.phone}</span>
-                    </Row>
-                    <Row className="customer-row-info">
-                      <span>{shippingAddress?.full_address}</span>
-                    </Row>
-                    <Row>
-                      <Popover
-                        placement="bottomLeft"
-                        overlayStyle={{ zIndex: 17 }}
-                        title={
-                          <Row
-                            justify="space-between"
-                            align="middle"
-                            className="change-shipping-address-title"
-                            style={{ width: "100%" }}
+          </div>
+        )}
+      </div>
+      {(isVisibleCustomer === true || customer !== null) && (
+        <div>
+          <div>
+            {isVisibleCustomer === true && (
+              <div>
+                <div style={{ marginTop: "14px" }}>
+                  <EditCustomerModal
+                    areas={areas}
+                    wards={wards}
+                    groups={groups}
+                    formItem={customer}
+                    modalAction={modalAction}
+                    isVisibleCollapseCustomer={isVisibleCollapseCustomer}
+                    districtId={districtId}
+                    titleNotify={titleNotify}
+                    handleChangeArea={handleChangeArea}
+                    handleChangeCustomer={handleChangeCustomer}
+                    onCancel={CustomerDeleteInfo}
+                    ShowAddressModalAdd={ShowAddressModalAdd}
+                    ShowAddressModalEdit={ShowAddressModalEdit}
+                    showAddressModalDelete={showAddressModalDelete}
+                    setSingleShippingAddress={setSingleShippingAddress}
+                    setVisibleCollapseCustomer={setVisibleCollapseCustomer}
+                    setVisibleBtnUpdate={setVisibleBtnUpdate}
+                  />
+                </div>
+                {isVisibleCollapseCustomer === true && (
+                  <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
+                      <div>
+                          <Button
+                            type="link"
+                            icon={<UpOutlined />}
+                            style={{ padding: "0px" }}
+                            onClick={() => {
+                              setVisibleCollapseCustomer(false);
+                            }}
                           >
-                            <div
-                              style={{
-                                color: "#4F687D",
-                              }}
-                            >
-                              Thay đổi địa chỉ
-                            </div>
-                            <Button type="link" onClick={ShowAddressModalAdd}>
-                              Thêm địa chỉ mới
-                            </Button>
-                          </Row>
-                        }
-                        content={
-                          // <div className="change-shipping-address-content">
-                          //   {customer.shipping_addresses.map((item, index) => (
-                          //     <div
-                          //       className="shipping-address-row"
-                          //       key={item.id}
-                          //       // onClick={(e) =>
-                          //       //   SelectShippingAddress(item)
-                          //       // }
-                          //     >
-                          //       <div className="shipping-address-name">
-                          //         Địa chỉ 1{" "}
-                          //         <Button
-                          //           type="text"
-                          //           onClick={ShowAddressModal}
-                          //           className="p-0"
-                          //         >
-                          //           <img src={editBlueIcon} alt="" />
-                          //         </Button>
-                          //       </div>
-                          //       <div className="shipping-customer-name">
-                          //         {item.name}
-                          //       </div>
-                          //       <div className="shipping-customer-mobile">
-                          //         {item.phone}
-                          //       </div>
-                          //       <div className="shipping-customer-address">
-                          //         {item.full_address}
-                          //       </div>
-                          //     </div>
-                          //   ))}
-                          // </div>
-                          <CustomerShippingAddressOrder
-                            customer={customer}
-                            handleChangeCustomer={handleChangeCustomer}
-                            handleShippingEdit={ShowAddressModalEdit}
-                            handleShippingDelete={showAddressModalDelete}
-                            handleSingleShippingAddress={
-                              setSingleShippingAddress
-                            }
-                            handleShippingAddress={setShippingAddress}
-                          />
-                        }
-                        trigger="click"
-                        className="change-shipping-address"
-                      >
-                        <Button
-                          type="link"
-                          className="btn-style"
-                          disabled={levelOrder > 3}
-                        >
-                          Thay đổi địa chỉ giao hàng
-                        </Button>
-                      </Popover>
-                    </Row>
+                            Thu gọn
+                          </Button>
+                      </div>
+                    </Divider>
+                  )}
+              </div>
+            )}
+          </div>
+
+          <div>
+            {customer === null &&(
+               <div className="send-order-box">
+                 <Row gutter={12} style={{ marginTop: 15 }}>
+                  <Col md={12}>
+                    
                   </Col>
-                  <Col
-                    xs={24}
-                    lg={12}
-                    className="font-weight-500"
-                    style={{ paddingLeft: "34px", marginTop: "14px" }}
-                  >
-                    <div>
-                      <img
-                        src={noteCustomer}
-                        alt=""
-                        style={{
-                          width: "20px",
-                          height: "20px",
-                          marginRight: "10px",
-                        }}
-                      />
-                      <span>Ghi chú của khách:</span>
-                    </div>
-                    <Form.Item name="customer_note">
-                      <Input.TextArea
-                        placeholder="Điền ghi chú"
-                        rows={4}
-                        maxLength={500}
-                        style={{ marginTop: "10px" }}
-                        disabled={levelOrder > 3}
-                      />
-                    </Form.Item>
+                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
+                  { isVisibleBtnUpdate === true  && (
+                     <Button
+                      type="primary"
+                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={()=>{
+                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
+                        btnUpdateCustomerElement?.click();
+                      }}
+                      >
+                        Cập nhật
+                      </Button>
+                    )}
                   </Col>
                 </Row>
-              )}
-              <Divider style={{ padding: 0, margin: 0 }} />
-
+               </div>
+            )}
+            {customer !== null && (
               <div className="send-order-box">
-                <Row style={{ marginTop: 15 }}>
-                  <Checkbox
-                    className="checkbox-style"
-                    onChange={ShowBillingAddress}
-                    style={{ marginLeft: "3px" }}
-                    disabled={levelOrder > 3}
-                  >
-                    Gửi hoá đơn
-                  </Checkbox>
+                <Row gutter={12} style={{ marginTop: 15 }}>
+                  <Col md={12}>
+                    <Checkbox
+                      className="checkbox-style"
+                      onChange={ShowBillingAddress}
+                      style={{ marginLeft: "3px" }}
+                      disabled={levelOrder > 3}
+                    >
+                      Gửi hoá đơn
+                    </Checkbox>
+                  </Col>
+                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
+                  { isVisibleBtnUpdate === true  && (
+                     <Button
+                      type="primary"
+                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={()=>{
+                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
+                        btnUpdateCustomerElement?.click();
+                      }}
+                      >
+                        Cập nhật
+                      </Button>
+                    )}
+                  </Col>
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
-                  <Row gutter={24} hidden={!isVisibleBilling}>
-                    <Col
-                      xs={24}
-                      lg={12}
-                      style={{
-                        borderRight: "1px solid #E5E5E5",
-                        paddingTop: "14px",
-                      }}
-                      className="font-weight-500 customer-info-left"
-                    >
-                      <div className="title-address">
-                        <img
-                          src={addressIcon}
-                          alt=""
-                          style={{
-                            width: "24px",
-                            height: "24px",
-                            marginRight: "10px",
+                  <Row
+                    gutter={24}
+                    hidden={!isVisibleBilling}
+                    style={{ marginTop: "14px" }}
+                  >
+                    <Col xs={24} lg={12}>
+                      <Form.Item
+                        name="district_id"
+                        //label="Khu vực"
+                        // rules={[
+                        //   {
+                        //     required: true,
+                        //     message: "Vui lòng chọn khu vực",
+                        //   },
+                        // ]}
+                      >
+                        <Select
+                          className="select-with-search"
+                          showSearch
+                          allowClear
+                          placeholder="Chọn khu vực"
+                          style={{ width: "100%" }}
+                          onChange={(value: any) => {
+                            handleShippingChangeArea(value);
+                            DefaultWard();
                           }}
-                        />
-                        Địa chỉ nhận hóa đơn:
-                      </div>
-                      <Row className="customer-row-info">
-                        <span>{shippingAddress?.name}</span>
-                      </Row>
-                      <Row className="customer-row-info">
-                        <span>{shippingAddress?.phone}</span>
-                      </Row>
-                      <Row className="customer-row-info">
-                        <span>{shippingAddress?.full_address}</span>
-                      </Row>
-                      <Row>
-                        <Popover
-                          placement="bottomLeft"
-                          overlayStyle={{ zIndex: 17 }}
-                          title={
-                            <Row
-                              justify="space-between"
-                              align="middle"
-                              className="change-shipping-address-title"
-                              style={{ width: "100%" }}
-                            >
-                              <div
-                                style={{
-                                  color: "#4F687D",
-                                }}
-                              >
-                                Thay đổi địa chỉ
-                              </div>
-                              <Button type="link" onClick={ShowAddressModalAdd}>
-                                Thêm địa chỉ mới
-                              </Button>
-                            </Row>
-                          }
-                          content={
-                            // <div className="change-shipping-address-content">
-                            //   {customer.shipping_addresses.map(
-                            //     (item, index) => (
-                            //       <div
-                            //         className="shipping-address-row"
-                            //         key={item.id}
-                            //         // onClick={(e) =>
-                            //         //   SelectShippingAddress(item)
-                            //         // }
-                            //       >
-                            //         <div className="shipping-address-name">
-                            //           Địa chỉ 1{" "}
-                            //           <Button
-                            //             type="text"
-                            //             onClick={ShowAddressModal}
-                            //             className="p-0"
-                            //           >
-                            //             <img src={editBlueIcon} alt="" />
-                            //           </Button>
-                            //         </div>
-                            //         <div className="shipping-customer-name">
-                            //           {item.name}
-                            //         </div>
-                            //         <div className="shipping-customer-mobile">
-                            //           {item.phone}
-                            //         </div>
-                            //         <div className="shipping-customer-address">
-                            //           {item.full_address}
-                            //         </div>
-                            //       </div>
-                            //     )
-                            //   )}
-                            // </div>
-                            <CustomerShippingAddressOrder
-                              customer={customer}
-                              handleChangeCustomer={handleChangeCustomer}
-                              handleShippingEdit={ShowAddressModalEdit}
-                              handleShippingDelete={showAddressModalDelete}
-                              handleSingleShippingAddress={
-                                setSingleShippingAddress
-                              }
-                              handleShippingAddress={setShippingAddress}
-                            />
-                          }
-                          trigger="click"
-                          className="change-shipping-address"
+                          optionFilterProp="children"
                         >
-                          <Button type="link" className="btn-style">
-                            Thay đổi địa chỉ giao hàng
-                          </Button>
-                        </Popover>
-                      </Row>
+                          {areas.map((area: any) => (
+                            <Select.Option key={area.id} value={area.id}>
+                              {area.city_name + ` - ${area.name}`}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
                     </Col>
-                    <Col
-                      xs={24}
-                      lg={12}
-                      className="font-weight-500"
-                      style={{ paddingLeft: "34px", marginTop: "14px" }}
-                    >
-                      <div>
-                        <img
-                          src={noteCustomer}
-                          alt=""
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            marginRight: "10px",
-                          }}
+                    <Col xs={24} lg={12}>
+                      <Form.Item
+                        name="ward_id"
+                        //label="Phường xã"
+                        // rules={[
+                        //   {
+                        //     required: true,
+                        //     message: "Vui lòng chọn phường/xã",
+                        //   },
+                        // ]}
+                      >
+                        <Select
+                          className="select-with-search"
+                          showSearch
+                          allowClear
+                          optionFilterProp="children"
+                          style={{ width: "100%" }}
+                          placeholder="Chọn phường/xã"
+                          ref={shippingWarRef}
+                        >
+                          {shippingWards.map((ward: any) => (
+                            <Select.Option key={ward.id} value={ward.id}>
+                              {ward.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} lg={12}>
+                      <Form.Item
+                        name="full_address"
+                        //label="Địa chỉ"
+                      >
+                        <Input
+                          placeholder="Địa chỉ"
+                          prefix={<EnvironmentOutlined />}
                         />
-                        <span>Email gửi hóa đơn:</span>
-                      </div>
-                      <Form.Item name="email_note">
+                      </Form.Item>
+                    </Col>
+
+                    <Col xs={24} lg={12}>
+                      <Form.Item
+                        name="email_note"
+                        //label="Email"
+                      >
                         <Input
                           placeholder="Điền email"
-                          maxLength={500}
-                          style={{ marginTop: "10px" }}
+                          prefix={<MailOutlined />}
                         />
                       </Form.Item>
                     </Col>
                   </Row>
                 )}
               </div>
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <AddAddressModal
         customer={customer}
@@ -932,18 +843,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
       />
-      <EditCustomerModal
-        areas={areas}
-        wards={wards}
-        groups={groups}
-        formItem={customer}
-        modalAction={modalAction}
-        visible={isVisibleCustomer}
-        districtId={districtId}
-        handleChangeArea={handleChangeArea}
-        handleChangeCustomer={handleChangeCustomer}
-        onCancel={CancelConfirmCustomer}
-      />
+
       <SaveAndConfirmOrder
         onCancel={onCancelShippingDelete}
         onOk={onOkShippingDelete}

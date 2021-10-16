@@ -10,7 +10,7 @@ interface IProps {
 const TabProductInventory: React.FC<IProps> = (props: IProps) => {
   const { data, onChange } = props;
   return (
-    <div className="padding-20">
+    <div>
       <CustomTable
         dataSource={data.items}
         pagination={{
@@ -48,7 +48,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
           },
           {
             align: "right",
-            title: "Hàng tạm giữ",
+            title: "Tạm giữ",
             dataIndex: "on_hold",
           },
           {
@@ -63,12 +63,12 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
           },
           {
             align: "right",
-            title: "Hàng đang chuyển đến",
+            title: "Đang chuyển đến",
             dataIndex: "transferring",
           },
           {
             align: "right",
-            title: "Hàng đang chuyển đi",
+            title: "Đang chuyển đi",
 
             dataIndex: "on_way",
           },

@@ -141,16 +141,13 @@ const PODetailScreen: React.FC = () => {
     formMain.submit();
   }, [formMain]);
 
-  const onResultRD = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        setError(true);
-        return;
-      }
-      setRDAccount(data.items);
-    },
-    []
-  );
+  const onResultRD = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      setError(true);
+      return;
+    }
+    setRDAccount(data.items);
+  }, []);
   const onResultWin = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -159,22 +156,16 @@ const PODetailScreen: React.FC = () => {
       }
       setWinAccount(data.items);
       dispatch(
-        AccountSearchAction(
-          { department_ids: [AppConfig.RD_DEPARTMENT] },
-          onResultRD
-        )
+        AccountSearchAction({ department_ids: [AppConfig.RD_DEPARTMENT] }, onResultRD)
       );
     },
     [dispatch, onResultRD]
   );
-  const onStoreResult = useCallback(
-    (result: PageResponse<StoreResponse> | false) => {
-      if (!!result) {
-        setListStore(result.items);
-      }
-    },
-    []
-  );
+  const onStoreResult = useCallback((result: PageResponse<StoreResponse> | false) => {
+    if (!!result) {
+      setListStore(result.items);
+    }
+  }, []);
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
@@ -192,8 +183,7 @@ const PODetailScreen: React.FC = () => {
       if (value.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
-        const y =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
         showError("Vui lòng thêm sản phẩm");
         return;
@@ -211,7 +201,6 @@ const PODetailScreen: React.FC = () => {
           break;
         case POStatus.FINALIZED:
           setLoadingConfirmButton(true);
-          setLoadingSaveDraftButton(true);
           dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
       }
@@ -265,10 +254,7 @@ const PODetailScreen: React.FC = () => {
     let menuActions = [];
     if (!poData) return [];
     let poStatus = poData.status;
-    if (
-      poStatus &&
-      [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus)
-    )
+    if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus))
       menuActions.push({
         id: 1,
         name: "Hủy",
@@ -401,10 +387,7 @@ const PODetailScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(
-      AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
-        onResultWin
-      )
+      AccountSearchAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
     );
     dispatch(POGetPrintContentAction(idNumber, printContentCallback));
     dispatch(StoreGetListAction(setListStore));
@@ -417,14 +400,7 @@ const PODetailScreen: React.FC = () => {
     } else {
       setError(true);
     }
-  }, [
-    dispatch,
-    idNumber,
-    loadDetail,
-    onResultWin,
-    onStoreResult,
-    printContentCallback,
-  ]);
+  }, [dispatch, idNumber, loadDetail, onResultWin, onStoreResult, printContentCallback]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -442,14 +418,7 @@ const PODetailScreen: React.FC = () => {
     html2canvas(value).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("l", "px");
-      pdf.addImage(
-        imgData,
-        "png",
-        10,
-        0,
-        value.offsetWidth / 2,
-        value.offsetHeight / 2
-      );
+      pdf.addImage(imgData, "png", 10, 0, value.offsetWidth / 2, value.offsetHeight / 2);
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
     });
@@ -529,12 +498,9 @@ const PODetailScreen: React.FC = () => {
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
           setStatusAction("");
-          const element: any = document.getElementById(
-            errorFields[0].name.join("")
-          );
+          const element: any = document.getElementById(errorFields[0].name.join(""));
           element?.focus();
-          const y =
-            element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+          const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
           window.scrollTo({ top: y, behavior: "smooth" });
         }}
         onFinish={onFinish}
@@ -621,14 +587,14 @@ const PODetailScreen: React.FC = () => {
             height: "55px",
             bottom: "0%",
             backgroundColor: "#FFFFFF",
-            marginLeft: collapse ? "-25px" : "-30px",
+            marginLeft: collapse ? "-25px" : "-20px",
             display: `${isShowBillStep ? "" : "none"}`,
           }}
         >
           <Col
-            md={10}
+            md={12}
             style={{
-              marginLeft: "-20px",
+              // marginLeft: "-20px",
               marginTop: "3px",
               padding: "3px",
               zIndex: 100,
@@ -637,7 +603,7 @@ const PODetailScreen: React.FC = () => {
             {poData && <POStep poData={poData} />}
           </Col>
 
-          <Col md={9} style={{ marginTop: "8px" }}>
+          <Col md={12} style={{ marginTop: "8px" }}>
             {renderButton}
           </Col>
         </Row>

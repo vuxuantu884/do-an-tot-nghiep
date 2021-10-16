@@ -621,7 +621,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Form.Item>
         }
       >
-        <div className="padding-20">
+        <div>
           <Form.Item
             noStyle
             shouldUpdate={(prev, current) => prev.status !== current.status}
@@ -1458,7 +1458,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   );
                 }}
               </Form.Item> */}
-              <Divider className="margin-top-5 margin-bottom-5" />
+              <Divider style={{marginTop: 5, marginBottom: 10}} />
               <Form.Item name={POField.cost_lines} hidden noStyle>
                 <Input />
               </Form.Item>

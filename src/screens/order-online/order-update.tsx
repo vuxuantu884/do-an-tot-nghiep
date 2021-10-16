@@ -23,10 +23,7 @@ import {
 } from "domain/actions/account/account.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
-import {
-  getLoyaltyPoint,
-  getLoyaltyUsage,
-} from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
   orderUpdateAction,
@@ -110,11 +107,8 @@ export default function Order(props: PropType) {
   const history = useHistory();
   let { id } = useParams<OrderParam>();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
-    null
-  );
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
@@ -133,24 +127,17 @@ export default function Order(props: PropType) {
     Array<LoyaltyUsageResponse>
   >([]);
 
-  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
-    null
-  );
+  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
-    []
-  );
+  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
-  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
-    useState<boolean>(false);
+  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
@@ -163,15 +150,11 @@ export default function Order(props: PropType) {
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
-  const onChangeShippingAddress = (
-    _objShippingAddress: ShippingAddress | null
-  ) => {
+  const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
     setShippingAddress(_objShippingAddress);
   };
 
-  const onChangeBillingAddress = (
-    _objBillingAddress: BillingAddress | null
-  ) => {
+  const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
     setBillingAddress(_objBillingAddress);
   };
 
@@ -194,6 +177,60 @@ export default function Order(props: PropType) {
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
+  const stepsStatus = () => {
+    if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return OrderStatus.DRAFT;
+    }
+
+    if (OrderDetail?.status === OrderStatus.CANCELLED) {
+      return OrderStatus.CANCELLED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    if (OrderDetail?.status === OrderStatus.FINALIZED) {
+      if (
+        OrderDetail.fulfillments === undefined ||
+        OrderDetail.fulfillments === null
+      ) {
+        return OrderStatus.FINALIZED;
+      } else {
+        if (
+          OrderDetail.fulfillments !== undefined &&
+          OrderDetail.fulfillments !== null &&
+          OrderDetail.fulfillments.length > 0
+        ) {
+          if (
+            OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+          ) {
+            return OrderStatus.FINALIZED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
+            return FulFillmentStatus.PICKED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
+            return FulFillmentStatus.PACKED;
+          }
+          if (
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING
+          ) {
+            return FulFillmentStatus.SHIPPING;
+          }
+          if (
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED
+          ) {
+            return FulFillmentStatus.SHIPPED;
+          }
+        }
+      }
+    } else if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
+    }
+    return "";
+  };
+
+  let stepsStatusValue = stepsStatus();
+
   const setLevelOrder = useCallback(() => {
     console.log("OrderDetail 111", OrderDetail);
     switch (OrderDetail?.status) {
@@ -207,26 +244,21 @@ export default function Order(props: PropType) {
         if (
           OrderDetail.fulfillments === undefined ||
           OrderDetail.fulfillments === null ||
+          !OrderDetail.fulfillments.length ||
           OrderDetail.fulfillments[0].shipment === null
         ) {
-          if (
-            !OrderDetail.payment_status ||
-            OrderDetail.payment_status === "unpaid"
-          ) {
+          if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
             return 2;
           } else {
             return 3;
           }
         } else {
           if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED ||
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED
+            // || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
             // return 1
-            if (
-              !OrderDetail.payment_status ||
-              OrderDetail.payment_status === "unpaid"
-            ) {
+            if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
               return 2;
             } else {
               return 3;
@@ -306,9 +338,7 @@ export default function Order(props: PropType) {
     let shipmentRequest = createShipmentRequest(value);
     if (OrderDetail?.fulfillments?.length) {
       let request: FulFillmentRequest = {
-        id: OrderDetail.fulfillments[0].id
-          ? OrderDetail.fulfillments[0].id
-          : undefined,
+        id: OrderDetail.fulfillments[0].id ? OrderDetail.fulfillments[0].id : undefined,
         store_id: value.store_id,
         account_code: userReducer.account?.code,
         assignee_code: value.assignee_code,
@@ -390,16 +420,13 @@ export default function Order(props: PropType) {
           return {
             ...objShipment,
             delivery_service_provider_id:
-              OrderDetail?.fulfillments[0].shipment
-                ?.delivery_service_provider_id,
+              OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_id,
             delivery_service_provider_type: "external_service",
             sender_address_id: storeId,
-            shipping_fee_informed_to_customer:
-              value.shipping_fee_informed_to_customer,
+            shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
             service: serviceType!,
             shipping_fee_paid_to_three_pls:
-              OrderDetail?.fulfillments[0].shipment
-                ?.shipping_fee_paid_to_three_pls,
+              OrderDetail?.fulfillments[0].shipment?.shipping_fee_paid_to_three_pls,
           };
 
         case ShipmentMethodOption.SELF_DELIVER:
@@ -407,10 +434,8 @@ export default function Order(props: PropType) {
             ...objShipment,
             delivery_service_provider_type: "Shipper",
             shipper_code: value.shipper_code,
-            shipping_fee_informed_to_customer:
-              value.shipping_fee_informed_to_customer,
-            shipping_fee_paid_to_three_pls:
-              value.shipping_fee_paid_to_three_pls,
+            shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+            shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
             cod:
               orderAmount +
               (shippingFeeCustomer ? shippingFeeCustomer : 0) -
@@ -423,15 +448,11 @@ export default function Order(props: PropType) {
           let newCod = orderAmount;
           if (shippingFeeCustomer !== null) {
             if (
-              orderAmount +
-                shippingFeeCustomer -
-                getAmountPaymentRequest(payments) >
+              orderAmount + shippingFeeCustomer - getAmountPaymentRequest(payments) >
               0
             ) {
               newCod =
-                orderAmount +
-                shippingFeeCustomer -
-                getAmountPaymentRequest(payments);
+                orderAmount + shippingFeeCustomer - getAmountPaymentRequest(payments);
             }
           } else {
             if (orderAmount - getAmountPaymentRequest(payments) > 0) {
@@ -454,12 +475,9 @@ export default function Order(props: PropType) {
   };
 
   const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
-  const [requirementNameView, setRequirementNameView] = useState<string | null>(
-    null
-  );
+  const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
 
   const getRequirementName = useCallback(() => {
     if (
@@ -467,11 +485,8 @@ export default function Order(props: PropType) {
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0
     ) {
-      let requirement =
-        OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
-      const reqObj = shipping_requirements?.find(
-        (r) => r.value === requirement
-      );
+      let requirement = OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+      const reqObj = shipping_requirements?.find((r) => r.value === requirement);
       setRequirementNameView(reqObj ? reqObj?.name : "");
     }
   }, [OrderDetail, shipping_requirements]);
@@ -547,10 +562,7 @@ export default function Order(props: PropType) {
   };
 
   const showSaveAndConfirmModal = () => {
-    if (
-      shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ||
-      paymentMethod !== 3
-    ) {
+    if (shipmentMethod !== ShipmentMethodOption.DELIVER_LATER || paymentMethod !== 3) {
       setIsVisibleSaveAndConfirm(true);
     } else {
       typeButton = OrderStatus.DRAFT;
@@ -563,8 +575,7 @@ export default function Order(props: PropType) {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount =
-      getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -601,8 +612,7 @@ export default function Order(props: PropType) {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
-    values.total_line_amount_after_line_discount =
-      total_line_amount_after_line_discount;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -620,10 +630,7 @@ export default function Order(props: PropType) {
             dispatch(orderUpdateAction(id, values, createOrderCallback));
           }
         } else {
-          if (
-            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !serviceType
-          ) {
+          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
             if (checkInventory()) {
@@ -637,15 +644,12 @@ export default function Order(props: PropType) {
     }
   };
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccounts(data.items);
+  }, []);
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -740,8 +744,7 @@ export default function Order(props: PropType) {
                   composite: false,
                   product: item.product,
                   is_composite: false,
-                  line_amount_after_line_discount:
-                    item.line_amount_after_line_discount,
+                  line_amount_after_line_discount: item.line_amount_after_line_discount,
                   discount_items: item.discount_items,
                   discount_rate: item.discount_rate,
                   discount_value: item.discount_value,
@@ -759,8 +762,7 @@ export default function Order(props: PropType) {
                 newDatingShip = moment(
                   response.fulfillments[0]?.shipment?.expected_received_date
                 );
-                newShipperCode =
-                  response.fulfillments[0]?.shipment?.shipper_code;
+                newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
               }
               if (response.fulfillments[0].shipment?.cod) {
                 // setPaymentMethod(PaymentMethodOption.COD);
@@ -798,13 +800,9 @@ export default function Order(props: PropType) {
             if (
               response.fulfillments &&
               response.fulfillments[0] &&
-              response?.fulfillments[0]?.shipment
-                ?.delivery_service_provider_type
+              response?.fulfillments[0]?.shipment?.delivery_service_provider_type
             ) {
-              switch (
-                response.fulfillments[0].shipment
-                  ?.delivery_service_provider_type
-              ) {
+              switch (response.fulfillments[0].shipment?.delivery_service_provider_type) {
                 case ShipmentMethod.SHIPPER:
                   newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                   break;
@@ -822,9 +820,7 @@ export default function Order(props: PropType) {
               const newFulfillments = [...response.fulfillments];
               setFulfillments(newFulfillments.reverse());
               setServiceType(response?.fulfillments[0]?.shipment.service);
-              setShippingFeeCustomer(
-                response.shipping_fee_informed_to_customer
-              );
+              setShippingFeeCustomer(response.shipping_fee_informed_to_customer);
 
               if (
                 response.fulfillments[0] &&
@@ -872,16 +868,12 @@ export default function Order(props: PropType) {
       if (!Pointfocus) return true;
 
       let discount = 0;
-      value.items.forEach(
-        (p: any) => (discount = discount + p.discount_amount)
-      );
+      value.items.forEach((p: any) => (discount = discount + p.discount_amount));
 
       let rank = loyaltyUsageRules.find(
         (x) =>
           x.rank_id ===
-          (loyaltyPoint?.loyalty_level_id === null
-            ? 0
-            : loyaltyPoint?.loyalty_level_id)
+          (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
       );
 
       // let curenPoint = !loyaltyPoint
@@ -889,16 +881,10 @@ export default function Order(props: PropType) {
       //   : loyaltyPoint.point === null
       //   ? 0
       //   : loyaltyPoint.point;
-      let point = !Pointfocus
-        ? 0
-        : Pointfocus.point === undefined
-        ? 0
-        : Pointfocus.point;
+      let point = !Pointfocus ? 0 : Pointfocus.point === undefined ? 0 : Pointfocus.point;
 
       let totalAmountPayable =
-        orderAmount +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-        discountValue; //tổng tiền phải trả
+        orderAmount + (shippingFeeCustomer ? shippingFeeCustomer : 0) - discountValue; //tổng tiền phải trả
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
@@ -911,20 +897,13 @@ export default function Order(props: PropType) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
-      if (
-        rank?.block_order_have_discount === true &&
-        (discount > 0 || discountValue)
-      ) {
-        showError(
-          "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
-        );
+      if (rank?.block_order_have_discount === true && (discount > 0 || discountValue)) {
+        showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
       }
 
       if (point > limitAmountPointFocus) {
-        showError(
-          `Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`
-        );
+        showError(`Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`);
         return false;
       }
 
@@ -946,12 +925,7 @@ export default function Order(props: PropType) {
 
   const checkInventory = () => {
     let status = true;
-    if (
-      inventoryResponse &&
-      inventoryResponse.length &&
-      items &&
-      items != null
-    ) {
+    if (inventoryResponse && inventoryResponse.length && items && items != null) {
       let productItem = null;
       let newData: Array<InventoryResponse> = [];
       newData = inventoryResponse.filter((store) => store.store_id === storeId);
@@ -980,9 +954,7 @@ export default function Order(props: PropType) {
     if (items && items != null) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(
-        inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse)
-      );
+      dispatch(inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse));
     }
   }, [dispatch, items]);
 
@@ -1006,20 +978,20 @@ export default function Order(props: PropType) {
   return (
     <React.Fragment>
       <ContentContainer
-        title="Tạo mới đơn hàng"
+        title="Sửa đơn hàng"
         breadcrumb={[
           {
             name: "Tổng quan",
-            path: "/",
+            path: `${UrlConfig.HOME}`,
           },
           {
             name: "Đơn hàng",
           },
           {
-            name: "Tạo mới đơn hàng",
+            name: `Sửa đơn hàng ${id}`,
           },
         ]}
-        extra={<CreateBillStep status="draff" orderDetail={null} />}
+        extra={<CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />}
       >
         <div className="orders">
           {isLoadForm && (
@@ -1033,9 +1005,7 @@ export default function Order(props: PropType) {
                 );
                 element?.focus();
                 const y =
-                  element?.getBoundingClientRect()?.top +
-                  window.pageYOffset +
-                  -250;
+                  element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
                 window.scrollTo({ top: y, behavior: "smooth" });
               }}
               onFinish={onFinish}
@@ -1088,13 +1058,11 @@ export default function Order(props: PropType) {
                     updateOrder={true}
                   />
                   <Card
-                    className="margin-top-20 orders-update-shipment "
+                    className="orders-update-shipment "
                     title={
                       <Space>
                         <div className="d-flex">
-                          <span className="title-card">
-                            ĐÓNG GÓI VÀ GIAO HÀNG
-                          </span>
+                          <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
                         </div>
                         {OrderDetail?.fulfillments &&
                           OrderDetail?.fulfillments.length > 0 &&
@@ -1124,9 +1092,7 @@ export default function Order(props: PropType) {
                                 style={{ marginRight: 9.5 }}
                                 alt=""
                               ></img>
-                              <span
-                                style={{ color: "#222222", lineHeight: "16px" }}
-                              >
+                              <span style={{ color: "#222222", lineHeight: "16px" }}>
                                 {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.length > 0 &&
                                 OrderDetail?.fulfillments[0].shipment
@@ -1139,8 +1105,7 @@ export default function Order(props: PropType) {
                               </span>
                               {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.length > 0 &&
-                                OrderDetail?.fulfillments[0].shipment
-                                  ?.office_time && (
+                                OrderDetail?.fulfillments[0].shipment?.office_time && (
                                   <span
                                     style={{
                                       marginLeft: 6,
@@ -1156,9 +1121,7 @@ export default function Order(props: PropType) {
                         {requirementNameView && (
                           <div className="text-menu">
                             <img src={eyeOutline} alt="eye"></img>
-                            <span
-                              style={{ marginLeft: "5px", fontWeight: 500 }}
-                            >
+                            <span style={{ marginLeft: "5px", fontWeight: 500 }}>
                               {requirementNameView}
                             </span>
                           </div>
@@ -1179,8 +1142,7 @@ export default function Order(props: PropType) {
                               <Collapse
                                 className="saleorder_shipment_order_colapse payment_success"
                                 defaultActiveKey={[
-                                  fulfillment.status !==
-                                  FulFillmentStatus.RETURNED
+                                  fulfillment.status !== FulFillmentStatus.RETURNED
                                     ? "1"
                                     : "",
                                 ]}
@@ -1192,9 +1154,7 @@ export default function Order(props: PropType) {
                                       src={doubleArrow}
                                       style={{
                                         transform: `${
-                                          !isActive
-                                            ? "rotate(270deg)"
-                                            : "rotate(0deg)"
+                                          !isActive ? "rotate(270deg)" : "rotate(0deg)"
                                         }`,
                                       }}
                                     />
@@ -1204,15 +1164,11 @@ export default function Order(props: PropType) {
                               >
                                 <Collapse.Panel
                                   className={
-                                    fulfillment.status ===
-                                      FulFillmentStatus.CANCELLED ||
-                                    fulfillment.status ===
-                                      FulFillmentStatus.RETURNING ||
-                                    fulfillment.status ===
-                                      FulFillmentStatus.RETURNED
+                                    fulfillment.status === FulFillmentStatus.CANCELLED ||
+                                    fulfillment.status === FulFillmentStatus.RETURNING ||
+                                    fulfillment.status === FulFillmentStatus.RETURNED
                                       ? "orders-timeline-custom order-shipment-dot-cancelled"
-                                      : fulfillment.status ===
-                                        FulFillmentStatus.SHIPPED
+                                      : fulfillment.status === FulFillmentStatus.SHIPPED
                                       ? "orders-timeline-custom order-shipment-dot-active"
                                       : "orders-timeline-custom order-shipment-dot-default"
                                   }
@@ -1248,9 +1204,7 @@ export default function Order(props: PropType) {
                                             style={{ width: 23 }}
                                           />
                                         </div>
-                                        <FulfillmentStatusTag
-                                          fulfillment={fulfillment}
-                                        />
+                                        <FulfillmentStatusTag fulfillment={fulfillment} />
                                         <PrintShippingLabel
                                           fulfillment={fulfillment}
                                           orderSettings={orderSettings}
@@ -1295,15 +1249,10 @@ export default function Order(props: PropType) {
                                           </Col>
                                         </Col>
                                       </Row>
-                                      <Row
-                                        gutter={24}
-                                        style={{ paddingTop: "15px" }}
-                                      >
+                                      <Row gutter={24} style={{ paddingTop: "15px" }}>
                                         <Col md={6}>
                                           <Col span={24}>
-                                            <p className="text-field">
-                                              Tên cửa hàng:
-                                            </p>
+                                            <p className="text-field">Tên cửa hàng:</p>
                                           </Col>
                                           <Col span={24}>
                                             <b>{OrderDetail?.store}</b>
@@ -1312,9 +1261,7 @@ export default function Order(props: PropType) {
 
                                         <Col md={6}>
                                           <Col span={24}>
-                                            <p className="text-field">
-                                              Số điện thoại:
-                                            </p>
+                                            <p className="text-field">Số điện thoại:</p>
                                           </Col>
                                           <Col span={24}>
                                             <b className="text-field">
@@ -1325,9 +1272,7 @@ export default function Order(props: PropType) {
 
                                         <Col md={6}>
                                           <Col span={24}>
-                                            <p className="text-field">
-                                              Địa chỉ:
-                                            </p>
+                                            <p className="text-field">Địa chỉ:</p>
                                           </Col>
                                           <Col span={24}>
                                             <b className="text-field">
@@ -1341,9 +1286,7 @@ export default function Order(props: PropType) {
                                     <Row gutter={24}>
                                       <Col md={5}>
                                         <Col span={24}>
-                                          <p className="text-field">
-                                            Đối tác giao hàng:
-                                          </p>
+                                          <p className="text-field">Đối tác giao hàng:</p>
                                         </Col>
                                         <Col span={24}>
                                           <b>
@@ -1370,8 +1313,8 @@ export default function Order(props: PropType) {
                                               shipper &&
                                               shipper.find(
                                                 (s) =>
-                                                  fulfillment.shipment
-                                                    ?.shipper_code === s.code
+                                                  fulfillment.shipment?.shipper_code ===
+                                                  s.code
                                               )?.full_name}
                                           </b>
                                         </Col>
@@ -1380,9 +1323,7 @@ export default function Order(props: PropType) {
                                         "external_service" && (
                                         <Col md={5}>
                                           <Col span={24}>
-                                            <p className="text-field">
-                                              Dịch vụ:
-                                            </p>
+                                            <p className="text-field">Dịch vụ:</p>
                                           </Col>
                                           <Col span={24}>
                                             <b className="text-field">
@@ -1394,9 +1335,7 @@ export default function Order(props: PropType) {
 
                                       <Col md={5}>
                                         <Col span={24}>
-                                          <p className="text-field">
-                                            Phí ship trả HVC:
-                                          </p>
+                                          <p className="text-field">Phí ship trả HVC:</p>
                                         </Col>
                                         <Col span={24}>
                                           <b className="text-field">
@@ -1435,20 +1374,15 @@ export default function Order(props: PropType) {
                                         "external_service" && (
                                         <Col md={4}>
                                           <Col span={24}>
-                                            <p className="text-field">
-                                              Trọng lượng:
-                                            </p>
+                                            <p className="text-field">Trọng lượng:</p>
                                           </Col>
                                           <Col span={24}>
                                             <b className="text-field">
                                               {OrderDetail?.fulfillments &&
-                                                OrderDetail?.fulfillments
-                                                  .length > 0 &&
+                                                OrderDetail?.fulfillments.length > 0 &&
                                                 formatCurrency(
                                                   OrderDetail.items &&
-                                                    SumWeightResponse(
-                                                      OrderDetail.items
-                                                    )
+                                                    SumWeightResponse(OrderDetail.items)
                                                 )}
                                               g
                                             </b>
@@ -1462,9 +1396,7 @@ export default function Order(props: PropType) {
                                       <Collapse.Panel
                                         header={
                                           <Row>
-                                            <Col
-                                              style={{ alignItems: "center" }}
-                                            >
+                                            <Col style={{ alignItems: "center" }}>
                                               <b
                                                 style={{
                                                   marginRight: "10px",
@@ -1472,8 +1404,7 @@ export default function Order(props: PropType) {
                                                 }}
                                               >
                                                 {OrderDetail?.items.reduce(
-                                                  (a: any, b: any) =>
-                                                    a + b.quantity,
+                                                  (a: any, b: any) => a + b.quantity,
                                                   0
                                                 )}{" "}
                                                 SẢN PHẨM
@@ -1483,65 +1414,57 @@ export default function Order(props: PropType) {
                                         }
                                         key="1"
                                       >
-                                        {OrderDetail?.items.map(
-                                          (item, index) => (
-                                            <div
-                                              className="orders-shipment-item-view"
-                                              key={index}
-                                            >
-                                              <div className="orders-shipment-item-view-wrap">
-                                                <div className="orders-shipment-item-name">
-                                                  <div>
-                                                    <Typography.Link
-                                                      style={{
-                                                        color: "#2A2A86",
-                                                      }}
-                                                    >
-                                                      {item.sku}
-                                                    </Typography.Link>
-                                                  </div>
-                                                  <Badge
-                                                    status="default"
-                                                    text={item.variant}
-                                                    style={{ marginLeft: 7 }}
-                                                  />
-                                                </div>
-                                                <div
-                                                  style={{
-                                                    width: "30%",
-                                                    display: "flex",
-                                                    justifyContent:
-                                                      "space-between",
-                                                  }}
-                                                >
-                                                  {item.type === "gift" ? (
-                                                    <span>Quà tặng</span>
-                                                  ) : (
-                                                    <div></div>
-                                                  )}
-                                                  <span
-                                                    style={{ marginRight: 10 }}
+                                        {OrderDetail?.items.map((item, index) => (
+                                          <div
+                                            className="orders-shipment-item-view"
+                                            key={index}
+                                          >
+                                            <div className="orders-shipment-item-view-wrap">
+                                              <div className="orders-shipment-item-name">
+                                                <div>
+                                                  <Typography.Link
+                                                    style={{
+                                                      color: "#2A2A86",
+                                                    }}
                                                   >
-                                                    {item.quantity >= 10
-                                                      ? item.quantity
-                                                      : "0" + item.quantity}
-                                                  </span>
+                                                    {item.sku}
+                                                  </Typography.Link>
                                                 </div>
+                                                <Badge
+                                                  status="default"
+                                                  text={item.variant}
+                                                  style={{ marginLeft: 7 }}
+                                                />
+                                              </div>
+                                              <div
+                                                style={{
+                                                  width: "30%",
+                                                  display: "flex",
+                                                  justifyContent: "space-between",
+                                                }}
+                                              >
+                                                {item.type === "gift" ? (
+                                                  <span>Quà tặng</span>
+                                                ) : (
+                                                  <div></div>
+                                                )}
+                                                <span style={{ marginRight: 10 }}>
+                                                  {item.quantity >= 10
+                                                    ? item.quantity
+                                                    : "0" + item.quantity}
+                                                </span>
                                               </div>
                                             </div>
-                                          )
-                                        )}
+                                          </div>
+                                        ))}
                                       </Collapse.Panel>
                                     </Collapse>
                                   </Row>
                                   {CheckShipmentType(OrderDetail!) ===
                                     "external_service" &&
-                                    fulfillment.status !==
-                                      FulFillmentStatus.CANCELLED &&
-                                    fulfillment.status !==
-                                      FulFillmentStatus.RETURNING &&
-                                    fulfillment.status !==
-                                      FulFillmentStatus.RETURNED && (
+                                    fulfillment.status !== FulFillmentStatus.CANCELLED &&
+                                    fulfillment.status !== FulFillmentStatus.RETURNING &&
+                                    fulfillment.status !== FulFillmentStatus.RETURNED && (
                                       <Row
                                         gutter={24}
                                         style={{
@@ -1576,9 +1499,7 @@ export default function Order(props: PropType) {
                                                         fontSize: 16,
                                                       }}
                                                     >
-                                                      {TrackingCode(
-                                                        OrderDetail
-                                                      )}
+                                                      {TrackingCode(OrderDetail)}
                                                     </Typography.Link>
                                                     <div
                                                       style={{
@@ -1590,9 +1511,7 @@ export default function Order(props: PropType) {
                                                         onClick={(e) =>
                                                           copyOrderID(
                                                             e,
-                                                            TrackingCode(
-                                                              OrderDetail
-                                                            )!
+                                                            TrackingCode(OrderDetail)!
                                                           )
                                                         }
                                                         src={copyFileBtn}
@@ -1639,8 +1558,7 @@ export default function Order(props: PropType) {
                                                         <div>
                                                           <b
                                                             style={{
-                                                              paddingLeft:
-                                                                "14px",
+                                                              paddingLeft: "14px",
                                                               color: "#222222",
                                                             }}
                                                           >
@@ -1662,9 +1580,7 @@ export default function Order(props: PropType) {
                                                           >
                                                             {moment(
                                                               item.created_date
-                                                            ).format(
-                                                              "DD/MM/YYYY HH:mm"
-                                                            )}
+                                                            ).format("DD/MM/YYYY HH:mm")}
                                                           </span>
                                                         </div>
                                                       }
@@ -1679,19 +1595,16 @@ export default function Order(props: PropType) {
                                         </Col>
                                       </Row>
                                     )}
-                                  {fulfillment.status ===
-                                    FulFillmentStatus.CANCELLED ||
-                                  fulfillment.status ===
-                                    FulFillmentStatus.RETURNING ||
-                                  fulfillment.status ===
-                                    FulFillmentStatus.RETURNED ? (
+                                  {fulfillment.status === FulFillmentStatus.CANCELLED ||
+                                  fulfillment.status === FulFillmentStatus.RETURNING ||
+                                  fulfillment.status === FulFillmentStatus.RETURNED ? (
                                     <div className="saleorder-custom-steps">
                                       <div className="saleorder-steps-one saleorder-steps dot-active">
                                         <span>Ngày tạo</span>
                                         <span>
-                                          {moment(
-                                            fulfillment?.created_date
-                                          ).format("DD/MM/YYYY HH:mm")}
+                                          {moment(fulfillment?.created_date).format(
+                                            "DD/MM/YYYY HH:mm"
+                                          )}
                                         </span>
                                       </div>
                                       {fulfillment.status_before_cancellation ===
@@ -1706,9 +1619,9 @@ export default function Order(props: PropType) {
                                         >
                                           <span>Ngày hủy</span>
                                           <span>
-                                            {moment(
-                                              fulfillment?.cancel_date
-                                            ).format("DD/MM/YYYY HH:mm")}
+                                            {moment(fulfillment?.cancel_date).format(
+                                              "DD/MM/YYYY HH:mm"
+                                            )}
                                           </span>
                                         </div>
                                       )}
@@ -1717,9 +1630,9 @@ export default function Order(props: PropType) {
                                         <div className="saleorder-steps-three saleorder-steps dot-active">
                                           <span>Ngày nhận lại</span>
                                           <span>
-                                            {moment(
-                                              fulfillment?.cancel_date
-                                            ).format("DD/MM/YYYY HH:mm")}
+                                            {moment(fulfillment?.cancel_date).format(
+                                              "DD/MM/YYYY HH:mm"
+                                            )}
                                           </span>
                                         </div>
                                       )}
@@ -1817,24 +1730,16 @@ export default function Order(props: PropType) {
                                                       ? "Hoàn tiền cho khách"
                                                       : payment.payment_method}
                                                   </b>
-                                                  <span>
-                                                    {payment.reference}
-                                                  </span>
-                                                  {payment.payment_method_id ===
-                                                    5 && (
-                                                    <span
-                                                      style={{ marginLeft: 10 }}
-                                                    >
-                                                      {payment.amount / 1000}{" "}
-                                                      điểm
+                                                  <span>{payment.reference}</span>
+                                                  {payment.payment_method_id === 5 && (
+                                                    <span style={{ marginLeft: 10 }}>
+                                                      {payment.amount / 1000} điểm
                                                     </span>
                                                   )}
                                                 </div>
                                                 <span className="amount">
                                                   {formatCurrency(
-                                                    Math.abs(
-                                                      payment.paid_amount
-                                                    )
+                                                    Math.abs(payment.paid_amount)
                                                   )}
                                                 </span>
                                               </div>
@@ -1860,8 +1765,7 @@ export default function Order(props: PropType) {
                                   OrderDetail?.fulfillments[0].shipment.cod && (
                                     <Collapse.Panel
                                       className={
-                                        OrderDetail?.fulfillments[0].status !==
-                                        "shipped"
+                                        OrderDetail?.fulfillments[0].status !== "shipped"
                                           ? "orders-timeline-custom orders-dot-status"
                                           : "orders-timeline-custom "
                                       }
@@ -1872,8 +1776,8 @@ export default function Order(props: PropType) {
                                             <div className="orderPaymentItem__left">
                                               <b>
                                                 COD
-                                                {OrderDetail.fulfillments[0]
-                                                  .status !== "shipped" ? (
+                                                {OrderDetail.fulfillments[0].status !==
+                                                "shipped" ? (
                                                   <Tag
                                                     className="orders-tag orders-tag-warning"
                                                     style={{ marginLeft: 10 }}
@@ -1898,16 +1802,15 @@ export default function Order(props: PropType) {
                                                 {OrderDetail !== null &&
                                                 OrderDetail?.fulfillments
                                                   ? formatCurrency(
-                                                      OrderDetail
-                                                        .fulfillments[0]
-                                                        .shipment?.cod
+                                                      OrderDetail.fulfillments[0].shipment
+                                                        ?.cod
                                                     )
                                                   : 0}
                                               </span>
                                             </div>
                                             <div className="orderPaymentItem__right">
-                                              {OrderDetail?.fulfillments[0]
-                                                .status === "shipped" && (
+                                              {OrderDetail?.fulfillments[0].status ===
+                                                "shipped" && (
                                                 <div>
                                                   <span className="date">
                                                     {ConvertUtcToLocalDate(
@@ -1953,7 +1856,7 @@ export default function Order(props: PropType) {
                         title={
                           <Space>
                             <div className="d-flex">
-                              <span className="title-card">THANH TOÁN 2</span>
+                              <span className="title-card">THANH TOÁN 23</span>
                             </div>
                             {checkPaymentStatusToShow(OrderDetail) === 1 && (
                               <Tag
@@ -1994,8 +1897,7 @@ export default function Order(props: PropType) {
                           >
                             <Collapse.Panel
                               className={
-                                OrderDetail?.fulfillments[0].status !==
-                                "shipped"
+                                OrderDetail?.fulfillments[0].status !== "shipped"
                                   ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
                                   : "orders-timeline-custom orders-dot-fullCod-status"
                               }
@@ -2023,8 +1925,7 @@ export default function Order(props: PropType) {
                                   >
                                     {OrderDetail.fulfillments
                                       ? formatCurrency(
-                                          OrderDetail.fulfillments[0].shipment
-                                            ?.cod
+                                          OrderDetail.fulfillments[0].shipment?.cod
                                         )
                                       : 0}
                                   </b>
@@ -2036,9 +1937,7 @@ export default function Order(props: PropType) {
                                 {OrderDetail?.payments &&
                                   OrderDetail?.payments.map((item, index) => (
                                     <Col span={12} key={item.id}>
-                                      <p className="text-field">
-                                        {item.payment_method}
-                                      </p>
+                                      <p className="text-field">{item.payment_method}</p>
                                       <p>{formatCurrency(item.paid_amount)}</p>
                                     </Col>
                                   ))}
@@ -2051,8 +1950,7 @@ export default function Order(props: PropType) {
                             ? OrderDetail?.payments.map(
                                 (item, index) =>
                                   OrderDetail.total !== null &&
-                                  OrderDetail.total - item.paid_amount !==
-                                    0 && (
+                                  OrderDetail.total - item.paid_amount !== 0 && (
                                     <Button
                                       key={index}
                                       type="primary"
@@ -2081,6 +1979,7 @@ export default function Order(props: PropType) {
               {isShowBillStep && (
                 <OrderDetailBottomBar
                   isVisibleUpdateButtons={true}
+                  stepsStatusValue={stepsStatusValue}
                   formRef={formRef}
                   handleTypeButton={handleTypeButton}
                   isVisibleGroupButtons={false}
