@@ -28,6 +28,7 @@ import moment from "moment";
 import {
   BarcodeOutlined,
   CalendarOutlined,
+  DownOutlined,
   EnvironmentOutlined,
   IdcardOutlined,
   PhoneOutlined,
@@ -48,11 +49,14 @@ type EditCustomerModalProps = {
   isVisibleCollapseCustomer: boolean;
   districtId: number | null;
   titleNotify: string;
+  isVisibleBtnUpdate:boolean;
   onCancel: () => void;
   ShowAddressModalAdd: () => void;
   ShowAddressModalEdit: () => void;
   showAddressModalDelete: () => void;
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
+  setVisibleCollapseCustomer:(item:boolean)=>void;
+  setVisibleBtnUpdate:(item:boolean)=>void;
 };
 
 type FormValueType = {
@@ -84,17 +88,20 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     districtId,
     titleNotify,
     isVisibleCollapseCustomer,
+    isVisibleBtnUpdate,
     ShowAddressModalAdd,
     ShowAddressModalEdit,
     showAddressModalDelete,
     setSingleShippingAddress,
+    setVisibleCollapseCustomer,
+    setVisibleBtnUpdate
     //onOk,
   } = props;
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
 
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+  
   //element
   const fullNameElement: any = document.getElementById(
     "customer_add_full_name"
@@ -433,25 +440,81 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         </Col>
       </Row>
 
-      {isVisibleCollapseCustomer === false && isVisibleBtnUpdate === true && (
-        <Row gutter={24}>
-          <Col
-            md={24}
-            style={{ marginLeft: "-10px", marginTop: "3px", padding: "3px" }}
-          >
-            <Button
-              type="primary"
-              style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-              className="create-button-custom ant-btn-outline fixed-button"
-              onClick={onOkPress}
-            >
-              Cập nhật
-            </Button>
-          </Col>
-        </Row>
-      )}
+     
       {formItem !== null && (
-        <Divider orientation="right">
+        <div>
+          {isVisibleCollapseCustomer===false&&(
+            <Row style={{ marginBottom: "10px" }}>
+ <div
+   className="page-filter-left"
+   style={{ width: "10%", margin: "-4px 0" }}
+ >
+     <Button
+       type="link"
+       icon={<DownOutlined />}
+       style={{ padding: "0px" }}
+       onClick={() => {
+         setVisibleCollapseCustomer(true);
+       }}
+     >
+       Xem thêm
+     </Button>
+ </div>
+ <div className="page-filter-left" style={{ width: "60%" }}>
+   <div className="ant-divider ant-divider-horizontal"></div>
+ </div>
+ <div
+   className="page-filter-right"
+   style={{ width: "30%", margin: "-8px 0" }}
+ >
+   <Popover
+     placement="topLeft"
+     overlayStyle={{ zIndex: 17 }}
+     title={
+       <Row
+         justify="space-between"
+         align="middle"
+         className="change-shipping-address-title"
+         style={{ width: "100%" }}
+       >
+         <div
+           style={{
+             color: "#4F687D",
+           }}
+         >
+           Thay đổi địa chỉ
+         </div>
+         <Button
+           type="link"
+           icon={<PlusOutlined />}
+           onClick={ShowAddressModalAdd}
+         >
+           Thêm địa chỉ mới
+         </Button>
+       </Row>
+     }
+     content={
+       <CustomerShippingAddressOrder
+         customer={formItem}
+         handleChangeCustomer={handleChangeCustomer}
+         handleShippingEdit={ShowAddressModalEdit}
+         handleShippingDelete={showAddressModalDelete}
+         handleSingleShippingAddress={setSingleShippingAddress}
+       />
+     }
+     trigger="click"
+     className="change-shipping-address"
+   >
+     <Button type="link" icon={<PlusOutlined />} className="btn-style" style={{float:"right", padding:"0px"}}>
+       Thay đổi địa chỉ giao hàng
+     </Button>
+   </Popover>
+ </div>
+</Row>
+          )}
+
+          {isVisibleCollapseCustomer===true&&(
+            <Divider orientation="right">
           <Popover
             placement="topLeft"
             overlayStyle={{ zIndex: 17 }}
@@ -495,6 +558,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             </Button>
           </Popover>
         </Divider>
+          )}
+        </div>
+
+        
       )}
       {isVisibleCollapseCustomer === true && (
         <div>
@@ -596,6 +663,17 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           </Row>
         </div>
       )}
+
+<Button
+                style={{ display: "none" }}
+                id="btnUpdateCustomer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOkPress();
+                }}
+              >
+                Cập nhật
+              </Button>
     </Form>
   );
 };
