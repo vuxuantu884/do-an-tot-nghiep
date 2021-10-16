@@ -235,9 +235,9 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Tiền COD",
       dataIndex: "shipment",
-      render: (value) => (
+      render: (value?) => (
         <NumberFormat
-          value={value.cod}
+          value={value?.cod}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -250,8 +250,8 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "HTVC",
       dataIndex: "shipment",
-      render: (shipment: Shipment) => {
-        const service_id = shipment.delivery_service_provider_id;
+      render: (shipment?: Shipment) => {
+        const service_id = shipment?.delivery_service_provider_id;
         const service = delivery_service.find(
           (service) => service.id === service_id
         );
@@ -306,7 +306,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Phí trả đối tác",
       dataIndex: "shipment",
-      render: (value) => value.shipping_fee_paid_to_three_pls,
+      render: (shipment?) => shipment?.shipping_fee_paid_to_three_pls,
       key: "shipping_fee_paid_to_three_pls",
       visible: true,
     },
@@ -356,7 +356,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Lý do huỷ giao",
       dataIndex: "shipment",
-      render: (shipment: any) => <div>{shipment.cancel_reason}</div>,
+      render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
       key: "cancel_date",
       visible: true,
     },
