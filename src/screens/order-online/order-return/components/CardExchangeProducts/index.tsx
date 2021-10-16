@@ -1148,16 +1148,6 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
                 Bỏ chiết khấu tự động
               </Checkbox>
             </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }}>
-                Không tính thuế VAT
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }}>
-                Bỏ tích điểm tự động
-              </Checkbox>
-            </div>
           </Col>
           <Col xs={24} lg={10}>
             <Row

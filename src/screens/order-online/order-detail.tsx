@@ -1018,14 +1018,13 @@ const OrderDetail = (props: PropType) => {
                         </Panel>
                       </Collapse>
                     </div>
-
-                    <div className="padding-24 text-right">
-                      {OrderDetail?.payments !== null
+                    {OrderDetail?.payments !== null
                         ? OrderDetail?.payments.map(
                             (item, index) =>
                               OrderDetail.total !== null &&
                               OrderDetail.total - item.paid_amount !== 0 && (
-                                <Button
+                                <div className="padding-24 text-right">
+                    <Button
                                   key={index}
                                   type="primary"
                                   className="ant-btn-outline fixed-button"
@@ -1037,10 +1036,11 @@ const OrderDetail = (props: PropType) => {
                                 >
                                   Thanh toán
                                 </Button>
+                    </div>
                               )
                           )
                         : "Chưa thanh toán"}
-                    </div>
+                    
                   </Card>
                 )}
 
