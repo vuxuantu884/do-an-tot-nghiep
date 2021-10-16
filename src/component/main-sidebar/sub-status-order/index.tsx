@@ -61,18 +61,20 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       }
       dispatch(
         getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
-          const subStatusWaitingConfirmDraft: OrderSubStatusResponse = {
-            id: 1,
-            status: "Chờ xác nhận",
-            company_id: DEFAULT_FORM_VALUE.company_id,
-            company: DEFAULT_FORM_VALUE.company,
-            sub_status: "Chờ xác nhận",
-            note: "",
-            is_active: true,
-            is_delete: false,
-          };
-          data.push(subStatusWaitingConfirmDraft);
-          setListOrderSubStatus(data);
+          const moreSubStatus: OrderSubStatusResponse[] = [
+            {
+              id: 1,
+              status: "Chờ xác nhận",
+              company_id: DEFAULT_FORM_VALUE.company_id,
+              company: DEFAULT_FORM_VALUE.company,
+              sub_status: "Chờ xác nhận",
+              note: "",
+              is_active: true,
+              is_delete: false,
+            },
+          ];
+          let result = data.concat(moreSubStatus);
+          setListOrderSubStatus(result);
         })
       );
     }
