@@ -8,9 +8,10 @@ import {
   Button,
   Divider,
   Popover,
+  FormInstance,
 } from "antd";
 import { useDispatch } from "react-redux";
-import React, { useCallback, useEffect } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { showSuccess } from "utils/ToastUtils";
 import {
@@ -27,6 +28,7 @@ import moment from "moment";
 import {
   BarcodeOutlined,
   CalendarOutlined,
+  EnvironmentOutlined,
   IdcardOutlined,
   PhoneOutlined,
   PlusOutlined,
@@ -34,7 +36,6 @@ import {
 } from "@ant-design/icons";
 
 import CustomerShippingAddressOrder from "../component/order-detail/CardCustomer/customer-shipping";
-
 
 type EditCustomerModalProps = {
   areas: any;
@@ -46,12 +47,12 @@ type EditCustomerModalProps = {
   modalAction: string;
   isVisibleCollapseCustomer: boolean;
   districtId: number | null;
-  titleNotify:string;
+  titleNotify: string;
   onCancel: () => void;
-  ShowAddressModalAdd:()=>void;
-  ShowAddressModalEdit:()=>void;
-  showAddressModalDelete:()=>void;
-  setSingleShippingAddress:(item:CustomerShippingAddress | null)=>void;
+  ShowAddressModalAdd: () => void;
+  ShowAddressModalEdit: () => void;
+  showAddressModalDelete: () => void;
+  setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
 };
 
 type FormValueType = {
@@ -83,7 +84,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     districtId,
     titleNotify,
     isVisibleCollapseCustomer,
-    onCancel,
     ShowAddressModalAdd,
     ShowAddressModalEdit,
     showAddressModalDelete,
@@ -92,6 +92,58 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   } = props;
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
+  const formRef = createRef<FormInstance>();
+
+  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+  //element
+  const fullNameElement: any = document.getElementById(
+    "customer_add_full_name"
+  );
+  const phoneElement: any = document.getElementById("customer_add_phone");
+  const cardNumberElement: any = document.getElementById(
+    "customer_add_card_number"
+  );
+  const districtElement: any = document.getElementById(
+    "customer_add_district_id"
+  );
+  const wardElement: any = document.getElementById("customer_add_ward_id_list");
+  const fullAddressElement: any = document.getElementById(
+    "customer_add_full_address"
+  );
+  const genreElement: any = document.getElementById("customer_add_gender");
+  const birthdayElement: any = document.getElementById("customer_add_birthday");
+  const groupElement: any = document.getElementById(
+    "customer_add_customer_group_id"
+  );
+
+  //event
+  fullNameElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  phoneElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  cardNumberElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  districtElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  wardElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  fullAddressElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  genreElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  birthdayElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
+  groupElement?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true);
+  });
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValue: FormValueType =
@@ -130,11 +182,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     customerForm.submit();
   }, [customerForm]);
 
-  const handleCancel = () => {
-    customerForm.resetFields();
-    onCancel();
-  };
-
   const createCustomerCallback = useCallback(
     (result: CustomerResponse) => {
       if (result !== null && result !== undefined) {
@@ -164,8 +211,8 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           city_id: area ? area.city_id : null,
           version: formItem.version,
           email: formItem.email,
-          gender:formItem.gender,
-          contact_note:formItem.contact_note,
+          gender: formItem.gender,
+          contact_note: formItem.contact_note,
           shipping_addresses: formItem.shipping_addresses.map((item: any) => {
             let _item = { ...item };
             _item.is_default = _item.default;
@@ -238,6 +285,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   return (
     <Form
       form={customerForm}
+      ref={formRef}
       name="customer_add"
       onFinish={handleSubmit}
       layout="vertical"
@@ -282,11 +330,17 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               className="select-with-search"
               showSearch
               allowClear
-              placeholder="Chọn khu vực"
+              placeholder={
+                <React.Fragment>
+                  <EnvironmentOutlined />
+                  <span> Chọn khu vực</span>
+                </React.Fragment>
+              }
               style={{ width: "100%" }}
               onChange={(value) => {
                 handleChangeArea(value);
                 DefaultWard();
+                setVisibleBtnUpdate(true);
               }}
               optionFilterProp="children"
             >
@@ -341,7 +395,15 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               allowClear
               optionFilterProp="children"
               style={{ width: "100%" }}
-              placeholder="Chọn phường/xã"
+              placeholder={
+                <React.Fragment>
+                  <EnvironmentOutlined />
+                  <span> Chọn phường/xã</span>
+                </React.Fragment>
+              }
+              onChange={() => {
+                setVisibleBtnUpdate(true);
+              }}
             >
               {wards.map((ward: any) => (
                 <Select.Option key={ward.id} value={ward.id}>
@@ -353,171 +415,187 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         </Col>
 
         <Col xs={24} lg={12}>
-          <Form.Item name="card_number" 
-          //label="Mã thẻ"
+          <Form.Item
+            name="card_number"
+            //label="Mã thẻ"
           >
             <Input placeholder="Nhập mã thẻ" prefix={<BarcodeOutlined />} />
           </Form.Item>
         </Col>
 
         <Col xs={24} lg={12}>
-          <Form.Item name="full_address" 
-          //</Col>label="Địa chỉ"
+          <Form.Item
+            name="full_address"
+            //</Col>label="Địa chỉ"
           >
-            <Input placeholder="Địa chỉ" prefix={<IdcardOutlined />} />
+            <Input placeholder="Địa chỉ" prefix={<EnvironmentOutlined />} />
           </Form.Item>
         </Col>
       </Row>
 
-      {isVisibleCollapseCustomer===false &&(
-      <Row gutter={24}>
-        <Col
-          md={24}
-          style={{ marginLeft: "-10px", marginTop: "3px", padding: "3px" }}
-        >
-          <Button
-            type="primary"
-            style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-            className="create-button-custom ant-btn-outline fixed-button"
-            onClick={onOkPress}
-          >
-            Cập nhật
-          </Button>
-        </Col>
-        </Row>
-     )}
-      {formItem!==null &&(
-      <Divider orientation="right" >
-        <Popover
-                      placement="topLeft"
-                     overlayStyle={{ zIndex: 17 }}
-                     title={
-                       <Row
-                         justify="space-between"
-                         align="middle"
-                         className="change-shipping-address-title"
-                         style={{ width: "100%" }}
-                       >
-                         <div
-                           style={{
-                             color: "#4F687D",
-                           }}
-                         >
-                           Thay đổi địa chỉ
-                         </div>
-                         <Button type="link" icon={<PlusOutlined />} onClick={ShowAddressModalAdd}>
-                           Thêm địa chỉ mới
-                         </Button>
-                       </Row>
-                     }
-                     content={
-                       <CustomerShippingAddressOrder
-                         customer={formItem}
-                         handleChangeCustomer={handleChangeCustomer}
-                         handleShippingEdit={ShowAddressModalEdit}
-                         handleShippingDelete={showAddressModalDelete}
-                         handleSingleShippingAddress={
-                           setSingleShippingAddress
-                         }
-                       />
-                     }
-                     trigger="click"
-                     className="change-shipping-address"
-                   >
-                     <Button type="link"icon={<PlusOutlined />} className="btn-style">
-                       Thay đổi địa chỉ giao hàng
-                     </Button>
-                   </Popover>
-      </Divider>
-      )}
-     {isVisibleCollapseCustomer===true &&(
-       <div>
+      {isVisibleCollapseCustomer === false && isVisibleBtnUpdate === true && (
         <Row gutter={24}>
-
-        <Col xs={24} lg={12}>
-          <Form.Item name="gender" 
-          //label="Giới tính"
+          <Col
+            md={24}
+            style={{ marginLeft: "-10px", marginTop: "3px", padding: "3px" }}
           >
-            <Select
-              showSearch
-              allowClear
-              optionFilterProp="children"
-              placeholder="Giới tính"
-              className="select-with-search"
+            <Button
+              type="primary"
+              style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+              className="create-button-custom ant-btn-outline fixed-button"
+              onClick={onOkPress}
             >
-                  <Select.Option key={1} value={"male"}>Nam</Select.Option>
-                  <Select.Option key={2} value={"female"}>Nữ</Select.Option>
-                  <Select.Option key={3} value={"other"}>Không xác định</Select.Option>
-            </Select>
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} lg={12}>
-          <Form.Item
-            name="birthday"
-           // label="Ngày sinh"
-            rules={[
-              {
-                validator: async (_, birthday) => {
-                  if (birthday && birthday > new Date()) {
-                    return Promise.reject(
-                      new Error("Ngày sinh không được lớn hơn ngày hiện tại")
-                    );
-                  }
-                },
-              },
-            ]}
-          >
-            <DatePicker
-              style={{ width: "100%" }}
-              placeholder="Chọn ngày sinh"
-              format={"DD/MM/YYYY"}
-              suffixIcon={<CalendarOutlined />}
-            />
-          </Form.Item>
-        </Col>
-
-        <Col xs={24} lg={12}>
-          <Form.Item name="customer_group_id" 
-         // label="Nhóm"
-          >
-            <Select
-              showSearch
-              allowClear
-              optionFilterProp="children"
-              placeholder="Nhóm"
-              className="select-with-search"
-            >
-              {groups &&
-                groups.map((group: any) => (
-                  <Select.Option key={group.id} value={group.id}>
-                    {group.name}
-                  </Select.Option>
-                ))}
-            </Select>
-          </Form.Item>
-        </Col>
-        {isVisibleCollapseCustomer===true&&(
-          <Col xs={24} lg={12} style={{paddingRight:"12px"}}>
-        <Button
-            type="primary"
-            style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-            className="create-button-custom ant-btn-outline fixed-button"
-            onClick={onOkPress}
-          >
-            Cập nhật
-          </Button>
-        </Col>
-
-        )}
-        
+              Cập nhật
+            </Button>
+          </Col>
         </Row>
-        
-       </div>
-     )}
-   
-     
-      
+      )}
+      {formItem !== null && (
+        <Divider orientation="right">
+          <Popover
+            placement="topLeft"
+            overlayStyle={{ zIndex: 17 }}
+            title={
+              <Row
+                justify="space-between"
+                align="middle"
+                className="change-shipping-address-title"
+                style={{ width: "100%" }}
+              >
+                <div
+                  style={{
+                    color: "#4F687D",
+                  }}
+                >
+                  Thay đổi địa chỉ
+                </div>
+                <Button
+                  type="link"
+                  icon={<PlusOutlined />}
+                  onClick={ShowAddressModalAdd}
+                >
+                  Thêm địa chỉ mới
+                </Button>
+              </Row>
+            }
+            content={
+              <CustomerShippingAddressOrder
+                customer={formItem}
+                handleChangeCustomer={handleChangeCustomer}
+                handleShippingEdit={ShowAddressModalEdit}
+                handleShippingDelete={showAddressModalDelete}
+                handleSingleShippingAddress={setSingleShippingAddress}
+              />
+            }
+            trigger="click"
+            className="change-shipping-address"
+          >
+            <Button type="link" icon={<PlusOutlined />} className="btn-style">
+              Thay đổi địa chỉ giao hàng
+            </Button>
+          </Popover>
+        </Divider>
+      )}
+      {isVisibleCollapseCustomer === true && (
+        <div>
+          <Row gutter={24}>
+            <Col xs={24} lg={12}>
+              <Form.Item
+                name="gender"
+                //label="Giới tính"
+              >
+                <Select
+                  showSearch
+                  allowClear
+                  optionFilterProp="children"
+                  placeholder="Giới tính"
+                  className="select-with-search"
+                  onChange={() => {
+                    setVisibleBtnUpdate(true);
+                  }}
+                >
+                  <Select.Option key={1} value={"male"}>
+                    Nam
+                  </Select.Option>
+                  <Select.Option key={2} value={"female"}>
+                    Nữ
+                  </Select.Option>
+                  <Select.Option key={3} value={"other"}>
+                    Không xác định
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} lg={12}>
+              <Form.Item
+                name="birthday"
+                // label="Ngày sinh"
+                rules={[
+                  {
+                    validator: async (_, birthday) => {
+                      if (birthday && birthday > new Date()) {
+                        return Promise.reject(
+                          new Error(
+                            "Ngày sinh không được lớn hơn ngày hiện tại"
+                          )
+                        );
+                      }
+                    },
+                  },
+                ]}
+              >
+                <DatePicker
+                  style={{ width: "100%" }}
+                  placeholder="Chọn ngày sinh"
+                  format={"DD/MM/YYYY"}
+                  suffixIcon={<CalendarOutlined />}
+                  onChange={() => {
+                    setVisibleBtnUpdate(true);
+                  }}
+                />
+              </Form.Item>
+            </Col>
+
+            <Col xs={24} lg={12}>
+              <Form.Item
+                name="customer_group_id"
+                // label="Nhóm"
+              >
+                <Select
+                  showSearch
+                  allowClear
+                  optionFilterProp="children"
+                  placeholder="Nhóm"
+                  className="select-with-search"
+                  onChange={() => {
+                    setVisibleBtnUpdate(true);
+                  }}
+                >
+                  {groups &&
+                    groups.map((group: any) => (
+                      <Select.Option key={group.id} value={group.id}>
+                        {group.name}
+                      </Select.Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            {isVisibleCollapseCustomer === true && isVisibleBtnUpdate === true && (
+              <Col xs={24} lg={12} style={{ paddingRight: "12px" }}>
+                <Button
+                  type="primary"
+                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={onOkPress}
+                >
+                  Cập nhật
+                </Button>
+              </Col>
+            )}
+          </Row>
+        </div>
+      )}
     </Form>
   );
 };
