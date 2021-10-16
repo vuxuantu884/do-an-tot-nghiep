@@ -166,7 +166,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const event = useCallback(
     (event: KeyboardEvent) => {
-      console.log(storeId);
       if (event.target instanceof HTMLInputElement) {
         if (
           event.keyCode === 13 &&
