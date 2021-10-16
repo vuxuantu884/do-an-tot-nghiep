@@ -651,7 +651,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     isVisibleCollapseCustomer={isVisibleCollapseCustomer}
                     districtId={districtId}
                     titleNotify={titleNotify}
-                    isVisibleBtnUpdate={isVisibleBtnUpdate}
                     handleChangeArea={handleChangeArea}
                     handleChangeCustomer={handleChangeCustomer}
                     onCancel={CustomerDeleteInfo}

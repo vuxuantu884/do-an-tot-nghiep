@@ -51,7 +51,6 @@ type EditCustomerModalProps = {
   isVisibleCollapseCustomer: boolean;
   districtId: number | null;
   titleNotify: string;
-  isVisibleBtnUpdate: boolean;
   onCancel: () => void;
   ShowAddressModalAdd: () => void;
   ShowAddressModalEdit: () => void;
@@ -90,7 +89,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     districtId,
     titleNotify,
     isVisibleCollapseCustomer,
-    isVisibleBtnUpdate,
     ShowAddressModalAdd,
     ShowAddressModalEdit,
     showAddressModalDelete,
