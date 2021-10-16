@@ -17,3 +17,23 @@ export const STATUS_INVENTORY_TRANSFER = {
     name: "Đã nhận"
   },
 }
+
+export const STATUS_INVENTORY_TRANSFER_ARRAY = [
+  {
+    value: "confirmed",
+    name: "Chờ chuyển"
+  },
+  {
+    value: "transfering",
+    name: "Đang chuyển"
+  },
+  {
+    value: "pending",
+    name: "Chờ xử lý"
+  },
+  {
+    value: "received",
+    name: "Đã nhận"
+  },
+
+]

@@ -5,31 +5,41 @@ import {
   DeleteTicketRequest,
   FileParam,
   InventoryTransferDetailItem,
+  InventoryTransferLog,
+  InventoryTransferLogSearchQuery,
   InventoryTransferSearchQuery,
   StockTransferSubmit,
   Store,
   StoreStatus,
-} from "../../../model/inventory/transfer";
+} from "model/inventory/transfer";
 import * as queryString from "querystring";
 import { VariantResponse } from "../../../model/product/product.model";
 import { generateQuery } from "utils/AppUtils";
+import { PageResponse } from "model/base/base-metadata.response";
 
 export const getListInventoryTransferApi = (
   query: InventoryTransferSearchQuery
 ): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.INVENTORY}/inventory-transfers?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers?${queryString}`);
+};
+
+export const getListLogInventoryTransferApi = (
+  query: InventoryTransferLogSearchQuery
+): Promise<BaseResponse<PageResponse<InventoryTransferLog>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/logs?${queryString}`);
 };
 
 export const inventorGetDetailApi = (id: number) => {
-  return BaseAxios.get(`${ApiConfig.INVENTORY}/inventory-transfers/${id}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}`);
 }
 
 export const DeleteInventoryService = (
   id: string,
   request: DeleteTicketRequest
 ): Promise<BaseResponse<InventoryTransferDetailItem>> => {
-  return BaseAxios.put(`${ApiConfig.INVENTORY}/inventory-transfers/delete/${id}`, request);
+  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/delete/${id}`, request);
 };
 
 const TransferService = {
@@ -72,14 +82,14 @@ const TransferService = {
   createInventoryTransfer: (
     data: StockTransferSubmit
   ): Promise<BaseResponse<string>> => {
-    return BaseAxios.post(`${ApiConfig.INVENTORY}/inventory-transfers`, data);
+    return BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers`, data);
   },
 
   //update
   updateInventoryTransfer: (
     id: number, data: StockTransferSubmit
   ): Promise<BaseResponse<string>> => {
-    return BaseAxios.put(`${ApiConfig.INVENTORY}/inventory-transfers/${id}`, data);
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}`, data);
   },
 };
 

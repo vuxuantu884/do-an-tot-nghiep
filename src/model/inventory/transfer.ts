@@ -3,23 +3,35 @@ import { BaseObject } from "../base/base.response";
 export interface InventoryTransferSearchQuery {
   page: number;
   limit: number;
-  condition: string,
-  from_store_id: number | "",
-  to_store_id: number | "",
-  status: string,
-  from_total_variant: number | "",
-  to_total_variant: number | "",
-  from_total_quantity: number | "",
-  to_total_quantity: number | "",
-  from_total_amount: number | "",
-  to_total_amount: number | "",
-  created_by: string,
-  from_created_date: String,
-  to_created_date: String,
-  from_transfer_date: String,
-  to_transfer_date: String,
-  from_receive_date: String,
-  to_receive_date: String
+  condition: string | null,
+  from_store_id: number | null,
+  to_store_id: number | null,
+  status: [],
+  from_total_variant: number | null,
+  to_total_variant: number | null,
+  from_total_quantity: number | null,
+  to_total_quantity: number | null,
+  from_total_amount: number | null,
+  to_total_amount: number | null,
+  created_by: [],
+  from_created_date: string|null,
+  to_created_date: string|null,
+  from_transfer_date: string|null,
+  to_transfer_date: string|null,
+  from_receive_date: string|null,
+  to_receive_date: string|null
+}
+
+export interface InventoryTransferLogSearchQuery{
+  page: number;
+  limit: number;
+  condition: string | null,
+  from_store_id: number | null,
+  to_store_id: number | null,
+  updated_by: [],
+  action: [],
+  from_created_date: string|null,
+  to_created_date: string|null
 }
 
 export interface Store extends BaseObject {
@@ -53,7 +65,7 @@ export interface Store extends BaseObject {
   zip_code: string;
 }
 
-type StoreStatus = {
+export type StoreStatus = {
   simple?: boolean;
   status?: string;
   limit?: number;
@@ -62,12 +74,12 @@ type StoreStatus = {
   store_id?: number;
 };
 
-type FileParam = {
+export type FileParam = {
   files: File[] | undefined;
   folder: string;
 };
 
-interface LineItem {
+export interface LineItem {
   id: number;
   code: string;
   version: number;
@@ -91,13 +103,13 @@ interface LineItem {
   barcode: string;
 }
 
-interface FileUrl {
+export interface FileUrl {
   id?: number;
   transfer_id?: number;
   url: string;
 }
 
-type StockTransferSubmit = {
+export type StockTransferSubmit = {
   store_transfer: {
     id?: number;
     store_id: number,
@@ -122,7 +134,7 @@ type StockTransferSubmit = {
   exception_items: [];
 };
 
-interface InventoryTransferDetailItem {
+export interface InventoryTransferDetailItem {
   id: number;
   code: string;
   version: number;
@@ -149,13 +161,34 @@ interface InventoryTransferDetailItem {
   transfer_date: Date;
   receive_date: string;
   cancel_date: string;
-  attached_files: Array;
+  attached_files: [];
   note: string;
   store_transfer: Store;
   store_receive: Store;
-  line_items: Array[LineItem];
+  line_items: Array<LineItem>;
 };
 
-type DeleteTicketRequest = {
+export type DeleteTicketRequest = {
   note: string;
+};
+
+export interface InventoryTransferLog {
+    id: number;
+    code: string;
+    version: number;
+    created_by: string;
+    created_name: string;
+    created_date: Date;
+    updated_by: string;
+    updated_name: string;
+    updated_date: Date;
+    root_id: number;
+    data: string;
+    action: string;
+    transfer_code: string;
+    transfer_id: number;
+    from_store_name: string;
+    to_store_name: string;
+    from_store_id: number;
+    to_store_id: number;
 };

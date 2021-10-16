@@ -18,6 +18,8 @@ import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
+import { AccountResponse } from "model/account/account.model";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -32,23 +34,23 @@ const ACTIONS_INDEX = {
 const initQuery: InventoryTransferSearchQuery = {
   page: 1,
   limit: 30,
-  condition: "",
-  from_store_id: "",
-  to_store_id: "",
-  status: "",
-  from_total_variant: "",
-  to_total_variant: "",
-  from_total_quantity: "",
-  to_total_quantity: "",
-  from_total_amount: "",
-  to_total_amount: "",
-  created_by: "",
-  from_created_date: "",
-  to_created_date: "",
-  from_transfer_date: "",
-  to_transfer_date: "",
-  from_receive_date: "",
-  to_receive_date: ""
+  condition: null,
+  from_store_id: null,
+  to_store_id: null,
+  status: [],
+  from_total_variant: null,
+  to_total_variant: null,
+  from_total_quantity: null,
+  to_total_quantity: null,
+  from_total_amount: null,
+  to_total_amount: null,
+  created_by: [],
+  from_created_date: null,
+  to_created_date: null,
+  from_transfer_date: null,
+  to_transfer_date: null,
+  from_receive_date: null,
+  to_receive_date: null
 };
 
 const actions: Array<MenuAction> = [
@@ -90,6 +92,7 @@ const InventoryTransferTab: React.FC = () => {
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [tableLoading, setTableLoading] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
@@ -259,6 +262,27 @@ const InventoryTransferTab: React.FC = () => {
     []
   );
 
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
+
+  const onFilter = useCallback(
+    (values) => {
+      // console.log("values filter 1", values);
+      let newPrams = { ...params, ...values, page: 1 };
+      setPrams(newPrams);
+      let queryParam = generateQuery(newPrams);
+      history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
+    },
+    [history, params]
+  );
+
   const printTicketAction = useCallback((index: number) => {
     let printType = "";
     if (index === ACTIONS_INDEX.PRINT) {
@@ -266,7 +290,6 @@ const InventoryTransferTab: React.FC = () => {
     } else if (index === ACTIONS_INDEX.PRINT_TICKET) {
       printType = "inventory_transfer";
     }
-    console.log('selectedRowKeys', selectedRowKeys);
 
     let params = {
       ids: selectedRowKeys,
@@ -295,6 +318,15 @@ const InventoryTransferTab: React.FC = () => {
     [printTicketAction]
   );
 
+  const onClearFilter = useCallback(
+    () => {
+      setPrams(initQuery);
+      let queryParam = generateQuery(initQuery);
+      history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
+    },
+    [history]
+  );
+
   const onSelectedChange = useCallback((selectedRow) => {
     
     const selectedRowKeys = selectedRow.map((row: any) => row.id);    
@@ -304,13 +336,14 @@ const InventoryTransferTab: React.FC = () => {
 
   //get store
   useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(
       inventoryGetSenderStoreAction(
         { status: "active", simple: true },
         setStores
       )
     );
-  }, [dispatch]);
+  }, [dispatch, setDataAccounts]);
 
   //get list
   useEffect(() => {
@@ -320,11 +353,13 @@ const InventoryTransferTab: React.FC = () => {
   return (
     <InventoryTransferTabWrapper>
       <InventoryFilters
-        params={[]}
+        accounts={accounts}
+        params={params}
         stores={stores}
         actions={actions}
         onMenuClick={onMenuClick}
-        onClickOpen={() => setShowSettingColumn(true)}
+        onFilter={onFilter}
+        onClearFilter={() => onClearFilter()}
       />
       <CustomTable
         isRowSelection

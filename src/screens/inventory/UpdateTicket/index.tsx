@@ -102,14 +102,14 @@ const UpdateTicket: FC = () => {
         form.setFieldsValue(result);
         setInitDataForm(result);
         setDataTable(result.line_items);
-        const listFile: Array<UploadFile> = result.attached_files?.map((item: string ) => {
+        const listFile: any = result.attached_files?.map((item: string ) => {
           return {
             name: item,
             url: item,
           }
         });
         setFileList(listFile);
-        const fileCurrent = listFile.map(item => item.url);
+        const fileCurrent = listFile.map((item: any) => item.url);
         form.setFieldsValue({ attached_files: fileCurrent });
       }
     },

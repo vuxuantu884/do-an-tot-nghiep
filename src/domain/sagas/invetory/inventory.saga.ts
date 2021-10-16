@@ -25,11 +25,12 @@ import {
   inventorGetDetailApi,
   DeleteInventoryService,
   updateInventoryTransfer,
-} from "../../../service/inventory/transfer/index.service";
-import { InventoryTransferDetailItem, Store } from "../../../model/inventory/transfer";
+  getListLogInventoryTransferApi,
+} from "service/inventory/transfer/index.service";
+import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
-import { VariantStore } from "../../../model/inventory/variant";
-import { VariantResponse } from "../../../model/product/product.model";
+import { VariantStore } from "model/inventory/variant";
+import { VariantResponse } from "model/product/product.model";
 
 function* inventoryGetListSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
@@ -37,6 +38,30 @@ function* inventoryGetListSaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<any>> =
       yield call(getListInventoryTransferApi, queryParams);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* inventoryGetLogListSaga(action: YodyAction) {
+  let { queryParams, onResult } = action.payload;
+  
+  try {
+    const response: BaseResponse<PageResponse<Array<InventoryTransferLog>>> =
+      yield call(getListLogInventoryTransferApi, queryParams);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -316,6 +341,7 @@ function* updateInventoryTransferSaga(action: YodyAction) {
 
 export function* inventorySaga() {
   yield takeLatest(InventoryType.GET_LIST_INVENTORY_TRANSFER, inventoryGetListSaga);
+  yield takeLatest(InventoryType.GET_LIST_LOG_INVENTORY_TRANSFER, inventoryGetLogListSaga);
   yield takeLatest(InventoryType.GET_DETAIL_INVENTORY_TRANSFER, inventoryGetDetailSaga);
   yield takeLatest(InventoryType.DELETE_INVENTORY_TRANSFER, inventoryTransferDeleteSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER, createInventoryTransferSaga);

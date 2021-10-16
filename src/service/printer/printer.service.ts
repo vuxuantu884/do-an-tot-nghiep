@@ -65,5 +65,5 @@ export const getPrintTicketIdsService = (
   };
   const queryString = generateQuery(queryParams);
   
-  return BaseAxios.get(`${ApiConfig.INVENTORY}/inventory-transfers/print_forms?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/print_forms?${queryString}`);
 };

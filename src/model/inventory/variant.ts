@@ -2,7 +2,7 @@ import {VariantPricesResponse} from "../product/product.model";
 
 
 
-interface VariantStore {
+export interface VariantStore {
     "id": number;
     "code": string;
     "version": string;
@@ -36,7 +36,7 @@ interface VariantStore {
     "length_unit": string;
     "product_id": number;
     variant_prices: Array<VariantPricesResponse>
-    "variant_images": Array;
+    "variant_images": [];
     "composites": string;
 }
 

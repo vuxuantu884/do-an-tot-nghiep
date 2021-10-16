@@ -1,16 +1,18 @@
-import BaseAction from "../../../../base/base.action";
+import BaseAction from "base/base.action";
 import { InventoryType } from "../../../types/inventory.type";
 import {
   DeleteTicketRequest,
   FileParam,
   InventoryTransferDetailItem,
+  InventoryTransferLog,
+  InventoryTransferLogSearchQuery,
   InventoryTransferSearchQuery,
   StockTransferSubmit,
   Store,
   StoreStatus,
-} from "../../../../model/inventory/transfer";
-import { PageResponse } from "../../../../model/base/base-metadata.response";
-import { VariantResponse } from "../../../../model/product/product.model";
+} from "model/inventory/transfer";
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantResponse } from "model/product/product.model";
 
 const inventoryGetSenderStoreAction = (
   queryParams: StoreStatus,
@@ -66,6 +68,16 @@ const getListInventoryTransferAction = (
   });
 };
 
+const getListLogInventoryTransferAction = (
+  queryParams: InventoryTransferLogSearchQuery,
+  onResult: (data: PageResponse<Array<InventoryTransferLog>>) => void
+) => {
+  return BaseAction(InventoryType.GET_LIST_LOG_INVENTORY_TRANSFER, {
+    queryParams,
+    onResult,
+  });
+};
+
 const getDetailInventoryTransferAction = (
   id: number,
   onResult: (result: InventoryTransferDetailItem | false) => void
@@ -97,4 +109,5 @@ export {
   getListInventoryTransferAction,
   getDetailInventoryTransferAction,
   deleteInventoryTransferAction,
+  getListLogInventoryTransferAction,
 };
