@@ -684,6 +684,30 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </div>
 
           <div>
+            {customer === null &&(
+               <div className="send-order-box">
+                 <Row gutter={12} style={{ marginTop: 15 }}>
+                  <Col md={12}>
+                    
+                  </Col>
+                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
+                  { isVisibleBtnUpdate === true  && (
+                     <Button
+                      type="primary"
+                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={()=>{
+                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
+                        btnUpdateCustomerElement?.click();
+                      }}
+                      >
+                        Cập nhật
+                      </Button>
+                    )}
+                  </Col>
+                </Row>
+               </div>
+            )}
             {customer !== null && (
               <div className="send-order-box">
                 <Row gutter={12} style={{ marginTop: 15 }}>
@@ -698,7 +722,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Checkbox>
                   </Col>
                   <Col md={12} style={{float:"right",marginTop: "-10px"}}>
-                  {isVisibleCollapseCustomer === false&& isVisibleBtnUpdate === true  && (
+                  { isVisibleBtnUpdate === true  && (
                      <Button
                       type="primary"
                       style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
