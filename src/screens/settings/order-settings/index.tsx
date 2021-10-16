@@ -47,8 +47,7 @@ function OrderSettings(props: PropType) {
     useState<OrderConfigResponseModel | null>(null);
 
   const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
 
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
@@ -87,11 +86,7 @@ function OrderSettings(props: PropType) {
       title: "Thời gian áp dụng",
       dataIndex: "date",
       key: "date",
-      render: (
-        value: any,
-        row: ShippingServiceConfigResponseModel,
-        index: number
-      ) => {
+      render: (value: any, row: ShippingServiceConfigResponseModel, index: number) => {
         const start_date_text = moment(row.start_date).format(dateFormat);
         const end_date_text = moment(row.end_date).format(dateFormat);
         return <span>{`${start_date_text} - ${end_date_text}`}</span>;
@@ -127,9 +122,7 @@ function OrderSettings(props: PropType) {
                 to={`${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${row.id}`}
               >
                 <Button
-                  icon={
-                    <img alt="" style={{ marginRight: 12 }} src={iconEdit} />
-                  }
+                  icon={<img alt="" style={{ marginRight: 12 }} src={iconEdit} />}
                   type="text"
                   className=""
                   style={{
@@ -144,9 +137,7 @@ function OrderSettings(props: PropType) {
             </Menu.Item>
             <Menu.Item key="2">
               <Button
-                icon={
-                  <img alt="" style={{ marginRight: 12 }} src={iconDelete} />
-                }
+                icon={<img alt="" style={{ marginRight: 12 }} src={iconDelete} />}
                 type="text"
                 className=""
                 style={{
@@ -174,11 +165,7 @@ function OrderSettings(props: PropType) {
             }}
           >
             <div className="action-group">
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
+              <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
                 <Button
                   type="text"
                   icon={<img src={threeDot} alt=""></img>}
@@ -206,9 +193,7 @@ function OrderSettings(props: PropType) {
   };
 
   const goToPageDetail = (id: string | number) => {
-    history.push(
-      `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
-    );
+    history.push(`${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`);
   };
 
   const onUpdateOrderConfig = (params: OrderConfigRequestModel) => {
@@ -271,7 +256,7 @@ function OrderSettings(props: PropType) {
             onUpdateOrderConfig={onUpdateOrderConfig}
           />
         ) : (
-          "Đang cập nhật"
+          <div style={{ marginBottom: 15 }}>Đang cập nhật...</div>
         )}
 
         <Card
