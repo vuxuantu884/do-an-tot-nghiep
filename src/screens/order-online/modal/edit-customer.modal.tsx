@@ -11,7 +11,7 @@ import {
   FormInstance,
 } from "antd";
 import { useDispatch } from "react-redux";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect } from "react";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { showSuccess } from "utils/ToastUtils";
 import {
@@ -30,7 +30,6 @@ import {
   CalendarOutlined,
   DownOutlined,
   EnvironmentOutlined,
-  IdcardOutlined,
   ManOutlined,
   PhoneOutlined,
   PlusOutlined,

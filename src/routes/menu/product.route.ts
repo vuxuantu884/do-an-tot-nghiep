@@ -2,6 +2,7 @@ import React from "react";
 import { RouteMenu } from "model/other";
 import ColorUpdateScreen from "screens/products/color/color-update.screen";
 import UrlConfig from "config/url.config";
+import ProcurementScreen from "screens/products/procurement";
 
 
 const Category = React.lazy(
@@ -216,6 +217,17 @@ const product: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
     ],
+  },
+  {
+    path: UrlConfig.PROCUREMENT,
+    exact: true,
+    title: "Đơn nhập kho",
+    icon: "icon-dot",
+    component: ProcurementScreen,
+    key: "submenu25",
+    isShow: true,
+    header: null,
+    subMenu: [],
   },
   {
     path: UrlConfig.INVENTORY,
