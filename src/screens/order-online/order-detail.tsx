@@ -623,7 +623,6 @@ const OrderDetail = (props: PropType) => {
                 OrderDetail?.payments &&
                 OrderDetail?.payments?.length > 0 && (
                   <Card
-                    className="margin-top-20"
                     title={
                       <Space>
                         <div className="d-flex">
@@ -653,7 +652,7 @@ const OrderDetail = (props: PropType) => {
                       </Space>
                     }
                   >
-                    <div className="padding-24">
+                    <div style={{ marginBottom: 20 }}>
                       <Row>
                         <Col span={12}>
                           <span className="text-field margin-right-40">
@@ -695,7 +694,7 @@ const OrderDetail = (props: PropType) => {
 
                     {OrderDetail?.payments && (
                       <div>
-                        <div style={{ padding: "0 24px 24px 24px" }}>
+                        <div style={{ padding: "0 24px" }}>
                           <Collapse
                             className="orders-timeline"
                             defaultActiveKey={["100"]}
@@ -927,7 +926,6 @@ const OrderDetail = (props: PropType) => {
                       : 0) &&
                 checkPaymentStatusToShow(OrderDetail) !== 1 && (
                   <Card
-                    className="margin-top-20"
                     title={
                       <Space>
                         <div className="d-flex">
@@ -947,7 +945,7 @@ const OrderDetail = (props: PropType) => {
                       </Space>
                     }
                   >
-                    <div className="padding-24">
+                    <div style={{ marginBottom: 20 }}>
                       <Row>
                         <Col span={12}>
                           <span className="text-field margin-right-40">

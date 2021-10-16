@@ -9,7 +9,7 @@ import {
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { OrderStatus } from "utils/Constants";
+import { DEFAULT_FORM_VALUE, OrderStatus } from "utils/Constants";
 
 type PropType = {
   subStatusId?: number | null;
@@ -20,15 +20,12 @@ type PropType = {
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments, subStatusId, handleUpdateSubStatus } =
-    props;
+  const { status, orderId, fulfillments, subStatusId, handleUpdateSubStatus } = props;
   const dispatch = useDispatch();
-  const [listOrderSubStatus, setListOrderSubStatus] = useState<
-    OrderSubStatusResponse[]
-  >([]);
-  const [valueSubStatusId, setValueSubStatusId] = useState<number | undefined>(
-    undefined
+  const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
+    []
   );
+  const [valueSubStatusId, setValueSubStatusId] = useState<number | undefined>(undefined);
 
   const handleChange = (statusId: number) => {
     if (orderId) {
@@ -50,11 +47,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     };
     if (status) {
       let resultStatus = status;
-      if (
-        status === OrderStatus.FINALIZED &&
-        fulfillments &&
-        fulfillments.length > 0
-      ) {
+      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
         switch (fulfillments[0].status) {
           case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
             resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
@@ -67,12 +60,22 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         }
       }
       dispatch(
-        getListSubStatusAction(
-          resultStatus,
-          (data: OrderSubStatusResponse[]) => {
-            setListOrderSubStatus(data);
-          }
-        )
+        getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
+          const moreSubStatus: OrderSubStatusResponse[] = [
+            {
+              id: 1,
+              status: "Chờ xác nhận",
+              company_id: DEFAULT_FORM_VALUE.company_id,
+              company: DEFAULT_FORM_VALUE.company,
+              sub_status: "Chờ xác nhận",
+              note: "",
+              is_active: true,
+              is_delete: false,
+            },
+          ];
+          let result = data.concat(moreSubStatus);
+          setListOrderSubStatus(result);
+        })
       );
     }
   }, [dispatch, fulfillments, status]);
@@ -95,7 +98,8 @@ function SubStatusOrder(props: PropType): React.ReactElement {
         }
         onChange={handleChange}
         notFoundContent="Không tìm thấy trạng thái phụ"
-        value={valueSubStatusId}
+        defaultValue={valueSubStatusId}
+        key={Math.random()}
       >
         {listOrderSubStatus &&
           listOrderSubStatus.map((single) => {
