@@ -83,7 +83,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     districtId,
     titleNotify,
     isVisibleCollapseCustomer,
-    onCancel,
     ShowAddressModalAdd,
     ShowAddressModalEdit,
     showAddressModalDelete,
@@ -130,10 +129,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     customerForm.submit();
   }, [customerForm]);
 
-  const handleCancel = () => {
-    customerForm.resetFields();
-    onCancel();
-  };
+  // const handleCancel = () => {
+  //   customerForm.resetFields();
+  //   onCancel();
+  // };
 
   const createCustomerCallback = useCallback(
     (result: CustomerResponse) => {

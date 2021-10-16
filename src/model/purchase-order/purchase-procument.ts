@@ -1,3 +1,4 @@
+import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
 export interface PurchaseProcument extends BaseObject {
@@ -96,5 +97,20 @@ const POProcumentLineItemField = {
   real_quantity: "real_quantity",
   note: "note",
 };
+
+export interface ProcurementQuery extends BaseQuery {
+  content?: number,
+  active_from?: string,
+  active_to?: string,
+  active_by?: string,
+  stock_in_from?: string,
+  stock_in_to?: string,
+  stock_in_by?: string,
+  merchandiser?: string,
+  status?: string,
+  store?: string,
+  expect_receipt_from?: string,
+  expect_receipt_to?: string,
+}
 
 export { POProcumentField, POProcumentLineItemField };

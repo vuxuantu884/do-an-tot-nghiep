@@ -201,7 +201,6 @@ const PODetailScreen: React.FC = () => {
           break;
         case POStatus.FINALIZED:
           setLoadingConfirmButton(true);
-          setLoadingSaveDraftButton(true);
           dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
           break;
       }
