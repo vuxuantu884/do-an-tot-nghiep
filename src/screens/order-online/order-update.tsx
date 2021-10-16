@@ -981,13 +981,13 @@ export default function Order(props: PropType) {
         breadcrumb={[
           {
             name: "Tổng quan",
-            path: "/",
+            path: `${UrlConfig.HOME}`,
           },
           {
             name: "Đơn hàng",
           },
           {
-            name: "Tạo mới đơn hàng",
+            name: `Sửa đơn hàng ${id}`,
           },
         ]}
         extra={<CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />}

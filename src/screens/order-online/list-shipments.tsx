@@ -233,46 +233,6 @@ const ListOrderScreen: React.FC = () => {
       width: "280px",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<Item>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-sku">{item.variant}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "left",
-      width: "6.5%",
-    },
-
-    {
-      title: "SL",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<Item>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-quantity">{item.quantity}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: "1.3%",
-    },
-
-    {
       title: "Tiền COD",
       dataIndex: "shipment",
       render: (value) => (
