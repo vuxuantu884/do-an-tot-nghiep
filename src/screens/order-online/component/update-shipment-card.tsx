@@ -961,7 +961,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           props.OrderDetailAllFullfilment?.fulfillments.map(
             (fulfillment) =>
               fulfillment.shipment && (
-                <div key={fulfillment.id} style={{ paddingTop: 0, paddingBottom: 20 }}>
+                <div
+                  key={fulfillment.id}
+                  style={{ paddingTop: 0, paddingBottom: 20, marginTop: -12 }}
+                >
                   <Collapse
                     className="saleorder_shipment_order_colapse payment_success"
                     defaultActiveKey={[

@@ -113,7 +113,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   } = props;
   //State
   const [addressesForm] = Form.useForm();
-  const shippingWarRef:any = useRef(null);
+  const shippingWarRef: any = useRef(null);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -131,7 +131,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   //Shipping
   const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
+  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
+    []
+  );
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -155,6 +157,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
+
+  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
+
+  //element
+  const btnUpdateCustomerElement = document.getElementById("btnUpdateCustomer");
 
   //#region Modal
   const ShowBillingAddress = (e: any) => {
@@ -400,8 +407,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const handleShippingChangeArea = (districtId: string) => {
     if (districtId) {
       setShippingDistrictId(districtId);
-      if(shippingWarRef.current)
-        shippingWarRef.current.value=null;
+      if (shippingWarRef.current) shippingWarRef.current.value = null;
     }
   };
 
@@ -601,18 +607,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-<Space className="customer-detail-birthday">
-                  <span className="customer-detail-icon">
-                    <img
-                      src={birthdayIcon}
-                      alt=""
-                      className="icon-customer-info"
-                    />
-                  </span>
-                  <span className="customer-detail-text">
-                    {customer?.birthday !== null ? customerBirthday : "Không xác định"}
-                  </span>
-                </Space>
+              <Space className="customer-detail-birthday">
+                <span className="customer-detail-icon">
+                  <img
+                    src={birthdayIcon}
+                    alt=""
+                    className="icon-customer-info"
+                  />
+                </span>
+                <span className="customer-detail-text">
+                  {customer?.birthday !== null
+                    ? customerBirthday
+                    : "Không xác định"}
+                </span>
+              </Space>
 
               <Space className="customer-detail-action">
                 <CloseOutlined
@@ -650,54 +658,83 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     ShowAddressModalEdit={ShowAddressModalEdit}
                     showAddressModalDelete={showAddressModalDelete}
                     setSingleShippingAddress={setSingleShippingAddress}
+                    setVisibleCollapseCustomer={setVisibleCollapseCustomer}
+                    setVisibleBtnUpdate={setVisibleBtnUpdate}
                   />
                 </div>
-                <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
-                  <div>
-                    {isVisibleCollapseCustomer === true && (
-                      <Button
-                        type="link"
-                        icon={<UpOutlined />}
-                        style={{ padding: "0px" }}
-                        onClick={() => {
-                          setVisibleCollapseCustomer(false);
-                        }}
-                      >
-                        Thu gọn
-                      </Button>
-                    )}
-                  </div>
-                  <div>
-                    {isVisibleCollapseCustomer === false && (
-                      <Button
-                        type="link"
-                        icon={<DownOutlined />}
-                        style={{ padding: "0px" }}
-                        onClick={() => {
-                          setVisibleCollapseCustomer(true);
-                        }}
-                      >
-                        Xem thêm
-                      </Button>
-                    )}
-                  </div>
-                </Divider>
+                {isVisibleCollapseCustomer === true && (
+                  <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
+                      <div>
+                          <Button
+                            type="link"
+                            icon={<UpOutlined />}
+                            style={{ padding: "0px" }}
+                            onClick={() => {
+                              setVisibleCollapseCustomer(false);
+                            }}
+                          >
+                            Thu gọn
+                          </Button>
+                      </div>
+                    </Divider>
+                  )}
               </div>
             )}
           </div>
 
           <div>
+            {customer === null &&(
+               <div className="send-order-box">
+                 <Row gutter={12} style={{ marginTop: 15 }}>
+                  <Col md={12}>
+                    
+                  </Col>
+                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
+                  { isVisibleBtnUpdate === true  && (
+                     <Button
+                      type="primary"
+                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={()=>{
+                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
+                        btnUpdateCustomerElement?.click();
+                      }}
+                      >
+                        Cập nhật
+                      </Button>
+                    )}
+                  </Col>
+                </Row>
+               </div>
+            )}
             {customer !== null && (
               <div className="send-order-box">
-                <Row style={{ marginTop: 15 }}>
-                  <Checkbox
-                    className="checkbox-style"
-                    onChange={ShowBillingAddress}
-                    style={{ marginLeft: "3px" }}
-                    disabled={levelOrder > 3}
-                  >
-                    Gửi hoá đơn
-                  </Checkbox>
+                <Row gutter={12} style={{ marginTop: 15 }}>
+                  <Col md={12}>
+                    <Checkbox
+                      className="checkbox-style"
+                      onChange={ShowBillingAddress}
+                      style={{ marginLeft: "3px" }}
+                      disabled={levelOrder > 3}
+                    >
+                      Gửi hoá đơn
+                    </Checkbox>
+                  </Col>
+                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
+                  { isVisibleBtnUpdate === true  && (
+                     <Button
+                      type="primary"
+                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={()=>{
+                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
+                        btnUpdateCustomerElement?.click();
+                      }}
+                      >
+                        Cập nhật
+                      </Button>
+                    )}
+                  </Col>
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
@@ -728,7 +765,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             DefaultWard();
                           }}
                           optionFilterProp="children"
-                         
                         >
                           {areas.map((area: any) => (
                             <Select.Option key={area.id} value={area.id}>
@@ -748,7 +784,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         //     message: "Vui lòng chọn phường/xã",
                         //   },
                         // ]}
-                        
                       >
                         <Select
                           className="select-with-search"
@@ -769,8 +804,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Col>
 
                     <Col xs={24} lg={12}>
-                      <Form.Item name="full_address" 
-                      //label="Địa chỉ"
+                      <Form.Item
+                        name="full_address"
+                        //label="Địa chỉ"
                       >
                         <Input
                           placeholder="Địa chỉ"
@@ -780,8 +816,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Col>
 
                     <Col xs={24} lg={12}>
-                      <Form.Item name="email_note" 
-                      //label="Email"
+                      <Form.Item
+                        name="email_note"
+                        //label="Email"
                       >
                         <Input
                           placeholder="Điền email"

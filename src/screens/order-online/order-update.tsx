@@ -244,6 +244,7 @@ export default function Order(props: PropType) {
         if (
           OrderDetail.fulfillments === undefined ||
           OrderDetail.fulfillments === null ||
+          !OrderDetail.fulfillments.length ||
           OrderDetail.fulfillments[0].shipment === null
         ) {
           if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
@@ -977,17 +978,17 @@ export default function Order(props: PropType) {
   return (
     <React.Fragment>
       <ContentContainer
-        title="Tạo mới đơn hàng"
+        title="Sửa đơn hàng"
         breadcrumb={[
           {
             name: "Tổng quan",
-            path: "/",
+            path: `${UrlConfig.HOME}`,
           },
           {
             name: "Đơn hàng",
           },
           {
-            name: "Tạo mới đơn hàng",
+            name: `Sửa đơn hàng ${id}`,
           },
         ]}
         extra={<CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />}

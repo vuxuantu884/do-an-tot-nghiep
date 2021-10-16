@@ -362,7 +362,8 @@ export interface StoreCustomResponse extends BaseObject {
 }
 
 export interface OrderSubStatusResponse {
-  id: 6;
+  // id: 6;
+  id: number;
   company_id: number;
   company: string;
   sub_status: string;

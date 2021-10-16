@@ -1,17 +1,12 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Form } from "antd";
 import ContentContainer from "component/container/content.container";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
 import purify from "dompurify";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import {
-  BasePrinterModel,
-  PrinterResponseModel,
-} from "model/response/printer.response";
+import { BasePrinterModel, PrinterResponseModel } from "model/response/printer.response";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
@@ -94,9 +89,7 @@ const SettingPrinter: React.FC = () => {
       visible: true,
       width: "5%",
       render: (value, row, index) => {
-        return (
-          <span>{(queryParams.page - 1) * queryParams.limit + index + 1}</span>
-        );
+        return <span>{(queryParams.page - 1) * queryParams.limit + index + 1}</span>;
       },
     },
     {
@@ -218,7 +211,7 @@ const SettingPrinter: React.FC = () => {
   const renderSearch = () => {
     return (
       <div className="searchWrapper">
-        <Card style={{ padding: "20px 15px", marginBottom: 25 }}>
+        <Card>
           <Form
             form={form}
             initialValues={initialFormValue}
@@ -226,10 +219,7 @@ const SettingPrinter: React.FC = () => {
             className="searchForm"
             style={{ width: "100%" }}
           >
-            <FormFilter
-              isCanEditFormHeader={true}
-              isPagePrinterDetail={false}
-            />
+            <FormFilter isCanEditFormHeader={true} isPagePrinterDetail={false} />
           </Form>
           <Button
             type="primary"
@@ -290,11 +280,11 @@ const SettingPrinter: React.FC = () => {
         extra={createPrinterHtml()}
       >
         {renderSearch()}
-        <Card style={{ padding: "35px 15px" }}>
+        <Card>
           <CustomTable
             isLoading={tableLoading}
             showColumnSetting={false}
-            scroll={{ x: 1080 }}
+            // scroll={{ x: 1080 }}
             pagination={{
               pageSize: queryParams.limit,
               total: total,

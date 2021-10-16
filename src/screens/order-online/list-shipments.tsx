@@ -233,51 +233,11 @@ const ListOrderScreen: React.FC = () => {
       width: "280px",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<Item>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-sku">{item.variant}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "left",
-      width: "6.5%",
-    },
-
-    {
-      title: "SL",
-      dataIndex: "items",
-      key: "items.name",
-      render: (items: Array<Item>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item custom-td" style={{ width: "100%" }}>
-                <div className="item-quantity">{item.quantity}</div>
-              </div>
-            );
-          })}
-        </div>
-      ),
-      visible: true,
-      align: "center",
-      width: "1.3%",
-    },
-
-    {
       title: "Tiền COD",
       dataIndex: "shipment",
-      render: (value) => (
+      render: (value?) => (
         <NumberFormat
-          value={value.cod}
+          value={value?.cod}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -290,8 +250,8 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "HTVC",
       dataIndex: "shipment",
-      render: (shipment: Shipment) => {
-        const service_id = shipment.delivery_service_provider_id;
+      render: (shipment?: Shipment) => {
+        const service_id = shipment?.delivery_service_provider_id;
         const service = delivery_service.find(
           (service) => service.id === service_id
         );
@@ -346,7 +306,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Phí trả đối tác",
       dataIndex: "shipment",
-      render: (value) => value.shipping_fee_paid_to_three_pls,
+      render: (shipment?) => shipment?.shipping_fee_paid_to_three_pls,
       key: "shipping_fee_paid_to_three_pls",
       visible: true,
     },
@@ -396,7 +356,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Lý do huỷ giao",
       dataIndex: "shipment",
-      render: (shipment: any) => <div>{shipment.cancel_reason}</div>,
+      render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
       key: "cancel_date",
       visible: true,
     },
