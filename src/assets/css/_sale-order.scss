@@ -1203,6 +1203,7 @@
 
 .orders-update-shipment {
   .orders-timeline-custom {
+    padding-bottom: 8px;
     border-bottom: 1px solid #e5e5e5;
   }
   .saleorder-custom-steps {
@@ -1289,7 +1290,7 @@
   .ant-card-body {
     .orders-timeline-custom {
       position: relative;
-      margin-left: 20px;
+      // margin-left: 20px;
       &::before {
         position: absolute;
         content: "";
