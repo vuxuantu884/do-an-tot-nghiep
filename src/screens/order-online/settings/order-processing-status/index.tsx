@@ -3,9 +3,7 @@ import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
 import CustomModal from "component/modal/CustomModal";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   actionAddOrderProcessingStatus,
@@ -193,13 +191,10 @@ const SettingOrderProcessingStatus: React.FC = () => {
     delete: () => {
       if (modalSingleServiceSubStatus) {
         dispatch(
-          actionDeleteOrderProcessingStatus(
-            modalSingleServiceSubStatus.id,
-            () => {
-              setIsShowModal(false);
-              gotoFirstPage();
-            }
-          )
+          actionDeleteOrderProcessingStatus(modalSingleServiceSubStatus.id, () => {
+            setIsShowModal(false);
+            gotoFirstPage();
+          })
         );
       }
     },
@@ -242,11 +237,11 @@ const SettingOrderProcessingStatus: React.FC = () => {
         extra={createOrderServiceSubStatusHtml()}
       >
         {listOrderProcessingStatus && (
-          <Card style={{ padding: "35px 15px" }}>
+          <Card>
             <CustomTable
               isLoading={tableLoading}
               showColumnSetting={false}
-              scroll={{ x: 1080 }}
+              // scroll={{ x: 1080 }}
               pagination={{
                 pageSize: queryParams.limit,
                 total: total,
@@ -275,9 +270,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
           onCreate={(formValue: OrderProcessingStatusModel) =>
             handleForm.create(formValue)
           }
-          onEdit={(formValue: OrderProcessingStatusModel) =>
-            handleForm.edit(formValue)
-          }
+          onEdit={(formValue: OrderProcessingStatusModel) => handleForm.edit(formValue)}
           onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}
           modalAction={modalAction}
