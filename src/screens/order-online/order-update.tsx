@@ -189,10 +189,7 @@ export default function Order(props: PropType) {
       return FulFillmentStatus.SHIPPED;
     }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
-      if (
-        OrderDetail.fulfillments === undefined ||
-        OrderDetail.fulfillments === null
-      ) {
+      if (OrderDetail.fulfillments === undefined || OrderDetail.fulfillments === null) {
         return OrderStatus.FINALIZED;
       } else {
         if (
@@ -200,9 +197,7 @@ export default function Order(props: PropType) {
           OrderDetail.fulfillments !== null &&
           OrderDetail.fulfillments.length > 0
         ) {
-          if (
-            OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
-          ) {
+          if (OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED) {
             return OrderStatus.FINALIZED;
           }
           if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
@@ -211,14 +206,10 @@ export default function Order(props: PropType) {
           if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
             return FulFillmentStatus.PACKED;
           }
-          if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING
-          ) {
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING) {
             return FulFillmentStatus.SHIPPING;
           }
-          if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED
-          ) {
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED) {
             return FulFillmentStatus.SHIPPED;
           }
         }

@@ -5,6 +5,7 @@ export const StyledComponent = styled.div`
   .ant-card-body {
     border-left: 1px solid #e5e5e5;
     border-top: 1px solid #e5e5e5;
+    padding: 0;
   }
   .singleThirdParty {
     align-items: center;

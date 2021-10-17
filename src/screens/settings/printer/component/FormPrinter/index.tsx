@@ -40,8 +40,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const componentRef = useRef(null);
   const history = useHistory();
 
-  const [printerVariables, setPrinterVariables] =
-    useState<PrinterVariableResponseModel>({});
+  const [printerVariables, setPrinterVariables] = useState<PrinterVariableResponseModel>(
+    {}
+  );
 
   const positionProductVariables = 1;
 
@@ -81,8 +82,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [isShowPrompt, setIsShowPrompt] = useState(false);
   const titleConfirmSave = "Bạn có chắc chắn muốn thoát?";
-  const subTitleConfirmSave =
-    "Toàn bộ thay đổi của bạn sẽ không được ghi nhận.";
+  const subTitleConfirmSave = "Toàn bộ thay đổi của bạn sẽ không được ghi nhận.";
 
   const handleOnChangeEditor = (value: string) => {
     setHtmlContent(value);
@@ -233,7 +233,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         className={isEdit ? "isEditForm" : ""}
         onValuesChange={handleChange}
       >
-        <Card style={{ padding: "20px 15px", marginBottom: 35 }}>
+        <Card>
           <FormFilter
             isCanEditFormHeader={isCanEditFormHeader}
             isPagePrinterDetail={true}
@@ -242,16 +242,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         <Row gutter={20}>
           {isCanEditFormHeader && (
             <Col span={12}>
-              <Card style={{ padding: "15px 15px", height: "100%" }}>
+              <Card style={{ height: "100%" }}>
                 <React.Fragment>
                   {(!isEdit || selectedPrintSize) && (
                     <Form.Item name="template">
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        listKeywords={
-                          LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
-                        }
+                        listKeywords={LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES}
                         selectedPrintSize={selectedPrintSize}
                         previewHeaderHeight={handleEditorToolbarHeight}
                       />
