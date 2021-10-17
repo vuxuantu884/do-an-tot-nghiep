@@ -8,6 +8,7 @@ import customers from "./customer.route"
 import shipments from "./shipment.route"
 import ecommerce from "./ecommerce.route"
 import promotion from './promotion.route';
+import {inventory} from "./inventory.route";
 
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
@@ -15,6 +16,7 @@ const Product = React.lazy(() => import ("screens/products/product/ProductSearch
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))
+const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"))
 
 const menu: Array<RouteMenu> = [
   {
@@ -41,15 +43,15 @@ const menu: Array<RouteMenu> = [
 
   },
   {
-    path: "/kho",
+    path: "/inventory-transfer",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',
-    component: null,
+    component: ListTicket,
     key: "3",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: inventory,
   },
   {
     path: UrlConfig.ORDER,

@@ -40,6 +40,11 @@ export interface PrinterVariableResponseModel {
     value: string;
   }[];
 }
+export interface PrinterInventoryTransferResponseModel {
+  html_content: string;
+  id: number;
+  size: string;
+}
 
 export type FormPrinterModel = "create" | "edit" | "view";
 

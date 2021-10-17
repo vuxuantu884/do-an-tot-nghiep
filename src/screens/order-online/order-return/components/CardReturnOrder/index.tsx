@@ -28,13 +28,7 @@ function CardReturnOrder(props: PropType) {
     );
   };
 
-  return (
-    <Card
-      className="margin-top-20"
-      title="Đổi hàng"
-      extra={renderCardExtra()}
-    />
-  );
+  return <Card className="cardNoBody" title="Đổi hàng" extra={renderCardExtra()} />;
 }
 
 export default CardReturnOrder;

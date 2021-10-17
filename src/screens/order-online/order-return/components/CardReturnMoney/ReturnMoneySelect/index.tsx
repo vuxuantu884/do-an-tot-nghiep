@@ -66,10 +66,7 @@ function ReturnMoneySelect(props: PropType) {
                             {listPaymentMethodsResult &&
                               listPaymentMethodsResult.map((single) => {
                                 return (
-                                  <Select.Option
-                                    value={single.id}
-                                    key={single.id}
-                                  >
+                                  <Select.Option value={single.id} key={single.id}>
                                     {single.name}
                                   </Select.Option>
                                 );
@@ -79,15 +76,11 @@ function ReturnMoneySelect(props: PropType) {
                       </Col>
                       <Col span={12}>
                         <div className="ant-row ant-form-item">
-                          <div className="ant-col ant-form-item-label">
-                            Số tiền
-                          </div>
+                          <div className="ant-col ant-form-item-label">Số tiền</div>
                           <Input
                             value={
                               totalAmountCustomerNeedToPay < 0
-                                ? formatCurrency(
-                                    Math.abs(totalAmountCustomerNeedToPay)
-                                  )
+                                ? formatCurrency(Math.abs(totalAmountCustomerNeedToPay))
                                 : 0
                             }
                             disabled
@@ -99,6 +92,7 @@ function ReturnMoneySelect(props: PropType) {
                         <Form.Item
                           label="Nội dung"
                           name={[index, "returnMoneyNote"]}
+                          style={{ marginBottom: 0 }}
                         >
                           <Input placeholder="Nội dung" />
                         </Form.Item>
