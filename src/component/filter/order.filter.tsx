@@ -706,6 +706,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     return list
   }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
 
+  console.log('initialValues', initialValues);
   return (
     <div>
       <div className="order-options">
