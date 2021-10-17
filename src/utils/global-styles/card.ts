@@ -25,6 +25,11 @@ export const globalCssCustomCard = css`
     position: relative;
     padding: 0;
   }
+  .cardNoBody {
+    .ant-card-body {
+      padding: 0;
+    }
+  }
   .ant-card-body {
     padding: 20px ${cardPaddingLeftAndRight};
   }

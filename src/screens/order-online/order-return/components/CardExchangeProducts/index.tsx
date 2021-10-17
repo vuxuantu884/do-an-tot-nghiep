@@ -42,10 +42,7 @@ import {
   OrderItemDiscountModel,
   OrderSettingsModel,
 } from "model/other/order/order-model";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, {
@@ -92,9 +89,7 @@ const initQueryVariant: VariantSearchQuery = {
   page: 1,
 };
 
-const CardExchangeProducts: React.FC<CardProductProps> = (
-  props: CardProductProps
-) => {
+const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProps) => {
   const {
     items,
     handleCardItems,
@@ -119,13 +114,10 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     items: [],
   });
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
-  const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
-    useState(false);
+  const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
 
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [isVisibleGift, setVisibleGift] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
@@ -309,22 +301,19 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
 
   const convertResultSearchVariant = useMemo(() => {
     let options: any[] = [];
-    resultSearchVariant.items.forEach(
-      (item: VariantResponse, index: number) => {
-        options.push({
-          label: renderSearchVariant(item),
-          value: item.id ? item.id.toString() : "",
-        });
-      }
-    );
+    resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: renderSearchVariant(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
     return options;
   }, [resultSearchVariant]);
 
   const getTotalAmountExchangeNeedToPay = () => {
     if (totalAmountExchange) {
       return (
-        totalAmountExchange +
-        (props.shippingFeeCustomer ? props.shippingFeeCustomer : 0)
+        totalAmountExchange + (props.shippingFeeCustomer ? props.shippingFeeCustomer : 0)
       );
     }
     return 0;
@@ -358,9 +347,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
               }}
             >
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
-                  {l.sku}
-                </Typography.Link>
+                <Typography.Link style={{ color: "#2A2A86" }}>{l.sku}</Typography.Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -439,9 +426,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     title: () => (
       <div>
         <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     className: "yody-pos-price text-right",
@@ -500,9 +485,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     title: () => (
       <div className="text-center">
         <span style={{ color: "#222222" }}>Tổng tiền</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     align: "right",
@@ -579,11 +562,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
               borderRadius: 5,
             }}
           >
-            <Dropdown
-              overlay={menu}
-              trigger={["click"]}
-              placement="bottomRight"
-            >
+            <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
               <Button type="text" className="p-0 ant-btn-custom">
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
@@ -700,9 +679,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
       }
       let newV = parseInt(v);
       let _items = [...items].reverse();
-      let indexSearch = resultSearchVariant.items.findIndex(
-        (s) => s.id === newV
-      );
+      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       const item: OrderLineItemRequest = createItem(r);
@@ -711,12 +688,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
         if (splitLine || index === -1) {
           _items.push(item);
           setAmount(amount + item.price);
-          calculateChangeMoney(
-            _items,
-            amount + item.price,
-            discountRate,
-            discountValue
-          );
+          calculateChangeMoney(_items, amount + item.price, discountRate, discountValue);
         } else {
           let variantItems = _items.filter((item) => item.variant_id === newV);
           let lastIndex = variantItems.length - 1;
@@ -755,9 +727,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     }
     setKeySearchVariant(value);
     initQueryVariant.info = value;
-    dispatch(
-      searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant)
-    );
+    dispatch(searchVariantsOrderRequestAction(initQueryVariant, setResultSearchVariant));
   };
 
   const ShowDiscountModal = useCallback(() => {
@@ -833,9 +803,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
     setVisibleGift(false);
     let _items = [...items];
     let _itemGifts = [...itemGifts];
-    _itemGifts.forEach(
-      (itemGift) => (itemGift.position = _items[indexItem].position)
-    );
+    _itemGifts.forEach((itemGift) => (itemGift.position = _items[indexItem].position));
     _items[indexItem].gifts = itemGifts;
     handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
@@ -874,9 +842,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
                   discountValue
                 );
               } else {
-                let variantItems = _items.filter(
-                  (item) => item.variant_id === data.id
-                );
+                let variantItems = _items.filter((item) => item.variant_id === data.id);
                 let lastIndex = variantItems.length - 1;
                 variantItems[lastIndex].quantity += 1;
                 variantItems[lastIndex].line_amount_after_line_discount +=
@@ -915,44 +881,31 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
 
   return (
     <Card
-      className="margin-top-20"
-      title={
-        <div className="d-flex">
-          <span className="title-card">Thông tin sản phẩm đổi</span>
-        </div>
-      }
+      title="Thông tin sản phẩm đổi"
       extra={
         <Space size={20}>
-          <Checkbox onChange={() => setSplitLine(!splitLine)}>
-            Tách dòng
-          </Checkbox>
+          <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
           <span>Chính sách giá:</span>
           <Form.Item name="price_type" style={{ margin: "0px" }}>
-            <Select
-              style={{ minWidth: 145, height: 38 }}
-              placeholder="Chính sách giá"
-            >
+            <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
               <Select.Option value="retail_price" color="#222222">
                 Giá bán lẻ
               </Select.Option>
-              <Select.Option value="whole_sale_price">
-                Giá bán buôn
-              </Select.Option>
+              <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
             </Select>
           </Form.Item>
         </Space>
       }
     >
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div>
         <Row gutter={24}>
           <Col md={8}>
             <Form.Item
-              label="Cửa hàng"
               name="store_id"
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn cửa hàng 3",
+                  message: "Vui lòng chọn cửa hàng",
                 },
               ]}
             >
@@ -974,9 +927,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
                 filterOption={(input, option) => {
                   if (option) {
                     return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     );
                   }
                   return false;
@@ -991,12 +942,10 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
             </Form.Item>
           </Col>
           <Col md={16}>
-            <Form.Item label="Sản phẩm">
+            <Form.Item>
               <AutoComplete
                 notFoundContent={
-                  keySearchVariant.length >= 3
-                    ? "Không tìm thấy sản phẩm"
-                    : undefined
+                  keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
                 }
                 id="search_product"
                 value={keySearchVariant}
@@ -1140,7 +1089,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
           )
         }
       />
-      <div className="padding-24" style={{ paddingTop: "30px" }}>
+      <div style={{ paddingTop: "30px" }}>
         <Row className="sale-product-box-payment" gutter={24}>
           <Col xs={24} lg={11}>
             <div className="payment-row">
@@ -1159,11 +1108,8 @@ const CardExchangeProducts: React.FC<CardProductProps> = (
               </Checkbox>
             </div>
           </Col>
-          <Col xs={24} lg={10}>
-            <Row
-              className="payment-row"
-              style={{ justifyContent: "space-between" }}
-            >
+          <Col xs={24} lg={11}>
+            <Row className="payment-row" style={{ justifyContent: "space-between" }}>
               <div className="font-weight-500">Tổng tiền:</div>
               <div className="font-weight-500" style={{ fontWeight: 500 }}>
                 {formatCurrency(amount)}
