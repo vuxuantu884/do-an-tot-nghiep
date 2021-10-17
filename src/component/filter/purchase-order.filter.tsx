@@ -68,6 +68,7 @@ const filterFields = {
   supplier_note: "supplier_note",
   tags: "tags",
   reference: "reference",
+  is_have_returned: "is_have_returned"
 };
 
 const allStatus: any = {
@@ -94,6 +95,7 @@ const filterFieldsMapping: any = {
   [filterFields.supplier_note]: "Ghi chú nhà cung cấp",
   [filterFields.tags]: "Tag",
   [filterFields.reference]: "Mã tham chiếu",
+  [filterFields.is_have_returned]: "Trả hàng"
 };
 
 type FilterHeaderProps = {
@@ -137,11 +139,11 @@ const FilterList = ({ filters, resetField }: any) => {
             });
             renderTxt = `${filterFieldsMapping[filterKey]} : ${listStatusValue}`;
             break;
-          // case filterFields.cost_included:
-          //   let costTxt = "Có chi phí";
-          //   if (value === "false") costTxt = "Không chi phí";
-          //   renderTxt = `${filterFieldsMapping[filterKey]} : ${costTxt}`;
-          //   break;
+          case filterFields.is_have_returned:
+            let costTxt = "Có trả hàng";
+            if (value === "false") costTxt = "Không trả hàng";
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${costTxt}`;
+            break;
           case filterFields.tax_included:
             let taxTxt = "Có VAT";
             if (value === "false") taxTxt = "Không VAT";
@@ -230,47 +232,11 @@ const AdvanceFormItems = ({
             break;
           case filterFields.receive_status:
             collapseChildren = (
-              // <CustomSelect
-              //   showArrow
-              //   placeholder="Chọn 1 hoặc nhiều trạng thái"
-              //   mode="multiple"
-              //   allowClear
-              //   tagRender={tagRender}
-              //   notFoundContent="Không tìm thấy kết quả"
-              //   style={{
-              //     width: "100%",
-              //   }}
-              //   maxTagCount="responsive"
-              // >
-              //   {Object.keys(listProcumentStatus)?.map((key) => (
-              //     <CustomSelect.Option key={key} value={key}>
-              //       {listProcumentStatus[key]}
-              //     </CustomSelect.Option>
-              //   ))}
-              // </CustomSelect>
               <CustomSelectMany span={8} data={listProcumentStatus} />
             );
             break;
           case filterFields.financial_status:
             collapseChildren = (
-              // <CustomSelect
-              //   showArrow
-              //   placeholder="Chọn 1 hoặc nhiều trạng thái"
-              //   mode="multiple"
-              //   allowClear
-              //   tagRender={tagRender}
-              //   notFoundContent="Không tìm thấy kết quả"
-              //   style={{
-              //     width: "100%",
-              //   }}
-              //   maxTagCount="responsive"
-              // >
-              //   {Object.keys(listPaymentStatus).map((key) => (
-              //     <CustomSelect.Option key={key} value={key}>
-              //       {listPaymentStatus[key]}
-              //     </CustomSelect.Option>
-              //   ))}
-              // </CustomSelect>
               <CustomSelectMany data={listPaymentStatus} span={8} />
             );
             break;
@@ -320,44 +286,13 @@ const AdvanceFormItems = ({
               </CustomSelect>
             );
             break;
-          // case filterFields.cost_included:
-          //   collapseChildren = (
-          //     <CustomSelect
-          //       showArrow
-          //       placeholder="Chọn 1 trong 2 đk"
-          //       tagRender={tagRender}
-          //       style={{
-          //         width: "100%",
-          //       }}
-          //       notFoundContent="Không tìm thấy kết quả"
-          //     >
-          //       <CustomSelect.Option key="1" value="true">
-          //         Có chi phí
-          //       </CustomSelect.Option>
-          //       <CustomSelect.Option key="2" value="false">
-          //         Không chi phí
-          //       </CustomSelect.Option>
-          //     </CustomSelect>
-          //   );
-          //   break;
+          case filterFields.is_have_returned:
+            collapseChildren = (
+              <CustomSelectOne span={12} data={{"true": "Có trả hàng", "false": "Không có trả hàng"}} />
+            )
+            break;
           case filterFields.tax_included:
             collapseChildren = (
-              // <CustomSelect
-              //   showArrow
-              //   placeholder="Chọn 1 trong 2 đk"
-              //   tagRender={tagRender}
-              //   style={{
-              //     width: "100%",
-              //   }}
-              //   notFoundContent="Không tìm thấy kết quả"
-              // >
-              //   <CustomSelect.Option key="1" value="true">
-              //     Có VAT
-              //   </CustomSelect.Option>
-              //   <CustomSelect.Option key="2" value="false">
-              //     Không VAT
-              //   </CustomSelect.Option>
-              // </CustomSelect>
               <CustomSelectOne span={12} data={{"true": "Có VAT", "false": "Không VAT"}} />
             );
             break;
