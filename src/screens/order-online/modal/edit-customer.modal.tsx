@@ -423,7 +423,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           <Form.Item
             name="card_number"
             //label="Mã thẻ"
-            style={{margin:"0px"}}
           >
             <Input placeholder="Nhập mã thẻ" prefix={<BarcodeOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
@@ -433,7 +432,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           <Form.Item
             name="full_address"
             //</Col>label="Địa chỉ"
-            style={{margin:"0px"}}
           >
             <Input placeholder="Địa chỉ" prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
