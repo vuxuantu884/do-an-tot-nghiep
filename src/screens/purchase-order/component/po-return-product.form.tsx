@@ -552,7 +552,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                       textAlign: "right",
                                     }}
                                   >
-                                    {displayValue}
+                                    {formatCurrency(displayValue)}
                                   </div>
                                 );
                               },
