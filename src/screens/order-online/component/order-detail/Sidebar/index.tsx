@@ -34,6 +34,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
             showSearch
+            allowClear
             placeholder={
               <React.Fragment>
                 <SearchOutlined />
@@ -42,10 +43,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             }
             filterOption={(input, option) => {
               if (option) {
-                return (
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                );
+                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
               }
               return false;
             }}
@@ -71,6 +69,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
             showSearch
+            allowClear
             placeholder={
               <React.Fragment>
                 <SearchOutlined />
@@ -79,10 +78,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             }
             filterOption={(input, option) => {
               if (option) {
-                return (
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                );
+                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
               }
               return false;
             }}
@@ -108,6 +104,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
             showSearch
+            allowClear
             placeholder={
               <React.Fragment>
                 <SearchOutlined />
@@ -116,10 +113,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             }
             filterOption={(input, option) => {
               if (option) {
-                return (
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                );
+                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
               }
               return false;
             }}

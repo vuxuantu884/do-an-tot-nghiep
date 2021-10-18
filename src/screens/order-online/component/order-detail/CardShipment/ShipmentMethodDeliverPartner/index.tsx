@@ -43,7 +43,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     shippingFeeCustomer,
     discountValue,
     OrderDetail,
-    payments,
+    // payments,
     setShippingFeeInformedCustomer,
     // deliveryServices,
     infoFees,
@@ -63,13 +63,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
 
-  const totalAmountPaid = () => {
-    let total = 0;
-    if (payments) {
-      payments.forEach((p) => (total = total + p.amount));
-    }
-    return total;
-  };
+  // const totalAmountPaid = () => {
+  //   let total = 0;
+  //   if (payments) {
+  //     payments.forEach((p) => (total = total + p.amount));
+  //   }
+  //   return total;
+  // };
 
   const deliveryService = useMemo(() => {
     return {
@@ -114,7 +114,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       (shippingFeeCustomer ? shippingFeeCustomer : 0) -
       (discountValue ? discountValue : 0) -
       (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-      totalAmountPaid() -
+      // totalAmountPaid() -
       (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
     );
   };
@@ -261,7 +261,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   return (
     <StyledComponent>
-      <div className="shipmentMethod__deliverPartner">
+      <div className="shipmentMethod__deliverPartner" style={{ marginTop: 20 }}>
         {addressError && (
           <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>{addressError}</div>
         )}

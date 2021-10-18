@@ -3,7 +3,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import { createContext } from "react";
 
 type OrderDetailContextType = {
-  OrderDetail: OrderResponse | null;
+  orderDetail: OrderResponse | null;
   price: {
     fee: number | null;
     totalOrderAmount: number;
@@ -27,7 +27,7 @@ type OrderDetailContextType = {
 };
 // tạo context
 export const OrderDetailContext = createContext<OrderDetailContextType>({
-  OrderDetail: null,
+  orderDetail: null,
   price: {
     fee: 0,
     totalOrderAmount: 0,
