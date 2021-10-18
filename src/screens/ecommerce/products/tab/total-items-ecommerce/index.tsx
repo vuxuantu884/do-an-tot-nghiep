@@ -105,6 +105,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
           id: item.id,
           name: item.name,
           isSelected: false,
+          ecommerce: item.ecommerce,
         });
       });
     }
@@ -450,6 +451,21 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     }
   };
 
+  const getEcommerceIcon = (shop: any) => {
+    switch (shop) {
+      case "shopee":
+        return shopeeIcon;
+      case "lazada":
+        return lazadaIcon;
+      case "tiki":
+        return tikiIcon;
+      case "sendo":
+        return sendoIcon;
+      default:
+        break;
+    }
+  };
+
   const renderShopList = (isNewFilter: any) => {
     return (
       <StyledComponent>
@@ -463,7 +479,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                 <span className="check-box-name">
                   <span>
                     <img
-                      src={shopeeIcon}
+                      src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
