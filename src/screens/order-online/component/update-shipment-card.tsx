@@ -333,6 +333,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
+    console.log("type", type);
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
       fulfillment_id: null,
@@ -1567,7 +1568,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               loading={updateShipment}
               disabled={cancelShipment}
             >
-              Đóng gói
+              Đóng gói 1
             </Button>
           )}
           {props.stepsStatusValue === FulFillmentStatus.PACKED &&

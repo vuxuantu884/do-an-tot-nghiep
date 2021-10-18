@@ -43,7 +43,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     shippingFeeCustomer,
     discountValue,
     OrderDetail,
-    payments,
+    // payments,
     setShippingFeeInformedCustomer,
     // deliveryServices,
     infoFees,
