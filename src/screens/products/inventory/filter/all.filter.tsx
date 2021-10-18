@@ -91,7 +91,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     onFilter,
     openColumn
   } = props;
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  let [advanceFilters, setAdvanceFilters] = useState<any>({status:"on_hand"});
   const [formBaseFilter] = Form.useForm();
   const onActionClick = useCallback(
     (index: number) => {

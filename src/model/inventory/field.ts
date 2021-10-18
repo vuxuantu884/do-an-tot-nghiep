@@ -34,9 +34,9 @@ const AvdInventoryFilter = {
   transferring: 'transferring',
   on_way: 'on_way',
   shipping: 'shipping',
-  import_price: 'import_price',
-  mac: 'mac',
-  retail_price: 'retail_price',
+  // import_price: 'import_price',
+  // mac: 'mac',
+  // retail_price: 'retail_price',
 }
 
 const BasicInventoryFilter = {
@@ -57,9 +57,9 @@ const InventoryMappingField = {
   [AvdInventoryFilter.transferring]: 'Đang chuyển đến',
   [AvdInventoryFilter.on_way]: 'Đang chuyển đi ',
   [AvdInventoryFilter.shipping]: 'Hàng đang giao',
-  [AvdInventoryFilter.mac]: 'Giá vốn',
-  [AvdInventoryFilter.import_price]: 'Giá nhập',
-  [AvdInventoryFilter.retail_price]: 'Giá bán',
+  // [AvdInventoryFilter.mac]: 'Giá vốn',
+  // [AvdInventoryFilter.import_price]: 'Giá nhập',
+  // [AvdInventoryFilter.retail_price]: 'Giá bán',
 }
 
 const HistoryInventoryQueryField = {

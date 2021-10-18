@@ -1,39 +1,41 @@
 import CustomTable, {
-  ICustomTableColumType,
+  ICustomTableColumType
 } from "component/table/CustomTable";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { inventoryGetListAction } from "domain/actions/inventory/inventory.action";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
   InventoryQuery,
-  InventoryResponse,
+  InventoryResponse
 } from "model/inventory";
-import { PageResponse } from "model/base/base-metadata.response";
-import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
-import UrlConfig from "config/url.config";
-import { TabProps } from "./tab.props";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   HiChevronDoubleRight,
-  HiOutlineChevronDoubleDown,
+  HiOutlineChevronDoubleDown
 } from "react-icons/hi";
-import AllInventoryFilter from "../filter/all.filter";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { AppConfig } from "config/app.config";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
+import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { getQueryParams } from "utils/useQuery";
+import AllInventoryFilter from "../filter/all.filter";
+import { TabProps } from "./tab.props";
 
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
-  const query = useQuery();
+
+   const query = new URLSearchParams(history.location.hash.substring(2));
+   let status: string | null = query.get("status");
+   status = status ? status : "on_hand";
+
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  let initQuery: InventoryQuery = {};
-
   let dataQuery: InventoryQuery = {
-    ...initQuery,
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<InventoryQuery>(dataQuery);
@@ -78,9 +80,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     [history, params]
   );
 
-  let [columns, setColumns] = useState<
-    Array<ICustomTableColumType<InventoryResponse>>
-  >([
+  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([
     {
       width: 100,
       title: "Ảnh",
@@ -101,9 +101,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       align: "center",
       render: (value, record, index) => (
         <div>
-          <Link
-            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
-          >
+          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
             {value}
           </Link>
         </div>
@@ -121,7 +119,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       visible: true,
       dataIndex: "prices",
       align: "right",
-      render: (value, record, index) => {
+      render: (value) => {
         let price = Products.findPrice(value, AppConfig.currency);
         return formatCurrency(price ? price.retail_price : 0);
       },
@@ -131,6 +129,10 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       visible: true,
       dataIndex: "total_on_hand",
       align: "right",
+      render: (_, record: any) => {
+      
+        return <span>{record[`total_${status}`]}</span>;
+      },
     },
   ]);
 
@@ -162,7 +164,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         isLoading={loading}
         dataSource={data.items}
         scroll={{ x: 900 }}
-        sticky={{ offsetScroll: 5 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
@@ -179,7 +180,7 @@ const TabHistoryPrice: React.FC = () => {
         columns={columns}
         dataSource={data.items}
         isLoading={loading}
-        sticky={{offsetScroll: 5, offsetHeader: 109}}
+        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
