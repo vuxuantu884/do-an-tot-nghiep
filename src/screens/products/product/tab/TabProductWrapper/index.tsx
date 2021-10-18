@@ -29,6 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
 import { convertCategory } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
@@ -352,7 +353,7 @@ const TabProductWrapper: React.FC = () => {
         isLoading={tableLoading}
         onSelectedChange={onSelect}
         scroll={{ x: 1500 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

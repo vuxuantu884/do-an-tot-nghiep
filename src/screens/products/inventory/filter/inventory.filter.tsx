@@ -331,11 +331,6 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
                   case AvdInventoryFilter.shipping:
                     component = <NumberInputRange />;
                     break;
-                  case AvdInventoryFilter.import_price:
-                  case AvdInventoryFilter.mac:
-                  case AvdInventoryFilter.retail_price:
-                    component = <NumberInputRange placeholderFrom="Giá từ" />;
-                    break;
                 }
                 return (
                   <Collapse key={field}>
@@ -407,23 +402,6 @@ const FilterList = ({ filters, resetField }: any) => {
             }
             renderTxt = `${InventoryMappingField[filterKey]} : ${fromS} - ${toS}`;;
             break;
-          case AvdInventoryFilter.import_price:
-          case AvdInventoryFilter.mac:
-          case AvdInventoryFilter.retail_price:
-            let [from2, to2] = value;
-            let fromS2 = '';
-            let toS2 = '';
-            if(from2 === undefined || from2 === null || from2 === '~') {
-              fromS2 = '~'
-            } else {
-              fromS2 = from2;
-            }
-            if(to2 === undefined || to2 === null) {
-              toS2 = '~'
-            } else {
-              toS2 = to2;
-            }
-            renderTxt = `${InventoryMappingField[filterKey]} : ${fromS2}VND - ${toS2}VND`;;
         }
         return (
           <Tag

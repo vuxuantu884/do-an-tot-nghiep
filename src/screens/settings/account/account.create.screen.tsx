@@ -1,6 +1,11 @@
 import {
-  Affix,
-  Button,
+  DeleteOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  PlusOutlined
+} from "@ant-design/icons";
+import {
+  Affix, Button,
   Card,
   Col,
   Collapse,
@@ -12,18 +17,21 @@ import {
   Row,
   Select,
   Space,
-  Switch,
+  Switch
 } from "antd";
+import ContentContainer from "component/container/content.container";
+import CustomDatepicker from "component/custom/date-picker.custom";
+import UrlConfig from "config/url.config";
+import {
+  AccountCreateAction, DepartmentGetListAction,
+  PositionGetListAction
+} from "domain/actions/account/account.action";
+import { RoleGetListAction } from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction,
+  DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
-import { CityView } from "model/content/district.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import {
-  DepartmentGetListAction,
-  PositionGetListAction,
-} from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   AccountJobReQuest,
   AccountJobResponse,
@@ -31,32 +39,22 @@ import {
   AccountResponse,
   AccountRolesResponse,
   AccountStoreResponse,
-  AccountView,
+  AccountView
 } from "model/account/account.model";
-import {
-  DeleteOutlined,
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DepartmentResponse } from "model/account/department.model";
+import { PositionResponse } from "model/account/position.model";
+import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
+import { CityView, DistrictResponse } from "model/content/district.model";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import moment from "moment";
 import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { AccountCreateAction } from "domain/actions/account/account.action";
-import { StoreResponse } from "model/core/store.model";
-import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
-import { RoleGetListAction } from "domain/actions/auth/role.action";
-import moment from "moment";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
 import { showSuccess } from "utils/ToastUtils";
-import ContentContainer from "component/container/content.container";
-import CustomDatepicker from "component/custom/date-picker.custom";
-import UrlConfig from "config/url.config";
+import { PASSWORD_RULES } from "./account.rules";
 
 const { Item, List } = Form;
 const { Option, OptGroup } = Select;
@@ -110,6 +108,7 @@ const AccountCreateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false)
   //EndState
   //Callback
 
@@ -236,6 +235,10 @@ const AccountCreateScreen: React.FC = () => {
     }
     return "";
   }, [status, listAccountStatus]);
+
+  const selectAllStore = useMemo(() => {
+    return listStore?.map((item) => item.id);
+  }, [listStore]);
   //end memo
 
   useEffect(() => {
@@ -279,9 +282,7 @@ const AccountCreateScreen: React.FC = () => {
                 className="ant-switch-success"
                 defaultChecked
               />
-              <label
-                className={status === "active" ? "text-success" : "text-error"}
-              >
+              <label className={status === "active" ? "text-success" : "text-error"}>
                 {statusValue}
               </label>
               <Item noStyle name="status" hidden>
@@ -296,23 +297,15 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập tên đăng nhập" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
                   hasFeedback
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập tên đăng nhập"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[
-                    { required: true, message: "Vui lòng chọn giới tính" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -331,46 +324,33 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Mã nhân viên"
                   name="code"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập mã nhân viên" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
                   hasFeedback
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="VD: YD0000"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập họ và tên" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                   hasFeedback
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập họ và tên"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
                 </Item>
               </Col>
             </Row>
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[
-                    { required: true, message: "Vui lòng nhập mật khẩu" },
-                  ]}
+                  rules={[...PASSWORD_RULES, { required: true, message: "Vui lòng nhập tên đăng nhập" }]}
                   name="password"
                   label="Mật khẩu"
                   hasFeedback
                 >
                   <Input.Password
+                  autoComplete="new-password"
                     className="r-5"
                     placeholder="Nhập mật khẩu"
                     size="large"
@@ -386,25 +366,19 @@ const AccountCreateScreen: React.FC = () => {
                   label="Nhập lại mật khẩu"
                   dependencies={["password"]}
                   hasFeedback
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập lại mật khẩu",
-                    },
+                  rules={[              
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue("password") === value) {
                           return Promise.resolve();
                         }
 
-                        return Promise.reject(
-                          new Error("Nhập lại mật khẩu không đúng")
-                        );
+                        return Promise.reject(new Error("Nhập lại mật khẩu không đúng"));
                       },
                     }),
                   ]}
                 >
-                  <Input.Password placeholder="Nhập lại mật khẩu" />
+                  <Input.Password placeholder="Nhập lại mật khẩu" autoComplete="new-password"/>
                 </Form.Item>
               </Col>
             </Row>
@@ -413,16 +387,10 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập số điện thoại" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
                   hasFeedback
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập số điện thoại"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -431,9 +399,32 @@ const AccountCreateScreen: React.FC = () => {
                     placeholder="Chọn cửa hàng"
                     allowClear
                     showArrow
-                    mode="multiple"
+                    maxTagCount={"responsive" as const}
+                    mode={isSelectAllStore ? "tags" : "multiple"}
                     optionFilterProp="children"
+                    onChange={(value: any) => {
+                      console.log(value);
+                      if (
+                        (Array.isArray(value) && value.includes("all")) ||
+                        value === "all"
+                      ) {
+                        if (isSelectAllStore) {
+                          formRef.current?.setFieldsValue({ account_stores: [] });
+                          setIsSelectAllStore(false);
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            account_stores: selectAllStore,
+                          });
+                          setIsSelectAllStore(true);
+                        }
+                      } else {
+                        setIsSelectAllStore(false);
+                      }
+                    }}
                   >
+                    <Option value={"all"}>
+                      {isSelectAllStore ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                    </Option>
                     {listStore?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -452,10 +443,7 @@ const AccountCreateScreen: React.FC = () => {
                     format="DD/MM/YYYY"
                     style={{ width: "100%" }}
                   /> */}
-                  <CustomDatepicker
-                    style={{ width: "100%" }}
-                    placeholder="20/01/2021"
-                  />
+                  <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -542,72 +530,63 @@ const AccountCreateScreen: React.FC = () => {
               <List name="account_jobs">
                 {(fields, { add, remove }) => (
                   <>
-                    {fields.map(
-                      ({ key, name, fieldKey, ...restField }, index) => (
-                        <Row key={key} gutter={16}>
-                          <Col md={8}>
-                            <Item
-                              label="Bộ phận"
-                              name={[name, "department_id"]}
-                              fieldKey={[fieldKey, "department_id"]}
+                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
+                      <Row key={key} gutter={16}>
+                        <Col md={8}>
+                          <Item
+                            label="Bộ phận"
+                            name={[name, "department_id"]}
+                            fieldKey={[fieldKey, "department_id"]}
+                          >
+                            <Select
+                              placeholder="Chọn bộ phận"
+                              allowClear
+                              showArrow
+                              optionFilterProp="children"
+                              onChange={(value) => onChangeDepartment(value, index)}
+                              style={{ width: "100%" }}
                             >
-                              <Select
-                                placeholder="Chọn bộ phận"
-                                allowClear
-                                showArrow
-                                optionFilterProp="children"
-                                onChange={(value) =>
-                                  onChangeDepartment(value, index)
-                                }
-                                style={{ width: "100%" }}
-                              >
-                                {listDepartment?.map((item) => (
-                                  <Option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </Option>
-                                ))}
-                              </Select>
-                            </Item>
+                              {listDepartment?.map((item) => (
+                                <Option key={item.id} value={item.id}>
+                                  {item.name}
+                                </Option>
+                              ))}
+                            </Select>
+                          </Item>
+                        </Col>
+                        <Col md={8}>
+                          <Item
+                            name={[name, "position_id"]}
+                            fieldKey={[fieldKey, "position_id"]}
+                            label="Vị trí"
+                          >
+                            <Select
+                              placeholder="Chọn vị trí"
+                              allowClear
+                              showArrow
+                              optionFilterProp="children"
+                              onChange={(value) => onChangePosition(value, index)}
+                              style={{ width: "100%" }}
+                            >
+                              {listPosition?.map((item) => (
+                                <Option key={item.id} value={item.id}>
+                                  {item.name}
+                                </Option>
+                              ))}
+                              trí
+                            </Select>
+                          </Item>
+                        </Col>
+                        {fields.length > 1 && (
+                          <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+                            <Button
+                              onClick={() => remove(name)}
+                              icon={<DeleteOutlined />}
+                            />
                           </Col>
-                          <Col md={8}>
-                            <Item
-                              name={[name, "position_id"]}
-                              fieldKey={[fieldKey, "position_id"]}
-                              label="Vị trí"
-                            >
-                              <Select
-                                placeholder="Chọn vị trí"
-                                allowClear
-                                showArrow
-                                optionFilterProp="children"
-                                onChange={(value) =>
-                                  onChangePosition(value, index)
-                                }
-                                style={{ width: "100%" }}
-                              >
-                                {listPosition?.map((item) => (
-                                  <Option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </Option>
-                                ))}
-                                trí
-                              </Select>
-                            </Item>
-                          </Col>
-                          {fields.length > 1 && (
-                            <Col
-                              md={4}
-                              style={{ display: "flex", alignItems: "center" }}
-                            >
-                              <Button
-                                onClick={() => remove(name)}
-                                icon={<DeleteOutlined />}
-                              />
-                            </Col>
-                          )}
-                        </Row>
-                      )
-                    )}
+                        )}
+                      </Row>
+                    ))}
                     <Button
                       type="link"
                       className="padding-0"
@@ -623,16 +602,12 @@ const AccountCreateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
+          <div className="margin-top-10" style={{ textAlign: "right"}}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button
-                htmlType="submit"
-                type="primary"
-                loading={loadingSaveButton}
-              >
+              <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
                 Lưu
               </Button>
             </Space>

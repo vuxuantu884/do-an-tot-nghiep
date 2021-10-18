@@ -1,36 +1,34 @@
-import { Card, Tag } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
-import CustomTable from "component/table/CustomTable";
-import { VariantResponse } from "model/product/product.model";
-import {
-  AccountSearchQuery,
-  AccountResponse,
-  AccountRolesResponse,
-  AccountStoreResponse,
-} from "model/account/account.model";
+import { Card, Switch, Tag } from "antd";
+import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
+import ButtonCreate from "component/header/ButtonCreate";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
 import {
   AccountDeleteAction,
   AccountSearchAction,
+  AccountUpdateAction,
   DepartmentGetListAction,
-  PositionGetListAction,
+  PositionGetListAction
 } from "domain/actions/account/account.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import {
+  AccountResponse,
+  AccountRolesResponse, AccountSearchQuery, AccountStoreResponse
+} from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
-import UrlConfig from "config/url.config";
-import ContentContainer from "component/container/content.container";
-import ButtonCreate from "component/header/ButtonCreate";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
 const actions: Array<MenuAction> = [
   {
     id: 1,
@@ -56,9 +54,7 @@ const ListAccountScreen: React.FC = () => {
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
-  const [accountSelected, setAccountSelected] = useState<
-    Array<AccountResponse>
-  >([]);
+  const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.account_status;
   });
@@ -75,13 +71,11 @@ const ListAccountScreen: React.FC = () => {
     },
     items: [],
   });
-  const columns = [
+  const columns: Array<ICustomTableColumType<AccountResponse>> = [
     {
       title: "Mã nhân viên",
       render: (value: AccountResponse) => {
-        return (
-          <Link to={`${UrlConfig.ACCOUNTS}/${value.code}`}>{value.code}</Link>
-        );
+        return <Link to={`${UrlConfig.ACCOUNTS}/${value.code}`}>{value.code}</Link>;
       },
     },
     {
@@ -124,16 +118,25 @@ const ListAccountScreen: React.FC = () => {
         return ConvertUtcToLocalDate(value.created_date, "DD/MM/YYYY");
       },
     },
-
     {
       title: "Trạng thái",
       dataIndex: "status",
-      render: (value: string, row: VariantResponse) => (
-        <div
-          className={row.status === "active" ? "text-success" : "text-error"}
-        >
-          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
-        </div>
+      align: "center",
+      render: (value: string, row: AccountResponse) => (
+        <Switch
+          size="small"
+          className="ant-switch-success"
+          defaultChecked={value === "active"}
+          onChange={(checked) => {
+            dispatch(
+              AccountUpdateAction(
+                row.id,
+                { ...row, status: checked ? "active" : "inactive" },
+                () => {}
+              )
+            );
+          }}
+        />
       ),
     },
   ];
@@ -241,22 +244,24 @@ const ListAccountScreen: React.FC = () => {
             listStatus={listStatus}
             listStore={listStore}
           />
-          <CustomTable
-            isRowSelection
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onSelectedChange={onSelect}
-            isLoading={tableLoading}
-            dataSource={data.items}
-            columns={columns}
-            rowKey={(item: AccountResponse) => item.id}
-          />
+            <CustomTable
+              isRowSelection
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }}
+              onSelectedChange={onSelect}
+              isLoading={tableLoading}
+              dataSource={data.items}
+              columns={columns}
+              rowKey={(item: AccountResponse) => item.id}
+              scroll={{ x: 1800 }}
+              sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+            />
         </div>
       </Card>
     </ContentContainer>
