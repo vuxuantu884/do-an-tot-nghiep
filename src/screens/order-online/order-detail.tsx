@@ -234,9 +234,9 @@ const OrderDetail = (props: PropType) => {
     cauHinhInNhieuLienHoaDon: 1,
   });
 
-  const handleReload = () => {
-    window.location.reload();
-  };
+  // const handleReload = () => {
+  //   window.location.reload();
+  // };
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
@@ -406,7 +406,8 @@ const OrderDetail = (props: PropType) => {
       dispatch(
         confirmDraftOrderAction(OrderId, params, (response) => {
           console.log("response", response);
-          handleReload();
+          // handleReload();
+          setReload(true)
         })
       );
     }
