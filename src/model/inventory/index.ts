@@ -62,6 +62,7 @@ export interface InventoryQuery extends BaseQuery {
   from_retail_price?: number,
   to_retail_price?: number,
   variant_id?: number
+  status?: string;
 } 
 
 export interface AllInventoryResponse {

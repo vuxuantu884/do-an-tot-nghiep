@@ -104,9 +104,9 @@ export const globalCssCustomButton = css`
       &:hover,
       &:focus,
       &.active {
-        color: white;
+        /* color: white;
         background-color: ${primaryColor};
-        border-color: ${primaryColor};
+        border-color: ${primaryColor}; */
       }
       &.light {
         background-color: white;

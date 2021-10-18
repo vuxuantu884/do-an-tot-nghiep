@@ -40,7 +40,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 ) => {
   const { loyaltyPoint, loyaltyUsageRules } = props;
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
-  const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
+  // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
@@ -62,7 +62,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   const ShowAddressModal = () => {
     // setVisibleAddress(true);
     setVisibleShippingAddress(false);
-    setVisibleBillingAddress(false);
+    // setVisibleBillingAddress(false);
   };
 
   const ShowBillingAddress = () => {
@@ -70,7 +70,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   };
 
   const handleVisibleBillingAddressChange = (value: boolean) => {
-    setVisibleBillingAddress(value);
+    // setVisibleBillingAddress(value);
   };
   let customerBirthday = moment(props.customerDetail?.birthday).format(
     "DD/MM/YYYY"
@@ -191,54 +191,6 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </Row>
               <Row className="customer-row-info">
                 <span>{props.OrderDetail?.shipping_address?.full_address}</span>
-              </Row>
-              <Row>
-              <Popover
-                    placement="bottomLeft"
-                    title={
-                      <Row
-                        justify="space-between"
-                        align="middle"
-                        className="change-shipping-address-title"
-                      >
-                        <div style={{ color: "#4F687D" }}>Thay đổi địa chỉ</div>
-                        <Button type="link" onClick={ShowAddressModal}>
-                          Thêm địa chỉ mới
-                        </Button>
-                      </Row>
-                    }
-                    content={
-                      <div className="change-shipping-address-content">
-                        <div className="shipping-address-row">
-                          <div className="shipping-address-name">
-                            Địa chỉ 1{" "}
-                            <Button
-                              type="text"
-                              onClick={ShowAddressModal}
-                              className="p-0"
-                            >
-                              <img src={editBlueIcon} alt="" />
-                            </Button>
-                          </div>
-                          <div className="shipping-customer-name">Do Van A</div>
-                          <div className="shipping-customer-mobile">
-                            0987654321
-                          </div>
-                          <div className="shipping-customer-address">
-                            Ha Noi
-                          </div>
-                        </div>
-                      </div>
-                    }
-                    trigger="click"
-                    visible={visibleBillingAddress}
-                    onVisibleChange={handleVisibleBillingAddressChange}
-                    className="change-shipping-address"
-                  >
-                    <Button type="link" className="btn-style">
-                      Thay đổi địa chỉ gửi hóa đơn
-                    </Button>
-                  </Popover>
               </Row>
             </Col>
             <Col

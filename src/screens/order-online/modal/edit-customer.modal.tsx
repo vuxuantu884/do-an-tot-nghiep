@@ -314,7 +314,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           >
             <Input
               placeholder="Nhập Tên khách hàng"
-              prefix={<UserOutlined />}
+              prefix={<UserOutlined  style={{color:"#71767B"}}/>}
               //suffix={<img src={arrowDownIcon} alt="down" />}
             />
           </Form.Item>
@@ -337,7 +337,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               allowClear
               placeholder={
                 <React.Fragment>
-                  <EnvironmentOutlined />
+                  <EnvironmentOutlined style={{color:"#71767B"}}/>
                   <span> Chọn khu vực</span>
                 </React.Fragment>
               }
@@ -378,7 +378,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           >
             <Input
               placeholder="Nhập số điện thoại"
-              prefix={<PhoneOutlined />}
+              prefix={<PhoneOutlined style={{color:"#71767B"}}/>}
             />
           </Form.Item>
         </Col>
@@ -402,7 +402,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
               style={{ width: "100%" }}
               placeholder={
                 <React.Fragment>
-                  <EnvironmentOutlined />
+                  <EnvironmentOutlined style={{color:"#71767B"}}/>
                   <span> Chọn phường/xã</span>
                 </React.Fragment>
               }
@@ -424,7 +424,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             name="card_number"
             //label="Mã thẻ"
           >
-            <Input placeholder="Nhập mã thẻ" prefix={<BarcodeOutlined />} />
+            <Input placeholder="Nhập mã thẻ" prefix={<BarcodeOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
         </Col>
 
@@ -433,7 +433,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             name="full_address"
             //</Col>label="Địa chỉ"
           >
-            <Input placeholder="Địa chỉ" prefix={<EnvironmentOutlined />} />
+            <Input placeholder="Địa chỉ" prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
         </Col>
       </Row>
@@ -441,7 +441,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
       {formItem !== null && (
         <div>
           {isVisibleCollapseCustomer === false && (
-            <Row style={{ marginBottom: "10px" }}>
+            <Row style={{ margin: "16px 0", color: "#5656A1" }}>
               <div
                 className="page-filter-left"
                 style={{ width: "10%", margin: "-4px 0" }}
@@ -516,7 +516,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           )}
 
           {isVisibleCollapseCustomer === true && (
-            <Divider orientation="right">
+            <Divider orientation="right" style={{ color: "#5656A1" }}>
               <Popover
                 placement="topLeft"
                 overlayStyle={{ zIndex: 17 }}
@@ -568,22 +568,22 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         </div>
       )}
 
-{ formItem===null && isVisibleCollapseCustomer === false && (
-                  <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
-                      <div>
-                          <Button
-                            type="link"
-                            icon={<DownOutlined />}
-                            style={{ padding: "0px" }}
-                            onClick={() => {
-                              setVisibleCollapseCustomer(true);
-                            }}
-                          >
-                            Xem thêm
-                          </Button>
-                      </div>
-                    </Divider>
-                  )}
+      {formItem === null && isVisibleCollapseCustomer === false && (
+        <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
+          <div>
+            <Button
+              type="link"
+              icon={<DownOutlined />}
+              style={{ padding: "0px" }}
+              onClick={() => {
+                setVisibleCollapseCustomer(true);
+              }}
+            >
+              Xem thêm
+            </Button>
+          </div>
+        </Divider>
+      )}
       {isVisibleCollapseCustomer === true && (
         <div>
           <Row gutter={24}>
@@ -598,7 +598,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                   optionFilterProp="children"
                   placeholder={
                     <React.Fragment>
-                      <ManOutlined />
+                      <ManOutlined style={{color:"#71767B"}} />
                       <span> Giới tính</span>
                     </React.Fragment>
                   }
@@ -642,7 +642,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn ngày sinh"
                   format={"DD/MM/YYYY"}
-                  suffixIcon={<CalendarOutlined />}
+                  suffixIcon={<CalendarOutlined style={{color:"#71767B",float:"left"}}/>}
                   onChange={() => {
                     setVisibleBtnUpdate(true);
                   }}
@@ -661,7 +661,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                   optionFilterProp="children"
                   placeholder={
                     <React.Fragment>
-                      <TeamOutlined  />
+                      <TeamOutlined style={{color:"#71767B"}}/>
                       <span> Nhóm khách hàng</span>
                     </React.Fragment>
                   }
@@ -679,18 +679,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                 </Select>
               </Form.Item>
             </Col>
-            {/* {isVisibleCollapseCustomer === true && isVisibleBtnUpdate === true && (
-              <Col xs={24} lg={12} style={{ paddingRight: "12px" }}>
-                <Button
-                  type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  onClick={onOkPress}
-                >
-                  Cập nhật
-                </Button>
-              </Col>
-            )} */}
           </Row>
         </div>
       )}

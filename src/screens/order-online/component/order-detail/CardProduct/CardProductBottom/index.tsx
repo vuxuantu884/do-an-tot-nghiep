@@ -49,16 +49,6 @@ function CardProductBottom(props: PropType) {
               Bỏ chiết khấu tự động
             </Checkbox>
           </div>
-          <div className="optionRow">
-            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-              Không tính thuế VAT
-            </Checkbox>
-          </div>
-          <div className="optionRow">
-            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
-              Bỏ tích điểm tự động
-            </Checkbox>
-          </div>
         </Col>
         <Col xs={24} lg={10}>
           <Row className="paymentRow" style={{ justifyContent: "space-between" }}>

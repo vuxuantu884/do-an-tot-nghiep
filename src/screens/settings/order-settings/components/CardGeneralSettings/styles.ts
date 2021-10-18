@@ -22,7 +22,9 @@ export const StyledComponent = styled.div`
     margin-left: 25px;
   }
   .singleSetting {
-    margin-bottom: 25px;
+    &:not(:last-child) {
+      margin-bottom: 25px;
+    }
   }
   .selectInNhieuDonHang {
     width: 255px;

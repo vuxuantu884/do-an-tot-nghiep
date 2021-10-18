@@ -36,7 +36,7 @@ import {
   AccountStoreResponse,
   AccountView,
 } from "model/account/account.model";
-import { PlusOutlined } from "@ant-design/icons";
+import { EyeInvisibleOutlined, EyeTwoTone, PlusOutlined } from "@ant-design/icons";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import {
@@ -62,6 +62,8 @@ import { useParams } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import { PASSWORD_RULES } from "./account.rules";
+import { RuleObject } from "rc-field-form/lib/interface";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -110,6 +112,7 @@ const AccountUpdateScreen: React.FC = () => {
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false)
   //EndState
 
   //Callback
@@ -271,6 +274,7 @@ const AccountUpdateScreen: React.FC = () => {
       version: data.version,
     };
     idNumber.current= data.id;
+    setStatus(accountView.status);
     setAccountDetail(accountView);
   }, []);
   //End callback
@@ -285,6 +289,12 @@ const AccountUpdateScreen: React.FC = () => {
     }
     return "";
   }, [status, listAccountStatus]);
+
+  const selectAllStore = useMemo(() => {
+    return listStore?.map((item) => item.id);
+  }, [listStore]);
+
+
   //end memo
 
   const columns = [
@@ -359,6 +369,11 @@ const AccountUpdateScreen: React.FC = () => {
       },
     },
   ];
+
+  useEffect(() => {
+    setIsSelectAllStore(listStore?.length === accountDetail?.account_stores.length);
+  }, [accountDetail, listStore]);
+
   useEffect(() => {
     dispatch(DepartmentGetListAction(setDepartment));
     dispatch(PositionGetListAction(setPosition));
@@ -381,7 +396,7 @@ const AccountUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-         path: UrlConfig.HOME,
+          path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
@@ -406,11 +421,9 @@ const AccountUpdateScreen: React.FC = () => {
               <Switch
                 onChange={onChangeStatus}
                 className="ant-switch-success"
-                defaultChecked
+                checked={status === "active"}
               />
-              <label
-                className={status === "active" ? "text-success" : "text-error"}
-              >
+              <label className={status === "active" ? "text-success" : "text-error"}>
                 {statusValue}
               </label>
               <Item noStyle name="status" hidden>
@@ -428,22 +441,14 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập họ và tên" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập tên đăng nhập"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[
-                    { required: true, message: "Vui lòng chọn giới tính" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -466,15 +471,9 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Mã nhân viên"
                   name="code"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập mã nhân viên" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="VD: YD0000"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
                 </Item>
               </Col>
 
@@ -482,16 +481,50 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập họ và tên" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                 >
-                  <Input
+                  <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item name="password" label="Mật khẩu" hasFeedback rules={PASSWORD_RULES}>
+                  <Input.Password
                     className="r-5"
-                    placeholder="Nhập họ và tên"
+                    placeholder="Nhập mật khẩu"
                     size="large"
+                    allowClear
+                    autoComplete="new-password"
+                    iconRender={(visible) =>
+                      visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                    }                    
                   />
                 </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  name="confirm"
+                  label="Nhập lại mật khẩu"
+                  dependencies={["password"]}
+                  hasFeedback
+                  rules={[
+                    ({ getFieldValue }) => ({
+                      validator(_: RuleObject, value: string) {
+                        if (!value || getFieldValue("password") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error("Nhập lại mật khẩu không đúng"));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="Nhập lại mật khẩu"
+                    allowClear
+                    autoComplete="new-password"
+                  />
+                </Form.Item>
               </Col>
             </Row>
             <Row gutter={24}>
@@ -499,37 +532,43 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập số điện thoại" },
-                  ]}
+                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập số điện thoại"
-                    size="large"
-                  />
+                  <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  name="account_stores"
-                  label="Cửa hàng"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn cửa hàng",
-                    },
-                  ]}
-                >
+                <Form.Item name="account_stores" label="Cửa hàng">
                   <Select
                     placeholder="Chọn cửa hàng"
-                    className="selector"
                     allowClear
                     showArrow
-                    mode="multiple"
+                    maxTagCount={"responsive" as const}
+                    mode={isSelectAllStore ? "tags" : "multiple"}
                     optionFilterProp="children"
-                    maxTagCount="responsive"
+                    onChange={(value: any) => {
+                      console.log(value);
+                      if (
+                        (Array.isArray(value) && value.includes("all")) ||
+                        value === "all"
+                      ) {
+                        if (isSelectAllStore) {
+                          formRef.current?.setFieldsValue({ account_stores: [] });
+                          setIsSelectAllStore(false);
+                        } else {
+                          formRef.current?.setFieldsValue({
+                            account_stores: selectAllStore,
+                          });
+                          setIsSelectAllStore(true);
+                        }
+                      } else {
+                        setIsSelectAllStore(false);
+                      }
+                    }}
                   >
+                    <Option value={"all"}>
+                      {isSelectAllStore ? "Bỏ chọn tất cả" : "Chọn tất cả cửa hàng"}
+                    </Option>
                     {listStore?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -544,9 +583,7 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Ngày sinh"
                   name="birthday"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập ngày sinh" },
-                  ]}
+                  // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
                 >
                   {/* <DatePicker
                     className="r-5 w-100 ip-search"
@@ -554,10 +591,7 @@ const AccountUpdateScreen: React.FC = () => {
                     format="DD/MM/YYYY"
                     style={{width: '100%'}}
                   /> */}
-                  <CustomDatepicker
-                    style={{ width: "100%" }}
-                    placeholder="20/01/2021"
-                  />
+                  <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -593,11 +627,7 @@ const AccountUpdateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Quốc gia" name="country_id">
-                  <Select
-                    disabled
-                    className="selector"
-                    placeholder="Chọn quốc gia"
-                  >
+                  <Select disabled className="selector" placeholder="Chọn quốc gia">
                     {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -681,16 +711,16 @@ const AccountUpdateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Affix offsetBottom={20}>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            <Button htmlType="submit" type="primary">
-              Lưu
-            </Button>
-          </Space>
-        </div>
+          <div className="margin-top-10" style={{ textAlign: "right" }}>
+            <Space size={12}>
+              <Button type="default" onClick={onCancel}>
+                Hủy
+              </Button>
+              <Button htmlType="submit" type="primary">
+                Lưu
+              </Button>
+            </Space>
+          </div>
         </Affix>
       </Form>
     </ContentContainer>

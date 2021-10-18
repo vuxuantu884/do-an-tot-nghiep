@@ -1,39 +1,39 @@
 import CustomTable, {
-  ICustomTableColumType,
+  ICustomTableColumType
 } from "component/table/CustomTable";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { inventoryGetListAction } from "domain/actions/inventory/inventory.action";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
   InventoryQuery,
-  InventoryResponse,
+  InventoryResponse
 } from "model/inventory";
-import { PageResponse } from "model/base/base-metadata.response";
-import { Link, useHistory } from "react-router-dom";
-import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
-import UrlConfig from "config/url.config";
-import { TabProps } from "./tab.props";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   HiChevronDoubleRight,
-  HiOutlineChevronDoubleDown,
+  HiOutlineChevronDoubleDown
 } from "react-icons/hi";
-import AllInventoryFilter from "../filter/all.filter";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { AppConfig } from "config/app.config";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
+import { formatCurrency, generateQuery, Products } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { getQueryParams } from "utils/useQuery";
+import AllInventoryFilter from "../filter/all.filter";
+import { TabProps } from "./tab.props";
 
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
-  const query = useQuery();
+
+   const query = new URLSearchParams(history.location.hash.substring(2));
+
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  let initQuery: InventoryQuery = {};
-
   let dataQuery: InventoryQuery = {
-    ...initQuery,
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<InventoryQuery>(dataQuery);
@@ -61,7 +61,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(
+      history.push(
         `${UrlConfig.INVENTORY}${history.location.hash}?${queryParam}`
       );
     },
@@ -73,66 +73,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.replace(`${UrlConfig.INVENTORY}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY}#1?${queryParam}`);
     },
     [history, params]
   );
 
-  let [columns, setColumns] = useState<
-    Array<ICustomTableColumType<InventoryResponse>>
-  >([
-    {
-      width: 100,
-      title: "Ảnh",
-      visible: true,
-      align: "center",
-      dataIndex: "url",
-      render: (value) => <ImageProduct path={value} isUpload={false} />,
-    },
-    {
-      title: "Barcode",
-      visible: true,
-      dataIndex: "barcode",
-    },
-    {
-      title: "Mã sản phẩm",
-      visible: true,
-      dataIndex: "sku",
-      align: "center",
-      render: (value, record, index) => (
-        <div>
-          <Link
-            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
-          >
-            {value}
-          </Link>
-        </div>
-      ),
-    },
-    {
-      width: 300,
-      title: "Tên sản phẩm",
-      visible: true,
-      dataIndex: "name",
-      align: "center",
-    },
-    {
-      title: "Giá",
-      visible: true,
-      dataIndex: "prices",
-      align: "right",
-      render: (value, record, index) => {
-        let price = Products.findPrice(value, AppConfig.currency);
-        return formatCurrency(price ? price.retail_price : 0);
-      },
-    },
-    {
-      title: "Tồn theo trạng thái",
-      visible: true,
-      dataIndex: "total_on_hand",
-      align: "right",
-    },
-  ]);
+  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
 
   const openColumn = useCallback(() => {
     setShowSettingColumn(true);
@@ -144,9 +90,64 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   );
 
   useEffect(() => {
+    setColumns([
+      {
+        width: 100,
+        title: "Ảnh",
+        visible: true,
+        align: "center",
+        dataIndex: "url",
+        render: (value) => <ImageProduct path={value} isUpload={false} />,
+      },
+      {
+        title: "Barcode",
+        visible: true,
+        dataIndex: "barcode",
+      },
+      {
+        title: "Mã sản phẩm",
+        visible: true,
+        dataIndex: "sku",
+        align: "center",
+        render: (value, record, index) => (
+          <div>
+            <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
+              {value}
+            </Link>
+          </div>
+        ),
+      },
+      {
+        width: 300,
+        title: "Tên sản phẩm",
+        visible: true,
+        dataIndex: "name",
+        align: "center",
+      },
+      {
+        title: "Giá",
+        visible: true,
+        dataIndex: "prices",
+        align: "right",
+        render: (value) => {
+          let price = Products.findPrice(value, AppConfig.currency);
+          return formatCurrency(price ? price.retail_price : 0);
+        },
+      },
+      {
+        title: "Tồn theo trạng thái",
+        visible: true,
+        dataIndex: `total_${params.status || "on_hand"}`,
+        align: "right",
+      },
+    ]);
+  }, [params]);
+
+  useEffect(() => {
     setLoading(true);
     dispatch(inventoryGetListAction(params, onResult));
   }, [dispatch, onResult, params]);
+
   return (
     <div>
       <AllInventoryFilter
@@ -162,7 +163,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         isLoading={loading}
         dataSource={data.items}
         scroll={{ x: 900 }}
-        sticky={{ offsetScroll: 5 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

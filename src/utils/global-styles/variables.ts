@@ -17,7 +17,7 @@ export const grayF5Color = "#F5F5F5";
 export const focusBorderColor = primaryColor;
 
 //
-export const borderRadius = "5px";
+export const borderRadius = "2px";
 
 //font
 export const headingFontWeight = 600;

@@ -16,11 +16,7 @@ import YdCoin from "component/icon/YdCoin";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useMemo } from "react";
-import {
-  formatCurrency,
-  formatSuffixPoint,
-  replaceFormat,
-} from "utils/AppUtils";
+import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
 import { PaymentMethodCode, PointConfig } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
@@ -52,8 +48,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
   } = props;
 
   const isReturnMoneyToCustomer =
-    totalAmountCustomerNeedToPay !== undefined &&
-    totalAmountCustomerNeedToPay <= 0;
+    totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
 
   const handlePickPaymentMethod = (code?: string) => {
     if (isReturnMoneyToCustomer) {
@@ -166,9 +161,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
               <Button
                 style={{ display: "flex", padding: 10 }}
                 type={
-                  payments.some((p) => p.code === method.code)
-                    ? "primary"
-                    : "default"
+                  payments.some((p) => p.code === method.code) ? "primary" : "default"
                 }
                 value={method.id}
                 icon={icon}
@@ -193,10 +186,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
     /**
      * index is index-number of list payments, using to calculate
      */
-    const renderPaymentByUsingPoint = (
-      method: OrderPaymentRequest,
-      index: number
-    ) => {
+    const renderPaymentByUsingPoint = (method: OrderPaymentRequest, index: number) => {
       if (method.code === PaymentMethodCode.POINT) {
         return (
           <Col className="point-spending">
@@ -263,12 +253,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                 </Row>
               </Col>
               {method.code !== PaymentMethodCode.POINT ? (
-                <Col
-                  className="lbl-money"
-                  lg={6}
-                  xxl={6}
-                  style={{ marginLeft: 10 }}
-                >
+                <Col className="lbl-money" lg={6} xxl={6} style={{ marginLeft: 10 }}>
                   <InputNumber
                     size="middle"
                     min={0}
@@ -320,7 +305,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
               setReturnMoneyType(e.target.value);
             }
           }}
-          style={{ margin: "18px 0" }}
+          style={{ margin: "0 0 18px 0" }}
         >
           <Space size={20}>
             <Radio value={RETURN_MONEY_TYPE.return_now}>Hoàn tiền </Radio>
@@ -346,11 +331,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
       <div className="padding-24">
         <Row gutter={24}>
           <div style={{ padding: "0 24px", maxWidth: "100%" }}>
-            <Collapse
-              className="orders-timeline"
-              defaultActiveKey={["1"]}
-              ghost
-            >
+            <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
               <Collapse.Panel
                 className="orders-timeline-custom orders-dot-status"
                 header={
@@ -377,9 +358,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                         </span>
                         <strong>
                           {totalAmountCustomerNeedToPay &&
-                            formatCurrency(
-                              Math.abs(totalAmountCustomerNeedToPay)
-                            )}
+                            formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                         </strong>
                       </div>
                     </Col>
@@ -438,9 +417,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
                           >
                             <span className="t-result-blue">
                               {totalAmountCustomerNeedToPay &&
-                                formatCurrency(
-                                  Math.abs(totalAmountCustomerNeedToPay)
-                                )}
+                                formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                             </span>
                           </Col>
                         </Row>
@@ -491,9 +468,9 @@ function CardReturnMoneyPageCreate(props: PropType) {
   const renderIfIsExchange = () => {
     if (!isStepExchange) {
       return (
-        <div className="padding-24">
-          Đối với các đơn trả hàng để đổi hàng, bạn vui lòng thực hiện hoàn
-          tiền/thanh toán trên đơn đổi hàng.
+        <div>
+          Đối với các đơn trả hàng để đổi hàng, bạn vui lòng thực hiện hoàn tiền/thanh
+          toán trên đơn đổi hàng.
         </div>
       );
     } else {
@@ -506,14 +483,7 @@ function CardReturnMoneyPageCreate(props: PropType) {
   };
 
   return (
-    <Card
-      className="margin-top-20"
-      title={
-        <span className="title-card">
-          {isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}
-        </span>
-      }
-    >
+    <Card title={isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}>
       {renderIfIsExchange()}
     </Card>
   );
