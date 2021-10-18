@@ -51,14 +51,14 @@ function SidebarOrderDetailInformation(props: PropType) {
             </span>
           </Col>
         </Row>
-        <Row gutter={5}>
+        {/* <Row gutter={5}>
           <Col span={10}>Nhân viên điều phối:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
               {OrderDetail?.coordinator}
             </span>
           </Col>
-        </Row>
+        </Row> */}
         <Row gutter={5}>
           <Col span={10}>Người tạo:</Col>
           <Col span={14}>

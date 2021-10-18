@@ -90,7 +90,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label="Nhân viên điều phối"
           name="coordinator_code"
           rules={[
@@ -124,7 +124,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
               </Select.Option>
             ))}
           </Select>
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           label="Tham chiếu"
           name="reference_code"
