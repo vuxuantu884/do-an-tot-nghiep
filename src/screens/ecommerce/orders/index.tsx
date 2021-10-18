@@ -677,7 +677,10 @@ const EcommerceOrderSync: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
-    dispatch(getListOrderAction(params, setSearchResult));
+    dispatch(getListOrderAction(params, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
   }, [dispatch, params, setSearchResult]);
 
   useEffect(() => {
