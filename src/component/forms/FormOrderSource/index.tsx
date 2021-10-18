@@ -15,9 +15,7 @@ type FormValueType = {
   default: boolean;
 };
 
-const FormOrderSource: React.FC<CustomModalFormModel> = (
-  props: CustomModalFormModel
-) => {
+const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
   const DEFAULT_FORM_VALUE = {
     channel_id: 4,
     channel: "Admin",
@@ -90,16 +88,9 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
             { max: 255, message: "Không được nhập quá 255 ký tự!" },
           ]}
         >
-          <Input
-            placeholder="Nhập tên nguồn đơn hàng"
-            style={{ width: "100%" }}
-          />
+          <Input placeholder="Nhập tên nguồn đơn hàng" style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item
-          name="active"
-          valuePropName="checked"
-          style={{ marginBottom: 10 }}
-        >
+        <Form.Item name="active" valuePropName="checked" style={{ marginBottom: 10 }}>
           <Checkbox onChange={handleChangeCheckFieldActive}>
             Áp dụng cho đơn hàng
           </Checkbox>
@@ -107,7 +98,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
         <Form.Item
           name="default"
           valuePropName="checked"
-          style={{ marginBottom: 10 }}
+          style={{ marginBottom: 0 }}
           className={isVisibleFieldDefault ? "show" : "hidden"}
         >
           <Checkbox>Đặt làm mặc định</Checkbox>
