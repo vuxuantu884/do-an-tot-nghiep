@@ -607,6 +607,10 @@ const EcommerceOrderSync: React.FC = () => {
     [params]
   );
 
+  const onClearFilter = useCallback(() => {
+    setPrams(initQuery);
+  }, []);
+
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -727,6 +731,7 @@ const EcommerceOrderSync: React.FC = () => {
             onMenuClick={onMenuClick}
             actions={actions}
             onFilter={onFilter}
+            onClearFilter={() => onClearFilter()}
             params={params}
             listSource={listSource}
             listStore={listStore}

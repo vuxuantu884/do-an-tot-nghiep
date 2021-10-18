@@ -124,6 +124,15 @@ export const StyledComponent = styled.div`
         }
       }
     }
+
+    .order-filter-tags {
+      .tag {
+        padding: 10px 10px;
+        margin-bottom: 20px;
+        background: rgba(42, 42, 134, 0.05);
+        border-radius: 50px;
+      }
+    }
   }
 
   .render-shop-list {
@@ -186,15 +195,26 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
             width: 30%;
           }
         }
-        .button-option {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 10px;
-          .ant-btn {
-            width: 48%;
-          }
-        }
       }
+    }
+  }
+
+  .total-price {
+    display: flex;
+    justify-content: center;
+    border: 1px solid #d9d9d9;
+    border-radius: 5px;
+    padding: 15px;
+    .ant-form-item {
+      margin: 0;
+    }
+    .ant-input-number {
+      width: 100%;
+    }
+    .site-input-split {
+      width: 10%;
+      border: 0;
+      pointerevents: none;
     }
   }
 `;

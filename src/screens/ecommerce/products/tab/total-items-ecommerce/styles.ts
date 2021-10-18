@@ -92,14 +92,6 @@ export const StyledBaseFilter = styled.div`
       }
     }
 
-    .button-option {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      .ant-btn {
-        width: 48%;
-      }
-    }
   }
 
 }

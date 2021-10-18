@@ -1,39 +1,27 @@
-import {
-  createRef,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import moment from "moment";
 
 import {
   Button,
-  Col,
-  DatePicker,
   Form,
-  FormInstance,
   Input,
-  Row,
   Select,
-  Collapse,
   Tag,
-  Tooltip,
+  InputNumber,
   Checkbox,
+  Tooltip,
 } from "antd";
 import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import moment from "moment";
 
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
-import CustomSelect from "component/custom/select.custom";
 import BaseFilter from "component/filter/base.filter";
+import CustomFilter from "component/table/custom.filter";
 
 import { AccountResponse } from "model/account/account.model";
-import { OrderSearchQuery } from "model/order/order.model";
-import { StoreResponse } from "model/core/store.model";
-
+import { EcommerceOrderSearchQuery } from "model/order/order.model";
 import { SourceResponse } from "model/response/order/source.response";
+import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 
 import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
@@ -45,13 +33,15 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 
+import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
+
 import {
   StyledComponent,
   StyledEcommerceOrderBaseFilter,
 } from "screens/ecommerce/orders/orderStyles";
 
-type OrderFilterProps = {
-  params: OrderSearchQuery;
+type EcommerceOrderFilterProps = {
+  params: EcommerceOrderSearchQuery;
   actions: Array<MenuAction>;
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse> | undefined;
@@ -60,17 +50,16 @@ type OrderFilterProps = {
   subStatus: Array<OrderProcessingStatusModel>;
   tableLoading: boolean;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: OrderSearchQuery | Object) => void;
+  onFilter?: (values: EcommerceOrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
 };
 
 const { Item } = Form;
 const { Option } = Select;
-const { Panel } = Collapse;
 
-const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
-  props: OrderFilterProps
+const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
+  props: EcommerceOrderFilterProps
 ) => {
   const {
     params,
@@ -88,11 +77,20 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
   } = props;
 
   const dispatch = useDispatch();
+  const [formAdvanceFilter] = Form.useForm();
+  const [formBasicFilter] = Form.useForm();
 
+  const [filterType, setFilterType] = useState("");
   const [visible, setVisible] = useState(false);
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
+
+  const [isBasicEcommerceSelected, setIsBasicEcommerceSelected] =
+    useState(false);
+  const [basicEcommerceShopList, setBasicEcommerceShopList] = useState<
+    Array<any>
+  >([]);
 
   const updateEcommerceShopList = useCallback((result) => {
     const shopList: any[] = [];
@@ -102,6 +100,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
           id: item.id,
           name: item.name,
           isSelected: false,
+          ecommerce: item.ecommerce,
         });
       });
     }
@@ -110,8 +109,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
   }, []);
 
   const getShopEcommerce = (ecommerceId: any) => {
-    setIsEcommerceSelected(true);
-    setShopIdSelected([]);
     dispatch(
       getShopEcommerceList(
         { ecommerce_id: ecommerceId },
@@ -120,38 +117,111 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
     );
   };
 
-  const removeEcommerce = () => {
-    setIsEcommerceSelected(false);
-    setShopIdSelected([]);
+  const clearShopEcommerceSelected = () => {
+    let newFormValues = formAdvanceFilter?.getFieldsValue();
+    newFormValues.shop_ids = [];
+    formAdvanceFilter?.setFieldsValue(newFormValues);
   };
 
-  const ECOMMERCE_LIST = [
-    {
-      title: "Sàn Shopee",
-      icon: shopeeIcon,
-      id: "shopee",
-      ecommerce_id: 1,
+  const selectEcommerce = (ecommerceId: any) => {
+    clearShopEcommerceSelected();
+    setIsEcommerceSelected(true);
+    getShopEcommerce(ecommerceId);
+  };
+
+  const removeEcommerce = () => {
+    clearShopEcommerceSelected();
+    setIsEcommerceSelected(false);
+  };
+
+  // handle basic filter
+
+  const updateBasicEcommerceShopList = useCallback((result) => {
+    const shopList: any[] = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false,
+          ecommerce: item.ecommerce,
+        });
+      });
+    }
+
+    setBasicEcommerceShopList(shopList);
+  }, []);
+
+  const getBasicShopEcommerce = (ecommerceId: any) => {
+    dispatch(
+      getShopEcommerceList(
+        { ecommerce_id: ecommerceId },
+        updateBasicEcommerceShopList
+      )
+    );
+  };
+
+  const clearBasicShopEcommerceSelected = () => {
+    let newFormValues = formBasicFilter?.getFieldsValue();
+    newFormValues.shop_ids = [];
+    formBasicFilter?.setFieldsValue(newFormValues);
+  };
+
+  const selectBasicEcommerce = (ecommerceId: any) => {
+    clearBasicShopEcommerceSelected();
+    setIsBasicEcommerceSelected(true);
+    getBasicShopEcommerce(ecommerceId);
+  };
+
+  const removeBasicEcommerce = () => {
+    clearBasicShopEcommerceSelected();
+    setIsBasicEcommerceSelected(false);
+  };
+
+  const onBasicFinish = useCallback(
+    (values) => {
+      onFilter && onFilter(values);
     },
-    {
-      title: "Sàn Tiki",
-      icon: tikiIcon,
-      id: "tiki",
-      ecommerce_id: 2,
-    },
-    {
-      title: "Sàn Lazada",
-      icon: lazadaIcon,
-      id: "lazada",
-      ecommerce_id: 3,
-    },
-    {
-      title: "Sàn Sendo",
-      icon: sendoIcon,
-      id: "sendo",
-      isActive: false,
-      ecommerce_id: 4,
-    },
-  ];
+    [onFilter]
+  );
+
+  const onBasicFilter = useCallback(() => {
+    setFilterType("basic");
+    formBasicFilter?.submit();
+  }, [formBasicFilter]);
+
+  // end handle basic filter
+
+  const ECOMMERCE_LIST = useMemo(
+    () => [
+      {
+        title: "Sàn Shopee",
+        icon: shopeeIcon,
+        id: "shopee",
+        ecommerce_id: 1,
+      },
+      {
+        title: "Sàn Tiki",
+        icon: tikiIcon,
+        id: "tiki",
+        ecommerce_id: 2,
+      },
+      {
+        title: "Sàn Lazada",
+        icon: lazadaIcon,
+        id: "lazada",
+        ecommerce_id: 3,
+      },
+      {
+        title: "Sàn Sendo",
+        icon: sendoIcon,
+        id: "sendo",
+        isActive: false,
+        ecommerce_id: 4,
+      },
+    ],
+    []
+  );
 
   const getPlaceholderSelectShop = () => {
     if (shopIdSelected && shopIdSelected.length > 0) {
@@ -288,19 +358,21 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
     ],
     []
   );
-  const formRef = createRef<FormInstance>();
-  const formSearchRef = createRef<FormInstance>();
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
+    setFilterType("advance");
+    formAdvanceFilter?.submit();
+  }, [formAdvanceFilter]);
+
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
+
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
+
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -309,7 +381,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
   );
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
-    console.log(dates, dateString, type);
     switch (type) {
       case "issued":
         setIssuedClick("");
@@ -343,122 +414,129 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
 
   const onCloseTag = useCallback(
     (e, tag) => {
-      e.preventDefault();
-      console.log("key", tag.key);
-      console.log("params", params);
-      switch (tag.key) {
-        case "store":
-          onFilter && onFilter({ ...params, store_ids: [] });
-          break;
-        case "source":
-          onFilter && onFilter({ ...params, source_ids: [] });
-          break;
-        case "issued":
-          setIssuedClick("");
-          setIssuedOnMin(null);
-          setIssuedOnMax(null);
-          onFilter &&
-            onFilter({ ...params, issued_on_min: null, issued_on_max: null });
-          break;
-        case "finalized":
-          setFinalizedClick("");
-          setFinalizedOnMin(null);
-          setFinalizedOnMax(null);
-          onFilter &&
-            onFilter({
-              ...params,
-              finalized_on_min: null,
-              finalized_on_max: null,
-            });
-          break;
-        case "completed":
-          setCompletedClick("");
-          setCompletedOnMin(null);
-          setCompletedOnMax(null);
-          onFilter &&
-            onFilter({
-              ...params,
-              completed_on_min: null,
-              completed_on_max: null,
-            });
-          break;
-        case "cancelled":
-          setCancelledClick("");
-          setCancelledOnMin(null);
-          setCancelledOnMax(null);
-          onFilter &&
-            onFilter({
-              ...params,
-              cancelled_on_min: null,
-              cancelled_on_max: null,
-            });
-          break;
-        case "expected":
-          setExpectedClick("");
-          setExpectedReceiveOnMin(null);
-          setExpectedReceiveOnMax(null);
-          onFilter &&
-            onFilter({
-              ...params,
-              expected_receive_on_min: null,
-              expected_receive_on_max: null,
-            });
-          break;
-        case "order_status":
-          onFilter && onFilter({ ...params, order_status: [] });
-          break;
-        case "order_sub_status":
-          onFilter && onFilter({ ...params, order_sub_status: [] });
-          break;
-        case "fulfillment_status":
-          onFilter && onFilter({ ...params, fulfillment_status: [] });
-          break;
-        case "payment_status":
-          onFilter && onFilter({ ...params, payment_status: [] });
-          break;
-        case "assignee_codes":
-          onFilter && onFilter({ ...params, assignee_codes: [] });
-          break;
-        case "account_codes":
-          onFilter && onFilter({ ...params, account_codes: [] });
-          break;
-        case "price":
-          onFilter && onFilter({ ...params, price_min: null, price_max: null });
-          break;
-        case "payment_method":
-          onFilter && onFilter({ ...params, payment_method_ids: [] });
-          break;
-        case "expected_receive_predefined":
-          onFilter && onFilter({ ...params, expected_receive_predefined: "" });
-          break;
-        case "delivery_types":
-          onFilter && onFilter({ ...params, delivery_types: [] });
-          break;
-        case "delivery_provider_ids":
-          onFilter && onFilter({ ...params, delivery_provider_ids: [] });
-          break;
-        case "shipper_ids":
-          onFilter && onFilter({ ...params, shipper_ids: [] });
-          break;
-        case "note":
-          onFilter && onFilter({ ...params, note: "" });
-          break;
-        case "customer_note":
-          onFilter && onFilter({ ...params, customer_note: "" });
-          break;
-        case "tags":
-          onFilter && onFilter({ ...params, tags: [] });
-          break;
-        case "reference_code":
-          onFilter && onFilter({ ...params, reference_code: "" });
-          break;
-        default:
-          break;
+      if (!tableLoading) {
+        e.preventDefault();
+        switch (tag.key) {
+          case "store":
+            onFilter && onFilter({ ...params, store_ids: [] });
+            break;
+          case "ecommerce_id":
+            onFilter &&
+              onFilter({ ...params, ecommerce_id: null, shop_ids: [] });
+            break;
+          case "shop_ids":
+            onFilter && onFilter({ ...params, shop_ids: [] });
+            break;
+          case "source":
+            onFilter && onFilter({ ...params, source_ids: [] });
+            break;
+          case "issued":
+            setIssuedClick("");
+            setIssuedOnMin(null);
+            setIssuedOnMax(null);
+            onFilter &&
+              onFilter({ ...params, issued_on_min: null, issued_on_max: null });
+            break;
+          case "finalized":
+            setFinalizedClick("");
+            setFinalizedOnMin(null);
+            setFinalizedOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                finalized_on_min: null,
+                finalized_on_max: null,
+              });
+            break;
+          case "completed":
+            setCompletedClick("");
+            setCompletedOnMin(null);
+            setCompletedOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                completed_on_min: null,
+                completed_on_max: null,
+              });
+            break;
+          case "cancelled":
+            setCancelledClick("");
+            setCancelledOnMin(null);
+            setCancelledOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                cancelled_on_min: null,
+                cancelled_on_max: null,
+              });
+            break;
+          case "expected":
+            setExpectedClick("");
+            setExpectedReceiveOnMin(null);
+            setExpectedReceiveOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                expected_receive_on_min: null,
+                expected_receive_on_max: null,
+              });
+            break;
+          case "order_status":
+            onFilter && onFilter({ ...params, order_status: [] });
+            break;
+          case "order_sub_status":
+            onFilter && onFilter({ ...params, order_sub_status: [] });
+            break;
+          case "fulfillment_status":
+            onFilter && onFilter({ ...params, fulfillment_status: [] });
+            break;
+          case "payment_status":
+            onFilter && onFilter({ ...params, payment_status: [] });
+            break;
+          case "assignee_codes":
+            onFilter && onFilter({ ...params, assignee_codes: [] });
+            break;
+          case "account_codes":
+            onFilter && onFilter({ ...params, account_codes: [] });
+            break;
+          case "price":
+            onFilter &&
+              onFilter({ ...params, price_min: null, price_max: null });
+            break;
+          case "payment_method":
+            onFilter && onFilter({ ...params, payment_method_ids: [] });
+            break;
+          case "expected_receive_predefined":
+            onFilter &&
+              onFilter({ ...params, expected_receive_predefined: "" });
+            break;
+          case "delivery_types":
+            onFilter && onFilter({ ...params, delivery_types: [] });
+            break;
+          case "delivery_provider_ids":
+            onFilter && onFilter({ ...params, delivery_provider_ids: [] });
+            break;
+          case "shipper_ids":
+            onFilter && onFilter({ ...params, shipper_ids: [] });
+            break;
+          case "note":
+            onFilter && onFilter({ ...params, note: "" });
+            break;
+          case "customer_note":
+            onFilter && onFilter({ ...params, customer_note: "" });
+            break;
+          case "tags":
+            onFilter && onFilter({ ...params, tags: [] });
+            break;
+          case "reference_code":
+            onFilter && onFilter({ ...params, reference_code: "" });
+            break;
+          default:
+            break;
+        }
       }
-      // const tags = filters.filter((tag: any) => tag.key !== key);
-      // filters = tags
     },
-    [onFilter, params]
+    [onFilter, params, tableLoading]
   );
 
   const [issuedClick, setIssuedClick] = useState("");
@@ -592,6 +670,10 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids)
         ? params.store_ids
         : [params.store_ids],
+      ecommerce_id: params.ecommerce_id,
+      shop_ids: Array.isArray(params.shop_ids)
+        ? params.shop_ids
+        : [params.shop_ids],
       source_ids: Array.isArray(params.source_ids)
         ? params.source_ids
         : [params.source_ids],
@@ -628,6 +710,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
         : [params.account_codes],
     };
   }, [params]);
+
   const [issuedOnMin, setIssuedOnMin] = useState(
     initialValues.issued_on_min
       ? moment(initialValues.issued_on_min, "DD-MM-YYYY")
@@ -678,6 +761,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       ? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY")
       : null
   );
+
   const onFinish = useCallback(
     (values) => {
       if (values?.price_min > values?.price_max) {
@@ -690,7 +774,6 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
 
       const valuesForm = {
         ...values,
-        shop_ids: shopIdSelected,
         issued_on_min: issuedOnMin
           ? moment(issuedOnMin, "DD-MM-YYYY")?.format("DD-MM-YYYY")
           : null,
@@ -736,9 +819,9 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       onFilter,
       finalizedOnMax,
       finalizedOnMin,
-      shopIdSelected,
     ]
   );
+
   let filters = useMemo(() => {
     let list = [];
     if (initialValues.store_ids.length) {
@@ -747,7 +830,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
         const store = listStore?.find(
           (store) => store.id.toString() === store_id
         );
-        textStores = store ? textStores + store.name + ";" : textStores;
+        textStores = store ? textStores + store.name + "; " : textStores;
       });
       list.push({
         key: "store",
@@ -755,13 +838,41 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
         value: textStores,
       });
     }
+
+    if (initialValues.ecommerce_id) {
+      const ecommerceSelected = ECOMMERCE_LIST?.find(
+        (item) => item.ecommerce_id === initialValues.ecommerce_id
+      );
+      let textStores = ecommerceSelected?.title;
+      list.push({
+        key: "ecommerce_id",
+        name: "Sàn",
+        value: textStores,
+      });
+    }
+
+    if (initialValues.shop_ids.length) {
+      const shopList =
+        filterType === "advance" ? ecommerceShopList : basicEcommerceShopList;
+      let textShop = "";
+      initialValues.shop_ids.forEach((shop_id) => {
+        const shop = shopList?.find((shop) => shop.id.toString() === shop_id);
+        textShop = shop ? textShop + shop.name + "; " : textShop;
+      });
+      list.push({
+        key: "shop_ids",
+        name: "Shop",
+        value: textShop,
+      });
+    }
+
     if (initialValues.source_ids.length) {
       let textSource = "";
       initialValues.source_ids.forEach((source_id) => {
         const source = listSources?.find(
           (source) => source.id.toString() === source_id
         );
-        textSource = source ? textSource + source.name + ";" : textSource;
+        textSource = source ? textSource + source.name + "; " : textSource;
       });
       list.push({
         key: "source",
@@ -861,8 +972,10 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.order_sub_status.length) {
       let textStatus = "";
 
-      initialValues.order_sub_status.forEach((i) => {
-        const findStatus = subStatus?.find((item) => item.id.toString() === i);
+      initialValues.order_sub_status.forEach((i: any) => {
+        const findStatus = subStatus?.find(
+          (item) => item.id.toString() === i.toString()
+        );
         textStatus = findStatus
           ? textStatus + findStatus.sub_status + ";"
           : textStatus;
@@ -898,6 +1011,21 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
       });
       list.push({
         key: "payment_status",
+        name: "Trạng thái thanh toán",
+        value: textStatus,
+      });
+    }
+
+    if (initialValues.return_status.length) {
+      let textStatus = "";
+      initialValues.return_status.forEach((i) => {
+        const findStatus = paymentStatus?.find((item) => item.value === i);
+        textStatus = findStatus
+          ? textStatus + findStatus.name + ";"
+          : textStatus;
+      });
+      list.push({
+        key: "return_status",
         name: "Trạng thái thanh toán",
         value: textStatus,
       });
@@ -1058,20 +1186,33 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
     paymentType,
     status,
     subStatus,
+    ECOMMERCE_LIST,
+    ecommerceShopList,
+    basicEcommerceShopList,
+    filterType,
   ]);
 
-  useLayoutEffect(() => {
-    if (visible) {
-      formRef.current?.resetFields();
+  const getEcommerceIcon = (shop: any) => {
+    switch (shop) {
+      case "shopee":
+        return shopeeIcon;
+      case "lazada":
+        return lazadaIcon;
+      case "tiki":
+        return tikiIcon;
+      case "sendo":
+        return sendoIcon;
+      default:
+        break;
     }
-  }, [formRef, visible]);
+  };
 
   return (
     <div className="ecommerce-order-filter">
       <div className="order-filter">
         <Form
-          onFinish={onFinish}
-          ref={formSearchRef}
+          form={formBasicFilter}
+          onFinish={onBasicFinish}
           initialValues={initialValues}
         >
           <div className="first-line">
@@ -1081,8 +1222,8 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
                 disabled={tableLoading}
                 placeholder="Chọn sàn"
                 allowClear
-                onSelect={(value) => getShopEcommerce(value)}
-                onClear={removeEcommerce}
+                onSelect={(value) => selectBasicEcommerce(value)}
+                onClear={removeBasicEcommerce}
               >
                 {ECOMMERCE_LIST &&
                   ECOMMERCE_LIST.map((item: any) => (
@@ -1100,7 +1241,47 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
               </Select>
             </Item>
 
-            {isEcommerceSelected && (
+            {!isBasicEcommerceSelected && (
+              <Item name="shop_ids" className="ecommerce-dropdown">
+                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                  <Select
+                    showSearch
+                    showArrow
+                    disabled={true}
+                    placeholder="Chọn gian hàng"
+                  />
+                </Tooltip>
+              </Item>
+            )}
+
+            {isBasicEcommerceSelected && (
+              <Item name="shop_ids" className="ecommerce-dropdown">
+                <Select
+                  mode="multiple"
+                  allowClear
+                  showArrow
+                  disabled={tableLoading || !isBasicEcommerceSelected}
+                  placeholder={getPlaceholderSelectShop()}
+                  notFoundContent="Không tìm thấy shop"
+                >
+                  {basicEcommerceShopList?.map((item) => (
+                    <Option key={item.id} value={item.id.toString()}>
+                      <img
+                        src={getEcommerceIcon(item.ecommerce)}
+                        alt={item.id}
+                        style={{
+                          marginRight: "5px",
+                          height: "16px",
+                        }}
+                      />
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            )}
+
+            {/* {isEcommerceSelected && (
               <Item name="shop_ids" className="ecommerce-dropdown">
                 <Select
                   showSearch
@@ -1126,7 +1307,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
                   />
                 </Tooltip>
               </Item>
-            )}
+            )} */}
           </div>
 
           <div className="second-line">
@@ -1143,8 +1324,8 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
                 prefix={<img src={search} alt="" />}
                 placeholder="ID đơn hàng (sàn)"
                 onBlur={(e) => {
-                  formSearchRef?.current?.setFieldsValue({
-                    search_term: e.target.value.trim(),
+                  formBasicFilter?.setFieldsValue({
+                    id_order_ecommerce: e.target.value.trim(),
                   });
                 }}
               />
@@ -1156,7 +1337,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
                 onBlur={(e) => {
-                  formSearchRef?.current?.setFieldsValue({
+                  formBasicFilter?.setFieldsValue({
                     search_term: e.target.value.trim(),
                   });
                 }}
@@ -1164,7 +1345,11 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
             </Item>
 
             <Item>
-              <Button type="primary" htmlType="submit" disabled={tableLoading}>
+              <Button
+                type="primary"
+                onClick={onBasicFilter}
+                disabled={tableLoading}
+              >
                 Lọc
               </Button>
             </Item>
@@ -1188,7 +1373,10 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
         </Form>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={() => {
+            onClearFilter && onClearFilter();
+            setVisible(false);
+          }}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -1207,287 +1395,326 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
           }
         >
           <StyledEcommerceOrderBaseFilter>
-            <Form
-              onFinish={onFinish}
-              ref={formRef}
-              initialValues={params}
-              layout="vertical"
-            >
-              <Row gutter={12} style={{ marginTop: "10px" }}>
-                <Col span={24}>
-                  <Collapse
-                    defaultActiveKey={
-                      initialValues.store_ids.length ? ["1"] : []
-                    }
+            {visible && (
+              <Form
+                form={formAdvanceFilter}
+                onFinish={onFinish}
+                initialValues={params}
+                layout="vertical"
+              >
+                <Form.Item label={<b>KHO CỬA HÀNG</b>} name="store_ids">
+                  <Select
+                    mode="multiple"
+                    allowClear
+                    showArrow
+                    placeholder="Chọn cửa hàng"
+                    notFoundContent="Không tìm thấy kết quả"
                   >
-                    <Panel
-                      header="KHO CỬA HÀNG"
-                      key="1"
-                      className="header-filter"
-                    >
-                      {/* <Item name="store_ids"> */}
-                      <Item>
-                        <CustomSelect
-                          mode="multiple"
-                          showArrow
-                          showSearch
-                          placeholder="Cửa hàng"
-                          notFoundContent="Không tìm thấy kết quả"
-                          style={{
-                            width: "100%",
-                          }}
-                          // optionFilterProp="children"
-                          getPopupContainer={(trigger) => trigger.parentNode}
-                        >
-                          {listStore?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.id}
-                              value={item.id.toString()}
-                            >
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
+                    {listStore?.map((item) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
 
-              <Row gutter={12} style={{ marginTop: "10px" }}>
-                <Col span={24}>
-                  <Collapse
-                    defaultActiveKey={
-                      initialValues.issued_on_min && initialValues.issued_on_max
-                        ? ["1"]
-                        : []
-                    }
+                <Form.Item label={<b>CHỌN SÀN</b>} name="ecommerce_id">
+                  <Select
+                    showSearch
+                    placeholder="Chọn sàn"
+                    allowClear
+                    onSelect={(value) => selectEcommerce(value)}
+                    onClear={removeEcommerce}
                   >
-                    <Panel
-                      header="NGÀY TẠO ĐƠN"
-                      key="1"
-                      className="header-filter"
-                    >
-                      <div className="date-option">
-                        <Button
-                          onClick={() => clickOptionDate("issued", "yesterday")}
-                          className={
-                            issuedClick === "yesterday" ? "active" : "deactive"
-                          }
+                    {ECOMMERCE_LIST &&
+                      ECOMMERCE_LIST.map((item: any) => (
+                        <Option
+                          key={item.ecommerce_id}
+                          value={item.ecommerce_id}
                         >
-                          Hôm qua
-                        </Button>
-                        <Button
-                          onClick={() => clickOptionDate("issued", "today")}
-                          className={
-                            issuedClick === "today" ? "active" : "deactive"
-                          }
-                        >
-                          Hôm nay
-                        </Button>
-                        <Button
-                          onClick={() => clickOptionDate("issued", "thisweek")}
-                          className={
-                            issuedClick === "thisweek" ? "active" : "deactive"
-                          }
-                        >
-                          Tuần này
-                        </Button>
-                      </div>
-                      <div className="date-option">
-                        <Button
-                          onClick={() => clickOptionDate("issued", "lastweek")}
-                          className={
-                            issuedClick === "lastweek" ? "active" : "deactive"
-                          }
-                        >
-                          Tuần trước
-                        </Button>
-                        <Button
-                          onClick={() => clickOptionDate("issued", "thismonth")}
-                          className={
-                            issuedClick === "thismonth" ? "active" : "deactive"
-                          }
-                        >
-                          Tháng này
-                        </Button>
-                        <Button
-                          onClick={() => clickOptionDate("issued", "lastmonth")}
-                          className={
-                            issuedClick === "lastmonth" ? "active" : "deactive"
-                          }
-                        >
-                          Tháng trước
-                        </Button>
-                      </div>
-                      <span style={{ margin: "10px 0" }}>
-                        <SettingOutlined style={{ marginRight: "5px" }} />
-                        Tuỳ chọn khoảng thời gian:
-                      </span>
-                      <DatePicker.RangePicker
-                        format="DD-MM-YYYY"
-                        style={{ width: "100%" }}
-                        value={[
-                          issuedOnMin
-                            ? moment(issuedOnMin, "DD-MM-YYYY")
-                            : null,
-                          issuedOnMax
-                            ? moment(issuedOnMax, "DD-MM-YYYY")
-                            : null,
-                        ]}
-                        onChange={(date, dateString) =>
-                          onChangeRangeDate(date, dateString, "issued")
-                        }
+                          <div>
+                            <img
+                              src={item.icon}
+                              alt={item.id}
+                              style={{ marginRight: "10px" }}
+                            />
+                            <span>{item.title}</span>
+                          </div>
+                        </Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+
+                {!isEcommerceSelected && (
+                  <Form.Item label={<b>CHỌN GIAN HÀNG</b>} name="shop_ids">
+                    <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                      <Select
+                        showSearch
+                        showArrow
+                        disabled={true}
+                        placeholder="Chọn gian hàng"
                       />
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
+                    </Tooltip>
+                  </Form.Item>
+                )}
 
-              <Row gutter={12} style={{ marginTop: "10px" }}>
-                <Col span={24}>
-                  <Collapse
-                    defaultActiveKey={
-                      initialValues.order_status.length ? ["1"] : []
-                    }
-                  >
-                    <Panel
-                      header="TRẠNG THÁI ĐƠN HÀNG"
-                      key="1"
-                      className="header-filter"
+                {isEcommerceSelected && (
+                  <Form.Item label={<b>CHỌN GIAN HÀNG</b>} name="shop_ids">
+                    <Select
+                      mode="multiple"
+                      allowClear
+                      showArrow
+                      disabled={tableLoading || !isEcommerceSelected}
+                      placeholder={getPlaceholderSelectShop()}
+                      notFoundContent="Không tìm thấy shop"
                     >
-                      {/* <Item name="order_status"> */}
-                      <Item>
-                        <Select
-                          mode="multiple"
-                          showSearch
-                          placeholder="Chọn trạng thái đơn hàng"
-                          notFoundContent="Không tìm thấy kết quả"
-                          style={{ width: "100%" }}
-                          // optionFilterProp="children"
-                          getPopupContainer={(trigger) => trigger.parentNode}
-                        >
-                          {status?.map((item) => (
-                            <Option
-                              key={item.value}
-                              value={item.value.toString()}
-                            >
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
+                      {ecommerceShopList?.map((item) => (
+                        <Option key={item.id} value={item.id.toString()}>
+                          <img
+                            src={getEcommerceIcon(item.ecommerce)}
+                            alt={item.id}
+                            style={{
+                              marginRight: "5px",
+                              height: "16px",
+                            }}
+                          />
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                )}
 
-              <Row gutter={12} style={{ marginTop: "10px" }}>
-                <Col span={24}>
-                  <Collapse
-                    defaultActiveKey={
-                      initialValues.order_sub_status.length ? ["1"] : []
-                    }
+                <Form.Item label={<b>NGUỒN ĐƠN HÀNG</b>} name="source_ids">
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn nguồn đơn hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
                   >
-                    <Panel
-                      header="TRẠNG THÁI XỬ LÝ ĐƠN HÀNG"
-                      key="1"
-                      className="header-filter"
-                    >
-                      {/* <Item name="order_sub_status"> */}
-                      <Item>
-                        <Select
-                          mode="multiple"
-                          showSearch
-                          placeholder="Chọn trạng thái xử lý đơn"
-                          notFoundContent="Không tìm thấy kết quả"
-                          style={{ width: "100%" }}
-                          // optionFilterProp="children"
-                          getPopupContainer={(trigger) => trigger.parentNode}
-                        >
-                          {subStatus?.map((item: any) => (
-                            <Option key={item.id} value={item.id}>
-                              {item.sub_status}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
+                    {listSources?.map((item, index) => (
+                      <Option key={index.toString()} value={item.id.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
 
-              <Row gutter={12} style={{ marginTop: "10px" }}>
-                <Col span={24}>
-                  <Collapse
-                    defaultActiveKey={
-                      initialValues.delivery_types.length ? ["1"] : []
-                    }
-                  >
-                    <Panel
-                      header="HÌNH THỨC VẬN CHUYỂN"
-                      key="1"
-                      className="header-filter"
-                    >
-                      {/* <Item name="delivery_types"> */}
-                      <Item>
-                        <Select
-                          mode="multiple"
-                          // optionFilterProp="children"
-                          showSearch
-                          notFoundContent="Không tìm thấy kết quả"
-                          placeholder="Chọn hình thức vận chuyển"
-                          style={{ width: "100%" }}
-                          getPopupContainer={(trigger) => trigger.parentNode}
-                        >
-                          {/* <Option value="">Hình thức vận chuyển</Option> */}
-                          {serviceType?.map((item) => (
-                            <Option key={item.value} value={item.value}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
+                <Form.Item label={<b>NGÀY TẠO ĐƠN</b>}>
+                  <SelectDateFilter
+                    clickOptionDate={clickOptionDate}
+                    onChangeRangeDate={onChangeRangeDate}
+                    dateType="issued"
+                    dateSelected={issuedClick}
+                    startDate={issuedOnMin}
+                    endDate={issuedOnMax}
+                  />
+                </Form.Item>
 
-              <Row gutter={12} style={{ marginTop: "10px" }}>
-                <Col span={24}>
-                  <Collapse
-                    defaultActiveKey={
-                      initialValues.delivery_provider_ids.length ? ["1"] : []
-                    }
+                <Form.Item label={<b>NGÀY HOÀN TẤT ĐƠN</b>}>
+                  <SelectDateFilter
+                    clickOptionDate={clickOptionDate}
+                    onChangeRangeDate={onChangeRangeDate}
+                    dateType="completed"
+                    dateSelected={completedClick}
+                    startDate={completedOnMin}
+                    endDate={completedOnMax}
+                  />
+                </Form.Item>
+
+                <Form.Item label={<b>NGÀY HUỶ ĐƠN</b>}>
+                  <SelectDateFilter
+                    clickOptionDate={clickOptionDate}
+                    onChangeRangeDate={onChangeRangeDate}
+                    dateType="cancelled"
+                    dateSelected={cancelledClick}
+                    startDate={cancelledOnMin}
+                    endDate={cancelledOnMax}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label={<b>TRẠNG THÁI ĐƠN HÀNG</b>}
+                  name="order_status"
+                >
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn trạng thái đơn hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
                   >
-                    <Panel
-                      header="ĐƠN VỊ VẬN CHUYỂN"
-                      key="1"
-                      className="header-filter"
-                    >
-                      {/* <Item name="delivery_provider_ids"> */}
-                      <Item>
-                        <Select
-                          mode="multiple"
-                          showSearch
-                          placeholder="Chọn đơn vị vận chuyển"
-                          notFoundContent="Không tìm thấy kết quả"
-                          style={{ width: "100%" }}
-                          // optionFilterProp="children"
-                          getPopupContainer={(trigger) => trigger.parentNode}
-                        >
-                          {deliveryService?.map((item) => (
-                            <Option key={item.id} value={item.id}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
-            </Form>
+                    {status?.map((item, index) => (
+                      <Option key={item.value} value={item.value.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item
+                  label={<b>TRẠNG THÁI XỬ LÝ ĐƠN</b>}
+                  name="order_sub_status"
+                >
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn trạng thái xử lý đơn"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    {subStatus?.map((item: any) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.sub_status}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label={<b>GIAO HÀNG</b>} name="fulfillment_status">
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn trạng thái giao hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    {fulfillmentStatus.map((item, index) => (
+                      <Option
+                        key={index.toString()}
+                        value={item.value.toString()}
+                      >
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label={<b>THANH TOÁN</b>} name="payment_status">
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn trạng thái thanh toán"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    {paymentStatus.map((item, index) => (
+                      <Option
+                        key={index.toString()}
+                        value={item.value.toString()}
+                      >
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label={<b>TRẢ HÀNG</b>} name="return_status">
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn trạng thái trả hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    <Option value="1">Pending trạng thái trả hàng</Option>
+                  </Select>
+                </Form.Item>
+
+                <Form.Item
+                  label={<b>NHÂN VIÊN BÁN HÀNG</b>}
+                  name="assignee_codes"
+                >
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn nhân viên bán hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    {accounts.map((item, index) => (
+                      <Option
+                        key={index.toString()}
+                        value={item.code.toString()}
+                      >
+                        {`${item.full_name} - ${item.code}`}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label={<b>TỔNG TIỀN</b>}>
+                  <div className="total-price">
+                    <Item name="price_min" style={{ width: "30%" }}>
+                      <InputNumber
+                        className="price_min"
+                        placeholder="Từ"
+                        min="0"
+                        max="100000000"
+                        maxLength={9}
+                      />
+                    </Item>
+
+                    <Input
+                      className="site-input-split"
+                      placeholder="~"
+                      readOnly
+                    />
+                    <Item name="price_max" style={{ width: "30%" }}>
+                      <InputNumber
+                        className="price_max"
+                        placeholder="Đến"
+                        min="0"
+                        max="1000000000"
+                        maxLength={9}
+                      />
+                    </Item>
+                  </div>
+                </Form.Item>
+
+                <Form.Item label={<b>ĐỐI TÁC GIAO HÀNG</b>} name="shipper_ids">
+                  <Select
+                    mode="multiple"
+                    showArrow
+                    allowClear
+                    placeholder="Chọn đối tác giao hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    {accounts
+                      .filter((account) => account.is_shipper === true)
+                      ?.map((account) => (
+                        <Option key={account.id} value={account.id}>
+                          {account.full_name} - {account.code}
+                        </Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item
+                  label={<b>GHI CHÚ CỦA KHÁCH</b>}
+                  name="customer_note"
+                >
+                  <Input.TextArea placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
+                </Form.Item>
+              </Form>
+            )}
           </StyledEcommerceOrderBaseFilter>
         </BaseFilter>
       </div>
@@ -1496,7 +1723,7 @@ const EcommerceOrderFilter: React.FC<OrderFilterProps> = (
           filters.map((filter: any, index) => {
             return (
               <Tag
-                key={index}
+                key={filter.key}
                 className="tag"
                 closable
                 onClose={(e) => onCloseTag(e, filter)}
