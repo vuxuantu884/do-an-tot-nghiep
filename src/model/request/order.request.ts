@@ -387,3 +387,51 @@ export interface ConfirmDraftOrderRequest {
   updated_by: string;
   updated_name: string;
 }
+
+export interface CreateShippingOrderRequest {
+  order_type: string;
+  shipment: {
+    delivery_service_code: string | undefined;
+    order_code: string | undefined;
+    fulfillment_code: string | undefined;
+    store_id: number | undefined;
+    transport_type: string | undefined;
+    cod: number | undefined;
+    insurance: number | undefined;
+    note_to_shipper: string | undefined;
+    shipping_requirement: string | undefined;
+    who_paid: string | undefined;
+  };
+  sender_address: {
+    name: string;
+    phone_number: string;
+    email: string | undefined;
+    address: string;
+    province_id: number;
+    province_name: string;
+    district_id: number;
+    district_name: string;
+    ward_id: number;
+    ward_name: string;
+  };
+  receiver_address: {
+    name: string;
+    phone_number: string;
+    email: string;
+    address: string;
+    province_id: number;
+    province_name: string;
+    district_id: number;
+    district_name: string;
+    ward_id: number;
+    ward_name: string;
+  };
+  products: {
+    name: string;
+    sku: string;
+    price: number;
+    quantity: number;
+    weight: number;
+    weight_unit: string;
+  }[];
+}

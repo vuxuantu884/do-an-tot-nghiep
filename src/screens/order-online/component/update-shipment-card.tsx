@@ -31,6 +31,7 @@ import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
+  createShippingOrderAction,
   getFeesAction,
   getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
@@ -41,6 +42,7 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
+  CreateShippingOrderRequest,
   UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
@@ -48,6 +50,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  DeliveryServiceResponse,
   OrderResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
@@ -109,6 +112,7 @@ type UpdateShipmentCardProps = {
   OrderDetailAllFullfilment: OrderResponse | null;
   orderSettings?: OrderSettingsModel;
   disabledBottomActions?: boolean;
+  list3rdPartyLogistic: DeliveryServiceResponse[];
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -127,6 +131,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     OrderDetail,
     orderSettings,
     disabledBottomActions,
+    list3rdPartyLogistic,
   } = props;
 
   const history = useHistory();
@@ -272,10 +277,67 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onReload && onReload();
   };
 
+  console.log("OrderDetail", OrderDetail);
   const onPackSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
     setReload(true);
     showSuccess("Đóng gói thành công");
+
+    const params: CreateShippingOrderRequest = {
+      order_type: "order",
+      shipment: {
+        delivery_service_code: "string",
+        order_code: "string",
+        fulfillment_code:
+          OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.code
+            ? OrderDetail?.fulfillments[0]?.code
+            : "",
+        store_id: OrderDetail?.store_id || 0,
+        transport_type: "string",
+        cod: OrderDetail?.shipment?.cod,
+        insurance: 0,
+        note_to_shipper: OrderDetail?.shipment?.note_to_shipper || undefined,
+        shipping_requirement: OrderDetail?.shipment?.requirements || undefined,
+        who_paid: OrderDetail?.shipment?.who_paid || undefined,
+      },
+      sender_address: {
+        name: "string",
+        phone_number: "string",
+        email: "string",
+        address: "string",
+        province_id: 0,
+        province_name: "string",
+        district_id: 0,
+        district_name: "string",
+        ward_id: 0,
+        ward_name: "string",
+      },
+      receiver_address: {
+        name: "string",
+        phone_number: "string",
+        email: "string",
+        address: "string",
+        province_id: 0,
+        province_name: "string",
+        district_id: 0,
+        district_name: "string",
+        ward_id: 0,
+        ward_name: "string",
+      },
+      products: [
+        {
+          name: "string",
+          sku: "string",
+          price: 0,
+          quantity: 0,
+          weight: 0,
+          weight_unit: "string",
+        },
+      ],
+    };
+    // dispatch(createShippingOrderAction({
+
+    // }));
     onReload && onReload();
   };
 
@@ -355,8 +417,105 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         case 2:
           value.status = FulFillmentStatus.PACKED;
           value.action = FulFillmentStatus.PACKED;
+
+          if (!OrderDetail?.fulfillments || !OrderDetail?.fulfillments[0]) {
+            console.log("111");
+            return;
+          }
+          const senderAddressJSON: any =
+            OrderDetail?.fulfillments[0].shipment?.sender_address;
+          if (!senderAddressJSON) {
+            console.log("222");
+            return;
+          }
+          const senderAddress: StoreResponse = JSON.parse(senderAddressJSON);
+          const shippingAddress = OrderDetail.shipping_address;
+
+          const products = OrderDetail.items.map((single) => {
+            return {
+              name: single.product,
+              sku: single.sku,
+              price: single.price,
+              quantity: single.quantity,
+              weight: single.weight,
+              weight_unit: single.weight_unit,
+            };
+          });
+
           setUpdateShipment(true);
-          dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
+          const thirdPartyLogistic = list3rdPartyLogistic.find((single) => {
+            if (!OrderDetail.fulfillments) {
+              return false;
+            }
+            return (
+              single.id ===
+              OrderDetail.fulfillments[0].shipment?.delivery_service_provider_id
+            );
+          });
+          if (!senderAddress || !shippingAddress || !products || !thirdPartyLogistic) {
+            console.log("333");
+            return;
+          }
+          const params: CreateShippingOrderRequest = {
+            order_type: "order",
+            shipment: {
+              delivery_service_code: thirdPartyLogistic.code,
+              order_code: OrderDetail.code,
+              fulfillment_code: OrderDetail?.fulfillments[0].code || undefined,
+              store_id: OrderDetail?.store_id || 0,
+              transport_type:
+                OrderDetail?.fulfillments[0]?.shipment?.service || undefined,
+              cod: OrderDetail.fulfillments[0].shipment?.cod,
+              insurance: undefined,
+              note_to_shipper: OrderDetail?.shipment?.note_to_shipper || undefined,
+              shipping_requirement: OrderDetail?.shipment?.requirements || undefined,
+              who_paid: OrderDetail?.shipment?.who_paid || undefined,
+            },
+            sender_address: {
+              name: senderAddress.name,
+              phone_number: senderAddress.hotline,
+              email: undefined,
+              address: senderAddress.address,
+              province_id: senderAddress.city_id,
+              province_name: senderAddress.city_name,
+              district_id: senderAddress.district_id,
+              district_name: senderAddress.district_name,
+              ward_id: senderAddress.ward_id,
+              ward_name: senderAddress.ward_name,
+            },
+            receiver_address: {
+              name: shippingAddress?.name,
+              phone_number: shippingAddress?.phone,
+              email: shippingAddress?.email,
+              address: shippingAddress?.full_address,
+              province_id: shippingAddress?.city_id,
+              province_name: shippingAddress?.city,
+              district_id: shippingAddress?.district_id,
+              district_name: shippingAddress?.district,
+              ward_id: shippingAddress?.ward_id,
+              ward_name: shippingAddress?.ward,
+            },
+            products,
+          };
+          console.log("params", params);
+          // dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
+          dispatch(
+            UpdateFulFillmentStatusAction(
+              value,
+              () => {
+                setUpdateShipment(false);
+                setReload(true);
+                showSuccess("Đóng gói thành công");
+
+                dispatch(
+                  createShippingOrderAction(params, () => {
+                    onReload && onReload();
+                  })
+                );
+              },
+              onError
+            )
+          );
 
           break;
         case 3:
