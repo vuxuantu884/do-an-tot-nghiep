@@ -162,6 +162,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   };
 
   const clearBasicShopEcommerceSelected = () => {
+    setShopIdSelected([]);
     let newFormValues = formBasicFilter?.getFieldsValue();
     newFormValues.shop_ids = [];
     formBasicFilter?.setFieldsValue(newFormValues);
@@ -180,9 +181,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   const onBasicFinish = useCallback(
     (values) => {
-      onFilter && onFilter(values);
+      const basicFormValues = { ...values, shop_ids: shopIdSelected };
+      onFilter && onFilter(basicFormValues);
     },
-    [onFilter]
+    [onFilter, shopIdSelected]
   );
 
   const onBasicFilter = useCallback(() => {
@@ -239,11 +241,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       setShopIdSelected(shopSelected);
     } else {
       shop.isSelected = false;
-      const shopSelected =
-        shopIdSelected &&
-        shopIdSelected.filter((item: any) => {
-          return item !== shop.id;
-        });
+      const shopSelected = shopIdSelected?.filter((item: any) => {
+        return item !== shop.id;
+      });
       setShopIdSelected(shopSelected);
     }
   };
@@ -252,7 +252,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     return (
       <StyledComponent>
         <div className="render-shop-list">
-          {ecommerceShopList.map((item: any) => (
+          {basicEcommerceShopList.map((item: any) => (
             <div key={item.id} className="shop-name">
               <Checkbox
                 onChange={(e) => onSelectShopChange(item, e)}
@@ -261,20 +261,28 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 <span className="check-box-name">
                   <span>
                     <img
-                      src={shopeeIcon}
+                      src={getEcommerceIcon(item.ecommerce)}
                       alt={item.id}
                       style={{ marginRight: "5px", height: "16px" }}
                     />
                   </span>
-                  <Tooltip title={item.name} color="#1890ff" placement="right">
+
+                  {item.name && item.name.length > 31 &&
+                    <Tooltip title={item.name} color="#1890ff" placement="right">
+                      <span className="name">{item.name}</span>
+                    </Tooltip>
+                  }
+
+                  {item.name && item.name.length <= 31 &&
                     <span className="name">{item.name}</span>
-                  </Tooltip>
+                  }
+                  
                 </span>
               </Checkbox>
             </div>
           ))}
 
-          {ecommerceShopList.length === 0 && (
+          {basicEcommerceShopList.length === 0 && (
             <div style={{ color: "#737373", padding: 10 }}>
               Không có dữ liệu
             </div>
@@ -285,12 +293,12 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   };
 
   const removeSelectedShop = () => {
-    const copyEcommerceShopList = [...ecommerceShopList];
+    const copyEcommerceShopList = [...basicEcommerceShopList];
     copyEcommerceShopList.forEach((item: any) => {
       item.isSelected = false;
     });
 
-    setEcommerceShopList(copyEcommerceShopList);
+    setBasicEcommerceShopList(copyEcommerceShopList);
     setShopIdSelected([]);
   };
 
@@ -855,8 +863,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       const shopList =
         filterType === "advance" ? ecommerceShopList : basicEcommerceShopList;
       let textShop = "";
-      initialValues.shop_ids.forEach((shop_id) => {
-        const shop = shopList?.find((shop) => shop.id.toString() === shop_id);
+      initialValues.shop_ids.forEach((shop_id: any) => {
+        const shop = shopList?.find((shop) => shop.id.toString() === shop_id.toString());
         textShop = shop ? textShop + shop.name + "; " : textShop;
       });
       list.push({
@@ -1257,57 +1265,16 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             {isBasicEcommerceSelected && (
               <Item name="shop_ids" className="ecommerce-dropdown">
                 <Select
-                  mode="multiple"
                   allowClear
                   showArrow
                   disabled={tableLoading || !isBasicEcommerceSelected}
                   placeholder={getPlaceholderSelectShop()}
                   notFoundContent="Không tìm thấy shop"
-                >
-                  {basicEcommerceShopList?.map((item) => (
-                    <Option key={item.id} value={item.id.toString()}>
-                      <img
-                        src={getEcommerceIcon(item.ecommerce)}
-                        alt={item.id}
-                        style={{
-                          marginRight: "5px",
-                          height: "16px",
-                        }}
-                      />
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            )}
-
-            {/* {isEcommerceSelected && (
-              <Item name="shop_ids" className="ecommerce-dropdown">
-                <Select
-                  showSearch
-                  disabled={tableLoading}
-                  placeholder={getPlaceholderSelectShop()}
-                  allowClear={shopIdSelected && shopIdSelected.length > 0}
                   dropdownRender={() => renderShopList()}
                   onClear={removeSelectedShop}
                 />
               </Item>
             )}
-
-            {!isEcommerceSelected && (
-              <Item name="shop_ids" className="ecommerce-dropdown">
-                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
-                  <Select
-                    showSearch
-                    disabled={true}
-                    placeholder={getPlaceholderSelectShop()}
-                    allowClear={shopIdSelected && shopIdSelected.length > 0}
-                    dropdownRender={() => renderShopList()}
-                    onClear={removeSelectedShop}
-                  />
-                </Tooltip>
-              </Item>
-            )} */}
           </div>
 
           <div className="second-line">
@@ -1465,7 +1432,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                       allowClear
                       showArrow
                       disabled={tableLoading || !isEcommerceSelected}
-                      placeholder={getPlaceholderSelectShop()}
+                      placeholder="Chọn gian hàng"
                       notFoundContent="Không tìm thấy shop"
                     >
                       {ecommerceShopList?.map((item) => (
