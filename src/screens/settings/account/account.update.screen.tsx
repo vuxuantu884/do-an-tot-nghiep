@@ -274,6 +274,7 @@ const AccountUpdateScreen: React.FC = () => {
       version: data.version,
     };
     idNumber.current= data.id;
+    setStatus(accountView.status);
     setAccountDetail(accountView);
   }, []);
   //End callback
@@ -420,7 +421,7 @@ const AccountUpdateScreen: React.FC = () => {
               <Switch
                 onChange={onChangeStatus}
                 className="ant-switch-success"
-                defaultChecked
+                checked={status === "active"}
               />
               <label className={status === "active" ? "text-success" : "text-error"}>
                 {statusValue}
