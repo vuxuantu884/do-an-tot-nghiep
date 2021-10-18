@@ -87,11 +87,9 @@ import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import eyeOutline from "assets/icon/eye_outline.svg";
 import { delivery_service } from "./common/delivery-service";
@@ -127,7 +125,7 @@ export default function Order(props: PropType) {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
-
+  const [updating, setUpdating] = useState(false);
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
@@ -142,7 +140,6 @@ export default function Order(props: PropType) {
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
-  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
@@ -538,6 +535,7 @@ export default function Order(props: PropType) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setUpdating(false)
       showSuccess("Đơn được cập nhật thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
@@ -547,26 +545,7 @@ export default function Order(props: PropType) {
   const handleTypeButton = (type: string) => {
     typeButton = type;
   };
-
-  //show modal save and confirm order ?
-  const onCancelSaveAndConfirm = () => {
-    setIsVisibleSaveAndConfirm(false);
-  };
-
-  const onOkSaveAndConfirm = () => {
-    typeButton = OrderStatus.DRAFT;
-    formRef.current?.submit();
-    setIsVisibleSaveAndConfirm(false);
-  };
-
-  const showSaveAndConfirmModal = () => {
-    if (shipmentMethod !== ShipmentMethodOption.DELIVER_LATER || paymentMethod !== 3) {
-      setIsVisibleSaveAndConfirm(true);
-    } else {
-      typeButton = OrderStatus.DRAFT;
-      formRef.current?.submit();
-    }
-  };
+  
   const onFinish = (values: OrderRequest) => {
     console.log("onFinish onFinish", values);
     const element2: any = document.getElementById("save-and-confirm");
@@ -625,7 +604,15 @@ export default function Order(props: PropType) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            dispatch(orderUpdateAction(id, values, createOrderCallback));
+            setUpdating(true);
+            (async () => {
+              try {
+                dispatch(orderUpdateAction(id, values, createOrderCallback));
+              } catch {
+                setUpdating(false)
+              }
+            })();
+            // dispatch(orderUpdateAction(id, values, createOrderCallback));
           }
         } else {
           if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
@@ -633,8 +620,17 @@ export default function Order(props: PropType) {
           } else {
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus)
-                dispatch(orderUpdateAction(id, values, createOrderCallback));
+              if (bolCheckPointfocus) {
+                setUpdating(true);
+                (async () => {
+                  try {
+                    dispatch(orderUpdateAction(id, values, createOrderCallback));
+                  } catch {
+                    setUpdating(false)
+                  }
+                })();
+                // dispatch(orderUpdateAction(id, values, createOrderCallback));
+              }
             }
           }
         }
@@ -2079,13 +2075,14 @@ export default function Order(props: PropType) {
                   orderDetail={OrderDetail}
                   isVisibleGroupButtons={false}
                   updateCancelClick={updateCancelClick}
-                  showSaveAndConfirmModal={showSaveAndConfirmModal}
+                  showSaveAndConfirmModal={() => {}}
+                  updating={updating}
                 />
               )}
             </Form>
           )}
         </div>
-        <SaveAndConfirmOrder
+        {/* <SaveAndConfirmOrder
           onCancel={onCancelSaveAndConfirm}
           onOk={onOkSaveAndConfirm}
           visible={isVisibleSaveAndConfirm}
@@ -2094,7 +2091,7 @@ export default function Order(props: PropType) {
           title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
           text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
           icon={WarningIcon}
-        />
+        /> */}
       </ContentContainer>
     </React.Fragment>
   );
