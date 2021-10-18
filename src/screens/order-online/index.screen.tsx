@@ -5,9 +5,7 @@ import ContentContainer from "component/container/content.container";
 import OrderFilter from "component/filter/order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -145,9 +143,7 @@ const ListOrderScreen: React.FC = () => {
     { name: "Đã hết hạn", value: "expired" },
   ];
 
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<OrderModel>>
-  >([
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID đơn hàng",
       dataIndex: "code",
@@ -268,9 +264,7 @@ const ListOrderScreen: React.FC = () => {
           fulfillments.length && fulfillments[0].shipment
             ? fulfillments[0].shipment.delivery_service_provider_id
             : null;
-        const service = delivery_service.find(
-          (service) => service.id === service_id
-        );
+        const service = delivery_service.find((service) => service.id === service_id);
         return (
           service && (
             <img
@@ -290,9 +284,7 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "status",
       key: "status",
       render: (status_value: string) => {
-        const status = status_order.find(
-          (status) => status.value === status_value
-        );
+        const status = status_order.find((status) => status.value === status_value);
         return (
           <div>
             {status?.name === "Nháp" && (
@@ -467,10 +459,7 @@ const ListOrderScreen: React.FC = () => {
       render: (items) => {
         // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
 
-        return items.reduce(
-          (total: number, item: any) => total + item.quantity,
-          0
-        );
+        return items.reduce((total: number, item: any) => total + item.quantity, 0);
       },
       visible: true,
       align: "center",
@@ -485,9 +474,7 @@ const ListOrderScreen: React.FC = () => {
           : "";
         const city = shipping_address?.city ? shipping_address.city + "," : "";
         return (
-          shipping_address && (
-            <div className="name">{`${ward} ${district} ${city}`}</div>
-          )
+          shipping_address && <div className="name">{`${ward} ${district} ${city}`}</div>
         );
       },
       key: "area",
@@ -561,18 +548,14 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên bán hàng",
-      render: (record) => (
-        <div>{`${record.assignee} - ${record.assignee_code}`}</div>
-      ),
+      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
       key: "assignee",
       visible: true,
       align: "center",
     },
     {
       title: "Nhân viên tạo đơn",
-      render: (record) => (
-        <div>{`${record.account} - ${record.account_code}`}</div>
-      ),
+      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
       key: "account",
       visible: true,
       align: "center",
@@ -655,14 +638,11 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, params]
   );
-  const onClearFilter = useCallback(
-    () => {
-      setPrams(initQuery);
-      let queryParam = generateQuery(initQuery);
-      history.push(`${UrlConfig.ORDER}?${queryParam}`);
-    },
-    [history]
-  );
+  const onClearFilter = useCallback(() => {
+    setPrams(initQuery);
+    let queryParam = generateQuery(initQuery);
+    history.push(`${UrlConfig.ORDER}?${queryParam}`);
+  }, [history]);
   const onMenuClick = useCallback(
     (index: number) => {
       let params = {
@@ -697,74 +677,79 @@ const ListOrderScreen: React.FC = () => {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
 
-  const onExport = useCallback((optionExport, typeExport) => {
-    let newParams:any = {...params};
-    // let hiddenFields = [];
-    console.log('selectedRowCodes', selectedRowCodes);
-    switch (optionExport) {
-      case 1: newParams = {}
-        break
-      case 2: break
-      case 3:
-        newParams.code = selectedRowCodes;
-        console.log('newParams', newParams);
-        break
-      case 4:
-        delete newParams.page
-        delete newParams.limit
-        break
-      default: break  
-    }
-    // console.log('newParams', newParams);
-    
-    // switch (optionExport) {
-    //   case 1:
-    //     hiddenFields
-    //     break
-    //   case 2:
-    //     delete newParams.page
-    //     delete newParams.limit
-    //     break
-    //   default: break  
-    // }
-    // }
-        
-    let queryParams = generateQuery(newParams);
-    exportFile({
-      conditions: queryParams,
-      type: "EXPORT_ORDER",
-    })
-      .then((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          setStatusExport(2)
-          showSuccess("Đã gửi yêu cầu xuất file");
-          setListExportFile([...listExportFile, response.data.code]);
-        }
+  const onExport = useCallback(
+    (optionExport, typeExport) => {
+      let newParams: any = { ...params };
+      // let hiddenFields = [];
+      console.log("selectedRowCodes", selectedRowCodes);
+      switch (optionExport) {
+        case 1:
+          newParams = {};
+          break;
+        case 2:
+          break;
+        case 3:
+          newParams.code = selectedRowCodes;
+          console.log("newParams", newParams);
+          break;
+        case 4:
+          delete newParams.page;
+          delete newParams.limit;
+          break;
+        default:
+          break;
+      }
+      // console.log('newParams', newParams);
+
+      // switch (optionExport) {
+      //   case 1:
+      //     hiddenFields
+      //     break
+      //   case 2:
+      //     delete newParams.page
+      //     delete newParams.limit
+      //     break
+      //   default: break
+      // }
+      // }
+
+      let queryParams = generateQuery(newParams);
+      exportFile({
+        conditions: queryParams,
+        type: "EXPORT_ORDER",
       })
-      .catch((error) => {
-        setStatusExport(4)
-        console.log("orders export file error", error);
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-      });
-  }, [params, selectedRowCodes, listExportFile]);
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(2);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(4);
+          console.log("orders export file error", error);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [params, selectedRowCodes, listExportFile]
+  );
   const checkExportFile = useCallback(() => {
-    console.log('start check status');
-    
+    console.log("start check status");
+
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
     });
     Promise.all(getFilePromises).then((responses) => {
-      
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           if (exportProgress < 95) {
-            setExportProgress(exportProgress + 3)
+            setExportProgress(exportProgress + 3);
           }
           if (response.data && response.data.status === "FINISH") {
-            setStatusExport(3)
-            console.log('finishhh');
-            setExportProgress(100)
-            const fileCode = response.data.code
+            setStatusExport(3);
+            console.log("finishhh");
+            setExportProgress(100);
+            const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
               return item !== fileCode;
             });
@@ -779,35 +764,29 @@ const ListOrderScreen: React.FC = () => {
   useEffect(() => {
     if (listExportFile.length === 0 || statusExport === 3) return;
     checkExportFile();
-    
+
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
+    setTableLoading(false);
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccounts(data.items);
+  }, []);
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -852,9 +831,7 @@ const ListOrderScreen: React.FC = () => {
                 type="default"
                 className="light"
                 size="large"
-                icon={
-                  <img src={importIcon} style={{ marginRight: 8 }} alt="" />
-                }
+                icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
                 onClick={() => {}}
               >
                 Nhập file
@@ -863,9 +840,7 @@ const ListOrderScreen: React.FC = () => {
                 type="default"
                 className="light"
                 size="large"
-                icon={
-                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
-                }
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                 // onClick={onExport}
                 onClick={() => {
                   console.log("export");
@@ -880,45 +855,41 @@ const ListOrderScreen: React.FC = () => {
         }
       >
         <Card>
-          <div className="padding-20">
-            <OrderFilter
-              onMenuClick={onMenuClick}
-              actions={actions}
-              onFilter={onFilter}
-              isLoading={tableLoading}
-              params={params}
-              listSource={listSource}
-              listStore={listStore}
-              accounts={accounts}
-              deliveryService={delivery_service}
-              subStatus={listOrderProcessingStatus}
-              onShowColumnSetting={() => setShowSettingColumn(true)}
-              onClearFilter={() => onClearFilter()}
-            />
-            <CustomTable
-              isRowSelection
-              isLoading={tableLoading}
-              showColumnSetting={true}
-              scroll={{ x: 3630 }}
-              sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              onSelectedChange={(selectedRows) =>
-                onSelectedChange(selectedRows)
-              }
-              onShowColumnSetting={() => setShowSettingColumn(true)}
-              dataSource={data.items}
-              columns={columnFinal}
-              rowKey={(item: OrderModel) => item.id}
-              className="order-list"
-            />
-          </div>
+          <OrderFilter
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            isLoading={tableLoading}
+            params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            deliveryService={delivery_service}
+            subStatus={listOrderProcessingStatus}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            onClearFilter={() => onClearFilter()}
+          />
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: OrderModel) => item.id}
+            className="order-list"
+          />
         </Card>
 
         <ModalSettingColumn
@@ -930,20 +901,22 @@ const ListOrderScreen: React.FC = () => {
           }}
           data={columns}
         />
-        {showExportModal && <ExportModal
-          visible={showExportModal}
-          onCancel={() => {
-            setShowExportModal(false)
-            setExportProgress(0)
-            setStatusExport(1)
-          }}
-          onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
-          type="orders"
-          total={data.metadata.total}
-          exportProgress={exportProgress}
-          statusExport={statusExport}
-          selected={selectedRowCodes.length ? true : false}
-        />}
+        {showExportModal && (
+          <ExportModal
+            visible={showExportModal}
+            onCancel={() => {
+              setShowExportModal(false);
+              setExportProgress(0);
+              setStatusExport(1);
+            }}
+            onOk={(optionExport, typeExport) => onExport(optionExport, typeExport)}
+            type="orders"
+            total={data.metadata.total}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+            selected={selectedRowCodes.length ? true : false}
+          />
+        )}
       </ContentContainer>
     </StyledComponent>
   );

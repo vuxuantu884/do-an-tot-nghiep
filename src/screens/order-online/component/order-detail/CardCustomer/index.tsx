@@ -2,7 +2,6 @@
 //#region Import
 import {
   CloseOutlined,
-  DownOutlined,
   EnvironmentOutlined,
   LoadingOutlined,
   MailOutlined,
@@ -663,7 +662,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   />
                 </div>
                 {isVisibleCollapseCustomer === true && (
-                  <Divider orientation="left" style={{ padding: 0, margin: 0 }}>
+                  <Divider orientation="left" style={{ padding: 0, margin: 0,color:"#5656A1" }}>
                       <div>
                           <Button
                             type="link"
@@ -685,12 +684,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           <div>
             {customer === null &&(
                <div className="send-order-box">
-                 <Row gutter={12} style={{ marginTop: 15 }}>
-                  <Col md={12}>
-                    
-                  </Col>
-                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
-                  { isVisibleBtnUpdate === true  && (
+                 <Row style={{ marginTop: 15 }}>
+                  <Col md={24} style={{float:"right",marginTop: "-10px"}}>
+                  { isVisibleBtnUpdate === true &&  (
                      <Button
                       type="primary"
                       style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
@@ -721,7 +717,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Checkbox>
                   </Col>
                   <Col md={12} style={{float:"right",marginTop: "-10px"}}>
-                  { isVisibleBtnUpdate === true  && (
+                  { isVisibleBtnUpdate === true&& !isVisibleBilling  && (
                      <Button
                       type="primary"
                       style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
@@ -758,7 +754,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           className="select-with-search"
                           showSearch
                           allowClear
-                          placeholder="Chọn khu vực"
+                          placeholder={
+                            <React.Fragment>
+                              <EnvironmentOutlined style={{color:"#71767B"}}/>
+                              <span> Chọn khu vực</span>
+                            </React.Fragment>
+                          }
                           style={{ width: "100%" }}
                           onChange={(value: any) => {
                             handleShippingChangeArea(value);
@@ -791,7 +792,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           allowClear
                           optionFilterProp="children"
                           style={{ width: "100%" }}
-                          placeholder="Chọn phường/xã"
+                          placeholder={
+                            <React.Fragment>
+                              <EnvironmentOutlined style={{color:"#71767B"}}/>
+                              <span> Chọn phường/xã</span>
+                            </React.Fragment>
+                          }
                           ref={shippingWarRef}
                         >
                           {shippingWards.map((ward: any) => (
@@ -810,7 +816,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       >
                         <Input
                           placeholder="Địa chỉ"
-                          prefix={<EnvironmentOutlined />}
+                          prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>}
                         />
                       </Form.Item>
                     </Col>
@@ -822,13 +828,33 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       >
                         <Input
                           placeholder="Điền email"
-                          prefix={<MailOutlined />}
+                          prefix={<MailOutlined style={{color:"#71767B"}}/>}
                         />
                       </Form.Item>
                     </Col>
                   </Row>
                 )}
               </div>
+            )}
+
+            {customer !== null && isVisibleBilling===true &&(
+               <Row style={{ marginTop: 15 }}>
+                <Col md={24} style={{float:"right",marginTop: "-10px"}}>
+                { isVisibleBtnUpdate === true &&  (
+                    <Button
+                    type="primary"
+                    style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    onClick={()=>{
+                      console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
+                      btnUpdateCustomerElement?.click();
+                    }}
+                    >
+                      Cập nhật
+                    </Button>
+                  )}
+                </Col>
+             </Row>
             )}
           </div>
         </div>

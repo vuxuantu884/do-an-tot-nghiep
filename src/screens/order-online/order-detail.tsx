@@ -630,7 +630,7 @@ const OrderDetail = (props: PropType) => {
                         </div>
                         {checkPaymentStatusToShow(OrderDetail) === -1 && (
                           <Tag className="orders-tag orders-tag-default">
-                            Chưa thanh toán 2
+                            Chưa thanh toán
                           </Tag>
                         )}
                         {checkPaymentStatusToShow(OrderDetail) === 0 && (
@@ -962,7 +962,7 @@ const OrderDetail = (props: PropType) => {
                       </Row>
                     </div>
                     <Divider style={{ margin: "0px" }} />
-                    <div className="padding-24">
+                    <div style={{ padding: "20px 20px 0 20px" }}>
                       <Collapse
                         className="orders-timeline"
                         defaultActiveKey={["1"]}

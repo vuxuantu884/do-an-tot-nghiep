@@ -1,6 +1,7 @@
 import { Card, Form, Select } from "antd";
 import { OrderReturnReasonModel } from "model/response/order/order.response";
 import React from "react";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   listOrderReturnReason: OrderReturnReasonModel[];
@@ -14,20 +15,11 @@ function OrderReturnReason(props: PropType): React.ReactElement {
   const { listOrderReturnReason } = props;
 
   return (
-    <Card
-      className="margin-top-20"
-      title={
-        <div className="d-flex">
-          <span className="title-card">Lý do đổi/trả hàng</span>
-        </div>
-      }
-    >
-      <div className="padding-24">
+    <StyledComponent>
+      <Card title="Lý do đổi/trả hàng">
         <Form.Item
           name="reason_id"
-          rules={[
-            { required: true, message: "Vui lòng chọn lý do đổi trả hàng!" },
-          ]}
+          rules={[{ required: true, message: "Vui lòng chọn lý do đổi trả hàng!" }]}
         >
           <Select
             showSearch
@@ -50,8 +42,8 @@ function OrderReturnReason(props: PropType): React.ReactElement {
               })}
           </Select>
         </Form.Item>
-      </div>
-    </Card>
+      </Card>
+    </StyledComponent>
   );
 }
 

@@ -40,6 +40,8 @@ import ExportModal from "screens/purchase-order/modal/export.modal";
 
 import { showError } from "utils/ToastUtils";
 import "./purchase-order-list.scss";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import moment from "moment";
 
 const supplierQuery: AccountSearchQuery = {
   department_ids: [AppConfig.WIN_DEPARTMENT],
@@ -146,22 +148,21 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Ngày duyệt đơn",
       dataIndex: "activated_date",
       render: (value: string) => {
-        return <div>{ConvertUtcToLocalDate(value)}</div>;
+        return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
       },
       visible: true,
     },
     {
       title: "Ngày nhận hàng dự kiến",
-      dataIndex: "expect_import_date",
-      render: (value: string) => {
-        return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
+      dataIndex: "procurements",
+      render: (value:  Array<PurchaseProcument>) => {
+        let display = '';
+        if(value && value.length > 0) {
+          value.sort((a, b) => moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)))
+          display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date);
+        }
+        return <div>{display}</div>;
       },
-      visible: true,
-      width: 200,
-    },
-    {
-      title: "Kho nhận hàng dự kiến",
-      dataIndex: "expect_store",
       visible: true,
       width: 200,
     },
