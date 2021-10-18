@@ -29,8 +29,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
 
    const query = new URLSearchParams(history.location.hash.substring(2));
-   let status: string | null = query.get("status");
-   status = status ? status : "on_hand";
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
@@ -63,7 +61,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(
+      history.push(
         `${UrlConfig.INVENTORY}${history.location.hash}?${queryParam}`
       );
     },
@@ -75,66 +73,12 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.replace(`${UrlConfig.INVENTORY}#1?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY}#1?${queryParam}`);
     },
     [history, params]
   );
 
-  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([
-    {
-      width: 100,
-      title: "Ảnh",
-      visible: true,
-      align: "center",
-      dataIndex: "url",
-      render: (value) => <ImageProduct path={value} isUpload={false} />,
-    },
-    {
-      title: "Barcode",
-      visible: true,
-      dataIndex: "barcode",
-    },
-    {
-      title: "Mã sản phẩm",
-      visible: true,
-      dataIndex: "sku",
-      align: "center",
-      render: (value, record, index) => (
-        <div>
-          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
-            {value}
-          </Link>
-        </div>
-      ),
-    },
-    {
-      width: 300,
-      title: "Tên sản phẩm",
-      visible: true,
-      dataIndex: "name",
-      align: "center",
-    },
-    {
-      title: "Giá",
-      visible: true,
-      dataIndex: "prices",
-      align: "right",
-      render: (value) => {
-        let price = Products.findPrice(value, AppConfig.currency);
-        return formatCurrency(price ? price.retail_price : 0);
-      },
-    },
-    {
-      title: "Tồn theo trạng thái",
-      visible: true,
-      dataIndex: "total_on_hand",
-      align: "right",
-      render: (_, record: any) => {
-      
-        return <span>{record[`total_${status}`]}</span>;
-      },
-    },
-  ]);
+  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
 
   const openColumn = useCallback(() => {
     setShowSettingColumn(true);
@@ -146,9 +90,64 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   );
 
   useEffect(() => {
+    setColumns([
+      {
+        width: 100,
+        title: "Ảnh",
+        visible: true,
+        align: "center",
+        dataIndex: "url",
+        render: (value) => <ImageProduct path={value} isUpload={false} />,
+      },
+      {
+        title: "Barcode",
+        visible: true,
+        dataIndex: "barcode",
+      },
+      {
+        title: "Mã sản phẩm",
+        visible: true,
+        dataIndex: "sku",
+        align: "center",
+        render: (value, record, index) => (
+          <div>
+            <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
+              {value}
+            </Link>
+          </div>
+        ),
+      },
+      {
+        width: 300,
+        title: "Tên sản phẩm",
+        visible: true,
+        dataIndex: "name",
+        align: "center",
+      },
+      {
+        title: "Giá",
+        visible: true,
+        dataIndex: "prices",
+        align: "right",
+        render: (value) => {
+          let price = Products.findPrice(value, AppConfig.currency);
+          return formatCurrency(price ? price.retail_price : 0);
+        },
+      },
+      {
+        title: "Tồn theo trạng thái",
+        visible: true,
+        dataIndex: `total_${params.status || "on_hand"}`,
+        align: "right",
+      },
+    ]);
+  }, [params]);
+
+  useEffect(() => {
     setLoading(true);
     dispatch(inventoryGetListAction(params, onResult));
   }, [dispatch, onResult, params]);
+
   return (
     <div>
       <AllInventoryFilter
