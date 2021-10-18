@@ -58,7 +58,7 @@ export const AccountCreateAction = (
 };
 export const AccountUpdateAction = (
   id: number,
-  request: AccountRequest,
+  request: AccountRequest | AccountResponse,
   setData: (data: AccountResponse) => void
 ) => {
   return BaseAction(AccountType.UPDATE_ACCOUNT_REQUEST, {

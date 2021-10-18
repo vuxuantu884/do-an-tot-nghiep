@@ -39,6 +39,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, Products } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -421,7 +422,7 @@ const TabProduct: React.FC = () => {
         isRowSelection
         isLoading={tableLoading}
         scroll={{ x: 1300 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 109 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

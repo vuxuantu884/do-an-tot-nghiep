@@ -2,7 +2,6 @@
 //#region Import
 import {
   CloseOutlined,
-  DownOutlined,
   EnvironmentOutlined,
   LoadingOutlined,
   MailOutlined,

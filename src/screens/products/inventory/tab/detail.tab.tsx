@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import InventoryFilter from "../filter/inventory.filter";
@@ -201,7 +202,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         columns={columnFinal}
         scroll={{ x: 2500 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55}}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

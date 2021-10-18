@@ -68,10 +68,7 @@ function ActionHistory(props: PropType) {
     return result;
   };
 
-  const renderSingleSubStatus = (
-    status_before?: string,
-    status_after?: string
-  ) => {
+  const renderSingleSubStatus = (status_before?: string, status_after?: string) => {
     let result = "";
     if (status_before && status_after) {
       result = `${status_before} -> ${status_after}`;
@@ -86,19 +83,16 @@ function ActionHistory(props: PropType) {
   useEffect(() => {
     if (orderId || reload) {
       dispatch(
-        actionGetOrderActionLogs(
-          +orderId,
-          (response: OrderActionLogResponse[]) => {
-            setActionLog(response);
-          }
-        )
+        actionGetOrderActionLogs(+orderId, (response: OrderActionLogResponse[]) => {
+          setActionLog(response);
+        })
       );
     }
   }, [dispatch, orderId, countChangeSubStatus, reload]);
 
   return (
     <StyledComponent>
-      <Card className="margin-top-20" title={renderCardTitle()}>
+      <Card title={renderCardTitle()}>
         {actionLog &&
           actionLog.length > 0 &&
           actionLog.map((singleActionHistory, index) => {
@@ -111,7 +105,7 @@ function ActionHistory(props: PropType) {
                 }}
               >
                 <Row className="" gutter={15}>
-                  <Col span={12}>
+                  <Col span={10}>
                     <div className="singleActionHistory__info">
                       {singleActionHistory?.store && (
                         <h4 className="singleActionHistory__title">
@@ -127,13 +121,11 @@ function ActionHistory(props: PropType) {
                       )}
                     </div>
                   </Col>
-                  <Col span={12}>
+                  <Col span={14}>
                     <div className="singleActionHistory__status">
                       {singleActionHistory?.action && (
                         <h4 className="singleActionHistory__mainStatus">
-                          {renderSingleActionLogTitle(
-                            singleActionHistory?.action
-                          )}
+                          {renderSingleActionLogTitle(singleActionHistory?.action)}
                         </h4>
                       )}
                       <div className="singleActionHistory__subStatus">

@@ -23,11 +23,15 @@
         .ant-steps-item-title {
           font-size: 12px;
         }
+
         .ant-steps-item-description {
           font-size: 10px;
         }
       }
       &-item {
+        &-tail {
+          margin-left: 42px !important;
+        }
         &-icon {
           width: 14px !important;
           height: 14px !important;
@@ -77,7 +81,7 @@
             top: 6px !important;
             &::after {
               background-color: #2a2a86 !important;
-              margin-left: -25px !important;
+              margin-left: 0px !important;
             }
           }
           .ant-steps-icon-dot {

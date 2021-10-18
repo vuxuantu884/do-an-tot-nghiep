@@ -266,7 +266,6 @@ function OrderSettings(props: PropType) {
           <CustomTable
             isLoading={isTableLoading}
             showColumnSetting={false}
-            scroll={{ x: 1080 }}
             pagination={false}
             dataSource={ShippingServiceConfig}
             columns={TABLE_COLUMN}

@@ -4,6 +4,7 @@ import { globalCssCustomCard } from "./card";
 import { globalCssCustomForm } from "./form";
 import { globalCssCustomInput } from "./input";
 import { globalCssLayout } from "./layout";
+import { globalCssLayoutOutsideComponent } from "./layoutOutsideComponent";
 import { globalCssCustomRadio } from "./radio";
 import { reset } from "./reset";
 import { globalCssCustomSelect } from "./select";
@@ -25,4 +26,5 @@ export const GlobalStyle = createGlobalStyle`
   ${globalCssCustomSelect}
   ${globalCssCustomInput}
   ${globalCssLayout}
+  ${globalCssLayoutOutsideComponent}
 `;

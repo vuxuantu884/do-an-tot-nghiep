@@ -410,15 +410,14 @@ const PODetailScreen: React.FC = () => {
 
   const handleExport = () => {
     var temp = document.createElement("div");
-    console.log(printContent);
     temp.id = "temp";
     temp.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
     html2canvas(value).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("l", "px");
-      pdf.addImage(imgData, "png", 10, 0, value.offsetWidth / 2, value.offsetHeight / 2);
+      const pdf = new jsPDF("portrait", "px");
+      pdf.addImage(imgData, "png", 10, 10, value.offsetWidth/4, value.offsetHeight/2);
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
     });

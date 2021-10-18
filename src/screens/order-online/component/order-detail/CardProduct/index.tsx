@@ -359,36 +359,47 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             style={{ width: "50%", borderRadius: 5 }}
           />
         </Col>
-        <Col span={15}>
-          <span style={{ color: "#37394D" }}>{item.name}</span>
-          <div style={{ color: "#95A1AC" }}>{item.sku}</div>
+        <Col span={14}>
+          <div style={{ padding: "5px 0" }}>
+            <span
+              className="searchDropdown__productTitle"
+              style={{ color: "#37394D" }}
+              title={item.name}
+            >
+              {item.name}
+            </span>
+            <div style={{ color: "#95A1AC" }}>{item.sku}</div>
+          </div>
         </Col>
-        <Col span={5}>
-          <Col style={{ color: "#222222" }}>
-            {`${findPrice(item.variant_prices, AppConfig.currency)} `}
-            <span
-              style={{
-                color: "#737373",
-                textDecoration: "underline",
-                textDecorationColor: "#737373",
-              }}
-            >
-              đ
-            </span>
-          </Col>
-          <div style={{ color: "#737373" }}>
-            Có thể bán:
-            <span
-              style={{
-                marginRight: "20px",
-                color:
-                  (item.available === null ? 0 : item.available) > 0
-                    ? "#2A2A86"
-                    : "rgba(226, 67, 67, 1)",
-              }}
-            >
-              {` ${item.available === null ? 0 : item.available}`}
-            </span>
+        <Col span={6}>
+          <div style={{ textAlign: "right", padding: "0 20px" }}>
+            <div style={{ display: "inline-block", textAlign: "left" }}>
+              <Col style={{ color: "#222222" }}>
+                {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+                <span
+                  style={{
+                    color: "#737373",
+                    textDecoration: "underline",
+                    textDecorationColor: "#737373",
+                  }}
+                >
+                  đ
+                </span>
+              </Col>
+              <div style={{ color: "#737373" }}>
+                Có thể bán:
+                <span
+                  style={{
+                    color:
+                      (item.available === null ? 0 : item.available) > 0
+                        ? "#2A2A86"
+                        : "rgba(226, 67, 67, 1)",
+                  }}
+                >
+                  {` ${item.available === null ? 0 : item.available}`}
+                </span>
+              </div>
+            </div>
           </div>
         </Col>
       </Row>

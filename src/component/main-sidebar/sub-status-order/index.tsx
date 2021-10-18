@@ -9,7 +9,7 @@ import {
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { DEFAULT_FORM_VALUE, OrderStatus } from "utils/Constants";
+import { OrderStatus } from "utils/Constants";
 
 type PropType = {
   subStatusId?: number | null;
