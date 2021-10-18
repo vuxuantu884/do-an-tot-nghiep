@@ -7,7 +7,7 @@ export const globalCssLayoutOutsideComponent = css`
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    height: 42px;
+    max-height: 42px;
     line-height: 21px;
   }
 `;
