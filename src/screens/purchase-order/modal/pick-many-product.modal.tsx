@@ -1,5 +1,5 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Divider, Input, List, Modal, Checkbox } from "antd";
+import { Divider, Input, List, Modal, Checkbox, Skeleton } from "antd";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -10,26 +10,38 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomPagination from "component/table/CustomPagination";
 import ProductItem from "../component/product-item";
+import { inventoryGetVariantByStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 
 type PickManyProductModalType = {
   visible: boolean;
   onCancel: () => void;
   selected: Array<VariantResponse>;
   onSave: (result: Array<VariantResponse>) => void;
+  storeID?: number;
+};
+
+let initQuery = {
+  info: "",
+  page: 1,
+  limit: 10,
 };
 
 const PickManyProductModal: React.FC<PickManyProductModalType> = (
   props: PickManyProductModalType
 ) => {
-  let initQuery = {
+  let initQueryHasStoreID = {
+    status: "active",
+    limit: 10,
     info: "",
     page: 1,
-    limit: 10,
+    store_id: props.storeID,
   };
   const dispatch = useDispatch();
   const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
   const [selection, setSelection] = useState<Array<VariantResponse>>([]);
-  const [query, setQuery] = useState<VariantSearchQuery>(initQuery);
+  const [query, setQuery] = useState<VariantSearchQuery>(
+    props.storeID ? initQueryHasStoreID : initQuery
+  );
 
   const onResultSuccess = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -77,14 +89,22 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     },
     [data, setSelection]
   );
+
   useEffect(() => {
-    dispatch(searchVariantsRequestAction(query, onResultSuccess));
-  }, [dispatch, onResultSuccess, query]);
-  useEffect(() => {
-    if(props.visible) {
-      setSelection([...props.selected])
+    if (props.storeID) {
+      dispatch(inventoryGetVariantByStoreAction(query, onResultSuccess));
+    } else {
+      dispatch(searchVariantsRequestAction(query, onResultSuccess));
     }
-  }, [props.selected, props.visible])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, onResultSuccess, query]);
+
+  useEffect(() => {
+    if (props.visible) {
+      setSelection([...props.selected]);
+    }
+  }, [props.selected, props.visible]);
+
   return (
     <Modal
       visible={props.visible}
@@ -114,7 +134,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       />
       <Divider />
       <Checkbox
-        style={{marginLeft: 12}}
+        style={{ marginLeft: 12 }}
         checked={selection.length === data?.metadata.limit}
         onChange={(e) => {
           fillAll(e.target.checked);
@@ -123,7 +143,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         Chọn tất cả
       </Checkbox>
       <Divider />
-      {data !== null && (
+      {data !== null ? (
         <div className="modal-product-list">
           <List
             locale={{
@@ -152,10 +172,12 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
               pageSize: data.metadata.limit,
               current: data.metadata.page,
               total: data.metadata.total,
-              onChange: onPageChange
+              onChange: onPageChange,
             }}
           />
         </div>
+      ) : (
+        <Skeleton loading={true} active avatar></Skeleton>
       )}
     </Modal>
   );

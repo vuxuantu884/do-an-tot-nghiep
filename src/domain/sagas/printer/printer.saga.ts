@@ -7,6 +7,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
+  PrinterInventoryTransferResponseModel,
   PrinterResponseModel,
   PrinterVariableResponseModel,
   PrintFormByOrderIdsResponseModel,
@@ -17,6 +18,7 @@ import {
   getListPrinterVariablesService,
   getPrinterDetailService,
   getPrintFormByOrderIdsService,
+  getPrintTicketIdsService,
 } from "service/printer/printer.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -172,10 +174,31 @@ function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
   }
 }
 
+function* fetchPrintInventoryTransferIdsSaga(action: YodyAction) {
+  const { ids, type, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: Array<PrinterInventoryTransferResponseModel> =
+      yield call(getPrintTicketIdsService, ids, type);
+    if (response.length > 0) {
+      handleData(response);
+    }
+    else {
+      yield put(unauthorizedAction());
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* settingPrinterSaga() {
   yield takeLatest(PRINTER_TYPES.listPrinter, listDataPrinterSaga);
   yield takeLatest(PRINTER_TYPES.getPrinterDetail, getPrinterDetailSaga);
   yield takeLatest(PRINTER_TYPES.createPrinter, createPrinterSaga);
+  yield takeLatest(PRINTER_TYPES.getPrintFormByInventoryTransferIds, fetchPrintInventoryTransferIdsSaga);
   yield takeLatest(
     PRINTER_TYPES.getListPrinterVariables,
     fetchListPrinterVariablesSaga

@@ -120,6 +120,7 @@ export interface ProductWrapperUpdateRequest{
   variants: Array<VariantResponse>,
 }
 export interface VariantResponse extends BaseObject {
+  amount: number;
   name: string,
   on_hand: number,
   inventory : number,
@@ -146,9 +147,12 @@ export interface VariantResponse extends BaseObject {
   length_unit:string,
   composites:string,
   product_id:number,
+  product_name:string,
   product:ProductResponse,
   variant_prices:Array<VariantPricesResponse>,
-  variant_images:Array<VariantImage>
+  variant_images:Array<VariantImage>,
+  transfer_quantity: number,
+  variant_id: number,
 }
 
 export interface VariantView extends BaseObject {
@@ -198,6 +202,7 @@ export interface VariantSearchQuery extends BaseQuery {
   color?:string,
   supplier?:string
   saleable?: boolean
+  store_id?: number,
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,

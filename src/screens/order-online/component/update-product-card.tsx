@@ -273,16 +273,10 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           />
         </Row>
 
-        <Row className="sale-product-box-payment" gutter={24} style={{ paddingTop: 20 }}>
+        <Row className="sale-product-box-payment" gutter={24} style={{ paddingTop: 20, paddingRight: "15px" }}>
           <Col xs={24} lg={12}>
             <div className="payment-row">
               <Checkbox className="margin-bottom-15">Bỏ chiết khấu tự động</Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="margin-bottom-15">Không tính thuế VAT</Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="margin-bottom-15">Bỏ tích điểm tự động</Checkbox>
             </div>
           </Col>
           <Col xs={24} lg={12}>
@@ -301,7 +295,6 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               className="payment-row"
               justify="space-between"
               align="middle"
-              style={{ marginTop: "5px" }}
             >
               <Space align="center">
                 Chiết khấu:
@@ -332,7 +325,6 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               className="payment-row"
               justify="space-between"
               align="middle"
-              style={{ marginTop: "5px" }}
             >
               <Space align="center">Mã giảm giá:</Space>
               <div className="font-weight-500 ">0</div>
@@ -362,10 +354,10 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <span className="font-size-text">
+              <strong className="font-size-text">
                 {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
-              </span>
-              <span>{formatCurrency(props.customerNeedToPayValue)}</span>
+              </strong>
+              <strong>{formatCurrency(props.customerNeedToPayValue)}</strong>
             </Row>
             {totalAmountReturnProducts ? (
               <Row className="payment-row" justify="space-between">
@@ -380,12 +372,12 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   style={{ height: "auto", margin: " 5px 0" }}
                 />
                 <Row className="payment-row" justify="space-between">
-                  <strong className="font-size-text">
+                  <strong className="font-size-text" style={{fontWeight:"bold"}}>
                     {props.customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}
                   </strong>
-                  <strong className="text-success font-size-price ">
+                  <strong className="text-success font-size-price">
                     {formatCurrency(
                       Math.abs(props.customerNeedToPayValue - totalAmountReturnProducts)
                     )}
