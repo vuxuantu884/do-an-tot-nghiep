@@ -496,7 +496,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         return (
           <div>
             {l.connect_status === "waiting" && (
-              <span style={{ color: "#FFA500" }}>Chưa ghép nối</span>
+              <span style={{ color: "#2A2A86" }}>Chưa ghép nối</span>
             )}
           </div>
         );

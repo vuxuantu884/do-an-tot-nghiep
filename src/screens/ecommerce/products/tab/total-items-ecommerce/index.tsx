@@ -269,7 +269,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
               <span style={{ color: "#27AE60" }}>Thành công</span>
             )}
             {l.connect_status === "waiting" && (
-              <span style={{ color: "#FFA500" }}>Chưa ghép nối</span>
+              <span style={{ color: "#2A2A86" }}>Chưa ghép nối</span>
             )}
             {l.connect_status === "warning" && (
               <Tooltip title="Chú ý giá bán (sàn) và giá bán (admin) bị lệch nhau" color="blue">

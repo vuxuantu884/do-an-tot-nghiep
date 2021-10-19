@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Card, Tabs, Form, Button, Modal, Select, DatePicker, Tooltip } from "antd";
@@ -86,19 +86,19 @@ const Products: React.FC = () => {
     connection_start_date: null,
   });
 
-  const updateVariantData = React.useCallback((result: PageResponse<any> | false) => {
+  const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setTableLoading(false);
     if (!!result) {
       setVariantData(result);
     }
   }, []);
 
-  const getProductUpdated = (queryRequest: any) => {
+  const getProductUpdated = useCallback((queryRequest: any) => {
     setTableLoading(true);
     dispatch(getProductEcommerceList(queryRequest, updateVariantData));
-  }
+  }, [dispatch, updateVariantData]);
 
-  const updateCategoryData = React.useCallback((result) => {
+  const updateCategoryData = useCallback((result) => {
     if (!!result && result.items) {
       setCategoryList(result.items);
     }
@@ -129,9 +129,9 @@ const Products: React.FC = () => {
           break;
       }
     }
+
     getProductUpdated(requestQuery);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.location.hash]);
+  }, [getProductUpdated, history.location.hash, query]);
 
   const handleGetProductsFromEcommerce = () => {
     setIsShowGetItemModal(true);
@@ -212,7 +212,7 @@ const Products: React.FC = () => {
 
   //end handle date
 
-  const updateEcommerceList = React.useCallback((data) => {
+  const updateEcommerceList = useCallback((data) => {
     setIsLoading(false);
     if (data) {
       setIsShowGetItemModal(false);
@@ -289,7 +289,7 @@ const Products: React.FC = () => {
     getShopEcommerce(item && item.id);
   };
 
-  const updateEcommerceShopList = React.useCallback((result) => {
+  const updateEcommerceShopList = useCallback((result) => {
     setIsEcommerceSelected(true);
     setEcommerceShopList(result);
   }, []);
@@ -305,19 +305,6 @@ const Products: React.FC = () => {
   }
 
   const handleOnchangeTab = (active: any) => {
-    const requestQuery = { ...query };
-    switch (active) {
-      case "total-item":
-        requestQuery.connect_status = null;
-        break;
-      case "connected-item":
-        requestQuery.connect_status = "connected";
-        break;
-      case "not-connected-item":
-        requestQuery.connect_status = "waiting";
-        break;
-    }
-    getProductUpdated(requestQuery);
     history.replace(`${history.location.pathname}#${active}`);
   }
 
