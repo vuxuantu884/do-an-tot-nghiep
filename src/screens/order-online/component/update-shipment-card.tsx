@@ -55,7 +55,7 @@ import {
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
@@ -87,6 +87,8 @@ import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
 import { delivery_service } from "../common/delivery-service";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { OrderDetailContext } from "contexts/order-online/order-detail-context";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -163,6 +165,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
+
+  const orderDetailContextData = useContext(OrderDetailContext);
+
   //#endregion
   // show shipping
   const ShowShipping = () => {
@@ -277,67 +282,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onReload && onReload();
   };
 
-  console.log("OrderDetail", OrderDetail);
   const onPackSuccess = (value: OrderResponse) => {
     setUpdateShipment(false);
     setReload(true);
     showSuccess("Đóng gói thành công");
-
-    const params: CreateShippingOrderRequest = {
-      order_type: "order",
-      shipment: {
-        delivery_service_code: "string",
-        order_code: "string",
-        fulfillment_code:
-          OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.code
-            ? OrderDetail?.fulfillments[0]?.code
-            : "",
-        store_id: OrderDetail?.store_id || 0,
-        transport_type: "string",
-        cod: OrderDetail?.shipment?.cod,
-        insurance: 0,
-        note_to_shipper: OrderDetail?.shipment?.note_to_shipper || undefined,
-        shipping_requirement: OrderDetail?.shipment?.requirements || undefined,
-        who_paid: OrderDetail?.shipment?.who_paid || undefined,
-      },
-      sender_address: {
-        name: "string",
-        phone_number: "string",
-        email: "string",
-        address: "string",
-        province_id: 0,
-        province_name: "string",
-        district_id: 0,
-        district_name: "string",
-        ward_id: 0,
-        ward_name: "string",
-      },
-      receiver_address: {
-        name: "string",
-        phone_number: "string",
-        email: "string",
-        address: "string",
-        province_id: 0,
-        province_name: "string",
-        district_id: 0,
-        district_name: "string",
-        ward_id: 0,
-        ward_name: "string",
-      },
-      products: [
-        {
-          name: "string",
-          sku: "string",
-          price: 0,
-          quantity: 0,
-          weight: 0,
-          weight_unit: "string",
-        },
-      ],
-    };
-    // dispatch(createShippingOrderAction({
-
-    // }));
     onReload && onReload();
   };
 
@@ -393,9 +341,98 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setIsvibleGoodsReturn(false);
     onReload && onReload();
   };
+
+  const handlePushTo3PL = () => {
+    if (!OrderDetail?.store_id) {
+      return;
+    }
+    if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]) {
+      dispatch(StoreDetailAction(OrderDetail.store_id, () => {}));
+      const senderAddressJSON: any =
+        OrderDetail?.fulfillments[0].shipment?.sender_address;
+      if (!senderAddressJSON) {
+        console.log("222");
+        return;
+      }
+      const senderAddress = orderDetailContextData.storeDetail;
+      const shippingAddress =
+        orderDetailContextData.customerDetail?.shipping_addresses.find(
+          (single) => single.default
+        );
+
+      const products = OrderDetail.items.map((single) => {
+        return {
+          name: single.product,
+          sku: single.sku,
+          price: single.price,
+          quantity: single.quantity,
+          weight: single.weight,
+          weight_unit: single.weight_unit,
+        };
+      });
+
+      const thirdPartyLogistic = list3rdPartyLogistic.find((single) => {
+        if (!OrderDetail.fulfillments) {
+          return false;
+        }
+        return (
+          single.id === OrderDetail.fulfillments[0].shipment?.delivery_service_provider_id
+        );
+      });
+      if (!senderAddress || !shippingAddress || !products || !thirdPartyLogistic) {
+        console.log("333");
+        return;
+      }
+      const params: CreateShippingOrderRequest = {
+        order_type: "order",
+        shipment: {
+          delivery_service_code: thirdPartyLogistic.code,
+          order_code: OrderDetail.code,
+          fulfillment_code: OrderDetail?.fulfillments[0].code || undefined,
+          store_id: OrderDetail?.store_id || 0,
+          transport_type: OrderDetail?.fulfillments[0]?.shipment?.service || undefined,
+          cod: OrderDetail.fulfillments[0].shipment?.cod,
+          insurance: undefined,
+          note_to_shipper: OrderDetail?.shipment?.note_to_shipper || undefined,
+          shipping_requirement: OrderDetail?.shipment?.requirements || undefined,
+          who_paid: OrderDetail?.shipment?.who_paid || undefined,
+        },
+        sender_address: {
+          name: senderAddress.name,
+          phone_number: senderAddress.hotline,
+          email: undefined,
+          address: senderAddress.address,
+          province_id: senderAddress.city_id,
+          province_name: senderAddress.city_name,
+          district_id: senderAddress.district_id,
+          district_name: senderAddress.district_name,
+          ward_id: senderAddress.ward_id,
+          ward_name: senderAddress.ward_name,
+        },
+        receiver_address: {
+          name: shippingAddress?.name,
+          phone_number: shippingAddress?.phone,
+          email: shippingAddress?.email,
+          address: shippingAddress?.full_address,
+          province_id: shippingAddress?.city_id,
+          province_name: shippingAddress?.city,
+          district_id: shippingAddress?.district_id,
+          district_name: shippingAddress?.district,
+          ward_id: shippingAddress?.ward_id,
+          ward_name: shippingAddress?.ward,
+        },
+        products,
+      };
+      dispatch(
+        createShippingOrderAction(params, () => {
+          onReload && onReload();
+        })
+      );
+    }
+  };
+
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
-    console.log("type", type);
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
       fulfillment_id: null,
@@ -417,105 +454,24 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         case 2:
           value.status = FulFillmentStatus.PACKED;
           value.action = FulFillmentStatus.PACKED;
-
-          if (!OrderDetail?.fulfillments || !OrderDetail?.fulfillments[0]) {
-            console.log("111");
-            return;
-          }
-          const senderAddressJSON: any =
-            OrderDetail?.fulfillments[0].shipment?.sender_address;
-          if (!senderAddressJSON) {
-            console.log("222");
-            return;
-          }
-          const senderAddress: StoreResponse = JSON.parse(senderAddressJSON);
-          const shippingAddress = OrderDetail.shipping_address;
-
-          const products = OrderDetail.items.map((single) => {
-            return {
-              name: single.product,
-              sku: single.sku,
-              price: single.price,
-              quantity: single.quantity,
-              weight: single.weight,
-              weight_unit: single.weight_unit,
-            };
-          });
-
           setUpdateShipment(true);
-          const thirdPartyLogistic = list3rdPartyLogistic.find((single) => {
-            if (!OrderDetail.fulfillments) {
-              return false;
-            }
-            return (
-              single.id ===
-              OrderDetail.fulfillments[0].shipment?.delivery_service_provider_id
+          if (props.stepsStatusValue !== FulFillmentStatus.PICKED) {
+            dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
+          } else {
+            dispatch(
+              UpdateFulFillmentStatusAction(
+                value,
+                (response) => {
+                  setUpdateShipment(false);
+                  showSuccess("Đóng gói thành công");
+                  handlePushTo3PL();
+                },
+                onError
+              )
             );
-          });
-          if (!senderAddress || !shippingAddress || !products || !thirdPartyLogistic) {
-            console.log("333");
-            return;
           }
-          const params: CreateShippingOrderRequest = {
-            order_type: "order",
-            shipment: {
-              delivery_service_code: thirdPartyLogistic.code,
-              order_code: OrderDetail.code,
-              fulfillment_code: OrderDetail?.fulfillments[0].code || undefined,
-              store_id: OrderDetail?.store_id || 0,
-              transport_type:
-                OrderDetail?.fulfillments[0]?.shipment?.service || undefined,
-              cod: OrderDetail.fulfillments[0].shipment?.cod,
-              insurance: undefined,
-              note_to_shipper: OrderDetail?.shipment?.note_to_shipper || undefined,
-              shipping_requirement: OrderDetail?.shipment?.requirements || undefined,
-              who_paid: OrderDetail?.shipment?.who_paid || undefined,
-            },
-            sender_address: {
-              name: senderAddress.name,
-              phone_number: senderAddress.hotline,
-              email: undefined,
-              address: senderAddress.address,
-              province_id: senderAddress.city_id,
-              province_name: senderAddress.city_name,
-              district_id: senderAddress.district_id,
-              district_name: senderAddress.district_name,
-              ward_id: senderAddress.ward_id,
-              ward_name: senderAddress.ward_name,
-            },
-            receiver_address: {
-              name: shippingAddress?.name,
-              phone_number: shippingAddress?.phone,
-              email: shippingAddress?.email,
-              address: shippingAddress?.full_address,
-              province_id: shippingAddress?.city_id,
-              province_name: shippingAddress?.city,
-              district_id: shippingAddress?.district_id,
-              district_name: shippingAddress?.district,
-              ward_id: shippingAddress?.ward_id,
-              ward_name: shippingAddress?.ward,
-            },
-            products,
-          };
-          console.log("params", params);
-          // dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
-          dispatch(
-            UpdateFulFillmentStatusAction(
-              value,
-              () => {
-                setUpdateShipment(false);
-                setReload(true);
-                showSuccess("Đóng gói thành công");
 
-                dispatch(
-                  createShippingOrderAction(params, () => {
-                    onReload && onReload();
-                  })
-                );
-              },
-              onError
-            )
-          );
+          // dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
 
           break;
         case 3:
@@ -980,6 +936,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   );
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
+
   // end
   useEffect(() => {
     if (!props.storeDetail) {
@@ -1020,7 +977,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         coupon: "",
         cod: 0,
       };
-      console.log("request", request);
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
@@ -1345,21 +1301,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
                           {CheckShipmentType(props.OrderDetail!) ===
                             "external_service" && (
-                            <Col md={4}>
-                              <Col span={24}>
-                                <p className="text-field">Trọng lượng:</p>
-                              </Col>
-                              <Col span={24}>
-                                <b className="text-field">
-                                  {props.OrderDetail?.fulfillments &&
-                                    props.OrderDetail?.fulfillments.length > 0 &&
-                                    formatCurrency(
-                                      props.OrderDetail.items &&
-                                        SumWeightResponse(props.OrderDetail.items)
-                                    )}
-                                  g
-                                </b>
-                              </Col>
+                            <Col md={12}>
+                              <Row gutter={30}>
+                                <Col span={10}>
+                                  <p className="text-field">Trọng lượng:</p>
+                                </Col>
+                                <Col span={14}>
+                                  <b className="text-field">
+                                    {props.OrderDetail?.fulfillments &&
+                                      props.OrderDetail?.fulfillments.length > 0 &&
+                                      formatCurrency(
+                                        props.OrderDetail.items &&
+                                          SumWeightResponse(props.OrderDetail.items)
+                                      )}
+                                    g
+                                  </b>
+                                </Col>
+                              </Row>
                             </Col>
                           )}
                         </Row>
@@ -1737,14 +1695,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               loading={updateShipment}
               disabled={cancelShipment}
             >
-              Đóng gói 1
+              Đóng gói
             </Button>
           )}
           {props.stepsStatusValue === FulFillmentStatus.PACKED &&
-            props.OrderDetail?.fulfillments &&
-            props.OrderDetail?.fulfillments.length > 0 &&
-            props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !==
-              "pick_at_store" && (
+          props.OrderDetail?.fulfillments &&
+          props.OrderDetail?.fulfillments.length > 0 &&
+          props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !==
+            "pick_at_store" ? (
+            props.OrderDetail.fulfillments[0].shipment?.pushing_status !== "failed" ? (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1755,7 +1714,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               >
                 Xuất kho
               </Button>
-            )}
+            ) : (
+              <Button
+                type="primary"
+                style={{ marginLeft: "10px", padding: "0 25px" }}
+                className="create-button-custom ant-btn-outline fixed-button"
+                onClick={() => {
+                  handlePushTo3PL();
+                }}
+                loading={updateShipment}
+                disabled={cancelShipment}
+              >
+                Đẩy lại đơn sang HVC
+              </Button>
+            )
+          ) : (
+            ""
+          )}
           {props.stepsStatusValue === FulFillmentStatus.SHIPPING && (
             <Button
               type="primary"

@@ -756,10 +756,13 @@ function* createShippingOrderSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e) => showError(e));
+        // response.errors.forEach((e) => showError(e));
+        showError(response.message.toString());
+        handleData();
         break;
     }
   } catch (error) {
+    console.log("error", error);
     showError(`Đẩy đơn sang bên vận chuyển xảy ra lỗi!`);
   } finally {
     yield put(hideLoading());

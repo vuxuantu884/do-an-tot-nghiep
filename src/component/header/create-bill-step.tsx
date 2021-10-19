@@ -12,8 +12,6 @@ type StepStatusProps = {
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const { orderDetail } = props;
-  console.log("props.status", props.status);
-  console.log("orderDetail", orderDetail);
   const formatDate = "DD/MM/YY - HH:mm";
   const [currentStep, setCurrentStep] = useState(0);
   const point = useCallback(() => {
