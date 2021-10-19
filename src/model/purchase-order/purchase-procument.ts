@@ -1,4 +1,5 @@
 import { BaseQuery } from "model/base/base.query";
+import { ParsedUrlQueryInput } from "querystring";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
 export interface PurchaseProcument extends BaseObject {
@@ -98,7 +99,7 @@ const POProcumentLineItemField = {
   note: "note",
 };
 
-export interface ProcurementQuery extends BaseQuery {
+export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
   content?: number,
   active_from?: string,
   active_to?: string,

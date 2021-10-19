@@ -1,8 +1,7 @@
-import React from "react";
-import { RouteMenu } from "model/other";
-import ColorUpdateScreen from "screens/products/color/color-update.screen";
 import UrlConfig from "config/url.config";
-import ProcurementScreen from "screens/products/procurement";
+import { RouteMenu } from "model/other";
+import React from "react";
+import ColorUpdateScreen from "screens/products/color/color-update.screen";
 
 
 const Category = React.lazy(
@@ -68,21 +67,6 @@ const ProductBarcodeScreen = React.lazy(
   () => import("screens/products/product/BarcodeProductScreen")
 );
 
-
-
-//PO
-const PurchaseOrderListScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-list.screen")
-);
-const PurchaseOrderCreateScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-create.screen")
-);
-const PurchaseOrderDetailScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-detail.screen")
-);
-const PurchaseOrderReturnScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-return.screen")
-);
 
 //Inventory
 const InventoryScreen = React.lazy(
@@ -171,64 +155,8 @@ const product: Array<RouteMenu> = [
       },
     ],
   },
-  {
-    path: UrlConfig.PURCHASE_ORDER,
-    exact: true,
-    title: "Nhập hàng",
-    icon: "icon-dot",
-    component: PurchaseOrderListScreen,
-    key: "submenu22",
-    isShow: true,
-    header: null,
-    subMenu: [
-      {
-        path: `${UrlConfig.PURCHASE_ORDER}/create`,
-        exact: true,
-        title: "Thêm sản phẩm mới",
-        icon: "icon-dot",
-        component: PurchaseOrderCreateScreen,
-        key: "submenu221",
-        isShow: true,
-        header: null,
-        subMenu: [],
-      },
-      {
-        path: `${UrlConfig.PURCHASE_ORDER}/:id`,
-        exact: true,
-        title: "Thêm sản phẩm mới",
-        icon: "icon-dot",
-        component: PurchaseOrderDetailScreen,
-        key: "submenu222",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        pathIgnore: ["create"],
-      },
-      {
-        path: `${UrlConfig.PURCHASE_ORDER}/:id/return`,
-        exact: true,
-        title: "Trả hàng cho đơn mua hàng",
-        icon: "icon-dot",
-        component: PurchaseOrderReturnScreen,
-        key: "submenu223",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        pathIgnore: ["create"],
-      },
-    ],
-  },
-  {
-    path: UrlConfig.PROCUREMENT,
-    exact: true,
-    title: "Đơn nhập kho",
-    icon: "icon-dot",
-    component: ProcurementScreen,
-    key: "submenu25",
-    isShow: true,
-    header: null,
-    subMenu: [],
-  },
+  
+
   {
     path: UrlConfig.INVENTORY,
     exact: true,
