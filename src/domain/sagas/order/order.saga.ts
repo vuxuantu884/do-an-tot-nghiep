@@ -150,7 +150,7 @@ function* orderCreateSaga(action: YodyAction) {
   }
 }
 function* orderUpdateSaga(action: YodyAction) {
-  const { id, request, setData } = action.payload;
+  const { id, request, setData, onError } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(orderPutApi, id, request);
     switch (response.code) {
@@ -158,10 +158,12 @@ function* orderUpdateSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
+        onError()
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onError()
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
