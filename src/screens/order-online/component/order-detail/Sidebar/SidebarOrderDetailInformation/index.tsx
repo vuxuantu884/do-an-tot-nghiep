@@ -23,7 +23,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>Điện thoại:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }}>
-              {OrderDetail?.customer_phone_number}
+              {OrderDetail?.store_phone_number}
             </span>
           </Col>
         </Row>
@@ -31,7 +31,7 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>Địa chỉ:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }}>
-              {OrderDetail?.shipping_address?.full_address}
+              {OrderDetail?.store_full_address}
             </span>
           </Col>
         </Row>
