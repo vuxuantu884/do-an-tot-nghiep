@@ -21,6 +21,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   amount: number | undefined;
+  totalPaid?: number | undefined;
   shippingFeeCustomer: number | null;
   discountValue: number | null | undefined;
   OrderDetail?: OrderResponse | null;
@@ -40,9 +41,10 @@ type PropType = {
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
     amount,
+    totalPaid,
     shippingFeeCustomer,
     discountValue,
-    OrderDetail,
+    // OrderDetail,
     // payments,
     setShippingFeeInformedCustomer,
     // deliveryServices,
@@ -113,7 +115,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       (amount ? amount : 0) +
       (shippingFeeCustomer ? shippingFeeCustomer : 0) -
       (discountValue ? discountValue : 0) -
-      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+      (totalPaid ? totalPaid : 0) -
       // totalAmountPaid() -
       (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
     );

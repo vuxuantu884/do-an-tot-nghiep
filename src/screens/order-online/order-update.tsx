@@ -335,50 +335,47 @@ export default function Order(props: PropType) {
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
-    if (OrderDetail?.fulfillments?.length) {
-      let request: FulFillmentRequest = {
-        id: OrderDetail.fulfillments[0].id ? OrderDetail.fulfillments[0].id : undefined,
-        store_id: value.store_id,
-        account_code: userReducer.account?.code,
-        assignee_code: value.assignee_code,
-        delivery_type: "",
-        stock_location_id: null,
-        payment_status: "",
-        total: orderAmount,
-        total_tax: null,
-        total_discount: null,
-        total_quantity: null,
-        discount_rate: discountRate,
-        discount_value: discountValue,
-        discount_amount: null,
-        total_line_amount_after_line_discount: null,
-        shipment: shipmentRequest,
-        items: items,
-      };
+    let request: FulFillmentRequest = {
+      store_id: value.store_id,
+      account_code: userReducer.account?.code,
+      assignee_code: value.assignee_code,
+      delivery_type: "",
+      stock_location_id: null,
+      payment_status: "",
+      total: orderAmount,
+      total_tax: null,
+      total_discount: null,
+      total_quantity: null,
+      discount_rate: discountRate,
+      discount_value: discountValue,
+      discount_amount: null,
+      total_line_amount_after_line_discount: null,
+      shipment: shipmentRequest,
+      items: items,
+    };
 
-      let listFulfillmentRequest = [];
-      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-        request.delivery_type = "pick_at_store";
-      }
-      if (
-        paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
-        shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
-        shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
-      ) {
-        listFulfillmentRequest.push(request);
-      }
-
-      if (
-        paymentMethod === PaymentMethodOption.POSTPAYMENT &&
-        shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
-        typeButton === OrderStatus.FINALIZED
-      ) {
-        request.shipment = null;
-        listFulfillmentRequest.push(request);
-      }
-      return listFulfillmentRequest;
+    let listFulfillmentRequest = [];
+    if (
+      paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
+      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
+      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+    ) {
+      listFulfillmentRequest.push(request);
     }
-    return null;
+
+    if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+      request.delivery_type = "pick_at_store";
+    }
+
+    if (
+      paymentMethod === PaymentMethodOption.POSTPAYMENT &&
+      shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
+      typeButton === OrderStatus.FINALIZED
+    ) {
+      request.shipment = null;
+      listFulfillmentRequest.push(request);
+    }
+    return listFulfillmentRequest;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -547,7 +544,7 @@ export default function Order(props: PropType) {
   };
   
   const onFinish = (values: OrderRequest) => {
-    console.log("onFinish onFinish", values);
+    
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -555,17 +552,7 @@ export default function Order(props: PropType) {
     let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
-    if (typeButton === OrderStatus.DRAFT) {
-      values.fulfillments = [];
-      // thêm payment vào đơn nháp
-      // values.payments = [];
-      values.payments = payments.filter((payment) => payment.amount > 0);
-
-      values.shipping_fee_informed_to_customer = 0;
-      values.action = OrderStatus.DRAFT;
-      values.total = orderAmount;
-      values.shipping_fee_informed_to_customer = 0;
-    } else {
+    
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
@@ -582,7 +569,6 @@ export default function Order(props: PropType) {
           getAmountPaymentRequest(payments) -
           discountValue;
       }
-    }
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -590,6 +576,7 @@ export default function Order(props: PropType) {
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    console.log("onFinish onFinish 111", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -655,8 +642,13 @@ export default function Order(props: PropType) {
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
   };
+
+  const [totalPaid, setTotalPaid] = useState(0);
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
+    let total = 0;
+    value.forEach((p) => (total = total + p.amount));
+    setTotalPaid(total)
   };
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
@@ -1437,6 +1429,7 @@ export default function Order(props: PropType) {
                     setShippingFeeInformedCustomer={setShippingFeeCustomer}
                     setShippingFeeInformedCustomerHVC={setShippingFeeCustomerHVC}
                     amount={orderAmount}
+                    totalPaid={OrderDetail?.total_paid ? OrderDetail?.total_paid : (paymentMethod === 2 ? totalPaid : 0) }
                     setPaymentMethod={setPaymentMethod}
                     paymentMethod={paymentMethod}
                     shippingFeeCustomer={shippingFeeCustomer}

@@ -48,6 +48,7 @@ type CardShipmentProps = {
   setServiceType: (value?: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
+  totalPaid?: number;
   paymentMethod: number;
   shippingFeeCustomer: number | null;
   shippingFeeCustomerHVC: number | null;
@@ -78,6 +79,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setFee,
     customerInfo,
     amount,
+    totalPaid,
     storeDetail,
     items,
     setShippingFeeInformedCustomer,
@@ -362,6 +364,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
                 amount={amount}
+                totalPaid={totalPaid}
                 serviceType={serviceType}
                 changeServiceType={changeServiceType}
                 // deliveryServices={deliveryServices}
