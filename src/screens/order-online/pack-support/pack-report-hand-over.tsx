@@ -1,11 +1,13 @@
 import PackFilter from "component/filter/pack.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useMemo, useState } from "react";
 
 
 const PackReportHandOver: React.FC = () => {
   
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<any>();
   const [tableLoading] = useState(true);
     // const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -24,28 +26,100 @@ const PackReportHandOver: React.FC = () => {
 
   
 
-  const [columns] = useState<
+  const [columns,setColumn] = useState<
     Array<ICustomTableColumType<any>>
   >([
     {
-      title: "Gian hàng",
-      dataIndex: "store",
-      key: "store",
+      title: "ID biên bản bàn giao",
+      //dataIndex: "store",
+      //key: "store",
+      visible: true,
+      width: "200px",
+      fixed: 'left',
+    },
+    {
+      title: "Tên cửa hàng",
+      //dataIndex: "source",
+      //key: "order_source",
       visible: true,
       width: "200px",
     },
     {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "order_source",
+      title: "Loại",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
       visible: true,
       width: "200px",
     },
     {
-      title: "Ghi chú của khách",
-      dataIndex: "customer_note",
-      key: "customer_note",
+      title: "SL sản phẩm",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
       visible: true,
+      width: "200px",
+    },
+    {
+      title: "Số đơn",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đơn đã gửi HVC",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đơn chưa lấy",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đơn đang chuyển",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đơn hủy",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đang chuyển hoàn",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đơn thành công",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Đơn hoàn",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
+    },
+    {
+      title: "Người tạo",
+      //dataIndex: "customer_note",
+      //key: "customer_note",
+      visible: true,
+      width: "200px",
     },
   ]);
 
@@ -72,12 +146,12 @@ const PackReportHandOver: React.FC = () => {
   return (
     <>
       <div style={{ padding: "24px 24px 0 24px" }}>
-        <PackFilter onMenuClick={onMenuClick} params={params} />
+        <PackFilter onMenuClick={onMenuClick} params={params}  onShowColumnSetting={() => setShowSettingColumn(true)}/>
       </div>
       <div style={{ padding: "24px 24px 0 24px" }}>
       <CustomTable
             isRowSelection
-            isLoading={tableLoading}
+            //isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630, y: 350 }}
             pagination={
@@ -97,6 +171,19 @@ const PackReportHandOver: React.FC = () => {
             className="ecommerce-order-list"
           />
       </div>
+
+      {showSettingColumn &&
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            isSetDefaultColumn={true}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumn(data);
+            }}
+            data={columns}
+          />
+        }
     </>
   );
 };
