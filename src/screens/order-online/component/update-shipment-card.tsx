@@ -1888,7 +1888,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   style={
                     shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                       ? { border: "none" }
-                      : { borderBottom: "1px solid #2A2A86" }
+                      : { borderBottom: "1px solid #2A2A86", marginBottom: 20 }
                   }
                 >
                   <Space size={10}>

@@ -3,6 +3,8 @@ import {
   borderColor,
   colorLuminance,
   dangerColor,
+  grayE5Color,
+  grayF5Color,
   primaryColor,
   secondaryColor,
   textBodyColor,
@@ -34,12 +36,12 @@ export const globalCssCustomButton = css`
       padding: 0 20px;
       font-size: 1em;
     }
-    /* &:hover,
+    &:hover,
     &:focus {
       color: ${primaryColor};
-      border-color: ${colorLuminance(primaryColor, 0)};
-      background-color: ${colorLuminance(primaryColor, 0)};
-    } */
+      border-color: ${grayE5Color};
+      background: ${grayF5Color};
+    }
     &-link {
       border-color: transparent;
       background-color: transparent;
@@ -56,8 +58,8 @@ export const globalCssCustomButton = css`
       border-color: ${primaryColor};
       &:hover,
       &:focus {
-        background-color: darken(${primaryColor}, 10%);
-        border-color: darken(${primaryColor}, 10%);
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+          ${primaryColor};
         color: white;
       }
     }
@@ -134,6 +136,7 @@ export const globalCssCustomButton = css`
     color: ${primaryColor};
     border-color: ${primaryColor};
     &:hover {
+      background: #f3f3ff !important;
       color: ${primaryColor};
       border-color: ${primaryColor};
     }

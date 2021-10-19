@@ -94,9 +94,8 @@ function PackList(props: any) {
     <Card
       title="Đơn đã đóng gói "
       bordered={false}
-      style={{ marginTop: "24px" }}
     >
-      <div style={{ padding: "24px" }}>
+      <div>
         <Table
           pagination={{
             pageSize: dataCustom?.metadata.limit,
