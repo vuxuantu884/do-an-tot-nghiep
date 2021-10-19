@@ -39,10 +39,10 @@ type PropType = {
 
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
-    amount,
-    shippingFeeCustomer,
-    discountValue,
-    OrderDetail,
+    // amount,
+    // shippingFeeCustomer,
+    // discountValue,
+    // OrderDetail,
     // payments,
     setShippingFeeInformedCustomer,
     // deliveryServices,
@@ -53,7 +53,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     // isCloneOrder,
     addressError,
     levelOrder = 0,
-    totalAmountReturnProducts,
+    // totalAmountReturnProducts,
   } = props;
 
   console.log("propsShipmentmethod", props);

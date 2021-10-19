@@ -34,7 +34,7 @@ function CardProductBottom(props: PropType) {
     discountRate,
     discountValue,
     coupon,
-    changeMoney,
+    // changeMoney,
     amount,
     showDiscountModal,
     setDiscountRate,
