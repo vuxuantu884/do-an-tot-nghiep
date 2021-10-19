@@ -1,5 +1,7 @@
 import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { OrderLineItemRequest } from "model/request/order.request";
+import { useContext } from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -33,13 +35,19 @@ function CardProductBottom(props: PropType) {
     discountValue,
     coupon,
     changeMoney,
-    shippingFeeInformedToCustomer,
     amount,
     showDiscountModal,
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
   } = props;
+
+  const createOrderContext = useContext(OrderCreateContext);
+  const shippingFeeInformedToCustomer =
+    createOrderContext?.price.shippingFeeInformedToCustomer || 0;
+  const totalOrderAmountAfterDiscountAddShippingFee =
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || 0;
+
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -151,15 +159,7 @@ function CardProductBottom(props: PropType) {
           <Row className="paymentRow" justify="space-between">
             <strong className="font-size-text">Khách cần phải trả:</strong>
             <strong className="text-success font-size-price">
-              {changeMoney
-                ? formatCurrency(
-                    changeMoney +
-                      (shippingFeeInformedToCustomer
-                        ? shippingFeeInformedToCustomer
-                        : 0) -
-                      discountValue
-                  )
-                : "-"}
+              {formatCurrency(totalOrderAmountAfterDiscountAddShippingFee)}
             </strong>
           </Row>
         </Col>

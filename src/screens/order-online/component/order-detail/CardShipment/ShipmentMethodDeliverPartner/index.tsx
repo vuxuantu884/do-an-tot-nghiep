@@ -108,20 +108,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     };
   }, [infoFees]);
 
-  const totalAmountCustomerNeedToPaySelfDelivery = () => {
-    return (
-      (amount ? amount : 0) +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      (discountValue ? discountValue : 0) -
-      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-      // totalAmountPaid() -
-      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
-    );
-  };
-
   const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
   const form = createOrderContext?.form;
   const orderPrice = createOrderContext?.order.orderAmount;
+  const totalAmountCustomerNeedToPaySelfDelivery =
+    createOrderContext?.price.totalAmountCustomerNeedToPay;
 
   /**
    * check cấu hình đơn hàng để tính phí ship báo khách
@@ -278,8 +269,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPaySelfDelivery() > 0
-                    ? totalAmountCustomerNeedToPaySelfDelivery()
+                  totalAmountCustomerNeedToPaySelfDelivery &&
+                  totalAmountCustomerNeedToPaySelfDelivery > 0
+                    ? totalAmountCustomerNeedToPaySelfDelivery
                     : 0
                 }
                 className="formInputAmount"

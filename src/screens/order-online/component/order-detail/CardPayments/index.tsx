@@ -21,7 +21,7 @@ import Calculate from "assets/icon/caculate.svg";
 
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   PaymentMethodCode,
@@ -32,6 +32,7 @@ import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { StyledComponent } from "./styles";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
@@ -159,6 +160,12 @@ function CardPayments(props: CardPaymentsProps) {
     _paymentData[index].reference = value;
     setPayments(_paymentData);
   };
+
+  const createOrderContext = useContext(OrderCreateContext);
+  const totalOrderAmountAfterDiscountAddShippingFee =
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || 0;
+  const totalAmountCustomerNeedToPay =
+    createOrderContext?.price.totalAmountCustomerNeedToPay || 0;
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -351,7 +358,7 @@ function CardPayments(props: CardPaymentsProps) {
                             className="row-large-title"
                             style={{ padding: "8px 0", marginLeft: 2 }}
                           >
-                            <b>Khách cần trả:</b>
+                            <b>Khách cần trả: 3</b>
                           </Col>
                           <Col
                             className="lbl-money"
@@ -364,7 +371,9 @@ function CardPayments(props: CardPaymentsProps) {
                             }}
                           >
                             <span className="t-result-blue">
-                              {formatCurrency(props.amount)}
+                              {formatCurrency(
+                                totalOrderAmountAfterDiscountAddShippingFee
+                              )}
                             </span>
                           </Col>
                         </Row>
@@ -512,7 +521,7 @@ function CardPayments(props: CardPaymentsProps) {
                             }}
                           >
                             <span style={{ color: false ? "blue" : "red" }}>
-                              {formatCurrency(Math.abs(moneyReturn))}
+                              {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                             </span>
                           </Col>
                         </Row>
