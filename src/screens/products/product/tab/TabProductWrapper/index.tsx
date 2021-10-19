@@ -146,24 +146,14 @@ const TabProductWrapper: React.FC = () => {
     },
     {
       title: "Tồn trong kho",
-      // dataIndex: "color",
+      dataIndex: "on_hand",
       align: "right",
-      render: () => (
-        <>
-          <div> đợi api </div>
-        </>
-      ),
       visible: true,
     },
     {
       align: "right",
       title: "Có thể bán",
-      // dataIndex: "color",
-      render: () => (
-        <>
-          <div> đợi api </div>
-        </>
-      ),
+      dataIndex: "available",
       visible: true,
     },
     {
