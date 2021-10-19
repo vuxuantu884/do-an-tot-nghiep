@@ -594,7 +594,7 @@ export default function Order(props: PropType) {
             setUpdating(true);
             (async () => {
               try {
-                dispatch(orderUpdateAction(id, values, createOrderCallback));
+                dispatch(orderUpdateAction(id, values, createOrderCallback, () => setUpdating(false)));
               } catch {
                 setUpdating(false)
               }
@@ -611,7 +611,7 @@ export default function Order(props: PropType) {
                 setUpdating(true);
                 (async () => {
                   try {
-                    dispatch(orderUpdateAction(id, values, createOrderCallback));
+                    dispatch(orderUpdateAction(id, values, createOrderCallback, () => setUpdating(false)));
                   } catch {
                     setUpdating(false)
                   }

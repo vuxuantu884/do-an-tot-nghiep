@@ -61,6 +61,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => window.location.reload()}
+                disabled={isSaveDraft || creating}
               >
                 Huỷ
               </Button>
@@ -71,6 +72,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 ghost
                 onClick={showSaveAndConfirmModal}
                 loading={isSaveDraft}
+                disabled={creating}
               >
                 Lưu nháp
               </Button>
@@ -88,6 +90,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   formRef.current?.submit();
                 }}
                 loading={creating}
+                disabled={isSaveDraft}
               >
                 Lưu và Xác nhận
               </Button>

@@ -46,9 +46,10 @@ export const orderCreateAction = (
 export const orderUpdateAction = (
   id: string,
   request: OrderRequest,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  onError: () => void
 ) => {
-  return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData });
+  return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData, onError });
 };
 
 export const orderFpageCreateAction = (
