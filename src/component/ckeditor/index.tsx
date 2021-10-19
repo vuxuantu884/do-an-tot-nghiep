@@ -56,9 +56,7 @@ function Editor(props: any) {
     return html;
   };
 
-  const toolbarElement = document.getElementsByClassName(
-    "cke_top"
-  )[0] as HTMLElement;
+  const toolbarElement = document.getElementsByClassName("cke_top")[0] as HTMLElement;
 
   useEffect(() => {
     const getPreviewHeaderHeight = () => {
@@ -189,6 +187,8 @@ function Editor(props: any) {
             { name: "openModalButton", items: ["OpenModalButton"] },
             { name: "openModalButton", items: ["InsertHtml"] },
           ],
+          allowedContent: true,
+
           // remove button to display sup and sub tags
           removeButtons: "Cut,Copy,Paste,Undo,Redo,Anchor",
           // contentsCss: [
@@ -244,11 +244,7 @@ function Editor(props: any) {
           });
         }}
       />
-      <button
-        className="buttonShowModal"
-        onClick={showModal}
-        style={{ display: "none" }}
-      >
+      <button className="buttonShowModal" onClick={showModal} style={{ display: "none" }}>
         showModal
       </button>
       {renderModal()}

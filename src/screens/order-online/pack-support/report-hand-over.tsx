@@ -28,7 +28,7 @@ const ReportHandOver: React.FC = () => {
       bordered={false}
       style={{ marginTop: "24px" }}
     >
-      <div style={{ padding: "24px" }}>
+      <div>
         <Row gutter={24}>
           <Col md={8} sm={24}>
             <Select

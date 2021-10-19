@@ -26,8 +26,9 @@ type OrderCreateContextType = {
     orderAmount: number;
     payments: OrderPaymentRequest[];
     totalAmountPayment: number;
-    fee: number | null;
+    discountValue: number;
     shippingFeeInformedToCustomer: number | null;
+    totalOrderAmountAfterDiscountAddShippingFee: number;
     totalAmountCustomerNeedToPay: number;
   };
   orderConfig: OrderConfigResponseModel | null;

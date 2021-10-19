@@ -3,6 +3,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
+import { OrderDetailContext } from "contexts/order-online/order-detail-context";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
@@ -26,11 +27,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import {
-  DeliveryServiceResponse,
-  OrderResponse,
-  StoreCustomResponse,
-} from "model/response/order/order.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -56,8 +53,6 @@ import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import { DeliveryServicesGetList } from "domain/actions/order/order.action";
-import { OrderDetailContext } from "contexts/order-online/order-detail-context";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -101,10 +96,6 @@ const OrderDetail = (props: PropType) => {
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
-  >([]);
-
-  const [list3rdPartyLogistic, setList3rdPartyLogistic] = useState<
-    DeliveryServiceResponse[]
   >([]);
 
   // đổi hàng
@@ -417,7 +408,7 @@ const OrderDetail = (props: PropType) => {
         confirmDraftOrderAction(OrderId, params, (response) => {
           console.log("response", response);
           // handleReload();
-          setReload(true)
+          setReload(true);
         })
       );
     }
@@ -581,14 +572,6 @@ const OrderDetail = (props: PropType) => {
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
-      })
-    );
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setList3rdPartyLogistic(response);
       })
     );
   }, [dispatch]);
@@ -1146,7 +1129,6 @@ const OrderDetail = (props: PropType) => {
                   onReload={() => setReload(true)}
                   disabledActions={disabledActions}
                   disabledBottomActions={disabledBottomActions}
-                  list3rdPartyLogistic={list3rdPartyLogistic}
                 />
                 {/*--- end shipment ---*/}
 

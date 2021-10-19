@@ -1179,7 +1179,11 @@
   .ant-btn-primary {
     background: #ffff;
     border: 1px solid #2a2a86;
-    border-radius: 3px;
+    &:hover,
+    &:focus {
+      background: #ffff;
+      border: 1px solid #2a2a86;
+    }
     span {
       font-size: 14px;
       line-height: 18px;
