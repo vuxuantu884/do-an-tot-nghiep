@@ -1,9 +1,11 @@
 import styled from "styled-components";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+const top = `top: ${OFFSET_HEADER_UNDER_NAVBAR}px`;
 
-const StickyUnderNavbar = styled.div`
+const StickyUnderNavbar = styled.div `
   position: -webkit-sticky;
   position: sticky;
-  top: 55px;
+  ${top};
   z-index: 3;
 `;
 export default StickyUnderNavbar;

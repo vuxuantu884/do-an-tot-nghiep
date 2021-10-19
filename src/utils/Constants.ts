@@ -166,3 +166,6 @@ export const UserPermissions = {
   HR: "HR",
   WIN: "WIN",
 };
+
+export const OFFSET_HEADER_UNDER_NAVBAR = 55; //pixels
+export const OFFSET_HEADER_TABLE = OFFSET_HEADER_UNDER_NAVBAR + 54; //pixels

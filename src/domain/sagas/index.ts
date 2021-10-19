@@ -12,6 +12,7 @@ import { customerGroupSaga } from "./customer/customer-group.saga";
 import customerSagas from "./customer/customer.saga";
 import { ecommerceSaga } from "./ecommerce/ecommerce.saga";
 import { inventorySaga } from "./invetory/inventory.saga";
+import { inventoryTransferSaga } from "./invetory/inventory-transfer.saga";
 import { loyaltySaga } from "./loyalty/loyalty.saga";
 import { OrderActionLogSaga } from "./order/action-log.saga";
 import { OrderReturnSaga } from "./order/order-return.saga";
@@ -58,6 +59,7 @@ function* rootSaga() {
     customerGroupSaga(),
     OrderActionLogSaga(),
     inventorySaga(),
+    inventoryTransferSaga(),
     settingOrdersSaga(),
     loyaltySaga(),
     ecommerceSaga(),

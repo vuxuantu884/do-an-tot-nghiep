@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryInventoryFilter from "../filter/history.filter";
@@ -80,19 +81,25 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       render: (value, record, index) => (
         <div>
           <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
-          <div>{record.variant}</div>
+          <div>{record.name}</div>
         </div>
       )
     },
     {
       title: 'ID chứng từ',
       visible: true,
-      dataIndex: 'document_code'
+      dataIndex: 'code',
+      render: (value, record:any) => (
+        <div>
+          <Link to={`${UrlConfig.ORDER}/${record.document_code}`}>{value}</Link>
+          
+        </div>
+      )
     },
     {
       title: 'Thao tác',
       visible: true,
-      // dataIndex: 'document_code'
+      dataIndex: 'action'
     },
     {
       align: 'center',
@@ -124,7 +131,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: 'center',
       title: 'Người sửa',
       visible: true,
-      dataIndex: 'updated_by',
+      dataIndex: 'updated_name',
     },
   ]);
   const columnFinal = useMemo(
@@ -150,7 +157,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         columns={columnFinal}
         scroll={{ x: 1800 }}
-        sticky={{ offsetScroll: 5}}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
