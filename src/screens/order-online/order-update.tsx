@@ -1,6 +1,5 @@
 import {
   Badge,
-  Button,
   Card,
   Col,
   Collapse,
@@ -23,7 +22,7 @@ import {
 } from "domain/actions/account/account.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
   orderUpdateAction,
@@ -52,6 +51,7 @@ import {
   FulFillmentResponse,
   OrderConfig,
   OrderResponse,
+  StoreCustomResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
@@ -62,6 +62,7 @@ import {
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency,
+  getAmountPayment,
   getAmountPaymentRequest,
   getServiceName,
   getTotalAmountAfferDiscount,
@@ -71,6 +72,7 @@ import {
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
+  MoneyPayThreePls,
   OrderStatus,
   PaymentMethodOption,
   ShipmentMethod,
@@ -85,14 +87,16 @@ import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import eyeOutline from "assets/icon/eye_outline.svg";
 import { delivery_service } from "./common/delivery-service";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import CardPayments from "./component/order-detail/CardPayments";
+import CardShipment from "./component/order-detail/CardShipment";
 
 let typeButton = "";
 type PropType = {
@@ -121,19 +125,21 @@ export default function Order(props: PropType) {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
-
+  const [updating, setUpdating] = useState(false);
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
 
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [fee, setFee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(null);
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
-  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
@@ -164,6 +170,8 @@ export default function Order(props: PropType) {
     discount_rate: number,
     discount_value: number
   ) => {
+    console.log('itemmm', _items);
+    
     setItems(_items);
     setDiscountRate(discount_rate);
     setDiscountValue(discount_value);
@@ -327,50 +335,47 @@ export default function Order(props: PropType) {
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
-    if (OrderDetail?.fulfillments?.length) {
-      let request: FulFillmentRequest = {
-        id: OrderDetail.fulfillments[0].id ? OrderDetail.fulfillments[0].id : undefined,
-        store_id: value.store_id,
-        account_code: userReducer.account?.code,
-        assignee_code: value.assignee_code,
-        delivery_type: "",
-        stock_location_id: null,
-        payment_status: "",
-        total: orderAmount,
-        total_tax: null,
-        total_discount: null,
-        total_quantity: null,
-        discount_rate: discountRate,
-        discount_value: discountValue,
-        discount_amount: null,
-        total_line_amount_after_line_discount: null,
-        shipment: shipmentRequest,
-        items: items,
-      };
+    let request: FulFillmentRequest = {
+      store_id: value.store_id,
+      account_code: userReducer.account?.code,
+      assignee_code: value.assignee_code,
+      delivery_type: "",
+      stock_location_id: null,
+      payment_status: "",
+      total: orderAmount,
+      total_tax: null,
+      total_discount: null,
+      total_quantity: null,
+      discount_rate: discountRate,
+      discount_value: discountValue,
+      discount_amount: null,
+      total_line_amount_after_line_discount: null,
+      shipment: shipmentRequest,
+      items: items,
+    };
 
-      let listFulfillmentRequest = [];
-      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-        request.delivery_type = "pick_at_store";
-      }
-      if (
-        paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
-        shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
-        shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
-      ) {
-        listFulfillmentRequest.push(request);
-      }
-
-      if (
-        paymentMethod === PaymentMethodOption.POSTPAYMENT &&
-        shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
-        typeButton === OrderStatus.FINALIZED
-      ) {
-        request.shipment = null;
-        listFulfillmentRequest.push(request);
-      }
-      return listFulfillmentRequest;
+    let listFulfillmentRequest = [];
+    if (
+      paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
+      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
+      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+    ) {
+      listFulfillmentRequest.push(request);
     }
-    return null;
+
+    if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+      request.delivery_type = "pick_at_store";
+    }
+
+    if (
+      paymentMethod === PaymentMethodOption.POSTPAYMENT &&
+      shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
+      typeButton === OrderStatus.FINALIZED
+    ) {
+      request.shipment = null;
+      listFulfillmentRequest.push(request);
+    }
+    return listFulfillmentRequest;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -385,8 +390,7 @@ export default function Order(props: PropType) {
       fee_base_on: "",
       delivery_fee: null,
       shipping_fee_paid_to_three_pls: null,
-      // expected_received_date: value.dating_ship?.utc().format(),
-      expected_received_date: "",
+      expected_received_date: value.dating_ship?.utc().format(),
       reference_status: "",
       shipping_fee_informed_to_customer: null,
       reference_status_explanation: "",
@@ -401,67 +405,64 @@ export default function Order(props: PropType) {
       sender_address: null,
       office_time: officeTime,
     };
-    if (
-      OrderDetail?.fulfillments &&
-      OrderDetail?.fulfillments[0] &&
-      OrderDetail?.fulfillments[0]?.shipment?.delivery_service_provider_type
-    ) {
-      switch (shipmentMethod) {
-        case ShipmentMethodOption.DELIVER_PARTNER:
-          return {
-            ...objShipment,
-            delivery_service_provider_id:
-              OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_id,
-            delivery_service_provider_type: "external_service",
-            sender_address_id: storeId,
-            shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
-            service: serviceType!,
-            shipping_fee_paid_to_three_pls:
-              OrderDetail?.fulfillments[0].shipment?.shipping_fee_paid_to_three_pls,
-          };
 
-        case ShipmentMethodOption.SELF_DELIVER:
-          return {
-            ...objShipment,
-            delivery_service_provider_type: "Shipper",
-            shipper_code: value.shipper_code,
-            shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
-            shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
-            cod:
+    switch (shipmentMethod) {
+      case ShipmentMethodOption.DELIVER_PARTNER:
+        return {
+          ...objShipment,
+          delivery_service_provider_id: hvc,
+          delivery_service_provider_type: "external_service",
+          sender_address_id: storeId,
+          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          service: serviceType!,
+          shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
+        };
+
+      case ShipmentMethodOption.SELF_DELIVER:
+        return {
+          ...objShipment,
+          delivery_service_provider_type: "Shipper",
+          shipper_code: value.shipper_code,
+          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+          cod:
+            orderAmount +
+            (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+            getAmountPaymentRequest(payments) -
+            discountValue,
+        };
+
+      case ShipmentMethodOption.PICK_AT_STORE:
+        objShipment.delivery_service_provider_type = "pick_at_store";
+        let newCod = orderAmount;
+        if (shippingFeeCustomer !== null) {
+          if (
+            orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments) >
+            0
+          ) {
+            newCod =
               orderAmount +
-              (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-              getAmountPaymentRequest(payments) -
-              discountValue,
-          };
-
-        case ShipmentMethodOption.PICK_AT_STORE:
-          objShipment.delivery_service_provider_type = "pick_at_store";
-          let newCod = orderAmount;
-          if (shippingFeeCustomer !== null) {
-            if (
-              orderAmount + shippingFeeCustomer - getAmountPaymentRequest(payments) >
-              0
-            ) {
-              newCod =
-                orderAmount + shippingFeeCustomer - getAmountPaymentRequest(payments);
-            }
-          } else {
-            if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-              newCod = orderAmount - getAmountPaymentRequest(payments);
-            }
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments);
           }
-          return {
-            ...objShipment,
-            delivery_service_provider_type: "pick_at_store",
-            cod: newCod,
-          };
+        } else {
+          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
+            newCod = orderAmount - getAmountPaymentRequest(payments);
+          }
+        }
+        return {
+          ...objShipment,
+          delivery_service_provider_type: "pick_at_store",
+          cod: newCod,
+        };
 
-        case ShipmentMethodOption.DELIVER_LATER:
-          return null;
+      case ShipmentMethodOption.DELIVER_LATER:
+        return null;
 
-        default:
-          break;
-      }
+      default:
+        break;
     }
   };
 
@@ -531,6 +532,7 @@ export default function Order(props: PropType) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setUpdating(false)
       showSuccess("Đơn được cập nhật thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
@@ -540,28 +542,9 @@ export default function Order(props: PropType) {
   const handleTypeButton = (type: string) => {
     typeButton = type;
   };
-
-  //show modal save and confirm order ?
-  const onCancelSaveAndConfirm = () => {
-    setIsVisibleSaveAndConfirm(false);
-  };
-
-  const onOkSaveAndConfirm = () => {
-    typeButton = OrderStatus.DRAFT;
-    formRef.current?.submit();
-    setIsVisibleSaveAndConfirm(false);
-  };
-
-  const showSaveAndConfirmModal = () => {
-    if (shipmentMethod !== ShipmentMethodOption.DELIVER_LATER || paymentMethod !== 3) {
-      setIsVisibleSaveAndConfirm(true);
-    } else {
-      typeButton = OrderStatus.DRAFT;
-      formRef.current?.submit();
-    }
-  };
+  
   const onFinish = (values: OrderRequest) => {
-    console.log("onFinish onFinish", values);
+    
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -569,17 +552,7 @@ export default function Order(props: PropType) {
     let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
-    if (typeButton === OrderStatus.DRAFT) {
-      values.fulfillments = [];
-      // thêm payment vào đơn nháp
-      // values.payments = [];
-      values.payments = payments.filter((payment) => payment.amount > 0);
-
-      values.shipping_fee_informed_to_customer = 0;
-      values.action = OrderStatus.DRAFT;
-      values.total = orderAmount;
-      values.shipping_fee_informed_to_customer = 0;
-    } else {
+    
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
@@ -596,7 +569,6 @@ export default function Order(props: PropType) {
           getAmountPaymentRequest(payments) -
           discountValue;
       }
-    }
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -604,6 +576,7 @@ export default function Order(props: PropType) {
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    console.log("onFinish onFinish 111", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -618,7 +591,15 @@ export default function Order(props: PropType) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            dispatch(orderUpdateAction(id, values, createOrderCallback));
+            setUpdating(true);
+            (async () => {
+              try {
+                dispatch(orderUpdateAction(id, values, createOrderCallback, () => setUpdating(false)));
+              } catch {
+                setUpdating(false)
+              }
+            })();
+            // dispatch(orderUpdateAction(id, values, createOrderCallback));
           }
         } else {
           if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
@@ -626,8 +607,17 @@ export default function Order(props: PropType) {
           } else {
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus)
-                dispatch(orderUpdateAction(id, values, createOrderCallback));
+              if (bolCheckPointfocus) {
+                setUpdating(true);
+                (async () => {
+                  try {
+                    dispatch(orderUpdateAction(id, values, createOrderCallback, () => setUpdating(false)));
+                  } catch {
+                    setUpdating(false)
+                  }
+                })();
+                // dispatch(orderUpdateAction(id, values, createOrderCallback));
+              }
             }
           }
         }
@@ -649,6 +639,25 @@ export default function Order(props: PropType) {
     }
   }, []);
 
+  const onShipmentSelect = (value: number) => {
+    setShipmentMethod(value);
+  };
+
+  const [totalPaid, setTotalPaid] = useState(0);
+  const onPayments = (value: Array<OrderPaymentRequest>) => {
+    setPayments(value);
+    let total = 0;
+    value.forEach((p) => (total = total + p.amount));
+    setTotalPaid(total)
+  };
+  useEffect(() => {
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(getLoyaltyRate(setLoyaltyRate));
+  }, [dispatch]);
+  
+  const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+
+
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
   };
@@ -657,11 +666,14 @@ export default function Order(props: PropType) {
     history.push(`${UrlConfig.ORDER}/${id}`);
   }, [history, id]);
 
-  // useEffect(() => {
-  //   if (storeId != null) {
-  //     dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
-  //   }
-  // }, [dispatch, storeId]);
+
+  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+
+  useEffect(() => {
+    if (storeId != null) {
+      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+    }
+  }, [dispatch, storeId]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -685,160 +697,160 @@ export default function Order(props: PropType) {
     });
   }, []);
 
-  useEffect(() => {
-    const fetchData = () => {
-      dispatch(
-        OrderDetailAction(Number(id), (res) => {
-          const response = {
-            ...res,
-            fulfillments: res.fulfillments?.reverse(),
-          };
-          const { customer_id } = response;
-          setOrderDetail(response);
-          if (customer_id) {
-            dispatch(
-              CustomerDetail(customer_id, (responseCustomer) => {
-                setCustomer(responseCustomer);
-              })
-            );
-          }
-          if (response) {
-            let giftResponse = response.items.filter((item) => {
-              return item.type === Type.GIFT;
+  const fetchData = () => {
+    dispatch(
+      OrderDetailAction(Number(id), (res) => {
+        const response = {
+          ...res,
+          fulfillments: res.fulfillments?.reverse(),
+        };
+        const { customer_id } = response;
+        setOrderDetail(response);
+        if (customer_id) {
+          dispatch(
+            CustomerDetail(customer_id, (responseCustomer) => {
+              setCustomer(responseCustomer);
+            })
+          );
+        }
+        if (response) {
+          let giftResponse = response.items.filter((item) => {
+            return item.type === Type.GIFT;
+          });
+          let responseItems: OrderLineItemRequest[] = response.items
+            .filter((item) => {
+              return item.type !== Type.GIFT;
+            })
+            .map((item) => {
+              return {
+                id: item.id,
+                sku: item.sku,
+                variant_id: item.variant_id,
+                variant: item.variant,
+                show_note: item.show_note,
+                variant_barcode: item.variant_barcode,
+                product_id: item.product_id,
+                product_type: item.product_type,
+                quantity: item.quantity,
+                price: item.price,
+                amount: item.amount,
+                note: item.note,
+                type: item.type,
+                variant_image: item.variant_image,
+                unit: item.unit,
+                weight: item.weight,
+                weight_unit: item.weight_unit,
+                warranty: item.warranty,
+                tax_rate: item.tax_rate,
+                tax_include: item.tax_include,
+                composite: false,
+                product: item.product,
+                is_composite: false,
+                line_amount_after_line_discount: item.line_amount_after_line_discount,
+                discount_items: item.discount_items,
+                discount_rate: item.discount_rate,
+                discount_value: item.discount_value,
+                discount_amount: item.discount_amount,
+                position: item.position,
+                gifts: giftResponse,
+              };
             });
-            let responseItems: OrderLineItemRequest[] = response.items
-              .filter((item) => {
-                return item.type !== Type.GIFT;
-              })
-              .map((item) => {
-                return {
-                  id: item.id,
-                  sku: item.sku,
-                  variant_id: item.variant_id,
-                  variant: item.variant,
-                  show_note: item.show_note,
-                  variant_barcode: item.variant_barcode,
-                  product_id: item.product_id,
-                  product_type: item.product_type,
-                  quantity: item.quantity,
-                  price: item.price,
-                  amount: item.amount,
-                  note: item.note,
-                  type: item.type,
-                  variant_image: item.variant_image,
-                  unit: item.unit,
-                  weight: item.weight,
-                  weight_unit: item.weight_unit,
-                  warranty: item.warranty,
-                  tax_rate: item.tax_rate,
-                  tax_include: item.tax_include,
-                  composite: false,
-                  product: item.product,
-                  is_composite: false,
-                  line_amount_after_line_discount: item.line_amount_after_line_discount,
-                  discount_items: item.discount_items,
-                  discount_rate: item.discount_rate,
-                  discount_value: item.discount_value,
-                  discount_amount: item.discount_amount,
-                  position: item.position,
-                  gifts: giftResponse,
-                };
-              });
-            let newDatingShip = initialForm.dating_ship;
-            let newShipperCode = initialForm.shipper_code;
-            let new_payments = initialForm.payments;
+          let newDatingShip = initialForm.dating_ship;
+          let newShipperCode = initialForm.shipper_code;
+          let new_payments = initialForm.payments;
 
-            if (response.fulfillments && response.fulfillments[0]) {
-              if (response?.fulfillments[0]?.shipment) {
-                newDatingShip = moment(
-                  response.fulfillments[0]?.shipment?.expected_received_date
-                );
-                newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
-              }
-              if (response.fulfillments[0].shipment?.cod) {
-                // setPaymentMethod(PaymentMethodOption.COD);
-              } else if (response.payments && response.payments?.length > 0) {
-                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
-                new_payments = response.payments;
-                setPayments(new_payments);
-              }
+          if (response.fulfillments && response.fulfillments[0]) {
+            if (response?.fulfillments[0]?.shipment) {
+              newDatingShip = moment(
+                response.fulfillments[0]?.shipment?.expected_received_date
+              );
+              newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
             }
+            if (response.fulfillments[0].shipment?.cod) {
+              // setPaymentMethod(PaymentMethodOption.COD);
+            } else if (response.payments && response.payments?.length > 0) {
+              setPaymentMethod(PaymentMethodOption.PREPAYMENT);
+              new_payments = response.payments;
+              setPayments(new_payments);
+            }
+          }
 
-            setItems(responseItems);
-            setOrderAmount(
-              response.total - (response.shipping_fee_informed_to_customer || 0)
-            );
-            setInitialForm({
-              ...initialForm,
-              customer_note: response.customer_note,
-              source_id: response.source_id,
-              assignee_code: response.assignee_code,
-              store_id: response.store_id,
-              items: responseItems,
-              dating_ship: newDatingShip,
-              shipper_code: newShipperCode,
-              shipping_fee_informed_to_customer:
-                response.shipping_fee_informed_to_customer,
-              payments: new_payments,
-              reference_code: response.reference_code,
-              url: response.url,
-              note: response.note,
-              tags: response.tags,
-              marketer_code: response.marketer_code,
-              coordinator_code: response.coordinator_code,
-            });
-            let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
+          setItems(responseItems);
+          setOrderAmount(
+            response.total - (response.shipping_fee_informed_to_customer || 0)
+          );
+          setInitialForm({
+            ...initialForm,
+            customer_note: response.customer_note,
+            source_id: response.source_id,
+            assignee_code: response.assignee_code,
+            store_id: response.store_id,
+            items: responseItems,
+            dating_ship: newDatingShip,
+            shipper_code: newShipperCode,
+            shipping_fee_informed_to_customer:
+              response.shipping_fee_informed_to_customer,
+            payments: new_payments,
+            reference_code: response.reference_code,
+            url: response.url,
+            note: response.note,
+            tags: response.tags,
+            marketer_code: response.marketer_code,
+            coordinator_code: response.coordinator_code,
+          });
+          let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
+          if (
+            response.fulfillments &&
+            response.fulfillments[0] &&
+            response?.fulfillments[0]?.shipment?.delivery_service_provider_type
+          ) {
+            switch (response.fulfillments[0].shipment?.delivery_service_provider_type) {
+              case ShipmentMethod.SHIPPER:
+                newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
+                break;
+              case ShipmentMethod.EXTERNAL_SERVICE:
+                newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
+                break;
+              case ShipmentMethod.PICK_AT_STORE:
+                newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
+                break;
+              default:
+                newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
+                break;
+            }
+            setShipmentMethod(newShipmentMethod);
+            const newFulfillments = [...response.fulfillments];
+            setFulfillments(newFulfillments.reverse());
+            setServiceType(response?.fulfillments[0]?.shipment.service);
+            setShippingFeeCustomer(response.shipping_fee_informed_to_customer);
+
             if (
-              response.fulfillments &&
               response.fulfillments[0] &&
-              response?.fulfillments[0]?.shipment?.delivery_service_provider_type
+              response.fulfillments[0]?.shipment?.office_time
             ) {
-              switch (response.fulfillments[0].shipment?.delivery_service_provider_type) {
-                case ShipmentMethod.SHIPPER:
-                  newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
-                  break;
-                case ShipmentMethod.EXTERNAL_SERVICE:
-                  newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
-                  break;
-                case ShipmentMethod.PICK_AT_STORE:
-                  newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
-                  break;
-                default:
-                  newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
-                  break;
-              }
-              setShipmentMethod(newShipmentMethod);
-              const newFulfillments = [...response.fulfillments];
-              setFulfillments(newFulfillments.reverse());
-              setServiceType(response?.fulfillments[0]?.shipment.service);
-              setShippingFeeCustomer(response.shipping_fee_informed_to_customer);
-
-              if (
-                response.fulfillments[0] &&
-                response.fulfillments[0]?.shipment?.office_time
-              ) {
-                setOfficeTime(true);
-              }
+              setOfficeTime(true);
             }
-            if (response.store_id) {
-              setStoreId(response.store_id);
-            }
-            if (response.tags) {
-              setTag(response.tags);
-            }
-            if (response?.discounts && response?.discounts[0]) {
-              if (response.discounts[0].value) {
-                setDiscountValue(response.discounts[0].value);
-              }
-              if (response.discounts[0].rate) {
-                setDiscountRate(response.discounts[0].rate);
-              }
-            }
-            setIsLoadForm(true);
           }
-        })
-      );
-    };
+          if (response.store_id) {
+            setStoreId(response.store_id);
+          }
+          if (response.tags) {
+            setTag(response.tags);
+          }
+          if (response?.discounts && response?.discounts[0]) {
+            if (response.discounts[0].value) {
+              setDiscountValue(response.discounts[0].value);
+            }
+            if (response.discounts[0].rate) {
+              setDiscountRate(response.discounts[0].rate);
+            }
+          }
+          setIsLoadForm(true);
+        }
+      })
+    );
+  };
+  useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, dispatch]);
@@ -849,7 +861,6 @@ export default function Order(props: PropType) {
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer]);
 
   const checkPointfocus = useCallback(
@@ -1048,7 +1059,395 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     updateOrder={true}
                   />
-                  <Card
+                  
+                  {OrderDetail !== null &&
+                  OrderDetail?.payments &&
+                  OrderDetail?.payments?.length > 0 && (
+                    <Card
+                      className="margin-top-20"
+                      title={
+                        <Space>
+                          <div className="d-flex">
+                            <span className="title-card">THANH TOÁN</span>
+                          </div>
+                          {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                            <Tag className="orders-tag orders-tag-default">
+                              Chưa thanh toán 2
+                            </Tag>
+                          )}
+                          {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                            <Tag className="orders-tag orders-tag-warning">
+                              Thanh toán 1 phần
+                            </Tag>
+                          )}
+                          {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                            <Tag
+                              className="orders-tag orders-tag-success"
+                              style={{
+                                backgroundColor: "rgba(39, 174, 96, 0.1)",
+                                color: "#27AE60",
+                              }}
+                            >
+                              Đã thanh toán
+                            </Tag>
+                          )}
+                        </Space>
+                      }
+                    >
+                      <div style={{ marginBottom: 20 }}>
+                        <Row>
+                          <Col span={12}>
+                            <span className="text-field margin-right-40">
+                              Đã thanh toán:
+                            </span>
+                            <b>
+                              {(OrderDetail?.fulfillments &&
+                                OrderDetail?.fulfillments.length > 0 &&
+                                OrderDetail?.fulfillments[0].status === "shipped" &&
+                                formatCurrency(orderAmount)) ||
+                                formatCurrency(getAmountPayment(OrderDetail.payments))}
+                            </b>
+                          </Col>
+                          <Col span={12}>
+                            <span className="text-field margin-right-40">
+                              {orderAmount -
+                                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
+                              0
+                                ? `Còn phải trả:`
+                                : `Hoàn tiền cho khách:`}
+                            </span>
+                            <b style={{ color: "red" }}>
+                              {OrderDetail?.fulfillments &&
+                              OrderDetail?.fulfillments.length > 0 &&
+                              OrderDetail?.fulfillments[0].shipment?.cod
+                                ? 0
+                                : formatCurrency(
+                                    Math.abs(
+                                      orderAmount -
+                                        (OrderDetail?.total_paid
+                                          ? OrderDetail?.total_paid
+                                          : 0)
+                                    )
+                                  )}
+                            </b>
+                          </Col>
+                        </Row>
+                      </div>
+                      {OrderDetail?.payments && (
+                        <div>
+                          <div style={{ padding: "0 24px 24px 24px" }}>
+                            <Collapse
+                              className="orders-timeline"
+                              defaultActiveKey={["100"]}
+                              ghost
+                            >
+                              {OrderDetail.total === SumCOD(OrderDetail) &&
+                              OrderDetail.total === OrderDetail.total_paid ? (
+                                ""
+                              ) : (
+                                <>
+                                  {OrderDetail?.payments
+                                    .filter((payment) => {
+                                      // nếu là đơn trả thì tính cả cod
+                                      if (OrderDetail.order_return_origin) {
+                                        return true;
+                                      }
+                                      return (
+                                        payment.payment_method !== "cod" &&
+                                        payment.amount
+                                      );
+                                    })
+                                    .map((payment: any, index: number) => (
+                                      <Collapse.Panel
+                                        showArrow={false}
+                                        className="orders-timeline-custom success-collapse"
+                                        header={
+                                          <div className="orderPaymentItem">
+                                            <div className="orderPaymentItem__left">
+                                              <div>
+                                                {/* <b>{payment.payment_method}</b> */}
+                                                {/* trường hợp số tiền âm là hoàn lại tiền */}
+                                                <b>
+                                                  {payment.paid_amount < 0
+                                                    ? "Hoàn tiền cho khách"
+                                                    : payment.payment_method}
+                                                </b>
+                                                <span>{payment.reference}</span>
+                                                {payment.payment_method_id === 5 && (
+                                                  <span style={{ marginLeft: 10 }}>
+                                                    {payment.amount / 1000} điểm
+                                                  </span>
+                                                )}
+                                              </div>
+                                              <span className="amount">
+                                                {formatCurrency(
+                                                  Math.abs(payment.paid_amount)
+                                                )}
+                                              </span>
+                                            </div>
+                                            <div className="orderPaymentItem__right">
+                                              <span className="date">
+                                                {ConvertUtcToLocalDate(
+                                                  payment.created_date,
+                                                  "DD/MM/YYYY HH:mm"
+                                                )}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        }
+                                        key={index}
+                                      ></Collapse.Panel>
+                                    ))}
+                                </>
+                              )}
+
+                              {OrderDetail?.fulfillments &&
+                                OrderDetail?.fulfillments.length > 0 &&
+                                OrderDetail?.fulfillments[0].shipment &&
+                                OrderDetail?.fulfillments[0].shipment.cod && (
+                                  <Collapse.Panel
+                                    className={
+                                      OrderDetail?.fulfillments[0].status !== "shipped"
+                                        ? "orders-timeline-custom orders-dot-status"
+                                        : "orders-timeline-custom "
+                                    }
+                                    showArrow={false}
+                                    header={
+                                      <>
+                                        <div className="orderPaymentItem">
+                                          <div className="orderPaymentItem__left">
+                                            <b>
+                                              COD
+                                              {OrderDetail.fulfillments[0].status !==
+                                              "shipped" ? (
+                                                <Tag
+                                                  className="orders-tag orders-tag-warning"
+                                                  style={{ marginLeft: 10 }}
+                                                >
+                                                  Đang chờ thu
+                                                </Tag>
+                                              ) : (
+                                                <Tag
+                                                  className="orders-tag orders-tag-success"
+                                                  style={{
+                                                    backgroundColor:
+                                                      "rgba(39, 174, 96, 0.1)",
+                                                    color: "#27AE60",
+                                                    marginLeft: 10,
+                                                  }}
+                                                >
+                                                  Đã thu COD
+                                                </Tag>
+                                              )}
+                                            </b>
+                                            <span className="amount">
+                                              {OrderDetail !== null &&
+                                              OrderDetail?.fulfillments
+                                                ? formatCurrency(
+                                                    OrderDetail.fulfillments[0].shipment
+                                                      ?.cod
+                                                  )
+                                                : 0}
+                                            </span>
+                                          </div>
+                                          <div className="orderPaymentItem__right">
+                                            {OrderDetail?.fulfillments[0].status ===
+                                              "shipped" && (
+                                              <div>
+                                                <span className="date">
+                                                  {ConvertUtcToLocalDate(
+                                                    OrderDetail?.updated_date,
+                                                    "DD/MM/YYYY HH:mm"
+                                                  )}
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </>
+                                    }
+                                    key="100"
+                                  ></Collapse.Panel>
+                                )}
+                            </Collapse>
+                          </div>{" "}
+                        </div>
+                      )}
+                    </Card>
+                  )}
+                  {/* COD toàn phần */}
+                  {OrderDetail &&
+                  OrderDetail.fulfillments &&
+                  OrderDetail.fulfillments.length > 0 &&
+                  OrderDetail.fulfillments[0].shipment &&
+                  OrderDetail.fulfillments[0].shipment?.cod ===
+                    (OrderDetail?.fulfillments[0].shipment
+                      .shipping_fee_informed_to_customer
+                      ? OrderDetail?.fulfillments[0].shipment
+                          .shipping_fee_informed_to_customer
+                      : 0) +
+                      OrderDetail?.total_line_amount_after_line_discount -
+                      (OrderDetail?.discounts &&
+                      OrderDetail?.discounts.length > 0 &&
+                      OrderDetail?.discounts[0].amount
+                        ? OrderDetail?.discounts[0].amount
+                        : 0) &&
+                  checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                    <Card
+                      className="margin-top-20"
+                      title={
+                        <Space>
+                          <div className="d-flex">
+                            <span className="title-card">THANH TOÁN</span>
+                          </div>
+                          {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                            <Tag
+                              className="orders-tag orders-tag-success"
+                              style={{
+                                backgroundColor: "rgba(39, 174, 96, 0.1)",
+                                color: "#27AE60",
+                              }}
+                            >
+                              Đã thanh toán
+                            </Tag>
+                          )}
+                        </Space>
+                      }
+                    >
+                      <div className="padding-24">
+                        <Row>
+                          <Col span={12}>
+                            <span className="text-field margin-right-40">
+                              Đã thanh toán:
+                            </span>
+                            <b>0</b>
+                          </Col>
+                          <Col span={12}>
+                            <span className="text-field margin-right-40">
+                              Còn phải trả:
+                            </span>
+                            <b style={{ color: "red" }}>0</b>
+                          </Col>
+                        </Row>
+                      </div>
+                      <Divider style={{ margin: "0px" }} />
+                      <div className="padding-24">
+                        <Collapse
+                          className="orders-timeline"
+                          defaultActiveKey={["1"]}
+                          ghost
+                        >
+                          <Collapse.Panel
+                            className={
+                              OrderDetail?.fulfillments[0].status !== "shipped"
+                                ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
+                                : "orders-timeline-custom orders-dot-fullCod-status"
+                            }
+                            showArrow={false}
+                            header={
+                              <div
+                                style={{
+                                  color: "#222222",
+                                  paddingTop: 4,
+                                  fontWeight: 500,
+                                }}
+                              >
+                                COD
+                                <Tag
+                                  className="orders-tag orders-tag-warning"
+                                  style={{ marginLeft: 10 }}
+                                >
+                                  Đang chờ thu
+                                </Tag>
+                                <b
+                                  style={{
+                                    marginLeft: "200px",
+                                    color: "#222222",
+                                  }}
+                                >
+                                  {OrderDetail.fulfillments
+                                    ? formatCurrency(
+                                        OrderDetail.fulfillments[0].shipment?.cod
+                                      )
+                                    : 0}
+                                </b>
+                              </div>
+                            }
+                            key="1"
+                          >
+                            <Row gutter={24}>
+                              {OrderDetail?.payments &&
+                                OrderDetail?.payments.map((item, index) => (
+                                  <Col span={12} key={item.id}>
+                                    <p className="text-field">{item.payment_method}</p>
+                                    <p>{formatCurrency(item.paid_amount)}</p>
+                                  </Col>
+                                ))}
+                            </Row>
+                          </Collapse.Panel>
+                        </Collapse>
+                      </div>
+                      {/* <div className="padding-24 text-right">
+                        {OrderDetail?.payments !== null
+                          ? OrderDetail?.payments.map(
+                              (item, index) =>
+                                OrderDetail.total !== null &&
+                                OrderDetail.total - item.paid_amount !== 0 && (
+                                  <Button
+                                    key={index}
+                                    type="primary"
+                                    className="ant-btn-outline fixed-button"
+                                  >
+                                    Thanh toán
+                                  </Button>
+                                )
+                            )
+                          : "Chưa thanh toán"}
+                      </div> */}
+                    </Card>
+                  )}
+                  {(!OrderDetail?.payments || !OrderDetail?.payments.length)&&
+                  (!(OrderDetail?.fulfillments?.length && OrderDetail.fulfillments[0].shipment?.cod) ||
+                  (fulfillments[0].status === FulFillmentStatus.CANCELLED ||
+                  fulfillments[0].status === FulFillmentStatus.RETURNING ||
+                  fulfillments[0].status === FulFillmentStatus.RETURNED )) &&
+                  <CardPayments
+                    setSelectedPaymentMethod={setPaymentMethod}
+                    payments={payments}
+                    setPayments={onPayments}
+                    paymentMethod={paymentMethod}
+                    shipmentMethod={shipmentMethod}
+                    amount={orderAmount}
+                    isCloneOrder={false}
+                    loyaltyRate={loyaltyRate}
+                  />}
+                  {!fulfillments.length &&
+                  <CardShipment
+                    setShipmentMethodProps={onShipmentSelect}
+                    shipmentMethod={shipmentMethod}
+                    storeDetail={storeDetail}
+                    setShippingFeeInformedCustomer={setShippingFeeCustomer}
+                    setShippingFeeInformedCustomerHVC={setShippingFeeCustomerHVC}
+                    amount={orderAmount}
+                    totalPaid={OrderDetail?.total_paid ? OrderDetail?.total_paid : (paymentMethod === 2 ? totalPaid : 0) }
+                    setPaymentMethod={setPaymentMethod}
+                    paymentMethod={paymentMethod}
+                    shippingFeeCustomer={shippingFeeCustomer}
+                    shippingFeeCustomerHVC={shippingFeeCustomerHVC}
+                    customerInfo={customer}
+                    items={items}
+                    discountValue={discountValue}
+                    setOfficeTime={setOfficeTime}
+                    officeTime={officeTime}
+                    setServiceType={setServiceType}
+                    setHVC={setHvc}
+                    setFee={setFee}
+                    payments={payments}
+                    onPayments={onPayments}
+                    fulfillments={fulfillments}
+                    isCloneOrder={false}
+                  />}
+                  {fulfillments.length > 0 && <Card
                     className="orders-update-shipment "
                     title={
                       <Space>
@@ -1647,314 +2046,7 @@ export default function Order(props: PropType) {
                             </div>
                           )
                       )}
-                  </Card>
-                  {OrderDetail !== null &&
-                    OrderDetail?.payments &&
-                    OrderDetail?.payments?.length > 0 && (
-                      <Card
-                        className="margin-top-20"
-                        title={
-                          <Space>
-                            <div className="d-flex">
-                              <span className="title-card">THANH TOÁN</span>
-                            </div>
-                            {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                              <Tag className="orders-tag orders-tag-default">
-                                Chưa thanh toán 2
-                              </Tag>
-                            )}
-                            {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                              <Tag className="orders-tag orders-tag-warning">
-                                Thanh toán 1 phần
-                              </Tag>
-                            )}
-                            {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                              <Tag
-                                className="orders-tag orders-tag-success"
-                                style={{
-                                  backgroundColor: "rgba(39, 174, 96, 0.1)",
-                                  color: "#27AE60",
-                                }}
-                              >
-                                Đã thanh toán
-                              </Tag>
-                            )}
-                          </Space>
-                        }
-                      >
-                        {OrderDetail?.payments && (
-                          <div>
-                            <div style={{ padding: "0 24px 24px 24px" }}>
-                              <Collapse
-                                className="orders-timeline"
-                                defaultActiveKey={["100"]}
-                                ghost
-                              >
-                                {OrderDetail.total === SumCOD(OrderDetail) &&
-                                OrderDetail.total === OrderDetail.total_paid ? (
-                                  ""
-                                ) : (
-                                  <>
-                                    {OrderDetail?.payments
-                                      .filter((payment) => {
-                                        // nếu là đơn trả thì tính cả cod
-                                        if (OrderDetail.order_return_origin) {
-                                          return true;
-                                        }
-                                        return (
-                                          payment.payment_method !== "cod" &&
-                                          payment.amount
-                                        );
-                                      })
-                                      .map((payment: any, index: number) => (
-                                        <Collapse.Panel
-                                          showArrow={false}
-                                          className="orders-timeline-custom success-collapse"
-                                          header={
-                                            <div className="orderPaymentItem">
-                                              <div className="orderPaymentItem__left">
-                                                <div>
-                                                  {/* <b>{payment.payment_method}</b> */}
-                                                  {/* trường hợp số tiền âm là hoàn lại tiền */}
-                                                  <b>
-                                                    {payment.paid_amount < 0
-                                                      ? "Hoàn tiền cho khách"
-                                                      : payment.payment_method}
-                                                  </b>
-                                                  <span>{payment.reference}</span>
-                                                  {payment.payment_method_id === 5 && (
-                                                    <span style={{ marginLeft: 10 }}>
-                                                      {payment.amount / 1000} điểm
-                                                    </span>
-                                                  )}
-                                                </div>
-                                                <span className="amount">
-                                                  {formatCurrency(
-                                                    Math.abs(payment.paid_amount)
-                                                  )}
-                                                </span>
-                                              </div>
-                                              <div className="orderPaymentItem__right">
-                                                <span className="date">
-                                                  {ConvertUtcToLocalDate(
-                                                    payment.created_date,
-                                                    "DD/MM/YYYY HH:mm"
-                                                  )}
-                                                </span>
-                                              </div>
-                                            </div>
-                                          }
-                                          key={index}
-                                        ></Collapse.Panel>
-                                      ))}
-                                  </>
-                                )}
-
-                                {OrderDetail?.fulfillments &&
-                                  OrderDetail?.fulfillments.length > 0 &&
-                                  OrderDetail?.fulfillments[0].shipment &&
-                                  OrderDetail?.fulfillments[0].shipment.cod && (
-                                    <Collapse.Panel
-                                      className={
-                                        OrderDetail?.fulfillments[0].status !== "shipped"
-                                          ? "orders-timeline-custom orders-dot-status"
-                                          : "orders-timeline-custom "
-                                      }
-                                      showArrow={false}
-                                      header={
-                                        <>
-                                          <div className="orderPaymentItem">
-                                            <div className="orderPaymentItem__left">
-                                              <b>
-                                                COD
-                                                {OrderDetail.fulfillments[0].status !==
-                                                "shipped" ? (
-                                                  <Tag
-                                                    className="orders-tag orders-tag-warning"
-                                                    style={{ marginLeft: 10 }}
-                                                  >
-                                                    Đang chờ thu
-                                                  </Tag>
-                                                ) : (
-                                                  <Tag
-                                                    className="orders-tag orders-tag-success"
-                                                    style={{
-                                                      backgroundColor:
-                                                        "rgba(39, 174, 96, 0.1)",
-                                                      color: "#27AE60",
-                                                      marginLeft: 10,
-                                                    }}
-                                                  >
-                                                    Đã thu COD
-                                                  </Tag>
-                                                )}
-                                              </b>
-                                              <span className="amount">
-                                                {OrderDetail !== null &&
-                                                OrderDetail?.fulfillments
-                                                  ? formatCurrency(
-                                                      OrderDetail.fulfillments[0].shipment
-                                                        ?.cod
-                                                    )
-                                                  : 0}
-                                              </span>
-                                            </div>
-                                            <div className="orderPaymentItem__right">
-                                              {OrderDetail?.fulfillments[0].status ===
-                                                "shipped" && (
-                                                <div>
-                                                  <span className="date">
-                                                    {ConvertUtcToLocalDate(
-                                                      OrderDetail?.updated_date,
-                                                      "DD/MM/YYYY HH:mm"
-                                                    )}
-                                                  </span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </>
-                                      }
-                                      key="100"
-                                    ></Collapse.Panel>
-                                  )}
-                              </Collapse>
-                            </div>{" "}
-                          </div>
-                        )}
-                      </Card>
-                    )}
-                  {/* COD toàn phần */}
-                  {OrderDetail &&
-                    OrderDetail.fulfillments &&
-                    OrderDetail.fulfillments.length > 0 &&
-                    OrderDetail.fulfillments[0].shipment &&
-                    OrderDetail.fulfillments[0].shipment?.cod ===
-                      (OrderDetail?.fulfillments[0].shipment
-                        .shipping_fee_informed_to_customer
-                        ? OrderDetail?.fulfillments[0].shipment
-                            .shipping_fee_informed_to_customer
-                        : 0) +
-                        OrderDetail?.total_line_amount_after_line_discount -
-                        (OrderDetail?.discounts &&
-                        OrderDetail?.discounts.length > 0 &&
-                        OrderDetail?.discounts[0].amount
-                          ? OrderDetail?.discounts[0].amount
-                          : 0) &&
-                    checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                      <Card
-                        className="margin-top-20"
-                        title={
-                          <Space>
-                            <div className="d-flex">
-                              <span className="title-card">THANH TOÁN 23</span>
-                            </div>
-                            {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                              <Tag
-                                className="orders-tag orders-tag-success"
-                                style={{
-                                  backgroundColor: "rgba(39, 174, 96, 0.1)",
-                                  color: "#27AE60",
-                                }}
-                              >
-                                Đã thanh toán
-                              </Tag>
-                            )}
-                          </Space>
-                        }
-                      >
-                        <div className="padding-24">
-                          <Row>
-                            <Col span={12}>
-                              <span className="text-field margin-right-40">
-                                Đã thanh toán:
-                              </span>
-                              <b>0</b>
-                            </Col>
-                            <Col span={12}>
-                              <span className="text-field margin-right-40">
-                                Còn phải trả:
-                              </span>
-                              <b style={{ color: "red" }}>0</b>
-                            </Col>
-                          </Row>
-                        </div>
-                        <Divider style={{ margin: "0px" }} />
-                        <div className="padding-24">
-                          <Collapse
-                            className="orders-timeline"
-                            defaultActiveKey={["1"]}
-                            ghost
-                          >
-                            <Collapse.Panel
-                              className={
-                                OrderDetail?.fulfillments[0].status !== "shipped"
-                                  ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
-                                  : "orders-timeline-custom orders-dot-fullCod-status"
-                              }
-                              showArrow={false}
-                              header={
-                                <div
-                                  style={{
-                                    color: "#222222",
-                                    paddingTop: 4,
-                                    fontWeight: 500,
-                                  }}
-                                >
-                                  COD
-                                  <Tag
-                                    className="orders-tag orders-tag-warning"
-                                    style={{ marginLeft: 10 }}
-                                  >
-                                    Đang chờ thu
-                                  </Tag>
-                                  <b
-                                    style={{
-                                      marginLeft: "200px",
-                                      color: "#222222",
-                                    }}
-                                  >
-                                    {OrderDetail.fulfillments
-                                      ? formatCurrency(
-                                          OrderDetail.fulfillments[0].shipment?.cod
-                                        )
-                                      : 0}
-                                  </b>
-                                </div>
-                              }
-                              key="1"
-                            >
-                              <Row gutter={24}>
-                                {OrderDetail?.payments &&
-                                  OrderDetail?.payments.map((item, index) => (
-                                    <Col span={12} key={item.id}>
-                                      <p className="text-field">{item.payment_method}</p>
-                                      <p>{formatCurrency(item.paid_amount)}</p>
-                                    </Col>
-                                  ))}
-                              </Row>
-                            </Collapse.Panel>
-                          </Collapse>
-                        </div>
-                        <div className="padding-24 text-right">
-                          {OrderDetail?.payments !== null
-                            ? OrderDetail?.payments.map(
-                                (item, index) =>
-                                  OrderDetail.total !== null &&
-                                  OrderDetail.total - item.paid_amount !== 0 && (
-                                    <Button
-                                      key={index}
-                                      type="primary"
-                                      className="ant-btn-outline fixed-button"
-                                    >
-                                      Thanh toán
-                                    </Button>
-                                  )
-                              )
-                            : "Chưa thanh toán"}
-                        </div>
-                      </Card>
-                    )}
+                  </Card>}
                 </Col>
                 <Col md={6}>
                   <OrderDetailSidebar
@@ -1973,15 +2065,17 @@ export default function Order(props: PropType) {
                   stepsStatusValue={stepsStatusValue}
                   formRef={formRef}
                   handleTypeButton={handleTypeButton}
+                  orderDetail={OrderDetail}
                   isVisibleGroupButtons={false}
                   updateCancelClick={updateCancelClick}
-                  showSaveAndConfirmModal={showSaveAndConfirmModal}
+                  showSaveAndConfirmModal={() => {}}
+                  updating={updating}
                 />
               )}
             </Form>
           )}
         </div>
-        <SaveAndConfirmOrder
+        {/* <SaveAndConfirmOrder
           onCancel={onCancelSaveAndConfirm}
           onOk={onOkSaveAndConfirm}
           visible={isVisibleSaveAndConfirm}
@@ -1990,7 +2084,7 @@ export default function Order(props: PropType) {
           title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
           text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
           icon={WarningIcon}
-        />
+        /> */}
       </ContentContainer>
     </React.Fragment>
   );

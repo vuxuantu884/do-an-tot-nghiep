@@ -401,7 +401,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
 
   return (
     <Form layout="vertical" ref={formRef} form={form}>
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div style={{ padding: "24px 0 0 0" }}>
         <Row gutter={24}>
           <Col md={8}>
             <Form.Item
@@ -513,7 +513,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Col>
         </Row>
       </div>
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div style={{ padding: "24px 0 0 0" }}>
         {orderList && orderList.length > 0 && (
           <Row
             align="middle"
@@ -573,7 +573,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Row>
         )}
       </div>
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div style={{ padding: "24px 0 0 0" }}>
         <Row className="sale-product-box" justify="space-between">
           <Table
             rowKey={(record) => record.id}

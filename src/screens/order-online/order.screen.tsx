@@ -107,7 +107,7 @@ export default function Order() {
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
-  >(null);
+  >(0);
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
     null
   );
@@ -391,6 +391,7 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
@@ -414,7 +415,6 @@ export default function Order() {
 
   const onOkSaveAndConfirm = () => {
     typeButton = OrderStatus.DRAFT;
-    setIsSaveDraft(true);
     formRef.current?.submit();
     setIsVisibleSaveAndConfirm(false);
   };
@@ -481,32 +481,50 @@ export default function Order() {
         element?.focus();
       } else {
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
+          if (typeButton === OrderStatus.DRAFT) {
+            setIsSaveDraft(true);
+          } else {
+            setCreating(true);
+          }
           if (
             values.delivery_service_provider_id === null &&
             typeButton !== OrderStatus.DRAFT
           ) {
             showError("Vui lòng chọn đối tác giao hàng");
+            setCreating(false);
           } else {
-            setCreating(true);
             (async () => {
               try {
                 await dispatch(orderCreateAction(values, createOrderCallback));
-              } catch {}
+              } catch {
+                setCreating(false);
+                setIsSaveDraft(false);
+              }
             })();
             // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
           if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
             showError("Vui lòng chọn đơn vị vận chuyển");
+            setCreating(false);
           } else {
+            if (typeButton === OrderStatus.DRAFT) {
+              setIsSaveDraft(true);
+            } else {
+              setCreating(true);
+            }
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
-              if (bolCheckPointfocus) setCreating(true);
-              (async () => {
-                try {
-                  await dispatch(orderCreateAction(values, createOrderCallback));
-                } catch {}
-              })();
+              if (bolCheckPointfocus) {
+                (async () => {
+                  try {
+                    await dispatch(orderCreateAction(values, createOrderCallback));
+                  } catch {
+                    setCreating(false);
+                    setIsSaveDraft(false);
+                  }
+                })();
+              }
               // dispatch(orderCreateAction(values, createOrderCallback));
             }
           }
@@ -942,8 +960,12 @@ export default function Order() {
       orderAmount,
       payments,
       totalAmountPayment,
-      fee,
+      discountValue,
       shippingFeeInformedToCustomer,
+      totalOrderAmountAfterDiscountAddShippingFee:
+        orderAmount -
+        discountValue +
+        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0),
       totalAmountCustomerNeedToPay,
     },
     orderConfig: listOrderConfigs,
@@ -1083,6 +1105,7 @@ export default function Order() {
                     isVisibleGroupButtons={true}
                     showSaveAndConfirmModal={showSaveAndConfirmModal}
                     creating={creating}
+                    isSaveDraft={isSaveDraft}
                   />
                 )}
               </Form>

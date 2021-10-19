@@ -439,7 +439,7 @@ const ListOrderScreen: React.FC = () => {
       }
     >
       <Card>
-        <div className="padding-20">
+        <div>
           <ReturnFilter
             onMenuClick={onMenuClick}
             actions={actions}

@@ -238,7 +238,6 @@ const StoreListScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.STORE}/create`} />}
     >
       <Card>
-        <div className="padding-20">
           <StoreFilter
             initValue={initQuery}
             storeStatusList={storeStatusList}
@@ -276,7 +275,6 @@ const StoreListScreen: React.FC = () => {
             }}
             data={columns}
           />
-        </div>
       </Card>
     </ContentContainer>
   );

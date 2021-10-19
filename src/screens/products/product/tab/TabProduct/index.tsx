@@ -208,7 +208,7 @@ const TabProduct: React.FC = () => {
     },
     {
       title: "Có thể bán",
-      dataIndex: "inventory",
+      dataIndex: "available",
       visible: true,
       align: "right",
     },

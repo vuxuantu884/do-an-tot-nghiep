@@ -17,6 +17,8 @@ type PropType = {
   creating?: boolean;
   isShowConfirmOrderButton?: boolean;
   disabledBottomActions?: boolean;
+  isSaveDraft?: boolean;
+  updating?: boolean;
   handleTypeButton?: (type: string) => void;
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
@@ -33,6 +35,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     stepsStatusValue,
     formRef,
     creating,
+    isSaveDraft,
+    updating,
     isShowConfirmOrderButton,
     disabledBottomActions,
     handleTypeButton,
@@ -57,6 +61,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => window.location.reload()}
+                disabled={isSaveDraft || creating}
               >
                 Huỷ
               </Button>
@@ -66,7 +71,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 type="primary"
                 ghost
                 onClick={showSaveAndConfirmModal}
-                loading={creating}
+                loading={isSaveDraft}
+                disabled={creating}
               >
                 Lưu nháp
               </Button>
@@ -84,6 +90,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   formRef.current?.submit();
                 }}
                 loading={creating}
+                disabled={isSaveDraft}
               >
                 Lưu và Xác nhận
               </Button>
@@ -98,6 +105,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => updateCancelClick && updateCancelClick()}
+                disabled={updating}
               >
                 Huỷ
               </Button>
@@ -115,6 +123,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   // );
                   formRef.current?.submit();
                 }}
+                loading={updating}
               >
                 Cập nhật đơn hàng
               </Button>

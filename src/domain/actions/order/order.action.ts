@@ -13,6 +13,7 @@ import {
   VTPFeeRequest,
   GetFeesRequest,
   ConfirmDraftOrderRequest,
+  CreateShippingOrderRequest,
 } from "model/request/order.request";
 import {
   ActionLogDetailResponse,
@@ -45,9 +46,10 @@ export const orderCreateAction = (
 export const orderUpdateAction = (
   id: string,
   request: OrderRequest,
-  setData: (data: OrderResponse) => void
+  setData: (data: OrderResponse) => void,
+  onError: () => void
 ) => {
-  return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData });
+  return BaseAction(OrderType.UPDATE_ORDER_REQUEST, { id, request, setData, onError });
 };
 
 export const orderFpageCreateAction = (
@@ -96,10 +98,7 @@ export const PaymentMethodGetList = (
   return BaseAction(OrderType.GET_LIST_PAYMENT_METHOD, { setData });
 };
 
-export const OrderDetailAction = (
-  id: number,
-  setData: (data: OrderResponse) => void
-) => {
+export const OrderDetailAction = (id: number, setData: (data: OrderResponse) => void) => {
   return BaseAction(OrderType.GET_ORDER_DETAIL_REQUEST, { id, setData });
 };
 
@@ -357,8 +356,8 @@ export const getListReasonRequest = (
 export const cancelOrderRequest = (
   id: number | undefined,
   onSuccess: (success: any) => void,
-  onError: (error: any) => void,  
-  ) => {
+  onError: (error: any) => void
+) => {
   return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, onSuccess, onError });
 };
 
@@ -366,17 +365,11 @@ export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
 
-export const getFulfillments = (
-  code: string,
-  setData: (data: Array<any>) => void
-) => {
+export const getFulfillments = (code: string, setData: (data: Array<any>) => void) => {
   return BaseAction(OrderType.GET_FULFILLMENTS, { code, setData });
 };
 
-export const getFulfillmentsPack = (
-  request: any,
-  setData: (data: any) => void
-) => {
+export const getFulfillmentsPack = (request: any, setData: (data: any) => void) => {
   return BaseAction(OrderType.GET_FULFILLMENTS_PACK, { request, setData });
 };
 
@@ -399,6 +392,19 @@ export const confirmDraftOrderAction = (
     type: OrderType.CONFIRM_DRAFT_ORDER,
     payload: {
       orderId,
+      params,
+      handleData,
+    },
+  };
+};
+
+export const createShippingOrderAction = (
+  params: CreateShippingOrderRequest,
+  handleData: (data: PageResponse<any>) => void
+) => {
+  return {
+    type: OrderType.CREATE_SHIPPING_ORDER,
+    payload: {
       params,
       handleData,
     },

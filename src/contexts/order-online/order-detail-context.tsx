@@ -1,9 +1,12 @@
 import { OrderPaymentRequest } from "model/request/order.request";
-import { OrderResponse } from "model/response/order/order.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { createContext } from "react";
 
 type OrderDetailContextType = {
   orderDetail: OrderResponse | null;
+  storeDetail: StoreCustomResponse | undefined;
+  customerDetail: CustomerResponse | null;
   price: {
     fee: number | null;
     totalOrderAmount: number;
@@ -28,6 +31,8 @@ type OrderDetailContextType = {
 // tạo context
 export const OrderDetailContext = createContext<OrderDetailContextType>({
   orderDetail: null,
+  storeDetail: undefined,
+  customerDetail: null,
   price: {
     fee: 0,
     totalOrderAmount: 0,

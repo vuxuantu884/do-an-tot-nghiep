@@ -7,6 +7,7 @@ import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   ConfirmDraftOrderRequest,
+  CreateShippingOrderRequest,
   GetFeesRequest,
   GHNFeeRequest,
   OrderRequest,
@@ -112,9 +113,7 @@ export const getInfoDeliveryFees = (
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/fees`, request);
 };
 
-export const getOrderDetail = (
-  id: number
-): Promise<BaseResponse<OrderResponse>> => {
+export const getOrderDetail = (id: number): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${id}`;
   return BaseAxios.get(link);
 };
@@ -153,17 +152,13 @@ export const getDeliverieServices = (): Promise<
 export const getDeliveryTransportTypesServices = (
   id: number
 ): Promise<BaseResponse<Array<DeliveryTransportTypesResponse>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/external-service/${id}/transport-types`
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/external-service/${id}/transport-types`);
 };
 
 export const getDeliveryMappedStoresServices = (
   id: number
 ): Promise<BaseResponse<Array<DeliveryMappedStoreType>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/external-service/${id}/mapped-stores`
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/external-service/${id}/mapped-stores`);
 };
 
 export const deleteDeliveryMappedStoreServices = (
@@ -198,13 +193,8 @@ export const createDeliveryMappedStoreServices = (
   );
 };
 
-export const updateDeliveryConnectService = (
-  params: any
-): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.ORDER}/external-service/update-config`,
-    params
-  );
+export const updateDeliveryConnectService = (params: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/external-service/update-config`, params);
 };
 
 /**
@@ -247,9 +237,7 @@ export const deleteOrderSourceService = (
 export const getTrackingLogFulFillment = (
   fulfillment_code: string
 ): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/shipping/${fulfillment_code}/tracking-log`
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/${fulfillment_code}/tracking-log`);
 };
 
 // tracking_log: Lấy ra tracking_log_error của fulfillment
@@ -284,9 +272,7 @@ export const setSubStatusService = (
   );
 };
 
-export const getChannelApi = (): Promise<
-  BaseResponse<Array<ChannelResponse>>
-> => {
+export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
 };
 
@@ -294,9 +280,7 @@ export const getReasonsApi = (): Promise<BaseResponse<Array<any>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
 };
 
-export const cancelOrderApi = (
-  order_id: number
-): Promise<BaseResponse<any>> => {
+export const cancelOrderApi = (order_id: number): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/cancel`);
 };
 
@@ -304,24 +288,18 @@ export const getOrderConfig = (): Promise<any> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
 };
 
-export const getFulfillmentsApi = (
-  code: string
-): Promise<BaseResponse<any>> => {
+export const getFulfillmentsApi = (code: string): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ORDER}/fulfillments/packing?code=${code}`;
   return BaseAxios.get(link);
 };
 
-export const getFulfillmentsPackedApi = (
-  query: any
-): Promise<BaseResponse<any>> => {
+export const getFulfillmentsPackedApi = (query: any): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
   const link = `${ApiConfig.ORDER}/fulfillments/packed?${queryString}`;
   return BaseAxios.get(link);
 };
 
-export const putFulfillmentsPackApi = (
-  request: any
-): Promise<BaseResponse<any>> => {
+export const putFulfillmentsPackApi = (request: any): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.ORDER}/fulfillments/pack`;
   return BaseAxios.put(url, request);
 };
@@ -333,8 +311,14 @@ export const confirmDraftOrderService = (
   orderId: number,
   params: ConfirmDraftOrderRequest
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.ORDER}/orders/${orderId}/finalized`,
-    params
-  );
+  return BaseAxios.post(`${ApiConfig.ORDER}/orders/${orderId}/finalized`, params);
+};
+
+/**
+ * tạo shipping order
+ */
+export const createShippingOrderService = (
+  params: CreateShippingOrderRequest
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
