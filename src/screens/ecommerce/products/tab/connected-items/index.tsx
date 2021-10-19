@@ -350,6 +350,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             {l.connect_status === "connected" && (
               <span style={{ color: "#27AE60" }}>Thành công</span>
             )}
+            {l.connect_status === "warning" && (
+              <Tooltip title="Chú ý giá bán (sàn) và giá bán (admin) bị lệch nhau" color="blue">
+                <span style={{ color: "#FCAF17" }}>Warning</span>
+              </Tooltip>
+            )}
           </div>
         );
       },
