@@ -266,13 +266,17 @@ function CardPayments(props: CardPaymentsProps) {
                           <span style={{ paddingRight: "20px" }}>
                             Tiền khách phải trả:{" "}
                           </span>
-                          <strong>{formatCurrency(props.amount)}</strong>
+                          <strong>
+                            {formatCurrency(totalOrderAmountAfterDiscountAddShippingFee)}
+                          </strong>
                         </div>
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
                           <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
-                          <strong>{formatCurrency(Math.abs(moneyReturn))}</strong>
+                          <strong>
+                            {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
+                          </strong>
                         </div>
                       </Col>
                       <Divider style={{ margin: "10px 0" }} />
@@ -358,7 +362,7 @@ function CardPayments(props: CardPaymentsProps) {
                             className="row-large-title"
                             style={{ padding: "8px 0", marginLeft: 2 }}
                           >
-                            <b>Khách cần trả: 3</b>
+                            <b>Khách cần trả:</b>
                           </Col>
                           <Col
                             className="lbl-money"
