@@ -4,5 +4,4 @@ export interface PackSearchQuery {
   sort_type: string|null;
   sort_column: string|null;
   delivery_provider_ids: [];
-//   type_report
 }

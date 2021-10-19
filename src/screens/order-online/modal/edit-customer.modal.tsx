@@ -516,10 +516,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           )}
 
           {isVisibleCollapseCustomer === true && (
-            <Divider orientation="right" style={{ color: "#5656A1" }}>
+            <Divider orientation="right" style={{ color: "#5656A1"}}>
               <Popover
                 placement="topLeft"
-                overlayStyle={{ zIndex: 17 }}
+                overlayStyle={{ zIndex: 17}}
                 title={
                   <Row
                     justify="space-between"
