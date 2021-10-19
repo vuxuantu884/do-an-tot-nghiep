@@ -417,7 +417,7 @@ const OrderDetail = (props: PropType) => {
         confirmDraftOrderAction(OrderId, params, (response) => {
           console.log("response", response);
           // handleReload();
-          setReload(true)
+          setReload(true);
         })
       );
     }
@@ -1146,7 +1146,6 @@ const OrderDetail = (props: PropType) => {
                   onReload={() => setReload(true)}
                   disabledActions={disabledActions}
                   disabledBottomActions={disabledBottomActions}
-                  list3rdPartyLogistic={list3rdPartyLogistic}
                 />
                 {/*--- end shipment ---*/}
 
