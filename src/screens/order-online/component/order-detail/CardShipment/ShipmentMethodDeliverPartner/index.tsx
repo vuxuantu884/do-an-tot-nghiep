@@ -21,6 +21,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   amount: number | undefined;
+  totalPaid?: number | undefined;
   shippingFeeCustomer: number | null;
   discountValue: number | null | undefined;
   OrderDetail?: OrderResponse | null;
