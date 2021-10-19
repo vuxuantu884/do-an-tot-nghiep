@@ -621,12 +621,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              <Space className="customer-detail-action">
+              {levelOrder <2 && <Space className="customer-detail-action">
                 <CloseOutlined
                   onClick={CustomerDeleteInfo}
                   style={{ marginRight: "5px" }}
                 />
-              </Space>
+              </Space>}
             </Row>
             <Divider
               className="margin-0"

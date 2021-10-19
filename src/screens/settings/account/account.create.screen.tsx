@@ -366,7 +366,7 @@ const AccountCreateScreen: React.FC = () => {
                   label="Nhập lại mật khẩu"
                   dependencies={["password"]}
                   hasFeedback
-                  rules={[              
+                  rules={[          
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue("password") === value) {
