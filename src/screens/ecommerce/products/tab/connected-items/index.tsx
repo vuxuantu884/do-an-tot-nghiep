@@ -428,7 +428,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
       query.category_id = value.category_id;
-      query.connect_status = "connected";
+      query.connect_status = value.connect_status || "connected";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
@@ -492,6 +492,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       isActive: false,
       ecommerce_id: 4,
     },
+  ];
+
+  const CONNECT_STATUS = [
+    {
+      name:"Thành công",
+      value:"connected"
+    },
+    {
+      name:"Warning",
+      value:"warning"
+   },
   ];
 
   const bootstrapReducer = useSelector(
@@ -850,7 +861,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             <Form
               form={formAdvance}
               onFinish={onSearch}
-              //ref={formRef}
               initialValues={params}
               layout="vertical"
             >
@@ -909,12 +919,28 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
               <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
                 <Select showSearch placeholder="Chọn danh mục" allowClear>
-                  {categoryList &&
-                    categoryList.map((item: any) => (
-                      <Option key={item.category_id} value={item.category_id}>
-                        {item.display_category_name}
-                      </Option>
-                    ))}
+                  {categoryList?.map((item: any) => (
+                    <Option key={item.category_id} value={item.category_id}>
+                      {item.display_category_name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                name="connect_status"
+                label={<b>TRẠNG THÁI GHÉP NỐI</b>}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn trạng thái ghép nối"
+                  allowClear
+                >
+                  {CONNECT_STATUS?.map((item) => (
+                    <Option key={item.value} value={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
 
