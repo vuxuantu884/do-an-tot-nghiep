@@ -441,10 +441,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
       {formItem !== null && (
         <div>
           {isVisibleCollapseCustomer === false && (
-            <Row style={{ margin: "16px 0", color: "#5656A1" }}>
+            <Row style={{ margin: "0 0", color: "#5656A1" }}>
               <div
                 className="page-filter-left"
-                style={{ width: "10%", margin: "-4px 0" }}
+                style={{ width: "15%"}}
               >
                 <Button
                   type="link"
@@ -457,12 +457,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                   Xem thêm
                 </Button>
               </div>
-              <div className="page-filter-left" style={{ width: "60%" }}>
+              <div className="page-filter-left" style={{ width: "55%", display: "flex", alignItems: "center" }}>
                 <div className="ant-divider ant-divider-horizontal"></div>
               </div>
               <div
                 className="page-filter-right"
-                style={{ width: "30%", margin: "-8px 0" }}
+                style={{ width: "30%" }}
               >
                 <Popover
                   placement="topLeft"
@@ -516,7 +516,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
           )}
 
           {isVisibleCollapseCustomer === true && (
-            <Divider orientation="right" style={{ color: "#5656A1" }}>
+            <Divider orientation="right" style={{ color: "#5656A1", marginTop: 0 }}>
               <Popover
                 placement="topLeft"
                 overlayStyle={{ zIndex: 17 }}
@@ -559,6 +559,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                   type="link"
                   icon={<PlusOutlined />}
                   className="btn-style"
+                  style={{paddingRight: 0}}
                 >
                   Thay đổi địa chỉ giao hàng
                 </Button>
