@@ -11,30 +11,46 @@ export const StyledComponent = styled.div`
   }
 `;
 
-export const StyledEcommerceList = styled.div`
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-
-  .ant-btn {
-    padding: 7px 10px;
+export const StyledUpdateProductDataModal = styled.div`
+  margin: 20px 0;
+  .ecommerce-list-option {
+    margin-bottom: 20px;
     display: flex;
-    align-items: center;
-    background-color: #ffffff;
-    border: 1px solid #e5e5e5;
-    img {
-      margin-right: 10px;
+    justify-content: space-between;
+
+    .ant-btn {
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border: 1px solid #e5e5e5;
+      img {
+        margin-right: 10px;
+      }
+    }
+
+    .active-button {
+      background-color: #f3f3ff;
+      color: #222222;
+    }
+
+    .icon-active-button {
+      margin-left: 5px;
+      margin-right: 0 !important;
     }
   }
 
-  .active-button {
-    background-color: #f3f3ff;
-    color: #222222;
+  .select-shop {
+    margin-bottom: 20px;
+    .select-shop-body {
+      .ant-select {
+        width: 100%;
+      }
+    }
   }
 
-  .icon-active-button {
-    margin-left: 5px;
-    margin-right: 0 !important;
+  .item-title {
+    font-weight: bolder;
+    margin-bottom: 5px;
   }
-
 `;
