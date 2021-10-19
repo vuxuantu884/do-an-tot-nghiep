@@ -30,7 +30,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
-import { ShipmentMethodOption } from "utils/Constants";
+import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtHome from "./ShipmentMethodReceiveAtHome";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -48,7 +48,6 @@ type CardShipmentProps = {
   setServiceType: (value?: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
-  totalPaid?: number;
   paymentMethod: number;
   shippingFeeCustomer: number | null;
   shippingFeeCustomerHVC: number | null;
@@ -70,6 +69,8 @@ type CardShipmentProps = {
 const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => {
   const {
     OrderDetail,
+    paymentMethod,
+    setPaymentMethod,
     setShipmentMethodProps,
     setHVC,
     serviceType,
@@ -77,7 +78,6 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setFee,
     customerInfo,
     amount,
-    totalPaid,
     storeDetail,
     items,
     setShippingFeeInformedCustomer,
@@ -108,28 +108,28 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setServiceType(undefined);
     setShipmentMethodProps(value);
     if (levelOrder < 3) {
-      // setPaymentMethod(value);
+      setPaymentMethod(value);
     }
     setShipmentMethodProps(value);
-    // if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
-    //   if (value === ShipmentMethodOption.SELF_DELIVER) {
-    //     // setPaymentMethod(PaymentMethodOption.COD);
-    //   }
-    // }
+    if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
+      if (value === ShipmentMethodOption.SELF_DELIVER) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    }
 
-    // if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-    //   console.log("start request fees");
-    //   // getInfoDeliveryFees();
-    //   // setPaymentMethod(PaymentMethodOption.COD);
-    //   //reset payment
-    //   // onPayments([]);
-    // }
-    // if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
-    //   // onPayments([]);
-    // }
-    // if (value === ShipmentMethodOption.DELIVER_LATER) {
-    //   setPaymentMethod(PaymentMethodOption.POSTPAYMENT);
-    // }
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      console.log("start request fees");
+      // getInfoDeliveryFees();
+      setPaymentMethod(PaymentMethodOption.COD);
+      //reset payment
+      // onPayments([]);
+    }
+    if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
+      // onPayments([]);
+    }
+    if (value === ShipmentMethodOption.DELIVER_LATER) {
+      setPaymentMethod(PaymentMethodOption.POSTPAYMENT);
+    }
   };
 
   const shipping_requirements = useSelector(
@@ -236,7 +236,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      setAddressError("Thiếu thông tin địa chỉ khách hàng 1");
+      setAddressError("Thiếu thông tin địa chỉ khách hàng");
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
@@ -362,7 +362,6 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
                 amount={amount}
-                totalPaid={totalPaid}
                 serviceType={serviceType}
                 changeServiceType={changeServiceType}
                 // deliveryServices={deliveryServices}

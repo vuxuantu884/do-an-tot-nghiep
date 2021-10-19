@@ -333,7 +333,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
-    console.log("type", type);
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
       fulfillment_id: null,
@@ -1099,89 +1098,79 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </div>
                       ) : (
                         <Row gutter={24}>
-                          <Col md={12}>
-                            <Row gutter={30}>
-                              <Col span={10}>
-                                <p className="text-field">Đối tác giao hàng:</p>
-                              </Col>
-                              <Col span={14}>
-                                <b>
-                                  {/* Lấy ra đối tác */}
-                                  {fulfillment.shipment
-                                    ?.delivery_service_provider_type ===
-                                    "external_service" && (
-                                    <img
-                                      style={{ width: "112px", height: 25 }}
-                                      src={InfoServiceDeliveryDetail(
-                                        delivery_service,
-                                        fulfillment.shipment.delivery_service_provider_id
-                                      )}
-                                      alt=""
-                                    ></img>
-                                  )}
+                          <Col md={5}>
+                            <Col span={24}>
+                              <p className="text-field">Đối tác giao hàng:</p>
+                            </Col>
+                            <Col span={24}>
+                              <b>
+                                {/* Lấy ra đối tác */}
+                                {fulfillment.shipment?.delivery_service_provider_type ===
+                                  "external_service" && (
+                                  <img
+                                    style={{ width: "112px", height: 25 }}
+                                    src={InfoServiceDeliveryDetail(
+                                      delivery_service,
+                                      fulfillment.shipment.delivery_service_provider_id
+                                    )}
+                                    alt=""
+                                  ></img>
+                                )}
 
-                                  {fulfillment.shipment
-                                    ?.delivery_service_provider_type === "Shipper" &&
-                                    shipper &&
-                                    shipper.find(
-                                      (s) => fulfillment.shipment?.shipper_code === s.code
-                                    )?.full_name}
-                                </b>
-                              </Col>
-                            </Row>
+                                {fulfillment.shipment?.delivery_service_provider_type ===
+                                  "Shipper" &&
+                                  shipper &&
+                                  shipper.find(
+                                    (s) => fulfillment.shipment?.shipper_code === s.code
+                                  )?.full_name}
+                              </b>
+                            </Col>
                           </Col>
                           {CheckShipmentType(props.OrderDetail!) ===
                             "external_service" && (
-                            <Col md={12}>
-                              <Row gutter={30}>
-                                <Col span={10}>
-                                  <p className="text-field">Dịch vụ:</p>
-                                </Col>
-                                <Col span={14}>
-                                  <b className="text-field">
-                                    {getServiceName(props.OrderDetail!)}
-                                  </b>
-                                </Col>
-                              </Row>
+                            <Col md={5}>
+                              <Col span={24}>
+                                <p className="text-field">Dịch vụ:</p>
+                              </Col>
+                              <Col span={24}>
+                                <b className="text-field">
+                                  {getServiceName(props.OrderDetail!)}
+                                </b>
+                              </Col>
                             </Col>
                           )}
 
-                          <Col md={12}>
-                            <Row gutter={30}>
-                              <Col span={10}>
-                                <p className="text-field">Phí ship trả HVC:</p>
-                              </Col>
-                              <Col span={14}>
-                                <b className="text-field">
-                                  {props.OrderDetail?.fulfillments &&
-                                    formatCurrency(
-                                      fulfillment.shipment?.shipping_fee_paid_to_three_pls
-                                        ? fulfillment.shipment
-                                            ?.shipping_fee_paid_to_three_pls
-                                        : 0
-                                    )}
-                                </b>
-                              </Col>
-                            </Row>
-                          </Col>
-
-                          <Col md={12}>
-                            <Row gutter={30}>
-                              <Col span={10}>
-                                <p className="text-field">Phí ship báo khách:</p>
-                              </Col>
-                              <Col span={14}>
-                                <b className="text-field">
-                                  {formatCurrency(
-                                    fulfillment.shipment
-                                      ?.shipping_fee_informed_to_customer
+                          <Col md={5}>
+                            <Col span={24}>
+                              <p className="text-field">Phí ship trả HVC:</p>
+                            </Col>
+                            <Col span={24}>
+                              <b className="text-field">
+                                {props.OrderDetail?.fulfillments &&
+                                  formatCurrency(
+                                    fulfillment.shipment?.shipping_fee_paid_to_three_pls
                                       ? fulfillment.shipment
-                                          ?.shipping_fee_informed_to_customer
+                                          ?.shipping_fee_paid_to_three_pls
                                       : 0
                                   )}
-                                </b>
-                              </Col>
-                            </Row>
+                              </b>
+                            </Col>
+                          </Col>
+
+                          <Col md={5}>
+                            <Col span={24}>
+                              <p className="text-field">Phí ship báo khách:</p>
+                            </Col>
+                            <Col span={24}>
+                              <b className="text-field">
+                                {formatCurrency(
+                                  fulfillment.shipment?.shipping_fee_informed_to_customer
+                                    ? fulfillment.shipment
+                                        ?.shipping_fee_informed_to_customer
+                                    : 0
+                                )}
+                              </b>
+                            </Col>
                           </Col>
 
                           {CheckShipmentType(props.OrderDetail!) ===
@@ -1578,7 +1567,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               loading={updateShipment}
               disabled={cancelShipment}
             >
-              Đóng gói 1
+              Đóng gói
             </Button>
           )}
           {props.stepsStatusValue === FulFillmentStatus.PACKED &&

@@ -16,6 +16,7 @@ const ApiConfig = {
   INVENTORY_TRANSFER: `${v1}/${AppConfig.INVENTORY_TRANSFER_SERVICE}`,
   LOYALTY: `${v1}/${AppConfig.LOYALTY_SERVICE}`,
   ECOMMERCE: `${v1}/${AppConfig.ECOMMERCE_SERVICE}`,
+  LOGISTIC_GATEWAY: `${v1}/${AppConfig.LOGISTIC_GATEWAY_SERVICE}`,
 };
 
 export { ApiConfig };

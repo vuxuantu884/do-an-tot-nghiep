@@ -156,153 +156,151 @@ const StoreCreateScreen: React.FC = () => {
             </div>
           }
         >
-          <div className="padding-20">
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {required: true, message: 'Vui lòng nhập tên danh mục'},
-                    {max: 255, message: 'Tên danh mục không quá 255 kí tự'},
-                    {pattern: RegUtil.STRINGUTF8, message: 'Tên danh mục không gồm kí tự đặc biệt'},
-                  ]}
-                  label="Tên cửa hàng"
-                  name="name"
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  { required: true, message: 'Vui lòng nhập tên danh mục' },
+                  { max: 255, message: 'Tên danh mục không quá 255 kí tự' },
+                  { pattern: RegUtil.STRINGUTF8, message: 'Tên danh mục không gồm kí tự đặc biệt' },
+                ]}
+                label="Tên cửa hàng"
+                name="name"
+              >
+                <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập số điện thoại",
+                  },
+                  {
+                    pattern: RegUtil.PHONE,
+                    message: "Số điện thoại chưa đúng định dạng",
+                  },
+                ]}
+                name="hotline"
+                label="Số điện thoại"
+              >
+                <Input placeholder="Nhập số điện thoại" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{ required: true }]}
+                label="Quốc gia"
+                name="country_id"
+              >
+                <Select disabled placeholder="Chọn quốc gia">
+                  {countries?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
+                label="Khu vực"
+                name="district_id"
+              >
+                <Select
+                  showSearch
+                  showArrow
+                  optionFilterProp="children"
+                  onSelect={onSelectDistrict}
+                  placeholder="Chọn khu vực"
                 >
-                  <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập số điện thoại",
-                    },
-                    {
-                      pattern: RegUtil.PHONE,
-                      message: "Số điện thoại chưa đúng định dạng",
-                    },
-                  ]}
-                  name="hotline"
-                  label="Số điện thoại"
-                >
-                  <Input placeholder="Nhập số điện thoại" />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[{ required: true }]}
-                  label="Quốc gia"
-                  name="country_id"
-                >
-                  <Select disabled placeholder="Chọn quốc gia">
-                    {countries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
-                  label="Khu vực"
-                  name="district_id"
-                >
-                  <Select
-                    showSearch
-                    showArrow
-                    optionFilterProp="children"
-                    onSelect={onSelectDistrict}
-                    placeholder="Chọn khu vực"
-                  >
-                    {cityViews?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.city_name} - {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-                <Item hidden name="city_id">
-                  <Input />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  label="Phường/xã"
-                  name="ward_id"
-                  rules={[
-                    { required: true, message: "Vui lòng chọn phường/xã" },
-                  ]}
-                >
-                  <Select showSearch>
-                    <Option value="">Chọn phường xã</Option>
-                    {wards.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  label="Địa chỉ"
-                  name="address"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập địa chỉ",
-                    },
-                  ]}
-                >
-                  <Input placeholder="Nhập địa chỉ" />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Mã bưu điện" name="zip_code">
-                  <Input placeholder="Nhập mã bưu điện" />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {
-                      pattern: RegUtil.EMAIL,
-                      message: "Vui lòng nhập đúng định dạng email",
-                    },
-                  ]}
-                  name="mail"
-                  label="Email"
-                >
-                  <Input placeholder="Nhập địa chỉ email" />
-                </Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập diện tích cửa hàng",
-                    },
-                  ]}
-                  label="Diện tích cửa hàng (m²)"
-                  name="square"
-                >
-                  <NumberInput placeholder="Nhập diện tích cửa hàng" />
-                </Item>
-              </Col>
-            </Row>
-          </div>
+                  {cityViews?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.city_name} - {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item hidden name="city_id">
+                <Input />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Phường/xã"
+                name="ward_id"
+                rules={[
+                  { required: true, message: "Vui lòng chọn phường/xã" },
+                ]}
+              >
+                <Select showSearch>
+                  <Option value="">Chọn phường xã</Option>
+                  {wards.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Địa chỉ"
+                name="address"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập địa chỉ",
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập địa chỉ" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Mã bưu điện" name="zip_code">
+                <Input placeholder="Nhập mã bưu điện" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  {
+                    pattern: RegUtil.EMAIL,
+                    message: "Vui lòng nhập đúng định dạng email",
+                  },
+                ]}
+                name="mail"
+                label="Email"
+              >
+                <Input placeholder="Nhập địa chỉ email" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập diện tích cửa hàng",
+                  },
+                ]}
+                label="Diện tích cửa hàng (m²)"
+                name="square"
+              >
+                <NumberInput placeholder="Nhập diện tích cửa hàng" />
+              </Item>
+            </Col>
+          </Row>
         </Card>
         <Collapse
           defaultActiveKey="1"

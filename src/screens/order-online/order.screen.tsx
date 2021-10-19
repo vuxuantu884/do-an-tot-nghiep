@@ -107,7 +107,7 @@ export default function Order() {
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
-  >(null);
+  >(0);
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
     null
   );
@@ -391,7 +391,7 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setIsSaveDraft(false)
+      setIsSaveDraft(false);
       setCreating(false);
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
@@ -482,7 +482,7 @@ export default function Order() {
       } else {
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (typeButton === OrderStatus.DRAFT) {
-            setIsSaveDraft(true)
+            setIsSaveDraft(true);
           } else {
             setCreating(true);
           }
@@ -498,19 +498,18 @@ export default function Order() {
                 await dispatch(orderCreateAction(values, createOrderCallback));
               } catch {
                 setCreating(false);
-                setIsSaveDraft(false)
+                setIsSaveDraft(false);
               }
             })();
             // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          
           if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
             showError("Vui lòng chọn đơn vị vận chuyển");
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
-              setIsSaveDraft(true)
+              setIsSaveDraft(true);
             } else {
               setCreating(true);
             }
@@ -522,7 +521,7 @@ export default function Order() {
                     await dispatch(orderCreateAction(values, createOrderCallback));
                   } catch {
                     setCreating(false);
-                    setIsSaveDraft(false)
+                    setIsSaveDraft(false);
                   }
                 })();
               }
@@ -961,8 +960,12 @@ export default function Order() {
       orderAmount,
       payments,
       totalAmountPayment,
-      fee,
+      discountValue,
       shippingFeeInformedToCustomer,
+      totalOrderAmountAfterDiscountAddShippingFee:
+        orderAmount -
+        discountValue +
+        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0),
       totalAmountCustomerNeedToPay,
     },
     orderConfig: listOrderConfigs,

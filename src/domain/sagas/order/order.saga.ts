@@ -24,6 +24,7 @@ import {
   cancelOrderApi,
   confirmDraftOrderService,
   createDeliveryMappedStoreServices,
+  createShippingOrderService,
   deleteDeliveryMappedStoreServices,
   getChannelApi,
   getDeliveryMappedStoresServices,
@@ -62,10 +63,7 @@ import { unauthorizedAction } from "./../../actions/auth/auth.action";
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<OrderModel>> = yield call(
-      getListOrderApi,
-      query
-    );
+    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -79,10 +77,7 @@ function* getListOrderSaga(action: YodyAction) {
 function* getListOrderFpageSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<OrderModel>> = yield call(
-      getListOrderApi,
-      query
-    );
+    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -113,10 +108,7 @@ function* getListOrderCustomerSaga(action: YodyAction) {
 function* getShipmentsSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<ShipmentModel>> = yield call(
-      getShipmentApi,
-      query
-    );
+    let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -130,10 +122,7 @@ function* getShipmentsSaga(action: YodyAction) {
 function* getReturnsSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<ReturnModel>> = yield call(
-      getReturnApi,
-      query
-    );
+    let response: BaseResponse<Array<ReturnModel>> = yield call(getReturnApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -147,10 +136,7 @@ function* getReturnsSaga(action: YodyAction) {
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
-      orderPostApi,
-      request
-    );
+    let response: BaseResponse<OrderResponse> = yield call(orderPostApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -166,11 +152,7 @@ function* orderCreateSaga(action: YodyAction) {
 function* orderUpdateSaga(action: YodyAction) {
   const { id, request, setData } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
-      orderPutApi,
-      id,
-      request
-    );
+    let response: BaseResponse<OrderResponse> = yield call(orderPutApi, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -187,10 +169,7 @@ function* orderUpdateSaga(action: YodyAction) {
 function* orderFpageCreateSaga(action: YodyAction) {
   const { request, setData, setDisable } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
-      orderPostApi,
-      request
-    );
+    let response: BaseResponse<OrderResponse> = yield call(orderPostApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -272,10 +251,7 @@ function* updatePaymentSaga(action: YodyAction) {
 function* updateShipmentSaga(action: YodyAction) {
   const { request, setData, setError } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
-      updateShipment,
-      request
-    );
+    let response: BaseResponse<OrderResponse> = yield call(updateShipment, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -344,8 +320,10 @@ function* orderDetailSaga(action: YodyAction) {
 function* getTRackingLogFulfillmentSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
-      yield call(getTrackingLogFulFillment, fulfillment_code);
+    let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> = yield call(
+      getTrackingLogFulFillment,
+      fulfillment_code
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(
@@ -418,8 +396,10 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
 function* getDeliveryTransportTypeSaga(action: YodyAction) {
   let { id, handleData } = action.payload;
   try {
-    let response: BaseResponse<Array<DeliveryTransportTypesResponse>> =
-      yield call(getDeliveryTransportTypesServices, id);
+    let response: BaseResponse<Array<DeliveryTransportTypesResponse>> = yield call(
+      getDeliveryTransportTypesServices,
+      id
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
@@ -522,10 +502,7 @@ function* updateDeliveryConfigurationSaga(action: YodyAction) {
   yield put(showLoading());
   let { params, handleData } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(
-      updateDeliveryConnectService,
-      params
-    );
+    let response: BaseResponse<any> = yield call(updateDeliveryConnectService, params);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
@@ -548,10 +525,7 @@ function* updateDeliveryConfigurationSaga(action: YodyAction) {
 function* getListSubStatusSaga(action: YodyAction) {
   let { status, handleData } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(
-      getOrderSubStatusService,
-      status
-    );
+    let response: BaseResponse<any> = yield call(getOrderSubStatusService, status);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
@@ -599,9 +573,7 @@ function* setSubStatusSaga(action: YodyAction) {
 function* getAllChannelSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<ChannelResponse>> = yield call(
-      getChannelApi
-    );
+    let response: BaseResponse<Array<ChannelResponse>> = yield call(getChannelApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -621,8 +593,9 @@ function* getAllChannelSaga(action: YodyAction) {
 function* getListReasonSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<{ id: string; name: string }>> =
-      yield call(getReasonsApi);
+    let response: BaseResponse<Array<{ id: string; name: string }>> = yield call(
+      getReasonsApi
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -647,7 +620,7 @@ function* cancelOrderSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Huỷ đơn hàng thành công!");
-        onSuccess()
+        onSuccess();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -657,7 +630,7 @@ function* cancelOrderSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    onError()
+    onError();
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
@@ -707,10 +680,7 @@ function* getFulfillmentsSaga(action: YodyAction) {
 function* putFulfillmentsSagaPack(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(
-      putFulfillmentsPackApi,
-      request
-    );
+    let response: BaseResponse<any> = yield call(putFulfillmentsPackApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response);
@@ -772,16 +742,37 @@ function* confirmDraftOrderSaga(action: YodyAction) {
   }
 }
 
+function* createShippingOrderSaga(action: YodyAction) {
+  let { params, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(createShippingOrderService, params);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess(`Đẩy đơn sang bên vận chuyển thành công!`);
+        handleData();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        // response.errors.forEach((e) => showError(e));
+        showError(response.message.toString());
+        handleData();
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError(`Đẩy đơn sang bên vận chuyển xảy ra lỗi!`);
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
-  yield takeLatest(
-    OrderType.GET_LIST_ORDER_FPAGE_REQUEST,
-    getListOrderFpageSaga
-  );
-  yield takeLatest(
-    OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST,
-    getListOrderCustomerSaga
-  );
+  yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
+  yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.GET_RETURNS_REQUEST, getReturnsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
@@ -790,29 +781,14 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
-  yield takeLatest(
-    OrderType.UPDATE_FULFILLMENT_METHOD,
-    updateFulFillmentStatusSaga
-  );
+  yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
   yield takeLatest(OrderType.UPDATE_SHIPPING_METHOD, updateShipmentSaga);
-  yield takeLatest(
-    OrderType.GET_LIST_DELIVERY_SERVICE,
-    ListDeliveryServicesSaga
-  );
+  yield takeLatest(OrderType.GET_LIST_DELIVERY_SERVICE, ListDeliveryServicesSaga);
   yield takeLatest(OrderType.GET_TRANSPORT_TYPES, getDeliveryTransportTypeSaga);
   yield takeLatest(OrderType.GET_MAPPED_STORES, getDeliveryMappedStoresSaga);
-  yield takeLatest(
-    OrderType.CREATE_MAPPED_STORE,
-    createDeliveryMappedStoreSaga
-  );
-  yield takeLatest(
-    OrderType.DELETE_MAPPED_STORE,
-    deleteDeliveryMappedStoreSaga
-  );
-  yield takeLatest(
-    OrderType.UPDATE_3RD_PL_CONNECT,
-    updateDeliveryConfigurationSaga
-  );
+  yield takeLatest(OrderType.CREATE_MAPPED_STORE, createDeliveryMappedStoreSaga);
+  yield takeLatest(OrderType.DELETE_MAPPED_STORE, deleteDeliveryMappedStoreSaga);
+  yield takeLatest(OrderType.UPDATE_3RD_PL_CONNECT, updateDeliveryConfigurationSaga);
 
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
   // yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
@@ -820,10 +796,7 @@ export function* OrderOnlineSaga() {
   // yield takeLatest(OrderType.GET_INFO_VTP_FEE, InfoVTPSaga);
   yield takeLatest(OrderType.GET_INFO_FEES, InfoFeesSaga);
   yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
-  yield takeLatest(
-    OrderType.GET_TRACKING_LOG_FULFILLMENT,
-    getTRackingLogFulfillmentSaga
-  );
+  yield takeLatest(OrderType.GET_TRACKING_LOG_FULFILLMENT, getTRackingLogFulfillmentSaga);
   yield takeLatest(OrderType.GET_TRACKING_LOG_ERROR, getTRackingLogErrorSaga);
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
   yield takeLatest(OrderType.GET_LIST_CHANNEL_REQUEST, getAllChannelSaga);
@@ -832,9 +805,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_ORDER_CONFIG, configOrderSaga);
   yield takeLatest(OrderType.GET_FULFILLMENTS, getFulfillmentsSaga);
   yield takeLatest(OrderType.GET_FULFILLMENTS_PACK, putFulfillmentsSagaPack);
-  yield takeLatest(
-    OrderType.GET_FULFILLMENTS_PACKED,
-    getFulfillmentsPackedSaga
-  );
+  yield takeLatest(OrderType.GET_FULFILLMENTS_PACKED, getFulfillmentsPackedSaga);
   yield takeLatest(OrderType.CONFIRM_DRAFT_ORDER, confirmDraftOrderSaga);
+  yield takeLatest(OrderType.CREATE_SHIPPING_ORDER, createShippingOrderSaga);
 }
