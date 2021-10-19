@@ -353,7 +353,9 @@ export default function Order(props: PropType) {
       shipment: shipmentRequest,
       items: items,
     };
-
+    if (OrderDetail?.fulfillments && OrderDetail?.fulfillments.length) {
+      request.id = OrderDetail?.fulfillments[0].id
+    }
     let listFulfillmentRequest = [];
     if (
       paymentMethod !== PaymentMethodOption.POSTPAYMENT ||

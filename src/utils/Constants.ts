@@ -169,3 +169,14 @@ export const UserPermissions = {
 
 export const OFFSET_HEADER_UNDER_NAVBAR = 55; //pixels
 export const OFFSET_HEADER_TABLE = OFFSET_HEADER_UNDER_NAVBAR + 54; //pixels
+
+export const ProcurementStatus = {
+  draft: "draft",
+  confirmed: "confirmed",
+  received: "received",
+};
+export const ProcurementStatusName = {
+  [ProcurementStatus.draft]: "Nháp",
+  [ProcurementStatus.confirmed]: "Đã duyệt",
+  [ProcurementStatus.received]: "Đã nhận",
+};
