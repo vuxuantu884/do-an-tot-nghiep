@@ -5,14 +5,13 @@ import UrlConfig from "config/url.config";
 import POProductForm from "./component/po-product.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POInfoForm from "./component/po-info.form";
-import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config";
 import { useHistory } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   PoFormName,
   POStatus,
@@ -39,6 +38,7 @@ import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
 import POStep from "./component/po-step";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 const POCreateScreen: React.FC = () => {
   let now = moment();
@@ -53,6 +53,7 @@ const POCreateScreen: React.FC = () => {
     payments: [],
     procurements: [
       {
+        fake_id: new Date().getTime(),
         reference: "",
         store_id: null,
         expect_receipt_date: "",
@@ -83,9 +84,6 @@ const POCreateScreen: React.FC = () => {
     cancelled_date: null,
     completed_date: null,
   };
-  const collapse = useSelector(
-    (state: RootReducerType) => state.appSettingReducer.collapse
-  );
   const [isError, setError] = useState(false);
 
   const dispatch = useDispatch();
@@ -102,7 +100,6 @@ const POCreateScreen: React.FC = () => {
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingDraftButton, setLoadingDraftButton] = useState(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const onResultRD = useCallback(
@@ -132,13 +129,7 @@ const POCreateScreen: React.FC = () => {
     },
     [dispatch, onResultRD]
   );
-  const onScroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
+
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
       if (result) {
@@ -202,13 +193,6 @@ const POCreateScreen: React.FC = () => {
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
   }, [dispatch, onResultWin, onResultRD]);
-
-  useEffect(() => {
-    window.addEventListener("scroll", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [formMain, onScroll]);
 
   return (
     <ContentContainer
@@ -291,68 +275,48 @@ const POCreateScreen: React.FC = () => {
             />
           </Col>
         </Row>
-
-        <Row
-          gutter={24}
-          className="margin-top-10 "
-          style={{
-            position: "fixed",
-            zIndex: 5,
-            textAlign: "right",
-            width: "100%",
-            height: "55px",
-            bottom: "0%",
-            backgroundColor: "#FFFFFF",
-            marginLeft: collapse ? "-25px" : "-30px",
-            display: `${isShowBillStep ? "" : "none"}`,
-          }}
-        >
-          <Col
-            md={10}
-            style={{
-              marginLeft: "-20px",
-              marginTop: "3px",
-              padding: "3px",
-              zIndex: 100,
-            }}
-          >
+        <BottomBarContainer
+          back={false}
+          leftComponent={
             <POStep poData={initPurchaseOrder} />
-          </Col>
+          }
+          rightComponent={
+            <React.Fragment>
+              <Button
+                disabled={loadingDraftButton || loadingSaveButton}
+                className="ant-btn-outline fixed-button cancle-button"
+                onClick={() => history.goBack()}
+              >
+                Huỷ
+              </Button>
+              <Button
+                disabled={loadingSaveButton}
+                type="primary"
+                className="create-button-custom ant-btn-outline fixed-button"
+                loading={loadingDraftButton}
+                onClick={() => {
+                  setStatusAction(POStatus.DRAFT);
+                  formMain.submit();
+                }}
+              >
+                Lưu nháp
+              </Button>
+              <Button
+                disabled={loadingDraftButton}
+                type="primary"
+                className="create-button-custom"
+                loading={loadingSaveButton}
+                onClick={() => {
+                  setStatusAction(POStatus.FINALIZED);
+                  formMain.submit();
+                }}
+              >
+                Lưu và duyệt
+              </Button>
+            </React.Fragment>
+          }
+        />
 
-          <Col md={9} style={{ marginTop: "8px" }}>
-            <Button
-              disabled={loadingDraftButton || loadingSaveButton}
-              className="ant-btn-outline fixed-button cancle-button"
-              onClick={() => history.goBack()}
-            >
-              Huỷ
-            </Button>
-            <Button
-              disabled={loadingSaveButton}
-              type="primary"
-              className="create-button-custom ant-btn-outline fixed-button"
-              loading={loadingDraftButton}
-              onClick={() => {
-                setStatusAction(POStatus.DRAFT);
-                formMain.submit();
-              }}
-            >
-              Lưu nháp
-            </Button>
-            <Button
-              disabled={loadingDraftButton}
-              type="primary"
-              className="create-button-custom"
-              loading={loadingSaveButton}
-              onClick={() => {
-                setStatusAction(POStatus.FINALIZED);
-                formMain.submit();
-              }}
-            >
-              Lưu và duyệt
-            </Button>
-          </Col>
-        </Row>
       </Form>
     </ContentContainer>
   );
