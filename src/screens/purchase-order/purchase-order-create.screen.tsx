@@ -53,6 +53,7 @@ const POCreateScreen: React.FC = () => {
     payments: [],
     procurements: [
       {
+        fake_id: new Date().getTime(),
         reference: "",
         store_id: null,
         expect_receipt_date: "",
