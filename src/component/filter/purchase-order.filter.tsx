@@ -17,6 +17,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import HashTag from "component/custom/hashtag";
 import CustomSelectOne from "./component/select-one.custom";
 import CustomSelectMany from "./component/select-many.custom";
+import ButtonSetting from "component/table/ButtonSetting";
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -30,6 +31,7 @@ type PurchaseOrderFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: PurchaseOrderQuery) => void;
   onClearFilter?: () => void;
+  openSetting: () => void;
 };
 
 const listPOStatus = {
@@ -570,6 +572,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               <Button icon={<FilterOutlined />} onClick={openFilter}>
                 Thêm bộ lọc
               </Button>
+            </Item>
+            <Item>
+              <ButtonSetting onClick={props.openSetting} />
             </Item>
           </Form>
         </CustomFilter>

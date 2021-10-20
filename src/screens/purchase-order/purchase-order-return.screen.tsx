@@ -1,8 +1,7 @@
-import { Form, Row, Col, Button } from "antd";
-import { Fragment, useState, useCallback, useEffect } from "react";
+import { Form, Button } from "antd";
+import React, { Fragment, useState, useCallback, useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { useDispatch } from "react-redux";
 import { PoDetailAction, POReturnAction } from "domain/actions/po/po.action";
 import UrlConfig from "config/url.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
@@ -23,6 +22,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { VietNamId } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 interface POReturnProps { }
 type PurchaseOrderReturnParams = {
@@ -32,7 +32,7 @@ type PurchaseOrderReturnParams = {
 const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [poData, setPurchaseItem] = useState<PurchaseOrder|null>(null);
+  const [poData, setPurchaseItem] = useState<PurchaseOrder | null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setDistrict] = useState<Array<DistrictResponse>>([]);
@@ -41,16 +41,13 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [formMain] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
-  const collapse = useSelector(
-    (state: RootReducerType) => state.appSettingReducer.collapse
-  );
   const onUpdateCall = useCallback(() => {
     setLoading(false);
     history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
   }, [history, id]);
   const onFinish = useCallback(
     (values: any) => {
-      if(!values.line_return_items) {
+      if (!values.line_return_items) {
         showError("Cần ít nhất một phiếu nhập kho để hoàn trả");
         return;
       }
@@ -67,10 +64,23 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   };
   const onConfirmButton = useCallback(() => {
     formMain.validateFields().then((values) => {
-     
+
       values[POField.expect_return_date] = Date.now();
       onFinish(values);
-    });
+    })
+      .catch(((error) => {
+        if (error.errorFields) {
+          const element: any = document.getElementById(
+            error.errorFields[0].name.join("")
+          );
+          element?.focus();
+          const y =
+            element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+
+      }));
   }, [formMain, onFinish]);
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -179,46 +189,25 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                   );
                 }}
               </Form.Item>
-              <Row
-                gutter={24}
-                className="margin-top-10 "
-                style={{
-                  position: "fixed",
-                  textAlign: "right",
-                  width: "100%",
-                  height: "55px",
-                  bottom: "0%",
-                  zIndex: 10,
-                  backgroundColor: "#FFFFFF",
-                  marginLeft: collapse ? "-25px" : "-30px",
-                  // display: `${isShowBillStep ? "" : "none"}`,
-                }}
-              >
-                <Col
-                  md={10}
-                  style={{
-                    marginLeft: "-20px",
-                    marginTop: "3px",
-                    padding: "3px",
-                    zIndex: 100,
-                  }}
-                >
-                  <POStep poData={poData} />
-                </Col>
-
-                <Col md={9} style={{ marginTop: "8px" }}>
-                  <Button type="default" className="light" onClick={onCancelButton}>
-                    Hủy
-                  </Button>
-                  <Button
-                    type="primary"
-                    onClick={onConfirmButton}
-                    className="create-button-custom"
-                  >
-                    Hoàn trả
-                  </Button>
-                </Col>
-              </Row>
+              <BottomBarContainer
+                height={80}
+                back={false}
+                leftComponent={<POStep poData={poData} />}
+                rightComponent={
+                  <React.Fragment>
+                    <Button type="default" className="light" onClick={onCancelButton}>
+                      Hủy
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={onConfirmButton}
+                      className="create-button-custom"
+                    >
+                      Hoàn trả
+                    </Button>
+                  </React.Fragment>
+                }
+              />
             </Fragment>
           )
         }

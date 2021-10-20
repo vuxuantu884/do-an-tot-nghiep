@@ -13,7 +13,6 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/app.config";
 import { useHistory } from "react-router-dom";
 import {
-  PoFormName,
   POStatus,
   ProcumentStatus,
   VietNamId,
@@ -215,7 +214,6 @@ const POCreateScreen: React.FC = () => {
       extra={<POStep poData={initPurchaseOrder} />}
     >
       <Form
-        name={PoFormName.Main}
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
           setStatusAction("");
@@ -225,6 +223,7 @@ const POCreateScreen: React.FC = () => {
           element?.focus();
           const y =
             element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+          
           window.scrollTo({ top: y, behavior: "smooth" });
         }}
         onFinish={onFinish}
