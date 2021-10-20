@@ -1,4 +1,4 @@
-import { SearchOutlined } from "@ant-design/icons";
+import { LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import { AutoComplete, Button, Input } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import { CSSProperties } from "react";
@@ -110,7 +110,12 @@ export default class CustomAutoComplete extends Component<
         <Input
           ref={(ref) => (this.inputRef = ref)}
           placeholder={this.props.placeholder}
-          prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+          prefix={
+            this.props.loading ?
+              <LoadingOutlined style={{ color: "#2a2a86" }} />
+              :
+              <SearchOutlined style={{ color: "#ABB4BD" }} />
+          }
         />
       </AutoComplete>
     );

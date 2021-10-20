@@ -36,47 +36,50 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
   const defaultColumns: Array<
     ICustomTableColumType<PurchaseProcurementViewDraft>
   > = [
-    {
-      width: 50,
-      title: "Stt",
-      align: "center",
-      render: (value, record, index) => index + 1,
-    },
-    {
-      width: 150,
-      title: "Ngày nhận dự kiến",
-      dataIndex: "expect_receipt_date",
-      render: (value, record, index: number) => (
-        <CustomDatePicker
-          value={value}
-          disableDate={(date) => date <= moment().startOf("days")}
-          format={DATE_FORMAT.DDMMYYY}
-          onChange={(value1) => onChangeDate(value1, index)}
-        />
-      ),
-    },
-    {
-      width: 250,
-      title: "Cửa hàng nhận",
-      dataIndex: "store_id",
-      render: (value, record, index) => (
-        <Select
-          onChange={(value1: number) => onChangeStore(value1, index)}
-          value={value}
-          showSearch
-          showArrow
-          placeholder="Chọn kho nhận"
-          optionFilterProp="children"
-        >
-          {props.stores.map((item) => (
-            <Select.Option key={item.id} value={item.id}>
-              {item.name}
-            </Select.Option>
-          ))}
-        </Select>
-      ),
-    },
-  ];
+      {
+        width: 50,
+        title: "Stt",
+        align: "center",
+        fixed: true,
+        render: (value, record, index) => index + 1,
+      },
+      {
+        width: 250,
+        title: "Cửa hàng nhận",
+        fixed: true,
+        dataIndex: "store_id",
+        render: (value, record, index) => (
+          <Select
+            onChange={(value1: number) => onChangeStore(value1, index)}
+            value={value}
+            showSearch
+            showArrow
+            placeholder="Chọn kho nhận"
+            optionFilterProp="children"
+          >
+            {props.stores.map((item) => (
+              <Select.Option key={item.id} value={item.id}>
+                {item.name}
+              </Select.Option>
+            ))}
+          </Select>
+        ),
+      },
+      {
+        width: 150,
+        title: "Ngày nhận dự kiến",
+        dataIndex: "expect_receipt_date",
+        render: (value, record, index: number) => (
+          <CustomDatePicker
+            value={value}
+            disableDate={(date) => date <= moment().startOf("days")}
+            format={DATE_FORMAT.DDMMYYY}
+            onChange={(value1) => onChangeDate(value1, index)}
+          />
+        ),
+      },
+      
+    ];
 
   const onAdd = useCallback(() => {
     let new_line_items: Array<PurchaseOrderLineItem> = [];
@@ -199,12 +202,12 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
       data.push({ ...item });
     });
     return data;
-  },[props.dataSource]);
+  }, [props.dataSource]);
   const onOkDraft = useCallback(() => {
     onOk(procumentViewDraft);
   }, [onOk, procumentViewDraft]);
   useEffect(() => {
-    if(visible) {
+    if (visible) {
       setProcumentViewDraft([...dataDraft]);
     }
   }, [dataDraft, visible]);
@@ -247,20 +250,55 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
                 ),
             },
           ]}
-          summary={(data) => (
-            <Table.Summary>
-              <Table.Summary.Row>
-                <Table.Summary.Cell
-                  index={1}
-                  colSpan={4 + props.lineItems.length}
-                >
-                  <Button onClick={onAdd} icon={<PlusOutlined />} type="link">
-                    Thêm kế hoạch
-                  </Button>
-                </Table.Summary.Cell>
-              </Table.Summary.Row>
-            </Table.Summary>
-          )}
+          summary={(data) => {
+            let newTotal: any = {};
+            data.forEach(item => {
+              item.procurement_items.forEach(item => {
+                if (newTotal[item.sku]) {
+                  newTotal[item.sku] = newTotal[item.sku] + item.quantity;
+                } else {
+                  newTotal[item.sku] = item.quantity
+                }
+              })
+            })
+            return (
+              <Table.Summary fixed>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell
+                    index={0}
+                    colSpan={2}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", width: '100%' }}>
+                      <Button
+                        onClick={onAdd}
+                        icon={<PlusOutlined />}
+                        type="link"
+                      >
+                        Thêm kế hoạch
+                      </Button>
+                      <b>TỔNG</b>
+                    </div>
+
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell
+                    index={2}
+                    colSpan={1}
+                  ></Table.Summary.Cell>
+                  {
+                    props.lineItems.map((new_line_items, index) => (
+                      <Table.Summary.Cell align="right" index={index + 2}>
+                        <div style={{ marginRight: 15 }}>{newTotal[new_line_items.sku]}</div>
+                      </Table.Summary.Cell>
+                    ))
+                  }
+                  <Table.Summary.Cell
+                    index={3}
+                    colSpan={1}
+                  />
+                </Table.Summary.Row>
+              </Table.Summary>
+            )
+          }}
         />
       </POInventoryDraftTable>
     </Modal>

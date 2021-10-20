@@ -59,6 +59,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     showSupplierAddress,
     hideExpand,
   } = props;
+  const [loadingSearch, setLoadingSearch] = useState(false);
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const dispatch = useDispatch();
   const [visibleSupplierAddress, setVisibleSupplierAddress] = useState(
@@ -68,6 +69,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
     useState(false);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
+    setLoadingSearch(false);
     setData(result.items);
   }, []);
   const [addressChange, setAddressChange] = useState<PurchaseAddress>();
@@ -77,6 +79,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const onSupplierSearchChange = useCallback(
     (value) => {
       if (value.length >= 3) {
+        setLoadingSearch(true);
         dispatch(
           SupplierSearchAction({ query: value, status: "active" }, onResult)
         );
@@ -264,6 +267,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     ]}
                   >
                     <CustomAutoComplete
+                      loading={loadingSearch}
                       dropdownClassName="supplier"
                       placeholder="Tìm kiếm nhà cung cấp"
                       onSearch={onSupplierSearchChange}
