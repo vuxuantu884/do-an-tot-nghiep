@@ -151,6 +151,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
 
   const [hvc, setHvc] = useState<number | null>(null);
+  const [hvcCode, setHvcCode] = useState<string | null>(null);
+  const [hvcName, setHvcName] = useState<string | null>(null);
   const [serviceType, setServiceType] = useState<string>();
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
@@ -207,8 +209,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     props.shippingFeeInformedCustomer(value);
   };
 
-  const changeServiceType = (id: number, code: string, item: any, fee: number) => {
+  const changeServiceType = (
+    id: number,
+    code: string,
+    item: any,
+    fee: number,
+    name: string
+  ) => {
     setHvc(id);
+    setHvcCode(code);
+    setHvcName(name);
     setServiceType(item);
     setFee(fee);
   };
@@ -491,6 +501,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     code: "",
     delivery_service_provider_id: null, //id người shipper
     delivery_service_provider_type: "", //shipper
+    delivery_service_provider_code: "",
+    delivery_service_provider_name: "",
     shipper_code: null,
     shipper_name: "",
     handover_id: null,
@@ -553,6 +565,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
         value.delivery_service_provider_id = hvc;
         value.delivery_service_provider_type = "external_service";
+        value.delivery_service_provider_code = hvcCode;
+        value.delivery_service_provider_name = hvcName;
         value.sender_address_id = props.OrderDetail.store_id;
         value.service = serviceType!;
         value.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
@@ -1050,146 +1064,163 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       "pick_at_store" ? (
                         <div>
                           <Row gutter={24}>
-                            <Col md={24}>
-                              <Col span={24}>
-                                <b>
-                                  <img
-                                    style={{ marginRight: 12 }}
-                                    src={storeBluecon}
-                                    alt=""
-                                  />
-                                  NHẬN TẠI CỬA HÀNG
-                                </b>
-                              </Col>
+                            <Col md={12}>
+                              <b>
+                                <img
+                                  style={{ marginRight: 12 }}
+                                  src={storeBluecon}
+                                  alt=""
+                                />
+                                NHẬN TẠI CỬA HÀNG
+                              </b>
                             </Col>
                           </Row>
                           <Row gutter={24} style={{ paddingTop: "15px" }}>
-                            <Col md={6}>
-                              <Col span={24}>
-                                <p className="text-field">Tên cửa hàng:</p>
-                              </Col>
-                              <Col span={24}>
-                                <b>{props.OrderDetail?.store}</b>
-                              </Col>
+                            <Col md={12}>
+                              <Row gutter={30}>
+                                <Col span={10}>
+                                  <p className="text-field">Tên cửa hàng:</p>
+                                </Col>
+                                <Col span={14}>
+                                  <b>{props.OrderDetail?.store}</b>
+                                </Col>
+                              </Row>
                             </Col>
 
-                            <Col md={6}>
-                              <Col span={24}>
-                                <p className="text-field">Số điện thoại:</p>
-                              </Col>
-                              <Col span={24}>
-                                <b className="text-field">
-                                  {props.OrderDetail?.store_phone_number}
-                                </b>
-                              </Col>
+                            <Col md={12}>
+                              <Row gutter={30}>
+                                <Col span={10}>
+                                  <p className="text-field">Số điện thoại:</p>
+                                </Col>
+                                <Col span={14}>
+                                  <b className="text-field">
+                                    {props.OrderDetail?.store_phone_number}
+                                  </b>
+                                </Col>
+                              </Row>
                             </Col>
 
-                            <Col md={6}>
-                              <Col span={24}>
-                                <p className="text-field">Địa chỉ:</p>
-                              </Col>
-                              <Col span={24}>
-                                <b className="text-field">
-                                  {props.OrderDetail?.store_full_address}
-                                </b>
-                              </Col>
+                            <Col md={12}>
+                              <Row gutter={30}>
+                                <Col span={10}>
+                                  <p className="text-field">Địa chỉ:</p>
+                                </Col>
+                                <Col span={14}>
+                                  <b className="text-field">
+                                    {props.OrderDetail?.store_full_address}
+                                  </b>
+                                </Col>
+                              </Row>
                             </Col>
                           </Row>
                         </div>
                       ) : (
                         <Row gutter={24}>
-                          <Col md={5}>
-                            <Col span={24}>
-                              <p className="text-field">Đối tác giao hàng:</p>
-                            </Col>
-                            <Col span={24}>
-                              <b>
-                                {/* Lấy ra đối tác */}
-                                {fulfillment.shipment?.delivery_service_provider_type ===
-                                  "external_service" && (
-                                  <img
-                                    style={{ width: "112px", height: 25 }}
-                                    src={InfoServiceDeliveryDetail(
-                                      delivery_service,
-                                      fulfillment.shipment.delivery_service_provider_id
-                                    )}
-                                    alt=""
-                                  ></img>
-                                )}
-
-                                {fulfillment.shipment?.delivery_service_provider_type ===
-                                  "Shipper" &&
-                                  shipper &&
-                                  shipper.find(
-                                    (s) => fulfillment.shipment?.shipper_code === s.code
-                                  )?.full_name}
-                              </b>
-                            </Col>
-                          </Col>
-                          {CheckShipmentType(props.OrderDetail!) ===
-                            "external_service" && (
-                            <Col md={5}>
-                              <Col span={24}>
-                                <p className="text-field">Dịch vụ:</p>
+                          <Col md={12}>
+                            <Row gutter={30}>
+                              <Col span={10}>
+                                <p className="text-field">Đối tác giao hàng:</p>
                               </Col>
-                              <Col span={24}>
-                                <b className="text-field">
-                                  {getServiceName(props.OrderDetail!)}
+                              <Col span={14}>
+                                <b>
+                                  {/* Lấy ra đối tác */}
+                                  {fulfillment.shipment
+                                    ?.delivery_service_provider_type ===
+                                    "external_service" && (
+                                    <img
+                                      style={{ width: "112px", height: 25 }}
+                                      src={InfoServiceDeliveryDetail(
+                                        delivery_service,
+                                        fulfillment.shipment.delivery_service_provider_id
+                                      )}
+                                      alt=""
+                                    ></img>
+                                  )}
+
+                                  {fulfillment.shipment
+                                    ?.delivery_service_provider_type === "Shipper" &&
+                                    shipper &&
+                                    shipper.find(
+                                      (s) => fulfillment.shipment?.shipper_code === s.code
+                                    )?.full_name}
                                 </b>
                               </Col>
+                            </Row>
+                          </Col>
+
+                          {CheckShipmentType(props.OrderDetail!) ===
+                            "external_service" && (
+                            <Col md={12}>
+                              <Row gutter={30}>
+                                <Col span={10}>
+                                  <p className="text-field">Dịch vụ:</p>
+                                </Col>
+                                <Col span={14}>
+                                  <b className="text-field">
+                                    {getServiceName(props.OrderDetail!)}
+                                  </b>
+                                </Col>
+                              </Row>
                             </Col>
                           )}
 
-                          <Col md={5}>
-                            <Col span={24}>
-                              <p className="text-field">Phí ship trả HVC:</p>
-                            </Col>
-                            <Col span={24}>
-                              <b className="text-field">
-                                {props.OrderDetail?.fulfillments &&
-                                  formatCurrency(
-                                    fulfillment.shipment?.shipping_fee_paid_to_three_pls
-                                      ? fulfillment.shipment
-                                          ?.shipping_fee_paid_to_three_pls
-                                      : 0
-                                  )}
-                              </b>
-                            </Col>
+                          <Col md={12}>
+                            <Row gutter={30}>
+                              <Col span={10}>
+                                <p className="text-field">Phí ship trả HVC:</p>
+                              </Col>
+                              <Col span={14}>
+                                <b className="text-field">
+                                  {props.OrderDetail?.fulfillments &&
+                                    formatCurrency(
+                                      fulfillment.shipment?.shipping_fee_paid_to_three_pls
+                                        ? fulfillment.shipment
+                                            ?.shipping_fee_paid_to_three_pls
+                                        : 0
+                                    )}
+                                </b>
+                              </Col>
+                            </Row>
                           </Col>
 
-                          <Col md={5}>
-                            <Col span={24}>
-                              <p className="text-field">Phí ship báo khách:</p>
-                            </Col>
-                            <Col span={24}>
-                              <b className="text-field">
-                                {formatCurrency(
-                                  fulfillment.shipment?.shipping_fee_informed_to_customer
-                                    ? fulfillment.shipment
-                                        ?.shipping_fee_informed_to_customer
-                                    : 0
-                                )}
-                              </b>
-                            </Col>
+                          <Col md={12}>
+                            <Row gutter={30}>
+                              <Col span={10}>
+                                <p className="text-field">Phí ship báo khách:</p>
+                              </Col>
+                              <Col span={14}>
+                                <b className="text-field">
+                                  {formatCurrency(
+                                    fulfillment.shipment
+                                      ?.shipping_fee_informed_to_customer
+                                      ? fulfillment.shipment
+                                          ?.shipping_fee_informed_to_customer
+                                      : 0
+                                  )}
+                                </b>
+                              </Col>
+                            </Row>
                           </Col>
 
                           {CheckShipmentType(props.OrderDetail!) ===
                             "external_service" && (
-                            <Col md={4}>
-                              <Col span={24}>
-                                <p className="text-field">Trọng lượng:</p>
-                              </Col>
-                              <Col span={24}>
-                                <b className="text-field">
-                                  {props.OrderDetail?.fulfillments &&
-                                    props.OrderDetail?.fulfillments.length > 0 &&
-                                    formatCurrency(
-                                      props.OrderDetail.items &&
-                                        SumWeightResponse(props.OrderDetail.items)
-                                    )}
-                                  g
-                                </b>
-                              </Col>
+                            <Col md={12}>
+                              <Row gutter={30}>
+                                <Col span={10}>
+                                  <p className="text-field">Trọng lượng:</p>
+                                </Col>
+                                <Col span={14}>
+                                  <b className="text-field">
+                                    {props.OrderDetail?.fulfillments &&
+                                      props.OrderDetail?.fulfillments.length > 0 &&
+                                      formatCurrency(
+                                        props.OrderDetail.items &&
+                                          SumWeightResponse(props.OrderDetail.items)
+                                      )}
+                                    g
+                                  </b>
+                                </Col>
+                              </Row>
                             </Col>
                           )}
                         </Row>
@@ -1739,11 +1770,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </Row>
               <Row>
                 <div
-                  className="saleorder_shipment_method_btn 1"
+                  className="saleorder_shipment_method_btn"
                   style={
                     shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                       ? { border: "none" }
-                      : { borderBottom: "1px solid #2A2A86" }
+                      : { borderBottom: "1px solid #2A2A86", marginBottom: 20 }
                   }
                 >
                   <Space size={10}>

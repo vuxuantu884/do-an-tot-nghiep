@@ -10,7 +10,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getListOrderAction } from "domain/actions/order/order.action";
+import { getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -42,6 +42,7 @@ import "./scss/index.screen.scss";
 import { exportFile, getFile } from "service/other/export.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { HttpStatus } from "config/http-status.config";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
@@ -84,7 +85,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  order_sub_status: [],
+  sub_status_id: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
@@ -122,6 +123,10 @@ const ListOrderScreen: React.FC = () => {
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
+  >([]);
+  
+  const [listPaymentMethod, setListPaymentMethod] = useState<
+    Array<PaymentMethodResponse>
   >([]);
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -351,10 +356,10 @@ const ListOrderScreen: React.FC = () => {
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
+          case "unpicked":
+            processIcon = "icon-blank";
             break;
-          case "paid":
+          case "picked":
             processIcon = "icon-full";
             break;
           default:
@@ -375,22 +380,10 @@ const ListOrderScreen: React.FC = () => {
       title: "Xuất kho",
       dataIndex: "received_status",
       key: "received_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+      render: (received_status: boolean) => {
         return (
           <div className="text-center">
-            <div className={processIcon} />
+            <div className={received_status ? "icon-full" : "icon-blank"} />
           </div>
         );
       },
@@ -432,10 +425,10 @@ const ListOrderScreen: React.FC = () => {
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
+          case "unreturned":
+            processIcon = "icon-blank";
             break;
-          case "paid":
+          case "returned":
             processIcon = "icon-full";
             break;
           default:
@@ -801,6 +794,7 @@ const ListOrderScreen: React.FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
+    dispatch(PaymentMethodGetList(setListPaymentMethod));
     dispatch(
       actionFetchListOrderProcessingStatus(
         {},
@@ -865,6 +859,7 @@ const ListOrderScreen: React.FC = () => {
             listStore={listStore}
             accounts={accounts}
             deliveryService={delivery_service}
+            listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}

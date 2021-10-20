@@ -1,44 +1,38 @@
 import { Card, Tabs } from "antd";
-import ContentContainer from "component/container/content.container"
+import ContentContainer from "component/container/content.container";
 import StickyUnderNavbar from "component/container/StickyUnderNavbar";
 import UrlConfig from "config/url.config";
 import { useEffect, useState } from "react";
+import { RouteComponentProps, useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
-import TabList from "./tabs/TabList";
-
+import TabList from "./tabs/TabList/index";
 const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
   <StickyUnderNavbar>
-    <DefaultTabBar
-      {...props}
-    />
+    <DefaultTabBar {...props} />
   </StickyUnderNavbar>
 );
+type PORouteProps = {
+  id: string;
+};
+
+const TAB = ["1", "2"];
 
 const { TabPane } = Tabs;
-const ProcurementScreen: React.FC = () => {
+const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) => {
   const history = useHistory();
   const [activeTab, setActiveTab] = useState<string>("1");
+
+  const { id: idTab } = useParams<PORouteProps>();
+
   useEffect(() => {
-    console.log(history.location.search);
-    if (history.location.hash) {
-      let hash = history.location.hash.split("?");
-      switch (hash[0]) {
-        case "#1":
-          setActiveTab("1");
-          break;
-        case "#2":
-          setActiveTab("2");
-          break;
-        case "#3":
-          setActiveTab("3");
-          break;
-        case "#4":
-          setActiveTab("4");
-          break;
-      }
+    if (TAB.includes(idTab)) {
+      setActiveTab(idTab);
+    } else {
+      setActiveTab("1");
     }
-  }, [history.location.hash, history.location.search]);
+  }, [idTab]);
+
   return (
     <ContentContainer
       title="Danh sách đơn nhập kho"
@@ -56,9 +50,7 @@ const ProcurementScreen: React.FC = () => {
         <Tabs
           style={{ overflow: "initial" }}
           activeKey={activeTab}
-          onChange={(active) =>
-            history.replace(`${history.location.pathname}#${active}`)
-          }
+          onChange={(active) => history.replace(`${UrlConfig.PROCUREMENT}/${active}`)}
           renderTabBar={renderTabBar}
         >
           <TabPane tab="Hàng về hôm nay" key="1">
@@ -70,7 +62,7 @@ const ProcurementScreen: React.FC = () => {
         </Tabs>
       </Card>
     </ContentContainer>
-  )
+  );
 };
 
 export default ProcurementScreen;

@@ -328,14 +328,15 @@ const POUtils = {
     procuments: Array<PurchaseProcument>,
     data: Array<PurchaseOrderLineItem>
   ) => {
-    let newProcument = procuments.map((item) => {
+    let newProcuments: Array<PurchaseProcument> = []; 
+    procuments.forEach((item) => {
       let newProcumentLineItem = [...item.procurement_items];
-      item.procurement_items.forEach((procumentItem) => {
+      item.procurement_items.forEach((procumentItem, indexItem) => {
         let index = data.findIndex(
           (lineItem) => lineItem.sku === procumentItem.sku
         );
         if (index === -1) {
-          newProcumentLineItem.splice(index, 1);
+          newProcumentLineItem.splice(indexItem, 1);
         }
       });
       data.forEach((lineItem) => {
@@ -364,9 +365,10 @@ const POUtils = {
         }
       });
       item.procurement_items = newProcumentLineItem;
-      return item;
+      newProcuments.push(item);
     });
-    return newProcument;
+    console.log(newProcuments);
+    return newProcuments;
   },
 };
 

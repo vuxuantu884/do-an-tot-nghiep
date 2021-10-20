@@ -249,7 +249,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
       // store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       // source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       // order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      // order_sub_status: Array.isArray(params.order_sub_status) ? params.order_sub_status : [params.order_sub_status],
+      // sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
       // fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
       // payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       // return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],

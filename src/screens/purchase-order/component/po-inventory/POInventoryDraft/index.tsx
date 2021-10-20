@@ -242,7 +242,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 className="product-table"
                 pagination={false}
                 scroll={{ y: 300, x: 950 }}
-                rowKey={(item) => item.fake_id}
+                rowKey={(item) => item.id? item.id : item.fake_id}
                 columns={[
                   ...defaultColumns,
                   ...columns,

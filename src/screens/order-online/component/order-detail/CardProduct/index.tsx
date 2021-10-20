@@ -1202,7 +1202,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           showDiscountModal={ShowDiscountModal}
           totalAmountOrder={amount}
           items={items}
-          shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+          shippingFeeInformedToCustomer={shippingFeeInformedToCustomer || props.shippingFeeCustomer}
         />
 
         <PickDiscountModal
