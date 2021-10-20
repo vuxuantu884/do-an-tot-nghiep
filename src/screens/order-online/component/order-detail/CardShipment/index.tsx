@@ -362,7 +362,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
                 amount={amount}
-                totalPaid={totalPaid}
+                // totalPaid={totalPaid}
                 serviceType={serviceType}
                 changeServiceType={changeServiceType}
                 // deliveryServices={deliveryServices}

@@ -1,11 +1,17 @@
-import { Col, Form, FormInstance, Row } from "antd";
+import { Col, Form, Row } from "antd";
 import LogoDHL from "assets/img/LogoDHL.svg";
 import LogoGHN from "assets/img/LogoGHN.svg";
 import LogoGHTK from "assets/img/LogoGHTK.svg";
 import LogoVTP from "assets/img/LogoVTP.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { OrderCreateContext } from "contexts/order-online/order-create-context";
-import { FeesResponse, ShippingAddress } from "model/response/order/order.response";
+import { OrderPaymentRequest } from "model/request/order.request";
+import {
+  FeesResponse,
+  // DeliveryServiceResponse,
+  FulFillmentResponse,
+  OrderResponse,
+} from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
@@ -14,44 +20,40 @@ import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  totalAmountCustomerNeedToPay: number | undefined;
-  shippingFeeInformedToCustomer: number | null;
+  amount: number | undefined;
+  shippingFeeCustomer: number | null;
+  discountValue: number | null | undefined;
+  OrderDetail?: OrderResponse | null;
+  payments?: OrderPaymentRequest[] | null;
+  setShippingFeeInformedCustomer: (value: number | null) => void;
+  // deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
   serviceType?: string | null;
+  changeServiceType: (id: number, code: string, item: any, fee: number) => void;
+  fulfillments: FulFillmentResponse[] | null | undefined;
+  isCloneOrder?: boolean;
   addressError: string;
   levelOrder?: number;
-  customerShippingAddress: ShippingAddress | null | undefined;
-  form: FormInstance<any> | undefined;
-  totalAmountOrder: number | undefined;
-  setShippingFeeInformedToCustomer: (value: number | null) => void;
-  changeServiceType: (id: number, code: string, item: any, fee: number) => void;
+  totalAmountReturnProducts?: number;
 };
 
-/**
- * totalAmountCustomerNeedToPay: số tiền thu hộ (số tiền khách phải trả)
- * shippingFeeInformedToCustomer: phí ship báo khách: khi clone đơn hàng sẽ điền mặc định
- * setShippingFeeInformedToCustomer: xử lý khi điền phí ship báo khách
- * infoFees: danh sách phí
- * serviceType: loại dịch vụ chuyển phát
- * changeServiceType: xử lý khi chọn loại dịch vụ chuyển phát
- * addressError: có lỗi địa chỉ khách hàng
- * levelOrder: quyền chỉnh sửa
- * customerShippingAddress: địa chỉ khách hàng, để tính phí ship apply cấu hình đơn hàng
- * form: form, để set vào phí ship
- * totalAmountOrder: tổng giá trị đơn hàng, để tính phí ship apply cấu hình đơn hàng
- */
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
-    totalAmountCustomerNeedToPay,
+    amount,
+    shippingFeeCustomer,
+    discountValue,
+    OrderDetail,
+    // payments,
+    setShippingFeeInformedCustomer,
+    // deliveryServices,
     infoFees,
     serviceType,
+    changeServiceType,
+    // fulfillments,
+    // isCloneOrder,
     addressError,
     levelOrder = 0,
-    customerShippingAddress,
-    form,
-    totalAmountOrder,
-    changeServiceType,
-    setShippingFeeInformedToCustomer,
+    totalAmountReturnProducts,
   } = props;
 
   console.log("propsShipmentmethod", props);
@@ -106,11 +108,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     };
   }, [infoFees]);
 
-  // const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
-  // const form = createOrderContext?.form;
-  // const orderPrice = createOrderContext?.order.orderAmount;
-  // const totalAmountCustomerNeedToPaySelfDelivery =
-  //   createOrderContext?.price.totalAmountCustomerNeedToPay;
+  const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
+  const form = createOrderContext?.form;
+  const orderPrice = createOrderContext?.order.orderAmount;
+  const totalAmountCustomerNeedToPaySelfDelivery =
+    createOrderContext?.price.totalAmountCustomerNeedToPay;
 
   /**
    * check cấu hình đơn hàng để tính phí ship báo khách
@@ -118,7 +120,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
-      if (!customerShippingAddress || totalAmountOrder === undefined) {
+      if (!customerShippingAddress || orderPrice === undefined) {
         return;
       }
       const customerShippingAddressCityId = customerShippingAddress.city_id;
@@ -194,12 +196,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               console.log("single", single);
               console.log("customerShippingAddressCityId", customerShippingAddressCityId);
               console.log(
-                "checkIfPrice(totalAmountOrder, single.from_price, single.to_price)",
-                checkIfPrice(totalAmountOrder, single.from_price, single.to_price)
+                "checkIfPrice(orderPrice, single.from_price, single.to_price)",
+                checkIfPrice(orderPrice, single.from_price, single.to_price)
               );
               return (
                 checkIfSameCity(single.city_id, customerShippingAddressCityId) &&
-                checkIfPrice(totalAmountOrder, single.from_price, single.to_price)
+                checkIfPrice(orderPrice, single.from_price, single.to_price)
               );
             });
           console.log("checkedShippingFeeConfig", checkedShippingFeeConfig);
@@ -233,18 +235,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         });
         console.log("result", result);
         form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
-        setShippingFeeInformedToCustomer(result);
+        setShippingFeeInformedCustomer(result);
       } else {
         form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
-        setShippingFeeInformedToCustomer(0);
+        setShippingFeeInformedCustomer(0);
       }
     },
     [
       createOrderContext?.shipping.shippingServiceConfig,
       customerShippingAddress,
       form,
-      totalAmountOrder,
-      setShippingFeeInformedToCustomer,
+      orderPrice,
+      setShippingFeeInformedCustomer,
     ]
   );
 
@@ -267,8 +269,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPay && totalAmountCustomerNeedToPay > 0
-                    ? totalAmountCustomerNeedToPay
+                  totalAmountCustomerNeedToPaySelfDelivery &&
+                  totalAmountCustomerNeedToPaySelfDelivery > 0
+                    ? totalAmountCustomerNeedToPaySelfDelivery
                     : 0
                 }
                 className="formInputAmount"
@@ -289,7 +292,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 className="formInputAmount"
                 maxLength={15}
                 minLength={0}
-                onChange={setShippingFeeInformedToCustomer}
+                onChange={setShippingFeeInformedCustomer}
               />
             </Form.Item>
           </Col>
