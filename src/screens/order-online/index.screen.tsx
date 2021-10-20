@@ -85,7 +85,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  order_sub_status: [],
+  sub_status_id: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
@@ -356,10 +356,10 @@ const ListOrderScreen: React.FC = () => {
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
+          case "unpicked":
+            processIcon = "icon-blank";
             break;
-          case "paid":
+          case "picked":
             processIcon = "icon-full";
             break;
           default:
@@ -380,22 +380,10 @@ const ListOrderScreen: React.FC = () => {
       title: "Xuất kho",
       dataIndex: "received_status",
       key: "received_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
+      render: (received_status: boolean) => {
         return (
           <div className="text-center">
-            <div className={processIcon} />
+            <div className={received_status ? "icon-full" : "icon-blank"} />
           </div>
         );
       },
@@ -437,10 +425,10 @@ const ListOrderScreen: React.FC = () => {
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
+          case "unreturned":
+            processIcon = "icon-blank";
             break;
-          case "paid":
+          case "returned":
             processIcon = "icon-full";
             break;
           default:
