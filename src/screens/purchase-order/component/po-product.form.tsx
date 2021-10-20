@@ -1503,7 +1503,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       /> */}
       <PickManyProductModal
         onSave={onPickManyProduct}
-        selected={data}
+        selected={[]}
         onCancel={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
       />
