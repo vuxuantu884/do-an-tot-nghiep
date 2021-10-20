@@ -20,7 +20,6 @@ import CustomFilter from "component/table/custom.filter";
 
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceOrderSearchQuery } from "model/order/order.model";
-import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 
@@ -43,7 +42,6 @@ import {
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
   actions: Array<MenuAction>;
-  listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse> | undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
@@ -64,7 +62,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const {
     params,
     actions,
-    listSource,
     listStore,
     accounts,
     deliveryService,
@@ -435,9 +432,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           case "shop_ids":
             onFilter && onFilter({ ...params, shop_ids: [] });
             break;
-          case "source":
-            onFilter && onFilter({ ...params, source_ids: [] });
-            break;
           case "issued":
             setIssuedClick("");
             setIssuedOnMin(null);
@@ -668,10 +662,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]
   );
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
-  }, [listSource]);
-
   const initialValues = useMemo(() => {
     return {
       ...params,
@@ -682,9 +672,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       shop_ids: Array.isArray(params.shop_ids)
         ? params.shop_ids
         : [params.shop_ids],
-      source_ids: Array.isArray(params.source_ids)
-        ? params.source_ids
-        : [params.source_ids],
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
@@ -872,20 +859,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       });
     }
 
-    if (initialValues.source_ids.length) {
-      let textSource = "";
-      initialValues.source_ids.forEach((source_id) => {
-        const source = listSources?.find(
-          (source) => source.id.toString() === source_id
-        );
-        textSource = source ? textSource + source.name + "; " : textSource;
-      });
-      list.push({
-        key: "source",
-        name: "Nguồn",
-        value: textSource,
-      });
-    }
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
       let textOrderCreateDate =
         (initialValues.issued_on_min ? initialValues.issued_on_min : "??") +
@@ -1182,7 +1155,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     serviceType,
     fulfillmentStatus,
     initialValues,
-    listSources,
     listStore,
     paymentStatus,
     paymentType,
@@ -1379,7 +1351,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   </Select>
                 </Form.Item>
 
-                <Form.Item label={<b>CHỌN SÀN</b>} name="ecommerce_id">
+                <Form.Item label={<b>SÀN TMĐT</b>} name="ecommerce_id">
                   <Select
                     showSearch
                     placeholder="Chọn sàn"
@@ -1407,8 +1379,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </Form.Item>
 
                 {!isEcommerceSelected && (
-                  <Form.Item label={<b>CHỌN GIAN HÀNG</b>} name="shop_ids">
-                    <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                  <Form.Item label={<b>GIAN HÀNG</b>} name="shop_ids">
+                    <Tooltip title="Yêu cầu chọn sàn TMĐT" color={"blue"}>
                       <Select
                         showSearch
                         showArrow
@@ -1445,24 +1417,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     </Select>
                   </Form.Item>
                 )}
-
-                <Form.Item label={<b>NGUỒN ĐƠN HÀNG</b>} name="source_ids">
-                  <Select
-                    mode="multiple"
-                    showArrow
-                    allowClear
-                    placeholder="Chọn nguồn đơn hàng"
-                    notFoundContent="Không tìm thấy kết quả"
-                    optionFilterProp="children"
-                    getPopupContainer={(trigger) => trigger.parentNode}
-                  >
-                    {listSources?.map((item, index) => (
-                      <Option key={index.toString()} value={item.id.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
 
                 <Form.Item label={<b>NGÀY TẠO ĐƠN</b>}>
                   <SelectDateFilter
