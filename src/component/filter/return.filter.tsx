@@ -332,8 +332,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     if (initialValues.is_received.length) {
       let textReceived = ""
       initialValues.is_received.forEach(received => {
-        
-        textReceived = received ? textReceived + "Đã nhận hàng;": textReceived + "Chưa nhận hàng;"
+        const text = received === 'true' ? "Đã nhận hàng;" : "Chưa nhận hàng;"
+        textReceived = textReceived + text
       })
       list.push({
         key: 'is_received',
