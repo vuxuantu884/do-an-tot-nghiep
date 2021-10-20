@@ -46,7 +46,7 @@ type CardPaymentsProps = {
   loyaltyRate?: LoyaltyRateResponse | null;
   setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
-  disablePostPayment?: boolean;
+  isDisablePostPayment?: boolean;
 };
 
 function CardPayments(props: CardPaymentsProps) {
@@ -57,7 +57,7 @@ function CardPayments(props: CardPaymentsProps) {
     isCloneOrder,
     shipmentMethod,
     loyaltyRate,
-    disablePostPayment = false,
+    isDisablePostPayment = false,
     setPayments,
   } = props;
   const changePaymentMethod = (value: number) => {
@@ -93,15 +93,15 @@ function CardPayments(props: CardPaymentsProps) {
     // props.setPayments([...paymentData]);
   };
 
-  const totalAmountPaid = useMemo(() => {
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    return total;
-  }, [payments]);
+  // const totalAmountPaid = useMemo(() => {
+  //   let total = 0;
+  //   payments.forEach((p) => (total = total + p.amount));
+  //   return total;
+  // }, [payments]);
 
-  const moneyReturn = useMemo(() => {
-    return props.amount - totalAmountPaid;
-  }, [props.amount, totalAmountPaid]);
+  // const moneyReturn = useMemo(() => {
+  //   return props.amount - totalAmountPaid;
+  // }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
@@ -200,7 +200,7 @@ function CardPayments(props: CardPaymentsProps) {
                 <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
                 <Radio
                   value={PaymentMethodOption.POSTPAYMENT}
-                  disabled={disablePostPayment}
+                  disabled={isDisablePostPayment}
                 >
                   Chưa xác định
                 </Radio>

@@ -80,7 +80,7 @@ export default function Order() {
   const dispatch = useDispatch();
   const history = useHistory();
   const [isSaveDraft, setIsSaveDraft] = useState(false);
-  const [disablePostPayment, setDisablePostPayment] = useState(false);
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -184,16 +184,14 @@ export default function Order() {
   };
 
   const onShipmentSelect = (value: number) => {
-    if (
-      value === ShipmentMethodOption.DELIVER_PARTNER &&
-      paymentMethod === PaymentMethodOption.POSTPAYMENT
-    ) {
-      setPaymentMethod(PaymentMethodOption.COD);
-      setDisablePostPayment(true);
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
     } else {
-      setDisablePostPayment(false);
+      setIsDisablePostPayment(false);
     }
-    console.log("value", value);
     setShipmentMethod(value);
   };
 
@@ -1079,7 +1077,7 @@ export default function Order() {
                       amount={orderAmount}
                       isCloneOrder={isCloneOrder}
                       loyaltyRate={loyaltyRate}
-                      disablePostPayment={disablePostPayment}
+                      isDisablePostPayment={isDisablePostPayment}
                     />
                     <CardShipment
                       setShipmentMethodProps={onShipmentSelect}
