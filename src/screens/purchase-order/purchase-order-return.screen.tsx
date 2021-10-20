@@ -22,6 +22,7 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { VietNamId } from "utils/Constants";
+import { showError } from "utils/ToastUtils";
 
 interface POReturnProps { }
 type PurchaseOrderReturnParams = {
@@ -49,11 +50,15 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   }, [history, id]);
   const onFinish = useCallback(
     (values: any) => {
+      if(!values.line_return_items) {
+        showError("Cần ít nhất một phiếu nhập kho để hoàn trả");
+        return;
+      }
+      setLoading(true);
       values.line_return_items = values.line_return_items.filter(
         (item: any) => item.quantity_return > 0
       );
       dispatch(POReturnAction(idNumber, values, onUpdateCall));
-      console.log(values);
     },
     [dispatch, idNumber, onUpdateCall]
   );
@@ -62,7 +67,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   };
   const onConfirmButton = useCallback(() => {
     formMain.validateFields().then((values) => {
-      setLoading(true);
+     
       values[POField.expect_return_date] = Date.now();
       onFinish(values);
     });
