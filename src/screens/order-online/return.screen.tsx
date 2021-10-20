@@ -180,13 +180,18 @@ const ListOrderScreen: React.FC = () => {
       title: "Hoàn tiền",
       //dataIndex: "total_amount",
       render: (record: any) => {
-        let processIcon = null;
+        let processIcon = "";
         switch (record.payment_status) {
           case "unpaid":
             processIcon = "icon-blank";
             break;
-          default:
+          case "paid":
             processIcon = "icon-full";
+            break;
+          case "partial_paid":
+            processIcon = "icon-partial";
+            break;
+          default:
             break;
         }
         return (
