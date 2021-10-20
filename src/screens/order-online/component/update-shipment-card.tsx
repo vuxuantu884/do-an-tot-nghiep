@@ -151,8 +151,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
 
   const [hvc, setHvc] = useState<number | null>(null);
-  const [hvcCode, setHvcCode] = useState<string | null>(null);
-  const [hvcName, setHvcName] = useState<string | null>(null);
   const [serviceType, setServiceType] = useState<string>();
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
@@ -209,18 +207,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     props.shippingFeeInformedCustomer(value);
   };
 
-  const changeServiceType = (
-    id: number,
-    code: string,
-    item: any,
-    fee: number,
-    name: string
-  ) => {
+  const changeServiceType = (id: number, code: string, item: any, fee: number) => {
     setHvc(id);
     setServiceType(item);
     setFee(fee);
-    setHvcCode(code);
-    setHvcName(name);
   };
 
   //#endregion
@@ -500,8 +490,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     order_id: null,
     code: "",
     delivery_service_provider_id: null, //id người shipper
-    delivery_service_provider_code: null,
-    delivery_service_provider_name: null,
     delivery_service_provider_type: "", //shipper
     shipper_code: null,
     shipper_name: "",
@@ -573,8 +561,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         } else {
           value.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE; //mặc định 20k
         }
-        value.delivery_service_provider_code = hvcCode;
-        value.delivery_service_provider_name = hvcName;
       }
     }
     if (props.OrderDetail != null) {
@@ -622,7 +608,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       fulfillment: FulFillmentRequest,
       action: OrderStatus.FINALIZED,
     };
-    console.log("UpdateLineFulFillment", UpdateLineFulFillment);
     if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
       showError("Vui lòng chọn đơn vị vận chuyển");
     } else {

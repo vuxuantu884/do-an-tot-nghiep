@@ -161,8 +161,6 @@ export interface UpdateShipmentRequest {
   order_id: number | null;
   code: string | null | undefined;
   delivery_service_provider_id: number | null;
-  delivery_service_provider_code: string | null;
-  delivery_service_provider_name: string | null;
   delivery_service_provider_type: string | null;
   shipper_code: string | null;
   shipper_name: string | null;
