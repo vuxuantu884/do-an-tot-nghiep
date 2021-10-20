@@ -12,3 +12,26 @@ export interface UpdateConfig3rdPartyLogisticsReQuestModel {
     status: string;
   }[];
 }
+
+export interface getDeliveryMappedStoresReQuestModel {
+  token?: string;
+  username?: string;
+  password?: string;
+}
+
+export interface createDeliveryMappedStoreReQuestModel {
+  token: string;
+  username: string;
+  password: string;
+  store_id: number;
+  store_name: string;
+  partner_shop_id: number;
+}
+
+export interface deleteDeliveryMappedStoreReQuestModel {
+  token: string;
+  username: string;
+  password: string;
+  store_id: number;
+  partner_shop_id: number;
+}

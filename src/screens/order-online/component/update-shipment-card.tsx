@@ -1381,13 +1381,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                                 color: "#222222",
                                               }}
                                             >
-                                              {item.message}
+                                              {item.shipping_status}
                                             </b>
                                             <i
                                               className="icon-dot"
                                               style={{
                                                 fontSize: "4px",
-                                                margin: "16px 10px 10px 10px",
+                                                margin: "10px 10px 10px 10px",
                                                 color: "#737373",
                                               }}
                                             ></i>{" "}
