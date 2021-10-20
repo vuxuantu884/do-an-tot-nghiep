@@ -226,8 +226,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
-        case 'order_sub_status':
-          onFilter && onFilter({...params, order_sub_status: []});
+        case 'sub_status_id':
+          onFilter && onFilter({...params, sub_status_id: []});
           break;
         case 'fulfillment_status':
           onFilter && onFilter({...params, fulfillment_status: []});
@@ -400,7 +400,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      order_sub_status: Array.isArray(params.order_sub_status) ? params.order_sub_status : [params.order_sub_status],
+      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
       fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
@@ -528,15 +528,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.order_sub_status.length) {
+    if (initialValues.sub_status_id.length) {
       let textStatus = ""
       
-      initialValues.order_sub_status.forEach((i: any) => {
+      initialValues.sub_status_id.forEach((i: any) => {
         const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
       })
       list.push({
-        key: 'order_sub_status',
+        key: 'sub_status_id',
         name: 'Trạng thái xử lý đơn',
         value: textStatus
       })
@@ -955,9 +955,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.order_sub_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.sub_status_id.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN" key="1" className="header-filter">
-                    <Item name="order_sub_status">
+                    <Item name="sub_status_id">
                     <Select
                       mode="multiple"
                       showSearch

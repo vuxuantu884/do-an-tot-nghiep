@@ -85,7 +85,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  order_sub_status: [],
+  sub_status_id: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
