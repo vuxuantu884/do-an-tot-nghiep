@@ -93,15 +93,15 @@ function CardPayments(props: CardPaymentsProps) {
     // props.setPayments([...paymentData]);
   };
 
-  const totalAmountPaid = useMemo(() => {
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    return total;
-  }, [payments]);
+  // const totalAmountPaid = useMemo(() => {
+  //   let total = 0;
+  //   payments.forEach((p) => (total = total + p.amount));
+  //   return total;
+  // }, [payments]);
 
-  const moneyReturn = useMemo(() => {
-    return props.amount - totalAmountPaid;
-  }, [props.amount, totalAmountPaid]);
+  // const moneyReturn = useMemo(() => {
+  //   return props.amount - totalAmountPaid;
+  // }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
