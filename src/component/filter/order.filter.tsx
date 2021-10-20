@@ -27,6 +27,7 @@ import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -36,6 +37,7 @@ type OrderFilterProps = {
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
+  listPaymentMethod: Array<PaymentMethodResponse>;
   subStatus: Array<OrderProcessingStatusModel>;
   isLoading?: Boolean;
   onMenuClick?: (index: number) => void;
@@ -58,6 +60,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     accounts,
     deliveryService,
     subStatus,
+    listPaymentMethod,
     isLoading,
     onMenuClick,
     onClearFilter,
@@ -97,13 +100,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đã trả một phần", value: "partial_paid"},
     {name: "Đang hoàn lại", value: "refunding"}
   ], []);
-  const paymentType = useMemo(() => [
-    {name: "Tiền mặt", value: 1},
-    {name: "Chuyển khoản", value: 3},
-    {name: "QR Pay", value: 4},
-    {name: "Tiêu điểm", value: 5},
-    {name: "COD", value: 0},
-  ], []);
+  // const paymentType = useMemo(() => [
+  //   {name: "Tiền mặt", value: 1},
+  //   {name: "Chuyển khoản", value: 3},
+  //   {name: "QR Pay", value: 4},
+  //   {name: "Tiêu điểm", value: 5},
+  //   {name: "COD", value: 0},
+  // ], []);
 
   const serviceType = useMemo(() => [
     {
@@ -615,7 +618,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.payment_method_ids.length) {
       let textStatus = ""
       initialValues.payment_method_ids.forEach(i => {
-        const findStatus = paymentType?.find(item => item.value.toString() === i)
+        const findStatus = listPaymentMethod?.find(item => item.id.toString() === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
       list.push({
@@ -704,7 +707,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
+  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, listPaymentMethod, status, subStatus]);
 
   console.log('initialValues', initialValues);
   return (
@@ -1153,11 +1156,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
                       getPopupContainer={trigger => trigger.parentNode}
                     >
-                      {paymentType.map((item, index) => (
+                      {listPaymentMethod.map((item, index) => (
                         <Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.value.toString()}
+                          value={item.id.toString()}
                         >
                           {item.name}
                         </Option>
