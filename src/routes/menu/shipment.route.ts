@@ -6,6 +6,23 @@ const ListFulfillmentScreen = React.lazy(
   () => import("screens/order-online/list-shipments")
 );
 
+// ThirdPartyLogisticsIntegration: Kết nối hãng vận chuyển
+const ThirdPartyLogisticsIntegrationScreen = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/giao-hang-nhanh")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_ViettelPost = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/viettel-post")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_DHL = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/dhl")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem")
+);
+
 const shipments: Array<RouteMenu> = [
   {
     path: `${UrlConfig.SHIPMENTS}`,
@@ -19,26 +36,65 @@ const shipments: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-    path: `${UrlConfig.SHIPMENTS}/create1`,
+    path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
     exact: true,
-    title: "Cấu hình HVC",
+    title: "Kết nối hãng vận chuyển",
+    subTitle: "Kết nối hãng vận chuyển",
     icon: "icon-dot",
-    component: ListFulfillmentScreen,
-    key: "submenu67",
+    component: ThirdPartyLogisticsIntegrationScreen,
+    key: "subMenu97",
     isShow: true,
     header: null,
-    subMenu: [],
-  },
-  {
-    path: `${UrlConfig.SHIPMENTS}/create2`,
-    exact: true,
-    title: "Cấu hình phí giao hàng",
-    icon: "icon-dot",
-    component: ListFulfillmentScreen,
-    key: "submenu68",
-    isShow: true,
-    header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghn`,
+        exact: true,
+        title: "Giao hàng nhanh",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh,
+        key: "giao-hang-nhanh",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/vtp`,
+        exact: true,
+        title: "Viettel Post",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_ViettelPost,
+        key: "viettel-post",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/dhl`,
+        exact: true,
+        title: "DHL",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_DHL,
+        key: "dhl",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghtk`,
+        exact: true,
+        title: "Giao hàng tiết kiệm",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem,
+        key: "giao-hang-tiet-kiem",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+    ],
   },
 ];
 

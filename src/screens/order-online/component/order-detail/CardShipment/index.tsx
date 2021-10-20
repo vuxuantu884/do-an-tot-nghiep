@@ -43,6 +43,8 @@ type CardShipmentProps = {
   setShippingFeeInformedCustomerHVC: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
   setHVC: (value: number) => void;
+  setHvcName?: (value: string) => void;
+  setHvcCode?: (value: string) => void;
   setOfficeTime: (value: boolean) => void;
   serviceType?: string | null;
   setServiceType: (value?: string) => void;
@@ -72,6 +74,8 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     OrderDetail,
     setShipmentMethodProps,
     setHVC,
+    setHvcName,
+    setHvcCode,
     serviceType,
     setServiceType,
     setFee,
@@ -136,12 +140,20 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const changeServiceType = (id: number, code: string, item: any, fee: number) => {
+  const changeServiceType = (
+    id: number,
+    code: string,
+    item: any,
+    fee: number,
+    name: string
+  ) => {
     console.log("changeServiceType", item);
 
     setHVC(id);
     setServiceType(item);
     setFee(fee);
+    setHvcName && setHvcName(name);
+    setHvcCode && setHvcCode(code);
   };
 
   useLayoutEffect(() => {
@@ -362,7 +374,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
                 amount={amount}
-                totalPaid={totalPaid}
+                // totalPaid={totalPaid}
                 serviceType={serviceType}
                 changeServiceType={changeServiceType}
                 // deliveryServices={deliveryServices}
