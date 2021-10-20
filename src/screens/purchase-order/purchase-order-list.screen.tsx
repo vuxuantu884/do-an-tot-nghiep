@@ -155,9 +155,9 @@ const PurchaseOrderListScreen: React.FC = () => {
     {
       title: "Ngày nhận hàng dự kiến",
       dataIndex: "procurements",
-      render: (value:  Array<PurchaseProcument>) => {
+      render: (value: Array<PurchaseProcument>) => {
         let display = '';
-        if(value && value.length > 0) {
+        if (value && value.length > 0) {
           value.sort((a, b) => moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)))
           display = ConvertUtcToLocalDate(value[value.length - 1].expect_receipt_date);
         }
@@ -179,6 +179,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       dataIndex: "receive_status",
       render: (value: string) => {
         let processIcon = null;
+
         switch (value) {
           case ProcumentStatus.NOT_RECEIVED:
           case null:
@@ -198,7 +199,11 @@ const PurchaseOrderListScreen: React.FC = () => {
               <div className={processIcon} />
             </div>
           );
-        return "";
+        return (
+          <div className="text-center">
+            <div className="icon-blank" />
+          </div>
+        )
       },
       visible: true,
       width: 120,
@@ -227,13 +232,12 @@ const PurchaseOrderListScreen: React.FC = () => {
               <div className={processIcon} />
             </div>
           );
-        return "";
+          return (
+            <div className="text-center">
+              <div className="icon-blank" />
+            </div>
+          )
       },
-      visible: true,
-      width: 120,
-    },
-    {
-      title: "Trả hàng",
       visible: true,
       width: 120,
     },
@@ -251,19 +255,6 @@ const PurchaseOrderListScreen: React.FC = () => {
     {
       title: "Tổng tiền",
       dataIndex: "total",
-      render: (value: number) => (
-        <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
-      ),
-      visible: true,
-    },
-    {
-      title: "Chi phí",
-      dataIndex: "total_cost_line",
       render: (value: number) => (
         <NumberFormat
           value={value}
@@ -468,7 +459,7 @@ const PurchaseOrderListScreen: React.FC = () => {
               className="light"
               size="large"
               icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => {}}
+              onClick={() => { }}
             >
               Nhập file
             </Button>
@@ -492,6 +483,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       <Card>
         <div className="purchase-order-list">
           <PurchaseOrderFilter
+            openSetting={() => setShowSettingColumn(true)}
             params={params}
             onMenuClick={onMenuClick}
             actions={actions}
@@ -504,8 +496,8 @@ const PurchaseOrderListScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630}}
-            sticky={{offsetScroll: 10, offsetHeader: 55}}
+            scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
