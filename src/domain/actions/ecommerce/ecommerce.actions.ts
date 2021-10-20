@@ -5,6 +5,7 @@ import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import {
   ProductEcommerceQuery,
   PostProductEcommerceQuery,
+  PostEcommerceOrderQuery,
 } from "model/query/ecommerce.query";
 
 // config
@@ -105,4 +106,9 @@ export const getCategoryList = (query: any, setData: (data: any) => void) => {
 
 export const putConnectEcommerceItem = (query: any, setData: (data: any) => void) => {
   return BaseAction(EcommerceType.PUT_CONNECT_ECOMMERCE_ITEM_REQUEST, { query, setData });
+}
+
+//ecommerce order actions
+export const postEcommerceOrderAction = (query: PostEcommerceOrderQuery, setData: (data: any) => void) => {
+  return BaseAction(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, { query, setData });
 }

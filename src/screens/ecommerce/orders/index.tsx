@@ -132,8 +132,8 @@ const EcommerceOrderSync: React.FC = () => {
     useState(false);
   const [downloadedOrderData, setDownloadedOrderData] = useState<any>({
     total: 0,
-    create_total: 0,
-    update_total: 0,
+    create_order_count: 0,
+    update_order_count: 0,
   });
 
   const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
@@ -662,17 +662,27 @@ const EcommerceOrderSync: React.FC = () => {
   const updateOrderList = (data: any) => {
     setIsShowGetOrderModal(false);
     setIsShowResultGetOrderModal(true);
-    setDownloadedOrderData(data);
 
-    // thai need todo: call api
+    if (data && data.total) {
+      setDownloadedOrderData(data);
+    }
   };
 
-  const cancelResultGetOrderModal = () => {
-    setIsShowResultGetOrderModal(false);
+  const getEcommerceOrderList = useCallback((queryRequest: any) => {
+    setTableLoading(true);
+    dispatch(getListOrderAction(queryRequest, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
+  }, [dispatch, setSearchResult]);
+
+  const reloadPage = () => {
+    getEcommerceOrderList(params);
   };
 
-  const okResultGetOrderModal = () => {
+  const closeResultGetOrderModal = () => {
     setIsShowResultGetOrderModal(false);
+    reloadPage();
   };
 
   useEffect(() => {
@@ -780,8 +790,8 @@ const EcommerceOrderSync: React.FC = () => {
         {isShowResultGetOrderModal && (
           <ResultDownloadOrderDataModal
             visible={isShowResultGetOrderModal}
-            onCancel={cancelResultGetOrderModal}
-            onOk={okResultGetOrderModal}
+            onCancel={closeResultGetOrderModal}
+            onOk={closeResultGetOrderModal}
             data={downloadedOrderData}
           />
         )}

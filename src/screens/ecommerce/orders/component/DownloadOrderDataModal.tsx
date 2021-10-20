@@ -7,7 +7,7 @@ import { DATE_FORMAT } from 'utils/DateUtils';
 
 import {
   getShopEcommerceList,
-  postProductEcommerceList
+  postEcommerceOrderAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
@@ -36,11 +36,11 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
   const dispatch = useDispatch();
   
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
-  const [ecommerceSelected, setEcommerceSelected] = useState(0);
+  const [ecommerceSelected, setEcommerceSelected] = useState(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState(null);
-  const [startDate, setStartDate] = useState<any>();
-  const [endDate, setEndDate] = useState<any>();
+  const [startDate, setStartDate] = useState<any>(null);
+  const [endDate, setEndDate] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activatedBtn, setActivatedBtn] = useState({
     title: "",
@@ -153,32 +153,32 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
   }
 
   const onChangeDate = (dates: any, dateStrings: any) => {
-    const startDate = convertStartDateToTimestamp(dateStrings[0]);
-    setStartDate(startDate);
-    const endDate = convertEndDateToTimestamp(dateStrings[1]);
-    setEndDate(endDate);
+    const startDateValue = convertStartDateToTimestamp(dateStrings[0]);
+    setStartDate(startDateValue);
+    const endDateValue = convertEndDateToTimestamp(dateStrings[1]);
+    setEndDate(endDateValue);
 
     setValue(dates);
   };
   
-  //end handle date
+  //end handle select date
 
 
-  const updateEcommerceList = useCallback((data) => {
+  const updateEcommerceOrderList = useCallback((data) => {
     setIsLoading(false);
     onOk(data);
   }, [onOk]);
 
-  const getProductsFromEcommerce = () => {
+  const postEcommerceOrder = () => {
     const params = {
-      ecommerce_id: ecommerceSelected || null,
-      shop_id: shopIdSelected || null,
-      update_time_from: startDate || null,
-      update_time_to: endDate || null
+      ecommerce_id: ecommerceSelected,
+      shop_id: shopIdSelected,
+      create_time_from: startDate,
+      create_time_to: endDate,
     }
     
     setIsLoading(true);
-    dispatch(postProductEcommerceList(params, updateEcommerceList));
+    dispatch(postEcommerceOrderAction(params, updateEcommerceOrderList));
   };
 
   const isDisableOkButton = () => {
@@ -195,7 +195,7 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
         key: ""
       }
     );
-    setEcommerceSelected(0);
+    setEcommerceSelected(null);
     setIsEcommerceSelected(false);
     onCancel();
   };
@@ -209,7 +209,7 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
       okText="Tải dữ liệu"
       cancelText="Hủy"
       onCancel={cancelGetOrderModal}
-      onOk={getProductsFromEcommerce}
+      onOk={postEcommerceOrder}
       okButtonProps={{disabled: isDisableOkButton()}}
       maskClosable={false}
       confirmLoading={isLoading}
@@ -235,7 +235,6 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
           </div>
 
           <Form.Item
-            name="shop_id"
             label={<b>Lựa chọn gian hàng <span style={{color: 'red'}}>*</span></b>}
           >
             {!isEcommerceSelected &&
@@ -268,7 +267,7 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
             }
           </Form.Item>
         
-          <Form.Item name="start_time" label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>
+          <Form.Item label={<b>Thời gian <span style={{color: 'red'}}>*</span></b>}>
             <RangePicker
               disabled={isLoading}
               placeholder={["Từ ngày", "Đến ngày"]}

@@ -17,3 +17,10 @@ export interface PostProductEcommerceQuery {
   update_time_from: number | null;
   update_time_to: number | null;
 }
+
+export interface PostEcommerceOrderQuery {
+  ecommerce_id: number | null;
+  shop_id: number | null;
+  create_time_from: number | null;
+  create_time_to: number | null;
+}
