@@ -21,6 +21,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   amount: number | undefined;
+  totalPaid?: number | undefined;
   shippingFeeCustomer: number | null;
   discountValue: number | null | undefined;
   OrderDetail?: OrderResponse | null;
@@ -40,9 +41,10 @@ type PropType = {
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
     amount,
+    totalPaid,
     shippingFeeCustomer,
     discountValue,
-    OrderDetail,
+    // OrderDetail,
     // payments,
     setShippingFeeInformedCustomer,
     // deliveryServices,
@@ -108,11 +110,20 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     };
   }, [infoFees]);
 
+  const totalAmountCustomerNeedToPaySelfDelivery = () => {
+    return (
+      (amount ? amount : 0) +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (totalPaid ? totalPaid : 0) -
+      // totalAmountPaid() -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+    );
+  };
+
   const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
   const form = createOrderContext?.form;
   const orderPrice = createOrderContext?.order.orderAmount;
-  const totalAmountCustomerNeedToPaySelfDelivery =
-    createOrderContext?.price.totalAmountCustomerNeedToPay;
 
   /**
    * check cấu hình đơn hàng để tính phí ship báo khách
@@ -252,7 +263,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   return (
     <StyledComponent>
-      <div className="shipmentMethod__deliverPartner">
+      <div className="shipmentMethod__deliverPartner" style={{ marginTop: 20 }}>
         {addressError && (
           <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>{addressError}</div>
         )}
@@ -269,9 +280,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPaySelfDelivery &&
-                  totalAmountCustomerNeedToPaySelfDelivery > 0
-                    ? totalAmountCustomerNeedToPaySelfDelivery
+                  totalAmountCustomerNeedToPaySelfDelivery() > 0
+                    ? totalAmountCustomerNeedToPaySelfDelivery()
                     : 0
                 }
                 className="formInputAmount"
