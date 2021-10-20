@@ -30,7 +30,13 @@ type PropType = {
   // deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
   serviceType?: string | null;
-  changeServiceType: (id: number, code: string, item: any, fee: number) => void;
+  changeServiceType: (
+    id: number,
+    code: string,
+    item: any,
+    fee: number,
+    name: string
+  ) => void;
   fulfillments: FulFillmentResponse[] | null | undefined;
   isCloneOrder?: boolean;
   addressError: string;
@@ -381,7 +387,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                                 ].id,
                                                 deliveryServiceName,
                                                 service.transport_type,
-                                                service.total_fee
+                                                service.total_fee,
+                                                (deliveryService as any)[
+                                                  deliveryServiceName
+                                                ].name
                                               );
                                             }}
                                             disabled={
