@@ -46,6 +46,7 @@ type CardPaymentsProps = {
   loyaltyRate?: LoyaltyRateResponse | null;
   setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
+  disablePostPayment?: boolean;
 };
 
 function CardPayments(props: CardPaymentsProps) {
@@ -56,6 +57,7 @@ function CardPayments(props: CardPaymentsProps) {
     isCloneOrder,
     shipmentMethod,
     loyaltyRate,
+    disablePostPayment = false,
     setPayments,
   } = props;
   const changePaymentMethod = (value: number) => {
@@ -196,7 +198,12 @@ function CardPayments(props: CardPaymentsProps) {
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
                 <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
-                <Radio value={PaymentMethodOption.POSTPAYMENT}>Chưa xác định</Radio>
+                <Radio
+                  value={PaymentMethodOption.POSTPAYMENT}
+                  disabled={disablePostPayment}
+                >
+                  Chưa xác định
+                </Radio>
               </Space>
             </Radio.Group>
             {paymentMethod === PaymentMethodOption.COD &&
