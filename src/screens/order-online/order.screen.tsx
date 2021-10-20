@@ -103,6 +103,9 @@ export default function Order() {
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [hvc, setHvc] = useState<number | null>(null);
+  const [hvcCode, setHvcCode] = useState<string | null>(null);
+  const [hvcName, setHvcName] = useState<string | null>(null);
+
   const [fee, setFee] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
@@ -317,6 +320,8 @@ export default function Order() {
           ...objShipment,
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
+          delivery_service_provider_code: hvcCode,
+          delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
           shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           service: serviceType!,
@@ -1082,6 +1087,8 @@ export default function Order() {
                       officeTime={officeTime}
                       setServiceType={setServiceType}
                       setHVC={setHvc}
+                      setHvcName={setHvcName}
+                      setHvcCode={setHvcCode}
                       setFee={setFee}
                       payments={payments}
                       onPayments={onPayments}
