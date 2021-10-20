@@ -383,8 +383,13 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <ShipmentMethodSelfDelivery
                 setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
+                shippingFeeCustomer={shippingFeeCustomer}
+                amount={amount}
+                totalPaid={totalPaid}
+                discountValue={discountValue}
                 shipper={shipper}
                 levelOrder={levelOrder}
+                totalAmountReturnProducts={totalAmountReturnProducts}
               />
             )}
 

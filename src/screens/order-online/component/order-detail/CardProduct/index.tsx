@@ -1023,7 +1023,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   }
                   return false;
                 }}
-                disabled={levelOrder > 1}
+                disabled={levelOrder > 3}
               >
                 {dataCanAccess.map((item, index) => (
                   <Select.Option key={index} value={item.id}>
@@ -1202,7 +1202,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           showDiscountModal={ShowDiscountModal}
           totalAmountOrder={amount}
           items={items}
-          shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+          shippingFeeInformedToCustomer={shippingFeeInformedToCustomer || props.shippingFeeCustomer}
         />
 
         <PickDiscountModal

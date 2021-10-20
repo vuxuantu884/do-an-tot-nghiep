@@ -868,6 +868,10 @@
     }
     .ant-divider-inner-text {
       padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    &.ant-divider-with-text-right:after {
+      display: none;
     }
     &-primary {
       .ant-divider-inner-text {

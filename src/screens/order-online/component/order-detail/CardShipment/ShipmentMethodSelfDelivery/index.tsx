@@ -10,14 +10,31 @@ import { StyledComponent } from "./styles";
 type PropType = {
   shipper: AccountResponse[] | null;
   setShippingFeeInformedCustomer: (value: number | null) => void;
+  shippingFeeCustomer?: number | null;
+  amount?: number;
+  totalPaid?: number;
+  discountValue?: number | null;
+  totalAmountReturnProducts?: number;
   levelOrder?: number;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
-  const { shipper, setShippingFeeInformedCustomer, levelOrder = 0 } = props;
+  const {
+    shipper, setShippingFeeInformedCustomer,
+    amount, totalPaid, levelOrder = 0,
+    shippingFeeCustomer,
+    discountValue,
+    totalAmountReturnProducts
+  } = props;
 
   const createOrderContextData = useContext(OrderCreateContext);
   const totalAmountCustomerNeedToPayShipper =
-    createOrderContextData?.price.totalAmountCustomerNeedToPay;
+    createOrderContextData?.price.totalAmountCustomerNeedToPay ?
+      createOrderContextData?.price.totalAmountCustomerNeedToPay : ((amount ? amount : 0) +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (totalPaid ? totalPaid : 0) -
+      // totalAmountPaid() -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 
   return (
     <StyledComponent>
