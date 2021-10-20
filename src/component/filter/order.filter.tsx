@@ -27,6 +27,7 @@ import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -36,6 +37,7 @@ type OrderFilterProps = {
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
+  listPaymentMethod: Array<PaymentMethodResponse>;
   subStatus: Array<OrderProcessingStatusModel>;
   isLoading?: Boolean;
   onMenuClick?: (index: number) => void;
@@ -58,6 +60,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     accounts,
     deliveryService,
     subStatus,
+    listPaymentMethod,
     isLoading,
     onMenuClick,
     onClearFilter,
@@ -97,13 +100,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đã trả một phần", value: "partial_paid"},
     {name: "Đang hoàn lại", value: "refunding"}
   ], []);
-  const paymentType = useMemo(() => [
-    {name: "Tiền mặt", value: 1},
-    {name: "Chuyển khoản", value: 3},
-    {name: "QR Pay", value: 4},
-    {name: "Tiêu điểm", value: 5},
-    {name: "COD", value: 0},
-  ], []);
+  // const paymentType = useMemo(() => [
+  //   {name: "Tiền mặt", value: 1},
+  //   {name: "Chuyển khoản", value: 3},
+  //   {name: "QR Pay", value: 4},
+  //   {name: "Tiêu điểm", value: 5},
+  //   {name: "COD", value: 0},
+  // ], []);
 
   const serviceType = useMemo(() => [
     {
@@ -223,8 +226,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
-        case 'order_sub_status':
-          onFilter && onFilter({...params, order_sub_status: []});
+        case 'sub_status_id':
+          onFilter && onFilter({...params, sub_status_id: []});
           break;
         case 'fulfillment_status':
           onFilter && onFilter({...params, fulfillment_status: []});
@@ -397,7 +400,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      order_sub_status: Array.isArray(params.order_sub_status) ? params.order_sub_status : [params.order_sub_status],
+      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
       fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
@@ -525,15 +528,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.order_sub_status.length) {
+    if (initialValues.sub_status_id.length) {
       let textStatus = ""
       
-      initialValues.order_sub_status.forEach((i: any) => {
+      initialValues.sub_status_id.forEach((i: any) => {
         const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
         textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
       })
       list.push({
-        key: 'order_sub_status',
+        key: 'sub_status_id',
         name: 'Trạng thái xử lý đơn',
         value: textStatus
       })
@@ -615,7 +618,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.payment_method_ids.length) {
       let textStatus = ""
       initialValues.payment_method_ids.forEach(i => {
-        const findStatus = paymentType?.find(item => item.value.toString() === i)
+        const findStatus = listPaymentMethod?.find(item => item.id.toString() === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
       list.push({
@@ -704,7 +707,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
+  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, listPaymentMethod, status, subStatus]);
 
   console.log('initialValues', initialValues);
   return (
@@ -952,9 +955,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.order_sub_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.sub_status_id.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN" key="1" className="header-filter">
-                    <Item name="order_sub_status">
+                    <Item name="sub_status_id">
                     <Select
                       mode="multiple"
                       showSearch
@@ -1153,11 +1156,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
                       getPopupContainer={trigger => trigger.parentNode}
                     >
-                      {paymentType.map((item, index) => (
+                      {listPaymentMethod.map((item, index) => (
                         <Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.value.toString()}
+                          value={item.id.toString()}
                         >
                           {item.name}
                         </Option>
