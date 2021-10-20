@@ -385,10 +385,11 @@
         content: "";
         position: absolute;
         width: 2px;
-        height: 100%;
+        // height: 100%;
         background-color: #d9d9e4;
         left: -2px;
         top: -16px;
+        bottom: 5px;
       }
       &:first-child {
         &::before {
@@ -1206,10 +1207,10 @@
 }
 
 .orders-update-shipment {
-  .orders-timeline-custom {
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e5e5e5;
-  }
+  // .orders-timeline-custom {
+  //   padding-bottom: 8px;
+  //   border-bottom: 1px solid #e5e5e5;
+  // }
   .saleorder-custom-steps {
     display: flex;
     margin-top: 26px;
@@ -1295,15 +1296,15 @@
     .orders-timeline-custom {
       position: relative;
       // margin-left: 20px;
-      &::before {
-        position: absolute;
-        content: "";
-        width: 14px;
-        height: 14px;
-        top: 20px;
-        left: -4px;
-        border-radius: 50%;
-      }
+      // &::before {
+      //   position: absolute;
+      //   content: "";
+      //   width: 14px;
+      //   height: 14px;
+      //   top: 20px;
+      //   left: -4px;
+      //   border-radius: 50%;
+      // }
     }
     .orders-timeline-custom.order-shipment-dot-default {
       &::before {
@@ -1351,9 +1352,9 @@
   //     border-bottom: 1px solid #e5e5e5;
   //   }
   // }
-  .ant-collapse-content-box {
-    padding: 0;
-  }
+  // .ant-collapse-content-box {
+  //   padding: 0;
+  // }
   .ant-collapse > .ant-collapse-item.ant-collapse-no-arrow > .ant-collapse-header {
     padding-left: 0;
   }
