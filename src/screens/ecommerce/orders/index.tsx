@@ -23,12 +23,10 @@ import { AccountResponse } from "model/account/account.model";
 
 import { getListOrderAction } from "domain/actions/order/order.action";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 
 import { PageResponse } from "model/base/base-metadata.response";
-import { SourceResponse } from "model/response/order/source.response";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
@@ -149,7 +147,6 @@ const EcommerceOrderSync: React.FC = () => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
@@ -695,7 +692,6 @@ const EcommerceOrderSync: React.FC = () => {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
       actionFetchListOrderProcessingStatus(
@@ -746,7 +742,6 @@ const EcommerceOrderSync: React.FC = () => {
             onFilter={onFilter}
             onClearFilter={() => onClearFilter()}
             params={params}
-            listSource={listSource}
             listStore={listStore}
             accounts={accounts}
             deliveryService={delivery_service}
