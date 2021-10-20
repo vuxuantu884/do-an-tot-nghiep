@@ -18,8 +18,8 @@ import {
   PurchaseOrderPrint,
 } from "model/purchase-order/purchase-order.model";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { POGetPrintContentAction } from "domain/actions/po/po.action";
@@ -35,7 +35,6 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import POStep from "./component/po-step";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -51,6 +50,7 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 type PurchaseOrderParam = {
   id: string;
@@ -97,7 +97,6 @@ const PODetailScreen: React.FC = () => {
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
 
   const [loadingConfirmButton, setLoadingConfirmButton] = useState(false);
   const [loadingSaveDraftButton, setLoadingSaveDraftButton] = useState(false);
@@ -132,9 +131,7 @@ const PODetailScreen: React.FC = () => {
     },
     [dispatch, idNumber, onDetail]
   );
-  const collapse = useSelector(
-    (state: RootReducerType) => state.appSettingReducer.collapse
-  );
+
   const onConfirmButton = useCallback(() => {
     setStatusAction(POStatus.FINALIZED);
     setIsEditDetail(true);
@@ -207,13 +204,7 @@ const PODetailScreen: React.FC = () => {
     },
     [dispatch, idNumber, onUpdateCall, statusAction]
   );
-  const onScroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
+
   const onAddProcumentSuccess = useCallback(
     (isSuggest) => {
       loadDetail(idNumber, true, isSuggest);
@@ -401,12 +392,6 @@ const PODetailScreen: React.FC = () => {
       setError(true);
     }
   }, [dispatch, idNumber, loadDetail, onResultWin, onStoreResult, printContentCallback]);
-  useEffect(() => {
-    window.addEventListener("scroll", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [formMain, onScroll]);
 
   const handleExport = () => {
     var temp = document.createElement("div");
@@ -574,38 +559,16 @@ const PODetailScreen: React.FC = () => {
             />
           </Col>
         </Row>
-
-        <Row
-          gutter={24}
-          className="margin-top-10 "
-          style={{
-            position: "fixed",
-            textAlign: "right",
-            zIndex: 5,
-            width: "100%",
-            height: "55px",
-            bottom: "0%",
-            backgroundColor: "#FFFFFF",
-            marginLeft: collapse ? "-25px" : "-20px",
-            display: `${isShowBillStep ? "" : "none"}`,
-          }}
-        >
-          <Col
-            md={12}
-            style={{
-              // marginLeft: "-20px",
-              marginTop: "3px",
-              padding: "3px",
-              zIndex: 100,
-            }}
-          >
+        <BottomBarContainer 
+          back={false}
+          leftComponent={
+            <React.Fragment>
             {poData && <POStep poData={poData} />}
-          </Col>
-
-          <Col md={12} style={{ marginTop: "8px" }}>
-            {renderButton}
-          </Col>
-        </Row>
+            </React.Fragment>
+          }
+          height={80}
+          rightComponent={renderButton}
+        />
       </Form>
       {renderModalDelete()}
     </ContentContainer>

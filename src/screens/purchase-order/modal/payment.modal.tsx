@@ -100,7 +100,6 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       let data = formPayment.getFieldsValue(true);
 
       if (data.id) {
-        if (data.status === PoPaymentStatus.REFUND) data.amount = -data.amount;
         dispatch(PoPaymentUpdateAction(poId, data.id, data, updateCallback));
       } else {
         values.status = PoPaymentStatus.UNPAID;
@@ -140,6 +139,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   useEffect(() => {
     if (visible) {
       if (purchasePayment) {
+        if(purchasePayment.is_refund && purchasePayment.amount) {
+          purchasePayment.amount = Math.abs(purchasePayment.amount);
+        }
         formPayment.setFieldsValue(purchasePayment);
       }
     }

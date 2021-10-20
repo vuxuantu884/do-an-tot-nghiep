@@ -492,8 +492,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           case "order_status":
             onFilter && onFilter({ ...params, order_status: [] });
             break;
-          case "order_sub_status":
-            onFilter && onFilter({ ...params, order_sub_status: [] });
+          case "sub_status_id":
+            onFilter && onFilter({ ...params, sub_status_id: [] });
             break;
           case "fulfillment_status":
             onFilter && onFilter({ ...params, fulfillment_status: [] });
@@ -688,9 +688,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
-      order_sub_status: Array.isArray(params.order_sub_status)
-        ? params.order_sub_status
-        : [params.order_sub_status],
+      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
       fulfillment_status: Array.isArray(params.fulfillment_status)
         ? params.fulfillment_status
         : [params.fulfillment_status],
@@ -977,22 +975,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         value: textStatus,
       });
     }
-    if (initialValues.order_sub_status.length) {
-      let textStatus = "";
-
-      initialValues.order_sub_status.forEach((i: any) => {
-        const findStatus = subStatus?.find(
-          (item) => item.id.toString() === i.toString()
-        );
-        textStatus = findStatus
-          ? textStatus + findStatus.sub_status + ";"
-          : textStatus;
-      });
+    if (initialValues.sub_status_id.length) {
+      let textStatus = ""
+      
+      initialValues.sub_status_id.forEach(i => {
+        const findStatus = subStatus?.find(item => item.id.toString() === i)
+        textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
+      })
       list.push({
-        key: "order_sub_status",
-        name: "Trạng thái xử lý đơn",
-        value: textStatus,
-      });
+        key: 'sub_status_id',
+        name: 'Trạng thái xử lý đơn',
+        value: textStatus
+      })
     }
     if (initialValues.fulfillment_status.length) {
       let textStatus = "";
@@ -1526,7 +1520,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
                 <Form.Item
                   label={<b>TRẠNG THÁI XỬ LÝ ĐƠN</b>}
-                  name="order_sub_status"
+                  name="sub_status_id"
                 >
                   <Select
                     mode="multiple"

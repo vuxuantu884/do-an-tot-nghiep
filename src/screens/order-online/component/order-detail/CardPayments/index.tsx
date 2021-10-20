@@ -46,6 +46,7 @@ type CardPaymentsProps = {
   loyaltyRate?: LoyaltyRateResponse | null;
   setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
+  isDisablePostPayment?: boolean;
 };
 
 function CardPayments(props: CardPaymentsProps) {
@@ -56,6 +57,7 @@ function CardPayments(props: CardPaymentsProps) {
     isCloneOrder,
     shipmentMethod,
     loyaltyRate,
+    isDisablePostPayment = false,
     setPayments,
   } = props;
   const changePaymentMethod = (value: number) => {
@@ -91,15 +93,15 @@ function CardPayments(props: CardPaymentsProps) {
     // props.setPayments([...paymentData]);
   };
 
-  const totalAmountPaid = useMemo(() => {
-    let total = 0;
-    payments.forEach((p) => (total = total + p.amount));
-    return total;
-  }, [payments]);
+  // const totalAmountPaid = useMemo(() => {
+  //   let total = 0;
+  //   payments.forEach((p) => (total = total + p.amount));
+  //   return total;
+  // }, [payments]);
 
-  const moneyReturn = useMemo(() => {
-    return props.amount - totalAmountPaid;
-  }, [props.amount, totalAmountPaid]);
+  // const moneyReturn = useMemo(() => {
+  //   return props.amount - totalAmountPaid;
+  // }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
@@ -196,7 +198,12 @@ function CardPayments(props: CardPaymentsProps) {
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
                 <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
-                <Radio value={PaymentMethodOption.POSTPAYMENT}>Chưa xác định</Radio>
+                <Radio
+                  value={PaymentMethodOption.POSTPAYMENT}
+                  disabled={isDisablePostPayment}
+                >
+                  Chưa xác định
+                </Radio>
               </Space>
             </Radio.Group>
             {paymentMethod === PaymentMethodOption.COD &&
