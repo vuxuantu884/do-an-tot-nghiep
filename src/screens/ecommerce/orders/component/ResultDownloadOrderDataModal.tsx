@@ -24,7 +24,7 @@ const ResultDownloadOrderDataModal: React.FC<ResultDownloadOrderDataModalType> =
       width="600px"
       className=""
       visible={visible}
-      title={"Có " + data.total + " đơn hàng được cập nhật thành công"}
+      title={"Có " + data?.total + " đơn hàng được cập nhật thành công"}
       okText="Đóng"
       onOk={onOk}
       onCancel={onCancel}
@@ -33,11 +33,11 @@ const ResultDownloadOrderDataModal: React.FC<ResultDownloadOrderDataModalType> =
       <div>
         <div>
           <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-          <span>Có <p style={{color: "green", display: "inline-block"}}>{data.create_total}</p> đơn hàng được tải mới thành công</span>
+          <span>Có <p style={{color: "green", display: "inline-block"}}>{data?.create_order_count}</p> đơn hàng được tải mới thành công</span>
         </div>
         <div>
           <img src={errorIcon} style={{ marginRight: 5 }} alt="" />
-          <span>Có <p style={{color: "red", display: "inline-block"}}>{data.update_total}</p> đơn hàng thất bại</span>
+          <span>Có <p style={{color: "red", display: "inline-block"}}>{data?.update_order_count}</p> đơn hàng thất bại</span>
         </div>
       </div>
     </Modal>
