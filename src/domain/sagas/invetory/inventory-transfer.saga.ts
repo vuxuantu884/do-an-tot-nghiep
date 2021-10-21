@@ -12,7 +12,6 @@ import {
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
   inventoryGetApi,
-  inventoryGetDetailVariantIdsApi,
   inventoryGetHistoryApi,
 } from "service/inventory";
 import { showError } from "utils/ToastUtils";
@@ -26,6 +25,8 @@ import {
   DeleteInventoryService,
   updateInventoryTransfer,
   getListLogInventoryTransferApi,
+  inventoryTransferGetDetailVariantIdsApi,
+  createInventoryTransferShipment,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
@@ -132,7 +133,7 @@ function* inventoryGetDetailSaga(action: YodyAction) {
 
 function* inventoryTransferDeleteSaga(action: YodyAction) {
 
-  const { id, request, onResult } = action.payload;
+  const { id, request, setData } = action.payload;
   try {
     let response: BaseResponse<InventoryTransferDetailItem> = yield call(
       DeleteInventoryService,
@@ -141,19 +142,19 @@ function* inventoryTransferDeleteSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onResult(response.data);
+        setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onResult(false);
+        setData(false);
         yield put(unauthorizedAction());
         break;
       default:
-        onResult(false);
+        setData(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    onResult(false);
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -259,15 +260,14 @@ function* inventoryUploadFilesSaga(action: YodyAction) {
 function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
   const { variant_id, store_id, setData } = action.payload;
   try {
-    console.log(variant_id)
-    const response: BaseResponse<Array<InventoryResponse>> = yield call(
-      inventoryGetDetailVariantIdsApi,
+    const response: BaseResponse<PageResponse<Array<InventoryResponse>>> = yield call(
+      inventoryTransferGetDetailVariantIdsApi,
       variant_id,
       store_id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -295,6 +295,33 @@ function* createInventoryTransferSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* createInventoryTransferShipmentSaga(action: YodyAction) {
+  let { pathVariantId, body, onResult } = action.payload;
+  
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      createInventoryTransferShipment,
+      pathVariantId,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:        
         onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -345,8 +372,9 @@ export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.GET_DETAIL_INVENTORY_TRANSFER, inventoryGetDetailSaga);
   yield takeLatest(InventoryType.DELETE_INVENTORY_TRANSFER, inventoryTransferDeleteSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER, createInventoryTransferSaga);
+  yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER_SHIPMENT, createInventoryTransferShipmentSaga);
   yield takeLatest(InventoryType.UPDATE_INVENTORY_TRANSFER, updateInventoryTransferSaga);
-  yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT,inventoryGetDetailVariantIdsSaga);
+  yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT_TRANSFER, inventoryGetDetailVariantIdsSaga);
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
   yield takeLatest(InventoryType.GET_HISTORY, inventoryGetHistorySaga);
   yield takeLatest(InventoryType.GET_STORE, inventorySenderStoreSaga);

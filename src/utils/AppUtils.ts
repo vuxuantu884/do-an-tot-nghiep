@@ -35,6 +35,7 @@ import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { ErrorGHTK } from "./Constants";
 import { UploadFile } from "antd/lib/upload/interface";
+import { LineItem } from "model/inventory/transfer";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -761,6 +762,48 @@ export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
         case "kg":
           totalWeight =
             totalWeight + items[i].weight * 1000 * items[i].quantity;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const SumWeightLineItems = (items?: Array<LineItem>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight * items[i].transfer_quantity;
+          break;
+        case "kg":
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].transfer_quantity;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const SumWeightInventory = (items?: Array<LineItem>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight * items[i].transfer_quantity;
+          break;
+        case "kg":
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].transfer_quantity;
           break;
         default:
           break;

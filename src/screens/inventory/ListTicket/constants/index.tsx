@@ -14,7 +14,7 @@ export const STATUS_INVENTORY_TRANSFER = {
   },
   RECEIVED : {
     status: "received",
-    name: "Đã nhận"
+    name: "Đã nhập"
   },
 }
 
@@ -33,7 +33,7 @@ export const STATUS_INVENTORY_TRANSFER_ARRAY = [
   },
   {
     value: "received",
-    name: "Đã nhận"
+    name: "Đã nhập"
   },
 
 ]
