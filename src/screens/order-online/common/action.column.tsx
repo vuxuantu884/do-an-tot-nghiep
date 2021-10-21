@@ -53,8 +53,7 @@ const actionColumn = (handleEdit: any, handleDelete: any, customerDetailState: a
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
+              justifyContent: "right",
             }}
           >
             <div
