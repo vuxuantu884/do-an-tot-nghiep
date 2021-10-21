@@ -43,5 +43,19 @@ export const InventoryTransferTabWrapper = styled.div`
       color: ${BG_COLOR_TAG.RECEIVED.color};
     }
   }
+
+  .note {
+    &-icon {
+      margin-left: 10px;
+      display: none;
+      color: #5656A1;
+      cursor: pointer;
+    }
+    &:hover {
+      .note-icon {
+        display: unset;
+      }
+    }
+  }
   
 `;

@@ -13,6 +13,7 @@ import {
 } from "model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
+import { InventoryResponse } from "model/inventory";
 
 const inventoryGetSenderStoreAction = (
   queryParams: StoreStatus,
@@ -100,6 +101,14 @@ const deleteInventoryTransferAction = (
   });
 };
 
+const inventoryGetDetailVariantIdsAction = (variant_id:Number[],store_id:Number|null, setData: (data: Array<InventoryResponse>|null) => void) => {
+  return BaseAction(InventoryType.GET_DETAIL_lIST_VARIANT_TRANSFER, {variant_id,store_id, setData})
+}
+
+const createInventoryTransferShipmentAction = (pathVariantId:Number, body: any, onResult: (data: InventoryTransferDetailItem |null) => void) => {
+  return BaseAction(InventoryType.CREATE_INVENTORY_TRANSFER_SHIPMENT, {pathVariantId, body, onResult})
+}
+
 export {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
@@ -110,4 +119,6 @@ export {
   getDetailInventoryTransferAction,
   deleteInventoryTransferAction,
   getListLogInventoryTransferAction,
+  inventoryGetDetailVariantIdsAction,
+  createInventoryTransferShipmentAction,
 };

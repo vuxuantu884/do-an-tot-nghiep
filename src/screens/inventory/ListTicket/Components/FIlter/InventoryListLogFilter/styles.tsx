@@ -14,6 +14,15 @@ export const InventoryFiltersWrapper = styled.div`
     }
   }
 
+  .row-filter {
+    width: 100%;
+    & > .ant-col {
+      & > .ant-form-item {
+        width: 100%;
+      }
+    }
+  }
+
   .ant-form-item-control-input-content {
     display: flex;
   }
