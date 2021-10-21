@@ -176,11 +176,7 @@ const OrderDetail = (props: PropType) => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     // setPayments(value);
   };
-  const changeShippingFeeInformedCustomer = (value: number | null) => {
-    if (value !== null) {
-      setShippingFeeInformedCustomer(value);
-    }
-  };
+  
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
   const stepsStatus = () => {
@@ -442,6 +438,8 @@ const OrderDetail = (props: PropType) => {
   useEffect(() => {
     if (isFirstLoad.current || reload) {
       if (!Number.isNaN(OrderId)) {
+        setShipmentMethod(4)
+        setShippingFeeInformedCustomer(0)
         dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
       } else {
         setError(true);
@@ -1109,7 +1107,8 @@ const OrderDetail = (props: PropType) => {
 
                 {/*--- shipment ---*/}
                 <UpdateShipmentCard
-                  shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+                  shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                  setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
                   setVisibleUpdatePayment={setVisibleUpdatePayment}
                   setShipmentMethod={setShipmentMethod}
                   setPaymentType={setPaymentType}
@@ -1119,7 +1118,11 @@ const OrderDetail = (props: PropType) => {
                   customerDetail={customerDetail}
                   storeDetail={storeDetail}
                   stepsStatusValue={stepsStatusValue}
-                  totalPaid={totalPaid}
+                  totalPaid={OrderDetail?.total_paid
+                    ? OrderDetail?.total_paid
+                    : paymentType === 2
+                    ? totalPaid
+                    : 0}
                   officeTime={officeTime}
                   shipmentMethod={shipmentMethod}
                   isVisibleShipping={isVisibleShipping}

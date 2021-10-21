@@ -1143,6 +1143,7 @@ export default function Order(props: PropType) {
                               <b style={{ color: "red" }}>
                                 {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.length > 0 &&
+                                OrderDetail?.fulfillments[0].status !== 'returned' &&
                                 OrderDetail?.fulfillments[0].shipment?.cod
                                   ? 0
                                   : formatCurrency(
@@ -1228,6 +1229,7 @@ export default function Order(props: PropType) {
                                 {OrderDetail?.fulfillments &&
                                   OrderDetail?.fulfillments.length > 0 &&
                                   OrderDetail?.fulfillments[0].shipment &&
+                                  OrderDetail?.fulfillments[0].status !== FulFillmentStatus.RETURNED &&
                                   OrderDetail?.fulfillments[0].shipment.cod && (
                                     <Collapse.Panel
                                       className={
@@ -1304,6 +1306,7 @@ export default function Order(props: PropType) {
                     OrderDetail.fulfillments &&
                     OrderDetail.fulfillments.length > 0 &&
                     OrderDetail.fulfillments[0].shipment &&
+                    OrderDetail.fulfillments[0].status !== 'returned' &&
                     OrderDetail.fulfillments[0].shipment?.cod ===
                       (OrderDetail?.fulfillments[0].shipment
                         .shipping_fee_informed_to_customer

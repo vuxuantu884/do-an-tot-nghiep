@@ -89,7 +89,8 @@ const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
 type UpdateShipmentCardProps = {
-  shippingFeeInformedCustomer: (value: number | null) => void;
+  shippingFeeInformedCustomer: number;
+  setShippingFeeInformedCustomer: (value: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setShipmentMethod: (value: number) => void;
   setPaymentType: (value: number) => void;
@@ -116,7 +117,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 ) => {
   // props destructuring
   const {
-    paymentType,
+    // paymentType,
     isVisibleShipping,
     shipmentMethod,
     setVisibleShipping,
@@ -137,8 +138,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // state
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
-    useState<number>(0);
+  // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
+  //   useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] = useState<boolean>(false);
   const [requirementName, setRequirementName] = useState<string | null>(null);
   const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
@@ -198,15 +199,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       value === ShipmentMethodOption.PICK_AT_STORE ||
       value === ShipmentMethodOption.DELIVER_LATER
     ) {
-      props.shippingFeeInformedCustomer(0);
-    } else {
-      props.shippingFeeInformedCustomer(shippingFeeInformedCustomer);
+      props.setShippingFeeInformedCustomer(0);
     }
   };
 
   const changeShippingFeeInformedCustomer = (value: any) => {
-    setShippingFeeInformedCustomer(value);
-    props.shippingFeeInformedCustomer(value);
+    props.setShippingFeeInformedCustomer(value);
   };
 
   const changeServiceType = (
@@ -471,7 +469,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       return (
         props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
         props.OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer -
+        props.shippingFeeInformedCustomer -
         (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
         (props.OrderDetail?.discounts &&
         props.OrderDetail?.discounts.length > 0 &&
@@ -482,7 +480,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     } else if (props.OrderDetail?.total && props.OrderDetail?.total_paid) {
       return (
         props.OrderDetail?.total +
-        shippingFeeInformedCustomer -
+        props.shippingFeeInformedCustomer -
         props.OrderDetail?.total_paid
       );
     } else if (
@@ -551,6 +549,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
 
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
+    value.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
     value.office_time = props.officeTime;
@@ -569,7 +568,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.delivery_service_provider_name = hvcName;
         value.sender_address_id = props.OrderDetail.store_id;
         value.service = serviceType!;
-        value.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
+        value.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
         if (hvc === 1) {
           value.shipping_fee_paid_to_three_pls = fee;
         } else {
@@ -605,14 +604,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
 
     FulFillmentRequest.shipment = value;
-    if (shippingFeeInformedCustomer !== null) {
-      FulFillmentRequest.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
+    if (props.shippingFeeInformedCustomer !== null) {
+      FulFillmentRequest.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
     }
-    if (shippingFeeInformedCustomer !== null) {
+    if (props.shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.total =
         props.OrderDetail?.total_line_amount_after_line_discount &&
         props.OrderDetail?.total_line_amount_after_line_discount +
-          shippingFeeInformedCustomer;
+        props.shippingFeeInformedCustomer;
     } else {
       FulFillmentRequest.total = props.OrderDetail?.total_line_amount_after_line_discount;
     }
@@ -700,9 +699,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         (props.OrderDetail?.fulfillments[0].total
           ? props.OrderDetail?.fulfillments[0].total
           : 0) +
-        shippingFeeInformedCustomer -
+          props.shippingFeeInformedCustomer -
         props.totalPaid! -
-        (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
+        // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
         (props.OrderDetail?.total_discount ? props.OrderDetail?.total_discount : 0)
       );
     } else if (props.OrderDetail?.total_line_amount_after_line_discount) {
@@ -710,9 +709,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         (props.OrderDetail?.total_line_amount_after_line_discount
           ? props.OrderDetail?.total_line_amount_after_line_discount
           : 0) +
-        shippingFeeInformedCustomer -
+          props.shippingFeeInformedCustomer -
         props.totalPaid! -
-        (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
+        // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
         (props.OrderDetail?.discounts &&
         props.OrderDetail?.discounts.length > 0 &&
         props.OrderDetail?.discounts[0].amount
@@ -722,64 +721,41 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   };
   let takeHelperValue: any = takeHelper();
-  const showTakeHelper = () => {
-    if (props.OrderDetail?.total_line_amount_after_line_discount) {
-      return (
-        props.OrderDetail?.total_line_amount_after_line_discount -
-          props.totalPaid! +
-          shippingFeeInformedCustomer -
-          (props.OrderDetail?.discounts &&
-          props.OrderDetail?.discounts.length > 0 &&
-          props.OrderDetail?.discounts[0].amount
-            ? props.OrderDetail?.discounts[0].amount
-            : 0) !==
-        0
-      );
-    } else if (paymentType === 1 && takeHelperValue !== 0) {
-      return true;
-    } else if (shippingFeeInformedCustomer) {
-      takeHelperValue = shippingFeeInformedCustomer;
-      return true;
-    } else if (takeHelperValue === 0) {
-      return false;
-    } else if (paymentType === 1) {
-      return true;
-    }
-  };
+  // const showTakeHelper = () => {
+  //   if (props.OrderDetail?.total_line_amount_after_line_discount) {
+  //     return (
+  //       props.OrderDetail?.total_line_amount_after_line_discount -
+  //         props.totalPaid! +
+  //         props.shippingFeeInformedCustomer -
+  //         (props.OrderDetail?.discounts &&
+  //         props.OrderDetail?.discounts.length > 0 &&
+  //         props.OrderDetail?.discounts[0].amount
+  //           ? props.OrderDetail?.discounts[0].amount
+  //           : 0) !==
+  //       0
+  //     );
+  //   } else if (paymentType === 1 && takeHelperValue !== 0) {
+  //     return true;
+  //   } else if (props.shippingFeeInformedCustomer) {
+  //     takeHelperValue = props.shippingFeeInformedCustomer;
+  //     return true;
+  //   } else if (takeHelperValue === 0) {
+  //     return false;
+  //   } else if (paymentType === 1) {
+  //     return true;
+  //   }
+  // };
 
-  const isShowTakeHelper = showTakeHelper();
+  // const isShowTakeHelper = showTakeHelper();
   // khách cần trả
-  const customerNeedToPay: any = () => {
-    if (
-      props.OrderDetail?.fulfillments &&
-      props.OrderDetail?.fulfillments.length > 0 &&
-      props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-    ) {
-      return (
-        props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
-        props.OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer -
-        (props.OrderDetail?.discounts &&
-        props.OrderDetail?.discounts.length > 0 &&
-        props.OrderDetail?.discounts[0].amount
-          ? props.OrderDetail?.discounts[0].amount
-          : 0)
-      );
-    } else if (props.OrderDetail?.total_line_amount_after_line_discount) {
-      return (
-        props.OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer -
-        (props.OrderDetail?.discounts &&
-        props.OrderDetail?.discounts.length > 0 &&
-        props.OrderDetail?.discounts[0].amount
-          ? props.OrderDetail?.discounts[0].amount
-          : 0)
-      );
-    }
-  };
+  const customerNeedToPayValue =
+    (props.OrderDetail?.total_line_amount_after_line_discount ? props.OrderDetail?.total_line_amount_after_line_discount : 0) +
+      (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
+      (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0) -
+      (props.totalPaid ? props.totalPaid : 0)
+      // totalAmountPaid() -
+      // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 
-  const customerNeedToPayValue = customerNeedToPay();
   // Cancel fulfillments
   const [isvibleCancelFullfilment, setIsvibleCancelFullfilment] =
     useState<boolean>(false);
@@ -1811,12 +1787,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 <>
                   {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                     <ShipmentMethodDeliverPartner
-                      amount={OrderDetail?.total}
+                      amount={props.OrderDetail?.total_line_amount_after_line_discount}
+                      totalPaid={props.totalPaid}
+                      serviceType={serviceType}
                       changeServiceType={changeServiceType}
                       discountValue={OrderDetail?.total_discount}
                       infoFees={infoFees}
                       setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
-                      shippingFeeCustomer={shippingFeeInformedCustomer}
+                      shippingFeeCustomer={props.shippingFeeInformedCustomer}
                       OrderDetail={OrderDetail}
                       payments={OrderDetail?.payments}
                       fulfillments={OrderDetail?.fulfillments}
@@ -1847,7 +1825,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Button>
                       <Button
                         className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                        onClick={() => setVisibleShipping(false)}
+                        onClick={() => {
+                          setVisibleShipping(false)
+                          props.setShippingFeeInformedCustomer(0)
+                        }}
                         loading={cancelShipment}
                         style={{
                           float: "right",
@@ -1906,7 +1887,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           ))}
                         </CustomSelect>
                       </Form.Item>
-                      {isShowTakeHelper && (
+                      {/* {isShowTakeHelper && ( */}
                         <Form.Item label="Tiền thu hộ">
                           <NumberInput
                             format={(a: string) => formatCurrency(a)}
@@ -1919,11 +1900,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             }}
                             maxLength={15}
                             minLength={0}
-                            value={takeHelperValue}
+                            value={customerNeedToPayValue}
                             onChange={(value) => setTakeMoneyHelper(value)}
                           />
                         </Form.Item>
-                      )}
+                      {/* )} */}
                     </Col>
                     <Col md={12}>
                       <Form.Item
@@ -1945,13 +1926,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         />
                       </Form.Item>
                       <Form.Item
-                        name="shipping_fee_informed_to_customer"
+                        // name="shipping_fee_informed_to_customer"
                         label="Phí ship báo khách"
                       >
                         <NumberInput
                           format={(a: string) => formatCurrency(a)}
                           replace={(a: string) => replaceFormatString(a)}
                           placeholder="0"
+                          value={props.shippingFeeInformedCustomer || 0}
                           style={{
                             textAlign: "right",
                             width: "100%",
@@ -1981,7 +1963,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                          onClick={() => setVisibleShipping(false)}
+                          onClick={() => {
+                            setVisibleShipping(false)
+                            props.setShippingFeeInformedCustomer(0)
+                          }}
                           style={{ float: "right" }}
                           loading={cancelShipment}
                           disabled={updateShipment}
