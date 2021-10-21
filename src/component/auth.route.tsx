@@ -12,9 +12,9 @@ type AuthRouteProps = {
 };
 
 const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
-  const { title, path, component: Component, permissions } = props;
+  const { title, path, component: Component, permissions, exact } = props;
   return (
-    <Route path={path}>
+    <Route sensitive  path={path} exact={exact}>
       <Container title={title}>
         <AuthWrapper acceptPermissions={permissions}>
           <Component />
