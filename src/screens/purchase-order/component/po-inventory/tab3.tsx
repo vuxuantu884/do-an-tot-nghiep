@@ -31,8 +31,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
           procurements !== undefined && procurements !== null
             ? procurements.filter(
                 (item) =>
-                  item.status === ProcumentStatus.NOT_RECEIVED ||
-                  item.status === ProcumentStatus.CANCELLED
+                  item.status === ProcumentStatus.NOT_RECEIVED
               )
             : [];
         return (

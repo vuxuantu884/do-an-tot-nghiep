@@ -58,7 +58,7 @@ const POProgressView: React.FC<POProgressViewProps> = (
           style={{ textAlign: "left", marginTop: 25 }}
         >
           <span>
-            {total - received > 0 ? (
+            {total - received >= 0 ? (
               <>
                 <MinusCircleFilled
                   style={{ color: "#E24343", marginRight: 4 }}
