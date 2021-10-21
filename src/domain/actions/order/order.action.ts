@@ -36,6 +36,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
 import {
+  createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
   getDeliveryMappedStoresReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
@@ -173,14 +174,12 @@ export const DeliveryServicesGetList = (
 
 export const getDeliveryMappedStoresAction = (
   providerCode: string,
-  params: getDeliveryMappedStoresReQuestModel,
   handleData: (data: Array<DeliveryMappedStoreType>) => void
 ) => {
   return {
     type: OrderType.GET_MAPPED_STORES,
     payload: {
       providerCode,
-      params,
       handleData,
     },
   };
@@ -188,24 +187,14 @@ export const getDeliveryMappedStoresAction = (
 
 export const createDeliveryMappedStoreAction = (
   providerCode: string,
-  token: string,
-  username: string,
-  password: string,
-  store_id: number,
-  store_name: string,
-  partner_shop_id: number,
+  params: createDeliveryMappedStoreReQuestModel,
   handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.CREATE_MAPPED_STORE,
     payload: {
       providerCode,
-      token,
-      username,
-      password,
-      store_id,
-      store_name,
-      partner_shop_id,
+      params,
       handleData,
     },
   };

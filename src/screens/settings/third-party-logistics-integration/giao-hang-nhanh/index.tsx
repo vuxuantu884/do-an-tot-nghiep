@@ -225,7 +225,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           });
           if (result) {
             setThirdPartyLogistics(result);
-            setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
+            setIsConnected(result.active);
             dispatch(
               getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
