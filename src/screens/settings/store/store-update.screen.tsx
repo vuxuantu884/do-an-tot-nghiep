@@ -1,10 +1,10 @@
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Collapse,
   Form,
-  FormInstance,
   Input,
   Row,
   Select,
@@ -24,7 +24,7 @@ import {
 import { StoreResponse, StoreUpdateRequest } from "model/core/store.model";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { StoreRankResponse } from "model/core/store-rank.model";
@@ -36,6 +36,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { RegUtil } from "utils/RegUtils";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -55,7 +56,7 @@ const StoreUpdateScreen: React.FC = () => {
   const history = useHistory();
   //end hook
   //State
-  const formRef = createRef<FormInstance>();
+  const [formMain] = Form.useForm();
   const [data, setData] = useState<StoreResponse | null>(null);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<DistrictResponse>>([]);
@@ -79,14 +80,14 @@ const StoreUpdateScreen: React.FC = () => {
         }
       });
       if (cityId !== -1) {
-        formRef.current?.setFieldsValue({
+        formMain.setFieldsValue({
           city_id: cityId,
           ward_id: "",
         });
       }
       dispatch(WardGetByDistrictAction(value, setWards));
     },
-    [cityViews, dispatch, formRef]
+    [cityViews, dispatch, formMain]
   );
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
@@ -148,12 +149,7 @@ const StoreUpdateScreen: React.FC = () => {
       ]}
     >
       {data !== null && (
-        <Form
-          ref={formRef}
-          layout="vertical"
-          initialValues={data}
-          onFinish={onFinish}
-        >
+        <Form form={formMain} layout="vertical" initialValues={data} onFinish={onFinish}>
           <Card
             title="Thông tin cửa hàng"
             extra={
@@ -161,7 +157,17 @@ const StoreUpdateScreen: React.FC = () => {
                 <Space key="a" size={15}>
                   <label className="text-default">Trạng thái</label>
                   <Item name="status" noStyle>
-                    <Select style={{ width: 180 }}>
+                    <Select
+                      onChange={(value) => {
+                        if (value === "inactive") {
+                          console.log(formMain.getFieldsValue(true));
+                          formMain.setFieldsValue({
+                            is_saleable: false,
+                          });
+                        }
+                      }}
+                      style={{ width: 180 }}
+                    >
                       {storeStatusList?.map((item) => (
                         <Option key={item.value} value={item.value}>
                           {item.name}
@@ -173,163 +179,174 @@ const StoreUpdateScreen: React.FC = () => {
               </div>
             }
           >
-            <div className="padding-20">
-              <Row gutter={50}>
-                <Item hidden noStyle name="version">
+            <Row gutter={50}>
+              <Col>
+                <Item
+                  noStyle
+                  shouldUpdate={(prev, current) =>
+                    prev.is_saleable !== current.is_saleable ||
+                    prev.status !== current.status
+                  }
+                >
+                  {({ getFieldValue }) => {
+                    let status = getFieldValue("status");
+                    return (
+                      <Item valuePropName="checked" name="is_saleable">
+                        <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
+                      </Item>
+                    );
+                  }}
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Item hidden noStyle name="version">
+                <Input />
+              </Item>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[
+                    { required: true, message: "Vui lòng nhập tên danh mục" },
+                    { max: 255, message: "Tên danh mục không quá 255 kí tự" },
+                    {
+                      pattern: RegUtil.STRINGUTF8,
+                      message: "Tên danh mục không gồm kí tự đặc biệt",
+                    },
+                  ]}
+                  label="Tên cửa hàng"
+                  name="name"
+                >
+                  <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập số điện thoại",
+                    },
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại chưa đúng định dạng",
+                    },
+                  ]}
+                  label="Số điện thoại"
+                  name="hotline"
+                >
+                  <Input placeholder="Nhập số điện thoại" />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item rules={[{ required: true }]} label="Quốc gia" name="country_id">
+                  <Select disabled placeholder="Chọn quốc gia">
+                    {countries?.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
+                  label="Khu vực"
+                  name="district_id"
+                >
+                  <Select
+                    showSearch
+                    showArrow
+                    optionFilterProp="children"
+                    onSelect={onSelectDistrict}
+                    placeholder="Chọn khu vực"
+                  >
+                    {cityViews?.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.city_name} - {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+                <Item hidden name="city_id">
                   <Input />
                 </Item>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      { required: true, message: "Vui lòng nhập tên danh mục" },
-                      { max: 255, message: "Tên danh mục không quá 255 kí tự" },
-                      {
-                        pattern: RegUtil.STRINGUTF8,
-                        message: "Tên danh mục không gồm kí tự đặc biệt",
-                      },
-                    ]}
-                    label="Tên cửa hàng"
-                    name="name"
-                  >
-                    <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
-                  </Item>
-                </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số điện thoại",
-                      },
-                      {
-                        pattern: RegUtil.PHONE,
-                        message: "Số điện thoại chưa đúng định dạng",
-                      },
-                    ]}
-                    label="Số điện thoại"
-                    name="hotline"
-                  >
-                    <Input placeholder="Nhập số điện thoại" />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[{ required: true }]}
-                    label="Quốc gia"
-                    name="country_id"
-                  >
-                    <Select disabled placeholder="Chọn quốc gia">
-                      {countries?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      { required: true, message: "Vui lòng chọn khu vực" },
-                    ]}
-                    label="Khu vực"
-                    name="district_id"
-                  >
-                    <Select
-                      showSearch
-                      showArrow
-                      optionFilterProp="children"
-                      onSelect={onSelectDistrict}
-                      placeholder="Chọn khu vực"
-                    >
-                      {cityViews?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.city_name} - {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                  <Item hidden name="city_id">
-                    <Input />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    label="Phường/xã"
-                    name="ward_id"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn phường/xã" },
-                    ]}
-                  >
-                    <Select>
-                      <Option value="">Chọn phường xã</Option>
-                      {wards.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    label="Địa chỉ"
-                    name="address"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập địa chỉ",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Nhập địa chỉ" />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item label="Mã bưu điện" name="zip_code">
-                    <Input placeholder="Nhập mã bưu điện" />
-                  </Item>
-                </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      {
-                        pattern: RegUtil.EMAIL,
-                        message: "Vui lòng nhập đúng định dạng email",
-                      },
-                    ]}
-                    name="mail"
-                    label="Email"
-                  >
-                    <Input placeholder="Nhập địa chỉ email" />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập diện tích cửa hàng",
-                      },
-                    ]}
-                    label="Diện tích cửa hàng (m²)"
-                    name="square"
-                  >
-                    <Input placeholder="Nhập diện tích cửa hàng" />
-                  </Item>
-                </Col>
-              </Row>
-            </div>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  label="Phường/xã"
+                  name="ward_id"
+                  rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
+                >
+                  <Select>
+                    <Option value="">Chọn phường xã</Option>
+                    {wards.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  label="Địa chỉ"
+                  name="address"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập địa chỉ",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Nhập địa chỉ" />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item label="Mã bưu điện" name="zip_code">
+                  <Input placeholder="Nhập mã bưu điện" />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[
+                    {
+                      pattern: RegUtil.EMAIL,
+                      message: "Vui lòng nhập đúng định dạng email",
+                    },
+                  ]}
+                  name="mail"
+                  label="Email"
+                >
+                  <Input placeholder="Nhập địa chỉ email" />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập diện tích cửa hàng",
+                    },
+                  ]}
+                  label="Diện tích cửa hàng (m²)"
+                  name="square"
+                >
+                  <Input placeholder="Nhập diện tích cửa hàng" />
+                </Item>
+              </Col>
+            </Row>
           </Card>
           <Collapse
+            style={{ marginBottom: 50 }}
             defaultActiveKey="1"
             className="ant-collapse-card margin-top-20"
             expandIconPosition="right"
@@ -360,9 +377,7 @@ const StoreUpdateScreen: React.FC = () => {
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item
-                      rules={[
-                        { required: true, message: "Vui lòng chọn trực thuộc" },
-                      ]}
+                      rules={[{ required: true, message: "Vui lòng chọn trực thuộc" }]}
                       label="Trực thuộc"
                       name="group_id"
                     >
@@ -395,16 +410,19 @@ const StoreUpdateScreen: React.FC = () => {
               </div>
             </Panel>
           </Collapse>
-          <div className="margin-top-20" style={{ textAlign: "right" }}>
-            <Space size={12}>
-              <Button type="default" onClick={onCancel}>
-                Hủy
-              </Button>
-              <Button loading={loading} htmlType="submit" type="primary">
-                Lưu
-              </Button>
-            </Space>
-          </div>
+          <BottomBarContainer
+            back={"Quay lại"}
+            rightComponent={
+              <Space>
+                <Button type="default" onClick={onCancel}>
+                  Hủy
+                </Button>
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Lưu
+                </Button>
+              </Space>
+            }
+          />
         </Form>
       )}
     </ContentContainer>
