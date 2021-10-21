@@ -35,11 +35,6 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
-import {
-  createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
-  getDeliveryMappedStoresReQuestModel,
-} from "model/request/settings/third-party-logistics-settings.resquest";
 
 export const orderCreateAction = (
   request: OrderRequest,
