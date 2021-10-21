@@ -1,18 +1,17 @@
 import { Checkbox, Form, Input } from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import UrlConfig from "config/url.config";
 import {
   DeliveryServicesGetList,
   getDeliveryTransportTypesAction,
   updateDeliveryConfigurationAction,
 } from "domain/actions/order/order.action";
+import { updateConfigReQuestModel } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   DeliveryServiceResponse,
   DeliveryServiceTransportType,
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import { showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
@@ -20,68 +19,63 @@ import { StyledComponent } from "./styles";
 
 type PropType = {};
 
-function SingleThirdPartyLogisticDHL(props: PropType) {
+function SingleThirdPartyLogisticGHN(props: PropType) {
   const external_service_code = "dhl";
   const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const history = useHistory();
-
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
   const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
+  const [isConnected, setIsConnected] = useState(false);
 
   const initialFormValue = {
     username: "",
     password: "",
     transport_types: [],
   };
+
   const handleSubmit = () => {
     form.validateFields(["username", "password"]).then(() => {
       const formComponentValue = form.getFieldsValue();
       let transport_types = listServices.map((single) => {
         return {
-          ...single,
+          code: single.code,
           status: formComponentValue.transport_types.includes(single.code)
             ? DELIVER_SERVICE_STATUS.active
             : DELIVER_SERVICE_STATUS.inactive,
+          name: single.name,
+          description: single.description,
         };
       });
       const formValueFormatted = {
-        external_service_id: thirdPartyLogistics?.id,
+        external_service_code,
         status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
-        username: formComponentValue.username,
-        password: formComponentValue.password,
+        token: "",
+        username: form.getFieldValue("username"),
+        password: form.getFieldValue("password"),
         transport_types,
       };
-      dispatch(
-        updateDeliveryConfigurationAction(formValueFormatted, () => {
-          history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
-        })
-      );
+      dispatch(updateDeliveryConfigurationAction(formValueFormatted, () => {}));
     });
   };
 
   const handleConnect3PL = () => {
     form.validateFields(["username", "password"]).then(() => {
-      if (!thirdPartyLogistics?.id) {
-        return;
-      }
-      const params = {
-        external_service_id: thirdPartyLogistics?.id,
+      const params: updateConfigReQuestModel = {
+        external_service_code,
         username: form.getFieldValue("username"),
         password: form.getFieldValue("password"),
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
-        updateDeliveryConfigurationAction(params, (response) => {
-          showSuccess("Kết nối thành công!");
+        updateDeliveryConfigurationAction(params, () => {
           setIsConnected(true);
+          showSuccess("Kết nối thành công!");
         })
       );
     });
@@ -99,14 +93,14 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
     });
   };
 
-  const cancelConnect3PL = (thirdPartyLogisticId: number | undefined) => {
-    if (!thirdPartyLogisticId) {
+  const cancelConnect3PL = (thirdPartyLogisticCode: string | undefined) => {
+    if (!thirdPartyLogisticCode) {
       return;
     }
     const params = {
+      external_service_code,
       username: form.getFieldValue("username"),
       password: form.getFieldValue("password"),
-      external_service_id: thirdPartyLogisticId,
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
@@ -128,7 +122,6 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
           if (result) {
             setThirdPartyLogistics(result);
             setIsConnected(result.active);
-
             dispatch(
               getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
@@ -151,7 +144,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, form]);
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -219,7 +212,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
       </SingleThirdPartyLogisticLayout>
       <ModalDeleteConfirm
         visible={isShowConfirmDisconnect}
-        onOk={() => cancelConnect3PL(thirdPartyLogistics?.id)}
+        onOk={() => cancelConnect3PL(external_service_code)}
         onCancel={() => setIsShowConfirmDisconnect(false)}
         title="Xác nhận"
         subTitle={confirmSubTitle}
@@ -228,4 +221,4 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
   );
 }
 
-export default SingleThirdPartyLogisticDHL;
+export default SingleThirdPartyLogisticGHN;

@@ -20,7 +20,6 @@ import {
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
-  getDeliveryMappedStoresReQuestModel,
   updateConfigReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {

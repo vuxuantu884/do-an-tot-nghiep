@@ -1,6 +1,5 @@
 import { Button, Card, Checkbox, Col, Form, Input, Row, Select } from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import UrlConfig from "config/url.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   createDeliveryMappedStoreAction,
@@ -23,11 +22,10 @@ import {
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
-import IconClose from "./images/iconClose.svg";
+import IconClose from "../images/iconClose.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
@@ -37,8 +35,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const history = useHistory();
-
   const [listShops, setListShops] = useState<StoreResponse[]>([]);
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
@@ -46,8 +42,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
-
-  const [inputTokenApi, setInputTokenApi] = useState<string>("");
   const [inputStoreIdValue, setInputStoreIdValue] = useState<string | undefined>(
     undefined
   );
@@ -64,7 +58,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     useState(listShopIsSelected);
 
   const initialFormValue = {
-    token: "",
+    username: "",
+    password: "",
     transport_types: [],
   };
 
@@ -74,36 +69,37 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
         singleShop.name.toLowerCase().includes(value.toLowerCase()) ||
-        singleShop.store_id.toString().includes(value.toLowerCase())
+        singleShop.partner_shop_id.toString().includes(value.toLowerCase())
       );
     });
     setListShopIsSelectedShow(result);
   };
 
   const handleSubmit = () => {
-    form.validateFields(["token"]).then(() => {
+    form.validateFields(["username", "password"]).then(() => {
       const formComponentValue = form.getFieldsValue();
       let transport_types = listServices.map((single) => {
         return {
-          ...single,
+          code: single.code,
           status: formComponentValue.transport_types.includes(single.code)
             ? DELIVER_SERVICE_STATUS.active
             : DELIVER_SERVICE_STATUS.inactive,
+          name: single.name,
+          description: single.description,
         };
       });
       const formValueFormatted = {
-        external_service_id: thirdPartyLogistics?.id,
+        external_service_code,
         status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
-        token: formComponentValue.token,
+        token: "",
+        username: form.getFieldValue("username"),
+        password: form.getFieldValue("password"),
         transport_types,
       };
-      dispatch(
-        updateDeliveryConfigurationAction(formValueFormatted, () => {
-          history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
-        })
-      );
+      console.log("formValueFormatted", formValueFormatted);
+      dispatch(updateDeliveryConfigurationAction(formValueFormatted, () => {}));
     });
   };
 
@@ -185,14 +181,18 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     shopId: string | undefined,
     partnerShopId: string | undefined
   ) => {
-    console.log("listShops", listShops);
-    console.log("shopId", shopId);
     if (!shopId) {
       showError("Vui lòng chọn cửa hàng");
       return;
     }
     if (!partnerShopId) {
       showError("Vui lòng điền Shop ID");
+      const inputElement = document.getElementsByClassName(
+        "inputStoreId"
+      )[0] as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
+      }
       return;
     }
     form.validateFields(["username", "password"]).then(() => {
@@ -212,7 +212,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           store_name: shopName,
           partner_shop_id: +partnerShopId,
         };
-        console.log("params", params);
         dispatch(
           createDeliveryMappedStoreAction(external_service_code, params, () => {
             dispatch(
@@ -429,7 +428,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                                     const element: any = document.getElementById(
                                       error.errorFields[0].name.join("")
                                     );
-                                    console.log("element", element);
                                     element?.focus();
                                     const offsetY =
                                       element?.getBoundingClientRect()?.top +
@@ -460,7 +458,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
       />
       <ModalDeleteConfirm
         visible={isShowConfirmDisconnect}
-        onOk={() => cancelConnect3PL(thirdPartyLogistics?.code)}
+        onOk={() => cancelConnect3PL(external_service_code)}
         onCancel={() => setIsShowConfirmDisconnect(false)}
         title="Xác nhận"
         subTitle={confirmSubTitle}

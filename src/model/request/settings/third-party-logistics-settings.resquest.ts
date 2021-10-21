@@ -27,12 +27,6 @@ export interface updateConfigReQuestModel {
   }[];
 }
 
-export interface getDeliveryMappedStoresReQuestModel {
-  token?: string;
-  username?: string;
-  password?: string;
-}
-
 export interface createDeliveryMappedStoreReQuestModel {
   token: string;
   username: string;
