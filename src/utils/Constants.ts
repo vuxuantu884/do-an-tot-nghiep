@@ -172,11 +172,11 @@ export const OFFSET_HEADER_TABLE = OFFSET_HEADER_UNDER_NAVBAR + 54; //pixels
 
 export const ProcurementStatus = {
   draft: "draft",
-  confirmed: "confirmed",
+  not_received: "not_received",
   received: "received",
 };
 export const ProcurementStatusName = {
   [ProcurementStatus.draft]: "Nháp",
-  [ProcurementStatus.confirmed]: "Đã duyệt",
+  [ProcurementStatus.not_received]: "Đã duyệt",
   [ProcurementStatus.received]: "Đã nhận",
 };
