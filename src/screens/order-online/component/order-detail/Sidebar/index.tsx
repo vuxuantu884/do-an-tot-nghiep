@@ -2,7 +2,6 @@ import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
 import { AccountResponse } from "model/account/account.model";
 import React from "react";
-import { useQuery } from "utils/useQuery";
 import CustomerInputTags from "../../custom-input-tags";
 import { StyledComponent } from "./styles";
 
