@@ -44,9 +44,10 @@ function CardProductBottom(props: PropType) {
 
   const createOrderContext = useContext(OrderCreateContext);
   const shippingFeeInformedToCustomer =
-    createOrderContext?.price.shippingFeeInformedToCustomer || 0;
+    createOrderContext?.price.shippingFeeInformedToCustomer || props.shippingFeeInformedToCustomer || 0;
+  const totalAmount = (amount ? amount : 0) + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - (discountValue ? discountValue : 0)
   const totalOrderAmountAfterDiscountAddShippingFee =
-    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || 0;
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (totalAmount ? totalAmount : 0);
 
   return (
     <StyledComponent>

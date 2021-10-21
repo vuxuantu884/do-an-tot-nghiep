@@ -13,10 +13,18 @@ export interface UpdateConfig3rdPartyLogisticsReQuestModel {
   }[];
 }
 
-export interface getDeliveryMappedStoresReQuestModel {
+export interface updateConfigReQuestModel {
   token?: string;
   username?: string;
   password?: string;
+  external_service_code: string;
+  status: string;
+  transport_types?: {
+    code: string;
+    status: string;
+    name: string;
+    description: string;
+  }[];
 }
 
 export interface createDeliveryMappedStoreReQuestModel {

@@ -481,19 +481,20 @@ function* deleteDeliveryMappedStoreSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        handleData(response.data);
         showSuccess("Xóa mapping store thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
+    handleData();
   }
 }
 

@@ -11,6 +11,7 @@ import {
   Space,
   Dropdown,
   Menu,
+  Select
 } from "antd";
 
 import {
@@ -33,6 +34,7 @@ import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import { MenuAction } from "component/table/ActionButton";
 
+const { Option } = Select;
 const { Panel } = Collapse;
 type PackFilterProps = {
   params: OrderSearchQuery;
@@ -45,7 +47,7 @@ type PackFilterProps = {
 const { Item } = Form;
 
 const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
-  const { params, onClearFilter, onFilter, onShowColumnSetting } =
+  const { params, onClearFilter, onShowColumnSetting } =
     props;
   const [visible, setVisible] = useState(false);
 
@@ -83,26 +85,6 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
         setIssuedOnMin(dateString[0]);
         setIssuedOnMax(dateString[1]);
         break;
-      case "finalized":
-        setFinalizedClick("");
-        setFinalizedOnMin(dateString[0]);
-        setFinalizedOnMax(dateString[1]);
-        break;
-      case "completed":
-        setCompletedClick("");
-        setCompletedOnMin(dateString[0]);
-        setCompletedOnMax(dateString[1]);
-        break;
-      case "cancelled":
-        setCancelledClick("");
-        setCancelledOnMin(dateString[0]);
-        setCancelledOnMax(dateString[1]);
-        break;
-      case "expected":
-        setExpectedClick("");
-        setExpectedReceiveOnMin(dateString[0]);
-        setExpectedReceiveOnMax(dateString[1]);
-        break;
       default:
         break;
     }
@@ -121,17 +103,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
     []
   );
   const [issuedClick, setIssuedClick] = useState("");
-  const [finalizedClick, setFinalizedClick] = useState("");
-  const [completedClick, setCompletedClick] = useState("");
-  const [cancelledClick, setCancelledClick] = useState("");
-  const [expectedClick, setExpectedClick] = useState("");
 
   const clickOptionDate = useCallback(
     (type, value) => {
       let minValue = null;
       let maxValue = null;
-
-      console.log("value", value);
 
       switch (value) {
         case "today":
@@ -192,55 +168,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
             setIssuedOnMax(moment(maxValue, "DD-MM-YYYY"));
           }
           break;
-        case "finalized":
-          if (finalizedClick === value) {
-            setFinalizedClick("");
-            setFinalizedOnMin(null);
-            setFinalizedOnMax(null);
-          } else {
-            setFinalizedClick(value);
-            setFinalizedOnMin(moment(minValue, "DD-MM-YYYY"));
-            setFinalizedOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        case "completed":
-          if (completedClick === value) {
-            setCompletedClick("");
-            setCompletedOnMin(null);
-            setCompletedOnMax(null);
-          } else {
-            setCompletedClick(value);
-            setCompletedOnMin(moment(minValue, "DD-MM-YYYY"));
-            setCompletedOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        case "cancelled":
-          if (cancelledClick === value) {
-            setCancelledClick("");
-            setCancelledOnMin(null);
-            setCancelledOnMax(null);
-          } else {
-            setCancelledClick(value);
-            setCancelledOnMin(moment(minValue, "DD-MM-YYYY"));
-            setCancelledOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        case "expected":
-          if (expectedClick === value) {
-            setExpectedClick("");
-            setExpectedReceiveOnMin(null);
-            setExpectedReceiveOnMax(null);
-          } else {
-            setExpectedClick(value);
-            setExpectedReceiveOnMin(moment(minValue, "DD-MM-YYYY"));
-            setExpectedReceiveOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
         default:
           break;
       }
     },
-    [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]
+    [issuedClick]
   );
 
   const initialValues = useMemo(() => {
@@ -272,105 +204,12 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
       ? moment(initialValues.issued_on_max, "DD-MM-YYYY")
       : null
   );
-  const [finalizedOnMin, setFinalizedOnMin] = useState(
-    initialValues.finalized_on_min
-      ? moment(initialValues.finalized_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [finalizedOnMax, setFinalizedOnMax] = useState(
-    initialValues.finalized_on_max
-      ? moment(initialValues.finalized_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [completedOnMin, setCompletedOnMin] = useState(
-    initialValues.completed_on_min
-      ? moment(initialValues.completed_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [completedOnMax, setCompletedOnMax] = useState(
-    initialValues.completed_on_max
-      ? moment(initialValues.completed_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [cancelledOnMin, setCancelledOnMin] = useState(
-    initialValues.cancelled_on_min
-      ? moment(initialValues.cancelled_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [cancelledOnMax, setCancelledOnMax] = useState(
-    initialValues.cancelled_on_max
-      ? moment(initialValues.cancelled_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [expectedReceiveOnMin, setExpectedReceiveOnMin] = useState(
-    initialValues.expected_receive_on_min
-      ? moment(initialValues.expected_receive_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [expectedReceiveOnMax, setExpectedReceiveOnMax] = useState(
-    initialValues.expected_receive_on_max
-      ? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY")
-      : null
-  );
-
+ 
   const onFinish = useCallback(
     (values) => {
-      if (values?.price_min > values?.price_max) {
-        values = {
-          ...values,
-          price_min: values?.price_max,
-          price_max: values?.price_min,
-        };
-      }
-      console.log("values filter 2", values);
-      const valuesForm = {
-        ...values,
-        issued_on_min: issuedOnMin
-          ? moment(issuedOnMin, "DD-MM-YYYY")?.format("DD-MM-YYYY")
-          : null,
-        issued_on_max: issuedOnMax
-          ? moment(issuedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        finalized_on_min: finalizedOnMin
-          ? moment(finalizedOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        finalized_on_max: finalizedOnMax
-          ? moment(finalizedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        completed_on_min: completedOnMin
-          ? moment(completedOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        completed_on_max: completedOnMax
-          ? moment(completedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        cancelled_on_min: cancelledOnMin
-          ? moment(cancelledOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        cancelled_on_max: cancelledOnMax
-          ? moment(cancelledOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        expected_receive_on_min: expectedReceiveOnMin
-          ? moment(expectedReceiveOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        expected_receive_on_max: expectedReceiveOnMax
-          ? moment(expectedReceiveOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-      };
-      onFilter && onFilter(valuesForm);
+      
     },
-    [
-      cancelledOnMax,
-      cancelledOnMin,
-      completedOnMax,
-      completedOnMin,
-      expectedReceiveOnMax,
-      expectedReceiveOnMin,
-      issuedOnMax,
-      issuedOnMin,
-      onFilter,
-      finalizedOnMax,
-      finalizedOnMin,
-    ]
+    []
   );
 
   let filters = useMemo(() => {
@@ -488,6 +327,84 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
             initialValues={params}
             layout="vertical"
           >
+             <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel header="Hãng vận chuyển" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn hãng vận chuyển"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))} */}
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel header="Loại" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn Loại"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))} */}
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel header="Kiểu biên bản" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn Kiểu biên bản"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))} */}
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+
             <Row gutter={12} style={{ marginTop: "10px" }}>
               <Col span={24}>
                 <Collapse

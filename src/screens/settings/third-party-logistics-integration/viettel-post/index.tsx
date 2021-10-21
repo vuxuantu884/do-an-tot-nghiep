@@ -1,6 +1,5 @@
 import { Button, Card, Checkbox, Col, Form, Input, Row, Select } from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import UrlConfig from "config/url.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   createDeliveryMappedStoreAction,
@@ -14,6 +13,7 @@ import { StoreResponse } from "model/core/store.model";
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
+  updateConfigReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   DeliveryMappedStoreType,
@@ -22,11 +22,10 @@ import {
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
-import IconClose from "./images/iconClose.svg";
+import IconClose from "../images/iconClose.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
@@ -36,8 +35,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const history = useHistory();
-
   const [listShops, setListShops] = useState<StoreResponse[]>([]);
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
@@ -45,8 +42,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
-
-  const [inputTokenApi, setInputTokenApi] = useState<string>("");
   const [inputStoreIdValue, setInputStoreIdValue] = useState<string | undefined>(
     undefined
   );
@@ -63,7 +58,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     useState(listShopIsSelected);
 
   const initialFormValue = {
-    token: "",
+    username: "",
+    password: "",
     transport_types: [],
   };
 
@@ -73,47 +69,46 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
         singleShop.name.toLowerCase().includes(value.toLowerCase()) ||
-        singleShop.store_id.toString().includes(value.toLowerCase())
+        singleShop.partner_shop_id.toString().includes(value.toLowerCase())
       );
     });
     setListShopIsSelectedShow(result);
   };
 
   const handleSubmit = () => {
-    form.validateFields(["token"]).then(() => {
+    form.validateFields(["username", "password"]).then(() => {
       const formComponentValue = form.getFieldsValue();
       let transport_types = listServices.map((single) => {
         return {
-          ...single,
+          code: single.code,
           status: formComponentValue.transport_types.includes(single.code)
             ? DELIVER_SERVICE_STATUS.active
             : DELIVER_SERVICE_STATUS.inactive,
+          name: single.name,
+          description: single.description,
         };
       });
       const formValueFormatted = {
-        external_service_id: thirdPartyLogistics?.id,
+        external_service_code,
         status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
-        token: formComponentValue.token,
+        token: "",
+        username: form.getFieldValue("username"),
+        password: form.getFieldValue("password"),
         transport_types,
       };
-      dispatch(
-        updateDeliveryConfigurationAction(formValueFormatted, () => {
-          history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
-        })
-      );
+      console.log("formValueFormatted", formValueFormatted);
+      dispatch(updateDeliveryConfigurationAction(formValueFormatted, () => {}));
     });
   };
 
   const handleConnect3PL = () => {
-    form.validateFields(["token"]).then(() => {
-      if (!thirdPartyLogistics?.id) {
-        return;
-      }
-      const params = {
-        external_service_id: thirdPartyLogistics?.id,
-        token: form.getFieldValue("token"),
+    form.validateFields(["username", "password"]).then(() => {
+      const params: updateConfigReQuestModel = {
+        external_service_code,
+        username: form.getFieldValue("username"),
+        password: form.getFieldValue("password"),
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
@@ -126,7 +121,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleCancelConnect3PL = () => {
-    form.validateFields(["token"]).then(() => {
+    form.validateFields(["username", "password"]).then(() => {
       setConfirmSubTitle(
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
@@ -137,13 +132,14 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     });
   };
 
-  const cancelConnect3PL = (thirdPartyLogisticId: number | undefined) => {
-    if (!thirdPartyLogisticId) {
+  const cancelConnect3PL = (thirdPartyLogisticCode: string | undefined) => {
+    if (!thirdPartyLogisticCode) {
       return;
     }
     const params = {
-      external_service_id: thirdPartyLogisticId,
-      token: form.getFieldValue("token"),
+      external_service_code: thirdPartyLogisticCode,
+      username: form.getFieldValue("username"),
+      password: form.getFieldValue("password"),
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
@@ -156,7 +152,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleRemoveStoreId = (store: DeliveryMappedStoreType | null) => {
-    console.log("store", store);
     if (!store?.partner_shop_id) {
       return;
     }
@@ -167,67 +162,68 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
       username: form.getFieldValue("username"),
       password: form.getFieldValue("password"),
     };
-    console.log("params", params);
-    console.log("thirdPartyLogistics", thirdPartyLogistics);
     if (thirdPartyLogistics?.code && store) {
       dispatch(
         deleteDeliveryMappedStoreAction(thirdPartyLogistics.code, params, () => {
           setIsShowConfirmDeleteStoreId(false);
-          // dispatch(
-          //   getDeliveryMappedStoresAction(thirdPartyLogistics.code, (response) => {
-          //     setListShopIsSelected(response);
-          //     setListShopIsSelectedShow(response);
-          //   })
-          // );
+          dispatch(
+            getDeliveryMappedStoresAction(thirdPartyLogistics.code, (response) => {
+              setListShopIsSelected(response);
+              setListShopIsSelectedShow(response);
+            })
+          );
         })
       );
     }
   };
 
   const createMappedStore = (
-    thirdPartyLogisticCode: string | undefined,
-    token: string,
     shopId: string | undefined,
     partnerShopId: string | undefined
   ) => {
-    if (!token) {
-      form.validateFields(["token"]);
-    }
     if (!shopId) {
       showError("Vui lòng chọn cửa hàng");
+      return;
     }
     if (!partnerShopId) {
       showError("Vui lòng điền Shop ID");
-    }
-    if (thirdPartyLogisticCode && shopId && partnerShopId && token) {
-      const shopSelected = listShops.find((single) => {
-        return single.id === +shopId;
-      });
-      console.log("shopSelected", shopSelected);
-      if (!shopSelected) {
-        return;
+      const inputElement = document.getElementsByClassName(
+        "inputStoreId"
+      )[0] as HTMLInputElement;
+      if (inputElement) {
+        inputElement.focus();
       }
-      const shopName = shopSelected.name;
-      const params: createDeliveryMappedStoreReQuestModel = {
-        token,
-        username: "",
-        password: "",
-        store_id: +shopId,
-        store_name: shopName,
-        partner_shop_id: +partnerShopId,
-      };
-      console.log("params", params);
-      // dispatch(
-      //   createDeliveryMappedStoreAction(thirdPartyLogisticCode, params, () => {
-      //     // dispatch(
-      //     //   getDeliveryMappedStoresAction(thirdPartyLogisticCode, (response) => {
-      //     //     setListShopIsSelected(response);
-      //     //     setListShopIsSelectedShow(response);
-      //     //   })
-      //     // );
-      //   })
-      // );
+      return;
     }
+    form.validateFields(["username", "password"]).then(() => {
+      if (shopId && partnerShopId) {
+        const shopSelected = listShops.find((single) => {
+          return single.id === +shopId;
+        });
+        if (!shopSelected) {
+          return;
+        }
+        const shopName = shopSelected.name;
+        const params: createDeliveryMappedStoreReQuestModel = {
+          token: "",
+          username: form.getFieldValue("username"),
+          password: form.getFieldValue("password"),
+          store_id: +shopId,
+          store_name: shopName,
+          partner_shop_id: +partnerShopId,
+        };
+        dispatch(
+          createDeliveryMappedStoreAction(external_service_code, params, () => {
+            dispatch(
+              getDeliveryMappedStoresAction(external_service_code, (response) => {
+                setListShopIsSelected(response);
+                setListShopIsSelectedShow(response);
+              })
+            );
+          })
+        );
+      }
+    });
   };
 
   useEffect(() => {
@@ -248,7 +244,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           });
           if (result) {
             setThirdPartyLogistics(result);
-            setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
+            setIsConnected(result.active);
             dispatch(
               getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
@@ -267,7 +263,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
               })
             );
             dispatch(
-              getDeliveryMappedStoresAction(result.code, {}, (response) => {
+              getDeliveryMappedStoresAction(result.code, (response) => {
                 setListShopIsSelected(response);
                 setListShopIsSelectedShow(response);
               })
@@ -366,7 +362,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   {listShops &&
                     listShops.map((singleShop) => {
                       return (
-                        <Select.Option value={singleShop.code} key={singleShop.code}>
+                        <Select.Option value={singleShop.id} key={singleShop.id}>
                           {singleShop.name}
                         </Select.Option>
                       );
@@ -383,12 +379,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   />
                   <Button
                     onClick={() => {
-                      createMappedStore(
-                        thirdPartyLogistics?.code,
-                        inputTokenApi,
-                        inputShopIdValue,
-                        inputStoreIdValue
-                      );
+                      createMappedStore(inputShopIdValue, inputStoreIdValue);
                     }}
                   >
                     Thêm
@@ -413,7 +404,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">
                             <span className="singleShop__name">{single.name}</span>:{" "}
-                            <span className="singleShop__code">{single.store_id}</span>
+                            <span className="singleShop__code">
+                              {single.partner_shop_id}
+                            </span>
                           </div>
                           <div className="singleShop__action">
                             <div
@@ -435,7 +428,6 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                                     const element: any = document.getElementById(
                                       error.errorFields[0].name.join("")
                                     );
-                                    console.log("element", element);
                                     element?.focus();
                                     const offsetY =
                                       element?.getBoundingClientRect()?.top +
@@ -466,7 +458,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
       />
       <ModalDeleteConfirm
         visible={isShowConfirmDisconnect}
-        onOk={() => cancelConnect3PL(thirdPartyLogistics?.id)}
+        onOk={() => cancelConnect3PL(external_service_code)}
         onCancel={() => setIsShowConfirmDisconnect(false)}
         title="Xác nhận"
         subTitle={confirmSubTitle}

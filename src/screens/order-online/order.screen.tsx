@@ -26,6 +26,7 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -138,6 +139,9 @@ export default function Order() {
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
+  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
+
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
@@ -239,6 +243,7 @@ export default function Order() {
 
   let isCloneOrder = false;
   if (actionParam === "clone" && cloneIdParam) {
+    
     isCloneOrder = true;
   }
 
@@ -332,7 +337,7 @@ export default function Order() {
           delivery_service_provider_code: hvcCode,
           delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
@@ -342,7 +347,7 @@ export default function Order() {
           ...objShipment,
           delivery_service_provider_type: "Shipper",
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -461,6 +466,7 @@ export default function Order() {
       values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và duyệt
+      values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount > 0);
@@ -590,6 +596,7 @@ export default function Order() {
               dispatch(
                 CustomerDetail(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
+                 
                   responseCustomer.shipping_addresses.forEach((item) => {
                     if (item.default === true) {
                       setShippingAddress(item);
@@ -768,6 +775,7 @@ export default function Order() {
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      setVisibleCustomer(true);
     } else {
       setLoyaltyPoint(null);
     }
@@ -1049,6 +1057,10 @@ export default function Order() {
                       loyaltyUsageRules={loyaltyUsageRules}
                       ShippingAddressChange={onChangeShippingAddress}
                       BillingAddressChange={onChangeBillingAddress}
+                      isVisibleCustomer={isVisibleCustomer}
+                      setVisibleCustomer={setVisibleCustomer}
+                      setModalAction={setModalAction}
+                      modalAction={modalAction}
                     />
                     <CardProduct
                       changeInfo={onChangeInfoProduct}

@@ -1,3 +1,4 @@
+import { BASE_NAME_ROUTER } from "config/url.config";
 import {
   loadSettingAppAction,
   loadUserFromStorageAction,
@@ -36,7 +37,7 @@ function App() {
   
   return (
     <Suspense fallback={<SplashScreen />}>
-      <BrowserRouter basename="/unicorn/admin">
+      <BrowserRouter basename={BASE_NAME_ROUTER}>
         <MainRoute />
       </BrowserRouter>
       <GlobalStyle />

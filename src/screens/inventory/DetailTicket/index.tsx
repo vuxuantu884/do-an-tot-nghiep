@@ -1,30 +1,38 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Steps, Table, Tag } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag } from "antd";
+import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
-  CheckOutlined,
   DeleteOutlined,
   EditOutlined,
   PaperClipOutlined,
+  PrinterOutlined,
 } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
-import PageHeaderDetail from "./components/PageHeader";
 import { useDispatch } from "react-redux";
 import {
   deleteInventoryTransferAction,
   getDetailInventoryTransferAction,
+  inventoryGetSenderStoreAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem } from "model/inventory/transfer";
+import { InventoryTransferDetailItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
+import InventoryShipment from "../common/ChosesShipment";
+import { getFeesAction } from "domain/actions/order/order.action";
+import { SumWeightInventory } from "utils/AppUtils";
+import NumberFormat from "react-number-format";
+import { Link } from "react-router-dom";
+import ContentContainer from "component/container/content.container";
+import InventoryStep from "./components/InventoryTransferStep";
 
 export interface InventoryParams {
   id: string;
@@ -35,19 +43,29 @@ const DetailTicket: FC = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
+  const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
+
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [isError, setError] = useState(false);
+  const [isLoading, setLoading] = useState<boolean>(false);
+
+  const [infoFees, setInfoFees] = useState<Array<any>>([]);
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
+      setLoading(false);
       if (!result) {
+        setError(true);
         return;
       } else {
         setData(result);
       }
     },
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch]
   );
 
   const columns: ColumnsType<any> = [
@@ -74,11 +92,18 @@ const DetailTicket: FC = () => {
       title: "Sản phẩm",
       width: "200px",
       className: "ant-col-info",
-      dataIndex: "product_name",
+      dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem, index: number) => (
         <div>
           <div>
-            <div className="product-item-sku">{record.sku}</div>
+            <div className="product-item-sku">
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+              >
+                {record.sku}
+              </Link>
+            </div>
             <div className="product-item-name">
               <span className="product-item-name-detail">{value}</span>
             </div>
@@ -98,7 +123,12 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return value || "";
+        return <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
       },
     },
     {
@@ -107,55 +137,107 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return value || 0;
+        return <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
       },
     },
   ];
+
+  const deleteTicketResult = useCallback(result => {
+    if (!result) {
+      setError(true);
+      return;
+    } else {            
+      history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
+    }
+  }, [history])
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
       deleteInventoryTransferAction(
         idNumber,
         {note: value ? value : ""},
-        (result: InventoryTransferDetailItem | false) => {
-          if (!result) {
-            return;
-          } else {
-            history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
-          }
-        }
+        deleteTicketResult
       )
     );
   };
+  useEffect(() => {
+    if (!stores && !data) return;
+    else {
+      const fromStoreData = stores.find(item => item.id === data?.from_store_id);
+      const toStoreData = stores.find(item => item.id === data?.to_store_id);
+      
+      let request = {
+        from_city_id: fromStoreData?.city_id,
+        from_city: fromStoreData?.city_name,
+        from_district_id: fromStoreData?.district_id,
+        from_district: fromStoreData?.district_name,
+        from_ward_id: fromStoreData?.ward_id,
+        to_country_id: toStoreData?.country_id,
+        to_city_id: toStoreData?.city_id,
+        to_city: toStoreData?.city_name,
+        to_district_id: toStoreData?.district_id,
+        to_district: toStoreData?.district_name,
+        to_ward_id: toStoreData?.ward_id,
+        from_address: fromStoreData?.address,
+        to_address: toStoreData?.full_address,
+        price: data?.total_amount,
+        quantity: 1,
+        weight: SumWeightInventory(data?.line_items),
+        length: 0,
+        height: 0,
+        width: 0,
+        service_id: 0,
+        service: "",
+        option: "",
+        insurance: 0,
+        coupon: "",
+        cod: 0,
+      };
+      dispatch(getFeesAction(request, setInfoFees));
+    }
+  }, [data, dispatch, stores]);
 
   useEffect(() => {
+    dispatch(
+      inventoryGetSenderStoreAction(
+        { status: "active", simple: true },
+        setStores
+      )
+    );
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-    return () => {};
   }, [dispatch, idNumber, onResult]);
 
   return (
     <StyledWrapper>
-      <div>
-        <PageHeaderDetail
-          title={`Chuyển hàng ${data?.code}`}
-          rightContent={
-            <Steps
-              progressDot={() => (
-                <div className="ant-steps-icon-dot">
-                  <CheckOutlined />
-                </div>
-              )}
-              size="small"
-              current={1}
-            >
-              <Steps.Step title="Xin hàng" />
-              <Steps.Step title="Chờ chuyển" />
-              <Steps.Step title="Đang chuyển" />
-              <Steps.Step title="Chờ xử lý" />
-              <Steps.Step title="Đã nhập" />
-            </Steps>
-          }
-        ></PageHeaderDetail>
+      <ContentContainer
+        isError={isError}
+        isLoading={isLoading}
+        title={`Chuyển hàng ${data?.code}`}
+        breadcrumb={[
+          {
+            name: "Tổng quản",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Đặt hàng",
+            path: `${UrlConfig.PURCHASE_ORDER}`,
+          },
+          {
+            name: `Đơn hàng ${id}`,
+          },
+        ]}
+        extra={
+          <InventoryStep
+            status={"canceled"}
+            inventoryTransferDetail={data}
+          />
+        }
+      >
         {data && (
           <>
             <Row gutter={24}>
@@ -224,7 +306,12 @@ const DetailTicket: FC = () => {
                             <Table.Summary.Cell index={4}>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell align={"center"} index={5}>
-                              <b>{data.total_amount}</b>
+                              <b><NumberFormat
+                                  value={data.total_amount}
+                                  className="foo"
+                                  displayType={"text"}
+                                  thousandSeparator={true}
+                                /></b>
                             </Table.Summary.Cell>
                           </Table.Summary.Row>
                         </Table.Summary>
@@ -237,7 +324,7 @@ const DetailTicket: FC = () => {
                   extra={
                     <Button
                       className={"choses-shipper-button"}
-                      onClick={() => {}}
+                      onClick={() => setIsVisibleInventoryShipment(true)}
                     >
                       Chọn hãng vận chuyển
                     </Button>
@@ -339,9 +426,33 @@ const DetailTicket: FC = () => {
                 </Card>
               </Col>
             </Row>
-            <BottomBarContainer
+            <BottomBarContainer 
+              leftComponent = {
+                <div onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}`)} style={{ cursor: "pointer" }}>
+                  <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                  {"Quay lại danh sách"}
+                </div>
+              }
               rightComponent={
                 <Space>
+                  <Button>
+                    <Link
+                      to={`${UrlConfig.INVENTORY_TRANSFER}/print-preview?ids=${data.id}&type=inventory_transfer_bill`}
+                      target="_blank"
+                    >
+                      <PrinterOutlined />
+                      {" In vận đơn"}
+                    </Link>
+                  </Button>
+                  <Button>
+                    <Link
+                      to={`${UrlConfig.INVENTORY_TRANSFER}/print-preview?ids=${data.id}&type=inventory_transfer`}
+                      target="_blank"
+                    >
+                      <PrinterOutlined /> 
+                      {" In phiếu chuyển"}
+                    </Link>
+                  </Button>
                   <Button danger onClick={() => setIsDeleteTicket(true)}>
                     <DeleteOutlined /> Hủy phiếu
                   </Button>
@@ -372,8 +483,17 @@ const DetailTicket: FC = () => {
             title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${data?.code}`}
           />
         }
-      
-      </div>
+        {
+          isVisibleInventoryShipment && 
+          <InventoryShipment
+            visible={isVisibleInventoryShipment}
+            dataTicket={data}
+            onCancel={() => setIsVisibleInventoryShipment(false)}
+            onOk={() => {}}
+            infoFees={infoFees}
+          />
+        }
+      </ContentContainer>
     </StyledWrapper>
   );
 };

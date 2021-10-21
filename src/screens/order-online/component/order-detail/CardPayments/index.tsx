@@ -165,9 +165,21 @@ function CardPayments(props: CardPaymentsProps) {
 
   const createOrderContext = useContext(OrderCreateContext);
   const totalOrderAmountAfterDiscountAddShippingFee =
-    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || 0;
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (props.amount ? props.amount : 0);
+
+  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
+    let value = 0;
+    if (items !== null) {
+      if (items.length > 0) {
+        items.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+    return value;
+  };
+  const totalAmountPayment = getAmountPayment(payments);
+
   const totalAmountCustomerNeedToPay =
-    createOrderContext?.price.totalAmountCustomerNeedToPay || 0;
+    createOrderContext?.price.totalAmountCustomerNeedToPay || (props.amount ? (props.amount - totalAmountPayment) : 0);
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));

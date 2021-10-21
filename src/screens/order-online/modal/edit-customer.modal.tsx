@@ -57,6 +57,7 @@ type EditCustomerModalProps = {
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
   setVisibleCollapseCustomer: (item: boolean) => void;
   setVisibleBtnUpdate: (item: boolean) => void;
+  ShippingAddressChange:(items: any) => void;
 };
 
 type FormValueType = {
@@ -94,6 +95,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     setSingleShippingAddress,
     setVisibleCollapseCustomer,
     setVisibleBtnUpdate,
+    ShippingAddressChange
     //onOk,
   } = props;
   const dispatch = useDispatch();
@@ -278,8 +280,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
   );
 
   useEffect(() => {
-    customerForm.resetFields();
-  }, [customerForm]);
+    if(formItem)
+      customerForm.resetFields();
+  }, [customerForm,formItem]);
 
   const DefaultWard = () => {
     let value = customerForm.getFieldsValue();
@@ -422,7 +425,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         <Col xs={24} lg={12}>
           <Form.Item
             name="card_number"
-            //label="Mã thẻ"
+            style={formItem !== null?{marginBottom:"0px"}:{}}
           >
             <Input placeholder="Nhập mã thẻ" prefix={<BarcodeOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
@@ -431,9 +434,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
         <Col xs={24} lg={12}>
           <Form.Item
             name="full_address"
-            //</Col>label="Địa chỉ"
+            style={formItem !== null?{marginBottom:"0px"}:{}}
           >
-            <Input placeholder="Địa chỉ" prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>} />
+            <Input placeholder="Địa chỉi" prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
         </Col>
       </Row>
@@ -465,8 +468,8 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                 style={{ width: "30%" }}
               >
                 <Popover
-                  placement="topLeft"
-                  overlayStyle={{ zIndex: 17 }}
+                  placement="left"
+                  overlayStyle={{ zIndex: 17}}
                   title={
                     <Row
                       justify="space-between"
@@ -497,6 +500,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                       handleShippingEdit={ShowAddressModalEdit}
                       handleShippingDelete={showAddressModalDelete}
                       handleSingleShippingAddress={setSingleShippingAddress}
+                      handleShippingAddress={ShippingAddressChange}
                     />
                   }
                   trigger="click"
@@ -519,7 +523,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             <Divider orientation="right" style={{ color: "#5656A1", marginTop: 0 }}>
               <Popover
                 placement="topLeft"
-                overlayStyle={{ zIndex: 17 }}
+                overlayStyle={{ zIndex: 17}}
                 title={
                   <Row
                     justify="space-between"

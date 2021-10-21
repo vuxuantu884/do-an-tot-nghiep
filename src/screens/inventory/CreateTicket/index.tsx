@@ -35,6 +35,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
 import {
   creatInventoryTransferAction,
+  inventoryGetDetailVariantIdsAction,
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -54,10 +55,11 @@ import { UploadRequestOption } from "rc-upload/lib/interface";
 import { UploadFile } from "antd/es/upload/interface";
 import { findAvatar } from "utils/AppUtils";
 import RowDetail from "screens/products/product/component/RowDetail";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
+import { Link } from "react-router-dom";
+import { InventoryResponse } from "model/inventory";
 
 const { Option } = Select;
 
@@ -334,59 +336,61 @@ const CreateTicket: FC = () => {
     [history]
   );
 
+  const onResultGetDetailVariantIds = useCallback( result => {    
+    if (result) {
+      setIsLoadingTable(false);
+      const newDataTable = dataTable.map((itemOld: VariantResponse) => {
+        let newAvailable;
+        result?.forEach((itemNew: InventoryResponse) => {
+          if (itemNew.variant_id === itemOld.id) {
+            newAvailable = itemNew.available;
+          }
+        });
+        return {
+          ...itemOld,
+          available: newAvailable,
+        };
+      });
+      setDataTable(newDataTable);
+    } else {
+      setIsLoadingTable(false);
+      setDataTable([]);
+      setQuantityInput({});
+      form.setFieldsValue({ [VARIANTS_FIELD]: [] });
+    }
+  }, [dataTable, form])
+
   const onChangeFromStore = (storeId: number) => {
     let variantField = form.getFieldValue(VARIANTS_FIELD);
 
     const variants_id = variantField?.map((item: VariantResponse) => item.id);
 
     if (variants_id?.length > 0) {
-      setIsLoadingTable(true);
+      setIsLoadingTable(true);      
       dispatch(
-        inventoryGetDetailVariantIdsSaga(variants_id, storeId, (result) => {
-          if (result) {
-            setIsLoadingTable(false);
-            const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-              let newAvailable;
-              result?.forEach((itemNew) => {
-                if (itemNew.variant_id === itemOld.id) {
-                  newAvailable = itemNew.available;
-                }
-              });
-              return {
-                ...itemOld,
-                available: newAvailable,
-              };
-            });
-            setDataTable(newDataTable);
-          } else {
-            setIsLoadingTable(false);
-            setDataTable([]);
-            setQuantityInput({});
-            form.setFieldsValue({ [VARIANTS_FIELD]: [] });
-          }
-        })
+        inventoryGetDetailVariantIdsAction(variants_id, storeId, onResultGetDetailVariantIds)
       );
     }
   };
 
   const onFinish = (data: StockTransferSubmit) => {
     stores.forEach((store) => {
-      if (store.id === Number(data.from_store_id)) {
+      if (store?.id === Number(data?.from_store_id)) {
         data.store_transfer = {
-          store_id: store.id,
-          hotline: store.hotline,
-          address: store.address,
-          name: store.name,
-          code: store.code,
+          store_id: store?.id,
+          hotline: store?.hotline,
+          address: store?.address,
+          name: store?.name,
+          code: store?.code,
         };
       }
-      if (store.id === Number(data.to_store_id)) {
+      if (store?.id === Number(data?.to_store_id)) {
         data.store_receive = {
-          store_id: store.id,
-          hotline: store.hotline,
-          address: store.address,
-          name: store.name,
-          code: store.code,
+          store_id: store?.id,
+          hotline: store?.hotline,
+          address: store?.address,
+          name: store?.name,
+          code: store?.code,
         };
       }
     });
@@ -504,13 +508,29 @@ const CreateTicket: FC = () => {
       render: (value: string, record: PurchaseOrderLineItem, index: number) => (
         <div>
           <div>
-            <div className="product-item-sku">{record.sku}</div>
+            <div className="product-item-sku">
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+              >
+                {record.sku}
+              </Link>
+            </div>
             <div className="product-item-name">
               <span className="product-item-name-detail">{value}</span>
             </div>
           </div>
         </div>
       ),
+    },
+    {
+      title: "Tồn trong kho",
+      dataIndex: "on_hand",
+      align: "center",
+      width: 100,
+      render: (value) => {
+        return value || 0;
+      },
     },
     {
       title: "Có thể bán",
@@ -766,6 +786,7 @@ const CreateTicket: FC = () => {
                   labelCol={{ span: 24, offset: 0 }}
                 >
                   <TextArea
+                    maxLength={250}
                     placeholder=" "
                     autoSize={{ minRows: 4, maxRows: 6 }}
                   />

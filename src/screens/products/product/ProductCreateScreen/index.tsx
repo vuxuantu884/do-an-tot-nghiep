@@ -24,7 +24,7 @@ import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -668,7 +668,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/unicorn/admin/categories/create')}
+                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`)}
                             />
                           }
                         >
@@ -785,7 +785,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/unicorn/admin/materials/create')}
+                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.MATERIALS}/create`)}
                             />
                           }
                         >
@@ -1261,7 +1261,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/unicorn/admin/colors/create')}
+                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.COLORS}/create`)}
 
                             />
                           }
@@ -1288,7 +1288,7 @@ const ProductCreateScreen: React.FC = () => {
                             <Button
                               style={{ width: 37, height: 37 }}
                               icon={<PlusOutlined />}
-                              onClick={()=>window.open('/unicorn/admin/sizes/create')}
+                              onClick={()=>window.open(`${BASE_NAME_ROUTER}${UrlConfig.SIZES}/create`)}
 
                             />
                           }

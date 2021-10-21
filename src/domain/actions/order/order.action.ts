@@ -1,9 +1,12 @@
 import BaseAction from "base/base.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
-import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
+import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
+  ConfirmDraftOrderRequest,
+  CreateShippingOrderRequest,
+  GetFeesRequest,
   GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
@@ -11,10 +14,11 @@ import {
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
   VTPFeeRequest,
-  GetFeesRequest,
-  ConfirmDraftOrderRequest,
-  CreateShippingOrderRequest,
 } from "model/request/order.request";
+import {
+  createDeliveryMappedStoreReQuestModel,
+  deleteDeliveryMappedStoreReQuestModel,
+} from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   ActionLogDetailResponse,
   OrderActionLogResponse,
@@ -35,10 +39,6 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
-import {
-  deleteDeliveryMappedStoreReQuestModel,
-  getDeliveryMappedStoresReQuestModel,
-} from "model/request/settings/third-party-logistics-settings.resquest";
 
 export const orderCreateAction = (
   request: OrderRequest,
@@ -173,14 +173,12 @@ export const DeliveryServicesGetList = (
 
 export const getDeliveryMappedStoresAction = (
   providerCode: string,
-  params: getDeliveryMappedStoresReQuestModel,
   handleData: (data: Array<DeliveryMappedStoreType>) => void
 ) => {
   return {
     type: OrderType.GET_MAPPED_STORES,
     payload: {
       providerCode,
-      params,
       handleData,
     },
   };
@@ -188,24 +186,14 @@ export const getDeliveryMappedStoresAction = (
 
 export const createDeliveryMappedStoreAction = (
   providerCode: string,
-  token: string,
-  username: string,
-  password: string,
-  store_id: number,
-  store_name: string,
-  partner_shop_id: number,
+  params: createDeliveryMappedStoreReQuestModel,
   handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.CREATE_MAPPED_STORE,
     payload: {
       providerCode,
-      token,
-      username,
-      password,
-      store_id,
-      store_name,
-      partner_shop_id,
+      params,
       handleData,
     },
   };

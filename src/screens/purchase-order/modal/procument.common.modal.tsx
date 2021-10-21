@@ -24,6 +24,7 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import moment, { Moment } from "moment";
+import { showError } from "utils/ToastUtils";
 
 type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
@@ -164,9 +165,29 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   }, [data]);
   const onFinish = useCallback(
     (value: PurchaseProcument) => {
+      let quantity = 0;
+      let real_quantity = 0;
+      value.procurement_items.forEach((item) => {
+        if(item.quantity) {
+          quantity = quantity + item.quantity;
+        }
+        if(item.real_quantity) {
+          real_quantity = real_quantity + item.real_quantity;
+        }
+      })
+
+      if (type === "draft" || type === "confirm") {
+        if(quantity === 0) {
+          showError("Cần ít nhất một item nhập kho");
+          return;
+        }
+      } else if (type === "inventory" && real_quantity === 0) {
+        showError("Cần ít nhất một item nhập kho");
+        return;
+      }
       onOk(value);
     },
-    [onOk]
+    [onOk, type]
   );
   const onQuantityChange = useCallback(
     (quantity, index: number) => {

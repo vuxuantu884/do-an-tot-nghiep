@@ -47,7 +47,6 @@ import { CustomerShippingAddress } from "model/request/customer.request";
 import {
   BillingAddress,
   CustomerResponse,
-  shippingAddress,
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -76,11 +75,15 @@ type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
+  setVisibleCustomer:(item:boolean)=>void;
+  setModalAction:(item:modalActionType)=>void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
+  isVisibleCustomer:boolean;
+  modalAction:modalActionType;
 };
 
 //Add query for search Customer
@@ -109,6 +112,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
+    setModalAction,
+    modalAction,
+    setVisibleCustomer,
+    isVisibleCustomer
   } = props;
   //State
   const [addressesForm] = Form.useForm();
@@ -117,7 +124,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
-  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  // const [isVisibleCustomer, setVisibleCustomer] = useState(true);
   const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
@@ -134,7 +141,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     []
   );
 
-  const [modalAction, setModalAction] = useState<modalActionType>("create");
+  // const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   // const [shippingAddress, setShippingAddress] =
   //   useState<ShippingAddress | null>(null);
@@ -148,7 +155,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
     useState(false);
 
-  const [titleNotify, setTitleNotify] = useState("Thêm mới dữ liệu thành công");
+  const [titleNotify, setTitleNotify] = useState("Cập nhập dữ liệu thành công");
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
@@ -397,6 +404,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
+  useEffect(()=>{
+      if(customer)
+        setDistrictId(customer.district_id);
+  },[customer]);
+
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
       setDistrictId(districtId);
@@ -413,7 +425,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
       OkConfirmCustomerEdit();
-      handleCustomer(customers);
+      handleCustomer(customers); 
     }
   };
 
@@ -424,7 +436,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           DeleteShippingAddress(
             singleShippingAddress.id,
             customer.id,
-            (data: shippingAddress) => {
+            (data: ShippingAddress) => {
               dispatch(
                 CustomerDetail(customer.id, (datas: CustomerResponse) => {
                   handleChangeCustomer(datas);
@@ -659,6 +671,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     setSingleShippingAddress={setSingleShippingAddress}
                     setVisibleCollapseCustomer={setVisibleCollapseCustomer}
                     setVisibleBtnUpdate={setVisibleBtnUpdate}
+                    ShippingAddressChange={props.ShippingAddressChange}
                   />
                 </div>
                 {isVisibleCollapseCustomer === true && (

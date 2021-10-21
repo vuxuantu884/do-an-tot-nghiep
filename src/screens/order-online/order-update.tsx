@@ -46,9 +46,8 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
-  ShippingAddress,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
@@ -101,6 +100,7 @@ import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import CardPayments from "./component/order-detail/CardPayments";
 import CardShipment from "./component/order-detail/CardShipment";
+import { modalActionType } from "model/modal/modal.model";
 
 let typeButton = "";
 type PropType = {
@@ -158,6 +158,9 @@ export default function Order(props: PropType) {
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+
+  const [isVisibleCustomer, setVisibleCustomer] = useState(true);
+  const [modalAction, setModalAction] = useState<modalActionType>("edit");
 
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
@@ -276,7 +279,7 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
-  console.log("levelOrder", levelOrder);
+  console.log("levelOrder",levelOrder)
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
@@ -421,7 +424,7 @@ export default function Order(props: PropType) {
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeCustomer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
@@ -431,7 +434,7 @@ export default function Order(props: PropType) {
           ...objShipment,
           delivery_service_provider_type: "Shipper",
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -554,6 +557,7 @@ export default function Order(props: PropType) {
     //Nếu là lưu nháp Fulfillment = [], payment = []
 
     //Nếu là đơn lưu và duyệt
+    values.shipping_fee_informed_to_customer = shippingFeeCustomer;
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     values.payments = payments.filter((payment) => payment.amount > 0);
@@ -646,8 +650,16 @@ export default function Order(props: PropType) {
       setIsShowBillStep(false);
     }
   }, []);
-
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const onShipmentSelect = (value: number) => {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
     setShipmentMethod(value);
   };
 
@@ -1043,6 +1055,10 @@ export default function Order(props: PropType) {
                     BillingAddressChange={onChangeBillingAddress}
                     levelOrder={levelOrder}
                     updateOrder={true}
+                    isVisibleCustomer={isVisibleCustomer}
+                    setVisibleCustomer={setVisibleCustomer}
+                    setModalAction={setModalAction}
+                    modalAction={modalAction}
                   />
                   <CardProduct
                     changeInfo={onChangeInfoProduct}
@@ -1427,9 +1443,12 @@ export default function Order(props: PropType) {
                         setPayments={onPayments}
                         paymentMethod={paymentMethod}
                         shipmentMethod={shipmentMethod}
-                        amount={orderAmount}
+                        amount={orderAmount +
+                          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                          discountValue}
                         isCloneOrder={false}
                         loyaltyRate={loyaltyRate}
+                        isDisablePostPayment={isDisablePostPayment}
                       />
                     )}
                   {!fulfillments.length && (

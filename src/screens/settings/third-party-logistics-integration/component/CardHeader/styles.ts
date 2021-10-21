@@ -16,6 +16,9 @@ export const StyledComponent = styled.div`
     .link {
       font-weight: normal;
     }
+    &__right {
+      text-transform: none;
+    }
   }
   .logoSingleThirdPartyLogistic {
     margin-right: 10px;

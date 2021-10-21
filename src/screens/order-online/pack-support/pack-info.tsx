@@ -418,7 +418,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 className="select-with-search"
                 showSearch
                 allowClear
-                style={{ width: "100%" }}
+                style={{ width: "70%" }}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
@@ -458,7 +458,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             >
               <Input
                 className="select-with-search"
-                style={{ width: "100%" }}
+                style={{ width: "70%" }}
                 placeholder="ID đơn hàng/ Mã đơn giao"
                 addonAfter={<ScanOutlined />}
                 onPressEnter={(e: any) => {
