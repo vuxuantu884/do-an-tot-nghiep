@@ -21,6 +21,7 @@ import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
   getDeliveryMappedStoresReQuestModel,
+  updateConfigReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   OrderSourceCompanyModel,
@@ -42,6 +43,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
+import { getToken } from "utils/LocalStorageUtils";
 
 export const getListOrderApi = (
   query: OrderSearchQuery
@@ -151,41 +153,49 @@ export const updatePayment = (
 export const getDeliverieServices = (): Promise<
   BaseResponse<Array<DeliveryServiceResponse>>
 > => {
-  return BaseAxios.get(`${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/services`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
 };
 
-export const getDeliveryTransportTypesService = (
-  providerCode: string
+export const getDeliveryTransportTypesServices = (
+  id: number
 ): Promise<BaseResponse<Array<DeliveryTransportTypesResponse>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/transport-types`
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/external-service/${id}/transport-types`);
 };
 
-export const getDeliveryMappedStoresService = (
-  providerCode: string
+export const getDeliveryMappedStoresServices = (
+  id: number
 ): Promise<BaseResponse<Array<DeliveryMappedStoreType>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/mapped-stores`
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/external-service/${id}/mapped-stores`);
 };
 
-export const deleteDeliveryMappedStoreService = (
-  providerCode: string,
-  params: deleteDeliveryMappedStoreReQuestModel
+export const deleteDeliveryMappedStoreServices = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number
 ): Promise<BaseResponse<any>> => {
+  const params = {
+    shop_id,
+    store_id,
+  };
   return BaseAxios.post(
-    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/mapped-stores/delete`,
+    `${ApiConfig.ORDER}/external-service/${idDelivery}/delete-mapped-store`,
     params
   );
 };
 
-export const createDeliveryMappedStoreService = (
-  providerCode: string,
-  params: createDeliveryMappedStoreReQuestModel
+export const createDeliveryMappedStoreServices = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
+  token: string
 ): Promise<BaseResponse<any>> => {
+  const params = {
+    shop_id,
+    store_id,
+    token,
+  };
   return BaseAxios.post(
-    `${ApiConfig.LOGISTIC_GATEWAY}/${providerCode}/mapping-stores/map`,
+    `${ApiConfig.ORDER}/external-service/${idDelivery}/mapping-store`,
     params
   );
 };
