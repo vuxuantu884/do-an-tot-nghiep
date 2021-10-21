@@ -8,6 +8,7 @@ import {
   InventoryTransferLog,
   InventoryTransferLogSearchQuery,
   InventoryTransferSearchQuery,
+  InventoryTransferShipmentRequest,
   StockTransferSubmit,
   Store,
   StoreStatus,
@@ -16,6 +17,7 @@ import * as queryString from "querystring";
 import { VariantResponse } from "../../../model/product/product.model";
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
 
 export const getListInventoryTransferApi = (
   query: InventoryTransferSearchQuery
@@ -39,8 +41,22 @@ export const DeleteInventoryService = (
   id: string,
   request: DeleteTicketRequest
 ): Promise<BaseResponse<InventoryTransferDetailItem>> => {
-  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/delete/${id}`, request);
+  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/cancel/${id}`, request);
 };
+
+
+export const inventoryTransferGetDetailVariantIdsApi = (
+  variant_id: number[],
+  store_id: number | null
+): Promise<BaseResponse<Array<InventoryResponse>>> => {
+  let queryString = "";
+  if (store_id) queryString += `store_id=${store_id}`;
+  if (variant_id)
+    variant_id.forEach((element) => (queryString += `&variant_id=${element}`));
+  let link = `${ApiConfig.INVENTORY}/inventories/detail?is_pageable=false&${queryString}`;
+  return BaseAxios.get(link);
+};
+
 
 const TransferService = {
   ///get
@@ -85,6 +101,13 @@ const TransferService = {
     return BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers`, data);
   },
 
+  createInventoryTransferShipment: (
+    id: number,
+    data: InventoryTransferShipmentRequest
+  ): Promise<BaseResponse<any>> => {
+    return BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/shipment`, data);
+  },
+
   //update
   updateInventoryTransfer: (
     id: number, data: StockTransferSubmit
@@ -93,5 +116,5 @@ const TransferService = {
   },
 };
 
-export const { getStoreApi, getVariantByStoreApi, uploadFileApi, createInventoryTransfer, updateInventoryTransfer } =
+export const { getStoreApi, getVariantByStoreApi, uploadFileApi, createInventoryTransfer, updateInventoryTransfer, createInventoryTransferShipment} =
   TransferService;

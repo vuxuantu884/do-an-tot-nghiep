@@ -1,5 +1,5 @@
 import { MenuAction } from "component/table/ActionButton";
-import { getListInventoryTransferAction, inventoryGetSenderStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { getListInventoryTransferAction, inventoryGetSenderStoreAction, updateInventoryTransferAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
@@ -9,17 +9,20 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Tag } from "antd";
+import { Input, Modal, Tag, Form } from "antd";
 import { InventoryTransferTabWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER } from "../../constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { PaperClipOutlined } from "@ant-design/icons";
+import { FormOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
 import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import NumberFormat from "react-number-format";
+import { showSuccess } from "utils/ToastUtils";
+const { TextArea } = Input;
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -91,14 +94,18 @@ const InventoryTransferTab: React.FC = () => {
   const query = useQuery();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [tableLoading, setTableLoading] = useState(false);
+  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+
+  const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
   
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
   };
+  const [formNote] = Form.useForm();
   let [params, setPrams] = useState<InventoryTransferSearchQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<Array<InventoryTransferDetailItem>>>({
     metadata: {
@@ -182,12 +189,24 @@ const InventoryTransferTab: React.FC = () => {
       dataIndex: "total_amount",
       visible: true,
       align: "center",
+      width: "100px",
+      render: (value: number) => {
+        return (
+          <NumberFormat
+            value={value}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        )
+      }
     },
     {
       title: "Ngày chuyển",
       dataIndex: "transfer_date",
       visible: true,
       align: "center",
+      width: "150px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -195,6 +214,7 @@ const InventoryTransferTab: React.FC = () => {
       dataIndex: "receive_date",
       visible: true,
       align: "center",
+      width: "150px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -220,18 +240,32 @@ const InventoryTransferTab: React.FC = () => {
       dataIndex: "note",
       visible: true,
       align: "center",
+      width: "250px",
+      render: (item: string, row:InventoryTransferDetailItem, index: number) => {
+        return (
+          <div className="note">
+            {item} 
+            <FormOutlined onClick={() => {
+              setItemData(row);
+              setIsModalVisibleNote(true);
+            }} className="note-icon" />
+          </div>
+        )
+      }
     },
     {
       title: "Người tạo",
       dataIndex: "updated_by",
       visible: true,
       align: "center",
+      width: "150px",
     },
     {
       title: "Ngày tạo",
       dataIndex: "updated_date",
       visible: true,
       align: "center",
+      width: "150px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     
@@ -274,7 +308,6 @@ const InventoryTransferTab: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
-      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -349,7 +382,7 @@ const InventoryTransferTab: React.FC = () => {
   useEffect(() => {
     dispatch(getListInventoryTransferAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
-
+  
   return (
     <InventoryTransferTabWrapper>
       <InventoryFilters
@@ -358,13 +391,14 @@ const InventoryTransferTab: React.FC = () => {
         stores={stores}
         actions={actions}
         onMenuClick={onMenuClick}
+        onShowColumnSetting={() => setShowSettingColumn(true)}
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}
       />
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
-        scroll={{ x: 1300 }}
+        scroll={{ x: 2000 }}
         sticky={{ offsetScroll: 5, offsetHeader: 55 }}
         pagination={{
           pageSize: data.metadata.limit,
@@ -380,6 +414,81 @@ const InventoryTransferTab: React.FC = () => {
         columns={columnFinal}
         rowKey={(item: VariantResponse) => item.id}
       />
+      {
+        isModalVisibleNote && (
+          <Modal
+            title={itemData?.code}
+            visible={isModalVisibleNote}
+            onOk={() => {
+              formNote.submit();
+              setIsModalVisibleNote(false);
+            }}
+            onCancel={() => {
+              setIsModalVisibleNote(false)
+            }}
+          >
+            <Form
+              form={formNote}
+              initialValues={itemData}
+              onFinish={(data) => {
+                stores.forEach((store) => {
+                  if (store.id === Number(itemData?.from_store_id)) {
+                    data.store_transfer = {
+                      id: itemData?.store_transfer?.id,
+                      store_id: store.id,
+                      hotline: store.hotline,
+                      address: store.address,
+                      name: store.name,
+                      code: store.code,
+                    };
+                  }
+                  if (store.id === Number(itemData?.to_store_id)) {
+                    data.store_receive = {
+                      id: itemData?.store_receive?.id,
+                      store_id: store.id,
+                      hotline: store.hotline,
+                      address: store.address,
+                      name: store.name,
+                      code: store.code,
+                    };
+                  }
+                })
+                data.from_store_id = itemData?.from_store_id;
+                data.to_store_id = itemData?.to_store_id;
+                data.attached_files = itemData?.attached_files;
+                data.line_items = itemData?.line_items;
+                data.exception_items = itemData?.exception_items;
+                data.version = itemData?.version;
+
+                if (itemData?.id) {
+                  dispatch(updateInventoryTransferAction(itemData.id, data, (result) => {
+                    setItemData(undefined);
+                    if(result)
+                      showSuccess('Update thành công')
+                      dispatch(getListInventoryTransferAction(params, setSearchResult));
+                  }));
+                }
+              }}
+              onFinishFailed={() => {}}
+            >
+              <Form.Item noStyle hidden name="note">
+                <Input />
+              </Form.Item>
+              <Form.Item
+              >
+                <TextArea
+                  onChange={(e) => {
+                    formNote.setFieldsValue({note: e.target.value})
+                  }}
+                  defaultValue={itemData?.note}
+                  rows={4}
+                />
+              </Form.Item>
+
+            </Form>
+          </Modal>
+        )
+      }
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}

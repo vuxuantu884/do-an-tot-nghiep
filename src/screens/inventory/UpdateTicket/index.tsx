@@ -36,6 +36,7 @@ import { useDispatch } from "react-redux";
 import {
   deleteInventoryTransferAction,
   getDetailInventoryTransferAction,
+  inventoryGetDetailVariantIdsAction,
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
@@ -58,11 +59,13 @@ import { UploadRequestOption } from "rc-upload/lib/interface";
 import { UploadFile } from "antd/es/upload/interface";
 import { findAvatar } from "utils/AppUtils";
 import RowDetail from "screens/products/product/component/RowDetail";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import { useHistory, useParams } from "react-router";
 import { InventoryParams } from "../DetailTicket";
 import _ from "lodash";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
+import { Link } from "react-router-dom";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { InventoryResponse } from "model/inventory";
 
 const { Option } = Select;
 
@@ -88,6 +91,9 @@ const UpdateTicket: FC = () => {
 
   const [initDataForm, setInitDataForm] =
     useState<InventoryTransferDetailItem | null>(null);
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
@@ -226,8 +232,8 @@ const UpdateTicket: FC = () => {
       amount: 0,
       price: variantPrice,
       transfer_quantity: 0,
-      weight: selectedItem.weight,
-      weight_unit: selectedItem.weight_unit
+      weight: selectedItem?.weight ? selectedItem?.weight : 0,
+      weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
     };
 
     if (
@@ -351,64 +357,84 @@ const UpdateTicket: FC = () => {
       }
     },
     [history]
+  );  
+
+  const onChangeFromStore = useCallback(
+    (storeData: Store) => {
+      setModalConfirm({
+        visible: true,
+        okText: "Đồng ý",
+        title: "Bạn có chắc thay đổi Kho gửi?",
+        cancelText: "Hủy",
+        subTitle: `Thay đổi kho gửi sẽ tính toán lại tồn kho ${fromStoreData?.name ? fromStoreData?.name : initDataForm?.from_store_name}.`,
+        onCancel: () => {
+          setModalConfirm({ visible: false });
+          form.setFieldsValue({ from_store_id: fromStoreData ? fromStoreData.id : initDataForm?.from_store_id });
+        },
+        onOk: () => {
+          
+          setFormStoreData(storeData);
+          const variants_id = dataTable?.map((item: VariantResponse) => item.id);
+      
+          if (variants_id?.length > 0) {
+            setIsLoadingTable(true);
+            dispatch(
+              inventoryGetDetailVariantIdsAction(variants_id, storeData.id, (result: Array<InventoryResponse> | null) => {
+                if (result) {
+                  setModalConfirm({ visible: false });
+                  setIsLoadingTable(false);
+                  const newDataTable = dataTable.map((itemOld: VariantResponse) => {
+                    let newAvailable;
+                    result?.forEach((itemNew) => {
+                      if (itemNew.variant_id === itemOld.id) {
+                        newAvailable = itemNew.available;
+                      }
+                    });
+                    return {
+                      ...itemOld,
+                      available: newAvailable,
+                    };
+                  });
+                  setDataTable(newDataTable);
+                } else {
+                  setModalConfirm({ visible: false });
+                  setIsLoadingTable(false);
+                  setDataTable([]);
+                }
+              })
+            );
+          }
+        },
+      });
+    }, [dataTable, dispatch, form, fromStoreData, initDataForm]
   );
 
-  const onChangeFromStore = (storeId: number) => {
-    const variants_id = dataTable?.map((item: VariantResponse) => item.id);
-
-    if (variants_id?.length > 0) {
-      setIsLoadingTable(true);
-      dispatch(
-        inventoryGetDetailVariantIdsSaga(variants_id, storeId, (result) => {
-          if (result) {
-            setIsLoadingTable(false);
-            const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-              let newAvailable;
-              result?.forEach((itemNew) => {
-                if (itemNew.variant_id === itemOld.id) {
-                  newAvailable = itemNew.available;
-                }
-              });
-              return {
-                ...itemOld,
-                available: newAvailable,
-              };
-            });
-            setDataTable(newDataTable);
-          } else {
-            setIsLoadingTable(false);
-            setDataTable([]);
-          }
-        })
-      );
+  const onFinish = useCallback((data: StockTransferSubmit) => {
+    if (stores) {
+      stores.forEach((store) => {
+        if (store.id === Number(data.from_store_id)) {
+          data.store_transfer = {
+            id: initDataForm?.store_transfer?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+        if (store.id === Number(data.to_store_id)) {
+          data.store_receive = {
+            id: initDataForm?.store_receive?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+      });
     }
-  };
-
-  const onFinish = (data: StockTransferSubmit) => {
-
-    stores.forEach((store) => {
-      if (store.id === Number(data.from_store_id)) {
-        data.store_transfer = {
-          id: initDataForm?.store_transfer.id,
-          store_id: store.id,
-          hotline: store.hotline,
-          address: store.address,
-          name: store.name,
-          code: store.code,
-        };
-      }
-      if (store.id === Number(data.to_store_id)) {
-        data.store_receive = {
-          id: initDataForm?.store_receive.id,
-          store_id: store.id,
-          hotline: store.hotline,
-          address: store.address,
-          name: store.name,
-          code: store.code,
-        };
-      }
-    });
-
+    
     if (dataTable.length === 0) {
       showError("Vui lòng chọn sản phẩm");
       return;
@@ -421,7 +447,7 @@ const UpdateTicket: FC = () => {
     if (initDataForm) {
       dispatch(updateInventoryTransferAction(initDataForm.id, data, createCallback));
     }
-  };
+  },[createCallback, dataTable, dispatch, initDataForm, stores]);
 
   const checkError = (index: number) => {
     const thisInput = document.getElementById(`item-quantity-${index}`);
@@ -498,8 +524,6 @@ const UpdateTicket: FC = () => {
       width: "60px",
       dataIndex: "variant_image",
       render: (value: string) => {
-        console.log("value", value);
-
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -511,11 +535,18 @@ const UpdateTicket: FC = () => {
       title: "Sản phẩm",
       width: "200px",
       className: "ant-col-info",
-      dataIndex: "product_name",
+      dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem, index: number) => (
         <div>
           <div>
-            <div className="product-item-sku">{record.sku}</div>
+            <div className="product-item-sku">
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+              >
+                {record.sku}
+              </Link>
+            </div>
             <div className="product-item-name">
               <span className="product-item-name-detail">{value}</span>
             </div>
@@ -632,9 +663,8 @@ const UpdateTicket: FC = () => {
                           optionFilterProp="children"
                           onChange={(value: number) => {
                             stores.forEach((element) => {
-                              if (element.id === value) {
-                                setFormStoreData(element);
-                                onChangeFromStore(element.id);
+                              if (element.id === value) {                                
+                                onChangeFromStore(element);
                               }
                             });
                           }}
@@ -813,6 +843,7 @@ const UpdateTicket: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <TextArea
+                      maxLength={250}
                       placeholder=" "
                       autoSize={{ minRows: 4, maxRows: 6 }}
                     />
@@ -866,6 +897,7 @@ const UpdateTicket: FC = () => {
             )}
           </Form>
         )}
+        <ModalConfirm {...modalConfirm} />
         {
           isDeleteTicket &&
           <DeleteTicketModal

@@ -101,6 +101,8 @@ export interface LineItem {
   amount: number;
   price: number;
   barcode: string;
+  weight: number;
+  weight_unit: string
 }
 
 export interface FileUrl {
@@ -129,9 +131,38 @@ export type StockTransferSubmit = {
   from_store_id?: number;
   to_store_id?:number;
   note: string;
-  transfer_files: FileUrl[];
+  attached_files: FileUrl[];
   line_items: LineItem[];
   exception_items: [];
+};
+
+export type ShipmentItem = {
+  id: number,
+  delivery_service_id: number,
+  delivery_service_code: string,
+  delivery_service_name: string,
+  delivery_service_logo: string,
+  order_code: string,
+  fulfillment_code: string,
+  store_id: number,
+  partner_shop_id: number,
+  money_collection: string,
+  transport_type: string,
+  transport_type_name: string,
+  cod: number,
+  insurance: string,
+  weight: number,
+  weight_unit: string,
+  total_fee: number,
+  insurance_fee: string,
+  note_to_shipper: string,
+  partner_note: string,
+  shipping_requirement: string,
+  who_paid: string,
+  tracking_code: string,
+  expected_delivery_time: string,
+  office_time: boolean,
+  status: string
 };
 
 export interface InventoryTransferDetailItem {
@@ -166,6 +197,8 @@ export interface InventoryTransferDetailItem {
   store_transfer: Store;
   store_receive: Store;
   line_items: Array<LineItem>;
+  shipment: Array<ShipmentItem>;
+  exception_items: [];
 };
 
 export type DeleteTicketRequest = {
@@ -192,3 +225,24 @@ export interface InventoryTransferLog {
     from_store_id: number;
     to_store_id: number;
 };
+
+export interface InventoryTransferShipmentRequest {
+  delivery_service_id: number | null,
+  delivery_service_code: string | null,
+  delivery_service_name: string | null,
+  delivery_service_logo: string | null,
+  order_code: string | null,
+  fulfillment_code: string | null,
+  store_id: number | null,
+  transport_type: string | null,
+  transport_type_name: string | null,
+  cod: number | null,
+  weight: number | null,
+  weight_unit: string | null,
+  total_fee: number | null,
+  note_to_shipper: string | null,
+  shipping_requirement: string | null,
+  who_paid: string | null,
+  expected_delivery_time: string | null,
+  office_time:boolean | null,
+}
