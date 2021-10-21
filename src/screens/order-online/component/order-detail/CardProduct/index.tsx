@@ -992,7 +992,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       <Card
         title="SẢN PHẨM"
         extra={
-          <Space size={20}>
+          <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
             <span>Chính sách giá:</span>
             <Form.Item name="price_type">
@@ -1018,7 +1018,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 {isShowSplitOrder && (
                   <React.Fragment>
                     <InputNumber
-                      style={{ width: 55 }}
+                      style={{ width: 45 }}
                       max={50}
                       value={splitOrderNumber}
                       onChange={(value) => setSplitOrderNumber(value)}
@@ -1026,7 +1026,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     <Button
                       type="primary"
                       onClick={handleSplitOrder}
-                      style={{ marginLeft: 10 }}
+                      style={{ padding: "0 10px" }}
                     >
                       Thực hiện
                     </Button>
