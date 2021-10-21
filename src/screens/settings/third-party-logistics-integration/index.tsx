@@ -73,7 +73,7 @@ function ThirdPartyLogisticsIntegration() {
                         </div>
                       </div>
                       <div className="singleThirdParty__connect">
-                        {single.status === DELIVER_SERVICE_STATUS.active ? (
+                        {single.active ? (
                           <Button>
                             <Link
                               to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}

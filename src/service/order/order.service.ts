@@ -152,55 +152,58 @@ export const updatePayment = (
 export const getDeliverieServices = (): Promise<
   BaseResponse<Array<DeliveryServiceResponse>>
 > => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
+  return BaseAxios.get(`${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/services`);
 };
 
-export const getDeliveryTransportTypesServices = (
-  id: number
+export const getDeliveryTransportTypesService = (
+  providerCode: string
 ): Promise<BaseResponse<Array<DeliveryTransportTypesResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/external-service/${id}/transport-types`);
+  return BaseAxios.get(
+    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/transport-types`
+  );
 };
 
-export const getDeliveryMappedStoresServices = (
-  id: number
+export const getDeliveryMappedStoresService = (
+  providerCode: string
 ): Promise<BaseResponse<Array<DeliveryMappedStoreType>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/external-service/${id}/mapped-stores`);
+  return BaseAxios.get(
+    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/mapped-stores`
+  );
 };
 
-export const deleteDeliveryMappedStoreServices = (
-  idDelivery: number,
-  shop_id: number,
-  store_id: number
+export const deleteDeliveryMappedStoreService = (
+  providerCode: string,
+  params: deleteDeliveryMappedStoreReQuestModel
 ): Promise<BaseResponse<any>> => {
-  const params = {
-    shop_id,
-    store_id,
-  };
+  const token = getToken();
+  return BaseAxios.delete(
+    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/mapped-stores/delete`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: params,
+    }
+  );
+};
+
+export const createDeliveryMappedStoreService = (
+  providerCode: string,
+  params: createDeliveryMappedStoreReQuestModel
+): Promise<BaseResponse<any>> => {
   return BaseAxios.post(
-    `${ApiConfig.ORDER}/external-service/${idDelivery}/delete-mapped-store`,
+    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/mapped-stores`,
     params
   );
 };
 
-export const createDeliveryMappedStoreServices = (
-  idDelivery: number,
-  shop_id: number,
-  store_id: number,
-  token: string
+export const updateDeliveryConnectService = (
+  params: updateConfigReQuestModel
 ): Promise<BaseResponse<any>> => {
-  const params = {
-    shop_id,
-    store_id,
-    token,
-  };
   return BaseAxios.post(
-    `${ApiConfig.ORDER}/external-service/${idDelivery}/mapping-store`,
+    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/update-config`,
     params
   );
-};
-
-export const updateDeliveryConnectService = (params: any): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/external-service/update-config`, params);
 };
 
 /**
