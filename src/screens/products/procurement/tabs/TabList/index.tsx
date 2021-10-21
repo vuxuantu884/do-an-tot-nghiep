@@ -80,6 +80,16 @@ const TabList: React.FC = () => {
             ),
           },
           {
+            title: "Mã đơn mua",
+            dataIndex: "purchase_order",
+            fixed: "left",
+            render: (value, record, index) => (
+              <Link to={`${UrlConfig.PURCHASE_ORDER}/${value.id}`}>
+                {value.code}
+              </Link>
+            ),
+          },
+          {
             title: "Kho nhận hàng dự kiến",
             dataIndex: "store",
             render: (value, record, index) => value,
