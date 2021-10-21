@@ -337,7 +337,7 @@ export default function Order() {
           delivery_service_provider_code: hvcCode,
           delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
@@ -347,7 +347,7 @@ export default function Order() {
           ...objShipment,
           delivery_service_provider_type: "Shipper",
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -466,6 +466,7 @@ export default function Order() {
       values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và duyệt
+      values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount > 0);

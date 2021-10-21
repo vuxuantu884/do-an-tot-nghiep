@@ -16,6 +16,7 @@ import {
   EnvironmentFilled,
   PhoneFilled,
   PhoneOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import React, { useCallback, useMemo, useState, Fragment } from "react";
 import { useDispatch } from "react-redux";
@@ -379,22 +380,21 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   ? " - " + billing_address.district
                                   : ""}
                                 {billing_address.ward !== null &&
-                                billing_address.ward !== undefined
+                                  billing_address.ward !== undefined
                                   ? " - " + billing_address.ward
                                   : ""}
                               </span>
                             </Row>
                             <Row>
                               <Button
+                                icon={<PlusOutlined />}
                                 type="link"
-                                className="btn-style"
                                 style={{
                                   padding: 0,
                                   color: "#5d5d8a",
                                   margin: 0,
                                   fontWeight: 400,
                                   fontSize: '14px',
-                                  marginTop: '5px',
                                 }}
                                 onClick={() =>
                                   ShowEditAddressModal(
@@ -583,7 +583,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     style={{
                       paddingTop: "14px",
                     }}
-                    className="font-weight-500 customer-info-left"
+                    className="font-weight-500"
                   >
                     <Form.Item
                       className="margin-bottom-0"
@@ -646,25 +646,30 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   ? " - " + supplier_address.district
                                   : ""}
                                 {supplier_address.ward !== null &&
-                                supplier_address.ward !== undefined
+                                  supplier_address.ward !== undefined
                                   ? " - " + supplier_address.ward
                                   : ""}
                               </span>
                             </Row>
-                            <Row>
-                              <Button
-                                type="link"
-                                className="btn-style"
-                                onClick={() =>
-                                  ShowEditAddressModal(
-                                    supplier_address,
-                                    AddressType.SUPPLIERADDRESS
-                                  )
-                                }
-                              >
-                                Thay đổi địa chỉ xuất hàng
-                              </Button>
-                            </Row>
+                            <Button
+                              icon={<PlusOutlined />}
+                              type="link"
+                              style={{
+                                padding: 0,
+                                color: "#5d5d8a",
+                                margin: 0,
+                                fontWeight: 400,
+                                fontSize: '14px',
+                              }}
+                              onClick={() =>
+                                ShowEditAddressModal(
+                                  supplier_address,
+                                  AddressType.SUPPLIERADDRESS
+                                )
+                              }
+                            >
+                              Thay đổi địa chỉ xuất hàng
+                            </Button>
                           </div>
                         ) : null;
                       }}

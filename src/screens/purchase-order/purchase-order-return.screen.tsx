@@ -1,5 +1,5 @@
 import { Form, Button } from "antd";
-import React, { Fragment, useState, useCallback, useEffect } from "react";
+import React, { Fragment, useState, useCallback, useEffect, useMemo } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { PoDetailAction, POReturnAction } from "domain/actions/po/po.action";
@@ -82,6 +82,15 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
 
       }));
   }, [formMain, onFinish]);
+  const listStoreFilter = useMemo(() => {
+    return listStore.filter((item) => {
+      if(poData == null) {
+        return false;
+      }
+      let index = poData.procurements.findIndex((item1) => item1.store_id === item.id);
+      return index !== -1;
+    })
+  }, [listStore, poData]);
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       setLoading(false);
@@ -178,7 +187,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                         formMain={formMain}
                         totalVat={totalVat}
                         totalReturn={totalReturn}
-                        listStore={listStore}
+                        listStore={listStoreFilter}
                       />
                       <POReturnPaymentForm
                         formMain={formMain}

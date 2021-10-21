@@ -401,9 +401,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleShippingAddressForm = {
     create: (formValue: CustomerShippingAddress) => {
-      if(customer && customer?.shipping_addresses.length <= 0) {
+      if (customer && customer?.shipping_addresses.length <= 0) {
         formValue.is_default = true
-      }else{
+      } else {
         formValue.is_default = false;
       }
       if (customer)
@@ -495,9 +495,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      if(customer && customer?.billing_addresses.length <= 0) {
+      if (customer && customer?.billing_addresses.length <= 0) {
         formValue.is_default = true
-      }else{
+      } else {
         formValue.is_default = false;
       }
       if (customer)
@@ -871,6 +871,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       >
                         <Button
                           type="link"
+                          style={{
+                            padding: 0,
+                            color: "#5d5d8a",
+                            margin: 0,
+                            fontWeight: 400,
+                            fontSize: '14px',
+                          }}
                           className="btn-style"
                           disabled={levelOrder > 3}
                           onClick={() => setVisibleShippingAddressPopover(true)}
@@ -1158,7 +1165,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         onEdit={(formValue: CustomerShippingAddress) =>
           handleShippingAddressForm.edit(formValue)
         }
-        onDelete={() => {}}
+        onDelete={() => { }}
         onCancel={() => setIsShowModalShipping(false)}
         modalAction={modalAction}
         modalTypeText="Địa chỉ giao hàng"
@@ -1176,7 +1183,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         onEdit={(formValue: CustomerBillingAddress) =>
           handleBillingAddressForm.edit(formValue)
         }
-        onDelete={() => {}}
+        onDelete={() => { }}
         onCancel={() => setIsShowModalBilling(false)}
         modalAction={modalAction}
         modalTypeText="Địa chỉ nhận hóa đơn"
