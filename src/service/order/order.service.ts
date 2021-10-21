@@ -17,12 +17,12 @@ import {
   UpdatePaymentRequest,
   VTPFeeRequest,
 } from "model/request/order.request";
-import {
-  createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
-  getDeliveryMappedStoresReQuestModel,
-  updateConfigReQuestModel,
-} from "model/request/settings/third-party-logistics-settings.resquest";
+// import {
+//   createDeliveryMappedStoreReQuestModel,
+//   deleteDeliveryMappedStoreReQuestModel,
+//   getDeliveryMappedStoresReQuestModel,
+//   updateConfigReQuestModel,
+// } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   OrderSourceCompanyModel,
   OrderSourceModel,
@@ -43,7 +43,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
-import { getToken } from "utils/LocalStorageUtils";
+// import { getToken } from "utils/LocalStorageUtils";
 
 export const getListOrderApi = (
   query: OrderSearchQuery

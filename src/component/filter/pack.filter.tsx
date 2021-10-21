@@ -47,7 +47,7 @@ type PackFilterProps = {
 const { Item } = Form;
 
 const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
-  const { params, onClearFilter, onFilter, onShowColumnSetting } =
+  const { params, onClearFilter, onShowColumnSetting } =
     props;
   const [visible, setVisible] = useState(false);
 
@@ -85,26 +85,6 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
         setIssuedOnMin(dateString[0]);
         setIssuedOnMax(dateString[1]);
         break;
-      case "finalized":
-        setFinalizedClick("");
-        setFinalizedOnMin(dateString[0]);
-        setFinalizedOnMax(dateString[1]);
-        break;
-      case "completed":
-        setCompletedClick("");
-        setCompletedOnMin(dateString[0]);
-        setCompletedOnMax(dateString[1]);
-        break;
-      case "cancelled":
-        setCancelledClick("");
-        setCancelledOnMin(dateString[0]);
-        setCancelledOnMax(dateString[1]);
-        break;
-      case "expected":
-        setExpectedClick("");
-        setExpectedReceiveOnMin(dateString[0]);
-        setExpectedReceiveOnMax(dateString[1]);
-        break;
       default:
         break;
     }
@@ -123,17 +103,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
     []
   );
   const [issuedClick, setIssuedClick] = useState("");
-  const [finalizedClick, setFinalizedClick] = useState("");
-  const [completedClick, setCompletedClick] = useState("");
-  const [cancelledClick, setCancelledClick] = useState("");
-  const [expectedClick, setExpectedClick] = useState("");
 
   const clickOptionDate = useCallback(
     (type, value) => {
       let minValue = null;
       let maxValue = null;
-
-      console.log("value", value);
 
       switch (value) {
         case "today":
@@ -194,55 +168,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
             setIssuedOnMax(moment(maxValue, "DD-MM-YYYY"));
           }
           break;
-        case "finalized":
-          if (finalizedClick === value) {
-            setFinalizedClick("");
-            setFinalizedOnMin(null);
-            setFinalizedOnMax(null);
-          } else {
-            setFinalizedClick(value);
-            setFinalizedOnMin(moment(minValue, "DD-MM-YYYY"));
-            setFinalizedOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        case "completed":
-          if (completedClick === value) {
-            setCompletedClick("");
-            setCompletedOnMin(null);
-            setCompletedOnMax(null);
-          } else {
-            setCompletedClick(value);
-            setCompletedOnMin(moment(minValue, "DD-MM-YYYY"));
-            setCompletedOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        case "cancelled":
-          if (cancelledClick === value) {
-            setCancelledClick("");
-            setCancelledOnMin(null);
-            setCancelledOnMax(null);
-          } else {
-            setCancelledClick(value);
-            setCancelledOnMin(moment(minValue, "DD-MM-YYYY"));
-            setCancelledOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
-        case "expected":
-          if (expectedClick === value) {
-            setExpectedClick("");
-            setExpectedReceiveOnMin(null);
-            setExpectedReceiveOnMax(null);
-          } else {
-            setExpectedClick(value);
-            setExpectedReceiveOnMin(moment(minValue, "DD-MM-YYYY"));
-            setExpectedReceiveOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
-          break;
         default:
           break;
       }
     },
-    [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]
+    [issuedClick]
   );
 
   const initialValues = useMemo(() => {
@@ -274,47 +204,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
       ? moment(initialValues.issued_on_max, "DD-MM-YYYY")
       : null
   );
-  const [finalizedOnMin, setFinalizedOnMin] = useState(
-    initialValues.finalized_on_min
-      ? moment(initialValues.finalized_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [finalizedOnMax, setFinalizedOnMax] = useState(
-    initialValues.finalized_on_max
-      ? moment(initialValues.finalized_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [completedOnMin, setCompletedOnMin] = useState(
-    initialValues.completed_on_min
-      ? moment(initialValues.completed_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [completedOnMax, setCompletedOnMax] = useState(
-    initialValues.completed_on_max
-      ? moment(initialValues.completed_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [cancelledOnMin, setCancelledOnMin] = useState(
-    initialValues.cancelled_on_min
-      ? moment(initialValues.cancelled_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [cancelledOnMax, setCancelledOnMax] = useState(
-    initialValues.cancelled_on_max
-      ? moment(initialValues.cancelled_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [expectedReceiveOnMin, setExpectedReceiveOnMin] = useState(
-    initialValues.expected_receive_on_min
-      ? moment(initialValues.expected_receive_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [expectedReceiveOnMax, setExpectedReceiveOnMax] = useState(
-    initialValues.expected_receive_on_max
-      ? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY")
-      : null
-  );
-
+ 
   const onFinish = useCallback(
     (values) => {
       
