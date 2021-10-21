@@ -23,12 +23,12 @@ import { YodyAction } from "../../../base/base.action";
 import {
   cancelOrderApi,
   confirmDraftOrderService,
-  createDeliveryMappedStoreService,
+  createDeliveryMappedStoreServices,
   createShippingOrderService,
-  deleteDeliveryMappedStoreService,
+  deleteDeliveryMappedStoreServices,
   getChannelApi,
-  getDeliveryMappedStoresService,
-  getDeliveryTransportTypesService,
+  getDeliveryMappedStoresServices,
+  getDeliveryTransportTypesServices,
   getFulfillmentsApi,
   getInfoDeliveryFees,
   getOrderConfig,
@@ -396,11 +396,11 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
 }
 
 function* getDeliveryTransportTypeSaga(action: YodyAction) {
-  let { providerCode, handleData } = action.payload;
+  let { id, handleData } = action.payload;
   try {
     let response: BaseResponse<Array<DeliveryTransportTypesResponse>> = yield call(
-      getDeliveryTransportTypesService,
-      providerCode
+      getDeliveryTransportTypesServices,
+      id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -419,11 +419,11 @@ function* getDeliveryTransportTypeSaga(action: YodyAction) {
 }
 
 function* getDeliveryMappedStoresSaga(action: YodyAction) {
-  let { providerCode, handleData } = action.payload;
+  let { id, handleData } = action.payload;
   try {
     let response: BaseResponse<Array<DeliveryMappedStoreType>> = yield call(
-      getDeliveryMappedStoresService,
-      providerCode
+      getDeliveryMappedStoresServices,
+      id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -444,12 +444,14 @@ function* getDeliveryMappedStoresSaga(action: YodyAction) {
 
 function* createDeliveryMappedStoreSaga(action: YodyAction) {
   yield put(showLoading());
-  let { providerCode, params, handleData } = action.payload;
+  let { idDelivery, shop_id, store_id, token, handleData } = action.payload;
   try {
     let response: BaseResponse<any> = yield call(
-      createDeliveryMappedStoreService,
-      providerCode,
-      params
+      createDeliveryMappedStoreServices,
+      idDelivery,
+      shop_id,
+      store_id,
+      token
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -472,29 +474,29 @@ function* createDeliveryMappedStoreSaga(action: YodyAction) {
 
 function* deleteDeliveryMappedStoreSaga(action: YodyAction) {
   yield put(showLoading());
-  let { providerCode, params, handleData } = action.payload;
+  let { idDelivery, shop_id, store_id, handleData } = action.payload;
   try {
     let response: BaseResponse<Array<DeliveryMappedStoreType>> = yield call(
-      deleteDeliveryMappedStoreService,
-      providerCode,
-      params
+      deleteDeliveryMappedStoreServices,
+      idDelivery,
+      shop_id,
+      store_id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        handleData(response.data);
         showSuccess("Xóa mapping store thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
-    handleData();
   }
 }
 
