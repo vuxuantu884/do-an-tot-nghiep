@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 export const StyledWrapper = styled.div`
-  padding-top: 20px;
   position: relative;
 
   .file-pin {
@@ -79,5 +78,21 @@ export const StyledWrapper = styled.div`
     width: 100%;
     text-align: right;
     margin-top: 20px;
+  }
+
+  .bottom {
+    &__right {
+      .ant-space-align-center {
+        gap: 20px!important;
+
+        a {
+          color: #2A2A86;
+        }
+
+        a > span {
+          margin-right: 5px;
+        }
+      }
+    }
   }
 `;

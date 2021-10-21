@@ -287,6 +287,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
         params={params}
         stores={stores}
         actions={actions}
+        onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => {}}
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}

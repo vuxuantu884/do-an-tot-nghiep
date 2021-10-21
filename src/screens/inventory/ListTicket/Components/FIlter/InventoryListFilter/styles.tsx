@@ -6,7 +6,9 @@ export const InventoryFiltersWrapper = styled.div`
   }
 
   .page-filter-left {
-    width: 110px;
+    width: 12%;
+    min-width: 100px;
+    margin-right: 20px;
 
     button {
       justify-content: space-between;
@@ -29,13 +31,20 @@ export const InventoryFiltersWrapper = styled.div`
             display: flex;
             width: 100%;
             &-item {
-              margin-left: 16px;  
+              button.ant-btn.ant-btn-primary {
+                width: 100%
+              }
             }
             .search {
               flex: 3;
             }
             .store {
               flex: 1
+            }
+            .ant-form-item-control-input-content {
+              button.ant-btn {
+                width: 100%;
+              }
             }
           }
         }
@@ -71,55 +80,12 @@ export const InventoryFiltersWrapper = styled.div`
       }
     }
   }
-  .order-filter {
-    .page-filter {
-      .page-filter-heading {
+
+  .row-filter {
+    width: 100%;
+    & > .ant-col {
+      & > .ant-form-item {
         width: 100%;
-        display: inline-flex;
-        justify-content: space-between;
-        .page-filter-left {
-          width: 8%;
-          min-width: 100px;
-        }
-        .page-filter-right {
-          width: 92%;
-          .ant-space.ant-space-horizontal {
-            width: 100%;
-            .ant-space-item {
-              width: 100%;
-              
-              .ant-form.ant-form-inline {
-                display: flex;
-                justify-content: space-between;
-                .ant-form-item {
-                  margin-right: 0;
-  
-                }
-                .ant-btn-icon-only {
-                  margin-left: 16px;
-                }
-
-                .input-search {
-                  width: 55%;
-                }
-
-                @media screen and (max-width: 1850px) {
-                  .input-search {
-                    width: 50%;
-                  }
-                }
-                @media screen and (max-width: 1600px) {
-                  .input-search {
-                    width: 40%;
-                  }
-                }
-              }
-            }
-          }
-          .ant-collapse>.ant-collapse-item>.ant-collapse-header {
-            background-color: #f5f5f5;
-          }
-        }
       }
     }
   }
@@ -131,7 +97,11 @@ export const InventoryFiltersWrapper = styled.div`
       border-radius: 50px;
     }
   }
-  
+
+  .ant-form-item.input-search {
+    width: 100%;
+  }
+
   .header-filter{
     font-weight: 500;
     color: #222222;
