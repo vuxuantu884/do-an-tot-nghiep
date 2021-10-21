@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import { Form, Input } from "antd";
-import { RegUtil } from "utils/RegUtils";
 
 function CustomInput(props: any) {
   const {
@@ -14,23 +13,19 @@ function CustomInput(props: any) {
     disabled,
     type
   } = props;
+
   const [value, setValue] = useState<string>("");
 
   const handleChange = useCallback((v: any) => {
-    if (!RegUtil.NO_ALL_SPACE.test(v) && v.trim()) {
-      setValue(v.trim());
-    } else {
-      setValue("");
-    }
+    setValue(v);
   }, []);
 
   const handleBlur = (v: any) => {
     setValue(v.trim());
-    form.setFieldsValue({ [name]: value });
   };
 
   React.useEffect(() => {
-    if (value) form.setFieldsValue({ [name]: value });
+    form.setFieldsValue({ [name]: value });
   }, [value, handleChange, form, name]);
 
   return (
@@ -45,16 +40,16 @@ function CustomInput(props: any) {
           disabled={disabled}
           maxLength={maxLength}
           placeholder={`${placeholder}`}
-          onBlur={(value) => handleBlur(value.target.value)}
-          onChange={(value) => handleChange(value.target.value)}
+          onBlur={(e) => handleBlur(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
         />
       ) : (
         <Input
           disabled={disabled}
           maxLength={maxLength}
           placeholder={`${placeholder}`}
-          onBlur={(value) => handleBlur(value.target.value)}
-          onChange={(value) => handleChange(value.target.value)}
+          onBlur={(e) => handleBlur(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
         />
       )}
     </Form.Item>
