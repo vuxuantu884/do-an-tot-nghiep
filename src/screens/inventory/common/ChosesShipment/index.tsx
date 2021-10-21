@@ -1,5 +1,5 @@
 import { Modal, Form, Row, Col, DatePicker, Checkbox } from "antd";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { InventoryShipmentWrapper } from "./styles";
 import moment from "moment";
 import LogoDHL from "assets/img/LogoDHL.svg";
@@ -10,7 +10,7 @@ import logoYody from "assets/img/logoYody.png";
 import { FeesResponse } from "model/response/order/order.response";
 import NumberFormat from "react-number-format";
 import { InventoryTransferDetailItem, InventoryTransferShipmentRequest } from "model/inventory/transfer";
-import { createInventoryTransferShipmentAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { createInventoryTransferShipmentAction, getLogisticGateAwayAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useDispatch } from "react-redux";
 import { SumWeightLineItems } from "utils/AppUtils";
 
@@ -38,13 +38,46 @@ let initFormShipment: InventoryTransferShipmentRequest = {
 type InventoryShipmentProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  onOk: (item: string | undefined) => void;
+  onOk: (item: InventoryTransferDetailItem | null) => void;
   textStore?: string;
   serviceType?: string | null;
   levelOrder?: number;
   infoFees: FeesResponse[];
   dataTicket: InventoryTransferDetailItem | null;
 };
+
+export const deliveryService = {
+    yody: {
+      code: "yody",
+      id: 1,
+      logo: logoYody,
+      name: "Tự giao hàng",
+    },
+    ghtk: {
+      code: "ghtk",
+      id: 2,
+      logo: LogoGHTK,
+      name: "Giao hàng tiết kiệm",
+    },
+    ghn: {
+      code: "ghn",
+      id: 3,
+      logo: LogoGHN,
+      name: "Giao hàng nhanh",
+    },
+    vtp: {
+      code: "vtp",
+      id: 4,
+      logo: LogoVTP,
+      name: "Viettel Post",
+    },
+    dhl: {
+      code: "dhl",
+      id: 5,
+      logo: LogoDHL,
+      name: "DHL",
+    },
+  };
 
 const InventoryShipment: React.FC<InventoryShipmentProps> = (
   props: InventoryShipmentProps
@@ -55,6 +88,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
     infoFees,
     levelOrder = 0,
     dataTicket,
+    onOk,
   } = props;
   
   const [shipmentForm] = Form.useForm();
@@ -67,49 +101,14 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
   const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);  
   const dispatch = useDispatch();
 
-  const deliveryService = useMemo(() => {
-    return {
-      sd: {
-        code: "sd",
-        id: 5,
-        logo: logoYody,
-        name: "Tự giao hàng",
-      },
-      ghtk: {
-        code: "ghtk",
-        id: 1,
-        logo: LogoGHTK,
-        name: "Giao hàng tiết kiệm",
-      },
-      ghn: {
-        code: "ghn",
-        id: 2,
-        logo: LogoGHN,
-        name: "Giao hàng nhanh",
-      },
-      vtp: {
-        code: "vtp",
-        id: 3,
-        logo: LogoVTP,
-        name: "Viettel Post",
-      },
-      dhl: {
-        code: "dhl",
-        id: 4,
-        logo: LogoDHL,
-        name: "DHL",
-      },
-    };
-  }, []);
-
   const serviceFee = useMemo(() => {
     return {
-      sd: [{
-        delivery_service_code: 'sd',
+      yody: [{
+        delivery_service_code: 'yody',
         total_fee: 0,
         insurance_fee: 0,
-        transport_type: "sd",
-        transport_type_name: "Tự giao hàng",
+        transport_type: 'yody',
+        transport_type_name: "Yody Express",
         note: null,
         delivery: true,
       }],
@@ -121,11 +120,19 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
   }, [infoFees]);
 
   const changeServiceType = (id: number, code: string, item: any, fee: number) => {
+    
     setHvc(id);
     setServiceCode(code);
     setServiceType(item);
     setServiceFeeTotal(fee);
   };
+
+
+  useEffect(() => {
+    dispatch(getLogisticGateAwayAction((result) => {
+      console.log('result', result);
+    }))
+  }, [dispatch])
 
   const onFinish = useCallback(
     (data) => {
@@ -136,10 +143,10 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
         data.delivery_service_code = serviceCode;
         data.delivery_service_name = serviceType;
         data.delivery_service_logo = "";
-        data.order_code = dataTicket?.code;
+        data.order_code = `YOD${dataTicket?.code}`;
         data.fulfillment_code = dataTicket?.code;
         data.store_id = dataTicket?.from_store_id;
-        data.transport_type = serviceCode;
+        data.transport_type = serviceType;
         data.transport_type_name = (deliveryService as any)[serviceCode].name;
         data.cod = 0;
         data.weight = SumWeightLineItems(dataTicket?.line_items);
@@ -151,11 +158,13 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
         data.expected_delivery_time = deliveryTime && deliveryTime.utc().format();
         data.office_time = officeTime;
         
-        dispatch(createInventoryTransferShipmentAction(dataTicket.id, data, (item) => console.log(item)));
+        dispatch(createInventoryTransferShipmentAction(dataTicket.id, data, (result) => {
+          onOk(result);
+        }));
 
       }
     },
-    [dataTicket, hvc, serviceCode, serviceType, deliveryService, serviceFeeTotal, officeTime, dispatch]
+    [dataTicket, hvc, serviceCode, serviceType, serviceFeeTotal, officeTime, dispatch, onOk]
   );
 
   return (
@@ -241,8 +250,10 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                     </tr>
                   </thead>
                   <tbody className="ant-table-tbody">
-                    {["sd", "ghtk", "ghn", "vtp", "dhl"].map(
+                    {["yody", "ghtk", "ghn", "vtp", "dhl"].map(
                       (deliveryServiceName: string, index) => {
+                        console.log('(serviceFee as any)[deliveryServiceName]', deliveryServiceName);
+                        
                         return (
                           ((serviceFee as any)[deliveryServiceName].length && (
                             <React.Fragment key={deliveryServiceName}>
@@ -286,7 +297,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                                                 );
                                               }}
                                               disabled={
-                                                (service.transport_type !== 'sd' && service.total_fee === 0) || levelOrder > 3
+                                                (service.transport_type !== 'yody' && service.total_fee === 0) || levelOrder > 3
                                               }
                                             />
                                             <span className="checkmark"></span>

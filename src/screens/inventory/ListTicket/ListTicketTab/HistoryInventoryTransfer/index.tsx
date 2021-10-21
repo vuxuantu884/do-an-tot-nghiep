@@ -15,6 +15,7 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
 import UrlConfig from "config/url.config";
+import { Link } from "react-router-dom";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -139,11 +140,16 @@ const HistoryInventoryTransferTab: React.FC = () => {
   const [columns, setColumn] = useState<Array<any>>([
     {
       title: "Phiếu chuyển",
-      dataIndex: "code",
+      dataIndex: "data",
       width: "150px",
       fixed: "left",
       visible: true,
       align: "center",
+      render: (value: string) => {
+
+        const dataItem = JSON.parse(value);        
+        return <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${dataItem.id}`}>{dataItem.code}</Link>
+      }
     },
     {
       title: "Kho gửi",
@@ -240,7 +246,6 @@ const HistoryInventoryTransferTab: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
-      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
