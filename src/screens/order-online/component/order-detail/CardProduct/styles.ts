@@ -8,6 +8,13 @@ export const StyledComponent = styled.div`
   .ant-table tfoot > tr > th {
     padding: 10px;
   }
+  .ant-card-head-wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+  .ant-card-head-title {
+    flex: initial;
+  }
   .ant-card-extra {
     .ant-form-item {
       margin-bottom: 0;
@@ -46,5 +53,9 @@ export const StyledComponent = styled.div`
         border-color: ${primaryColor};
       }
     }
+  }
+  .splitOrder {
+    display: flex;
+    align-items: center;
   }
 `;

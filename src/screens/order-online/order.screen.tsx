@@ -145,6 +145,7 @@ export default function Order() {
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
+  const typeParam = queryParams.get("type") || null;
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -243,7 +244,6 @@ export default function Order() {
 
   let isCloneOrder = false;
   if (actionParam === "clone" && cloneIdParam) {
-    
     isCloneOrder = true;
   }
 
@@ -596,7 +596,7 @@ export default function Order() {
               dispatch(
                 CustomerDetail(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
-                 
+
                   responseCustomer.shipping_addresses.forEach((item) => {
                     if (item.default === true) {
                       setShippingAddress(item);
@@ -692,7 +692,12 @@ export default function Order() {
                 shipping_fee_informed_to_customer:
                   response.shipping_fee_informed_to_customer,
                 payments: new_payments,
-                reference_code: response.reference_code,
+                reference_code:
+                  typeParam === "split-order"
+                    ? response.code
+                      ? response.code
+                      : ""
+                    : response.reference_code,
                 url: response.url,
                 note: response.note,
                 tags: response.tags,
@@ -1079,6 +1084,7 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
+                      isSplitOrder={typeParam === "split-order"}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
@@ -1124,6 +1130,7 @@ export default function Order() {
                       tags={tags}
                       isCloneOrder={isCloneOrder}
                       onChangeTag={onChangeTag}
+                      isSplitOrder={typeParam === "split-order"}
                     />
                   </Col>
                 </Row>

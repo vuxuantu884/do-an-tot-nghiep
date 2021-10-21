@@ -11,6 +11,7 @@ import {
   Form,
   FormInstance,
   Input,
+  InputNumber,
   Menu,
   Row,
   Select,
@@ -101,6 +102,8 @@ type CardProductProps = {
   setStoreForm: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
+  orderId?: string;
+  isSplitOrder?: boolean;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -122,6 +125,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setStoreForm,
     handleCardItems,
     levelOrder = 0,
+    orderId,
+    isSplitOrder,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -151,6 +156,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
+
+  //tách đơn
+  const [splitOrderNumber, setSplitOrderNumber] = useState(0);
+  const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
 
   const createOrderContext = useContext(OrderCreateContext);
   const shippingFeeInformedToCustomer =
@@ -957,6 +966,20 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setIsInputSearchProductFocus(false);
   };
 
+  const checkIsShowSplitOrder = () => {
+    return !isSplitOrder;
+  };
+
+  const handleSplitOrder = () => {
+    if (!orderId) {
+      return;
+    }
+    const link = `${process.env.PUBLIC_URL}/orders/create?action=clone&cloneId=${orderId}&type=split-order`;
+    for (let i = 0; i < splitOrderNumber; i++) {
+      window.open(link, "_blank");
+    }
+  };
+
   useEffect(() => {
     if (items && items.length > 0) {
       setIsShowProductSearch(true);
@@ -968,7 +991,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       <Card
         title="SẢN PHẨM"
         extra={
-          <Space size={20}>
+          <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
             <span>Chính sách giá:</span>
             <Form.Item name="price_type">
@@ -986,6 +1009,30 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             >
               Kiểm tra tồn
             </Button>
+            {checkIsShowSplitOrder() && (
+              <div className="splitOrder">
+                <Checkbox onChange={(e) => setIsShowSplitOrder(e.target.checked)}>
+                  Tách đơn
+                </Checkbox>
+                {isShowSplitOrder && (
+                  <React.Fragment>
+                    <InputNumber
+                      style={{ width: 45 }}
+                      max={50}
+                      value={splitOrderNumber}
+                      onChange={(value) => setSplitOrderNumber(value)}
+                    />
+                    <Button
+                      type="primary"
+                      onClick={handleSplitOrder}
+                      style={{ padding: "0 10px" }}
+                    >
+                      Thực hiện
+                    </Button>
+                  </React.Fragment>
+                )}
+              </div>
+            )}
           </Space>
         }
       >
@@ -1202,7 +1249,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           showDiscountModal={ShowDiscountModal}
           totalAmountOrder={amount}
           items={items}
-          shippingFeeInformedToCustomer={shippingFeeInformedToCustomer || props.shippingFeeCustomer}
+          shippingFeeInformedToCustomer={
+            shippingFeeInformedToCustomer || props.shippingFeeCustomer
+          }
         />
 
         <PickDiscountModal
