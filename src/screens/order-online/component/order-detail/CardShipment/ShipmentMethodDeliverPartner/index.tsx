@@ -68,6 +68,15 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const createOrderContext = useContext(OrderCreateContext);
   console.log("createOrderContext", createOrderContext);
+  const totalAmountCustomerNeedToPayShipper =
+    createOrderContext?.price.totalAmountCustomerNeedToPay ?
+      createOrderContext?.price.totalAmountCustomerNeedToPay : ((amount ? amount : 0) +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      (discountValue ? discountValue : 0) -
+      (totalPaid ? totalPaid : 0) -
+      // totalAmountPaid() -
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
+
 
   const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
 
@@ -116,16 +125,16 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     };
   }, [infoFees]);
 
-  const totalAmountCustomerNeedToPaySelfDelivery = () => {
-    return (
-      (amount ? amount : 0) +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      (discountValue ? discountValue : 0) -
-      (totalPaid ? totalPaid : 0) -
-      // totalAmountPaid() -
-      (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
-    );
-  };
+  // const totalAmountCustomerNeedToPaySelfDelivery = () => {
+  //   return (
+  //     (amount ? amount : 0) +
+  //     (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+  //     (discountValue ? discountValue : 0) -
+  //     (totalPaid ? totalPaid : 0) -
+  //     // totalAmountPaid() -
+  //     (totalAmountReturnProducts ? totalAmountReturnProducts : 0)
+  //   );
+  // };
 
   const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
   const form = createOrderContext?.form;
@@ -286,8 +295,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPaySelfDelivery() > 0
-                    ? totalAmountCustomerNeedToPaySelfDelivery()
+                  totalAmountCustomerNeedToPayShipper &&
+                  totalAmountCustomerNeedToPayShipper > 0
+                    ? totalAmountCustomerNeedToPayShipper
                     : 0
                 }
                 className="formInputAmount"
@@ -299,12 +309,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           <Col md={12}>
             <Form.Item
               label="Phí ship báo khách:"
-              name="shipping_fee_informed_to_customer"
+              // name="shipping_fee_informed_to_customer"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
+                value={shippingFeeCustomer || 0}
                 className="formInputAmount"
                 maxLength={15}
                 minLength={0}

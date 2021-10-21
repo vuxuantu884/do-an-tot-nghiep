@@ -128,13 +128,14 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               />
             </Form.Item>
             <Form.Item
-              name="shipping_fee_informed_to_customer"
+              // name="shipping_fee_informed_to_customer"
               label="Phí ship báo khách"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
+                value={shippingFeeCustomer || 0}
                 style={{
                   textAlign: "right",
                   width: "100%",

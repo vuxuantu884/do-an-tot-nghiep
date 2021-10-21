@@ -421,7 +421,7 @@ export default function Order(props: PropType) {
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeCustomer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
@@ -431,7 +431,7 @@ export default function Order(props: PropType) {
           ...objShipment,
           delivery_service_provider_type: "Shipper",
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -554,6 +554,7 @@ export default function Order(props: PropType) {
     //Nếu là lưu nháp Fulfillment = [], payment = []
 
     //Nếu là đơn lưu và duyệt
+    values.shipping_fee_informed_to_customer = shippingFeeCustomer;
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     values.payments = payments.filter((payment) => payment.amount > 0);
@@ -646,8 +647,16 @@ export default function Order(props: PropType) {
       setIsShowBillStep(false);
     }
   }, []);
-
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const onShipmentSelect = (value: number) => {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
     setShipmentMethod(value);
   };
 
@@ -1427,9 +1436,12 @@ export default function Order(props: PropType) {
                         setPayments={onPayments}
                         paymentMethod={paymentMethod}
                         shipmentMethod={shipmentMethod}
-                        amount={orderAmount}
+                        amount={orderAmount +
+                          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                          discountValue}
                         isCloneOrder={false}
                         loyaltyRate={loyaltyRate}
+                        isDisablePostPayment={isDisablePostPayment}
                       />
                     )}
                   {!fulfillments.length && (
