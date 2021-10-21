@@ -36,6 +36,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
 import {
+  createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
   getDeliveryMappedStoresReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
@@ -172,68 +173,62 @@ export const DeliveryServicesGetList = (
 };
 
 export const getDeliveryMappedStoresAction = (
-  providerCode: string,
-  params: getDeliveryMappedStoresReQuestModel,
+  id: number,
   handleData: (data: Array<DeliveryMappedStoreType>) => void
 ) => {
   return {
     type: OrderType.GET_MAPPED_STORES,
     payload: {
-      providerCode,
-      params,
+      id,
       handleData,
     },
   };
 };
 
 export const createDeliveryMappedStoreAction = (
-  providerCode: string,
-  token: string,
-  username: string,
-  password: string,
+  idDelivery: number,
+  shop_id: number,
   store_id: number,
-  store_name: string,
-  partner_shop_id: number,
+  token: string,
   handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.CREATE_MAPPED_STORE,
     payload: {
-      providerCode,
-      token,
-      username,
-      password,
+      idDelivery,
+      shop_id,
       store_id,
-      store_name,
-      partner_shop_id,
+      token,
       handleData,
     },
   };
 };
 
 export const deleteDeliveryMappedStoreAction = (
-  providerCode: string,
-  params: deleteDeliveryMappedStoreReQuestModel,
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
   handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.DELETE_MAPPED_STORE,
     payload: {
-      providerCode,
-      params,
+      idDelivery,
+      shop_id,
+      store_id,
       handleData,
     },
   };
 };
 
 export const getDeliveryTransportTypesAction = (
-  providerCode: string,
+  id: number,
   handleData: (data: Array<DeliveryTransportTypesResponse>) => void
 ) => {
   return {
     type: OrderType.GET_TRANSPORT_TYPES,
     payload: {
-      providerCode,
+      id,
       handleData,
     },
   };

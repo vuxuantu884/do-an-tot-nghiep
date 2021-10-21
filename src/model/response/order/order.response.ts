@@ -295,7 +295,7 @@ export type DeliveryTransportTypesResponse = {
 export type DeliveryMappedStoreType = {
   store_id: number;
   name: string;
-  partner_shop_id: number;
+  shop_id: number;
 };
 
 export interface ShippingGHTKResponse {

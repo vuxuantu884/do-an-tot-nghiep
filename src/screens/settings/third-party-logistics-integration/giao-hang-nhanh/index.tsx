@@ -37,23 +37,29 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const [listShops, setListShops] = useState<StoreResponse[]>([]);
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
-  const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] = useState(false);
+  const [listServices, setListServices] = useState<
+    DeliveryServiceTransportType[]
+  >([]);
+  const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] =
+    useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
 
   const [inputTokenApi, setInputTokenApi] = useState<string>("");
-  const [inputStoreIdValue, setInputStoreIdValue] = useState<string | undefined>(
+  const [inputStoreIdValue, setInputStoreIdValue] = useState<
+    string | undefined
+  >(undefined);
+  const [inputShopIdValue, setInputShopIdValue] = useState<string | undefined>(
     undefined
   );
-  const [inputShopIdValue, setInputShopIdValue] = useState<string | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
 
-  const [deleteStore, setDeleteStore] = useState<DeliveryMappedStoreType | null>(null);
+  const [deleteStore, setDeleteStore] =
+    useState<DeliveryMappedStoreType | null>(null);
 
-  const [listShopIsSelected, setListShopIsSelected] = useState<DeliveryMappedStoreType[]>(
-    []
-  );
+  const [listShopIsSelected, setListShopIsSelected] = useState<
+    DeliveryMappedStoreType[]
+  >([]);
 
   const [listShopIsSelectedShow, setListShopIsSelectedShow] =
     useState(listShopIsSelected);
@@ -153,27 +159,30 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
 
   const handleRemoveStoreId = (store: DeliveryMappedStoreType | null) => {
     if (thirdPartyLogistics?.id && store) {
-      // dispatch(
-      //   deleteDeliveryMappedStoreAction(
-      //     thirdPartyLogistics.id,
-      //     store.shop_id,
-      //     store.store_id,
-      //     () => {
-      //       setIsShowConfirmDeleteStoreId(false);
-      //       dispatch(
-      //         getDeliveryMappedStoresAction(thirdPartyLogistics.code, (response) => {
-      //           setListShopIsSelected(response);
-      //           setListShopIsSelectedShow(response);
-      //         })
-      //       );
-      //     }
-      //   )
-      // );
+      dispatch(
+        deleteDeliveryMappedStoreAction(
+          thirdPartyLogistics.id,
+          store.shop_id,
+          store.store_id,
+          () => {
+            setIsShowConfirmDeleteStoreId(false);
+            dispatch(
+              getDeliveryMappedStoresAction(
+                thirdPartyLogistics.id,
+                (response) => {
+                  setListShopIsSelected(response);
+                  setListShopIsSelectedShow(response);
+                }
+              )
+            );
+          }
+        )
+      );
     }
   };
 
   const createMappedStore = (
-    thirdPartyLogisticCode: string | undefined,
+    thirdPartyLogisticId: number | undefined,
     shopId: string | undefined,
     storeId: string | undefined,
     token: string
@@ -187,24 +196,27 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     if (!storeId) {
       showError("Vui lòng điền Shop ID");
     }
-    // if (thirdPartyLogisticCode && shopId && storeId && token) {
-    //   dispatch(
-    //     createDeliveryMappedStoreAction(
-    //       thirdPartyLogisticCode,
-    //       +shopId,
-    //       +storeId,
-    //       token,
-    //       () => {
-    //         dispatch(
-    //           getDeliveryMappedStoresAction(thirdPartyLogisticCode, (response) => {
-    //             setListShopIsSelected(response);
-    //             setListShopIsSelectedShow(response);
-    //           })
-    //         );
-    //       }
-    //     )
-    //   );
-    // }
+    if (thirdPartyLogisticId && shopId && storeId && token) {
+      dispatch(
+        createDeliveryMappedStoreAction(
+          thirdPartyLogisticId,
+          +shopId,
+          +storeId,
+          token,
+          () => {
+            dispatch(
+              getDeliveryMappedStoresAction(
+                thirdPartyLogisticId,
+                (response) => {
+                  setListShopIsSelected(response);
+                  setListShopIsSelectedShow(response);
+                }
+              )
+            );
+          }
+        )
+      );
+    }
   };
 
   useEffect(() => {
@@ -227,7 +239,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
             setThirdPartyLogistics(result);
             setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
             dispatch(
-              getDeliveryTransportTypesAction(result.code, (response) => {
+              getDeliveryTransportTypesAction(result.id, (response) => {
                 if (response) {
                   setListServices(response);
                   const listActiveServices = response.map((single) => {
@@ -243,12 +255,12 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                 }
               })
             );
-            // dispatch(
-            //   getDeliveryMappedStoresAction(result.code, (response) => {
-            //     setListShopIsSelected(response);
-            //     setListShopIsSelectedShow(response);
-            //   })
-            // );
+            dispatch(
+              getDeliveryMappedStoresAction(result.id, (response) => {
+                setListShopIsSelected(response);
+                setListShopIsSelectedShow(response);
+              })
+            );
           }
         }
       })
@@ -328,13 +340,18 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   }}
                   className="selectShopId"
                   filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    option?.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
                   }
                 >
                   {listShops &&
                     listShops.map((singleShop) => {
                       return (
-                        <Select.Option value={singleShop.code} key={singleShop.code}>
+                        <Select.Option
+                          value={singleShop.code}
+                          key={singleShop.code}
+                        >
                           {singleShop.name}
                         </Select.Option>
                       );
@@ -351,12 +368,12 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   />
                   <Button
                     onClick={() => {
-                      // createMappedStore(
-                      //   thirdPartyLogistics?.id,
-                      //   inputShopIdValue,
-                      //   inputStoreIdValue,
-                      //   inputTokenApi
-                      // );
+                      createMappedStore(
+                        thirdPartyLogistics?.id,
+                        inputShopIdValue,
+                        inputStoreIdValue,
+                        inputTokenApi
+                      );
                     }}
                   >
                     Thêm
@@ -380,8 +397,13 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                       return (
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">
-                            <span className="singleShop__name">{single.name}</span>:{" "}
-                            <span className="singleShop__code">{single.store_id}</span>
+                            <span className="singleShop__name">
+                              {single.name}
+                            </span>
+                            :{" "}
+                            <span className="singleShop__code">
+                              {single.store_id}
+                            </span>
                           </div>
                           <div className="singleShop__action">
                             <div
