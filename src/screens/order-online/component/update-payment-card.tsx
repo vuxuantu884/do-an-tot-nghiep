@@ -222,7 +222,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         await dispatch(
           UpdatePaymentAction(request, props.order_id, onUpdateSuccess, onError)
         );
-      } catch {}
+      } catch {
+        onError(true)
+      }
     })();
     // dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
@@ -249,11 +251,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   useEffect(() => {
     if (createPayment) {
-      console.log("createPayment createPayment payment");
-
       disabledActions && disabledActions("payment");
     } else {
-      console.log("createPayment createPayment none");
       disabledActions && disabledActions("none");
     }
   }, [createPayment, disabledActions]);
@@ -600,7 +599,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         </Button>
                         <Button
                           type="default"
-                          className="ant-btn-outline fixed-button text-right"
+                          className={`ant-btn-outline fixed-button text-right ${createPayment? 'disabled-cancel' : ''}`}
                           style={{
                             float: "right",
                             marginRight: "10px",
@@ -926,14 +925,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
                     <Button
                       type="default"
-                      className="ant-btn-outline fixed-button text-right"
+                      className={`ant-btn-outline fixed-button text-right ${createPayment? 'disabled-cancel' : ''}`}
                       style={{
                         float: "right",
                         marginRight: "10px",
                         padding: "0 25px",
                       }}
                       onClick={() => props.reload && props.reload()}
-                      disabled={createPayment}
+                      disabled={createPayment ? true : false}
                     >
                       Hủy
                     </Button>

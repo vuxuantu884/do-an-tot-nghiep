@@ -219,6 +219,7 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        setError(true);
         break;
     }
   } catch (error) {
@@ -259,6 +260,7 @@ function* updateShipmentSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
+        setError(true);
         response.errors.forEach((e) => showError(e));
         break;
     }
