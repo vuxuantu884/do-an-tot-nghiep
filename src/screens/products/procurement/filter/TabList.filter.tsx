@@ -10,7 +10,7 @@ import UrlConfig from "config/url.config";
 import { ProcurementQuery } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import querystring from "querystring";
-import React, { useCallback, useState } from "react";
+import React, { Fragment, useCallback, useState } from "react";
 import { useHistory } from "react-router";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
@@ -36,7 +36,7 @@ const ProcurementFilterItem = {
   stockDate: "stockDate",
   confirmDate: "confirmDate",
   status: "status",
-  cancelDate: "cancelDate",
+  // cancelDate: "cancelDate",
   store: "store",
 };
 
@@ -44,7 +44,7 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.stockDate]: "Ngày duyệt phiếu nhập",
   [ProcurementFilterItem.confirmDate]: "Ngày nhập kho",
   [ProcurementFilterItem.status]: "Trạng thái phiếu nhập kho",
-  [ProcurementFilterItem.cancelDate]: "Ngày huỷ phiếu nhập",
+  // [ProcurementFilterItem.cancelDate]: "Ngày huỷ phiếu nhập",
   [ProcurementFilterItem.store]: "Kho nhận hàng",
 };
 const TAP_ID = 2;
@@ -95,11 +95,11 @@ function TabListFilter() {
       params.stock_in_from = data.confirmDate[0];
       params.stock_in_to = data.confirmDate[1];
     }
-    //huy phieu
-    if (data.cancelDate) {
-      params.stock_in_from = data.cancelDate[0];
-      params.stock_in_to = data.cancelDate[1];
-    }
+    // //huy phieu
+    // if (data.cancelDate) {
+    //   params.stock_in_from = data.cancelDate[0];
+    //   params.stock_in_to = data.cancelDate[1];
+    // }
 
     //trang thai
     if (data.status) {
@@ -108,15 +108,27 @@ function TabListFilter() {
 
     //cua hang
     if (data?.store) params.store = data.store.toString();
+
+    const formBaseData = formBase.getFieldsValue(true);
     setAdvanceFilters(data);
     history.replace(
-      `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify(params)}`
+      `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify({
+        ...params,
+        ...formBaseData,
+      })}`
     );
   };
   const onBaseFinish = (data: any) => {
     console.log(data);
     data.merchandiser = data?.merchandiser?.toString();
-    history.push(`${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify(data)}`);
+    const formAdvanceData = formAdvanced.getFieldsValue(true);
+
+    history.push(
+      `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify({
+        ...formAdvanceData,
+        ...data,
+      })}`
+    );
   };
 
   const handleClickStatus = (value: string) => {
@@ -183,7 +195,7 @@ function TabListFilter() {
               switch (field) {
                 case ProcurementFilterItem.stockDate:
                 case ProcurementFilterItem.confirmDate:
-                case ProcurementFilterItem.cancelDate:
+                  // case ProcurementFilterItem.cancelDate:
                   component = <CustomRangePicker />;
                   break;
 
@@ -234,14 +246,14 @@ const FilterList = ({ filters, resetField }: any) => {
     <Space wrap={true} style={{ marginBottom: 20 }}>
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
-        if (!value) return null;
+        if (!value) return <Fragment />;
 
-        if (!ProcurementFilterName[filterKey]) return null;
+        if (!ProcurementFilterName[filterKey]) return <Fragment />;
 
         switch (filterKey) {
           case ProcurementFilterItem.stockDate:
           case ProcurementFilterItem.confirmDate:
-          case ProcurementFilterItem.cancelDate:
+            // case ProcurementFilterItem.cancelDate:
             let [from, to] = value;
             let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
               formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
@@ -253,15 +265,20 @@ const FilterList = ({ filters, resetField }: any) => {
             break;
 
           case ProcurementFilterItem.store:
-            renderTxt = `${ProcurementFilterName[filterKey]} : ${value}`;
+            if (Array.isArray(value) && value.length > 0) {
+              renderTxt = `${ProcurementFilterName[filterKey]} : ${value}`;
+            }
             break;
           case ProcurementFilterItem.status:
-            let statusText = "";
-            value?.forEach(
-              (item: string) => (statusText += ", " + ProcurementStatusName[item])
-            );
-            renderTxt = `${ProcurementFilterName[filterKey]} : ${statusText.substr(1)}`;
+            if (Array.isArray(value) && value.length > 0) {
+              let statusText = "";
+              value?.forEach(
+                (item: string) => (statusText += ", " + ProcurementStatusName[item])
+              );
+              renderTxt = `${ProcurementFilterName[filterKey]} : ${statusText.substr(1)}`;
+            }
         }
+        if (!renderTxt) return <Fragment />;
         return (
           <Tag
             onClose={() => resetField(filterKey)}
