@@ -26,6 +26,7 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -134,6 +135,9 @@ export default function Order() {
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
+  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
+
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
@@ -227,6 +231,7 @@ export default function Order() {
 
   let isCloneOrder = false;
   if (actionParam === "clone" && cloneIdParam) {
+    
     isCloneOrder = true;
   }
 
@@ -576,6 +581,7 @@ export default function Order() {
               dispatch(
                 CustomerDetail(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
+                 
                   responseCustomer.shipping_addresses.forEach((item) => {
                     if (item.default === true) {
                       setShippingAddress(item);
@@ -754,6 +760,7 @@ export default function Order() {
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      setVisibleCustomer(true);
     } else {
       setLoyaltyPoint(null);
     }
@@ -1035,6 +1042,10 @@ export default function Order() {
                       loyaltyUsageRules={loyaltyUsageRules}
                       ShippingAddressChange={onChangeShippingAddress}
                       BillingAddressChange={onChangeBillingAddress}
+                      isVisibleCustomer={isVisibleCustomer}
+                      setVisibleCustomer={setVisibleCustomer}
+                      setModalAction={setModalAction}
+                      modalAction={modalAction}
                     />
                     <CardProduct
                       changeInfo={onChangeInfoProduct}
