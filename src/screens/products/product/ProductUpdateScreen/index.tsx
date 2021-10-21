@@ -15,7 +15,7 @@ import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -635,7 +635,8 @@ const ProductDetailScreen: React.FC = () => {
                           <Switch
                             onChange={(checked) => {
                               setStatus(checked ? "active" : "inactive");
-                              let variants: Array<VariantResponse> = form.getFieldValue("variants");
+                              let variants: Array<VariantResponse> =
+                                form.getFieldValue("variants");
                               if (checked) {
                                 variants = [...variants];
                                 variants.forEach((item) => {
@@ -657,7 +658,9 @@ const ProductDetailScreen: React.FC = () => {
                             checked={status === "active"}
                           />
                         </Item>
-                        <label className={status === "active" ? "text-success" : "text-error"}>
+                        <label
+                          className={status === "active" ? "text-success" : "text-error"}
+                        >
                           {statusValue}
                         </label>
                       </div>
@@ -709,7 +712,15 @@ const ProductDetailScreen: React.FC = () => {
                               // onChange={onCategoryChange}
                               placeholder="Chọn danh mục"
                               suffix={
-                                <Button style={{ width: 37, height: 37 }} icon={<PlusOutlined />} />
+                                <Button
+                                  style={{ width: 37, height: 37 }}
+                                  icon={<PlusOutlined />}
+                                  onClick={() =>
+                                    window.open(
+                                      `${BASE_NAME_ROUTER}${UrlConfig.CATEGORIES}/create`
+                                    )
+                                  }
+                                />
                               }
                             >
                               {categoryFilter.map((item) => (
@@ -883,23 +894,30 @@ const ProductDetailScreen: React.FC = () => {
                       <div className="a-container">
                         <Item
                           noStyle
-                          shouldUpdate={(prev, current) => prev.variants !== current.variants}
+                          shouldUpdate={(prev, current) =>
+                            prev.variants !== current.variants
+                          }
                         >
                           {({ getFieldValue }) => {
-                            const variants: Array<VariantResponse> = getFieldValue("variants");
+                            const variants: Array<VariantResponse> =
+                              getFieldValue("variants");
                             let url = null;
                             variants.forEach((item) => {
-                              if(item.saleable)
-                              item.variant_images.forEach((item1) => {
-                                if (item1.product_avatar) {
-                                  url = item1.url;
-                                }
-                              });
+                              if (item.saleable)
+                                item.variant_images.forEach((item1) => {
+                                  if (item1.product_avatar) {
+                                    url = item1.url;
+                                  }
+                                });
                             });
                             if (url !== null) {
                               return (
                                 <div onClick={onPickAvatar} className="bpa">
-                                  <Image preview={false} src={url} className="product-img" />
+                                  <Image
+                                    preview={false}
+                                    src={url}
+                                    className="product-img"
+                                  />
                                 </div>
                               );
                             }
@@ -926,7 +944,9 @@ const ProductDetailScreen: React.FC = () => {
                         }}
                       >
                         <CustomSelect optionFilterProp="children" showSearch showArrow>
-                          <CustomSelect.Option value="">Chọn Merchandiser</CustomSelect.Option>
+                          <CustomSelect.Option value="">
+                            Chọn Merchandiser
+                          </CustomSelect.Option>
                           {accounts.map((item) => (
                             <CustomSelect.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
@@ -947,7 +967,9 @@ const ProductDetailScreen: React.FC = () => {
                           showSearch
                           placeholder="Chọn thiết kế"
                         >
-                          <CustomSelect.Option value="">Chọn thiết kế</CustomSelect.Option>
+                          <CustomSelect.Option value="">
+                            Chọn thiết kế
+                          </CustomSelect.Option>
                           {accounts.map((item) => (
                             <CustomSelect.Option key={item.code} value={item.code}>
                               {`${item.code} - ${item.full_name}`}
@@ -1091,7 +1113,8 @@ const ProductDetailScreen: React.FC = () => {
                                                 { required: true },
                                                 {
                                                   min: 10,
-                                                  message: "Mã sản phẩm tối thiểu 10 kí tự",
+                                                  message:
+                                                    "Mã sản phẩm tối thiểu 10 kí tự",
                                                 },
                                               ]}
                                               label="Mã sản phẩm"
@@ -1104,7 +1127,10 @@ const ProductDetailScreen: React.FC = () => {
                                             </Item>
                                           </Col>
                                           <Col span={24} md={12}>
-                                            <Item name={[name, "barcode"]} label="Mã vạch">
+                                            <Item
+                                              name={[name, "barcode"]}
+                                              label="Mã vạch"
+                                            >
                                               <Input
                                                 onChange={onChange}
                                                 disabled
@@ -1131,7 +1157,10 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                     <Col span={24} md={12}>
-                                      <Item name={[name, "supplier_id"]} label="Nhà cung cấp">
+                                      <Item
+                                        name={[name, "supplier_id"]}
+                                        label="Nhà cung cấp"
+                                      >
                                         <CustomSelect
                                           onChange={onChange}
                                           showSearch
@@ -1139,7 +1168,10 @@ const ProductDetailScreen: React.FC = () => {
                                           placeholder="Chọn nhà cung cấp"
                                         >
                                           {listSupplier?.map((item) => (
-                                            <CustomSelect.Option key={item.id} value={item.id}>
+                                            <CustomSelect.Option
+                                              key={item.id}
+                                              value={item.id}
+                                            >
                                               {item.name}
                                             </CustomSelect.Option>
                                           ))}
@@ -1151,7 +1183,10 @@ const ProductDetailScreen: React.FC = () => {
                                     {(fields, { add, remove }) => (
                                       <>
                                         {fields.map(
-                                          ({ key, name, fieldKey, ...restField }, index) => (
+                                          (
+                                            { key, name, fieldKey, ...restField },
+                                            index
+                                          ) => (
                                             <Row key={key} gutter={24}>
                                               <Item name={[name, "id"]} hidden noStyle>
                                                 <Input />
@@ -1162,7 +1197,8 @@ const ProductDetailScreen: React.FC = () => {
                                                   rules={[
                                                     {
                                                       required: true,
-                                                      message: "Giá bán không được để trống",
+                                                      message:
+                                                        "Giá bán không được để trống",
                                                     },
                                                   ]}
                                                   name={[name, "retail_price"]}
@@ -1170,8 +1206,9 @@ const ProductDetailScreen: React.FC = () => {
                                                   tooltip={{
                                                     title: (
                                                       <div>
-                                                        <b>Giá bán lẻ</b> là giá mà bạn sẽ bán sản
-                                                        phẩm này cho những khách hàng đơn lẻ..
+                                                        <b>Giá bán lẻ</b> là giá mà bạn sẽ
+                                                        bán sản phẩm này cho những khách
+                                                        hàng đơn lẻ..
                                                       </div>
                                                     ),
                                                     icon: <InfoCircleOutlined />,
@@ -1179,8 +1216,12 @@ const ProductDetailScreen: React.FC = () => {
                                                 >
                                                   <NumberInput
                                                     onChange={onChangePrice}
-                                                    format={(a: string) => formatCurrency(a)}
-                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    format={(a: string) =>
+                                                      formatCurrency(a)
+                                                    }
+                                                    replace={(a: string) =>
+                                                      replaceFormatString(a)
+                                                    }
                                                     placeholder="VD: 100,000"
                                                   />
                                                 </Item>
@@ -1193,9 +1234,9 @@ const ProductDetailScreen: React.FC = () => {
                                                   tooltip={{
                                                     title: () => (
                                                       <div>
-                                                        <b>Giá buôn</b> là giá mà bạn sẽ bán sản
-                                                        phẩm này cho những khách hàng mua hàng với
-                                                        số lượng lớn.
+                                                        <b>Giá buôn</b> là giá mà bạn sẽ
+                                                        bán sản phẩm này cho những khách
+                                                        hàng mua hàng với số lượng lớn.
                                                       </div>
                                                     ),
                                                     icon: <InfoCircleOutlined />,
@@ -1203,8 +1244,12 @@ const ProductDetailScreen: React.FC = () => {
                                                 >
                                                   <NumberInput
                                                     onChange={onChangePrice}
-                                                    format={(a: string) => formatCurrency(a)}
-                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    format={(a: string) =>
+                                                      formatCurrency(a)
+                                                    }
+                                                    replace={(a: string) =>
+                                                      replaceFormatString(a)
+                                                    }
                                                     placeholder="VD: 100,000"
                                                   />
                                                 </Item>
@@ -1217,8 +1262,9 @@ const ProductDetailScreen: React.FC = () => {
                                                   tooltip={{
                                                     title: () => (
                                                       <div>
-                                                        <b>Giá nhập</b> là giá mà nhập sản phẩm từ
-                                                        đơn mua hàng của nhà cung cấp.
+                                                        <b>Giá nhập</b> là giá mà nhập sản
+                                                        phẩm từ đơn mua hàng của nhà cung
+                                                        cấp.
                                                       </div>
                                                     ),
                                                     icon: <InfoCircleOutlined />,
@@ -1226,8 +1272,12 @@ const ProductDetailScreen: React.FC = () => {
                                                 >
                                                   <NumberInput
                                                     onChange={onChangePrice}
-                                                    format={(a: string) => formatCurrency(a)}
-                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    format={(a: string) =>
+                                                      formatCurrency(a)
+                                                    }
+                                                    replace={(a: string) =>
+                                                      replaceFormatString(a)
+                                                    }
                                                     placeholder="VD: 100,000"
                                                   />
                                                 </Item>
@@ -1240,10 +1290,12 @@ const ProductDetailScreen: React.FC = () => {
                                                   tooltip={{
                                                     title: () => (
                                                       <div>
-                                                        <b>Giá vốn</b> là tổng của những loại chi
-                                                        phí để đưa hàng có mặt tại kho. Chúng bao
-                                                        gồm giá mua của nhà cung cấp, thuế giá trị
-                                                        gia tăng, chi phí vận chuyển, bảo hiểm,...
+                                                        <b>Giá vốn</b> là tổng của những
+                                                        loại chi phí để đưa hàng có mặt
+                                                        tại kho. Chúng bao gồm giá mua của
+                                                        nhà cung cấp, thuế giá trị gia
+                                                        tăng, chi phí vận chuyển, bảo
+                                                        hiểm,...
                                                       </div>
                                                     ),
                                                     icon: <InfoCircleOutlined />,
@@ -1251,8 +1303,12 @@ const ProductDetailScreen: React.FC = () => {
                                                 >
                                                   <NumberInput
                                                     onChange={onChangePrice}
-                                                    format={(a: string) => formatCurrency(a)}
-                                                    replace={(a: string) => replaceFormatString(a)}
+                                                    format={(a: string) =>
+                                                      formatCurrency(a)
+                                                    }
+                                                    replace={(a: string) =>
+                                                      replaceFormatString(a)
+                                                    }
                                                     placeholder="VD: 100,000"
                                                   />
                                                 </Item>
@@ -1280,7 +1336,8 @@ const ProductDetailScreen: React.FC = () => {
                                                   rules={[
                                                     {
                                                       required: true,
-                                                      message: "Đơn vị tiền tệ không được để trống",
+                                                      message:
+                                                        "Đơn vị tiền tệ không được để trống",
                                                     },
                                                   ]}
                                                   name={[name, "currency_code"]}
@@ -1328,7 +1385,10 @@ const ProductDetailScreen: React.FC = () => {
                                           }
                                         >
                                           {listColor?.map((item) => (
-                                            <CustomSelect.Option key={item.id} value={item.id}>
+                                            <CustomSelect.Option
+                                              key={item.id}
+                                              value={item.id}
+                                            >
                                               {item.name}
                                             </CustomSelect.Option>
                                           ))}
@@ -1353,7 +1413,10 @@ const ProductDetailScreen: React.FC = () => {
                                           }
                                         >
                                           {listSize?.map((item) => (
-                                            <CustomSelect.Option key={item.code} value={item.id}>
+                                            <CustomSelect.Option
+                                              key={item.code}
+                                              value={item.id}
+                                            >
                                               {item.code}
                                             </CustomSelect.Option>
                                           ))}
@@ -1362,7 +1425,8 @@ const ProductDetailScreen: React.FC = () => {
                                       <Item
                                         label="Kích thước (dài, rộng, cao)"
                                         tooltip={{
-                                          title: "Thông tin kích thước khi đóng gói sản phẩm",
+                                          title:
+                                            "Thông tin kích thước khi đóng gói sản phẩm",
                                           icon: <InfoCircleOutlined />,
                                         }}
                                       >
@@ -1413,7 +1477,10 @@ const ProductDetailScreen: React.FC = () => {
                                               style={{ width: "100px" }}
                                             >
                                               {lengthUnitList?.map((item) => (
-                                                <Select.Option key={item.value} value={item.value}>
+                                                <Select.Option
+                                                  key={item.value}
+                                                  value={item.value}
+                                                >
                                                   {item.name}
                                                 </Select.Option>
                                               ))}
@@ -1460,7 +1527,10 @@ const ProductDetailScreen: React.FC = () => {
                                               value="gram"
                                             >
                                               {weightUnitList?.map((item) => (
-                                                <Select.Option key={item.value} value={item.value}>
+                                                <Select.Option
+                                                  key={item.value}
+                                                  value={item.value}
+                                                >
                                                   {item.name}
                                                 </Select.Option>
                                               ))}
@@ -1470,7 +1540,11 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                     <Col span={24} sm={12}>
-                                      <Item name={[name, "variant_images"]} hidden noStyle>
+                                      <Item
+                                        name={[name, "variant_images"]}
+                                        hidden
+                                        noStyle
+                                      >
                                         <Input />
                                       </Item>
 
@@ -1484,7 +1558,7 @@ const ProductDetailScreen: React.FC = () => {
                                           onAddFile(info);
                                         }}
                                         customRequest={(options) => {
-                                          customRequest(options, active);                                                                                  
+                                          customRequest(options, active);
                                         }}
                                         listType="picture-card"
                                         onRemove={(file) => {

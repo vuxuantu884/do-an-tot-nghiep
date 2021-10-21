@@ -1,16 +1,16 @@
 const SETTINGS = "settings";
-
 const UrlConfig = {
   HOME: `/`,
   LOGIN: `/login`,
   PRODUCT: `/products`,
   VARIANTS: `/products/variants`,
-  CATEGORIES: `/categories`,
+  CATEGORIES: `/products/categories`,
   PURCHASE_ORDER: `/purchase-order`,
-  MATERIALS: `/materials`,
-  SIZES: `/sizes`,
-  COLORS: `/colors`,
-  SUPPLIERS: `/suppliers`,
+  INVENTORY: "/products/inventory",
+  MATERIALS: `/products/materials`,
+  SIZES: `/products/sizes`,
+  COLORS: `/products/colors`,
+  SUPPLIERS: `/products/suppliers`,
   ACCOUNTS: `/accounts`,
   STORE: `/stores`,
   ROLES: `/roles`,
@@ -25,7 +25,6 @@ const UrlConfig = {
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
   FPAGE: `/fpage`,
-  INVENTORY: "/inventory",
   ECOMMERCE: "/ecommerce",
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
@@ -33,4 +32,5 @@ const UrlConfig = {
   INVENTORY_TRANSFER: `/inventory-transfer`
 };
 
+export const BASE_NAME_ROUTER = "/unicorn/admin";
 export default UrlConfig;
