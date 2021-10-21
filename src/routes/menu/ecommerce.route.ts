@@ -3,10 +3,12 @@ import { RouteMenu } from "model/other";
 import React from "react";
 
 const Config = React.lazy(() => import("screens/ecommerce/config"));
-const ForControl = React.lazy(() => import("screens/ecommerce/for-control"));
 const Orders = React.lazy(() => import("screens/ecommerce/orders"));
 const Products = React.lazy(() => import("screens/ecommerce/products"));
-const Report = React.lazy(() => import("screens/ecommerce/report"));
+
+//@todo: implement later
+// const ForControl = React.lazy(() => import("screens/ecommerce/for-control"));
+// const Report = React.lazy(() => import("screens/ecommerce/report"));
 
 const ecommerce: Array<RouteMenu> = [
   {
@@ -31,28 +33,29 @@ const ecommerce: Array<RouteMenu> = [
     header: null,
     subMenu: [],
   },
-  {
-    path: `${UrlConfig.ECOMMERCE}/for-control`,
-    exact: true,
-    title: "Đối soát",
-    icon: "icon-dot",
-    component: ForControl,
-    key: "submenu402",
-    isShow: true,
-    header: null,
-    subMenu: [],
-  },
-  {
-    path: `${UrlConfig.ECOMMERCE}/report`,
-    exact: true,
-    title: "Báo cáo",
-    icon: "icon-dot",
-    component: Report,
-    key: "submenu403",
-    isShow: true,
-    header: null,
-    subMenu: [],
-  },
+  //@todo: implement later
+  // {
+  //   path: `${UrlConfig.ECOMMERCE}/for-control`,
+  //   exact: true,
+  //   title: "Đối soát",
+  //   icon: "icon-dot",
+  //   component: ForControl,
+  //   key: "submenu402",
+  //   isShow: true,
+  //   header: null,
+  //   subMenu: [],
+  // },
+  // {
+  //   path: `${UrlConfig.ECOMMERCE}/report`,
+  //   exact: true,
+  //   title: "Báo cáo",
+  //   icon: "icon-dot",
+  //   component: Report,
+  //   key: "submenu403",
+  //   isShow: true,
+  //   header: null,
+  //   subMenu: [],
+  // },
   {
     path: `${UrlConfig.ECOMMERCE}/config`,
     exact: true,
