@@ -1052,6 +1052,7 @@ export default function Order(props: PropType) {
                     modalAction={modalAction}
                   />
                   <CardProduct
+                  orderId = {id}
                     changeInfo={onChangeInfoProduct}
                     selectStore={onStoreSelect}
                     storeId={storeId}

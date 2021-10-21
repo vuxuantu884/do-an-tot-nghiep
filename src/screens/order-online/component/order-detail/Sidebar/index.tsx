@@ -2,6 +2,7 @@ import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
 import { AccountResponse } from "model/account/account.model";
 import React from "react";
+import { useQuery } from "utils/useQuery";
 import CustomerInputTags from "../../custom-input-tags";
 import { StyledComponent } from "./styles";
 
@@ -12,10 +13,11 @@ type PropType = {
   isCloneOrder?: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
+  isSplitOrder?: boolean;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder } = props;
+  const { accounts, onChangeTag, tags, isCloneOrder, isSplitOrder } = props;
 
   return (
     <StyledComponent>
@@ -133,7 +135,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} />
+          <Input placeholder="Điền tham chiếu" maxLength={255} disabled={isSplitOrder} />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
