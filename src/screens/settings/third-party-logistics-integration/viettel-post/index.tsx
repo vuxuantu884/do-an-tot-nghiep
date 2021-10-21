@@ -12,11 +12,6 @@ import {
 } from "domain/actions/order/order.action";
 import { StoreResponse } from "model/core/store.model";
 import {
-  createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
-  updateConfigReQuestModel,
-} from "model/request/settings/third-party-logistics-settings.resquest";
-import {
   DeliveryMappedStoreType,
   DeliveryServiceResponse,
   DeliveryServiceTransportType,
@@ -42,23 +37,29 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const [listShops, setListShops] = useState<StoreResponse[]>([]);
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
-  const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] = useState(false);
+  const [listServices, setListServices] = useState<
+    DeliveryServiceTransportType[]
+  >([]);
+  const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] =
+    useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
 
   const [inputTokenApi, setInputTokenApi] = useState<string>("");
-  const [inputStoreIdValue, setInputStoreIdValue] = useState<string | undefined>(
+  const [inputStoreIdValue, setInputStoreIdValue] = useState<
+    string | undefined
+  >(undefined);
+  const [inputShopIdValue, setInputShopIdValue] = useState<string | undefined>(
     undefined
   );
-  const [inputShopIdValue, setInputShopIdValue] = useState<string | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
 
-  const [deleteStore, setDeleteStore] = useState<DeliveryMappedStoreType | null>(null);
+  const [deleteStore, setDeleteStore] =
+    useState<DeliveryMappedStoreType | null>(null);
 
-  const [listShopIsSelected, setListShopIsSelected] = useState<DeliveryMappedStoreType[]>(
-    []
-  );
+  const [listShopIsSelected, setListShopIsSelected] = useState<
+    DeliveryMappedStoreType[]
+  >([]);
 
   const [listShopIsSelectedShow, setListShopIsSelectedShow] =
     useState(listShopIsSelected);
@@ -108,11 +109,13 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
-      const params: updateConfigReQuestModel = {
-        external_service_code,
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+    form.validateFields(["token"]).then(() => {
+      if (!thirdPartyLogistics?.id) {
+        return;
+      }
+      const params = {
+        external_service_id: thirdPartyLogistics?.id,
+        token: form.getFieldValue("token"),
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
@@ -125,7 +128,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleCancelConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       setConfirmSubTitle(
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
@@ -136,14 +139,13 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     });
   };
 
-  const cancelConnect3PL = (thirdPartyLogisticCode: string | undefined) => {
-    if (!thirdPartyLogisticCode) {
+  const cancelConnect3PL = (thirdPartyLogisticId: number | undefined) => {
+    if (!thirdPartyLogisticId) {
       return;
     }
     const params = {
-      external_service_code: thirdPartyLogisticCode,
-      username: form.getFieldValue("username"),
-      password: form.getFieldValue("password"),
+      external_service_id: thirdPartyLogisticId,
+      token: form.getFieldValue("token"),
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
@@ -156,75 +158,65 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleRemoveStoreId = (store: DeliveryMappedStoreType | null) => {
-    if (!store?.partner_shop_id) {
-      return;
-    }
-    const params: deleteDeliveryMappedStoreReQuestModel = {
-      partner_shop_id: store?.partner_shop_id,
-      store_id: store.store_id,
-      token: "",
-      username: form.getFieldValue("username"),
-      password: form.getFieldValue("password"),
-    };
-    if (thirdPartyLogistics?.code && store) {
+    if (thirdPartyLogistics?.id && store) {
       dispatch(
-        deleteDeliveryMappedStoreAction(thirdPartyLogistics.code, params, () => {
-          setIsShowConfirmDeleteStoreId(false);
-          dispatch(
-            getDeliveryMappedStoresAction(thirdPartyLogistics.code, (response) => {
-              setListShopIsSelected(response);
-              setListShopIsSelectedShow(response);
-            })
-          );
-        })
+        deleteDeliveryMappedStoreAction(
+          thirdPartyLogistics.id,
+          store.shop_id,
+          store.store_id,
+          () => {
+            setIsShowConfirmDeleteStoreId(false);
+            dispatch(
+              getDeliveryMappedStoresAction(
+                thirdPartyLogistics.id,
+                (response) => {
+                  setListShopIsSelected(response);
+                  setListShopIsSelectedShow(response);
+                }
+              )
+            );
+          }
+        )
       );
     }
   };
 
   const createMappedStore = (
+    thirdPartyLogisticId: number | undefined,
     shopId: string | undefined,
-    partnerShopId: string | undefined
+    storeId: string | undefined,
+    token: string
   ) => {
-    console.log("listShops", listShops);
-    console.log("shopId", shopId);
+    if (!token) {
+      form.validateFields(["token"]);
+    }
     if (!shopId) {
       showError("Vui lòng chọn cửa hàng");
-      return;
     }
-    if (!partnerShopId) {
+    if (!storeId) {
       showError("Vui lòng điền Shop ID");
-      return;
     }
-    form.validateFields(["username", "password"]).then(() => {
-      if (shopId && partnerShopId) {
-        const shopSelected = listShops.find((single) => {
-          return single.id === +shopId;
-        });
-        if (!shopSelected) {
-          return;
-        }
-        const shopName = shopSelected.name;
-        const params: createDeliveryMappedStoreReQuestModel = {
-          token: "",
-          username: form.getFieldValue("username"),
-          password: form.getFieldValue("password"),
-          store_id: +shopId,
-          store_name: shopName,
-          partner_shop_id: +partnerShopId,
-        };
-        console.log("params", params);
-        dispatch(
-          createDeliveryMappedStoreAction(external_service_code, params, () => {
+    if (thirdPartyLogisticId && shopId && storeId && token) {
+      dispatch(
+        createDeliveryMappedStoreAction(
+          thirdPartyLogisticId,
+          +shopId,
+          +storeId,
+          token,
+          () => {
             dispatch(
-              getDeliveryMappedStoresAction(external_service_code, (response) => {
-                setListShopIsSelected(response);
-                setListShopIsSelectedShow(response);
-              })
+              getDeliveryMappedStoresAction(
+                thirdPartyLogisticId,
+                (response) => {
+                  setListShopIsSelected(response);
+                  setListShopIsSelectedShow(response);
+                }
+              )
             );
-          })
-        );
-      }
-    });
+          }
+        )
+      );
+    }
   };
 
   useEffect(() => {
@@ -245,9 +237,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           });
           if (result) {
             setThirdPartyLogistics(result);
-            setIsConnected(result.active);
+            setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
             dispatch(
-              getDeliveryTransportTypesAction(result.code, (response) => {
+              getDeliveryTransportTypesAction(result.id, (response) => {
                 if (response) {
                   setListServices(response);
                   const listActiveServices = response.map((single) => {
@@ -264,7 +256,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
               })
             );
             dispatch(
-              getDeliveryMappedStoresAction(result.code, (response) => {
+              getDeliveryMappedStoresAction(result.id, (response) => {
                 setListShopIsSelected(response);
                 setListShopIsSelectedShow(response);
               })
@@ -287,39 +279,30 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         urlGuide={urlGuide}
         isConnected={isConnected}
       >
-        <Form form={form} layout="vertical" initialValues={initialFormValue}>
+        <Form
+          form={form}
+          name="form-single-third-party-logistic"
+          layout="vertical"
+          initialValues={initialFormValue}
+        >
           <Row gutter={20}>
             <Col span={12}>
               <Form.Item
-                name="username"
-                label="Username"
+                name="token"
+                label="Token API: "
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập username!",
+                    message: "Vui lòng nhập token!",
                   },
                 ]}
               >
                 <Input
                   type="text"
-                  placeholder="Nhập username"
+                  placeholder="Nhập token API"
                   style={{ width: "100%" }}
-                />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                label="Password: "
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Password!",
-                  },
-                ]}
-              >
-                <Input
-                  type="password"
-                  placeholder="Nhập Password"
-                  style={{ width: "100%" }}
+                  value={inputTokenApi}
+                  onChange={(value) => setInputTokenApi(value.target.value)}
                 />
               </Form.Item>
               <Form.Item
@@ -357,13 +340,18 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   }}
                   className="selectShopId"
                   filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    option?.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
                   }
                 >
                   {listShops &&
                     listShops.map((singleShop) => {
                       return (
-                        <Select.Option value={singleShop.id} key={singleShop.id}>
+                        <Select.Option
+                          value={singleShop.code}
+                          key={singleShop.code}
+                        >
                           {singleShop.name}
                         </Select.Option>
                       );
@@ -380,7 +368,12 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   />
                   <Button
                     onClick={() => {
-                      createMappedStore(inputShopIdValue, inputStoreIdValue);
+                      createMappedStore(
+                        thirdPartyLogistics?.id,
+                        inputShopIdValue,
+                        inputStoreIdValue,
+                        inputTokenApi
+                      );
                     }}
                   >
                     Thêm
@@ -404,39 +397,26 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                       return (
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">
-                            <span className="singleShop__name">{single.name}</span>:{" "}
+                            <span className="singleShop__name">
+                              {single.name}
+                            </span>
+                            :{" "}
                             <span className="singleShop__code">
-                              {single.partner_shop_id}
+                              {single.store_id}
                             </span>
                           </div>
                           <div className="singleShop__action">
                             <div
                               className="single"
                               onClick={() => {
-                                form
-                                  .validateFields(["username", "password"])
-                                  .then(() => {
-                                    setConfirmSubTitle(
-                                      <React.Fragment>
-                                        Bạn có chắc chắn muốn xóa mapping cửa hàng "
-                                        <strong>{single.name}</strong>" ?
-                                      </React.Fragment>
-                                    );
-                                    setDeleteStore(single);
-                                    setIsShowConfirmDeleteStoreId(true);
-                                  })
-                                  .catch((error) => {
-                                    const element: any = document.getElementById(
-                                      error.errorFields[0].name.join("")
-                                    );
-                                    console.log("element", element);
-                                    element?.focus();
-                                    const offsetY =
-                                      element?.getBoundingClientRect()?.top +
-                                      window.pageYOffset +
-                                      -200;
-                                    window.scrollTo({ top: offsetY, behavior: "smooth" });
-                                  });
+                                setConfirmSubTitle(
+                                  <React.Fragment>
+                                    Bạn có chắc chắn muốn xóa mapping cửa hàng "
+                                    <strong>{single.name}</strong>" ?
+                                  </React.Fragment>
+                                );
+                                setDeleteStore(single);
+                                setIsShowConfirmDeleteStoreId(true);
                               }}
                             >
                               <img src={IconClose} alt="" />
@@ -460,7 +440,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
       />
       <ModalDeleteConfirm
         visible={isShowConfirmDisconnect}
-        onOk={() => cancelConnect3PL(thirdPartyLogistics?.code)}
+        onOk={() => cancelConnect3PL(thirdPartyLogistics?.id)}
         onCancel={() => setIsShowConfirmDisconnect(false)}
         title="Xác nhận"
         subTitle={confirmSubTitle}

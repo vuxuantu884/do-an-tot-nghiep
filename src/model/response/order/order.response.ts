@@ -258,7 +258,7 @@ export interface ShipmentResponse extends BaseObject {
 export interface DeliveryServiceResponse {
   id: number;
   code: string;
-  active: boolean;
+  status: string;
   external_service_code: string;
   name: string;
   logo: string;
@@ -295,7 +295,7 @@ export type DeliveryTransportTypesResponse = {
 export type DeliveryMappedStoreType = {
   store_id: number;
   name: string;
-  partner_shop_id: number;
+  shop_id: number;
 };
 
 export interface ShippingGHTKResponse {

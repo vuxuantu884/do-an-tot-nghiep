@@ -29,7 +29,9 @@ function SingleThirdPartyLogistic(props: PropType) {
 
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
+  const [listServices, setListServices] = useState<
+    DeliveryServiceTransportType[]
+  >([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
@@ -123,10 +125,10 @@ function SingleThirdPartyLogistic(props: PropType) {
           });
           if (result) {
             setThirdPartyLogistics(result);
-            setIsConnected(result.active);
+            setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
 
             dispatch(
-              getDeliveryTransportTypesAction(result.code, (response) => {
+              getDeliveryTransportTypesAction(result.id, (response) => {
                 if (response) {
                   setListServices(response);
                   const listActiveServices = response.map((single) => {
@@ -177,7 +179,11 @@ function SingleThirdPartyLogistic(props: PropType) {
               },
             ]}
           >
-            <Input type="text" placeholder="Nhập token" style={{ width: "100%" }} />
+            <Input
+              type="text"
+              placeholder="Nhập token"
+              style={{ width: "100%" }}
+            />
           </Form.Item>
           <Form.Item
             name="transport_types"
@@ -189,7 +195,9 @@ function SingleThirdPartyLogistic(props: PropType) {
                 listServices.map((singleService) => {
                   return (
                     <div key={singleService.code}>
-                      <Checkbox value={singleService.code}>{singleService.name}</Checkbox>
+                      <Checkbox value={singleService.code}>
+                        {singleService.name}
+                      </Checkbox>
                     </div>
                   );
                 })}
