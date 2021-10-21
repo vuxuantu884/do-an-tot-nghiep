@@ -151,6 +151,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
 
   const [hvc, setHvc] = useState<number | null>(null);
+  const [hvcCode, setHvcCode] = useState<string | null>(null);
+  const [hvcName, setHvcName] = useState<string | null>(null);
   const [serviceType, setServiceType] = useState<string>();
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
@@ -207,8 +209,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     props.shippingFeeInformedCustomer(value);
   };
 
-  const changeServiceType = (id: number, code: string, item: any, fee: number) => {
+  const changeServiceType = (
+    id: number,
+    code: string,
+    item: any,
+    fee: number,
+    name: string
+  ) => {
     setHvc(id);
+    setHvcCode(code);
+    setHvcName(name);
     setServiceType(item);
     setFee(fee);
   };
@@ -491,6 +501,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     code: "",
     delivery_service_provider_id: null, //id người shipper
     delivery_service_provider_type: "", //shipper
+    delivery_service_provider_code: "",
+    delivery_service_provider_name: "",
     shipper_code: null,
     shipper_name: "",
     handover_id: null,
@@ -553,6 +565,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
         value.delivery_service_provider_id = hvc;
         value.delivery_service_provider_type = "external_service";
+        value.delivery_service_provider_code = hvcCode;
+        value.delivery_service_provider_name = hvcName;
         value.sender_address_id = props.OrderDetail.store_id;
         value.service = serviceType!;
         value.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
@@ -1367,13 +1381,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                                 color: "#222222",
                                               }}
                                             >
-                                              {item.message}
+                                              {item.shipping_status}
                                             </b>
                                             <i
                                               className="icon-dot"
                                               style={{
                                                 fontSize: "4px",
-                                                margin: "16px 10px 10px 10px",
+                                                margin: "10px 10px 10px 10px",
                                                 color: "#737373",
                                               }}
                                             ></i>{" "}
@@ -1756,11 +1770,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </Row>
               <Row>
                 <div
-                  className="saleorder_shipment_method_btn 1"
+                  className="saleorder_shipment_method_btn"
                   style={
                     shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                       ? { border: "none" }
-                      : { borderBottom: "1px solid #2A2A86" }
+                      : { borderBottom: "1px solid #2A2A86", marginBottom: 20 }
                   }
                 >
                   <Space size={10}>

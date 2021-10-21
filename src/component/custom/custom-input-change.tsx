@@ -75,8 +75,9 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
             ? (props.value
                 ? (props.value / props.dataPercent) * 100
                 : 0
-              ).toFixed(1)
+              ).toFixed(1) + " %"
             : formatCurrency(props.value ? Math.round(props.value) : 0)}
+
         </Typography.Text>
       </div>
     </div>

@@ -29,9 +29,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
 
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<
-    DeliveryServiceTransportType[]
-  >([]);
+  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
@@ -132,7 +130,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
             setIsConnected(result.status === DELIVER_SERVICE_STATUS.active);
 
             dispatch(
-              getDeliveryTransportTypesAction(result.id, (response) => {
+              getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
                   setListServices(response);
                   const listActiveServices = response.map((single) => {
@@ -183,11 +181,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
               },
             ]}
           >
-            <Input
-              type="text"
-              placeholder="Nhập Client Id"
-              style={{ width: "100%" }}
-            />
+            <Input type="text" placeholder="Nhập Client Id" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
             name="password"
@@ -215,9 +209,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
                 listServices.map((singleService) => {
                   return (
                     <div key={singleService.code}>
-                      <Checkbox value={singleService.code}>
-                        {singleService.name}
-                      </Checkbox>
+                      <Checkbox value={singleService.code}>{singleService.name}</Checkbox>
                     </div>
                   );
                 })}

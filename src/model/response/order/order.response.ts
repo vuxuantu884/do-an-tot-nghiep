@@ -295,7 +295,7 @@ export type DeliveryTransportTypesResponse = {
 export type DeliveryMappedStoreType = {
   store_id: number;
   name: string;
-  shop_id: number;
+  partner_shop_id: number;
 };
 
 export interface ShippingGHTKResponse {
@@ -382,6 +382,7 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   raw_data: string;
   action_date: string;
   deleted: boolean;
+  shipping_status: string;
 }
 
 export interface ErrorLogResponse extends BaseObject {

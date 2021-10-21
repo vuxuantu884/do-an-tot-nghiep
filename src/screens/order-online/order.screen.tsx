@@ -81,6 +81,7 @@ export default function Order() {
   const dispatch = useDispatch();
   const history = useHistory();
   const [isSaveDraft, setIsSaveDraft] = useState(false);
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -104,6 +105,9 @@ export default function Order() {
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [hvc, setHvc] = useState<number | null>(null);
+  const [hvcCode, setHvcCode] = useState<string | null>(null);
+  const [hvcName, setHvcName] = useState<string | null>(null);
+
   const [fee, setFee] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
@@ -184,6 +188,14 @@ export default function Order() {
   };
 
   const onShipmentSelect = (value: number) => {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
     setShipmentMethod(value);
   };
 
@@ -322,6 +334,8 @@ export default function Order() {
           ...objShipment,
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
+          delivery_service_provider_code: hvcCode,
+          delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
           shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           service: serviceType!,
@@ -1074,6 +1088,7 @@ export default function Order() {
                       amount={orderAmount}
                       isCloneOrder={isCloneOrder}
                       loyaltyRate={loyaltyRate}
+                      isDisablePostPayment={isDisablePostPayment}
                     />
                     <CardShipment
                       setShipmentMethodProps={onShipmentSelect}
@@ -1093,6 +1108,8 @@ export default function Order() {
                       officeTime={officeTime}
                       setServiceType={setServiceType}
                       setHVC={setHvc}
+                      setHvcName={setHvcName}
+                      setHvcCode={setHvcCode}
                       setFee={setFee}
                       payments={payments}
                       onPayments={onPayments}

@@ -112,7 +112,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
     (value: number | null, sku: string, indexProcument: number) => {
       let procument_items: Array<PurchaseProcurementViewDraft> =
         formMain.getFieldValue(POField.procurements);
-      let indexLineItem = procument_items[indexProcument].procurement_items.findIndex((item) => item.sku === sku );
+      let indexLineItem = procument_items[indexProcument].procurement_items.findIndex((item) => item.sku === sku);
       procument_items[indexProcument].procurement_items[
         indexLineItem
       ].quantity = value ? value : 0;
@@ -138,47 +138,50 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   const defaultColumns: Array<
     ICustomTableColumType<PurchaseProcurementViewDraft>
   > = [
-    {
-      width: 50,
-      title: "Stt",
-      align: "center",
-      render: (value, record, index) => index + 1,
-    },
-    {
-      width: 150,
-      title: "Ngày nhận dự kiến",
-      dataIndex: "expect_receipt_date",
-      render: (value, record, index: number) => (
-        <CustomDatePicker
-          value={value}
-          disableDate={(date) => date <= moment().startOf("days")}
-          format={DATE_FORMAT.DDMMYYY}
-          onChange={(value1) => onChangeDate(value1, index)}
-        />
-      ),
-    },
-    {
-      width: 250,
-      title: "Cửa hàng nhận",
-      dataIndex: "store_id",
-      render: (value, record, index) => (
-        <Select
-          onChange={(value1: number) => onChangeStore(value1, index)}
-          value={value}
-          showSearch
-          showArrow
-          placeholder="Chọn kho nhận"
-          optionFilterProp="children"
-        >
-          {stores.map((item) => (
-            <Select.Option key={item.id} value={item.id}>
-              {item.name}
-            </Select.Option>
-          ))}
-        </Select>
-      ),
-    },
-  ];
+      {
+        width: 50,
+        title: "Stt",
+        align: "center",
+        fixed: "left",
+        render: (value, record, index) => index + 1,
+      },
+      {
+        width: 250,
+        title: "Cửa hàng nhận",
+        dataIndex: "store_id",
+        fixed: "left",
+        render: (value, record, index) => (
+          <Select
+            onChange={(value1: number) => onChangeStore(value1, index)}
+            value={value}
+            showSearch
+            showArrow
+            placeholder="Chọn kho nhận"
+            optionFilterProp="children"
+          >
+            {stores.map((item) => (
+              <Select.Option key={item.id} value={item.id}>
+                {item.name}
+              </Select.Option>
+            ))}
+          </Select>
+        ),
+      },
+      {
+        width: 150,
+        title: "Ngày nhận dự kiến",
+        dataIndex: "expect_receipt_date",
+        render: (value, record, index: number) => (
+          <CustomDatePicker
+            value={value}
+            disableDate={(date) => date <= moment().startOf("days")}
+            format={DATE_FORMAT.DDMMYYY}
+            onChange={(value1) => onChangeDate(value1, index)}
+          />
+        ),
+      },
+
+    ];
 
   if (!isEdit) {
     return (
@@ -242,7 +245,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 className="product-table"
                 pagination={false}
                 scroll={{ y: 300, x: 950 }}
-                rowKey={(item) => item.fake_id}
+                rowKey={(item) => item.id ? item.id : item.fake_id}
                 columns={[
                   ...defaultColumns,
                   ...columns,
@@ -262,10 +265,10 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                 ]}
                 dataSource={procument_items}
                 summary={(data) => {
-                  let newTotal:any = {};
+                  let newTotal: any = {};
                   data.forEach(item => {
                     item.procurement_items.forEach(item => {
-                      if(newTotal[item.sku]) {
+                      if (newTotal[item.sku]) {
                         newTotal[item.sku] = newTotal[item.sku] + item.quantity;
                       } else {
                         newTotal[item.sku] = item.quantity
@@ -273,34 +276,43 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                     })
                   })
                   return (
-                  <Table.Summary>
-                    <Table.Summary.Row>
-                      <Table.Summary.Cell
-                        index={1}
-                        colSpan={3}
-                      >
-                        <Button
-                          onClick={onAdd}
-                          icon={<PlusOutlined />}
-                          type="link"
+                    <Table.Summary fixed>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          index={0}
+                          colSpan={2}
                         >
-                          Thêm kế hoạch
-                        </Button>
-                      </Table.Summary.Cell>
-                      {
-                        new_line_items.map((new_line_items, index) => (
-                          <Table.Summary.Cell align="right" index={index + 2}>
-                            <div style={{marginRight: 15}}>{newTotal[new_line_items.sku]}</div>
-                          </Table.Summary.Cell>
-                        ))
-                      }
-                       <Table.Summary.Cell
-                        index={2}
-                        colSpan={1}
-                      ></Table.Summary.Cell>
-                    </Table.Summary.Row>
-                  </Table.Summary>
-                )}}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", width: '100%' }}>
+                            <Button
+                              onClick={onAdd}
+                              icon={<PlusOutlined />}
+                              type="link"
+                            >
+                              Thêm kế hoạch
+                            </Button>
+                            <b>TỔNG</b>
+                          </div>
+
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell
+                          index={2}
+                          colSpan={1}
+                        ></Table.Summary.Cell>
+                        {
+                          new_line_items.map((new_line_items, index) => (
+                            <Table.Summary.Cell align="right" index={index + 2}>
+                              <div style={{ marginRight: 15 }}>{newTotal[new_line_items.sku]}</div>
+                            </Table.Summary.Cell>
+                          ))
+                        }
+                        <Table.Summary.Cell
+                          index={3}
+                          colSpan={1}
+                        />
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  )
+                }}
               />
             );
           }}
@@ -323,13 +335,13 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
           let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
             POField.line_items
           );
-          let new_line_items: Array<PurchaseOrderLineItem> = []; 
+          let new_line_items: Array<PurchaseOrderLineItem> = [];
           line_items.forEach((item) => {
             let index = new_line_items.findIndex(
               (item1) => item1.sku === item.sku
             );
             if (index === -1) {
-              new_line_items.push({...item});
+              new_line_items.push({ ...item });
             } else {
               new_line_items[index].quantity =
                 new_line_items[index].quantity + item.quantity;
@@ -367,7 +379,15 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   width: 50,
                   title: "Stt",
                   align: "center",
+                  fixed: "left",
                   render: (value, record, index) => index + 1,
+                },
+                {
+                  width: 250,
+                  title: "Cửa hàng nhận",
+                  dataIndex: "store",
+                  fixed: "left",
+                  render: (value, record, index) => value,
                 },
                 {
                   width: 150,
@@ -376,14 +396,46 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   render: (value, record, index: number) =>
                     ConvertUtcToLocalDate(value),
                 },
-                {
-                  width: 250,
-                  title: "Cửa hàng nhận",
-                  dataIndex: "store",
-                  render: (value, record, index) => value,
-                },
                 ...columns,
               ]}
+              summary={(data) => {
+                let newTotal: any = {};
+                data.forEach(item => {
+                  item.procurement_items.forEach(item => {
+                    if (newTotal[item.sku]) {
+                      newTotal[item.sku] = newTotal[item.sku] + item.quantity;
+                    } else {
+                      newTotal[item.sku] = item.quantity
+                    }
+                  })
+                })
+                return (
+                  <Table.Summary fixed>
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell
+                        index={0}
+                        colSpan={2}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: "flex-end", width: '100%' }}>
+                          <b>TỔNG</b>
+                        </div>
+
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell
+                        index={2}
+                        colSpan={1}
+                      ></Table.Summary.Cell>
+                      {
+                        new_line_items.map((new_line_items, index) => (
+                          <Table.Summary.Cell align="right" index={index + 2}>
+                            <div>{newTotal[new_line_items.sku]}</div>
+                          </Table.Summary.Cell>
+                        ))
+                      }
+                    </Table.Summary.Row>
+                  </Table.Summary>
+                )
+              }}
             />
           );
         }}
