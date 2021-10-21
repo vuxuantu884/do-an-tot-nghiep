@@ -12,7 +12,7 @@ const getSearchListStore = (
   name: string
 ): Promise<BaseResponse<Array<StoreResponse>>> => {
   if (!name) name = "";
-  let link = `${ApiConfig.CORE}/stores?name=${name}&simple=true&status=active`;
+  let link = `${ApiConfig.CORE}/stores?name=${name}&simple=true&status=active&saleabl=true`;
   return BaseAxios.get(link);
 };
 

@@ -46,9 +46,8 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
-  ShippingAddress,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
@@ -101,6 +100,7 @@ import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import CardPayments from "./component/order-detail/CardPayments";
 import CardShipment from "./component/order-detail/CardShipment";
+import { modalActionType } from "model/modal/modal.model";
 
 let typeButton = "";
 type PropType = {
@@ -158,6 +158,9 @@ export default function Order(props: PropType) {
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+
+  const [isVisibleCustomer, setVisibleCustomer] = useState(true);
+  const [modalAction, setModalAction] = useState<modalActionType>("edit");
 
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
@@ -276,7 +279,7 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
-  console.log("levelOrder", levelOrder);
+  console.log("levelOrder",levelOrder)
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
@@ -1043,6 +1046,10 @@ export default function Order(props: PropType) {
                     BillingAddressChange={onChangeBillingAddress}
                     levelOrder={levelOrder}
                     updateOrder={true}
+                    isVisibleCustomer={isVisibleCustomer}
+                    setVisibleCustomer={setVisibleCustomer}
+                    setModalAction={setModalAction}
+                    modalAction={modalAction}
                   />
                   <CardProduct
                     changeInfo={onChangeInfoProduct}

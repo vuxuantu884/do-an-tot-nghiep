@@ -85,20 +85,20 @@ export interface contact extends BaseObject {
   note: string;
 }
 
-export interface shippingAddress extends BaseObject {
-  name: string;
-  phone: string;
-  country_id: number;
-  city: string;
-  city_id: number;
-  district: string;
-  district_id: number;
-  ward_id: number;
-  ward: string;
-  full_address: string;
-  default: boolean;
-  country: string;
-}
+// export interface shippingAddress extends BaseObject {
+//   name: string;
+//   phone: string;
+//   country_id: number;
+//   city: string;
+//   city_id: number;
+//   district: string;
+//   district_id: number;
+//   ward_id: number;
+//   ward: string;
+//   full_address: string;
+//   default: boolean;
+//   country: string;
+// }
 
 export interface billingAddress extends BaseObject {
   name: string;
