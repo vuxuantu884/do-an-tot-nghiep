@@ -4,7 +4,7 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import {
   CustomerResponse,
-  shippingAddress,
+  ShippingAddress,
 } from "model/response/customer/customer.response";
 import actionColumn from "../../../common/action.column";
 import { CustomerShippingAddress } from "model/request/customer.request";
@@ -37,7 +37,7 @@ function CustomerShippingAddressOrder(props: any) {
           _item.id,
           customer.id,
           _item,
-          (data: shippingAddress) => {
+          (data: ShippingAddress) => {
             //history.replace(`${UrlConfig.ORDER}/create`);
             if (data) {
               dispatch(
@@ -60,7 +60,7 @@ function CustomerShippingAddressOrder(props: any) {
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);
 
-  const shippingColumns: Array<ICustomTableColumType<shippingAddress>> = [
+  const shippingColumns: Array<ICustomTableColumType<ShippingAddress>> = [
     {
       title: "STT",
       dataIndex: "",
@@ -122,7 +122,7 @@ function CustomerShippingAddressOrder(props: any) {
       align: "center",
       visible: true,
       width: "10%",
-      render: (l: shippingAddress, item: any, index: number) => {
+      render: (l: ShippingAddress, item: any, index: number) => {
         return (
           <Checkbox
             checked={item.default}
@@ -142,7 +142,7 @@ function CustomerShippingAddressOrder(props: any) {
           pagination={false}
           dataSource={customer ? customer.shipping_addresses : []}
           columns={shippingColumnFinal()}
-          rowKey={(item: shippingAddress) => item.id}
+          rowKey={(item: ShippingAddress) => item.id}
           onRow={(record: CustomerShippingAddress) => {
             return {
               onClick: (event) => {

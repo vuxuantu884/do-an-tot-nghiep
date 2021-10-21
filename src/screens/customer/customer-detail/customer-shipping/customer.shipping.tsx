@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import UrlConfig from "config/url.config";
-import { shippingAddress } from "model/response/customer/customer.response";
+import { ShippingAddress } from "model/response/customer/customer.response";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import FormCustomerShippingAddress from "screens/customer/customer-detail/customer-shipping/shipping.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
@@ -79,7 +79,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
             _item.id,
             customer.id,
             _item,
-            (data: shippingAddress) => {
+            (data: ShippingAddress) => {
               gotoFirstPage(customer.id);
               if (data) {
                 showSuccess("Đặt mặc định thành công");
@@ -90,7 +90,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
           )
         );
     };
-    const shippingColumns: Array<ICustomTableColumType<shippingAddress>> = [
+    const shippingColumns: Array<ICustomTableColumType<ShippingAddress>> = [
       {
         title: "STT",
         dataIndex: "",
@@ -152,7 +152,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
         align: "center",
         visible: true,
         width: "10%",
-        render: (l: shippingAddress, item: any, index: number) => {
+        render: (l: ShippingAddress, item: any, index: number) => {
           return (
             <Checkbox
               checked={item.default}
@@ -181,7 +181,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
             CreateShippingAddress(
               customer.id,
               formValue,
-              (data: shippingAddress) => {
+              (data: ShippingAddress) => {
                 setIsShowModalShipping(false);
                 gotoFirstPage(customer.id);
                 data
@@ -200,7 +200,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
                 modalSingleShippingAddress.id,
                 customer.id,
                 formValue,
-                (data: shippingAddress) => {
+                (data: ShippingAddress) => {
                   setIsShowModalShipping(false);
                   gotoFirstPage(customer.id);
                   data
@@ -218,7 +218,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
               DeleteShippingAddress(
                 modalSingleShippingAddress.id,
                 customer.id,
-                (data: shippingAddress) => {
+                (data: ShippingAddress) => {
                   setIsShowModalShipping(false);
                   gotoFirstPage(customer.id);
                   data
@@ -255,7 +255,7 @@ const CustomerShippingAddressInfo: React.FC<CustomerShippingAddressInfoProps> =
             pagination={false}
             dataSource={customer ? customer.shipping_addresses.reverse() : []}
             columns={shippingColumnFinal()}
-            rowKey={(item: shippingAddress) => item.id}
+            rowKey={(item: ShippingAddress) => item.id}
             onRow={(record: CustomerShippingAddress) => {
               return {
                 onClick: (event) => {

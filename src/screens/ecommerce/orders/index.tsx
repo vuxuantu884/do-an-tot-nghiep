@@ -19,18 +19,14 @@ import {
   OrderPaymentModel,
   EcommerceOrderSearchQuery,
 } from "model/order/order.model";
-import {
-  AccountResponse,
-} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 
 import { getListOrderAction } from "domain/actions/order/order.action";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 
 import { PageResponse } from "model/base/base-metadata.response";
-import { SourceResponse } from "model/response/order/source.response";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
@@ -39,7 +35,9 @@ import {
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { MenuAction } from "component/table/ActionButton";
-import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
 import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
 import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
@@ -56,7 +54,10 @@ import ConnectIcon from "assets/icon/connect.svg";
 import SuccessIcon from "assets/icon/success.svg";
 import ErrorIcon from "assets/icon/error.svg";
 
-import { nameQuantityWidth, StyledComponent } from "screens/ecommerce/orders/orderStyles";
+import {
+  nameQuantityWidth,
+  StyledComponent,
+} from "screens/ecommerce/orders/orderStyles";
 
 const actions: Array<MenuAction> = [
   {
@@ -123,18 +124,20 @@ const EcommerceOrderSync: React.FC = () => {
   const dispatch = useDispatch();
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
-  const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] = useState(false);
-  const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
-  const [downloadedOrderData, setDownloadedOrderData] = useState<any>(
-    {
-      total: 0,
-      create_total: 0,
-      update_total: 0,
-    }
+  const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
+    useState(false);
+  const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] =
+    useState(false);
+  const [downloadedOrderData, setDownloadedOrderData] = useState<any>({
+    total: 0,
+    create_order_count: 0,
+    update_order_count: 0,
+  });
+
+  const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
+    []
   );
 
-  const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>([]);
-  
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -144,7 +147,6 @@ const EcommerceOrderSync: React.FC = () => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
@@ -207,11 +209,10 @@ const EcommerceOrderSync: React.FC = () => {
       default:
         return CircleEmptyIcon;
     }
-  }
-
+  };
 
   const convertDateTimeFormat = (dateTimeData: any) => {
-    const formatDateTime = "DD/MM/YYYY HH:mm"
+    const formatDateTime = "DD/MM/YYYY HH:mm";
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
@@ -225,15 +226,13 @@ const EcommerceOrderSync: React.FC = () => {
   const cancelUpdateConnectionModal = () => {
     setIsShowUpdateConnectionModal(false);
   };
-  
+
   const updateProductConnection = () => {
     setIsShowUpdateConnectionModal(false);
-    
+
     showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
     //thai todo: call API
   };
-  
-
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
@@ -245,9 +244,12 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: "3.2%",
+      width: "3.5%",
       render: (value: string, i: OrderModel) => (
-        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+        <div>
+          <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+          <div>({value})</div>
+        </div>
       ),
     },
     {
@@ -345,11 +347,11 @@ const EcommerceOrderSync: React.FC = () => {
       ),
     },
     {
-      title: "Phí ship trả sàn",
+      title: "Đối tác giao hàng",
       dataIndex: "fulfillments",
       key: "shipment_type",
       visible: true,
-      width: "3.5%",
+      width: "5%",
       align: "center",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
         const service_id =
@@ -364,7 +366,7 @@ const EcommerceOrderSync: React.FC = () => {
             <img
               src={service.logo ? service.logo : ""}
               alt=""
-              style={{ width: "100%"}}
+              style={{ width: "100%" }}
             />
           )
         );
@@ -376,7 +378,7 @@ const EcommerceOrderSync: React.FC = () => {
       key: "order_status",
       visible: true,
       align: "center",
-      width: "5.5%",
+      width: "4%",
       render: (status_value: string) => {
         const status = status_order.find(
           (status) => status.value === status_value
@@ -406,9 +408,7 @@ const EcommerceOrderSync: React.FC = () => {
       width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
-        return (
-          <img src={processIcon} alt="" />
-        );
+        return <img src={processIcon} alt="" />;
       },
     },
     {
@@ -420,9 +420,7 @@ const EcommerceOrderSync: React.FC = () => {
       width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
-        return (
-          <img src={processIcon} alt="" />
-        );
+        return <img src={processIcon} alt="" />;
       },
     },
     {
@@ -434,9 +432,7 @@ const EcommerceOrderSync: React.FC = () => {
       width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
-        return (
-          <img src={processIcon} alt="" />
-        );
+        return <img src={processIcon} alt="" />;
       },
     },
     {
@@ -448,9 +444,7 @@ const EcommerceOrderSync: React.FC = () => {
       width: 120,
       render: (value: string) => {
         const processIcon = convertProgressStatus(value);
-        return (
-          <img src={processIcon} alt="" />
-        );
+        return <img src={processIcon} alt="" />;
       },
     },
     {
@@ -516,9 +510,7 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
       align: "center",
       width: "200px",
-      render: (data) => (
-        <div>{`${data.assignee_code} - ${data.assignee}`}</div>
-      ),
+      render: (data) => <div>{`${data.assignee_code} - ${data.assignee}`}</div>,
     },
     {
       title: "Ngày nhận đơn",
@@ -560,22 +552,31 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
     },
     {
-      title: <Tooltip overlay="Tình trạng ghép nối của sản phẩm" placement="topRight" color="blue">
-                <img src={ConnectIcon} alt="" />
-              </Tooltip>,
+      title: (
+        <Tooltip
+          overlay="Tình trạng ghép nối của sản phẩm"
+          placement="topRight"
+          color="blue"
+        >
+          <img src={ConnectIcon} alt="" />
+        </Tooltip>
+      ),
       key: "connect_status",
       visible: true,
       width: 50,
       align: "center",
       render: (data) => {
         if (data.connect_status) {
-          return (
-            <img src={SuccessIcon} alt="" />
-          )
+          return <img src={SuccessIcon} alt="" />;
         } else {
           return (
-            <img src={ErrorIcon} alt="" onClick={() => handleUpdateProductConnection(data)} style={{ cursor: "pointer"}} />
-          )
+            <img
+              src={ErrorIcon}
+              alt=""
+              onClick={() => handleUpdateProductConnection(data)}
+              style={{ cursor: "pointer" }}
+            />
+          );
         }
       },
     },
@@ -602,6 +603,10 @@ const EcommerceOrderSync: React.FC = () => {
     },
     [params]
   );
+
+  const onClearFilter = useCallback(() => {
+    setPrams(initQuery);
+  }, []);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -645,7 +650,7 @@ const EcommerceOrderSync: React.FC = () => {
   // handle get order
   const openGetOrderModal = () => {
     setIsShowGetOrderModal(true);
-  }
+  };
 
   const cancelGetOrderModal = () => {
     setIsShowGetOrderModal(false);
@@ -654,30 +659,39 @@ const EcommerceOrderSync: React.FC = () => {
   const updateOrderList = (data: any) => {
     setIsShowGetOrderModal(false);
     setIsShowResultGetOrderModal(true);
-    setDownloadedOrderData(data);
-    
 
-    // thai need todo: call api
+    if (data && data.total) {
+      setDownloadedOrderData(data);
+    }
   };
 
-  const cancelResultGetOrderModal = () => {
+  const getEcommerceOrderList = useCallback((queryRequest: any) => {
+    setTableLoading(true);
+    dispatch(getListOrderAction(queryRequest, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
+  }, [dispatch, setSearchResult]);
+
+  const reloadPage = () => {
+    getEcommerceOrderList(params);
+  };
+
+  const closeResultGetOrderModal = () => {
     setIsShowResultGetOrderModal(false);
+    reloadPage();
   };
-
-  const okResultGetOrderModal = () => {
-    setIsShowResultGetOrderModal(false);
-  };
-
-
 
   useEffect(() => {
     setTableLoading(true);
-    dispatch(getListOrderAction(params, setSearchResult));
+    dispatch(getListOrderAction(params, (result) => {
+      setTableLoading(false);
+      setSearchResult(result);
+    }));
   }, [dispatch, params, setSearchResult]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
       actionFetchListOrderProcessingStatus(
@@ -726,8 +740,8 @@ const EcommerceOrderSync: React.FC = () => {
             onMenuClick={onMenuClick}
             actions={actions}
             onFilter={onFilter}
+            onClearFilter={() => onClearFilter()}
             params={params}
-            listSource={listSource}
             listStore={listStore}
             accounts={accounts}
             deliveryService={delivery_service}
@@ -741,14 +755,16 @@ const EcommerceOrderSync: React.FC = () => {
             showColumnSetting={true}
             scroll={{ x: 3630, y: 350 }}
             pagination={
-              tableLoading ? false : {
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }
+              tableLoading
+                ? false
+                : {
+                    pageSize: data.metadata.limit,
+                    total: data.metadata.total,
+                    current: data.metadata.page,
+                    showSizeChanger: true,
+                    onChange: onPageChange,
+                    onShowSizeChange: onPageChange,
+                  }
             }
             onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
             dataSource={data.items}
@@ -758,33 +774,33 @@ const EcommerceOrderSync: React.FC = () => {
           />
         </Card>
 
-        {isShowGetOrderModal &&
+        {isShowGetOrderModal && (
           <DownloadOrderDataModal
             visible={isShowGetOrderModal}
             onCancel={cancelGetOrderModal}
             onOk={updateOrderList}
           />
-        }
+        )}
 
-        {isShowResultGetOrderModal &&
+        {isShowResultGetOrderModal && (
           <ResultDownloadOrderDataModal
             visible={isShowResultGetOrderModal}
-            onCancel={cancelResultGetOrderModal}
-            onOk={okResultGetOrderModal}
+            onCancel={closeResultGetOrderModal}
+            onOk={closeResultGetOrderModal}
             data={downloadedOrderData}
           />
-        }
-        
-        {isShowUpdateConnectionModal &&
+        )}
+
+        {isShowUpdateConnectionModal && (
           <UpdateConnectionModal
             visible={isShowUpdateConnectionModal}
             onCancel={cancelUpdateConnectionModal}
             onOk={updateProductConnection}
             data={updateConnectionData}
           />
-        }
+        )}
 
-        {showSettingColumn &&
+        {showSettingColumn && (
           <ModalSettingColumn
             visible={showSettingColumn}
             isSetDefaultColumn={true}
@@ -795,7 +811,7 @@ const EcommerceOrderSync: React.FC = () => {
             }}
             data={columns}
           />
-        }
+        )}
       </ContentContainer>
     </StyledComponent>
   );

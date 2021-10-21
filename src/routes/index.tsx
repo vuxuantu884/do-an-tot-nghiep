@@ -9,6 +9,12 @@ import extra from "./menu/extra";
 import routesNotShowInMenu from "./list-routes-not-show-in-menu";
 
 const  NotFoundScreen = React.lazy(() => import ('screens/notfound.screen'));
+/**
+ * route dạng /:id cần phải để phía sau tránh bị ghi đè
+ * VD: có products/:id và products/variants 
+ * nếu để products/:id trước thì products/variants sẽ không được match 
+ */
+const childRoute : Array<RouteMenu> = []; 
 
 const listMenu = () => {
   let list: Array<RouteMenu> = [];
@@ -36,8 +42,12 @@ const getAllRoute = (route: RouteMenu) => {
       temps = [...temps, ...menu]
     })
   }
-  if(route.isShow) {
-    temps.push(route);
+  if (route.isShow) {
+    if (route.path.includes(":")) {
+      childRoute.push(route);
+    } else {
+      temps.push(route);
+    }
   }
   return temps;
 }
@@ -57,6 +67,11 @@ const MainRoute = () => {
       }
       {
         listExtraMenu().map((item: RouteMenu) => (
+          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title}  permissions={item.permissions}/>
+        ))
+      }
+      {
+        childRoute.map((item: RouteMenu) => (
           <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title}  permissions={item.permissions}/>
         ))
       }

@@ -1,7 +1,7 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { PostProductEcommerceQuery } from "model/query/ecommerce.query";
+import { PostEcommerceOrderQuery, PostProductEcommerceQuery } from "model/query/ecommerce.query";
 import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { generateQuery } from 'utils/AppUtils';
@@ -97,6 +97,12 @@ const ecommercePutConnectItemApi = (requestBody: any) => {
   return BaseAxios.put(link, requestBody);
 };
 
+//ecommerce order api
+const postEcommerceOrderApi = (requestBody: PostEcommerceOrderQuery): Promise<BaseResponse<any>> => {
+  let link = `${ApiConfig.ECOMMERCE}/orders`;
+  return BaseAxios.post(link, requestBody);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
@@ -112,5 +118,6 @@ export {
   ecommerceDisconnectItemApi,
   ecommercePostSyncStockItemApi,
   ecommerceGetCategoryListApi,
-  ecommercePutConnectItemApi
+  ecommercePutConnectItemApi,
+  postEcommerceOrderApi
 };

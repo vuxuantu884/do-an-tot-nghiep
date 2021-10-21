@@ -11,6 +11,7 @@ import {
   Space,
   Dropdown,
   Menu,
+  Select
 } from "antd";
 
 import {
@@ -33,6 +34,7 @@ import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import { MenuAction } from "component/table/ActionButton";
 
+const { Option } = Select;
 const { Panel } = Collapse;
 type PackFilterProps = {
   params: OrderSearchQuery;
@@ -315,62 +317,9 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
 
   const onFinish = useCallback(
     (values) => {
-      if (values?.price_min > values?.price_max) {
-        values = {
-          ...values,
-          price_min: values?.price_max,
-          price_max: values?.price_min,
-        };
-      }
-      console.log("values filter 2", values);
-      const valuesForm = {
-        ...values,
-        issued_on_min: issuedOnMin
-          ? moment(issuedOnMin, "DD-MM-YYYY")?.format("DD-MM-YYYY")
-          : null,
-        issued_on_max: issuedOnMax
-          ? moment(issuedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        finalized_on_min: finalizedOnMin
-          ? moment(finalizedOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        finalized_on_max: finalizedOnMax
-          ? moment(finalizedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        completed_on_min: completedOnMin
-          ? moment(completedOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        completed_on_max: completedOnMax
-          ? moment(completedOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        cancelled_on_min: cancelledOnMin
-          ? moment(cancelledOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        cancelled_on_max: cancelledOnMax
-          ? moment(cancelledOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        expected_receive_on_min: expectedReceiveOnMin
-          ? moment(expectedReceiveOnMin, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        expected_receive_on_max: expectedReceiveOnMax
-          ? moment(expectedReceiveOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-      };
-      onFilter && onFilter(valuesForm);
+      
     },
-    [
-      cancelledOnMax,
-      cancelledOnMin,
-      completedOnMax,
-      completedOnMin,
-      expectedReceiveOnMax,
-      expectedReceiveOnMin,
-      issuedOnMax,
-      issuedOnMin,
-      onFilter,
-      finalizedOnMax,
-      finalizedOnMin,
-    ]
+    []
   );
 
   let filters = useMemo(() => {
@@ -488,6 +437,84 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
             initialValues={params}
             layout="vertical"
           >
+             <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel header="Hãng vận chuyển" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn hãng vận chuyển"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))} */}
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel header="Loại" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn Loại"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))} */}
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+
+              <Row gutter={12} style={{marginTop: '10px'}}>
+                <Col span={24}>
+                  <Collapse>
+                    <Panel header="Kiểu biên bản" key="1" className="header-filter">
+                      {/* <Item name="order_status"> */}
+                      <Item>
+                        <Select
+                          mode="multiple"
+                          showSearch placeholder="Chọn Kiểu biên bản"
+                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                          getPopupContainer={trigger => trigger.parentNode}
+                        >
+                          {/* {status?.map((item) => (
+                            <Option key={item.value} value={item.value.toString()}>
+                              {item.name}
+                            </Option>
+                          ))} */}
+                          <Option value="jack">Jack</Option>
+                          <Option value="lucy">Lucy</Option>
+                        </Select>
+                      </Item>
+                    </Panel>
+                  </Collapse>
+                </Col>
+              </Row>
+
             <Row gutter={12} style={{ marginTop: "10px" }}>
               <Col span={24}>
                 <Collapse

@@ -172,56 +172,62 @@ export const DeliveryServicesGetList = (
 };
 
 export const getDeliveryMappedStoresAction = (
-  providerCode: string,
+  id: number,
   handleData: (data: Array<DeliveryMappedStoreType>) => void
 ) => {
   return {
     type: OrderType.GET_MAPPED_STORES,
     payload: {
-      providerCode,
+      id,
       handleData,
     },
   };
 };
 
 export const createDeliveryMappedStoreAction = (
-  providerCode: string,
-  params: createDeliveryMappedStoreReQuestModel,
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
+  token: string,
   handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.CREATE_MAPPED_STORE,
     payload: {
-      providerCode,
-      params,
+      idDelivery,
+      shop_id,
+      store_id,
+      token,
       handleData,
     },
   };
 };
 
 export const deleteDeliveryMappedStoreAction = (
-  providerCode: string,
-  params: deleteDeliveryMappedStoreReQuestModel,
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
   handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.DELETE_MAPPED_STORE,
     payload: {
-      providerCode,
-      params,
+      idDelivery,
+      shop_id,
+      store_id,
       handleData,
     },
   };
 };
 
 export const getDeliveryTransportTypesAction = (
-  providerCode: string,
+  id: number,
   handleData: (data: Array<DeliveryTransportTypesResponse>) => void
 ) => {
   return {
     type: OrderType.GET_TRANSPORT_TYPES,
     payload: {
-      providerCode,
+      id,
       handleData,
     },
   };

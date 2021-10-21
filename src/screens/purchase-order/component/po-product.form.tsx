@@ -52,6 +52,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain, isEdit } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
+  const [loadingSearch, setLoadingSearch] = useState(false);
   // const product_units = useSelector(
   //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   // );
@@ -72,6 +73,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   }, [data]);
   const onResultSearch = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
+      setLoadingSearch(false);
       if (!result) {
         setData([]);
       } else {
@@ -540,6 +542,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const onSearch = useCallback(
     (value: string) => {
       if (value.trim() !== "" && value.length >= 3) {
+        setLoadingSearch(true);
         dispatch(
           searchVariantsRequestAction(
             {
@@ -633,6 +636,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 status === POStatus.DRAFT && (
                   <Input.Group className="display-flex">
                     <CustomAutoComplete
+                      loading={loadingSearch}
                       id="#product_search"
                       dropdownClassName="product"
                       placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
