@@ -74,6 +74,7 @@ const InventoryScreen = React.lazy(
 );
 
 const product: Array<RouteMenu> = [
+
   {
     path: UrlConfig.PRODUCT,
     exact: true,
@@ -155,10 +156,8 @@ const product: Array<RouteMenu> = [
       },
     ],
   },
-  
-
   {
-    path: UrlConfig.INVENTORY,
+    path: `${UrlConfig.INVENTORY}`,
     exact: true,
     title: "Danh sách tồn",
     icon: "icon-dot",

@@ -300,9 +300,10 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     
   return (
     <InventoryFiltersWrapper>
-      <div className="order-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
+      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+        <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
+          <Row gutter={20} className="row-filter">
+          <Col flex="200px">
             <Item
               name="from_store_id"
               className="select-item"
@@ -328,6 +329,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                   ))}
               </Select>
             </Item>
+          </Col>
+          <Col flex="200px">
             <Item
               name="to_store_id"
               className="select-item"
@@ -354,6 +357,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                   ))}
               </Select>
             </Item >
+          </Col>
+          <Col flex="auto">
             <Item name="condition" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -365,119 +370,125 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 }}
               />
             </Item>
-            
+          </Col>
+          <Col flex="80px">
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">
                 Lọc
               </Button>
             </Item>
+          </Col>
+          <Col flex="180px">
             <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
+          </Col>
+          <Col flex="60px">
             <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
-          </Form>
-        </CustomFilter>
+          </Col>
+          </Row>
+        </Form>
+      </CustomFilter>
 
-        <BaseFilter
-          onClearFilter={onClearFilterClick}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
-          visible={visible}
-          className="order-filter-drawer"
-          width={500}
+      <BaseFilter
+        onClearFilter={onClearFilterClick}
+        onFilter={onFilterClick}
+        onCancel={onCancelFilter}
+        visible={visible}
+        className="order-filter-drawer"
+        width={500}
+      >
+        {visible && <Form
+          onFinish={onFinish}
+          ref={formRef}
+          initialValues={params}
+          layout="vertical"
         >
-          {visible && <Form
-            onFinish={onFinish}
-            ref={formRef}
-            initialValues={params}
-            layout="vertical"
-          >
-            <BaseFilterWrapper>
-              <Row gutter={12} style={{marginTop: '10px'}}>
-                <Col span={24}>
-                  <Collapse defaultActiveKey={initialValues.updated_by.length ? ["1"]: []}>
-                    <Panel header="Người sửa" key="1" className="header-filter">
-                      <Item name="updated_by">
-                        <Select
-                          mode="multiple" showSearch placeholder="Chọn người sửa"
-                          notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                          optionFilterProp="children"
-                          getPopupContainer={trigger => trigger.parentNode}
-                        >
-                          {accounts.map((item, index) => (
-                            <Option
-                              style={{ width: "100%" }}
-                              key={index.toString()}
-                              value={item.code.toString()}
-                            >
-                              {`${item.full_name} - ${item.code}`}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Item>
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
-              <Row gutter={12} style={{marginTop: '10px'}}>
-                <Col span={24}>
-                  <Collapse defaultActiveKey={initialValues.action.length ? ["1"]: []}>
-                    <Panel header="Thao tác" key="1" className="header-filter">
-                      <Item name="status" style={{ margin: "10px 0px" }}>
-                        <CustomSelect
-                          mode="multiple"
-                          style={{ width: '100%'}}
-                          showArrow
-                          placeholder="Chọn thao tác"
-                          notFoundContent="Không tìm thấy kết quả"
-                          optionFilterProp="children"
-                          getPopupContainer={trigger => trigger.parentNode}
-                        >
-                          {ACTIONS_STATUS_ARRAY.map((item, index) => (
-                            <CustomSelect.Option
-                              style={{ width: "100%" }}
-                              key={index.toString()}
-                              value={item.value}
-                            >
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
-                    </Panel>
-                    
-                  </Collapse>
-                </Col>
-              </Row>
-              <Row gutter={12} style={{marginTop: '10px'}}>
-                <Col span={24}>
-                  <Collapse defaultActiveKey={initialValues.from_created_date && initialValues.to_created_date ? ["1"]: []}>
-                    <Panel header="Ngày tạo" key="1" className="header-filter">
-                      <div className="date-option">
-                        <Button onClick={() => clickOptionDate('create_date', 'yesterday')} className={createDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                        <Button onClick={() => clickOptionDate('create_date', 'today')} className={createDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                        <Button onClick={() => clickOptionDate('create_date', 'thisweek')} className={createDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                      </div>
-                      <div className="date-option">
-                        <Button onClick={() => clickOptionDate('create_date', 'lastweek')} className={createDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                        <Button onClick={() => clickOptionDate('create_date', 'thismonth')} className={createDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                        <Button onClick={() => clickOptionDate('create_date', 'lastmonth')} className={createDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                      </div>
-                      <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                      <DatePicker.RangePicker
-                        format="DD-MM-YYYY"
-                        style={{width: "100%"}}
-                        value={[isFromCreatedDate? moment(isFromCreatedDate, "DD-MM-YYYY") : null, isToCreatedDate? moment(isToCreatedDate, "DD-MM-YYYY") : null]}
-                        onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'create_date')}
-                      />
-                    </Panel>
-                  </Collapse>
-                </Col>
-              </Row>
-            </BaseFilterWrapper>
-          </Form>}
-        </BaseFilter>
-      </div>
+          <BaseFilterWrapper>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.updated_by.length ? ["1"]: []}>
+                  <Panel header="Người sửa" key="1" className="header-filter">
+                    <Item name="updated_by">
+                      <Select
+                        mode="multiple" showSearch placeholder="Chọn người sửa"
+                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                        optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {accounts.map((item, index) => (
+                          <Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.code.toString()}
+                          >
+                            {`${item.full_name} - ${item.code}`}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.action.length ? ["1"]: []}>
+                  <Panel header="Thao tác" key="1" className="header-filter">
+                    <Item name="status" style={{ margin: "10px 0px" }}>
+                      <CustomSelect
+                        mode="multiple"
+                        style={{ width: '100%'}}
+                        showArrow
+                        placeholder="Chọn thao tác"
+                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
+                        {ACTIONS_STATUS_ARRAY.map((item, index) => (
+                          <CustomSelect.Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Panel>
+                  
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.from_created_date && initialValues.to_created_date ? ["1"]: []}>
+                  <Panel header="Ngày tạo" key="1" className="header-filter">
+                    <div className="date-option">
+                      <Button onClick={() => clickOptionDate('create_date', 'yesterday')} className={createDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('create_date', 'today')} className={createDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('create_date', 'thisweek')} className={createDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                    </div>
+                    <div className="date-option">
+                      <Button onClick={() => clickOptionDate('create_date', 'lastweek')} className={createDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('create_date', 'thismonth')} className={createDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('create_date', 'lastmonth')} className={createDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                    </div>
+                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
+                    <DatePicker.RangePicker
+                      format="DD-MM-YYYY"
+                      style={{width: "100%"}}
+                      value={[isFromCreatedDate? moment(isFromCreatedDate, "DD-MM-YYYY") : null, isToCreatedDate? moment(isToCreatedDate, "DD-MM-YYYY") : null]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'create_date')}
+                    />
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+          </BaseFilterWrapper>
+        </Form>}
+      </BaseFilter>
       <div className="order-filter-tags">
         {filters && filters.map((filter: any, index) => {
           return (

@@ -3,7 +3,8 @@ import UrlConfig from "config/url.config";
 import { POSearchProcurement } from "domain/actions/po/po-procument.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
-  PurchaseProcument
+  PurchaseProcument,
+  PurchaseProcumentLineItem
 } from "model/purchase-order/purchase-procument";
 import querystring from "querystring";
 import { useEffect, useState } from "react";
@@ -109,6 +110,11 @@ const TabList: React.FC = () => {
             render: (value, record, index) => value,
           },
           {
+            title: "Merchandiser",
+            dataIndex: "purchase_order",
+            render : (value)=> value?.merchandiser
+          },
+          {
             title: "Trạng thái",
             dataIndex: "status",
             render: (status: string) => {
@@ -127,7 +133,7 @@ const TabList: React.FC = () => {
                     </div>
                   )}
 
-                  {status === ProcurementStatus.confirmed && (
+                  {status === ProcurementStatus.not_received && (
                     <div
                       style={{
                         background: "rgba(42, 42, 134, 0.1)",
@@ -161,6 +167,38 @@ const TabList: React.FC = () => {
             title: "Đã hủy",
             dataIndex: "is_cancelled",
             render: (value, record, index) => (value ? "Đã hủy" : ""),
+          },
+          {
+            title: "SL được duyệt",
+            align: "center",
+            dataIndex: "procurement_items",
+            render: (value, record: PurchaseProcument, index) => {
+              if (record.status === ProcurementStatus.not_received) {
+                let totalConfirmQuantity = 0;
+                value.forEach((item: PurchaseProcumentLineItem) => {
+                  totalConfirmQuantity += item.quantity;
+                });
+                return totalConfirmQuantity;
+              }
+            },
+          },
+          {
+            title: "SL thực nhận",
+            align: "center",
+            dataIndex: "procurement_items",
+            render: (value, record, index) => {
+              let totalRealQuantity = 0;
+              value.forEach((item: PurchaseProcumentLineItem) => {
+                totalRealQuantity += item.real_quantity;
+              });
+              return totalRealQuantity;
+            },
+          },
+          {
+            title: "Ngày tạo",
+            align: "center",
+            dataIndex: "created_date",
+            render: (value) => ConvertUtcToLocalDate(value),
           },
         ]}
         rowKey={(item) => item.id}

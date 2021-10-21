@@ -24,7 +24,7 @@ export const ProcurementStatusStyle = styled.div`
   display: flex;
   justify-content: center;
   column-gap: 20px;
-  .active {
+  .active, .ant-btn:hover{   
     color: #ffffff;
     background-color: #2a2a86;
     border-color: #2a2a86;
