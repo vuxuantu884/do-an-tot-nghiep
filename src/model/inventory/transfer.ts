@@ -197,7 +197,7 @@ export interface InventoryTransferDetailItem {
   store_transfer: Store;
   store_receive: Store;
   line_items: Array<LineItem>;
-  shipment: Array<ShipmentItem>;
+  shipment: ShipmentItem;
   exception_items: [];
 };
 
@@ -245,4 +245,21 @@ export interface InventoryTransferShipmentRequest {
   who_paid: string | null,
   expected_delivery_time: string | null,
   office_time:boolean | null,
+}
+
+export interface TransportTypeRS {
+  code:	string,
+  external_service_code:	string,
+  name:	string,
+  description:	string,
+  active: boolean,
+}
+export interface LogisticGateAwayResponse {
+  id:	number,
+  code:	string,
+  external_service_code:	string,
+  logo:	string,
+  name:	string,
+  active:	boolean,
+  transport_types: Array<TransportTypeRS>
 }

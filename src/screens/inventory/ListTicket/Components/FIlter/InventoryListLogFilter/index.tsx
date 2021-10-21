@@ -264,6 +264,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     let list = []
     if (initialValues.action.length) {
       let textAction = ""
+        
       initialValues.action.forEach(actionValue => {
         const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
         textAction = status ? textAction + status.name + ";" : textAction
@@ -362,7 +363,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
             <Item name="condition" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+                placeholder="Tìm kiếm theo ID phiếu, tên sản phẩm"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     condition: e.target.value.trim()
@@ -435,7 +436,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.action.length ? ["1"]: []}>
                   <Panel header="Thao tác" key="1" className="header-filter">
-                    <Item name="status" style={{ margin: "10px 0px" }}>
+                    <Item name="action" style={{ margin: "10px 0px" }}>
                       <CustomSelect
                         mode="multiple"
                         style={{ width: '100%'}}
@@ -464,7 +465,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.from_created_date && initialValues.to_created_date ? ["1"]: []}>
-                  <Panel header="Ngày tạo" key="1" className="header-filter">
+                  <Panel header="Thời gian" key="1" className="header-filter">
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('create_date', 'yesterday')} className={createDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('create_date', 'today')} className={createDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>

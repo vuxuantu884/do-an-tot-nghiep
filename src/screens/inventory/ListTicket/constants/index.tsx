@@ -5,7 +5,7 @@ export const STATUS_INVENTORY_TRANSFER = {
     name: "Chờ chuyển"
   },
   TRANSFERRING : {
-    status: "transfering",
+    status: "transferring",
     name: "Đang chuyển"
   },
   PENDING : {
@@ -16,6 +16,10 @@ export const STATUS_INVENTORY_TRANSFER = {
     status: "received",
     name: "Đã nhập"
   },
+  CANCELED : {
+    status: "canceled",
+    name: "Đã huỷ"
+  },
 }
 
 export const STATUS_INVENTORY_TRANSFER_ARRAY = [
@@ -24,7 +28,7 @@ export const STATUS_INVENTORY_TRANSFER_ARRAY = [
     name: "Chờ chuyển"
   },
   {
-    value: "transfering",
+    value: "transferring",
     name: "Đang chuyển"
   },
   {
@@ -34,6 +38,10 @@ export const STATUS_INVENTORY_TRANSFER_ARRAY = [
   {
     value: "received",
     name: "Đã nhập"
+  },
+  {
+    value: "canceled",
+    name: "Đã huỷ"
   },
 
 ]

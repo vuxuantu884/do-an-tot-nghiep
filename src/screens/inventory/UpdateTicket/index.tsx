@@ -31,6 +31,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import { useDispatch } from "react-redux";
 import {
@@ -88,7 +89,10 @@ const UpdateTicket: FC = () => {
   const [fromStoreData, setFormStoreData] = useState<Store>();
   const [toStoreData, setToStoreData] = useState<Store>();
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
+  
 
+  const [isVisibleModalWarning, setIsVisibleModalWarning] =
+    useState<boolean>(false);
   const [initDataForm, setInitDataForm] =
     useState<InventoryTransferDetailItem | null>(null);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
@@ -872,7 +876,12 @@ const UpdateTicket: FC = () => {
               </Col>
             </Row>
             <BottomBarContainer
-              back="Quay lại danh sách"
+              leftComponent = {
+                <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
+                  <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                  {"Quay lại danh sách"}
+                </div>
+              }
               rightComponent={
                 <Space>
                   <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>
@@ -909,6 +918,20 @@ const UpdateTicket: FC = () => {
             okText="Đồng ý"
             cancelText="Thoát"
             title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${initDataForm?.code}`}
+          />
+        }
+        {
+          isVisibleModalWarning && 
+          <ModalConfirm
+            onCancel={() => {
+              setIsVisibleModalWarning(false);
+            }}
+            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}/${id}`)}
+            okText="Đồng ý"
+            cancelText="Tiếp tục"
+            title={`Bạn có muốn rời khỏi trang?`}
+            subTitle="Thông tin trên trang này sẽ không được lưu."
+            visible={isVisibleModalWarning}
           />
         }
       </ContentContainer>

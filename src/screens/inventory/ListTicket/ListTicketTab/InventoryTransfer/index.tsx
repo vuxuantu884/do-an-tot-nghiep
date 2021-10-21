@@ -162,6 +162,10 @@ const InventoryTransferTab: React.FC = () => {
             textTag = STATUS_INVENTORY_TRANSFER.RECEIVED.name;
             classTag = STATUS_INVENTORY_TRANSFER.RECEIVED.status;
             break;
+          case STATUS_INVENTORY_TRANSFER.CANCELED.status:
+            textTag = STATUS_INVENTORY_TRANSFER.CANCELED.name;
+            classTag = STATUS_INVENTORY_TRANSFER.CANCELED.status;
+            break;
           default:
             textTag = STATUS_INVENTORY_TRANSFER.CONFIRM.name;
             classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
@@ -417,7 +421,7 @@ const InventoryTransferTab: React.FC = () => {
       {
         isModalVisibleNote && (
           <Modal
-            title={itemData?.code}
+            title={`Sửa ghi chú ${itemData?.code}`}
             visible={isModalVisibleNote}
             onOk={() => {
               formNote.submit();
@@ -464,7 +468,7 @@ const InventoryTransferTab: React.FC = () => {
                   dispatch(updateInventoryTransferAction(itemData.id, data, (result) => {
                     setItemData(undefined);
                     if(result)
-                      showSuccess('Update thành công')
+                      showSuccess(`Update ${itemData?.code} thành công`)
                       dispatch(getListInventoryTransferAction(params, setSearchResult));
                   }));
                 }
@@ -477,6 +481,7 @@ const InventoryTransferTab: React.FC = () => {
               <Form.Item
               >
                 <TextArea
+                  maxLength={250}
                   onChange={(e) => {
                     formNote.setFieldsValue({note: e.target.value})
                   }}
