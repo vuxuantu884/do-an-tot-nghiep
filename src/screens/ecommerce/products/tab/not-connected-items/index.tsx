@@ -163,17 +163,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   };
 
   const RenderProductColumn = (
-    item: any,
+    ecommerceItem: any,
     copyConnectItemList: any,
     updateConnectItemList: any
   ) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
-    const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
-      useState(false);
+    const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
+    const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
 
+
+    // handle save connect Yody product
     const saveConnectYodyProduct = (itemId: any) => {
       const newConnectItemList =
         copyConnectItemList &&
@@ -182,7 +184,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         });
 
       const connectProductSelected = {
-        id: item.id,
+        id: ecommerceItem.id,
         core_variant_id: productSelected.id,
         core_sku: productSelected.sku,
         core_variant: productSelected.name,
@@ -209,6 +211,23 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       );
     };
 
+    const handleSaveConnectYodyProduct = () => {
+      if (ecommerceItem?.ecommerce_price === productSelected?.retail_price) {
+        saveConnectYodyProduct(productSelected.id);
+      } else {
+        setIsVisibleConfirmConnectModal(true);
+      }
+    };
+
+    const okConfirmConnectModal = () => {
+      saveConnectYodyProduct(productSelected?.id);
+      setIsVisibleConfirmConnectModal(false);
+    };
+
+    const cancelConfirmConnectModal = () => {
+      setIsVisibleConfirmConnectModal(false);
+    };
+
     const cancelConnectYodyProduct = (itemId: any) => {
       const newConnectItemList =
         copyConnectItemList &&
@@ -219,6 +238,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       updateConnectItemList(newConnectItemList);
       setProductSelected(null);
     };
+
+    // end handle save connect Yody product
 
     const onInputSearchProductFocus = () => {
       setIsInputSearchProductFocus(true);
@@ -280,7 +301,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       setProductSelected(productSelectedData);
 
       const connectItem = {
-        id: item.id,
+        id: ecommerceItem.id,
         core_variant_id: productSelectedData.id,
         core_sku: productSelectedData.sku,
         core_variant: productSelectedData.name,
@@ -419,7 +440,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <div className="button">
               <Button
                 type="primary"
-                onClick={() => saveConnectYodyProduct(productSelected.id)}
+                onClick={handleSaveConnectYodyProduct}
               >
                 Lưu
               </Button>
@@ -432,6 +453,21 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </div>
           </div>
         )}
+
+        <Modal
+          width="600px"
+          visible={isVisibleConfirmConnectModal}
+          title="Xác nhận ghép nối sản phẩm"
+          okText="Đồng ý"
+          cancelText="Hủy"
+          onCancel={cancelConfirmConnectModal}
+          onOk={okConfirmConnectModal}
+        >
+          <div>
+            <div>Giá bán sàn và giá bán Yody đang chênh lệch.</div>
+            <div>Bạn có chắc chắn muốn ghép nối sản phẩm không?</div>
+          </div>
+        </Modal>
       </StyledYodyProductColumn>
     );
   };
