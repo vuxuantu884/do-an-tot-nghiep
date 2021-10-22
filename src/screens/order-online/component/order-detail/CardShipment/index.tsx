@@ -14,34 +14,19 @@ import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
-import {
-  // DeliveryServicesGetList,
-  getFeesAction,
-} from "domain/actions/order/order.action";
+import { getFeesAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
+import { OrderLineItemRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import {
-  // DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderResponse,
-  StoreCustomResponse,
-} from "model/response/order/order.response";
+import { StoreCustomResponse } from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {
-  useContext,
-  // useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption } from "utils/Constants";
@@ -53,25 +38,50 @@ import { StyledComponent } from "./styles";
 type CardShipmentProps = {
   shipmentMethod: number;
   orderPrice: number;
-  storeDetail?: StoreCustomResponse | null;
+  storeDetail: StoreCustomResponse | undefined;
   customer: CustomerResponse | null;
-  items?: Array<OrderLineItemRequest>;
+  items: Array<OrderLineItemRequest>;
   levelOrder?: number;
   updateOrder?: boolean;
   isCancelValidateDelivery: boolean;
   totalAmountCustomerNeedToPay?: number;
-  serviceType?: string | null;
+  serviceType3PL: string | undefined;
+  form: FormInstance<any>;
+  setServiceType3PL: (value: string | undefined) => void;
   setShipmentMethod: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number | null) => void;
   setHVC: (value: number) => void;
-  form: FormInstance<any>;
 };
 
+/**
+ * isCancelValidateDelivery: ko validate khi tạo đơn nháp
+ *
+ * shipmentMethod: truyền giá trị mặc định
+ *
+ * orderPrice: giá trị đơn hàng, để tính phí ship hãng vận chuyển, khi apply cấu hình đơn hàng
+ *
+ * items: hàng hóa trong đơn hàng, để tính phí ship
+ *
+ * totalAmountCustomerNeedToPay: tổng số tiền thu hộ - bằng số tiền khách cần trả
+ *
+ * serviceType3PL: loại dịch vụ hãng vận chuyển
+ *
+ * setServiceType3PL: xử lý khi chọn loại dịch vụ hãng vận chuyển
+ *
+ * setShipmentMethod: xử lý khi chọn loại shipment
+ *
+ * setShippingFeeInformedToCustomer: xử lý khi điền phí ship báo khách
+ *
+ * setHVC: xử lý khi chọn hãng vận chuyển
+ *
+ * form
+ *
+ * customer: thông tin khách hàng - tính phí ship
+ *
+ * storeDetail: thông tin cửa hàng - tính phí ship
+ */
 const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => {
   const {
-    setHVC,
-    setShipmentMethod,
-    setShippingFeeInformedToCustomer,
     customer,
     storeDetail,
     items,
@@ -80,9 +90,13 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     levelOrder = 0,
     updateOrder,
     totalAmountCustomerNeedToPay = 0,
-    serviceType,
+    serviceType3PL,
     form,
     isCancelValidateDelivery,
+    setHVC,
+    setShipmentMethod,
+    setShippingFeeInformedToCustomer,
+    setServiceType3PL,
   } = props;
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -108,8 +122,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     fee: number,
     name: string
   ) => {
-    console.log("changeServiceType", item);
-
+    setServiceType3PL(code);
     setHVC(id);
   };
 
@@ -325,7 +338,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
                 totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                serviceType={serviceType}
+                serviceType3PL={serviceType3PL}
                 shippingServiceConfig={shippingServiceConfig}
                 changeServiceType={changeServiceType}
                 setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}

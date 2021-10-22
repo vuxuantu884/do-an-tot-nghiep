@@ -1437,7 +1437,7 @@ export default function Order(props: PropType) {
                       </div> */}
                       </Card>
                     )}
-                  {(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
+                  {/* {(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
                     (!(
                       OrderDetail?.fulfillments?.length &&
                       OrderDetail.fulfillments[0].shipment?.cod
@@ -1460,7 +1460,7 @@ export default function Order(props: PropType) {
                         loyaltyRate={loyaltyRate}
                         isDisablePostPayment={isDisablePostPayment}
                       />
-                    )}
+                    )} */}
                   {/* {!fulfillments.length && (
                     <CardShipment
                       setShipmentMethodProps={onShipmentSelect}

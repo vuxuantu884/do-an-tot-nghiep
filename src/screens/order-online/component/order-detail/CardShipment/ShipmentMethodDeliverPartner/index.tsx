@@ -4,18 +4,11 @@ import LogoGHN from "assets/img/LogoGHN.svg";
 import LogoGHTK from "assets/img/LogoGHTK.svg";
 import LogoVTP from "assets/img/LogoVTP.svg";
 import NumberInput from "component/custom/number-input.custom";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
-import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import {
-  FeesResponse,
-  // DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderResponse,
-} from "model/response/order/order.response";
+import { FeesResponse } from "model/response/order/order.response";
 import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
@@ -23,8 +16,14 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   totalAmountCustomerNeedToPay: number | undefined;
-  serviceType?: string | null;
+  serviceType3PL?: string | null;
   shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
+  infoFees: FeesResponse[];
+  addressError: string;
+  levelOrder?: number;
+  orderPrice: number;
+  customer: CustomerResponse | null;
+  form: FormInstance<any>;
   changeServiceType: (
     id: number,
     code: string,
@@ -33,27 +32,16 @@ type PropType = {
     name: string
   ) => void;
   setShippingFeeInformedToCustomer: (value: number | null) => void;
-  infoFees: FeesResponse[];
-  addressError: string;
-  levelOrder?: number;
-  orderPrice: number;
-  customer: CustomerResponse | null;
-  form: FormInstance<any>;
 };
 
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
     totalAmountCustomerNeedToPay,
     shippingServiceConfig,
-    // OrderDetail,
-    // payments,
     setShippingFeeInformedToCustomer,
-    // deliveryServices,
     infoFees,
-    serviceType,
+    serviceType3PL,
     changeServiceType,
-    // fulfillments,
-    // isCloneOrder,
     addressError,
     levelOrder = 0,
     orderPrice,
@@ -63,7 +51,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   console.log("propsShipmentmethod", props);
 
-  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType3PL);
 
   // const totalAmountPaid = () => {
   //   let total = 0;
@@ -337,11 +325,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                               </td>
                               <td style={{ padding: 0 }}>
                                 {(sercivesFee as any)[deliveryServiceName].map(
-                                  (service: any) => {
+                                  (service: any, index: number) => {
                                     return (
                                       <div
                                         style={{ padding: "8px 16px" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        key={index}
                                       >
                                         <label className="radio-container">
                                           <input
@@ -396,9 +385,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                               </td>
                               <td style={{ padding: 0, textAlign: "right" }}>
                                 {(sercivesFee as any)[deliveryServiceName].map(
-                                  (service: any) => {
+                                  (service: any, index: number) => {
                                     return (
-                                      <>
+                                      <React.Fragment key={index}>
                                         <div
                                           style={{ padding: "8px 16px" }}
                                           className="custom-table__has-border-bottom custom-table__has-select-radio"
@@ -411,7 +400,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             thousandSeparator={true}
                                           />
                                         </div>
-                                      </>
+                                      </React.Fragment>
                                     );
                                   }
                                 )}

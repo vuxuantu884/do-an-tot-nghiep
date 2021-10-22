@@ -113,12 +113,8 @@ export default function Order() {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
   >(0);
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
-    null
-  );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
@@ -126,7 +122,7 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [serviceType, setServiceType] = useState<string>();
+  const [serviceType3PL, setServiceType3PL] = useState<string>();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [listOrderConfigs, setListOrderConfigs] =
     useState<OrderConfigResponseModel | null>(null);
@@ -182,9 +178,9 @@ export default function Order() {
     setPaymentMethod(value);
   };
 
-  const onPayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
-  };
+  // const onPayments = (value: Array<OrderPaymentRequest>) => {
+  //   setPayments(value);
+  // };
 
   const onShipmentSelect = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
@@ -336,7 +332,7 @@ export default function Order() {
           delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
           shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          service: serviceType!,
+          service: serviceType3PL!,
           shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
 
@@ -522,7 +518,10 @@ export default function Order() {
             // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+            !serviceType3PL
+          ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
             setCreating(false);
           } else {
@@ -670,9 +669,11 @@ export default function Order() {
 
               if (response.fulfillments && response.fulfillments[0]) {
                 if (response?.fulfillments[0]?.shipment) {
-                  newDatingShip = moment(
-                    response.fulfillments[0]?.shipment?.expected_received_date
-                  );
+                  if (response.fulfillments[0]?.shipment?.expected_received_date) {
+                    newDatingShip = moment(
+                      response.fulfillments[0]?.shipment?.expected_received_date
+                    );
+                  }
                   newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
@@ -709,9 +710,11 @@ export default function Order() {
                 response.fulfillments[0].shipment?.cod
               ) {
                 setPaymentMethod(PaymentMethodOption.COD);
-              } else if (response.payments && response.payments?.length > 0) {
+              }
+              if (response.payments && response.payments?.length > 0) {
                 setPaymentMethod(PaymentMethodOption.PREPAYMENT);
                 new_payments = response.payments;
+                console.log("new_payments", new_payments);
                 setPayments(new_payments);
               }
 
@@ -740,7 +743,6 @@ export default function Order() {
                     break;
                 }
                 setShipmentMethod(newShipmentMethod);
-                setFulfillments(response.fulfillments);
                 if (
                   response.fulfillments[0] &&
                   response.fulfillments[0]?.shipment?.office_time
@@ -1085,13 +1087,12 @@ export default function Order() {
                       isSplitOrder={typeParam === "split-order"}
                     />
                     <CardPayments
-                      setSelectedPaymentMethod={handlePaymentMethod}
+                      setPaymentMethod={handlePaymentMethod}
                       payments={payments}
-                      setPayments={onPayments}
+                      setPayments={setPayments}
                       paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
-                      amount={orderAmount}
-                      isCloneOrder={isCloneOrder}
+                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       loyaltyRate={loyaltyRate}
                       isDisablePostPayment={isDisablePostPayment}
                     />
@@ -1107,14 +1108,8 @@ export default function Order() {
                       setShipmentMethod={setShipmentMethod}
                       setHVC={setHvc}
                       form={form}
-                      // setServiceType={setServiceType}
-                      // setHvcName={setHvcName}
-                      // setHvcCode={setHvcCode}
-                      // setFee={setFee}
-                      // payments={payments}
-                      // onPayments={onPayments}
-                      // fulfillments={fulfillments}
-                      // isCloneOrder={isCloneOrder}
+                      serviceType3PL={serviceType3PL}
+                      setServiceType3PL={setServiceType3PL}
                     />
                   </Col>
                   <Col md={6}>

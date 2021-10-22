@@ -1,67 +1,85 @@
+import { BugOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
-  Row,
   Col,
-  Radio,
-  InputNumber,
-  Form,
-  Space,
   Collapse,
   Divider,
+  Form,
   Input,
+  InputNumber,
+  Radio,
+  Row,
+  Space,
 } from "antd";
-
-import { BugOutlined } from "@ant-design/icons";
+import Calculate from "assets/icon/caculate.svg";
 import Cash from "component/icon/Cash";
-import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import Calculate from "assets/icon/caculate.svg";
-
+import YdCoin from "component/icon/YdCoin";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
 import {
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethodOption,
 } from "utils/Constants";
-import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
-import { OrderPaymentRequest } from "model/request/order.request";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { StyledComponent } from "./styles";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
+
 const { Panel } = Collapse;
 
 type CardPaymentsProps = {
   payments: OrderPaymentRequest[];
   paymentMethod: number;
-  amount: number;
+  totalAmountCustomerNeedToPay: number;
   shipmentMethod: number;
-  isCloneOrder: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
-  setSelectedPaymentMethod: (paymentType: number) => void;
-  setPayments: (value: Array<OrderPaymentRequest>) => void;
   isDisablePostPayment?: boolean;
+  setPaymentMethod: (paymentType: number) => void;
+  setPayments: (value: Array<OrderPaymentRequest>) => void;
 };
 
-function CardPayments(props: CardPaymentsProps) {
+/**
+ * isDisablePostPayment: disable thanh toán chưa xác định (trường hợp chọn thanh toán qua hvc)
+ *
+ * payments: payment mặc định (vd trường hợp clone đơn hàng)
+ *
+ * setPayments: xử lý khi điền payment
+ *
+ * loyaltyRate: điểm loyalty
+ *
+ * setPaymentMethod: xử lý khi chọn phương thức thanh toán
+ *
+ * paymentMethod: phương thức thanh toán mặc định (vd trường hợp clone đơn hàng)
+ *
+ * totalAmountCustomerNeedToPay: tiền khách phải trả
+ *
+ * shipmentMethod: phương thức đóng gói giao hàng để hiển thị thông báo
+ */
+function CardPayments(props: CardPaymentsProps): JSX.Element {
   const {
+    totalAmountCustomerNeedToPay,
     levelOrder = 0,
     paymentMethod,
     payments,
-    isCloneOrder,
     shipmentMethod,
     loyaltyRate,
     isDisablePostPayment = false,
     setPayments,
+    setPaymentMethod,
   } = props;
+
+  console.log("payments", payments);
+
   const changePaymentMethod = (value: number) => {
-    props.setSelectedPaymentMethod(value);
+    setPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(value);
     } else {
@@ -90,18 +108,7 @@ function CardPayments(props: CardPaymentsProps) {
     payments[index].paid_amount = point * usageRate;
     payments[index].payment_method_code = PaymentMethodCode.POINT;
     setPayments([...payments]);
-    // props.setPayments([...paymentData]);
   };
-
-  // const totalAmountPaid = useMemo(() => {
-  //   let total = 0;
-  //   payments.forEach((p) => (total = total + p.amount));
-  //   return total;
-  // }, [payments]);
-
-  // const moneyReturn = useMemo(() => {
-  //   return props.amount - totalAmountPaid;
-  // }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
@@ -132,7 +139,7 @@ function CardPayments(props: CardPaymentsProps) {
     }
     setPayments([...payments]);
   };
-  console.log(payments);
+
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -163,39 +170,15 @@ function CardPayments(props: CardPaymentsProps) {
     setPayments(_paymentData);
   };
 
-  const createOrderContext = useContext(OrderCreateContext);
-  const totalOrderAmountAfterDiscountAddShippingFee =
-    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (props.amount ? props.amount : 0);
-
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
-  const totalAmountPayment = getAmountPayment(payments);
-
-  const totalAmountCustomerNeedToPay =
-    createOrderContext?.price.totalAmountCustomerNeedToPay || (props.amount ? (props.amount - totalAmountPayment) : 0);
-
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  console.log("levelOrder", levelOrder);
 
-  // useEffect(() => {
-  //   if (isCloneOrder && paymentMethod === 2) {
-  //     handlePickPaymentMethod(paymentMethod);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [paymentMethod]);
+  console.log("levelOrder", levelOrder);
 
   return (
     <StyledComponent>
-      <Card title="THANH TOÁN">
+      <Card title="THANH TOÁN 3">
         <div className="create-order-payment ">
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
@@ -285,9 +268,7 @@ function CardPayments(props: CardPaymentsProps) {
                           <span style={{ paddingRight: "20px" }}>
                             Tiền khách phải trả:{" "}
                           </span>
-                          <strong>
-                            {formatCurrency(totalOrderAmountAfterDiscountAddShippingFee)}
-                          </strong>
+                          <strong>{formatCurrency(totalAmountCustomerNeedToPay)}</strong>
                         </div>
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
@@ -394,20 +375,18 @@ function CardPayments(props: CardPaymentsProps) {
                             }}
                           >
                             <span className="t-result-blue">
-                              {formatCurrency(
-                                totalOrderAmountAfterDiscountAddShippingFee
-                              )}
+                              {formatCurrency(totalAmountCustomerNeedToPay)}
                             </span>
                           </Col>
                         </Row>
                         {payments.map((method, index) => {
                           // console.log("paymentData", paymentData);
-                          // console.log("method", method);
+                          console.log("method", method);
                           return (
                             <Row
                               gutter={20}
                               className="row-price"
-                              key={index}
+                              key={method.code}
                               style={{ margin: "10px 0" }}
                             >
                               <Col lg={15} xxl={9} style={{ padding: "0" }}>
@@ -415,11 +394,11 @@ function CardPayments(props: CardPaymentsProps) {
                                   <b style={{ padding: "8px 0" }}>
                                     {method.payment_method}:
                                   </b>
-                                  {method.code === PaymentMethodCode.POINT ? (
+                                  {method.payment_method_code ===
+                                  PaymentMethodCode.POINT ? (
                                     <Col className="point-spending">
                                       <span
                                         style={{
-                                          fontSize: 14,
                                           marginLeft: 5,
                                         }}
                                       >
@@ -427,12 +406,7 @@ function CardPayments(props: CardPaymentsProps) {
                                         (1 điểm = {formatCurrency(usageRate)}₫)
                                       </span>
                                       <InputNumber
-                                        value={
-                                          // method.point
-                                          isCloneOrder
-                                            ? method.amount / usageRate
-                                            : method.point
-                                        }
+                                        value={method.point}
                                         style={{
                                           width: 110,
                                           marginLeft: 12,
@@ -448,7 +422,10 @@ function CardPayments(props: CardPaymentsProps) {
                                         }
                                         min={0}
                                         max={
-                                          calculateMax(props.amount, index) / usageRate
+                                          calculateMax(
+                                            props.totalAmountCustomerNeedToPay,
+                                            index
+                                          ) / usageRate
                                         }
                                         onChange={(value) => {
                                           handleInputPoint(index, value);
@@ -486,7 +463,10 @@ function CardPayments(props: CardPaymentsProps) {
                                   <InputNumber
                                     size="middle"
                                     min={0}
-                                    max={calculateMax(props.amount, index)}
+                                    max={calculateMax(
+                                      props.totalAmountCustomerNeedToPay,
+                                      index
+                                    )}
                                     value={method.amount}
                                     disabled={
                                       method.code === PaymentMethodCode.POINT ||
