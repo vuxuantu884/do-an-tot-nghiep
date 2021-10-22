@@ -109,7 +109,7 @@ export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
   stock_in_by?: string,
   merchandiser?: string,
   status?: string,
-  store?: string,
+  stores?: string,
   expect_receipt_from?: string,
   expect_receipt_to?: string,
 }

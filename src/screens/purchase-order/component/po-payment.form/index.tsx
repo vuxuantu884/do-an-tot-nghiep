@@ -118,7 +118,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
     setVisiblePaymentModal(true);
-  }, []);
+  }, [setVisiblePaymentModal]);
 
   const editPayment = useCallback((item: PurchasePayments, index: number) => {
     setPaymentItem(item);

@@ -6,11 +6,15 @@ import BaseFilter from "component/filter/base.filter";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import SelectMerchandisers from "component/filter/component/select-merchandisers";
 import SelectStoreField from "component/filter/component/select-store-field";
+import SelectSupplierField from "component/filter/component/select-supplier-field";
 import UrlConfig from "config/url.config";
+import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
+import { SupplierResponse } from "model/core/supplier.model";
 import { ProcurementQuery } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import querystring from "querystring";
-import React, { Fragment, useCallback, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
@@ -18,7 +22,7 @@ import { FilterProcurementStyle, ProcurementStatusStyle } from "./styles";
 const { Item } = Form;
 const BaseProcumentField = {
   content: "content",
-  merchandiser: "merchandiser",
+  merchandisers: "merchandisers",
 };
 
 interface ProcurementFilter {
@@ -29,28 +33,31 @@ interface ProcurementFilter {
   status: string;
   cancelDate: string;
   merchandisers: string;
-  store: string;
+  stores: string;
+  suppliers: string;
 }
 
 const ProcurementFilterItem = {
   stockDate: "stockDate",
   confirmDate: "confirmDate",
   status: "status",
-  // cancelDate: "cancelDate",
-  store: "store",
+  suppliers: "suppliers",
+  stores: "stores",
 };
 
 const ProcurementFilterName = {
   [ProcurementFilterItem.stockDate]: "Ngày duyệt phiếu nhập",
   [ProcurementFilterItem.confirmDate]: "Ngày nhập kho",
   [ProcurementFilterItem.status]: "Trạng thái phiếu nhập kho",
-  // [ProcurementFilterItem.cancelDate]: "Ngày huỷ phiếu nhập",
-  [ProcurementFilterItem.store]: "Kho nhận hàng",
+  [ProcurementFilterItem.stores]: "Kho nhận hàng",
+  [ProcurementFilterItem.suppliers]: "Nhà cung cấp",
 };
 const TAP_ID = 2;
 const { Panel } = Collapse;
 function TabListFilter() {
   const history = useHistory();
+  const dispatch = useDispatch();
+  const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
 
@@ -79,11 +86,7 @@ function TabListFilter() {
     },
     [formAdvanced]
   );
-
-  const onAdvanceFinish = (data: ProcurementFilter) => {
-    console.log(data);
-
-    setVisible(false);
+  const parseDataToString = (data: ProcurementFilter) => {
     const params: ProcurementQuery = {} as ProcurementQuery;
     //duyet phieu
     if (data.stockDate) {
@@ -95,11 +98,6 @@ function TabListFilter() {
       params.stock_in_from = data.confirmDate[0];
       params.stock_in_to = data.confirmDate[1];
     }
-    // //huy phieu
-    // if (data.cancelDate) {
-    //   params.stock_in_from = data.cancelDate[0];
-    //   params.stock_in_to = data.cancelDate[1];
-    // }
 
     //trang thai
     if (data.status) {
@@ -107,26 +105,42 @@ function TabListFilter() {
     }
 
     //cua hang
-    if (data?.store) params.store = data.store.toString();
+    if (data?.stores) {
+      params.stores = data.stores.toString();
+    }
+
+    if (data?.suppliers) {
+      params.suppliers = data.suppliers.toString();
+    }
+    return params;
+  };
+
+  const onAdvanceFinish = (data: ProcurementFilter) => {
+    setVisible(false);
+    const params: ProcurementQuery = parseDataToString(data);
 
     const formBaseData = formBase.getFieldsValue(true);
+    const newFormBaseData = { ...formBaseData };
+    newFormBaseData.merchandisers = formBaseData?.merchandisers?.toString();
     setAdvanceFilters(data);
     history.replace(
       `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify({
         ...params,
-        ...formBaseData,
+        ...newFormBaseData,
       })}`
     );
   };
+
   const onBaseFinish = (data: any) => {
-    console.log(data);
-    data.merchandiser = data?.merchandiser?.toString();
+    data.merchandisers = data?.merchandisers?.toString();
+
     const formAdvanceData = formAdvanced.getFieldsValue(true);
+    const formAdvanceParams: ProcurementQuery = parseDataToString(formAdvanceData);
 
     history.push(
       `${UrlConfig.PROCUREMENT}/${TAP_ID}?${querystring.stringify({
-        ...formAdvanceData,
         ...data,
+        ...formAdvanceParams,
       })}`
     );
   };
@@ -148,6 +162,14 @@ function TabListFilter() {
     formAdvanced.setFieldsValue(advanceFilters);
     setAdvanceFilters({ ...advanceFilters });
   };
+
+  useEffect(() => {
+    dispatch(
+      SupplierGetAllAction((stores) => {
+        setAllSupplier(stores);
+      })
+    );
+  }, [dispatch]);
   return (
     <Form.Provider>
       <Form onFinish={onBaseFinish} form={formBase} layout="inline">
@@ -158,7 +180,7 @@ function TabListFilter() {
               placeholder="Tìm kiếm phiếu nhập kho, đơn mua hàng, nhà cung cấp"
             />
           </Item>
-          <Item name={BaseProcumentField.merchandiser} className="merchandisers">
+          <Item name={BaseProcumentField.merchandisers} className="merchandisers">
             <SelectMerchandisers isMulti allowClear />
           </Item>
           <div className="btn-action">
@@ -178,7 +200,13 @@ function TabListFilter() {
         </FilterProcurementStyle>
       </Form>
 
-      {advanceFilters && <FilterList filters={advanceFilters} resetField={resetField} />}
+      {advanceFilters && (
+        <FilterList
+          filters={advanceFilters}
+          resetField={resetField}
+          allSupplier={allSupplier}
+        />
+      )}
       <BaseFilter
         onClearFilter={resetFilter}
         onFilter={() => {
@@ -195,14 +223,15 @@ function TabListFilter() {
               switch (field) {
                 case ProcurementFilterItem.stockDate:
                 case ProcurementFilterItem.confirmDate:
-                  // case ProcurementFilterItem.cancelDate:
                   component = <CustomRangePicker />;
                   break;
 
-                case ProcurementFilterItem.store:
+                case ProcurementFilterItem.stores:
                   component = <SelectStoreField isMulti />;
                   break;
-
+                case ProcurementFilterItem.suppliers:
+                  component = <SelectSupplierField isMulti />;
+                  break;
                 case ProcurementFilterItem.status:
                   component = (
                     <ProcurementStatusStyle>
@@ -238,8 +267,12 @@ function TabListFilter() {
     </Form.Provider>
   );
 }
-
-const FilterList = ({ filters, resetField }: any) => {
+type FilterListProps = {
+  filters: any;
+  resetField: (field: string) => void;
+  allSupplier: Array<SupplierResponse> | undefined;
+};
+const FilterList = ({ filters, resetField, allSupplier }: FilterListProps) => {
   let filtersKeys = Object.keys(filters);
   let renderTxt: any = null;
   return (
@@ -253,7 +286,6 @@ const FilterList = ({ filters, resetField }: any) => {
         switch (filterKey) {
           case ProcurementFilterItem.stockDate:
           case ProcurementFilterItem.confirmDate:
-            // case ProcurementFilterItem.cancelDate:
             let [from, to] = value;
             let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
               formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
@@ -264,7 +296,20 @@ const FilterList = ({ filters, resetField }: any) => {
               renderTxt = `${ProcurementFilterName[filterKey]} : ${formatedFrom} - ${formatedTo}`;
             break;
 
-          case ProcurementFilterItem.store:
+          case ProcurementFilterItem.suppliers:
+            if (Array.isArray(value) && value.length > 0) {
+              let text = "";
+              value?.forEach((id: number) => {
+                allSupplier?.forEach((element: SupplierResponse, index: number) => {
+                  if (id === element.id) {
+                    text += ", " + allSupplier[index].name;
+                  }
+                });
+              });
+              renderTxt = `${ProcurementFilterName[filterKey]} : ${text.substr(1)}`;
+            }
+            break;
+          case ProcurementFilterItem.stores:
             if (Array.isArray(value) && value.length > 0) {
               renderTxt = `${ProcurementFilterName[filterKey]} : ${value}`;
             }
