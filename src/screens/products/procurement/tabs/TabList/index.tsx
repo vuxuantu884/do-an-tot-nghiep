@@ -120,6 +120,11 @@ const TabList: React.FC = () => {
             render: (value, record, index) => value,
           },
           {
+            title: "Nhà cung cấp",
+            dataIndex: "purchase_order",
+            render : (value)=> value?.supplier
+          },
+          {
             title: "Merchandiser",
             dataIndex: "purchase_order",
             render : (value)=> value?.merchandiser
