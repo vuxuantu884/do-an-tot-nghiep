@@ -14,6 +14,7 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import { InventoryResponse } from "model/inventory";
+import { GetFeesRequest } from "model/request/order.request";
 
 const inventoryGetSenderStoreAction = (
   queryParams: StoreStatus,
@@ -53,6 +54,18 @@ const updateInventoryTransferAction = (
   onResult: (data: InventoryTransferDetailItem) => void
 ) => {
   return BaseAction(InventoryType.UPDATE_INVENTORY_TRANSFER, {
+    id,
+    data,
+    onResult,
+  });
+};
+
+const receivedInventoryTransferAction = (
+  id: number,
+  data: Partial<StockTransferSubmit>,
+  onResult: (data: InventoryTransferDetailItem) => void
+) => {
+  return BaseAction(InventoryType.RECEIVED_INVENTORY__TRANSFER, {
     id,
     data,
     onResult,
@@ -109,6 +122,20 @@ const createInventoryTransferShipmentAction = (pathVariantId:Number, body: any, 
   return BaseAction(InventoryType.CREATE_INVENTORY_TRANSFER_SHIPMENT, {pathVariantId, body, onResult})
 }
 
+const getLogisticGateAwayAction = (onResult: (data: InventoryTransferDetailItem) => void) => {
+  return BaseAction(InventoryType.GET_LOGISTIC_SERVICE, {onResult})
+}
+
+const getFeesAction = (
+  request: GetFeesRequest,
+  setData: (data: Array<any>) => void
+) => {
+  return BaseAction(InventoryType.GET_INFO_FEES_INVENTORY, { request, setData });
+}
+const adjustmentInventoryAction = (id:Number, onResult: (data: InventoryTransferDetailItem |null) => void) => {
+  return BaseAction(InventoryType.ADJUSTMENT_INVENTORY, {id, onResult})
+}
+
 export {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
@@ -121,4 +148,8 @@ export {
   getListLogInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   createInventoryTransferShipmentAction,
+  receivedInventoryTransferAction,
+  getLogisticGateAwayAction,
+  getFeesAction,
+  adjustmentInventoryAction,
 };

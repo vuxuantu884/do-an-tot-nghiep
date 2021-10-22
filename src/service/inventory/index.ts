@@ -8,6 +8,7 @@ import {
   InventoryQuery,
   InventoryResponse,
 } from "model/inventory";
+import { LogisticGateAwayResponse } from "model/inventory/transfer";
 import { generateQuery } from "utils/AppUtils";
 
 const inventoryGetApi = (
@@ -15,6 +16,11 @@ const inventoryGetApi = (
 ): Promise<BaseResponse<AllInventoryResponse>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.INVENTORY}/inventories?${params}`;
+  return BaseAxios.get(link);
+};
+
+const logisticGateAwayGetApi = (): Promise<BaseResponse<LogisticGateAwayResponse>> => {
+  let link = `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/services`;
   return BaseAxios.get(link);
 };
 
@@ -51,4 +57,5 @@ export {
   inventoryGetDetailApi,
   inventoryGetHistoryApi,
   inventoryGetDetailVariantIdsApi,
+  logisticGateAwayGetApi
 };

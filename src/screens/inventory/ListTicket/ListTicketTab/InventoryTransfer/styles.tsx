@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { STATUS_INVENTORY_TRANSFER } from "../../constants";
 
-const BG_COLOR_TAG = {
+export const BG_COLOR_TAG = {
   TRANSFERRING: {
     background: '#FFF7E8',
     color: '#FCAF17'
