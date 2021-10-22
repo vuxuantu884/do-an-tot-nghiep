@@ -339,7 +339,7 @@ const PackReportHandOver: React.FC = () => {
                 onShowSizeChange: onPageChange,
               }
             }
-            //onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
             dataSource={dataSource}
             columns={columnFinal}
             onRow={(record: any) => {
