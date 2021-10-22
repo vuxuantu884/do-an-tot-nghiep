@@ -28,7 +28,8 @@ export interface StoreResponse extends BaseObject {
   mail: string,
   begin_date: string,
   number_of_account: number,
-  accounts: Array<any>
+  accounts: Array<any>,
+  is_saleable: boolean,
 }
 
 export interface StoreQuery extends BaseQuery {

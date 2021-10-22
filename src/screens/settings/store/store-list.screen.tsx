@@ -156,6 +156,14 @@ const StoreListScreen: React.FC = () => {
       visible: false,
     },
     {
+      title: "Cho phép bán",
+      dataIndex: "is_saleable",
+      align: "center",
+      width: 150,
+      visible: true,
+      render: (value) => value ? "Có thể bán" : "Đang kiểm kê"
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status_name",
       width: 100,
@@ -166,10 +174,7 @@ const StoreListScreen: React.FC = () => {
           case "active":
             text = "text-success";
             break;
-          case "temp_lock":
-            text = "text-secondary";
-            break;
-          case "permanent_lock":
+          case "inactive":
             text = "text-error";
             break;
         }
