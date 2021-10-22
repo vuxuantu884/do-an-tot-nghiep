@@ -24,6 +24,7 @@ const TabCurrent: React.FC = () => {
   })
   const currentDate = getDateFromNow(0, "day");
   const [params, setParams] = useState<ProcurementQuery>({
+    is_cancel: false,
     status: ProcumentStatus.NOT_RECEIVED,
     expect_receipt_from: ConvertDateToUtc(currentDate.startOf("days")),
     expect_receipt_to: ConvertDateToUtc(currentDate.endOf("days")),

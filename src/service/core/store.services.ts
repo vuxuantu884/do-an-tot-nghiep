@@ -48,3 +48,10 @@ export const storesPostApi = (
 ): Promise<BaseResponse<StoreResponse>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/stores`, request);
 };
+
+
+export const storeValidateApi = (
+  request: StoreCreateRequest
+): Promise<BaseResponse<StoreResponse>> => {
+  return BaseAxios.post(`${ApiConfig.CORE}/stores/validate`, request);
+};

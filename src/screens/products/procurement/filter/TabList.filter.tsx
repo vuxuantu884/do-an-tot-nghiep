@@ -185,7 +185,7 @@ function TabListFilter() {
           <Item name={BaseProcumentField.content} className="search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm phiếu nhập kho, đơn mua hàng, nhà cung cấp"
+              placeholder="Tìm kiếm phiếu nhập kho"
             />
           </Item>
           <Item name={BaseProcumentField.merchandisers} className="merchandisers">
