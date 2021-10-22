@@ -30,6 +30,7 @@ interface ProcurementFilter {
   stockUser: string;
   confirmDate: string;
   confirmUser: string;
+  expectDate: string;
   status: string;
   cancelDate: string;
   merchandisers: string;
@@ -40,6 +41,7 @@ interface ProcurementFilter {
 const ProcurementFilterItem = {
   stockDate: "stockDate",
   confirmDate: "confirmDate",
+  expectDate: "expectDate",
   status: "status",
   suppliers: "suppliers",
   stores: "stores",
@@ -51,6 +53,7 @@ const ProcurementFilterName = {
   [ProcurementFilterItem.status]: "Trạng thái phiếu nhập kho",
   [ProcurementFilterItem.stores]: "Kho nhận hàng",
   [ProcurementFilterItem.suppliers]: "Nhà cung cấp",
+  [ProcurementFilterItem.expectDate]: "Ngày nhận dự kiến",
 };
 const TAP_ID = 2;
 const { Panel } = Collapse;
@@ -88,15 +91,20 @@ function TabListFilter() {
   );
   const parseDataToString = (data: ProcurementFilter) => {
     const params: ProcurementQuery = {} as ProcurementQuery;
-    //duyet phieu
+    //;ngay duyet phieu
     if (data.stockDate) {
       params.active_from = data.stockDate[0];
       params.active_to = data.stockDate[1];
     }
-    // xac nhan phieu
+    //ngay xac nhan phieu
     if (data.confirmDate) {
       params.stock_in_from = data.confirmDate[0];
       params.stock_in_to = data.confirmDate[1];
+    }
+    // ngay nhan du kien
+    if (data.expectDate) {
+      params.expect_receipt_from = data.expectDate[0];
+      params.expect_receipt_to = data.expectDate[1];
     }
 
     //trang thai
@@ -223,6 +231,8 @@ function TabListFilter() {
               switch (field) {
                 case ProcurementFilterItem.stockDate:
                 case ProcurementFilterItem.confirmDate:
+                case ProcurementFilterItem.expectDate:
+
                   component = <CustomRangePicker />;
                   break;
 
@@ -286,6 +296,8 @@ const FilterList = ({ filters, resetField, allSupplier }: FilterListProps) => {
         switch (filterKey) {
           case ProcurementFilterItem.stockDate:
           case ProcurementFilterItem.confirmDate:
+          case ProcurementFilterItem.expectDate:
+
             let [from, to] = value;
             let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
               formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
