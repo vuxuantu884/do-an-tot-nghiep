@@ -25,6 +25,7 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { OrderLineItemRequest } from "model/request/order.request";
+import UrlConfig from "config/url.config";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -125,7 +126,12 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
           <div className="yody-pos-sku">
-            <Link to="">{a.sku}</Link>
+          <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${a.product_id}/variants/${a.variant_id}`}
+                >
+                  {a.sku}
+                </Link>
           </div>
           <Badge status="default" text={a.variant} style={{ marginLeft: 7 }} />
         </div>

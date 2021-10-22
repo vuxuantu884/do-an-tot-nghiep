@@ -30,6 +30,7 @@ import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
+import UrlConfig from "config/url.config";
 import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import {
   StoreGetListAction,
@@ -56,6 +57,7 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
@@ -452,7 +454,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               }}
             >
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>{l.sku}</Typography.Link>
+              <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${l.product_id}/variants/${l.variant_id}`}
+                >
+                  {l.sku}
+                </Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -660,8 +667,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            padding: "0 4px",
+            justifyContent: "right",
           }}
         >
           <div>
@@ -671,12 +677,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               placement="bottomRight"
               disabled={levelOrder > 3}
             >
-              <Button type="text" className="p-0 ant-btn-custom">
+              <Button type="text" className="p-0 ant-btn-custom" style={{border:"0px"}}>
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
             <Button
-              style={{ background: "transparent" }}
+              style={{ background: "transparent",border:"0px" }}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}

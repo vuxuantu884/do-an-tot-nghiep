@@ -17,12 +17,14 @@ import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
+import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
   OrderResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -172,9 +174,12 @@ function CardReturnProducts(props: PropType) {
               }}
             >
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
+              <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+                >
                   {record.sku}
-                </Typography.Link>
+                </Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip

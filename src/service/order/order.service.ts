@@ -118,6 +118,7 @@ export const getInfoDeliveryFees = (
   request: GetFeesRequest
 ): Promise<BaseResponse<VTPFeeResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/fees`, request);
+  // return BaseAxios.post(`${ApiConfig.ORDER}/shipping-orders/fees`, request);
 };
 
 export const getOrderDetail = (id: number): Promise<BaseResponse<OrderResponse>> => {

@@ -1,12 +1,14 @@
 import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
+import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
 import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
 import React, { useCallback } from "react";
+import { Link } from "react-router-dom";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -102,9 +104,12 @@ function CardShowReturnProducts(props: PropType) {
               }}
             >
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
+              <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+                >
                   {record.sku}
-                </Typography.Link>
+                </Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={record.variant} className="yody-pos-varian-name">
