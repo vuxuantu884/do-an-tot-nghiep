@@ -45,15 +45,18 @@ type POPaymentFormProps = {
   setSuggest: (isSuggest: boolean) => void;
   setVisiblePaymentModal : (value: boolean) => void;
   isVisiblePaymentModal : boolean;
+  paymentItem: PurchasePayments|undefined,
+  setPaymentItem: (paymentItem: PurchasePayments|undefined) => void;
+  initValue: any,
+  setInitValue: (initValue: any) => void
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
 ) => {
- const {isVisiblePaymentModal, setVisiblePaymentModal}=props
+ const {isVisiblePaymentModal, setVisiblePaymentModal, paymentItem, setPaymentItem, initValue, setInitValue}=props
   const dispatch = useDispatch();
   // const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
-  const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [indexPaymentItem, setIndexPaymentItem] = useState<string>("");
   const [loadingApproval, setLoaddingApproval] = useState<any>({});
   const { poData } = props;
@@ -61,7 +64,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     visible: false,
   });
 
-  const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
+  
 
   const CancelPaymentModal = () => {
     setVisiblePaymentModal(false);
@@ -118,13 +121,13 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
     setVisiblePaymentModal(true);
-  }, [setVisiblePaymentModal]);
+  }, [setPaymentItem, setVisiblePaymentModal]);
 
   const editPayment = useCallback((item: PurchasePayments, index: number) => {
     setPaymentItem(item);
     setIndexPaymentItem(index.toString());
     setVisiblePaymentModal(true);
-  }, [setVisiblePaymentModal]);
+  }, [setPaymentItem, setVisiblePaymentModal]);
 
   const onDeletePayment = useCallback(() => {
     setIndexPaymentItem("");
@@ -155,7 +158,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         }
       }
     }
-  }, [poData, props, setVisiblePaymentModal]);
+  }, [poData, props, setInitValue, setVisiblePaymentModal]);
 
   return (
     <StyledComponent>
