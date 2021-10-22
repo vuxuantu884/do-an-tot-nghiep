@@ -111,7 +111,7 @@ export interface ReturnProductModel extends OrderLineItemResponse {
 }
 
 export interface FulFillmentResponse {
-  id: number | null;
+  id: number;
   code: string | null;
   store_id: number | null;
   account_code: string | null;

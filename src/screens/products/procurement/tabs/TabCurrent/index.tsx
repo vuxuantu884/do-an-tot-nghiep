@@ -7,6 +7,7 @@ import { ProcurementQuery, PurchaseProcument } from "model/purchase-order/purcha
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
+import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc, getDateFromNow } from "utils/DateUtils";
 
 const TabCurrent: React.FC = () => {
@@ -23,6 +24,8 @@ const TabCurrent: React.FC = () => {
   })
   const currentDate = getDateFromNow(0, "day");
   const [params, setParams] = useState<ProcurementQuery>({
+    is_cancel: false,
+    status: ProcumentStatus.NOT_RECEIVED,
     expect_receipt_from: ConvertDateToUtc(currentDate.startOf("days")),
     expect_receipt_to: ConvertDateToUtc(currentDate.endOf("days")),
   })
