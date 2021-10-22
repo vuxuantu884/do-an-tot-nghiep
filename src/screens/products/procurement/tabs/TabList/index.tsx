@@ -59,7 +59,7 @@ const TabList: React.FC = () => {
     }
     search();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.location.search, dispatch]);
+  }, [history.location.search, dispatch,]);
 
   return (
     <div className="margin-top-20">
@@ -74,7 +74,7 @@ const TabList: React.FC = () => {
             dataIndex: "code",
             fixed: "left",
             render: (value, record, index) => (
-              <Link to={`${UrlConfig.PURCHASE_ORDER}#procurement${record.id}`}>
+              <Link to={`${UrlConfig.PURCHASE_ORDER}/${record.purchase_order.id}/#procurement_${record.id}`}>
                 {value}
               </Link>
             ),
