@@ -605,13 +605,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
     FulFillmentRequest.shipment = value;
     if (props.shippingFeeInformedCustomer !== null) {
-      FulFillmentRequest.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
+      FulFillmentRequest.shipping_fee_informed_to_customer =
+        props.shippingFeeInformedCustomer;
     }
     if (props.shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.total =
         props.OrderDetail?.total_line_amount_after_line_discount &&
         props.OrderDetail?.total_line_amount_after_line_discount +
-        props.shippingFeeInformedCustomer;
+          props.shippingFeeInformedCustomer;
     } else {
       FulFillmentRequest.total = props.OrderDetail?.total_line_amount_after_line_discount;
     }
@@ -699,7 +700,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         (props.OrderDetail?.fulfillments[0].total
           ? props.OrderDetail?.fulfillments[0].total
           : 0) +
-          props.shippingFeeInformedCustomer -
+        props.shippingFeeInformedCustomer -
         props.totalPaid! -
         // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
         (props.OrderDetail?.total_discount ? props.OrderDetail?.total_discount : 0)
@@ -709,7 +710,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         (props.OrderDetail?.total_line_amount_after_line_discount
           ? props.OrderDetail?.total_line_amount_after_line_discount
           : 0) +
-          props.shippingFeeInformedCustomer -
+        props.shippingFeeInformedCustomer -
         props.totalPaid! -
         // (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
         (props.OrderDetail?.discounts &&
@@ -749,12 +750,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   // const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const customerNeedToPayValue =
-    (props.OrderDetail?.total_line_amount_after_line_discount ? props.OrderDetail?.total_line_amount_after_line_discount : 0) +
-      (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
-      (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0) -
-      (props.totalPaid ? props.totalPaid : 0)
-      // totalAmountPaid() -
-      // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
+    (props.OrderDetail?.total_line_amount_after_line_discount
+      ? props.OrderDetail?.total_line_amount_after_line_discount
+      : 0) +
+    (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
+    (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0) -
+    (props.totalPaid ? props.totalPaid : 0);
+  // totalAmountPaid() -
+  // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 
   // Cancel fulfillments
   const [isvibleCancelFullfilment, setIsvibleCancelFullfilment] =
@@ -1783,7 +1786,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 </div>
               </Row>
               {/*--- Chuyển hãng vận chuyển ----*/}
-              {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+              {/* {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                 <>
                   {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                     <ShipmentMethodDeliverPartner
@@ -1842,7 +1845,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </div>
                   </Col>
                 </>
-              )}
+              )} */}
 
               {/* Tự vận chuyển */}
               {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
@@ -1888,22 +1891,22 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </CustomSelect>
                       </Form.Item>
                       {/* {isShowTakeHelper && ( */}
-                        <Form.Item label="Tiền thu hộ">
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            placeholder="0"
-                            style={{
-                              textAlign: "right",
-                              width: "100%",
-                              color: "#222222",
-                            }}
-                            maxLength={15}
-                            minLength={0}
-                            value={customerNeedToPayValue}
-                            onChange={(value) => setTakeMoneyHelper(value)}
-                          />
-                        </Form.Item>
+                      <Form.Item label="Tiền thu hộ">
+                        <NumberInput
+                          format={(a: string) => formatCurrency(a)}
+                          replace={(a: string) => replaceFormatString(a)}
+                          placeholder="0"
+                          style={{
+                            textAlign: "right",
+                            width: "100%",
+                            color: "#222222",
+                          }}
+                          maxLength={15}
+                          minLength={0}
+                          value={customerNeedToPayValue}
+                          onChange={(value) => setTakeMoneyHelper(value)}
+                        />
+                      </Form.Item>
                       {/* )} */}
                     </Col>
                     <Col md={12}>
@@ -1964,8 +1967,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
                           onClick={() => {
-                            setVisibleShipping(false)
-                            props.setShippingFeeInformedCustomer(0)
+                            setVisibleShipping(false);
+                            props.setShippingFeeInformedCustomer(0);
                           }}
                           style={{ float: "right" }}
                           loading={cancelShipment}

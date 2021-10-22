@@ -891,7 +891,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setReturnMoneyType={setReturnMoneyType}
                   />
                 )}
-                {isExchange && isStepExchange && (
+                {/* {isExchange && isStepExchange && (
                   <CardShipment
                     setShipmentMethodProps={setShipmentMethod}
                     shipmentMethod={shipmentMethod}
@@ -919,7 +919,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     isCloneOrder={false}
                     totalAmountReturnProducts={totalAmountReturnProducts}
                   />
-                )}
+                )} */}
                 <CardReturnReceiveProducts
                   isDetailPage={false}
                   isReceivedReturnProducts={isReceivedReturnProducts}

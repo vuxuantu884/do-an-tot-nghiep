@@ -58,14 +58,13 @@ type CardShipmentProps = {
   items?: Array<OrderLineItemRequest>;
   levelOrder?: number;
   updateOrder?: boolean;
+  isCancelValidateDelivery: boolean;
   totalAmountCustomerNeedToPay?: number;
   serviceType?: string | null;
-  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   setShipmentMethod: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number | null) => void;
   setHVC: (value: number) => void;
   form: FormInstance<any>;
-  orderConfig: OrderConfigResponseModel;
 };
 
 const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => {
@@ -82,13 +81,17 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     updateOrder,
     totalAmountCustomerNeedToPay = 0,
     serviceType,
-    shippingServiceConfig,
     form,
-    orderConfig,
+    isCancelValidateDelivery,
   } = props;
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
+  const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
 
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethod(value);
@@ -235,6 +238,10 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     );
   };
 
+  useLayoutEffect(() => {
+    dispatch(ShipperGetListAction(setListShippers));
+  }, [dispatch]);
+
   return (
     <StyledComponent>
       <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
@@ -330,16 +337,15 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
                 form={form}
               />
             )}
-
             {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <ShipmentMethodSelfDelivery
                 totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 levelOrder={levelOrder}
                 setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-                isCancelValidate={isCancelValidate}
+                isCancelValidateDelivery={isCancelValidateDelivery}
+                listShippers={listShippers}
               />
             )}
-
             {/*--- Nhận tại cửa hàng ----*/}
             {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />

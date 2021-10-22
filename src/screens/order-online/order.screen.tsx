@@ -158,10 +158,8 @@ export default function Order() {
   };
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
+    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
     setShippingFeeInformedToCustomer(value);
-  };
-  const ChangeShippingFeeCustomerHVC = (value: number | null) => {
-    setShippingFeeCustomerHVC(value);
   };
 
   const onChangeInfoProduct = (
@@ -1098,30 +1096,25 @@ export default function Order() {
                       isDisablePostPayment={isDisablePostPayment}
                     />
                     <CardShipment
-                      setShipmentMethodProps={onShipmentSelect}
                       shipmentMethod={shipmentMethod}
+                      orderPrice={orderAmount}
                       storeDetail={storeDetail}
-                      setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
-                      setShippingFeeInformedCustomerHVC={ChangeShippingFeeCustomerHVC}
-                      amount={orderAmount}
-                      setPaymentMethod={setPaymentMethod}
-                      paymentMethod={paymentMethod}
-                      shippingFeeCustomer={shippingFeeInformedToCustomer}
-                      shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                      customerInfo={customer}
+                      customer={customer}
                       items={items}
-                      discountValue={discountValue}
-                      setOfficeTime={setOfficeTime}
-                      officeTime={officeTime}
-                      setServiceType={setServiceType}
+                      isCancelValidateDelivery={false}
+                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                      setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                      setShipmentMethod={setShipmentMethod}
                       setHVC={setHvc}
-                      setHvcName={setHvcName}
-                      setHvcCode={setHvcCode}
-                      setFee={setFee}
-                      payments={payments}
-                      onPayments={onPayments}
-                      fulfillments={fulfillments}
-                      isCloneOrder={isCloneOrder}
+                      form={form}
+                      // setServiceType={setServiceType}
+                      // setHvcName={setHvcName}
+                      // setHvcCode={setHvcCode}
+                      // setFee={setFee}
+                      // payments={payments}
+                      // onPayments={onPayments}
+                      // fulfillments={fulfillments}
+                      // isCloneOrder={isCloneOrder}
                     />
                   </Col>
                   <Col md={6}>
