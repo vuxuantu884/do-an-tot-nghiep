@@ -956,6 +956,7 @@ export default function Order() {
     return value;
   };
   const totalAmountPayment = getAmountPayment(payments);
+
   const totalAmountCustomerNeedToPay = useMemo(() => {
     return (
       orderAmount +
@@ -964,6 +965,11 @@ export default function Order() {
       totalAmountPayment
     );
   }, [discountValue, orderAmount, shippingFeeInformedToCustomer, totalAmountPayment]);
+
+  const totalAmountOrder =
+    orderAmount +
+    (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+    discountValue;
 
   /**
    * theme context data
@@ -1092,6 +1098,7 @@ export default function Order() {
                       setPayments={setPayments}
                       paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
+                      totalAmountOrder={totalAmountOrder}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       loyaltyRate={loyaltyRate}
                       isDisablePostPayment={isDisablePostPayment}

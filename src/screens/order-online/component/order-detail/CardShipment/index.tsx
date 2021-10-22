@@ -16,6 +16,10 @@ import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import { getFeesAction } from "domain/actions/order/order.action";
+import {
+  actionGetOrderConfig,
+  actionListConfigurationShippingServiceAndShippingFee,
+} from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -253,6 +257,25 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
 
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  /**
+   * orderSettings
+   */
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfig((response) => {
+        setOrderConfig(response);
+      })
+    );
   }, [dispatch]);
 
   return (

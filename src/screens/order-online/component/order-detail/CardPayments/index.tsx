@@ -36,6 +36,7 @@ const { Panel } = Collapse;
 type CardPaymentsProps = {
   payments: OrderPaymentRequest[];
   paymentMethod: number;
+  totalAmountOrder: number;
   totalAmountCustomerNeedToPay: number;
   shipmentMethod: number;
   levelOrder?: number;
@@ -59,12 +60,15 @@ type CardPaymentsProps = {
  *
  * paymentMethod: phương thức thanh toán mặc định (vd trường hợp clone đơn hàng)
  *
+ * totalAmountOrder: tiền đơn hàng
+ *
  * totalAmountCustomerNeedToPay: tiền khách phải trả
  *
  * shipmentMethod: phương thức đóng gói giao hàng để hiển thị thông báo
  */
 function CardPayments(props: CardPaymentsProps): JSX.Element {
   const {
+    totalAmountOrder,
     totalAmountCustomerNeedToPay,
     levelOrder = 0,
     paymentMethod,
@@ -268,7 +272,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                           <span style={{ paddingRight: "20px" }}>
                             Tiền khách phải trả:{" "}
                           </span>
-                          <strong>{formatCurrency(totalAmountCustomerNeedToPay)}</strong>
+                          <strong>{formatCurrency(totalAmountOrder)}</strong>
                         </div>
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
