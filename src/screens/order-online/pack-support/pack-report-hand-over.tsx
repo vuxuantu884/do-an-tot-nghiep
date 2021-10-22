@@ -1,4 +1,4 @@
-import { Button, Dropdown,Menu,Table } from "antd";
+import { Button, Dropdown,Menu } from "antd";
 import PackFilter from "component/filter/pack.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
@@ -346,7 +346,7 @@ const PackReportHandOver: React.FC = () => {
                 onShowSizeChange: onPageChange,
               }
             }
-            //onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
             dataSource={dataSource}
             columns={columnFinal}
             onRow={(record: any) => {
