@@ -5,6 +5,7 @@ export const StyledComponent = styled.div`
     padding: 20px;
 
     .filter {
+      overflow-x: scroll;
       .ant-form {
         display: flex;
       }
@@ -16,17 +17,17 @@ export const StyledComponent = styled.div`
 
     .select-channel-dropdown {
       margin-right: 15px;
-      width: 150px;
+      min-width: 150px;
     }
 
     .select-store-dropdown {
       margin-right: 15px;
-      width: 200px;
+      min-width: 200px;
     }
 
     .shoppe-search {
       margin-right: 15px;
-      width: 230px;
+      min-width: 200px;
     }
 
     .yody-search {
@@ -37,6 +38,16 @@ export const StyledComponent = styled.div`
     .save-pairing-button {
       margin: 20px 0;
     }
+
+    .not-connect-status {
+      background: rgba(42, 42, 134, 0.1);
+      border-radius: 100px;
+      color: rgb(42, 42, 134);
+      width: fit-content;
+      padding: 5px 10px;
+      margin: 0px auto;
+    }
+
   }
 
   .delete-item-icon {
