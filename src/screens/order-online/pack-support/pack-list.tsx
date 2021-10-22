@@ -2,6 +2,7 @@ import { Card, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useEffect, useState } from "react";
+import emptyProduct from "assets/icon/empty_products.svg";
 
 function PackList(props: any) {
   const { data, onPageChange, queryParams } = props;
@@ -97,6 +98,14 @@ function PackList(props: any) {
     >
       <div>
         <Table
+         locale={{
+          emptyText: (
+            <div className="sale_order_empty_product">
+              <img src={emptyProduct} alt="empty product"></img>
+              <p>Không có dữ liệu!</p>
+            </div>
+          ),
+          }}
           pagination={{
             pageSize: dataCustom?.metadata.limit,
             total: dataCustom?.metadata.total,

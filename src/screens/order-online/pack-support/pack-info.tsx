@@ -39,6 +39,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, } from "utils/ToastUtils";
+import emptyProduct from "assets/icon/empty_products.svg";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
@@ -408,7 +409,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     <Form layout="vertical" ref={formRef} form={form}>
       <div style={{ padding: "24px 0 0 0" }}>
         <Row gutter={24}>
-          <Col md={8}>
+          <Col md={9}>
             <Form.Item
               label="Cửa hàng"
               name="store_request"
@@ -418,12 +419,13 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   message: "Vui lòng chọn cửa hàng",
                 },
               ]}
+              style={{ width: "70%" }}
             >
               <Select
                 className="select-with-search"
                 showSearch
                 allowClear
-                style={{ width: "70%" }}
+                
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
@@ -450,7 +452,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             </Form.Item>
           </Col>
 
-          <Col md={8}>
+          <Col md={7}>
             <Form.Item
               label="ID đơn hàng:"
               name="order_request"
@@ -460,10 +462,11 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   message: "Vui lòng nhập mã đơn hàng hoặc mã đơn giao",
                 },
               ]}
+              style={{ width: "90%" }}
             >
               <Input
                 className="select-with-search"
-                style={{ width: "70%" }}
+                
                 placeholder="ID đơn hàng/ Mã đơn giao"
                 addonAfter={<ScanOutlined />}
                 onPressEnter={(e: any) => {
@@ -476,7 +479,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Col>
 
           <Col md={8}>
-            <Form.Item label="Sản phẩm:">
+            <Form.Item label="Sản phẩm:" style={{width: "70%",float: "right"}}>
               <Input.Group
                 compact
                 className="select-with-search"
@@ -581,6 +584,14 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
       <div style={{ padding: "24px 0 0 0" }}>
         <Row className="sale-product-box" justify="space-between">
           <Table
+             locale={{
+              emptyText: (
+                <div className="sale_order_empty_product">
+                  <img src={emptyProduct} alt="empty product"></img>
+                  <p>Không có dữ liệu!</p>
+                </div>
+              ),
+            }}
             rowKey={(record) => record.id}
             columns={columns}
             dataSource={orderList}
