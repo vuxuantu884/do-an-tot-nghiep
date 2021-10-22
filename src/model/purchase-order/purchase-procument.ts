@@ -112,6 +112,7 @@ export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
   stores?: string,
   expect_receipt_from?: string,
   expect_receipt_to?: string,
+  is_cancel?: boolean
 }
 
 export { POProcumentField, POProcumentLineItemField };

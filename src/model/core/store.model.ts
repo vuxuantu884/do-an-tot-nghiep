@@ -79,3 +79,7 @@ export interface StoreQuery extends BaseQuery {
   export interface StoreUpdateRequest extends BaseStoreRequest {
     version: number,
   }
+
+  export interface StoreValidateRequest {
+    name?: string,
+  }
