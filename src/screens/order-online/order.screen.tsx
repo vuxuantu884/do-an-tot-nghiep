@@ -145,6 +145,7 @@ export default function Order() {
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
+  const typeParam = queryParams.get("type") || null;
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -212,14 +213,14 @@ export default function Order() {
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
     shipping_fee_paid_to_three_pls: null,
-    dating_ship: moment(),
+    dating_ship: undefined,
     requirements: null,
     source_id: null,
     note: "",
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    assignee_code: null,
+    assignee_code: userReducer.account?.code || null,
     marketer_code: null,
     // coordinator_code: null,
     customer_id: null,
@@ -243,7 +244,6 @@ export default function Order() {
 
   let isCloneOrder = false;
   if (actionParam === "clone" && cloneIdParam) {
-    
     isCloneOrder = true;
   }
 
@@ -337,7 +337,7 @@ export default function Order() {
           delivery_service_provider_code: hvcCode,
           delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           service: serviceType!,
           shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
@@ -347,7 +347,7 @@ export default function Order() {
           ...objShipment,
           delivery_service_provider_type: "Shipper",
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -466,6 +466,7 @@ export default function Order() {
       values.shipping_fee_informed_to_customer = 0;
     } else {
       //Nếu là đơn lưu và duyệt
+      values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount > 0);
@@ -595,7 +596,7 @@ export default function Order() {
               dispatch(
                 CustomerDetail(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
-                 
+
                   responseCustomer.shipping_addresses.forEach((item) => {
                     if (item.default === true) {
                       setShippingAddress(item);
@@ -691,7 +692,12 @@ export default function Order() {
                 shipping_fee_informed_to_customer:
                   response.shipping_fee_informed_to_customer,
                 payments: new_payments,
-                reference_code: response.reference_code,
+                reference_code:
+                  typeParam === "split-order"
+                    ? response.code
+                      ? response.code
+                      : ""
+                    : response.reference_code,
                 url: response.url,
                 note: response.note,
                 tags: response.tags,
@@ -1078,6 +1084,7 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
+                      isSplitOrder={typeParam === "split-order"}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
@@ -1123,6 +1130,7 @@ export default function Order() {
                       tags={tags}
                       isCloneOrder={isCloneOrder}
                       onChangeTag={onChangeTag}
+                      isSplitOrder={typeParam === "split-order"}
                     />
                   </Col>
                 </Row>

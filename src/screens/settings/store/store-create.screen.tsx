@@ -1,10 +1,10 @@
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Collapse,
   Form,
-  FormInstance,
   Input,
   Row,
   Select,
@@ -16,14 +16,11 @@ import {
   GroupGetAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
-import {
-  StoreCreateAction,
-  StoreRankAction,
-} from "domain/actions/core/store.action";
+import { StoreCreateAction, StoreRankAction } from "domain/actions/core/store.action";
 import { StoreCreateRequest } from "model/core/store.model";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { StoreRankResponse } from "model/core/store-rank.model";
@@ -35,6 +32,9 @@ import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
+import StoreTooltip from "assets/icon/store-tooltip.png";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 const { Item } = Form;
 const { Panel } = Collapse;
@@ -73,7 +73,7 @@ const StoreCreateScreen: React.FC = () => {
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
-  const formRef = createRef<FormInstance>();
+  const [formMain] = Form.useForm();
   const firstload = useRef(true);
   //EndState
   const onSelectDistrict = useCallback(
@@ -85,13 +85,13 @@ const StoreCreateScreen: React.FC = () => {
         }
       });
       if (cityId !== -1) {
-        formRef.current?.setFieldsValue({
+        formMain.setFieldsValue({
           city_id: cityId,
         });
       }
       dispatch(WardGetByDistrictAction(value, setWards));
     },
-    [cityViews, dispatch, formRef]
+    [cityViews, dispatch, formMain]
   );
   const onCreateSuccess = useCallback(() => {
     history.push(UrlConfig.STORE);
@@ -132,7 +132,7 @@ const StoreCreateScreen: React.FC = () => {
       ]}
     >
       <Form
-        ref={formRef}
+        form={formMain}
         layout="vertical"
         onFinish={onFinish}
         initialValues={initRequest}
@@ -144,7 +144,17 @@ const StoreCreateScreen: React.FC = () => {
               <Space key="a" size={15}>
                 <label className="text-default">Trạng thái</label>
                 <Item name="status" noStyle>
-                  <Select style={{ width: 180 }}>
+                  <Select
+                    onChange={(value) => {
+                      if (value === "inactive") {
+                        console.log(formMain.getFieldsValue(true));
+                        formMain.setFieldsValue({
+                          is_saleable: false,
+                        });
+                      }
+                    }}
+                    style={{ width: 180 }}
+                  >
                     {storeStatusList?.map((item) => (
                       <Option key={item.value} value={item.value}>
                         {item.name}
@@ -157,12 +167,35 @@ const StoreCreateScreen: React.FC = () => {
           }
         >
           <Row gutter={50}>
+            <Col>
+              <Item
+                noStyle
+                shouldUpdate={(prev, current) =>
+                  prev.is_saleable !== current.is_saleable ||
+                  prev.status !== current.status
+                }
+              >
+                {({ getFieldValue }) => {
+                  let status = getFieldValue("status");
+                  return (
+                    <Item valuePropName="checked" name="is_saleable">
+                      <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
+                    </Item>
+                  );
+                }}
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
-                  { required: true, message: 'Vui lòng nhập tên danh mục' },
-                  { max: 255, message: 'Tên danh mục không quá 255 kí tự' },
-                  { pattern: RegUtil.STRINGUTF8, message: 'Tên danh mục không gồm kí tự đặc biệt' },
+                  { required: true, message: "Vui lòng nhập tên danh mục" },
+                  { max: 255, message: "Tên danh mục không quá 255 kí tự" },
+                  {
+                    pattern: RegUtil.STRINGUTF8,
+                    message: "Tên danh mục không gồm kí tự đặc biệt",
+                  },
                 ]}
                 label="Tên cửa hàng"
                 name="name"
@@ -191,11 +224,7 @@ const StoreCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[{ required: true }]}
-                label="Quốc gia"
-                name="country_id"
-              >
+              <Item rules={[{ required: true }]} label="Quốc gia" name="country_id">
                 <Select disabled placeholder="Chọn quốc gia">
                   {countries?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -235,9 +264,7 @@ const StoreCreateScreen: React.FC = () => {
               <Item
                 label="Phường/xã"
                 name="ward_id"
-                rules={[
-                  { required: true, message: "Vui lòng chọn phường/xã" },
-                ]}
+                rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
               >
                 <Select showSearch>
                   <Option value="">Chọn phường xã</Option>
@@ -303,6 +330,7 @@ const StoreCreateScreen: React.FC = () => {
           </Row>
         </Card>
         <Collapse
+          style={{marginBottom: 50}}
           defaultActiveKey="1"
           className="ant-collapse-card margin-top-20"
           expandIconPosition="right"
@@ -318,6 +346,23 @@ const StoreCreateScreen: React.FC = () => {
                         message: "Vui lòng chọn phân cấp cửa hàng",
                       },
                     ]}
+                    tooltip={{
+                      overlayStyle: {
+                        backgroundColor: "transparent",
+                        color: "transparent",
+                        width: 1000,
+                        maxWidth: 1000,
+                      },
+                      overlayInnerStyle: {
+                        padding: 0,
+                      },
+                      title: () => (
+                        <div style={{ width: 1000, display: "flex" }}>
+                          <img style={{ width: 1000 }} src={StoreTooltip} alt="" />
+                        </div>
+                      ),
+                      icon: <InfoCircleOutlined />,
+                    }}
                     label="Phân cấp"
                     name="rank"
                   >
@@ -333,9 +378,7 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    rules={[
-                      { required: true, message: "Vui lòng chọn trực thuộc" },
-                    ]}
+                    rules={[{ required: true, message: "Vui lòng chọn trực thuộc" }]}
                     label="Trực thuộc"
                     name="group_id"
                   >
@@ -355,6 +398,7 @@ const StoreCreateScreen: React.FC = () => {
                     label="Ngày mở cửa"
                     tooltip={{
                       title: "Ngày mở cửa là ngày đưa hàng vào hoạt động",
+                      icon: <InfoCircleOutlined />,
                     }}
                     name="begin_date"
                   >
@@ -368,16 +412,19 @@ const StoreCreateScreen: React.FC = () => {
             </div>
           </Panel>
         </Collapse>
-        <div className="margin-top-20" style={{ textAlign: "right" }}>
-          <Space size={12}>
-            <Button type="default" onClick={onCancel}>
-              Hủy
-            </Button>
-            <Button htmlType="submit" type="primary">
-              Lưu
-            </Button>
-          </Space>
-        </div>
+        <BottomBarContainer
+          back={"Quay lại"}
+          rightComponent={
+            <Space>
+              <Button type="default" onClick={onCancel}>
+                Hủy
+              </Button>
+              <Button htmlType="submit" type="primary">
+                Lưu
+              </Button>
+            </Space>
+          }
+        />
       </Form>
     </ContentContainer>
   );

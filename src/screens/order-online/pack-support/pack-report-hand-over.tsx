@@ -14,8 +14,7 @@ const PackReportHandOver: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<any>();
   const [tableLoading] = useState(true);
-  const [singlePack,setSinglePack]=useState<any>();
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
   const [data] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -319,12 +318,6 @@ const PackReportHandOver: React.FC = () => {
     [params]
   );
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    console.log(selectedRow);
-     const selectedRowKeys = selectedRow.map((row: any) => row.id);
-     setSelectedRowKeys(selectedRowKeys);
-  }, []);
-
   return (
     <>
       <div style={{ padding: "24px 24px 0 24px" }}>
@@ -352,8 +345,8 @@ const PackReportHandOver: React.FC = () => {
             onRow={(record: any) => {
               return {
                 onClick: (event) => {
-                  setSinglePack(record);
-                  console.log("record",record);
+                  // setSinglePack(record);
+                  // console.log("record",record);
                 }, // click row
               };
             }}

@@ -12,10 +12,11 @@ type PropType = {
   isCloneOrder?: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
+  isSplitOrder?: boolean;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder } = props;
+  const { accounts, onChangeTag, tags, isCloneOrder, isSplitOrder } = props;
 
   return (
     <StyledComponent>
@@ -50,7 +51,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           >
             {accounts.map((item, index) => (
               <Select.Option key={index.toString()} value={item.code}>
-                {`${item.full_name} - ${item.code}`}
+                {`${item.code} - ${item.full_name}`}
               </Select.Option>
             ))}
           </Select>
@@ -85,7 +86,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           >
             {accounts.map((item, index) => (
               <Select.Option key={index.toString()} value={item.code}>
-                {`${item.full_name} - ${item.code}`}
+                {`${item.code} - ${item.full_name}`}
               </Select.Option>
             ))}
           </Select>
@@ -133,7 +134,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} />
+          <Input placeholder="Điền tham chiếu" maxLength={255} disabled={isSplitOrder} />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"

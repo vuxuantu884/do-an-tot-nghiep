@@ -1,14 +1,14 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Input, Row, Select, Timeline } from "antd";
-import { POField } from "model/purchase-order/po-field";
-import React, { useCallback, useEffect, useState } from "react";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
+import { POField } from "model/purchase-order/po-field";
+import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import React, { useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import POCreatePaymentModal from "../../modal/POCreatePayment";
+import { formatCurrency } from "utils/AppUtils";
 import { PoPaymentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { formatCurrency } from "utils/AppUtils";
-import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import POCreatePaymentModal from "../../modal/POCreatePayment";
 import { POPaymentConditionsFormStyled } from "./styles";
 
 type POPaymentConditionsFormProps = {
@@ -35,6 +35,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
     formMainEdit,
     isEditDetail,
   } = props;
+ 
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [paymentsData, setPaymentsData] = useState<Array<PurchasePayments>>([]);
   const [paymentsDataDraft, setPaymentsDataDraft] = useState<

@@ -131,9 +131,9 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     // if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
     //   // onPayments([]);
     // }
-    // if (value === ShipmentMethodOption.DELIVER_LATER) {
-    //   setPaymentMethod(PaymentMethodOption.POSTPAYMENT);
-    // }
+    if (value === ShipmentMethodOption.DELIVER_LATER || value === ShipmentMethodOption.PICK_AT_STORE) {
+      setShippingFeeInformedCustomer(0)
+    }
   };
 
   const shipping_requirements = useSelector(
@@ -374,7 +374,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
                 amount={amount}
-                // totalPaid={totalPaid}
+                totalPaid={totalPaid}
                 serviceType={serviceType}
                 changeServiceType={changeServiceType}
                 // deliveryServices={deliveryServices}

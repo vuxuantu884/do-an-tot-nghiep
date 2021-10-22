@@ -359,6 +359,7 @@ export interface StoreCustomResponse extends BaseObject {
   begin_date: string;
   number_of_account: number;
   accounts: Array<any>;
+  is_saleable: boolean,
 }
 
 export interface OrderSubStatusResponse {

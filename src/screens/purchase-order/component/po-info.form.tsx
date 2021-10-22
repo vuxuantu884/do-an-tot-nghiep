@@ -378,7 +378,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   >
                     <Select
                       showArrow
-                      showSearch
+                      allowClear
                       optionFilterProp="children"
                       placeholder="Chọn Merchandiser"
                     >
@@ -393,6 +393,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     <Select
                       showArrow
                       showSearch
+                      allowClear
                       optionFilterProp="children"
                       placeholder="Chọn QC"
                     >
@@ -408,6 +409,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     <Select
                       showArrow
                       showSearch
+                      allowClear
                       optionFilterProp="children"
                       placeholder="Chọn nhà thiết kế"
                     >

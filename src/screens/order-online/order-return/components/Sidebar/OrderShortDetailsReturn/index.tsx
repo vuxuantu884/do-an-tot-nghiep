@@ -19,11 +19,13 @@ function OrderShortDetailsReturn(props: PropType) {
   return (
     <StyledComponent>
       <Card className="card-block card-block-normal" title="Thông tin Đơn TRẢ hàng">
-        <Row className="" gutter={5}>
+        <Row className="rowDetail" gutter={5}>
           <Col span={9}>Mã đơn hàng:</Col>
           <Col span={15}>
             <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
-              {OrderDetail?.code}
+              <Link to={`${UrlConfig.ORDER}/${OrderDetail?.order_id}`} target="_blank">
+                {OrderDetail?.order_code}
+              </Link>
             </span>
           </Col>
         </Row>
@@ -33,7 +35,7 @@ function OrderShortDetailsReturn(props: PropType) {
             <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
               {OrderDetail?.order_code && OrderDetail.order_id ? (
                 <Link to={`${UrlConfig.ORDER}/${OrderDetail.order_id}`} target="_blank">
-                  {OrderDetail?.order_code}
+                  {OrderDetail?.code}
                 </Link>
               ) : (
                 "-"
@@ -72,7 +74,7 @@ function OrderShortDetailsReturn(props: PropType) {
           </Col>
         </Row>
         <Row className="rowDetail" gutter={5}>
-          <Col span={9}>Nhân viên trả hàng:</Col>
+          <Col span={9}>NV trả hàng:</Col>
           <Col span={15} style={{ wordWrap: "break-word" }}>
             {OrderDetail?.account ? OrderDetail?.account : "-"}
           </Col>

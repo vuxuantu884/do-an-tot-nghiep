@@ -31,6 +31,7 @@ const StoreListScreen = React.lazy(
 const StoreUpdateScreen = React.lazy(
   () => import("screens/settings/store/store-update.screen")
 );
+const StoreDetailScreen = React.lazy(() => import("screens/settings/store/store-detail"));
 
 // fulfillment: quản lý đơn hàng
 const SettingFulfillmentScreen = React.lazy(
@@ -121,11 +122,24 @@ const setting: Array<RouteMenu> = [
         exact: true,
         title: "Sửa cửa hàng",
         icon: "icon-dot",
-        component: StoreUpdateScreen,
+        component: StoreDetailScreen,
         key: "subMenu922",
         isShow: true,
         header: null,
-        subMenu: [],
+        subMenu: [
+          {
+            path: `${UrlConfig.STORE}/:id/edit`,
+            exact: true,
+            title: "Sửa cửa hàng",
+            icon: "icon-dot",
+            component: StoreUpdateScreen,
+            key: "subMenu9221",
+            isShow: true,
+            header: null,
+            subMenu: [],
+            pathIgnore: ["create"],
+          },
+        ],
         pathIgnore: ["create"],
       },
     ],
