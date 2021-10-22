@@ -71,18 +71,21 @@ const POReturnList: React.FC<POReturnListProps> = (
           {return_orders.map((item) => {
             let total = 0;
             let totalValue = 0;
-            item.line_return_items.forEach((lineReturn) => {
-              total += lineReturn.quantity_return;
-            })
-            item.line_return_items.forEach((item) => {
-              totalValue +=
-                item.quantity_return *
-                POUtils.caculatePrice(
-                  item.price,
-                  item.discount_rate,
-                  item.discount_value
-                );
-            });
+            if(item.line_return_items) {
+              item.line_return_items.forEach((lineReturn) => {
+                total += lineReturn.quantity_return;
+              })
+              item.line_return_items.forEach((item) => {
+                totalValue +=
+                  item.quantity_return *
+                  POUtils.caculatePrice(
+                    item.price,
+                    item.discount_rate,
+                    item.discount_value
+                  );
+              });
+            }
+           
             return (
               <Timeline key={item.id} style={{marginTop: 10}}>
                 <Timeline.Item className="active">
@@ -108,7 +111,7 @@ const POReturnList: React.FC<POReturnListProps> = (
                         <span style={{ fontWeight: 500 }}>{`${total} sản phẩm`}</span>
                       }
                     >
-                      {item.line_return_items.map((item) => {
+                      {item.line_return_items?.map((item) => {
                         return (
                           <Fragment>
                             <Row>
