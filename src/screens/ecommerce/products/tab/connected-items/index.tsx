@@ -350,11 +350,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             {l.connect_status === "connected" && (
               <span style={{ color: "#27AE60" }}>Thành công</span>
             )}
-            {l.connect_status === "warning" && (
-              <Tooltip title="Chú ý giá bán (sàn) và giá bán (admin) bị lệch nhau" color="blue">
-                <span style={{ color: "#FCAF17" }}>Warning</span>
-              </Tooltip>
-            )}
           </div>
         );
       },
@@ -428,7 +423,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
       query.category_id = value.category_id;
-      query.connect_status = value.connect_status || "connected";
+      query.connect_status = "connected";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
@@ -492,17 +487,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       isActive: false,
       ecommerce_id: 4,
     },
-  ];
-
-  const CONNECT_STATUS = [
-    {
-      name:"Thành công",
-      value:"connected"
-    },
-    {
-      name:"Warning",
-      value:"warning"
-   },
   ];
 
   const bootstrapReducer = useSelector(
@@ -922,23 +906,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                   {categoryList?.map((item: any) => (
                     <Option key={item.category_id} value={item.category_id}>
                       {item.display_category_name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="connect_status"
-                label={<b>TRẠNG THÁI GHÉP NỐI</b>}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn trạng thái ghép nối"
-                  allowClear
-                >
-                  {CONNECT_STATUS?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
                     </Option>
                   ))}
                 </Select>
