@@ -2,27 +2,26 @@
 import {
   Button,
   Card,
-  Row,
-  Col,
-  Space,
-  Typography,
-  Divider,
   Checkbox,
-  Tooltip,
+  Col,
+  Divider,
+  Row,
+  Space,
   Table,
   Tag,
+  Tooltip,
 } from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import { Type } from "config/type.config";
+import UrlConfig from "config/url.config";
 import {
   OrderLineItemResponse,
   OrderResponse,
 } from "model/response/order/order.response";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
-import { Type } from "config/type.config";
 import React from "react";
 import { Link } from "react-router-dom";
-import UrlConfig from "config/url.config";
+import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 //#endregion
 
 type ProductCardUpdateProps = {

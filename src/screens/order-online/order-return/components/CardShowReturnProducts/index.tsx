@@ -1,4 +1,4 @@
-import { Card, Col, Popover, Row, Table, Tooltip, Typography } from "antd";
+import { Card, Col, Popover, Row, Table, Tooltip } from "antd";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import UrlConfig from "config/url.config";
@@ -104,7 +104,7 @@ function CardShowReturnProducts(props: PropType) {
               }}
             >
               <div className="yody-pos-sku">
-              <Link
+                <Link
                   target="_blank"
                   to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
                 >

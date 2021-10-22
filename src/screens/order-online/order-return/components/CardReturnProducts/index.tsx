@@ -10,7 +10,6 @@ import {
   Row,
   Table,
   Tooltip,
-  Typography,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
@@ -19,10 +18,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
 import { OrderLineItemRequest } from "model/request/order.request";
-import {
-  OrderResponse,
-  ReturnProductModel,
-} from "model/response/order/order.response";
+import { OrderResponse, ReturnProductModel } from "model/response/order/order.response";
 import React, { createRef, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
@@ -109,8 +105,7 @@ function CardReturnProducts(props: PropType) {
       let discountPerOrder = 0;
       let discountPerProduct = getProductDiscountPerProduct(product);
       if (discountRate) {
-        discountPerOrder =
-          ((product.price - discountPerProduct) * discountRate) / 100;
+        discountPerOrder = ((product.price - discountPerProduct) * discountRate) / 100;
       }
       return discountPerOrder;
     },
@@ -151,9 +146,7 @@ function CardReturnProducts(props: PropType) {
           style={{ display: "flex", justifyContent: "space-between" }}
         >
           <p>Chiết khấu/đơn hàng: </p>
-          <p style={{ marginLeft: 20 }}>
-            {formatCurrency(Math.round(discountPerOrder))}
-          </p>
+          <p style={{ marginLeft: 20 }}>{formatCurrency(Math.round(discountPerOrder))}</p>
         </div>
       </div>
     );
@@ -174,7 +167,7 @@ function CardReturnProducts(props: PropType) {
               }}
             >
               <div className="yody-pos-sku">
-              <Link
+                <Link
                   target="_blank"
                   to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
                 >
@@ -182,10 +175,7 @@ function CardReturnProducts(props: PropType) {
                 </Link>
               </div>
               <div className="yody-pos-varian">
-                <Tooltip
-                  title={record.variant}
-                  className="yody-pos-varian-name"
-                >
+                <Tooltip title={record.variant} className="yody-pos-varian-name">
                   <span>{record.variant}</span>
                 </Tooltip>
               </div>
@@ -237,11 +227,7 @@ function CardReturnProducts(props: PropType) {
           <span style={{ color: "#222222", textAlign: "right" }}>
             Đơn giá sau giảm giá
           </span>
-          <span
-            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
-          >
-            ₫
-          </span>
+          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
       dataIndex: "price",
@@ -249,14 +235,10 @@ function CardReturnProducts(props: PropType) {
       render: (value: number, record: ReturnProductModel, index: number) => {
         const discountPerProduct = getProductDiscountPerProduct(record);
         const discountPerOrder = getProductDiscountPerOrder(record);
-        const pricePerOrder =
-          record.price - discountPerProduct - discountPerOrder;
+        const pricePerOrder = record.price - discountPerProduct - discountPerOrder;
         return (
           <Popover
-            content={renderPopOverPriceContent(
-              discountPerProduct,
-              discountPerOrder
-            )}
+            content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
             title={renderPopOverPriceTitle(record.price)}
           >
             {formatCurrency(Math.round(pricePerOrder))}
@@ -268,11 +250,7 @@ function CardReturnProducts(props: PropType) {
       title: () => (
         <div>
           <span style={{ color: "#222222" }}>Tổng tiền</span>
-          <span
-            style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}
-          >
-            ₫
-          </span>
+          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
       key: "total",
@@ -392,9 +370,7 @@ function CardReturnProducts(props: PropType) {
               <strong className="font-size-text">Tổng tiền trả khách:</strong>
               <strong>
                 {/* làm tròn đến trăm đồng */}
-                {formatCurrency(
-                  Math.round(totalAmountReturnProducts / 100) * 100
-                )}
+                {formatCurrency(Math.round(totalAmountReturnProducts / 100) * 100)}
               </strong>
             </Row>
           </Col>

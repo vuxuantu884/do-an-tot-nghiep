@@ -51,7 +51,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           >
             {accounts.map((item, index) => (
               <Select.Option key={index.toString()} value={item.code}>
-                {`${item.full_name} - ${item.code}`}
+                {`${item.code} - ${item.full_name}`}
               </Select.Option>
             ))}
           </Select>
@@ -86,7 +86,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           >
             {accounts.map((item, index) => (
               <Select.Option key={index.toString()} value={item.code}>
-                {`${item.full_name} - ${item.code}`}
+                {`${item.code} - ${item.full_name}`}
               </Select.Option>
             ))}
           </Select>

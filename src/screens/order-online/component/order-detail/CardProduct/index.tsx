@@ -18,7 +18,6 @@ import {
   Space,
   Table,
   Tooltip,
-  Typography,
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -434,7 +433,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
-    width: "28%",
+    width: "34%",
     className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -454,7 +453,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               }}
             >
               <div className="yody-pos-sku">
-              <Link
+                <Link
                   target="_blank"
                   to={`${UrlConfig.PRODUCT}/${l.product_id}/variants/${l.variant_id}`}
                 >
@@ -468,7 +467,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </div>
             </div>
           </div>
-          <div style={{ marginTop: 2 }}>
+          <div style={{ marginTop: 5 }}>
             {l.gifts &&
               l.gifts.map((a, index1) => (
                 <div key={index1} className="yody-pos-addition yody-pos-gift">
@@ -517,7 +516,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "12%",
+    width: "9%",
     align: "right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -543,7 +542,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     className: "yody-pos-price text-right",
-    width: "18%",
+    width: "15%",
     align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -576,7 +575,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     align: "center",
-    width: "22%",
+    width: "20%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -605,7 +604,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     ),
     align: "right",
     className: "yody-table-total-money text-right",
-    width: "14%",
+    width: "12%",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="yody-pos-varian-name">
@@ -621,7 +620,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div>Thao tác</div>
       </div>
     ),
-    width: "12%",
+    width: "10%",
     className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
@@ -677,12 +676,16 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               placement="bottomRight"
               disabled={levelOrder > 3}
             >
-              <Button type="text" className="p-0 ant-btn-custom" style={{border:"0px"}}>
+              <Button
+                type="text"
+                className="p-0 ant-btn-custom"
+                style={{ border: "0px" }}
+              >
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
             <Button
-              style={{ background: "transparent",border:"0px" }}
+              style={{ background: "transparent", border: "0px" }}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
@@ -972,10 +975,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setIsInputSearchProductFocus(false);
   };
 
-  const checkIsShowSplitOrder = () => {
-    return !isSplitOrder;
-  };
-
   const handleSplitOrder = () => {
     if (!orderId) {
       return;
@@ -1015,7 +1014,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             >
               Kiểm tra tồn
             </Button>
-            {checkIsShowSplitOrder() && (
+            {isSplitOrder && (
               <div className="splitOrder">
                 <Checkbox onChange={(e) => setIsShowSplitOrder(e.target.checked)}>
                   Tách đơn
