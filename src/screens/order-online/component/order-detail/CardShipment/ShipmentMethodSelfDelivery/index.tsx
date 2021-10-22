@@ -8,33 +8,29 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  shipper: AccountResponse[] | null;
-  setShippingFeeInformedCustomer: (value: number | null) => void;
-  shippingFeeCustomer?: number | null;
-  amount?: number;
-  totalPaid?: number;
-  discountValue?: number | null;
-  totalAmountReturnProducts?: number;
+  totalAmountCustomerNeedToPay: number;
+  setShippingFeeInformedToCustomer: (value: number | null) => void;
   levelOrder?: number;
+  isCancelValidate: boolean;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
-    shipper, setShippingFeeInformedCustomer,
-    amount, totalPaid, levelOrder = 0,
-    shippingFeeCustomer,
-    discountValue,
-    totalAmountReturnProducts
+    setShippingFeeInformedToCustomer,
+    levelOrder = 0,
+    totalAmountCustomerNeedToPay,
+    isCancelValidate,
   } = props;
 
   const createOrderContextData = useContext(OrderCreateContext);
-  const totalAmountCustomerNeedToPayShipper =
-    createOrderContextData?.price.totalAmountCustomerNeedToPay ?
-      createOrderContextData?.price.totalAmountCustomerNeedToPay : ((amount ? amount : 0) +
+  const totalAmountCustomerNeedToPayShipper = createOrderContextData?.price
+    .totalAmountCustomerNeedToPay
+    ? createOrderContextData?.price.totalAmountCustomerNeedToPay
+    : (amount ? amount : 0) +
       (shippingFeeCustomer ? shippingFeeCustomer : 0) -
       (discountValue ? discountValue : 0) -
       (totalPaid ? totalPaid : 0) -
       // totalAmountPaid() -
-      (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
+      (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
 
   return (
     <StyledComponent>
@@ -46,7 +42,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
-                !createOrderContextData?.buttonSave.isSaveDraft
+                isCancelValidate
                   ? [
                       {
                         required: true,
@@ -143,7 +139,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 }}
                 maxLength={15}
                 minLength={0}
-                onChange={setShippingFeeInformedCustomer}
+                onChange={setShippingFeeInformedToCustomer}
                 disabled={levelOrder > 3}
               />
             </Form.Item>
