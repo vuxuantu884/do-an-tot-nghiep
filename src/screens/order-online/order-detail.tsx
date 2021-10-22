@@ -589,7 +589,7 @@ const OrderDetail = (props: PropType) => {
             name: "Đơn hàng",
           },
           {
-            name: `Đơn hàng ${id}`,
+            name: `Đơn hàng ${OrderDetail?.code}`,
           },
         ]}
         extra={

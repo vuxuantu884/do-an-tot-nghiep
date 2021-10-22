@@ -153,7 +153,7 @@ const ListOrderScreen: React.FC = () => {
       title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => (
-        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+        <Link  target="_blank"  to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
       ),
       visible: true,
       fixed: "left",
@@ -213,8 +213,10 @@ const ListOrderScreen: React.FC = () => {
                       target="_blank"
                       to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
                     >
-                      {item.variant}
+                      {item.sku} 
+                      <br/>{item.variant}
                     </Link>
+                    
                   </div>
                   <div className="quantity quantityWidth">
                     <span>{item.quantity}</span>
