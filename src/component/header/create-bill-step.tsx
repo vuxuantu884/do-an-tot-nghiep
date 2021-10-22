@@ -125,7 +125,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments.length > 0 &&
           ((props.orderDetail?.fulfillments[0].shipped_on &&
           moment(props.orderDetail?.fulfillments[0].shipped_on).format(formatDate)) ||
-          (props.status === "cancelled" &&
+          (props.status === "cancelled" && props.orderDetail?.cancelled_on &&
           moment(props.orderDetail?.cancelled_on).format(formatDate)))
         }
         className={props.status === "cancelled" ? "cancelled" : ""}
