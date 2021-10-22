@@ -52,7 +52,7 @@ import {
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
@@ -135,7 +135,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const formRefShipment = createRef<FormInstance>();
   // action
   const dispatch = useDispatch();
-
+  // ffm asc id
+  const newFulfillments = useMemo(() => {
+    const ffm = props.OrderDetailAllFullfilment?.fulfillments ? [...props.OrderDetailAllFullfilment.fulfillments.reverse()] : [];
+    return ffm
+  }, [props.OrderDetailAllFullfilment]);
   // state
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
@@ -946,9 +950,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           </Space>
         }
       >
-        {props.OrderDetailAllFullfilment?.fulfillments &&
-          props.OrderDetailAllFullfilment?.fulfillments.length > 0 &&
-          props.OrderDetailAllFullfilment?.fulfillments.map(
+        {newFulfillments.map(
             (fulfillment) =>
               fulfillment.shipment && (
                 <div

@@ -580,7 +580,7 @@ export default function Order(props: PropType) {
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
-    console.log("onFinish onFinish 111", values);
+    console.log("onFinish onFinish", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -720,7 +720,8 @@ export default function Order(props: PropType) {
       OrderDetailAction(Number(id), (res) => {
         const response = {
           ...res,
-          fulfillments: res.fulfillments?.reverse(),
+          // ffm des id
+          fulfillments: res.fulfillments?.sort((a, b) => b.id - a.id),
         };
         const { customer_id } = response;
         setOrderDetail(response);
