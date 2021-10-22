@@ -61,7 +61,6 @@ import {
   CheckShipmentType,
   formatCurrency,
   getAmountPayment,
-  getServiceName,
   getShippingAddressDefault,
   InfoServiceDeliveryDetail,
   replaceFormatString,
@@ -159,6 +158,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [hvcCode, setHvcCode] = useState<string | null>(null);
   const [hvcName, setHvcName] = useState<string | null>(null);
   const [serviceType, setServiceType] = useState<string>();
+  const [serviceName, setServiceName] = useState<string>("");
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
 
@@ -216,13 +216,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     code: string,
     item: any,
     fee: number,
-    name: string
+    name: string,
+    serviceName: string
   ) => {
     setHvc(id);
     setHvcCode(code);
     setHvcName(name);
     setServiceType(item);
     setFee(fee);
+    setServiceName(serviceName)
   };
 
   //#endregion
@@ -505,6 +507,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     delivery_service_provider_type: "", //shipper
     delivery_service_provider_code: "",
     delivery_service_provider_name: "",
+    delivery_transport_type: "",
     shipper_code: null,
     shipper_name: "",
     handover_id: null,
@@ -570,6 +573,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.delivery_service_provider_type = "external_service";
         value.delivery_service_provider_code = hvcCode;
         value.delivery_service_provider_name = hvcName;
+        // delivery_transport_type = serviceName
+        value.delivery_transport_type = serviceName;
         value.sender_address_id = props.OrderDetail.store_id;
         value.service = serviceType!;
         value.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
@@ -1135,7 +1140,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 </Col>
                                 <Col span={14}>
                                   <b className="text-field">
-                                    {getServiceName(props.OrderDetail!)}
+                                    {/* {getServiceName(props.OrderDetail!)} */}
+                                    {fulfillment.shipment?.delivery_transport_type}
                                   </b>
                                 </Col>
                               </Row>
