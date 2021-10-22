@@ -69,6 +69,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import UrlConfig from "config/url.config";
+import * as CONSTANTS from "utils/Constants";
 //#end region
 
 type CustomerCardProps = {
@@ -155,8 +156,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
     useState(false);
 
-  const [titleNotify, setTitleNotify] = useState("Cập nhập dữ liệu thành công");
-
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
   const autoCompleteElement: any = document.getElementById("search_customer");
@@ -183,12 +182,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const OkConfirmCustomerCreate = () => {
     setModalAction("create");
-    setTitleNotify("Thêm mới dữ liệu thành công");
     setVisibleCustomer(true);
   };
   const OkConfirmCustomerEdit = () => {
     setModalAction("edit");
-    setTitleNotify("Cập nhập dữ liệu thành công");
     setVisibleCustomer(true);
   };
 
@@ -593,11 +590,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 <span className="customer-detail-icon">
                   <img src={callIcon} alt="" className="icon-customer-info" />
                 </span>
-                <span className="customer-detail-text text-body">
-                  {customer?.phone === undefined
-                    ? "0987654321"
-                    : customer?.phone}
-                </span>
+                <a className="customer-detail-text text-body primary" style={{color:"#5656A2"}} href={`tel:${customer?.phone === undefined? "0987654321": customer?.phone}`}>0965143608</a>
               </Space>
 
               <Space className="customer-detail-point">
@@ -661,7 +654,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     modalAction={modalAction}
                     isVisibleCollapseCustomer={isVisibleCollapseCustomer}
                     districtId={districtId}
-                    titleNotify={titleNotify}
                     handleChangeArea={handleChangeArea}
                     handleChangeCustomer={handleChangeCustomer}
                     onCancel={CustomerDeleteInfo}
@@ -709,7 +701,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         btnUpdateCustomerElement?.click();
                       }}
                       >
-                        Cập nhật
+                        {modalAction=== CONSTANTS.MODAL_ACTION_TYPE.create?"Thêm mới" : "Cập nhập"}
                       </Button>
                     )}
                   </Col>
@@ -740,7 +732,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         btnUpdateCustomerElement?.click();
                       }}
                       >
-                        Cập nhật
+                         {modalAction=== CONSTANTS.MODAL_ACTION_TYPE.create?"Thêm mới" : "Cập nhập"}
                       </Button>
                     )}
                   </Col>
@@ -863,7 +855,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       btnUpdateCustomerElement?.click();
                     }}
                     >
-                      Cập nhật
+                      {modalAction=== CONSTANTS.MODAL_ACTION_TYPE.create?"Thêm mới" : "Cập nhập"}
                     </Button>
                   )}
                 </Col>
