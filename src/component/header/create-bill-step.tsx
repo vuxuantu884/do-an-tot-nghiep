@@ -66,10 +66,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       current={currentStep}
       className="create-bill-step"
     >
-      <Steps.Step
-        title="Đặt hàng"
-        description={moment(props.orderDetail?.created_date).format(formatDate)}
-      />
+      <Steps.Step title="Đặt hàng" />
       <Steps.Step
         title="Xác nhận"
         description={

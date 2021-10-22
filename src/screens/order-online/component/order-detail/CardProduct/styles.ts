@@ -6,7 +6,14 @@ export const StyledComponent = styled.div`
   .ant-table-thead > tr > th,
   .ant-table tfoot > tr > td,
   .ant-table tfoot > tr > th {
-    padding: 10px;
+    padding: 10px 5px;
+  }
+  .ant-card-head-wrapper {
+    display: flex;
+    justify-content: space-between;
+  }
+  .ant-card-head-title {
+    flex: initial;
   }
   .ant-card-extra {
     .ant-form-item {
@@ -46,5 +53,17 @@ export const StyledComponent = styled.div`
         border-color: ${primaryColor};
       }
     }
+  }
+  td.yody-pos-name {
+    .yody-pos-varian-name {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .splitOrder {
+    display: flex;
+    align-items: center;
   }
 `;

@@ -1,5 +1,7 @@
 import { Card, Col, Row } from "antd";
+import UrlConfig from "config/url.config";
 import { OrderResponse } from "model/response/order/order.response";
+import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -15,7 +17,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>Cửa hàng:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
-              {OrderDetail?.store}
+              <Link target="_blank" to={`${UrlConfig.STORE}/${OrderDetail?.store_id}`}>
+                {OrderDetail?.store}
+              </Link>
             </span>
           </Col>
         </Row>
@@ -36,18 +40,22 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10}>Nhân viên bán hàng:</Col>
+          <Col span={10}>NV bán hàng:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              {OrderDetail?.assignee} - {OrderDetail?.assignee_code}
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.assignee_code}`}>
+                {OrderDetail?.assignee_code} - {OrderDetail?.assignee}
+              </Link>
             </span>
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10}>Nhân viên marketing:</Col>
+          <Col span={10}>NV marketing:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              {OrderDetail?.marketer} - {OrderDetail?.marketer_code}
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}>
+                {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
+              </Link>
             </span>
           </Col>
         </Row>
@@ -63,7 +71,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>Người tạo:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              {OrderDetail?.account}
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.account_code}`}>
+                {OrderDetail?.account_code} - {OrderDetail?.account}
+              </Link>
             </span>
           </Col>
         </Row>
@@ -73,7 +83,7 @@ function SidebarOrderDetailInformation(props: PropType) {
             {OrderDetail?.url ? (
               <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
             ) : (
-              <span className="text-focus">Không</span>
+              <span className="text-focus">-</span>
             )}
           </Col>
         </Row>

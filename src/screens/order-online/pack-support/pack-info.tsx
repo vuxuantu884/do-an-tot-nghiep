@@ -12,6 +12,7 @@ import {
   Tooltip,
   FormInstance,
 } from "antd";
+import UrlConfig from "config/url.config";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 // import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
@@ -35,6 +36,7 @@ import {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, } from "utils/ToastUtils";
 
@@ -340,9 +342,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           <div className="d-flex align-items-center">
             <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>
+              <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${l.product_id}/variants/${l.variant_id}`}
+                >
                   {l.sku}
-                </Typography.Link>
+                </Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">

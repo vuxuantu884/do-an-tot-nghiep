@@ -2,25 +2,26 @@
 import {
   Button,
   Card,
-  Row,
-  Col,
-  Space,
-  Typography,
-  Divider,
   Checkbox,
-  Tooltip,
+  Col,
+  Divider,
+  Row,
+  Space,
   Table,
   Tag,
+  Tooltip,
 } from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import { Type } from "config/type.config";
+import UrlConfig from "config/url.config";
 import {
   OrderLineItemResponse,
   OrderResponse,
 } from "model/response/order/order.response";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
-import { Type } from "config/type.config";
 import React from "react";
+import { Link } from "react-router-dom";
+import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 //#endregion
 
 type ProductCardUpdateProps = {
@@ -54,7 +55,12 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           <div className="d-flex align-items-center">
             <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>{l.sku}</Typography.Link>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${l.product_id}/variants/${l.variant_id}`}
+                >
+                  {l.sku}
+                </Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -273,7 +279,11 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           />
         </Row>
 
-        <Row className="sale-product-box-payment" gutter={24} style={{ paddingTop: 20, paddingRight: "15px" }}>
+        <Row
+          className="sale-product-box-payment"
+          gutter={24}
+          style={{ paddingTop: 20, paddingRight: "15px" }}
+        >
           <Col xs={24} lg={12}>
             <div className="payment-row">
               <Checkbox className="margin-bottom-15">Bỏ chiết khấu tự động</Checkbox>
@@ -291,11 +301,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               </div>
             </Row>
 
-            <Row
-              className="payment-row"
-              justify="space-between"
-              align="middle"
-            >
+            <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
                 Chiết khấu:
                 {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
@@ -321,11 +327,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   : 0}
               </div>
             </Row>
-            <Row
-              className="payment-row"
-              justify="space-between"
-              align="middle"
-            >
+            <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">Mã giảm giá:</Space>
               <div className="font-weight-500 ">0</div>
             </Row>
@@ -372,7 +374,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   style={{ height: "auto", margin: " 5px 0" }}
                 />
                 <Row className="payment-row" justify="space-between">
-                  <strong className="font-size-text" style={{fontWeight:"bold"}}>
+                  <strong className="font-size-text" style={{ fontWeight: "bold" }}>
                     {props.customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}

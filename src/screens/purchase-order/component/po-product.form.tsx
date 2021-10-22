@@ -894,7 +894,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             replace={(a: string) => replaceFormatString(a)}
                             value={value}
                             onChange={(inputValue) => {
-                              if (inputValue === null) return;
+                              if (inputValue === null) {
+                                onPriceChange(
+                                  0,
+                                  DiscountType.money,
+                                  0,
+                                  index
+                                );
+                                return;
+                              }
                               onPriceChange(
                                 inputValue,
                                 DiscountType.money,

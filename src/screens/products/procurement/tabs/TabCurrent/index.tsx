@@ -1,13 +1,17 @@
 import { Button } from "antd";
 import CustomTable from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
 import { POSearchProcurement } from "domain/actions/po/po-procument.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
+import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc, getDateFromNow } from "utils/DateUtils";
 
 const TabCurrent: React.FC = () => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<PageResponse<PurchaseProcument>>({
@@ -20,8 +24,9 @@ const TabCurrent: React.FC = () => {
   })
   const currentDate = getDateFromNow(0, "day");
   const [params, setParams] = useState<ProcurementQuery>({
-    expect_receipt_from: ConvertDateToUtc(currentDate),
-    expect_receipt_to: ConvertDateToUtc(currentDate),
+    status: ProcumentStatus.NOT_RECEIVED,
+    expect_receipt_from: ConvertDateToUtc(currentDate.startOf("days")),
+    expect_receipt_to: ConvertDateToUtc(currentDate.endOf("days")),
   })
   const search = useCallback(
     () => {
@@ -54,10 +59,6 @@ const TabCurrent: React.FC = () => {
         sticky={{ offsetScroll: 5, offsetHeader: 109 }}
         columns={[
           {
-            title: "STT",
-            render: (value, record, index) => index + 1
-          },
-          {
             title: "Mã nhập kho",
             dataIndex: "code",
             render: (value, record, index) => value
@@ -69,8 +70,10 @@ const TabCurrent: React.FC = () => {
           },
           {
             title: "Hành động",
-            dataIndex: "",
-            render: (value, record, index) => <Button>Nhận hàng</Button>
+            dataIndex: "purchase_order",
+            render: (value, record, index) => <Button onClick={() => {
+              history.push(`${UrlConfig.PURCHASE_ORDER}/${value.id}/#procument_${record.id}`)
+            }}>Nhận hàng</Button>
           },
         ]}
         rowKey={(item) => item.id}

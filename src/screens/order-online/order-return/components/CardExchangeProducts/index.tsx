@@ -73,6 +73,8 @@ import {
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { Link } from "react-router-dom";
+import UrlConfig from "config/url.config";
 
 type CardProductProps = {
   items?: Array<OrderLineItemRequest>;
@@ -347,7 +349,12 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
               }}
             >
               <div className="yody-pos-sku">
-                <Typography.Link style={{ color: "#2A2A86" }}>{l.sku}</Typography.Link>
+              <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/${l.product_id}/variants/${l.variant_id}`}
+                >
+                  {l.sku}
+                </Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -552,8 +559,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            padding: "0 4px",
+            justifyContent: "right",
           }}
         >
           <div
@@ -563,14 +569,14 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
             }}
           >
             <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-              <Button type="text" className="p-0 ant-btn-custom">
+              <Button type="text" className="p-0 ant-btn-custom" style={{border:"0px"}}>
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
           </div>
           <div className="saleorder-close-btn">
             <Button
-              style={{ background: "transparent" }}
+              style={{ background: "transparent", border:"0px" }}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}

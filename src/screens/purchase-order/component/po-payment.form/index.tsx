@@ -1,7 +1,7 @@
 import {
   CheckCircleOutlined,
   EditOutlined,
-  MinusCircleOutlined,
+  MinusCircleOutlined
 } from "@ant-design/icons";
 import {
   Button,
@@ -13,7 +13,7 @@ import {
   Row,
   Space,
   Tag,
-  Timeline,
+  Timeline
 } from "antd";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
@@ -31,7 +31,7 @@ import {
   PoPaymentMethod,
   PoPaymentStatus,
   POStatus,
-  ProcumentStatus,
+  ProcumentStatus
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -43,14 +43,20 @@ type POPaymentFormProps = {
   poData: PurchaseOrder;
   isSuggest: boolean;
   setSuggest: (isSuggest: boolean) => void;
+  setVisiblePaymentModal : (value: boolean) => void;
+  isVisiblePaymentModal : boolean;
+  paymentItem: PurchasePayments|undefined,
+  setPaymentItem: (paymentItem: PurchasePayments|undefined) => void;
+  initValue: any,
+  setInitValue: (initValue: any) => void
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
 ) => {
+ const {isVisiblePaymentModal, setVisiblePaymentModal, paymentItem, setPaymentItem, initValue, setInitValue}=props
   const dispatch = useDispatch();
-  const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
+  // const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
-  const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [indexPaymentItem, setIndexPaymentItem] = useState<string>("");
   const [loadingApproval, setLoaddingApproval] = useState<any>({});
   const { poData } = props;
@@ -58,11 +64,11 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     visible: false,
   });
 
-  const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
+  
 
-  const CancelPaymentModal = useCallback(() => {
+  const CancelPaymentModal = () => {
     setVisiblePaymentModal(false);
-  }, []);
+  };
   const OkPaymentModal = useCallback(
     (isReload: boolean) => {
       setVisiblePaymentModal(false);
@@ -70,7 +76,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         props.loadDetail(props.poId, false, false);
       }
     },
-    [props]
+    [props, setVisiblePaymentModal]
   );
 
   const updateCallback = useCallback(
@@ -115,13 +121,13 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
     setVisiblePaymentModal(true);
-  }, []);
+  }, [setPaymentItem, setVisiblePaymentModal]);
 
   const editPayment = useCallback((item: PurchasePayments, index: number) => {
     setPaymentItem(item);
     setIndexPaymentItem(index.toString());
     setVisiblePaymentModal(true);
-  }, []);
+  }, [setPaymentItem, setVisiblePaymentModal]);
 
   const onDeletePayment = useCallback(() => {
     setIndexPaymentItem("");
@@ -152,7 +158,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         }
       }
     }
-  }, [poData, props]);
+  }, [poData, props, setInitValue, setVisiblePaymentModal]);
 
   return (
     <StyledComponent>

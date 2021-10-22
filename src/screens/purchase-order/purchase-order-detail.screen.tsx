@@ -1,60 +1,60 @@
+import { PrinterFilled, SaveFilled } from "@ant-design/icons";
 import { Button, Col, Form, Input, Row, Space } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction
+} from "domain/actions/content/content.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
+import {
   POCancelAction,
-  PoDetailAction,
-  PoUpdateAction,
+  PoDetailAction, POGetPrintContentAction, PoUpdateAction
 } from "domain/actions/po/po.action";
+import purify from "dompurify";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import purify from "dompurify";
+import { StoreResponse } from "model/core/store.model";
+import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
+import { POField } from "model/purchase-order/po-field";
 import {
   PurchaseOrder,
-  PurchaseOrderPrint,
+  PurchaseOrderPrint
 } from "model/purchase-order/purchase-order.model";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import moment from "moment";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useParams, useHistory } from "react-router-dom";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { POGetPrintContentAction } from "domain/actions/po/po.action";
+import { useHistory, useParams } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
+import { ConvertDateToUtc } from "utils/DateUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
 import POProductForm from "./component/po-product.form";
-import POSupplierForm from "./component/po-supplier.form";
-
 import POReturnList from "./component/po-return-list";
-import {
-  CountryGetAllAction,
-  DistrictGetByCountryAction,
-} from "domain/actions/content/content.action";
 import POStep from "./component/po-step";
-import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { ConvertDateToUtc } from "utils/DateUtils";
-import { POField } from "model/purchase-order/po-field";
-import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
+import POSupplierForm from "./component/po-supplier.form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
-import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
-import moment from "moment";
-import { PrinterFilled, SaveFilled } from "@ant-design/icons";
-import { useReactToPrint } from "react-to-print";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import BottomBarContainer from "component/container/bottom-bar.container";
+
 
 type PurchaseOrderParam = {
   id: string;
 };
+
 const PODetailScreen: React.FC = () => {
   let now = moment();
   let initPurchaseOrder = {
@@ -88,6 +88,8 @@ const PODetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
+ 
+const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
 
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
@@ -111,6 +113,9 @@ const PODetailScreen: React.FC = () => {
   const [statusAction, setStatusAction] = useState<string>("");
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isSuggest, setSuggest] = useState<boolean>(false);
+  const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
+  const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
+  
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       setLoading(false);
@@ -235,12 +240,23 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
-    history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
+    console.log('poData?.status', poData?.status);
+    if(poData?.status === POStatus.FINALIZED){
+      setPaymentItem(undefined);
+      setVisiblePaymentModal(true)
+      setInitValue({
+        is_refund: true,
+        amount: poData.total_paid - poData.total_payment,
+      });
+    }else{
+       history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
       params: poData,
       listCountries: listCountries,
       listDistrict: listDistrict,
     });
-  }, [history, id, listCountries, listDistrict, poData]);
+    }
+   
+  }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
     if (!poData) return [];
@@ -376,7 +392,7 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
-  useEffect(() => {
+  useEffect(() => { 
     dispatch(
       AccountSearchAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, onResultWin)
     );
@@ -402,7 +418,7 @@ const PODetailScreen: React.FC = () => {
     html2canvas(value).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("portrait", "px");
-      pdf.addImage(imgData, "png", 10, 10, value.offsetWidth/4, value.offsetHeight/2);
+      pdf.addImage(imgData, "png", 10, 10, value.offsetWidth / 4, value.offsetHeight / 2);
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
     });
@@ -447,6 +463,7 @@ const PODetailScreen: React.FC = () => {
       ]}
       extra={poData && <POStep poData={poData} />}
     >
+ 
       <div id="test" className="page-filter">
         <Space direction="horizontal">
           <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
@@ -536,6 +553,12 @@ const PODetailScreen: React.FC = () => {
                 poData={poData}
                 poId={parseInt(id)}
                 loadDetail={loadDetail}
+                isVisiblePaymentModal={visiblePaymentModal}
+                paymentItem={paymentItem}
+                setPaymentItem={setPaymentItem}
+                setVisiblePaymentModal={setVisiblePaymentModal}
+                initValue={initValue}
+                setInitValue={setInitValue}
               />
             ) : (
               <POPaymentConditionsForm
@@ -559,20 +582,18 @@ const PODetailScreen: React.FC = () => {
             />
           </Col>
         </Row>
-        <BottomBarContainer 
+        <BottomBarContainer
           back={false}
           leftComponent={
-            <React.Fragment>
-            {poData && <POStep poData={poData} />}
-            </React.Fragment>
+            <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
           }
           height={80}
           rightComponent={renderButton}
         />
       </Form>
       {renderModalDelete()}
+     
     </ContentContainer>
   );
 };
-
-export default PODetailScreen;
+ export default PODetailScreen
