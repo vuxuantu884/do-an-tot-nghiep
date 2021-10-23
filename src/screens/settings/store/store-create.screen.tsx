@@ -16,8 +16,8 @@ import {
   GroupGetAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
-import { StoreCreateAction, StoreRankAction } from "domain/actions/core/store.action";
-import { StoreCreateRequest } from "model/core/store.model";
+import { StoreCreateAction, StoreRankAction, StoreValidateAction } from "domain/actions/core/store.action";
+import { StoreCreateRequest, StoreResponse } from "model/core/store.model";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -57,6 +57,8 @@ const initRequest: StoreCreateRequest = {
   latitude: null,
   longtitude: null,
   group_id: null,
+  is_saleable: true,
+  is_stocktaking: false,
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -93,8 +95,11 @@ const StoreCreateScreen: React.FC = () => {
     },
     [cityViews, dispatch, formMain]
   );
-  const onCreateSuccess = useCallback(() => {
-    history.push(UrlConfig.STORE);
+  const onCreateSuccess = useCallback((data: StoreResponse|false) => {
+    if(!data) {
+      return;
+    }
+    history.push(`${UrlConfig.STORE}/${data.id}`);
   }, [history]);
   const onCancel = useCallback(() => {
     history.goBack();
@@ -220,7 +225,20 @@ const StoreCreateScreen: React.FC = () => {
                 label="Tên cửa hàng"
                 name="name"
               >
-                <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
+                <Input onChange={(e) => {
+                  dispatch(StoreValidateAction({name: e.target.value}, (data) => {
+                    console.log(data);
+                    if(data instanceof Array) {
+                      formMain.setFields([
+                        {
+                          validating: false,
+                          name: "name",
+                          errors: data,
+                        },
+                      ]);
+                    }
+                  }))
+                }} maxLength={255} placeholder="Nhập tên cửa hàng" />
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
