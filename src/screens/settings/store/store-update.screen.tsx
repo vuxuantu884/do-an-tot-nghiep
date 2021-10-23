@@ -200,6 +200,26 @@ const StoreUpdateScreen: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={50}>
+              <Col>
+                <Item
+                  noStyle
+                  shouldUpdate={(prev, current) =>
+                    prev.is_saleable !== current.is_saleable ||
+                    prev.status !== current.status
+                  }
+                >
+                  {({ getFieldValue }) => {
+                    let status = getFieldValue("status");
+                    return (
+                      <Item valuePropName="checked" name="is_stocktaking">
+                        <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
+                      </Item>
+                    );
+                  }}
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
               <Item hidden noStyle name="version">
                 <Input />
               </Item>

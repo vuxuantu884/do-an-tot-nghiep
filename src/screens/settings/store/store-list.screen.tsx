@@ -41,10 +41,10 @@ const actions: Array<MenuAction> = [
     id: 1,
     name: "Chỉnh sửa",
   },
-  // {
-  //   id: 2,
-  //   name: "Xóa",
-  // },
+  {
+    id: 2,
+    name: "Xóa",
+  },
   {
     id: 3,
     name: "Export",
@@ -76,6 +76,8 @@ const StoreListScreen: React.FC = () => {
     },
     items: [],
   });
+  const [selected, setSelected] = useState<Array<StoreResponse>>([]);
+
   const menuFilter = useMemo(() => {
     return actions.filter((item) => {
       if (selected.length === 0) {
@@ -195,7 +197,6 @@ const StoreListScreen: React.FC = () => {
       },
     },
   ]);
-  const [selected, setSelected] = useState<Array<StoreResponse>>([]);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -259,7 +260,7 @@ const StoreListScreen: React.FC = () => {
           initValue={initQuery}
           storeStatusList={storeStatusList}
           onMenuClick={onMenuClick}
-          actions={actions}
+          actions={menuFilter}
           onFilter={onFilter}
           params={params}
           storeRanks={storeRanks}

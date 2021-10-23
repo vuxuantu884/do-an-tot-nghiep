@@ -187,6 +187,26 @@ const StoreCreateScreen: React.FC = () => {
             </Col>
           </Row>
           <Row gutter={50}>
+            <Col>
+              <Item
+                noStyle
+                shouldUpdate={(prev, current) =>
+                  prev.is_saleable !== current.is_saleable ||
+                  prev.status !== current.status
+                }
+              >
+                {({ getFieldValue }) => {
+                  let status = getFieldValue("status");
+                  return (
+                    <Item valuePropName="checked" name="is_stocktaking">
+                      <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
+                    </Item>
+                  );
+                }}
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[

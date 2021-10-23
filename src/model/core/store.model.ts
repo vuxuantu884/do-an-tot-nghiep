@@ -30,6 +30,7 @@ export interface StoreResponse extends BaseObject {
   number_of_account: number,
   accounts: Array<any>,
   is_saleable: boolean,
+  is_stocktaking: boolean
 }
 
 export interface StoreQuery extends BaseQuery {
