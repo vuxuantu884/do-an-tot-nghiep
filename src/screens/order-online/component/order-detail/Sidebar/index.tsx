@@ -148,6 +148,16 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         </Form.Item>
       </Card>
       <Card title="THÔNG TIN BỔ SUNG">
+      <Form.Item
+          name="customer_note22222222222222"
+          label="Ghi chú của khách"
+        >
+          <Input.TextArea
+            placeholder="Điền ghi chú"
+            maxLength={500}
+            style={{ minHeight: "130px" }}
+          />
+        </Form.Item>
         <Form.Item
           name="note"
           label="Ghi chú nội bộ"

@@ -936,6 +936,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         )
       );
     }
+    // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên
+    if (newData) {
+      formRef.current?.setFieldsValue({ store_id: newData[0].id });
+    }
     return newData;
   }, [listStores, userReducer.account]);
 
