@@ -259,13 +259,17 @@ const OrderDetail = (props: PropType) => {
     if (!data) {
       setError(true);
     } else {
-      let _data = { ...data };
+      let _data = {
+        ...data,
+        fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id)
+      };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
           f.status !== FulFillmentStatus.CANCELLED &&
           f.status !== FulFillmentStatus.RETURNED &&
           f.status !== FulFillmentStatus.RETURNING
       );
+
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
       setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
@@ -274,7 +278,7 @@ const OrderDetail = (props: PropType) => {
       }
       if (
         _data.status === OrderStatus.DRAFT &&
-        _data.fulfillments?.length === 0 &&
+        // _data.fulfillments?.length === 0 &&
         _data.payments?.length === 0
       ) {
         setIsShowConfirmOrderButton(true);

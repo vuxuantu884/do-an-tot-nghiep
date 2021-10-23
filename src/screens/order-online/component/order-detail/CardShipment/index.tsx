@@ -48,6 +48,7 @@ type CardShipmentProps = {
   setOfficeTime: (value: boolean) => void;
   serviceType?: string | null;
   setServiceType: (value?: string) => void;
+  setServiceName: (value: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
   totalPaid?: number;
@@ -78,6 +79,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setHvcCode,
     serviceType,
     setServiceType,
+    setServiceName,
     setFee,
     customerInfo,
     amount,
@@ -145,7 +147,8 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     code: string,
     item: any,
     fee: number,
-    name: string
+    name: string,
+    serviceName: string
   ) => {
     console.log("changeServiceType", item);
 
@@ -154,6 +157,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setFee(fee);
     setHvcName && setHvcName(name);
     setHvcCode && setHvcCode(code);
+    setServiceName(serviceName)
   };
 
   useLayoutEffect(() => {

@@ -246,7 +246,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       setVisiblePaymentModal(true)
       setInitValue({
         is_refund: true,
-        amount: poData.total_paid - poData.total_payment,
+        amount: poData.total_paid,
       });
     }else{
        history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
