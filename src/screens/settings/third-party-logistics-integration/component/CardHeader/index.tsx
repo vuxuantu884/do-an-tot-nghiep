@@ -18,11 +18,11 @@ function SingleLogisticCardHeader(props: PropType) {
           </div>
           <h4 className="name">{title}</h4>
         </div>
-        <div className="cardHeader__right">
+        {/* <div className="cardHeader__right">
           <a href={urlGuide} target="_blank" rel="noreferrer" className="link">
             Xem hướng dẫn kết nối
           </a>
-        </div>
+        </div> */}
       </div>
     </StyledComponent>
   );
