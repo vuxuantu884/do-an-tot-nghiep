@@ -28,7 +28,7 @@ import {
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
 import { SourceResponse } from "model/response/order/source.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
@@ -109,8 +109,8 @@ const ListOrderScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const [tableLoading, setTableLoading] = useState(true);
+  const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
   let dataQuery: OrderSearchQuery = {
@@ -624,11 +624,10 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      // console.log("filter start", `${UrlConfig.ORDER}?${queryParam}`);
+      setIsFilter(true)
       history.push(`${UrlConfig.ORDER}?${queryParam}`);
     },
     [history, params]
@@ -766,6 +765,7 @@ const ListOrderScreen: React.FC = () => {
 
   const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
     setTableLoading(false);
+    setIsFilter(false);
     if (!!result) {
       setData(result);
     }
@@ -776,18 +776,14 @@ const ListOrderScreen: React.FC = () => {
     [columns]
   );
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+  const setDataAccounts = (data: PageResponse<AccountResponse> | false) => {
     if (!data) {
       return;
     }
     setAccounts(data.items);
-  }, []);
+  };
 
   useEffect(() => {
-    if (isFirstLoad.current) {
-      setTableLoading(true);
-    }
-    isFirstLoad.current = false;
     setTableLoading(true);
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
@@ -805,7 +801,7 @@ const ListOrderScreen: React.FC = () => {
         }
       )
     );
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -855,7 +851,7 @@ const ListOrderScreen: React.FC = () => {
             onMenuClick={onMenuClick}
             actions={actions}
             onFilter={onFilter}
-            isLoading={tableLoading}
+            isLoading={isFilter}
             params={params}
             listSource={listSource}
             listStore={listStore}

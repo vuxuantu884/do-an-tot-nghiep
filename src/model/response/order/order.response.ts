@@ -111,7 +111,7 @@ export interface ReturnProductModel extends OrderLineItemResponse {
 }
 
 export interface FulFillmentResponse {
-  id: number | null;
+  id: number;
   code: string | null;
   store_id: number | null;
   account_code: string | null;
@@ -226,6 +226,7 @@ export interface ShippingAddress {
 export interface ShipmentResponse extends BaseObject {
   delivery_service_provider_id: number | null;
   delivery_service_provider_type: string | null;
+  delivery_transport_type: string | null;
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;

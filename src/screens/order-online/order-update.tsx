@@ -67,7 +67,6 @@ import {
   formatCurrency,
   getAmountPayment,
   getAmountPaymentRequest,
-  getServiceName,
   getTotalAmountAfferDiscount,
   SumCOD,
   SumWeightResponse,
@@ -149,6 +148,7 @@ export default function Order(props: PropType) {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
+  const [serviceName, setServiceName] = useState<string>("");
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -393,6 +393,7 @@ export default function Order(props: PropType) {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id đối tác vận chuyển
       delivery_service_provider_type: "", //shipper
+      delivery_transport_type: "",
       shipper_code: "",
       shipper_name: "",
       handover_id: null,
@@ -423,6 +424,7 @@ export default function Order(props: PropType) {
           ...objShipment,
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
+          delivery_transport_type: serviceName,
           sender_address_id: storeId,
           shipping_fee_informed_to_customer: shippingFeeCustomer,
           service: serviceType!,
@@ -580,7 +582,7 @@ export default function Order(props: PropType) {
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
-    console.log("onFinish onFinish 111", values);
+    console.log("onFinish onFinish", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -720,7 +722,8 @@ export default function Order(props: PropType) {
       OrderDetailAction(Number(id), (res) => {
         const response = {
           ...res,
-          fulfillments: res.fulfillments?.reverse(),
+          // ffm des id
+          fulfillments: res.fulfillments?.sort((a, b) => b.id - a.id),
         };
         const { customer_id } = response;
         setOrderDetail(response);
@@ -1480,6 +1483,7 @@ export default function Order(props: PropType) {
                       setOfficeTime={setOfficeTime}
                       officeTime={officeTime}
                       setServiceType={setServiceType}
+                      setServiceName={setServiceName}
                       setHVC={setHvc}
                       setFee={setFee}
                       payments={payments}
@@ -1765,7 +1769,8 @@ export default function Order(props: PropType) {
                                             </Col>
                                             <Col span={24}>
                                               <b className="text-field">
-                                                {getServiceName(OrderDetail!)}
+                                                {/* {getServiceName(OrderDetail!)} */}
+                                                {fulfillment.shipment?.delivery_transport_type}
                                               </b>
                                             </Col>
                                           </Col>

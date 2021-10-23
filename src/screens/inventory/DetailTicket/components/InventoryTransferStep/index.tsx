@@ -12,11 +12,11 @@ type StepStatusProps = {
 };
 
 const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
-  const { inventoryTransferDetail } = props;
+  const { status } = props;
   const formatDate = "DD/MM/YY - HH:mm";
   const [currentStep, setCurrentStep] = useState(0);
   const point = useCallback(() => {
-    switch (inventoryTransferDetail?.status) {
+    switch (status) {
       case STATUS_INVENTORY_TRANSFER.CONFIRM.status:
         setCurrentStep(1);
         break;
@@ -32,7 +32,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       default:
         return 0;
     }
-  }, [inventoryTransferDetail?.status]);
+  }, [status]);
 
   useEffect(() => {
     point();
@@ -44,6 +44,12 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     </div>
   );
 
+  const CreateDate = props.inventoryTransferDetail?.created_date ? moment(props.inventoryTransferDetail?.created_date).format(formatDate) : '';
+  const TransferDate = props.inventoryTransferDetail?.transfer_date ? moment(props.inventoryTransferDetail?.transfer_date).format(formatDate) : '';
+  const UpdateDate = props.inventoryTransferDetail?.updated_date ? moment(props.inventoryTransferDetail?.updated_date).format(formatDate) : '';
+  const ReceiveDate = props.inventoryTransferDetail?.receive_date ? moment(props.inventoryTransferDetail?.receive_date).format(formatDate) : '';
+  
+
   return (
     <StyledWrapper>
       <Steps
@@ -54,40 +60,23 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       >
         <Steps.Step
           title="Xin Hàng"
-          description={moment(props.inventoryTransferDetail?.created_date).format(formatDate)}
+          description={CreateDate}
         />
         <Steps.Step
           title="Chờ chuyển"
-          description={moment(props.inventoryTransferDetail?.created_date).format(formatDate)}
+          description={CreateDate}
         />
         <Steps.Step
           title="Đang chuyển"
-          description={
-            ""
-          }
-          className={
-            ""
-          }
+          description={TransferDate}
         />
         <Steps.Step
           title="Chờ xử lý"
-          
-          description={
-            ""
-          }
-          className={
-            ""
-          }
+          description={UpdateDate}
         />
         <Steps.Step
           title={!(props.status === "cancelled") ? "Đã nhập" : "Huỷ phiếu"}
-          
-          description={
-            ""
-          }
-          className={
-            ""
-          }
+          description={ReceiveDate}
         />
       </Steps>
     </StyledWrapper>

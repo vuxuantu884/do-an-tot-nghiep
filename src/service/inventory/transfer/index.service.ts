@@ -18,6 +18,8 @@ import { VariantResponse } from "../../../model/product/product.model";
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
+import { GetFeesRequest } from "model/request/order.request";
+import { VTPFeeResponse } from "model/response/order/order.response";
 
 export const getListInventoryTransferApi = (
   query: InventoryTransferSearchQuery
@@ -44,6 +46,11 @@ export const DeleteInventoryService = (
   return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/cancel/${id}`, request);
 };
 
+export const getInfoDeliveryFees = (
+  request: GetFeesRequest
+): Promise<BaseResponse<VTPFeeResponse>> => {
+  return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/fees`, request);
+};
 
 export const inventoryTransferGetDetailVariantIdsApi = (
   variant_id: number[],
@@ -108,13 +115,35 @@ const TransferService = {
     return BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/shipment`, data);
   },
 
+  adjustmentInventory: (
+    id: number,
+  ): Promise<BaseResponse<any>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/balance`);
+  },
+
   //update
   updateInventoryTransfer: (
     id: number, data: StockTransferSubmit
   ): Promise<BaseResponse<string>> => {
     return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}`, data);
   },
+
+  receivedInventoryTransfer: (
+    id: number, data: StockTransferSubmit
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/receive/${id}`, data);
+  },
 };
 
-export const { getStoreApi, getVariantByStoreApi, uploadFileApi, createInventoryTransfer, updateInventoryTransfer, createInventoryTransferShipment} =
+
+export const {
+  getStoreApi,
+  getVariantByStoreApi,
+  uploadFileApi,
+  createInventoryTransfer,
+  updateInventoryTransfer,
+  createInventoryTransferShipment,
+  receivedInventoryTransfer,
+  adjustmentInventory
+} =
   TransferService;
