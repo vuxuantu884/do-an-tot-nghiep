@@ -41,10 +41,10 @@ import { StyledComponent } from "./styles";
 
 type CardShipmentProps = {
   shipmentMethod: number;
-  orderPrice: number;
+  orderPrice?: number;
   storeDetail: StoreCustomResponse | undefined;
   customer: CustomerResponse | null;
-  items: Array<OrderLineItemRequest>;
+  items?: Array<OrderLineItemRequest>;
   levelOrder?: number;
   updateOrder?: boolean;
   isCancelValidateDelivery: boolean;
@@ -53,7 +53,7 @@ type CardShipmentProps = {
   form: FormInstance<any>;
   setServiceType3PL: (value: string | undefined) => void;
   setShipmentMethod: (value: number) => void;
-  setShippingFeeInformedToCustomer: (value: number | null) => void;
+  setShippingFeeInformedToCustomer: (value: number) => void;
   setHVC: (value: number) => void;
 };
 
@@ -102,6 +102,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setShippingFeeInformedToCustomer,
     setServiceType3PL,
   } = props;
+  console.log("orderPrice", orderPrice);
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
@@ -255,7 +256,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     );
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
   }, [dispatch]);
 

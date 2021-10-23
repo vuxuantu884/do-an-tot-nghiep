@@ -9,7 +9,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   totalAmountCustomerNeedToPay: number;
-  setShippingFeeInformedToCustomer: (value: number | null) => void;
+  setShippingFeeInformedToCustomer: (value: number) => void;
   levelOrder?: number;
   isCancelValidateDelivery: boolean;
   listShippers: AccountResponse[] | null;
@@ -23,6 +23,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     listShippers,
   } = props;
 
+  console.log("listShippers", listShippers);
   return (
     <StyledComponent>
       <div>
@@ -128,7 +129,13 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 }}
                 maxLength={15}
                 minLength={0}
-                onChange={setShippingFeeInformedToCustomer}
+                onChange={(value) => {
+                  if (value) {
+                    setShippingFeeInformedToCustomer(value);
+                  } else {
+                    setShippingFeeInformedToCustomer(0);
+                  }
+                }}
                 disabled={levelOrder > 3}
               />
             </Form.Item>

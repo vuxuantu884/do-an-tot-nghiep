@@ -29,7 +29,14 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
@@ -53,6 +60,7 @@ import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
+import CardShipment from "./component/order-detail/CardShipment";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -110,6 +118,9 @@ const OrderDetail = (props: PropType) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
+
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [serviceType3PL, setServiceType3PL] = useState<string>();
 
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
@@ -176,7 +187,7 @@ const OrderDetail = (props: PropType) => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     // setPayments(value);
   };
-  
+
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
   const stepsStatus = () => {
@@ -438,8 +449,8 @@ const OrderDetail = (props: PropType) => {
   useEffect(() => {
     if (isFirstLoad.current || reload) {
       if (!Number.isNaN(OrderId)) {
-        setShipmentMethod(4)
-        setShippingFeeInformedCustomer(0)
+        setShipmentMethod(4);
+        setShippingFeeInformedCustomer(0);
         dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
       } else {
         setError(true);
@@ -528,6 +539,13 @@ const OrderDetail = (props: PropType) => {
   const initialFormValue = {
     returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
   };
+
+  const totalAmountCustomerNeedToPay = useMemo(() => {
+    return (
+      (OrderDetail?.total_line_amount_after_line_discount || 0) +
+      shippingFeeInformedCustomer
+    );
+  }, [OrderDetail?.total_line_amount_after_line_discount, shippingFeeInformedCustomer]);
 
   /**
    * theme context data
@@ -1118,11 +1136,13 @@ const OrderDetail = (props: PropType) => {
                   customerDetail={customerDetail}
                   storeDetail={storeDetail}
                   stepsStatusValue={stepsStatusValue}
-                  totalPaid={OrderDetail?.total_paid
-                    ? OrderDetail?.total_paid
-                    : paymentType === 2
-                    ? totalPaid
-                    : 0}
+                  totalPaid={
+                    OrderDetail?.total_paid
+                      ? OrderDetail?.total_paid
+                      : paymentType === 2
+                      ? totalPaid
+                      : 0
+                  }
                   officeTime={officeTime}
                   shipmentMethod={shipmentMethod}
                   isVisibleShipping={isVisibleShipping}
@@ -1134,6 +1154,22 @@ const OrderDetail = (props: PropType) => {
                   disabledBottomActions={disabledBottomActions}
                 />
                 {/*--- end shipment ---*/}
+
+                <CardShipment
+                  shipmentMethod={shipmentMethod}
+                  orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+                  storeDetail={storeDetail}
+                  customer={customerDetail}
+                  items={OrderDetail?.items}
+                  isCancelValidateDelivery={false}
+                  totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                  setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
+                  setShipmentMethod={setShipmentMethod}
+                  setHVC={setHvc}
+                  form={form}
+                  serviceType3PL={serviceType3PL}
+                  setServiceType3PL={setServiceType3PL}
+                />
 
                 {OrderDetail?.order_return_origin?.items && (
                   <CardReturnReceiveProducts

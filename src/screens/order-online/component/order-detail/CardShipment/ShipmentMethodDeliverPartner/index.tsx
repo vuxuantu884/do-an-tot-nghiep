@@ -21,7 +21,7 @@ type PropType = {
   infoFees: FeesResponse[];
   addressError: string;
   levelOrder?: number;
-  orderPrice: number;
+  orderPrice?: number;
   customer: CustomerResponse | null;
   form: FormInstance<any>;
   changeServiceType: (
@@ -31,7 +31,7 @@ type PropType = {
     fee: number,
     name: string
   ) => void;
-  setShippingFeeInformedToCustomer: (value: number | null) => void;
+  setShippingFeeInformedToCustomer: (value: number) => void;
 };
 
 function ShipmentMethodDeliverPartner(props: PropType) {
@@ -285,7 +285,13 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 className="formInputAmount"
                 maxLength={15}
                 minLength={0}
-                onChange={setShippingFeeInformedToCustomer}
+                onChange={(value) => {
+                  if (value) {
+                    setShippingFeeInformedToCustomer(value);
+                  } else {
+                    setShippingFeeInformedToCustomer(0);
+                  }
+                }}
               />
             </Form.Item>
           </Col>
