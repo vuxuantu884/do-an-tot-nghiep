@@ -162,7 +162,7 @@ const EcommerceConfig: React.FC = () => {
       title="SÀN THƯƠNG MẠI ĐIỆN TỬ"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

@@ -37,7 +37,7 @@ const RoleCreateScreen: React.FC = () => {
       title="Thêm mới nhóm quyền"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

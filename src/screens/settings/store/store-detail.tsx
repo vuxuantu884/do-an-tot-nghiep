@@ -79,7 +79,7 @@ const StoreDetailScreen: React.FC = () => {
       isLoading={loadingData}
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

@@ -87,7 +87,7 @@ const UpdateMaterial: React.FC = () => {
       title="Sửa chất liệu"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
