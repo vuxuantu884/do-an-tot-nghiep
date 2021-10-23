@@ -69,7 +69,6 @@ const PackSupportScreen: React.FC = () => {
     [queryParams, setQueryParams]
   );
 
-  console.log(data);
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer

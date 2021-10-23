@@ -40,6 +40,7 @@ import { Link } from "react-router-dom";
 import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
+import { setPackInfo } from "utils/LocalStorageUtils";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
@@ -292,6 +293,14 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             orderList[indexPack].color = "#27AE60";
           else orderList[indexPack].color = "#E24343";
 
+          let request = {
+            id: orderResponse[0].id,
+            code: orderResponse[0].code,
+            items: orderList,
+          };
+
+          setPackInfo(request);
+
           setOrderList([...orderList]);
           if (
             Number(orderList[indexPack].quantity) ===
@@ -307,7 +316,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     } else {
       console.log("Chưa đủ thông tin");
     }
-  }, [formRef, orderList]);
+  }, [formRef, orderList,orderResponse]);
 
   const SttColumn = {
     title: () => (

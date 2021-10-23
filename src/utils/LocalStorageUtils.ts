@@ -1,5 +1,6 @@
 const ACCESS_TOKEN = 'access_token';
 const SETTING_APP = 'setting_app';
+const PACKINFO_APP = 'packinfo_app';
 
 const setToken = (token: any) => {
   localStorage.setItem(ACCESS_TOKEN, token);
@@ -25,5 +26,13 @@ const getSettingApp = (): String | null => {
   return localStorage.getItem(SETTING_APP);
 };
 
+const setPackInfo=(appSeting: any)=>{
+  let data: string = JSON.stringify(appSeting)
+  localStorage.setItem(PACKINFO_APP, data); 
+}
 
-export {setToken, getToken, removeToken, setAppSetting, getSettingApp};
+const getPackInfo = (): String | null => {
+  return localStorage.getItem(PACKINFO_APP);
+};
+
+export {setToken, getToken, removeToken, setAppSetting, getSettingApp, setPackInfo, getPackInfo};
