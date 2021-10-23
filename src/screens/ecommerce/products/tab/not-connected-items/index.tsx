@@ -53,6 +53,7 @@ import {
   StyledProductListDropdown,
   StyledYodyProductColumn,
 } from "./styles";
+import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
 
 
 type NotConnectedItemsProps = {
@@ -533,14 +534,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Ghép nối",
       visible: true,
       align: "center",
-      width: "145px",
+      width: "150px",
       render: (l: any, v: any, i: any) => {
         return (
-          <div>
+          <StyledProductConnectStatus>
             {l.connect_status === "waiting" && (
               <span className="not-connect-status">Chưa ghép nối</span>
             )}
-          </div>
+          </StyledProductConnectStatus>
         );
       },
     },
@@ -762,7 +763,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   const renderShopList = (isNewFilter: any) => {
     return (
-      <StyledComponent>
+      <StyledProductFilter>
         <div className="render-shop-list">
           {ecommerceShopList.map((item: any) => (
             <div key={item.id} className="shop-name">
@@ -797,7 +798,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </div>
           )}
         </div>
-      </StyledComponent>
+      </StyledProductFilter>
     );
   };
 
@@ -818,7 +819,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   return (
     <StyledComponent>
-      <div className="not-connected-items">
+      <StyledProductFilter>
         <div className="filter">
           <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
             <Form.Item name="ecommerce_id" className="select-channel-dropdown">
@@ -914,7 +915,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         />
 
         <Button
-          className="save-pairing-button"
+          style={{ margin: "20px 0" }}
           type="primary"
           onClick={handleConnectedYodyProducts}
           disabled={disableSaveConnectedYodyProduct()}
@@ -1038,7 +1039,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
           </div>
         </Modal>
-      </div>
+      </StyledProductFilter>
     </StyledComponent>
   );
 };
