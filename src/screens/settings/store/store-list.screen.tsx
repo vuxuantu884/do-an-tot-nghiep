@@ -170,7 +170,69 @@ const StoreListScreen: React.FC = () => {
       align: "center",
       width: 150,
       visible: true,
-      render: (value) => (value ? "Có thể bán" : "Đang kiểm kê"),
+      render: (value) => (
+        <div className="text-center">
+          <div
+            style={
+              !value
+                ? {
+                    display: "inline-block",
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    borderColor: "#27ae60",
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                  }
+                : {
+                    display: "inline-block",
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    borderColor: "#27ae60",
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    backgroundColor: "#27ae60",
+                  }
+            }
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Đang kiểm kho",
+      dataIndex: "is_stocktaking",
+      align: "center",
+      width: 150,
+      visible: true,
+      render: (value) => (
+        <div className="text-center">
+          <div
+            style={
+              !value
+                ? {
+                    display: "inline-block",
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    borderColor: "#27ae60",
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                  }
+                : {
+                    display: "inline-block",
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    borderColor: "#27ae60",
+                    borderWidth: "1px",
+                    borderStyle: "solid",
+                    backgroundColor: "#27ae60",
+                  }
+            }
+          />
+        </div>
+      ),
     },
     {
       title: "Trạng thái",
