@@ -361,6 +361,7 @@ export interface StoreCustomResponse extends BaseObject {
   number_of_account: number;
   accounts: Array<any>;
   is_saleable: boolean,
+  is_stocktaking: boolean,
 }
 
 export interface OrderSubStatusResponse {

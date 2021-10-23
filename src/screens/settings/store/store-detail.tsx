@@ -114,6 +114,16 @@ const StoreDetailScreen: React.FC = () => {
                 </Checkbox>
               </Col>
             </Row>
+            <Row style={{marginTop: 20}} gutter={50}>
+              <Col>
+                <Checkbox
+                  checked={data.is_saleable}
+                  disabled={data.status === "inactive"}
+                >
+                  Đang kiểm kho
+                </Checkbox>
+              </Col>
+            </Row>
             <Row style={{ marginTop: 20 }} gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Tên cửa hàng" value={data.name} />
