@@ -79,7 +79,7 @@ const StoreDetailScreen: React.FC = () => {
       isLoading={loadingData}
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
@@ -117,7 +117,7 @@ const StoreDetailScreen: React.FC = () => {
             <Row style={{marginTop: 20}} gutter={50}>
               <Col>
                 <Checkbox
-                  checked={data.is_saleable}
+                  checked={data.is_stocktaking}
                   disabled={data.status === "inactive"}
                 >
                   Đang kiểm kho

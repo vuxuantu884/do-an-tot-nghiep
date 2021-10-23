@@ -180,7 +180,7 @@ const ListMaterial: React.FC = () => {
       title="Quản lý chất liệu"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

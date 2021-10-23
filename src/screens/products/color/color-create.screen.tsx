@@ -74,7 +74,7 @@ const ColorCreateScreen: React.FC = () => {
       title="Thêm mới màu sắc"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

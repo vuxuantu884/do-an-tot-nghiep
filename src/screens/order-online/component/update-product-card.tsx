@@ -33,14 +33,14 @@ type ProductCardUpdateProps = {
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
-  const { totalAmountReturnProducts } = props;
+  const { OrderDetail, totalAmountReturnProducts } = props;
   const ProductColumn = {
     title: () => (
       <div className="text-center">
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
-    width: "30%",
+    width: "40%",
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -62,7 +62,14 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   {l.sku}
                 </Link>
               </div>
-              <div className="yody-pos-varian">
+              <div
+                className="yody-pos-varian"
+                style={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
                   <span>{l.variant}</span>
                 </Tooltip>
@@ -87,9 +94,9 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#2A2A86" }}>
+        {/* <span style={{ color: "#2A2A86" }}>
           ({props.OrderDetail?.items && getTotalQuantity(props.OrderDetail?.items)})
-        </span>
+        </span> */}
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -121,7 +128,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       </div>
     ),
     align: "right",
-    width: "20%",
+    width: "15%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -142,7 +149,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       </div>
     ),
     align: "right",
-    width: "20%",
+    width: "15%",
     className: "yody-table-total-money text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -177,7 +184,12 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <Button type="link" className="p-0" style={{ color: "#000000" }}>
                 <Space>
                   <img src={storeBluecon} alt="" />
-                  {props.OrderDetail?.store}
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.STORE}/${OrderDetail?.store_id}`}
+                  >
+                    {OrderDetail?.store}
+                  </Link>
                 </Space>
               </Button>
             </div>
@@ -221,19 +233,33 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   <div
                     className="yody-foot-total-text"
                     style={{
-                      width: "38%",
+                      width: "40%",
                       float: "left",
                       fontWeight: 700,
+                      padding: "0 16px",
                     }}
                   >
-                    TỔNG TEST
+                    TỔNG
                   </div>
                   <div
                     style={{
-                      width: "20%",
+                      width: "15%",
+                      float: "left",
+                      textAlign: "center",
+                      fontWeight: 400,
+                    }}
+                  >
+                    {props.OrderDetail?.items &&
+                      getTotalQuantity(props.OrderDetail?.items)}
+                  </div>
+
+                  <div
+                    style={{
+                      width: "15%",
                       float: "left",
                       textAlign: "right",
                       fontWeight: 400,
+                      padding: "0 16px",
                     }}
                   >
                     {formatCurrency(
@@ -242,10 +268,11 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   </div>
                   <div
                     style={{
-                      width: "20.5%",
+                      width: "15%",
                       float: "left",
                       textAlign: "right",
                       fontWeight: 400,
+                      padding: "0 16px",
                     }}
                   >
                     {formatCurrency(
@@ -257,11 +284,12 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   </div>
                   <div
                     style={{
-                      width: "21%",
+                      width: "15%",
                       float: "left",
                       textAlign: "right",
                       color: "#000000",
                       fontWeight: 700,
+                      padding: "0 16px",
                     }}
                   >
                     {formatCurrency(

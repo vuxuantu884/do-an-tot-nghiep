@@ -20,6 +20,7 @@ import {
   StoreDetailAction,
   StoreRankAction,
   StoreUpdateAction,
+  StoreValidateAction,
 } from "domain/actions/core/store.action";
 import { StoreResponse, StoreUpdateRequest } from "model/core/store.model";
 import { CountryResponse } from "model/content/country.model";
@@ -136,7 +137,7 @@ const StoreUpdateScreen: React.FC = () => {
       isLoading={loadingData}
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
@@ -212,7 +213,9 @@ const StoreUpdateScreen: React.FC = () => {
                     let status = getFieldValue("status");
                     return (
                       <Item valuePropName="checked" name="is_stocktaking">
-                        <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
+                        <Checkbox disabled={status === "inactive"}>
+                          Đang kiểm kho
+                        </Checkbox>
                       </Item>
                     );
                   }}
@@ -236,7 +239,26 @@ const StoreUpdateScreen: React.FC = () => {
                   label="Tên cửa hàng"
                   name="name"
                 >
-                  <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
+                  <Input
+                    onChange={(e) => {
+                      dispatch(
+                        StoreValidateAction({id: idNumber, name: e.target.value }, (data) => {
+                          console.log(data);
+                          if (data instanceof Array) {
+                            formMain.setFields([
+                              {
+                                validating: false,
+                                name: "name",
+                                errors: data,
+                              },
+                            ]);
+                          }
+                        })
+                      );
+                    }}
+                    maxLength={255}
+                    placeholder="Nhập tên cửa hàng"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>

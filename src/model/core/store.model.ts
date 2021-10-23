@@ -71,7 +71,9 @@ export interface StoreQuery extends BaseQuery {
     begin_date: string|null
     latitude: number|null
     longtitude: number|null
-    group_id: number|null
+    group_id: number|null,
+    is_saleable: boolean,
+    is_stocktaking: boolean,
   }
   
   export interface StoreCreateRequest extends BaseStoreRequest {
@@ -83,4 +85,5 @@ export interface StoreQuery extends BaseQuery {
 
   export interface StoreValidateRequest {
     name?: string,
+    id?: number,
   }

@@ -312,7 +312,7 @@ const tab= document.getElementById("tab");
         title="Chi tiết sản phẩm"
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {

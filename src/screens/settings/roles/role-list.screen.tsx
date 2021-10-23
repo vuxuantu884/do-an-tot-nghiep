@@ -114,7 +114,7 @@ const RoleListScreen = () => {
       title="Quản lý nhóm quyền"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
