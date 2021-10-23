@@ -49,7 +49,7 @@ const ListProductScreen: React.FC = () => {
         title="Quản lý sản phẩm"
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {

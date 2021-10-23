@@ -180,7 +180,7 @@ const Category = () => {
       title="Quản lý danh mục"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

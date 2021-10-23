@@ -577,7 +577,7 @@ const ProductCreateScreen: React.FC = () => {
           title="Thêm mới sản phẩm"
           breadcrumb={[
             {
-              name: "Tổng quản",
+              name: "Tổng quan",
               path: UrlConfig.HOME,
             },
             {

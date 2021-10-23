@@ -38,7 +38,7 @@ const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) =
       title="Danh sách đơn nhập kho"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

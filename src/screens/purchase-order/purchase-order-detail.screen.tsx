@@ -450,7 +450,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

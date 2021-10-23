@@ -32,7 +32,7 @@ const InventoryListScreen: React.FC = () => {
         title="Chuyển hàng"
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {
