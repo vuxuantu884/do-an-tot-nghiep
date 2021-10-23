@@ -81,6 +81,13 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.orderDetail?.fulfillments[0].created_date &&
           moment(props.orderDetail?.fulfillments[0].created_date).format(formatDate)
         }
+        className={
+          !(props.orderDetail &&
+          props.orderDetail?.fulfillments &&
+          props.orderDetail?.fulfillments.length > 0)
+            ? "inactive"
+            : ""
+        }
       />
       <Steps.Step
         title="Đóng gói"
@@ -126,9 +133,8 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         title={!(props.status === "cancelled") ? "Hoàn thành" : "Huỷ đơn"}
         description={
           props.orderDetail &&
-          props.orderDetail?.fulfillments &&
-          props.orderDetail?.fulfillments.length > 0 &&
-          ((props.orderDetail?.fulfillments[0].shipped_on &&
+          ((props.orderDetail?.fulfillments &&
+            props.orderDetail?.fulfillments.length > 0 && props.orderDetail?.fulfillments[0].shipped_on &&
           moment(props.orderDetail?.fulfillments[0].shipped_on).format(formatDate)) ||
           (props.status === "cancelled" && props.orderDetail?.cancelled_on &&
           moment(props.orderDetail?.cancelled_on).format(formatDate)))
