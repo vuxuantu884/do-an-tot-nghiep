@@ -94,6 +94,7 @@ export default function Order() {
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
+  const [serviceName, setServiceName] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
@@ -304,6 +305,7 @@ export default function Order() {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id đối tác vận chuyển
       delivery_service_provider_type: "", //shipper
+      delivery_transport_type: "",
       shipper_code: "",
       shipper_name: "",
       handover_id: null,
@@ -334,6 +336,7 @@ export default function Order() {
           ...objShipment,
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
+          delivery_transport_type: serviceName,
           delivery_service_provider_code: hvcCode,
           delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
@@ -1114,6 +1117,7 @@ export default function Order() {
                       setOfficeTime={setOfficeTime}
                       officeTime={officeTime}
                       setServiceType={setServiceType}
+                      setServiceName={setServiceName}
                       setHVC={setHvc}
                       setHvcName={setHvcName}
                       setHvcCode={setHvcCode}
