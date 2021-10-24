@@ -80,7 +80,7 @@ const AddCategory: React.FC = () => {
       title="Thêm mới danh mục"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: 'Tổng quan',
           path: UrlConfig.HOME,
         },
         {

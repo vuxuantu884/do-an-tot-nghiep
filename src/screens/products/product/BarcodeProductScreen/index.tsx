@@ -138,7 +138,7 @@ const BarcodeProductScreen: React.FC = () => {
       title="In mã vạch"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

@@ -185,7 +185,7 @@ const CreateSupplierScreen: React.FC = () => {
       title="Quản lý nhà cung cấp"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

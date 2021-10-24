@@ -223,7 +223,7 @@ const ListAccountScreen: React.FC = () => {
       title="Quản lý người dùng"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

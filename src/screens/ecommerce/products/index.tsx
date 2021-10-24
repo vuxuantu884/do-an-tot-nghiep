@@ -152,7 +152,7 @@ const Products: React.FC = () => {
         title="DANH SÁCH SẢN PHẨM"
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {

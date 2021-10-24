@@ -81,7 +81,7 @@ const ColorUpdateScreen: React.FC = () => {
       isError={isError}
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

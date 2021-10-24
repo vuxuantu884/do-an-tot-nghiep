@@ -590,7 +590,7 @@ const DetailTicket: FC = () => {
         title={`Chuyển hàng ${data?.code}`}
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {
