@@ -123,6 +123,22 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   //   console.log(formRef.current?.getFieldValue(["quality_request"]));
   // });
 
+  const event = useCallback(
+    (event: KeyboardEvent) => {
+        if (event.target instanceof HTMLBodyElement) {
+          if (event.key === "Enter") {
+            let product= formRef.current?.getFieldValue(["product_request"]);
+            console.log("product",product);
+          }
+        }
+    },
+    [formRef]
+  );
+
+  useEffect(() => {
+      window.addEventListener("keydown", event);
+  }, [event]);
+
   const onKeyupOrder = useCallback(
     (value: string) => {
       if (value.trim()) {
@@ -137,7 +153,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
               } else {
                 setDisableStoreId(false);
                 setDisableOrder(false);
-                showError("Đơn hàng này đã được đóng gói");
+                showError("Đơn hàng chưa nhặt hàng");
               }
             })
           );
@@ -235,9 +251,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 items: orderList,
               });
 
-             
-
               setFulfillmentsPackedItems(datas);
+              setPackInfo(datas);
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
@@ -293,14 +308,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
             orderList[indexPack].color = "#27AE60";
           else orderList[indexPack].color = "#E24343";
 
-          let request = {
-            id: orderResponse[0].id,
-            code: orderResponse[0].code,
-            items: orderList,
-          };
-
-          setPackInfo(request);
-
           setOrderList([...orderList]);
           if (
             Number(orderList[indexPack].quantity) ===
@@ -316,7 +323,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     } else {
       console.log("Chưa đủ thông tin");
     }
-  }, [formRef, orderList,orderResponse]);
+  }, [formRef, orderList]);
 
   const SttColumn = {
     title: () => (

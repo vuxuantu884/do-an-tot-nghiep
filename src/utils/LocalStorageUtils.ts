@@ -28,6 +28,7 @@ const getSettingApp = (): String | null => {
 
 const setPackInfo=(appSeting: any)=>{
   let data: string = JSON.stringify(appSeting)
+  //localStorage.removeItem(PACKINFO_APP);
   localStorage.setItem(PACKINFO_APP, data); 
 }
 

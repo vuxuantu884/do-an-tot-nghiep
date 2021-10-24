@@ -5,7 +5,7 @@ import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
 import ReportHandOver from "./pack-support/report-hand-over";
-import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, loadOrderPackAction } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useState } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
@@ -49,6 +49,12 @@ const PackSupportScreen: React.FC = () => {
     listStores,
     setListStores,
   };
+
+  useEffect(()=>{
+    dispatch(loadOrderPackAction(setData))
+  },[dispatch]);
+
+  console.log(data);
 
   useEffect(() => {
     dispatch(
@@ -98,7 +104,7 @@ const PackSupportScreen: React.FC = () => {
                     listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
-                <TabPane tab="Bàn giao" key="2">
+                <TabPane tab="Biên bản bàn giao" key="2">
                   <PackReportHandOver/>
                 </TabPane>
               </Tabs>
