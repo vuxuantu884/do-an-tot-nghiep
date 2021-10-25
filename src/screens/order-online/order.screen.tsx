@@ -1087,7 +1087,7 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
-                      isSplitOrder={typeParam === "split-order"}
+                      setStoreId={setStoreId}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
