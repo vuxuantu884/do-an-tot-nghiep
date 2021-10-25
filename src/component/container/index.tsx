@@ -12,6 +12,7 @@ import {useMemo} from 'react';
 import SplashScreen from 'screens/splash.screen';
 import UrlConfig from 'config/url.config';
 import HeaderContainer from './header.container';
+import { Helmet } from 'react-helmet';
 
 type ContainerProps = {
   title: string;
@@ -20,7 +21,7 @@ type ContainerProps = {
 };
 
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
-  const {children} = props;
+  const {children, title} = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const {location} = history;
@@ -58,14 +59,14 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   }
   return (
     <Layout>
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
       <LoadingScreen />
       <HeaderContainer account={account} onCollapse={onCollapsed} />
       <Layout>
-        <SidebarContainer
-          collapsed={collapsed}
-          path={location.pathname}
-        />
-        <Layout.Content className={classNames('container', collapsed && 'collapsed')}>
+        <SidebarContainer collapsed={collapsed} path={location.pathname} />
+        <Layout.Content className={classNames("container", collapsed && "collapsed")}>
           {children}
         </Layout.Content>
       </Layout>

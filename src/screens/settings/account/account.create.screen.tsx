@@ -254,7 +254,7 @@ const AccountCreateScreen: React.FC = () => {
       title="Thêm mới người dùng"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

@@ -205,7 +205,7 @@ const ColorListScreen: React.FC = () => {
       title="Quản lý màu sắc"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

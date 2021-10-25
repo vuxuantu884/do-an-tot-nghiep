@@ -100,7 +100,7 @@ const SizeUpdateScreen: React.FC = () => {
       title="Sửa kích cỡ"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

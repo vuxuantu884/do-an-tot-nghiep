@@ -137,7 +137,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
       title={`Trả hàng cho đơn mua hàng ${id}`}
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

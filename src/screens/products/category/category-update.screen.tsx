@@ -104,7 +104,7 @@ const CategoryUpdate: React.FC = () => {
       title="Sửa danh mục"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: 'Tổng quan',
           path: UrlConfig.HOME,
         },
         {

@@ -119,7 +119,7 @@ const ProductImportScreen: React.FC = () => {
           title="Nhập File"
           breadcrumb={[
             {
-              name: "Tổng quản",
+              name: "Tổng quan",
               path: UrlConfig.HOME,
             },
             {

@@ -124,7 +124,7 @@ const StoreCreateScreen: React.FC = () => {
       title="Thêm mới cửa hàng"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
