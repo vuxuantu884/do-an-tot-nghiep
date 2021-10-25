@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Tag, Tooltip } from "antd";
+import { Button, Card, Menu, Tag, Tooltip } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -34,7 +34,6 @@ import {
 
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
@@ -59,16 +58,6 @@ import {
   StyledComponent,
 } from "screens/ecommerce/orders/orderStyles";
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In phiếu giao hàng",
-  },
-  {
-    id: 2,
-    name: "In phiếu xuất kho",
-  },
-];
 
 const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
@@ -200,6 +189,19 @@ const EcommerceOrderSync: React.FC = () => {
     },
   ];
 
+  const actionList = (
+    <Menu>
+      <Menu.Item key="1">
+        <span onClick={() => onMenuClick(1)}>In phiếu giao hàng</span>
+      </Menu.Item>
+  
+      <Menu.Item key="2">
+        <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+      </Menu.Item>
+    </Menu>
+  );
+  
+
   const convertProgressStatus = (value: any) => {
     switch (value) {
       case "partial_paid":
@@ -240,15 +242,14 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "ID đơn hàng",
       key: "order_id",
-      dataIndex: "code",
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
       width: "3.5%",
-      render: (value: string, i: OrderModel) => (
+      render: (data: any, i: OrderModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-          <div>({value})</div>
+          <Link to={`${UrlConfig.ORDER}/${i.id}`}>{data.code}</Link>
+          <div>({data.reference_code})</div>
         </div>
       ),
     },
@@ -606,6 +607,7 @@ const EcommerceOrderSync: React.FC = () => {
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
+    window.location.reload();
   }, []);
 
   const onMenuClick = useCallback(
@@ -734,13 +736,13 @@ const EcommerceOrderSync: React.FC = () => {
           </>
         }
       >
-        <Card style={{ padding: "20px" }}>
+        <Card>
           <EcommerceOrderFilter
             tableLoading={tableLoading}
             onMenuClick={onMenuClick}
-            actions={actions}
+            actionList={actionList}
             onFilter={onFilter}
-            onClearFilter={() => onClearFilter()}
+            onClearFilter={onClearFilter}
             params={params}
             listStore={listStore}
             accounts={accounts}
@@ -753,7 +755,7 @@ const EcommerceOrderSync: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: 350 }}
+            scroll={{ x: 3630 }}
             pagination={
               tableLoading
                 ? false
