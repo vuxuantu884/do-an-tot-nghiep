@@ -37,6 +37,7 @@ export const getOrderConfigService = (): Promise<
   BaseResponse<OrderConfigResponseModel>
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
+  // return BaseAxios.get(`https://uat.api.yody.io/unicorn/order-service/orders-config`);
 };
 
 export const getOrderConfigPrintService = (): Promise<
@@ -83,16 +84,11 @@ export const updateShippingServiceConfigService = (
   id: number,
   params: CreateShippingServiceConfigReQuestModel
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
-  return BaseAxios.put(
-    `${ApiConfig.ORDER}/shipping-service-config/${id}`,
-    params
-  );
+  return BaseAxios.put(`${ApiConfig.ORDER}/shipping-service-config/${id}`, params);
 };
 
 export const deleteShippingServiceConfigService = (
   id: number
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
-  return BaseAxios.delete(
-    `${ApiConfig.ORDER}/shipping-service-config/${id}/delete`
-  );
+  return BaseAxios.delete(`${ApiConfig.ORDER}/shipping-service-config/${id}/delete`);
 };

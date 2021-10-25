@@ -11,7 +11,6 @@ import {
   Form,
   FormInstance,
   Input,
-  InputNumber,
   Menu,
   Row,
   Select,
@@ -101,6 +100,7 @@ type CardProductProps = {
   inventoryResponse: Array<InventoryResponse> | null;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   setStoreForm: (id: number | null) => void;
+  setStoreId?: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
   orderId?: string;
@@ -125,6 +125,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     selectStore,
     setStoreForm,
     handleCardItems,
+    setStoreId,
     levelOrder = 0,
     orderId,
     isSplitOrder,
@@ -937,8 +938,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       );
     }
     // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên
-    if (newData) {
+    if (newData && newData[0]?.id) {
       formRef.current?.setFieldsValue({ store_id: newData[0].id });
+      if (setStoreId) {
+        setStoreId(newData[0].id);
+      }
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -980,12 +984,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const handleSplitOrder = () => {
-    if (!orderId) {
+    if (!orderId || splitOrderNumber === 0) {
       return;
     }
-    const link = `${process.env.PUBLIC_URL}/orders/create?action=clone&cloneId=${orderId}&type=split-order`;
+    const splitLink = `${process.env.PUBLIC_URL}/orders/create?action=clone&cloneId=${orderId}&type=split-order`;
     for (let i = 0; i < splitOrderNumber; i++) {
-      window.open(link, "_blank");
+      window.open(splitLink, "_blank");
     }
   };
 
@@ -1025,11 +1029,17 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 </Checkbox>
                 {isShowSplitOrder && (
                   <React.Fragment>
-                    <InputNumber
+                    <NumberInput
                       style={{ width: 45 }}
                       max={50}
                       value={splitOrderNumber}
-                      onChange={(value) => setSplitOrderNumber(value)}
+                      onChange={(value) => {
+                        if (value) {
+                          setSplitOrderNumber(value);
+                        } else {
+                          setSplitOrderNumber(0);
+                        }
+                      }}
                     />
                     <Button
                       type="primary"
