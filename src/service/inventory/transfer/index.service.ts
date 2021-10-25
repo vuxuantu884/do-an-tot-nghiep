@@ -39,6 +39,10 @@ export const inventorGetDetailApi = (id: number) => {
   return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}`);
 }
 
+export const inventorGetCopyDetailApi = (id: number) => {
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/clone/${id}`);
+}
+
 export const DeleteInventoryService = (
   id: string,
   request: DeleteTicketRequest

@@ -14,7 +14,6 @@ import {
 } from "antd";
 import UrlConfig from "config/url.config";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-// import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getFulfillments,
   getFulfillmentsPack,
@@ -31,7 +30,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  // useLayoutEffect,
   useMemo,
   useState,
 } from "react";

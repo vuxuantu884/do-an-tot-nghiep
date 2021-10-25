@@ -1246,22 +1246,25 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           }
         />
 
-        <CardProductBottom
-          amount={amount}
-          calculateChangeMoney={calculateChangeMoney}
-          changeMoney={changeMoney}
-          coupon={coupon}
-          discountRate={discountRate}
-          discountValue={discountValue}
-          setDiscountRate={setDiscountRate}
-          setDiscountValue={setDiscountValue}
-          showDiscountModal={ShowDiscountModal}
-          totalAmountOrder={amount}
-          items={items}
-          shippingFeeInformedToCustomer={
-            shippingFeeInformedToCustomer || props.shippingFeeCustomer
-          }
-        />
+        {/* nếu có sản phẩm trong đơn hàng mới hiển thị thông tin ở dưới  */}
+        {items && items.length > 0 && (
+          <CardProductBottom
+            amount={amount}
+            calculateChangeMoney={calculateChangeMoney}
+            changeMoney={changeMoney}
+            coupon={coupon}
+            discountRate={discountRate}
+            discountValue={discountValue}
+            setDiscountRate={setDiscountRate}
+            setDiscountValue={setDiscountValue}
+            showDiscountModal={ShowDiscountModal}
+            totalAmountOrder={amount}
+            items={items}
+            shippingFeeInformedToCustomer={
+              shippingFeeInformedToCustomer || props.shippingFeeCustomer
+            }
+          />
+        )}
 
         <PickDiscountModal
           amount={amount}

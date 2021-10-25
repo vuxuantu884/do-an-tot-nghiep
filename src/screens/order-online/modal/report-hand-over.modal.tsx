@@ -202,7 +202,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item
-                label="Kiểu biên bản"
+                label="Biên bản sàn"
                 name=""
                 rules={[
                   {

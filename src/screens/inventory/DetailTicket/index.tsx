@@ -1,7 +1,7 @@
 import { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag, Input } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -75,6 +75,8 @@ const DetailTicket: FC = () => {
     [] as Array<VariantResponse>
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+
+  const { Panel } = Collapse;
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
@@ -466,7 +468,7 @@ const DetailTicket: FC = () => {
       width: 100,
       render: (value, row, index: number) => {     
         if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-          return value;
+          return value ? value : 0;
         }
         else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
@@ -821,6 +823,7 @@ const DetailTicket: FC = () => {
                   data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status && 
                   <Card
                     title={"CHUYỂN HÀNG"}
+                    style={{minHeight: "210px;"}}
                     extra={ 
                       data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
                         <Button
@@ -833,19 +836,44 @@ const DetailTicket: FC = () => {
                   >
                     {
                       (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
-                      || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
-                      <Row className="shipment">
-                        <div className="shipment-logo">
-                          <img
-                            src={(deliveryService as any)[data?.shipment?.delivery_service_code].logo}
-                            alt=""
-                          />
-                        </div>
-                        <div className="shipment-detail">
-                          Mã vận đơn: <span>{data.shipment.order_code}</span>
-                          <CopyOutlined style={{color: "#71767B"}} onClick={() => copy(data.shipment.order_code)} />
-                        </div>
-                      </Row>
+                      || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                      || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && 
+                      <>
+                        <Row className="shipment">
+                          <div className="shipment-logo">
+                            <img
+                              src={(deliveryService as any)[data?.shipment?.delivery_service_code]?.logo}
+                              alt=""
+                            />
+                          </div>
+                          <div className="shipment-detail">
+                            Mã vận đơn: <span>{data?.shipment?.order_code}</span>
+                            <CopyOutlined style={{color: "#71767B"}} onClick={() => copy(data.shipment.order_code)} />
+                          </div>
+                        </Row>
+                        <Row>
+                          <Collapse className="timeline-collapse" defaultActiveKey={['1']}>
+                            <Panel header="Đóng" key="1">
+                              <Timeline>
+                              {
+                                data?.shipment?.tracking_logs?.map(item => {
+                                  return (
+                                    <Timeline.Item>
+                                      <span><b>{item.shipping_message}</b></span> 
+                                      &#8226; 
+                                      <span>{ConvertUtcToLocalDate(
+                                          item.updated_date,
+                                          "DD/MM/YYYY HH:mm"
+                                        )}</span>
+                                    </Timeline.Item>
+                                  )
+                                })
+                              }
+                              </Timeline>
+                            </Panel>
+                          </Collapse>
+                        </Row>
+                      </>
                     }
                   </Card>
                 }
@@ -1032,7 +1060,13 @@ const DetailTicket: FC = () => {
         {
           isBalanceTransfer &&
           <InventoryTransferBalanceModal
-            onOk={() => setIsBalanceTransfer(false)}
+            onOk={(result) => {
+              if (result) {
+                setIsBalanceTransfer(false);
+                showSuccess("Cân bằng kho thành công");
+                setData(result);
+              }
+            }}
             onCancel={() => setIsBalanceTransfer(false)}
             visible={isBalanceTransfer}
             data={data}
