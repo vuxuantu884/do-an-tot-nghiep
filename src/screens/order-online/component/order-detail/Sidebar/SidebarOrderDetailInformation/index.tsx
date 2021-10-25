@@ -43,7 +43,10 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>NV bán hàng:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.assignee_code}`}>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.assignee_code}`}
+              >
                 {OrderDetail?.assignee_code} - {OrderDetail?.assignee}
               </Link>
             </span>
@@ -53,25 +56,36 @@ function SidebarOrderDetailInformation(props: PropType) {
           <Col span={10}>NV marketing:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}
+              >
                 {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
               </Link>
             </span>
           </Col>
         </Row>
-        {/* <Row gutter={5}>
-          <Col span={10}>Nhân viên điều phối:</Col>
+        <Row gutter={5}>
+          <Col span={10}>NV điều phối:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              {OrderDetail?.coordinator}
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}
+              >
+                {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
+              </Link>
             </span>
           </Col>
-        </Row> */}
+        </Row>
         <Row gutter={5}>
           <Col span={10}>Người tạo:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
-              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.account_code}`}>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.account_code}`}
+              >
                 {OrderDetail?.account_code} - {OrderDetail?.account}
               </Link>
             </span>

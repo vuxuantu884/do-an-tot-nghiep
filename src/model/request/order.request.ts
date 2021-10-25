@@ -132,7 +132,7 @@ export interface ShippingAddress {
 export interface ShipmentRequest {
   delivery_service_provider_id: number | null;
   delivery_service_provider_type: string | null;
-  delivery_transport_type?: string | null,
+  delivery_transport_type?: string | null;
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;
@@ -438,4 +438,12 @@ export interface CreateShippingOrderRequest {
     weight: number;
     weight_unit: string;
   }[];
+}
+
+/**
+ * tách đơn
+ */
+export interface SplitOrderRequest {
+  order_code: string;
+  quantity: number;
 }

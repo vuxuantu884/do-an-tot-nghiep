@@ -968,7 +968,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
                 onBlur={() => setIsInputSearchProductFocus(false)}
                 dropdownRender={(menu) => (
                   <div>
-                    <div
+                    {/* <div
                       className="row-search w-100"
                       style={{
                         minHeight: "42px",
@@ -990,7 +990,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
                         </div>
                       </div>
                     </div>
-                    <Divider style={{ margin: "4px 0" }} />
+                    <Divider style={{ margin: "4px 0" }} /> */}
                     {menu}
                   </div>
                 )}

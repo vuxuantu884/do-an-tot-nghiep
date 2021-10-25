@@ -149,4 +149,38 @@ export const StyledWrapper = styled.div`
       }
     }
   }
+
+  .timeline-collapse {
+    margin-top: 30px;
+    border: unset;
+    width: 100%;
+    min-height: 100px;
+    background-color: #fff;
+
+    .ant-collapse-content {
+      border: unset;
+    }
+    .ant-collapse-item {
+      border: unset;
+
+      & .ant-collapse-header{
+        position: absolute;
+        right: 0;
+        z-index: 2;
+      }
+    }
+
+    .ant-timeline-item-last>.ant-timeline-item-content {
+      min-height: unset;
+      top: 2px;
+      & > span {
+        padding: 0 10px;
+      }
+    }
+
+    .ant-timeline-item-head-blue {
+      background: #e5e5e5;
+      border: none;
+    }
+  }
 `;

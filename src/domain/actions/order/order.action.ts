@@ -10,6 +10,7 @@ import {
   GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
+  SplitOrderRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
@@ -409,6 +410,22 @@ export const createShippingOrderAction = (
   };
 };
 
-export const loadOrderPackAction = (setData: (data:PageResponse<any>)=>void) => {
+export const loadOrderPackAction = (setData: (data: PageResponse<any>) => void) => {
   return BaseAction(OrderType.GET_LOCALSTOGARE_PACK, { setData });
+};
+
+/**
+ * tách đơn
+ */
+export const splitOrderAction = (
+  params: SplitOrderRequest,
+  handleData: (data: PageResponse<any>) => void
+) => {
+  return {
+    type: OrderType.SPLIT_ORDER,
+    payload: {
+      params,
+      handleData,
+    },
+  };
 };

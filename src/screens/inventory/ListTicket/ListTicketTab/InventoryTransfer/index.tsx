@@ -347,12 +347,17 @@ const InventoryTransferTab: React.FC = () => {
         case ACTIONS_INDEX.PRINT:
           printTicketAction(index);
           break;
-      
+        case ACTIONS_INDEX.ADD_FORM_EXCEL:
+          history.push(`${UrlConfig.INVENTORY_TRANSFER}/import`);
+          break;
+        case ACTIONS_INDEX.MAKE_COPY:
+          history.push(`${UrlConfig.INVENTORY_TRANSFER}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`);
+          break;    
         default:
           break;
       }
     },
-    [printTicketAction]
+    [history, printTicketAction, selectedRowKeys]
   );
 
   const onClearFilter = useCallback(

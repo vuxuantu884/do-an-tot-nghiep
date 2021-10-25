@@ -47,7 +47,10 @@ import {
   OrderRequest,
   ShipmentRequest,
 } from "model/request/order.request";
-import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
+import {
+  CustomerResponse,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
@@ -279,7 +282,7 @@ export default function Order(props: PropType) {
     }
   }, [OrderDetail]);
   let levelOrder = setLevelOrder();
-  console.log("levelOrder",levelOrder)
+  console.log("levelOrder", levelOrder);
 
   let initialRequest: OrderRequest = {
     action: "", //finalized
@@ -1065,7 +1068,7 @@ export default function Order(props: PropType) {
                     shippingAddress={shippingAddress}
                   />
                   <CardProduct
-                  orderId = {id}
+                    orderId={id}
                     changeInfo={onChangeInfoProduct}
                     selectStore={onStoreSelect}
                     storeId={storeId}
@@ -1084,6 +1087,7 @@ export default function Order(props: PropType) {
                     setStoreForm={setStoreForm}
                     levelOrder={levelOrder}
                     updateOrder={true}
+                    isSplitOrder
                   />
 
                   {OrderDetail !== null &&
@@ -1147,7 +1151,7 @@ export default function Order(props: PropType) {
                               <b style={{ color: "red" }}>
                                 {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.length > 0 &&
-                                OrderDetail?.fulfillments[0].status !== 'returned' &&
+                                OrderDetail?.fulfillments[0].status !== "returned" &&
                                 OrderDetail?.fulfillments[0].shipment?.cod
                                   ? 0
                                   : formatCurrency(
@@ -1233,7 +1237,8 @@ export default function Order(props: PropType) {
                                 {OrderDetail?.fulfillments &&
                                   OrderDetail?.fulfillments.length > 0 &&
                                   OrderDetail?.fulfillments[0].shipment &&
-                                  OrderDetail?.fulfillments[0].status !== FulFillmentStatus.RETURNED &&
+                                  OrderDetail?.fulfillments[0].status !==
+                                    FulFillmentStatus.RETURNED &&
                                   OrderDetail?.fulfillments[0].shipment.cod && (
                                     <Collapse.Panel
                                       className={
@@ -1310,7 +1315,7 @@ export default function Order(props: PropType) {
                     OrderDetail.fulfillments &&
                     OrderDetail.fulfillments.length > 0 &&
                     OrderDetail.fulfillments[0].shipment &&
-                    OrderDetail.fulfillments[0].status !== 'returned' &&
+                    OrderDetail.fulfillments[0].status !== "returned" &&
                     OrderDetail.fulfillments[0].shipment?.cod ===
                       (OrderDetail?.fulfillments[0].shipment
                         .shipping_fee_informed_to_customer
@@ -1451,9 +1456,11 @@ export default function Order(props: PropType) {
                         setPayments={onPayments}
                         paymentMethod={paymentMethod}
                         shipmentMethod={shipmentMethod}
-                        amount={orderAmount +
+                        amount={
+                          orderAmount +
                           (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                          discountValue}
+                          discountValue
+                        }
                         isCloneOrder={false}
                         loyaltyRate={loyaltyRate}
                         isDisablePostPayment={isDisablePostPayment}
@@ -1771,7 +1778,10 @@ export default function Order(props: PropType) {
                                             <Col span={24}>
                                               <b className="text-field">
                                                 {/* {getServiceName(OrderDetail!)} */}
-                                                {fulfillment.shipment?.delivery_transport_type}
+                                                {
+                                                  fulfillment.shipment
+                                                    ?.delivery_transport_type
+                                                }
                                               </b>
                                             </Col>
                                           </Col>
@@ -2118,6 +2128,7 @@ export default function Order(props: PropType) {
                     onChangeTag={onChangeTag}
                     levelOrder={levelOrder}
                     updateOrder={true}
+                    customerId={customer?.id}
                   />
                 </Col>
               </Row>

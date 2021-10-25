@@ -16,6 +16,16 @@ function OrderMoreDetails(props: PropType) {
       <Card title="THÔNG TIN BỔ SUNG">
         <Row className="" gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
+            <b>Ghi chú của khách:</b>
+          </Col>
+          <Col span={24}>
+            <span className="text-focus" style={{ wordWrap: "break-word" }}>
+              {OrderDetail?.customer_note !== "" ? OrderDetail?.customer_note : "Không có ghi chú"}
+            </span>
+          </Col>
+        </Row>
+        <Row className="" gutter={5} style={{ flexDirection: "column" }}>
+          <Col span={24} style={{ marginBottom: 6 }}>
             <b>Ghi chú nội bộ:</b>
           </Col>
           <Col span={24}>
@@ -24,7 +34,6 @@ function OrderMoreDetails(props: PropType) {
             </span>
           </Col>
         </Row>
-
         <Row className="margin-top-10" gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
             <b>Tags:</b>

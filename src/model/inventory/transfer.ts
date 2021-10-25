@@ -136,6 +136,13 @@ export type StockTransferSubmit = {
   exception_items: [];
 };
 
+export type TrackingLogs = {
+  fulfillment_code: string,
+  shipping_message: string,
+  shipping_status: string,
+  updated_date: string,
+};
+
 export type ShipmentItem = {
   id: number,
   delivery_service_id: number,
@@ -148,6 +155,7 @@ export type ShipmentItem = {
   partner_shop_id: number,
   money_collection: string,
   transport_type: string,
+  tracking_logs: TrackingLogs[],
   transport_type_name: string,
   cod: number,
   insurance: string,

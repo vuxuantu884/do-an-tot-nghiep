@@ -583,6 +583,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.limit = limit;
       setQuery({ ...query, page, limit });
       getProductUpdated({ ...query });
+      window.scrollTo(0, 0);
     },
     [query, getProductUpdated]
   );

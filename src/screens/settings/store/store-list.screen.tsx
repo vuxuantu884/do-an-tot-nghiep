@@ -41,10 +41,10 @@ const actions: Array<MenuAction> = [
     id: 1,
     name: "Chỉnh sửa",
   },
-  {
-    id: 2,
-    name: "Xóa",
-  },
+  // {
+  //   id: 2,
+  //   name: "Xóa",
+  // },
   {
     id: 3,
     name: "Export",
@@ -282,7 +282,18 @@ const StoreListScreen: React.FC = () => {
     setLoading(false);
     setData(data);
   }, []);
-  const onMenuClick = useCallback((index: number) => {}, []);
+  
+  const onMenuClick = useCallback(
+    (index: number) => {
+      console.log(index, selected);
+
+      if (index === actions[0].id && selected.length === 1) {
+        history.push(`${UrlConfig.STORE}/${selected[0].id}/edit`);
+      }
+    },
+    [selected, history]
+  );
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]

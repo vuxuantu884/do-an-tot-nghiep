@@ -202,16 +202,15 @@ const SettingCustomerGroup: React.FC = () => {
     sort_type: "desc",
     sort_column: "id",
   });
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, params]
+    [params]
   );
 
   const addCustomerGroup = () => {
@@ -312,7 +311,6 @@ const SettingCustomerGroup: React.FC = () => {
           },
           {
             name: "Nhóm khách hàng",
-            path: UrlConfig.CUSTOMER + "/customers-group",
           },
         ]}
         extra={addCustomerGroup()}
