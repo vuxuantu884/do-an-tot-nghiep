@@ -96,12 +96,6 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         <Form.Item
           label="Nhân viên điều phối"
           name="coordinator_code"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng chọn nhân viên điều phối",
-            },
-          ]}
         >
           <Select
             className="select-with-search"

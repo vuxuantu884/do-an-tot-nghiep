@@ -51,20 +51,21 @@ function SidebarOrderHistory(props: PropType) {
           : customerHistory?.map((single) => {
               return (
                 <Row className="" gutter={15} key={single.id}>
-                  <Col span={10}>
+                  <Col span={15}>
                     <div className="singleHistoryOrder__info">
                       <h4 className="singleHistoryOrder__title">
-                        <Link to={`${UrlConfig.ORDER}/${single.id}`}>
-                          {moment(single.finalized_on).format(formatDate)}
-                        </Link>
+                        {moment(single.finalized_on).format(formatDate)}
                       </h4>
                       <div className="singleHistoryOrder__date">
-                        SL: {single.items.length}
+                        <Link target="_blank" to={`${UrlConfig.ORDER}/${single.id}`} style={{fontWeight:"bold"}}>
+                          {single.code}
+                        </Link>{" "}
+                        - SL: {single.items.length}
                       </div>
                     </div>
                   </Col>
-                  <Col span={14}>
-                    <div className="singleHistoryOrder__status">
+                  <Col span={9}>
+                    <div className="singleHistoryOrder__status" style={{textAlign:"right"}}>
                       <h4 className="singleHistoryOrder__mainStatus">
                         {formatCurrency(single.total_line_amount_after_line_discount)}
                         <span
