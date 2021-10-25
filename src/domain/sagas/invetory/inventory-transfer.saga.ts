@@ -31,6 +31,7 @@ import {
   receivedInventoryTransfer,
   adjustmentInventory,
   getInfoDeliveryFees,
+  inventorGetCopyDetailApi,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
@@ -138,6 +139,33 @@ function* inventoryGetDetailSaga(action: YodyAction) {
   try {
     let response: BaseResponse<InventoryTransferDetailItem> = yield call(
       inventorGetDetailApi,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* inventoryGetCopyDetailSaga(action: YodyAction) {
+
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<InventoryTransferDetailItem> = yield call(
+      inventorGetCopyDetailApi,
       id
     );
     switch (response.code) {
@@ -472,6 +500,7 @@ export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.GET_LIST_LOG_INVENTORY_TRANSFER, inventoryGetLogListSaga);
   yield takeLatest(InventoryType.GET_LOGISTIC_SERVICE, logisticGateAwayGetSaga);
   yield takeLatest(InventoryType.GET_DETAIL_INVENTORY_TRANSFER, inventoryGetDetailSaga);
+  yield takeLatest(InventoryType.GET_COPY_DETAIL_INVENTORY_TRANSFER, inventoryGetCopyDetailSaga);
   yield takeLatest(InventoryType.GET_INFO_FEES_INVENTORY, InfoFeesSaga);
   yield takeLatest(InventoryType.DELETE_INVENTORY_TRANSFER, inventoryTransferDeleteSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER, createInventoryTransferSaga);
