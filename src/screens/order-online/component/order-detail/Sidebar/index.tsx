@@ -1,7 +1,6 @@
 import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { Card, Col, Form, Input, Row, Select } from "antd";
 import { AccountResponse } from "model/account/account.model";
-import { CustomerResponse } from "model/response/customer/customer.response";
 import React from "react";
 import CustomerInputTags from "../../custom-input-tags";
 import SidebarOrderHistory from "./SidebarOrderHistory";

@@ -8,7 +8,11 @@ type PropType = {
 };
 
 function SingleLogisticCardHeader(props: PropType) {
-  const { logoUrl, title, urlGuide } = props;
+  const {
+    logoUrl,
+    title,
+    //urlGuide
+  } = props;
   return (
     <StyledComponent>
       <div className="cardHeader">

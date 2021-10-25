@@ -1,4 +1,4 @@
-import { Card, Col, Row, Tag } from "antd";
+import { Card, Col, Row } from "antd";
 import UrlConfig from "config/url.config";
 import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
 import { OrderModel } from "model/order/order.model";

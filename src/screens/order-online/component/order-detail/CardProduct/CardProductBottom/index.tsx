@@ -1,4 +1,4 @@
-import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { useContext } from "react";
@@ -28,7 +28,7 @@ type PropType = {
 
 function CardProductBottom(props: PropType) {
   const {
-    levelOrder = 0,
+    // levelOrder = 0,
     totalAmountOrder,
     items,
     discountRate,
@@ -44,10 +44,16 @@ function CardProductBottom(props: PropType) {
 
   const createOrderContext = useContext(OrderCreateContext);
   const shippingFeeInformedToCustomer =
-    createOrderContext?.price.shippingFeeInformedToCustomer || props.shippingFeeInformedToCustomer || 0;
-  const totalAmount = (amount ? amount : 0) + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - (discountValue ? discountValue : 0)
+    createOrderContext?.price.shippingFeeInformedToCustomer ||
+    props.shippingFeeInformedToCustomer ||
+    0;
+  const totalAmount =
+    (amount ? amount : 0) +
+    (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+    (discountValue ? discountValue : 0);
   const totalOrderAmountAfterDiscountAddShippingFee =
-    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (totalAmount ? totalAmount : 0);
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee ||
+    (totalAmount ? totalAmount : 0);
 
   return (
     <StyledComponent>
