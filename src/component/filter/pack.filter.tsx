@@ -17,6 +17,7 @@ import {
 import {
   createRef,
   useCallback,
+  useContext,
   useLayoutEffect,
   useMemo,
   useState,
@@ -33,6 +34,7 @@ import "./order.filter.scss";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import { MenuAction } from "component/table/ActionButton";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -53,6 +55,9 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+
+  const orderPackContextData = useContext(OrderPackContext);
+  const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
   const actions: Array<MenuAction> = [
     {
@@ -339,13 +344,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                           notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                           getPopupContainer={trigger => trigger.parentNode}
                         >
-                          {/* {status?.map((item) => (
-                            <Option key={item.value} value={item.value.toString()}>
+                          {listThirdPartyLogistics.map((item, index) => (
+                            <Select.Option key={index.toString()} value={item.id}>
                               {item.name}
-                            </Option>
-                          ))} */}
-                          <Option value="jack">Jack</Option>
-                          <Option value="lucy">Lucy</Option>
+                            </Select.Option>
+                          ))}
                         </Select>
                       </Item>
                     </Panel>
@@ -365,11 +368,6 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                           notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                           getPopupContainer={trigger => trigger.parentNode}
                         >
-                          {/* {status?.map((item) => (
-                            <Option key={item.value} value={item.value.toString()}>
-                              {item.name}
-                            </Option>
-                          ))} */}
                           <Option value="jack">Jack</Option>
                           <Option value="lucy">Lucy</Option>
                         </Select>
@@ -391,11 +389,7 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                           notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                           getPopupContainer={trigger => trigger.parentNode}
                         >
-                          {/* {status?.map((item) => (
-                            <Option key={item.value} value={item.value.toString()}>
-                              {item.name}
-                            </Option>
-                          ))} */}
+  
                           <Option value="jack">Jack</Option>
                           <Option value="lucy">Lucy</Option>
                         </Select>

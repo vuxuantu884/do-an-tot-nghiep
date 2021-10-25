@@ -41,6 +41,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
   };
 
   const onchangeDiscount = (value: number) => {
+    value=Math.round(value);
     if (_type === "money") {
       setValue(Math.round(value * 100) / 100);
       setRate(Math.round((value / props.amount) * 100 * 100) / 100);

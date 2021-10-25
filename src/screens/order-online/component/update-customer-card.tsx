@@ -72,16 +72,12 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   const handleVisibleBillingAddressChange = (value: boolean) => {
     // setVisibleBillingAddress(value);
   };
-  let customerBirthday = moment(props.customerDetail?.birthday).format(
-    "DD/MM/YYYY"
-  );
+  let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
 
   const rankName = loyaltyUsageRules.find(
     (x) =>
       x.rank_id ===
-      (loyaltyPoint?.loyalty_level_id === null
-        ? 0
-        : loyaltyPoint?.loyalty_level_id)
+      (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
   )?.rank_name;
 
   return (
@@ -109,11 +105,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
       }
     >
       <div>
-        <Row
-          align="middle"
-          justify="space-between"
-          className="row-customer-detail"
-        >
+        <Row align="middle" justify="space-between" className="row-customer-detail">
           <Space>
             <Avatar size={32}>A</Avatar>
             <Link
@@ -130,9 +122,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
             <span className="customer-detail-icon">
               <img src={callIcon} alt="" className="icon-customer-info" />
             </span>
-            <span className="customer-detail-text">
-              {props.customerDetail?.phone}
-            </span>
+            <span className="customer-detail-text">{props.customerDetail?.phone}</span>
           </Space>
 
           <Space className="customer-detail-point">
@@ -140,7 +130,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               <img src={pointIcon} alt="" />
             </span>
             <span className="customer-detail-text">
-              Tổng điểm: 
+              Tổng điểm:
               <Typography.Text
                 type="success"
                 style={{ color: "#FCAF17", marginLeft: "5px" }}
@@ -150,23 +140,24 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </Typography.Text>
             </span>
           </Space>
-         
 
-<Space className="customer-detail-birthday">
-              <span className="customer-detail-icon">
-                <img src={bithdayIcon} alt="" />
-              </span>
-              <span className="customer-detail-text">{props.customerDetail?.birthday !== null ?customerBirthday:"Không xác định"}</span>
-            </Space>
+          <Space className="customer-detail-birthday">
+            <span className="customer-detail-icon">
+              <img src={bithdayIcon} alt="" />
+            </span>
+            <span className="customer-detail-text">
+              {props.customerDetail?.birthday !== null
+                ? customerBirthday
+                : "Không xác định"}
+            </span>
+          </Space>
         </Row>
         <Divider className="margin-0" style={{ padding: 0, marginBottom: 0 }} />
         <div>
           <Row gutter={24}>
             <Col
               xs={24}
-              lg={12}
               style={{
-                borderRight: "1px solid #E5E5E5",
                 paddingTop: "14px",
               }}
               className="font-weight-500 customer-info-left"
@@ -182,42 +173,14 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                   }}
                 />
                 Địa chỉ giao hàng:
-              </div>
-              <Row className="customer-row-info">
-                <span>{props.OrderDetail?.shipping_address?.name}</span>
-              </Row>
-              <Row className="customer-row-info">
-                <span>{props.OrderDetail?.shipping_address?.phone}</span>
-              </Row>
-              <Row className="customer-row-info">
-                <span>{props.OrderDetail?.shipping_address?.full_address}</span>
-              </Row>
-            </Col>
-            <Col
-              xs={24}
-              lg={12}
-              style={{ paddingLeft: "34px", marginTop: "14px" }}
-            >
-              <div className="form-group form-group-with-search">
-                <div>
-                  <label className="title-address">
-                    <img
-                      src={noteCustomer}
-                      alt=""
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        marginRight: "10px",
-                      }}
-                    />
-                    Ghi chú của khách:
-                  </label>
-                </div>
-                <div style={{ marginTop: "10px", wordWrap: "break-word" }}>
-                  {props.OrderDetail?.customer_note !== ""
-                    ? props.OrderDetail?.customer_note
-                    : "Không có ghi chú"}
-                </div>
+                <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                  {props.OrderDetail?.shipping_address?.name} - {" "}
+                  {props.OrderDetail?.shipping_address?.phone} - {" "}
+                  {props.OrderDetail?.shipping_address?.full_address} - {" "}
+                  {props.OrderDetail?.shipping_address?.ward} - {" "}
+                  {props.OrderDetail?.shipping_address?.district} - {" "}
+                  {props.OrderDetail?.shipping_address?.city}
+                </span>
               </div>
             </Col>
           </Row>
@@ -233,99 +196,35 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 Gửi hoá đơn
               </Checkbox>
             </Row>
-                        
+
             <Row gutter={24} hidden={isVisibleBilling}>
               <Col
                 xs={24}
-                lg={12}
                 style={{
-                  borderRight: "1px solid #E5E5E5",
                   paddingTop: "14px",
                 }}
                 className="font-weight-500 customer-info-left"
               >
-                <div className="title-address">
-                  <img
-                    src={addressIcon}
-                    alt=""
-                    style={{
-                      width: "24px",
-                      height: "24px",
-                      marginRight: "10px",
-                    }}
-                  />
-                  Địa chỉ nhận hóa đơn:
-                </div>
-                <Row className="customer-row-info">
-                  <span>{props.OrderDetail?.billing_address?.name}</span>
-                </Row>
-                <Row className="customer-row-info">
-                  <span>{props.OrderDetail?.billing_address?.phone}</span>
-                </Row>
-                <Row className="customer-row-info">
-                  <span>
-                    {props.OrderDetail?.billing_address?.full_address}
-                  </span>
-                </Row>
-                <Row>
-                  
-                <Popover
-                  placement="bottomLeft"
-                  title={
-                    <Row
-                      justify="space-between"
-                      align="middle"
-                      className="change-shipping-address-title"
-                    >
-                      <div style={{ color: "#4F687D" }}>Thay đổi địa chỉ</div>
-                      <Button type="link" onClick={ShowAddressModal}>
-                        Thêm địa chỉ mới
-                      </Button>
-                    </Row>
-                  }
-                  content={
-                    <div className="change-shipping-address-content">
-                      <div className="shipping-address-row">
-                        <div className="shipping-address-name">
-                          Địa chỉ 1{" "}
-                          <Button
-                            type="text"
-                            onClick={ShowAddressModal}
-                            className="p-0"
-                          >
-                            <img src={editBlueIcon} alt="" />
-                          </Button>
-                        </div>
-                        <div className="shipping-customer-name">Do Van A</div>
-                        <div className="shipping-customer-mobile">
-                          0987654321
-                        </div>
-                        <div className="shipping-customer-address">
-                          Ha Noi
-                        </div>
-                      </div>
-                    </div>
-                  }
-                  trigger="click"
-                  visible={visibleShippingAddress}
-                  onVisibleChange={handleVisibleBillingAddressChange}
-                  className="change-shipping-address"
-                >
-                  <Button type="link" className="btn-style">
-                    Thay đổi địa chỉ giao hàng
-                  </Button>
-                </Popover>
-                </Row>
-              </Col>
-              <Col xs={24} lg={12} className="font-weight-500">
-                <div className="form-group form-group-with-search">
-                  <div>
-                    <label htmlFor="" className="">
-                      Email hoá đơn đến
-                    </label>
-                  </div>
-                  <span>{props.OrderDetail?.billing_address?.email}</span>
-                </div>
+               <div className="title-address">
+                <img
+                  src={addressIcon}
+                  alt=""
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    marginRight: "10px",
+                  }}
+                />
+                Địa chỉ giao hàng:
+                <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                  {props.OrderDetail?.shipping_address?.name} - {" "}
+                  {props.OrderDetail?.shipping_address?.phone} - {" "}
+                  {props.OrderDetail?.shipping_address?.full_address} - {" "}
+                  {props.OrderDetail?.shipping_address?.ward} - {" "}
+                  {props.OrderDetail?.shipping_address?.district} - {" "}
+                  {props.OrderDetail?.shipping_address?.city}
+                </span>
+              </div>
               </Col>
             </Row>
           </div>
