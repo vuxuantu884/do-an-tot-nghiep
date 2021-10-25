@@ -35,7 +35,9 @@ import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import { useDispatch } from "react-redux";
 import {
+  creatInventoryTransferAction,
   deleteInventoryTransferAction,
+  getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   inventoryGetSenderStoreAction,
@@ -67,6 +69,7 @@ import DeleteTicketModal from "../common/DeleteTicketPopup";
 import { Link } from "react-router-dom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { InventoryResponse } from "model/inventory";
+import { getQueryParams, useQuery } from "utils/useQuery";
 
 const { Option } = Select;
 
@@ -98,6 +101,11 @@ const UpdateTicket: FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
+
+  const query = useQuery();
+  const queryParam: any = getQueryParams(query);
+  
+  const CopyId = queryParam?.cloneId;
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
@@ -154,14 +162,19 @@ const UpdateTicket: FC = () => {
 
   // get store
   useEffect(() => {
-    dispatch(getDetailInventoryTransferAction(idNumber, onResult));
+    if ( CopyId ) {
+      dispatch(getCopyDetailInventoryTransferAction(CopyId, onResult));
+    }
+    else {
+      dispatch(getDetailInventoryTransferAction(idNumber, onResult));
+    }
     dispatch(
       inventoryGetSenderStoreAction(
         { status: "active", simple: true },
         setStores
       )
     );
-  }, [dispatch, idNumber, onResult]);
+  }, [CopyId, dispatch, idNumber, onResult]);
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
@@ -414,11 +427,11 @@ const UpdateTicket: FC = () => {
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
-    if (stores) {
+    if (CopyId) {
+      const dataCreate: any= {}
       stores.forEach((store) => {
         if (store.id === Number(data.from_store_id)) {
-          data.store_transfer = {
-            id: initDataForm?.store_transfer?.id,
+          dataCreate.store_transfer = {
             store_id: store.id,
             hotline: store.hotline,
             address: store.address,
@@ -427,8 +440,7 @@ const UpdateTicket: FC = () => {
           };
         }
         if (store.id === Number(data.to_store_id)) {
-          data.store_receive = {
-            id: initDataForm?.store_receive?.id,
+          dataCreate.store_receive = {
             store_id: store.id,
             hotline: store.hotline,
             address: store.address,
@@ -437,21 +449,74 @@ const UpdateTicket: FC = () => {
           };
         }
       });
-    }
-    
-    if (dataTable.length === 0) {
-      showError("Vui lòng chọn sản phẩm");
-      return;
-    }
-    
-    data.line_items = dataTable;
+      
+      if (dataTable.length === 0) {
+        showError("Vui lòng chọn sản phẩm");
+        return;
+      }
+      
+      dataCreate.line_items = dataTable.map((item: any) => {
+        console.log('item', item);
+        return {
+          sku: item.sku,
+          barcode: item.barcode,
+          variant_name: item.variant_name,
+          variant_id: item.variant_id,
+          variant_image: item.variant_image,
+          product_name: item.product_name,
+          product_id: item.product_id,
+          available: item.available,
+          transfer_quantity: item.transfer_quantity,
+          amount: item.price * item.transfer_quantity,
+          price: item.price,
+          weight: item.weight,
+          weight_unit: item.weight_unit
+        };
+      }); 
 
-    delete data.from_store_id;
-    delete data.to_store_id;
-    if (initDataForm) {
-      dispatch(updateInventoryTransferAction(initDataForm.id, data, createCallback));
+      dataCreate.note = data.note;
+      dataCreate.attached_files = data.attached_files;
+      
+      dispatch(creatInventoryTransferAction(dataCreate, createCallback));
     }
-  },[createCallback, dataTable, dispatch, initDataForm, stores]);
+    else {
+      if (stores) {
+        stores.forEach((store) => {
+          if (store.id === Number(data.from_store_id)) {
+            data.store_transfer = {
+              id: initDataForm?.store_transfer?.id,
+              store_id: store.id,
+              hotline: store.hotline,
+              address: store.address,
+              name: store.name,
+              code: store.code,
+            };
+          }
+          if (store.id === Number(data.to_store_id)) {
+            data.store_receive = {
+              id: initDataForm?.store_receive?.id,
+              store_id: store.id,
+              hotline: store.hotline,
+              address: store.address,
+              name: store.name,
+              code: store.code,
+            };
+          }
+        });
+      }
+      
+      if (dataTable.length === 0) {
+        showError("Vui lòng chọn sản phẩm");
+        return;
+      }
+      
+      delete data.from_store_id;
+      delete data.to_store_id;
+      if (initDataForm) {
+        dispatch(updateInventoryTransferAction(initDataForm.id, data, createCallback));
+      }
+    }
+  },[CopyId, createCallback, dataTable, dispatch, initDataForm, stores]);
 
   const checkError = (index: number) => {
     const thisInput = document.getElementById(`item-quantity-${index}`);
@@ -884,13 +949,15 @@ const UpdateTicket: FC = () => {
               }
               rightComponent={
                 <Space>
-                  <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>
+                  
+                  {!CopyId && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
+                  
                   <Button
                     disabled={hasError}
                     htmlType={"submit"}
                     type="primary"
                   >
-                    Lưu
+                    {CopyId ? 'Tạo' : 'Lưu'}
                   </Button>
                 </Space>
               }

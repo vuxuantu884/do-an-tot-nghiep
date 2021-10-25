@@ -223,7 +223,7 @@ export default function Order() {
     account_code: userReducer.account?.code,
     assignee_code: userReducer.account?.code || null,
     marketer_code: null,
-    // coordinator_code: null,
+    coordinator_code: null,
     customer_id: null,
     reference_code: "",
     url: "",
@@ -1087,7 +1087,7 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
-                      isSplitOrder={typeParam === "split-order"}
+                      setStoreId={setStoreId}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
@@ -1135,6 +1135,7 @@ export default function Order() {
                       isCloneOrder={isCloneOrder}
                       onChangeTag={onChangeTag}
                       isSplitOrder={typeParam === "split-order"}
+                      customerId={customer?.id}
                     />
                   </Col>
                 </Row>

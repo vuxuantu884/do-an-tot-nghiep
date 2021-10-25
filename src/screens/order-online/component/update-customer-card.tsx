@@ -1,31 +1,17 @@
 //#region Import
-import {
-  Button,
-  Card,
-  Row,
-  Col,
-  Space,
-  Typography,
-  Popover,
-  Divider,
-  Checkbox,
-  Avatar,
-  Tag,
-} from "antd";
-import { OrderResponse } from "model/response/order/order.response";
+import { Avatar, Card, Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import bithdayIcon from "assets/img/bithday.svg";
-import editBlueIcon from "assets/img/editBlue.svg";
+import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import addressIcon from "assets/img/user-pin.svg";
-import noteCustomer from "assets/img/note-customer.svg";
-import callIcon from "assets/img/call.svg";
-import { Link } from "react-router-dom";
-import moment from "moment";
+import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { useState } from "react";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import UrlConfig from "config/url.config";
+import { OrderResponse } from "model/response/order/order.response";
+import moment from "moment";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -174,11 +160,11 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 />
                 Địa chỉ giao hàng:
                 <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                  {props.OrderDetail?.shipping_address?.name} - {" "}
-                  {props.OrderDetail?.shipping_address?.phone} - {" "}
-                  {props.OrderDetail?.shipping_address?.full_address} - {" "}
-                  {props.OrderDetail?.shipping_address?.ward} - {" "}
-                  {props.OrderDetail?.shipping_address?.district} - {" "}
+                  {props.OrderDetail?.shipping_address?.name} -{" "}
+                  {props.OrderDetail?.shipping_address?.phone} -{" "}
+                  {props.OrderDetail?.shipping_address?.full_address} -{" "}
+                  {props.OrderDetail?.shipping_address?.ward} -{" "}
+                  {props.OrderDetail?.shipping_address?.district} -{" "}
                   {props.OrderDetail?.shipping_address?.city}
                 </span>
               </div>
@@ -205,26 +191,26 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                 }}
                 className="font-weight-500 customer-info-left"
               >
-               <div className="title-address">
-                <img
-                  src={addressIcon}
-                  alt=""
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                    marginRight: "10px",
-                  }}
-                />
-                Địa chỉ giao hàng:
-                <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                  {props.OrderDetail?.shipping_address?.name} - {" "}
-                  {props.OrderDetail?.shipping_address?.phone} - {" "}
-                  {props.OrderDetail?.shipping_address?.full_address} - {" "}
-                  {props.OrderDetail?.shipping_address?.ward} - {" "}
-                  {props.OrderDetail?.shipping_address?.district} - {" "}
-                  {props.OrderDetail?.shipping_address?.city}
-                </span>
-              </div>
+                <div className="title-address">
+                  <img
+                    src={addressIcon}
+                    alt=""
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      marginRight: "10px",
+                    }}
+                  />
+                  Địa chỉ giao hàng:
+                  <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                    {props.OrderDetail?.shipping_address?.name} -{" "}
+                    {props.OrderDetail?.shipping_address?.phone} -{" "}
+                    {props.OrderDetail?.shipping_address?.full_address} -{" "}
+                    {props.OrderDetail?.shipping_address?.ward} -{" "}
+                    {props.OrderDetail?.shipping_address?.district} -{" "}
+                    {props.OrderDetail?.shipping_address?.city}
+                  </span>
+                </div>
               </Col>
             </Row>
           </div>

@@ -47,6 +47,7 @@ import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "./component/order-detail/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "./component/order-detail/Sidebar/SidebarOrderDetailInformation";
+import SidebarOrderHistory from "./component/order-detail/Sidebar/SidebarOrderHistory";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
@@ -176,7 +177,7 @@ const OrderDetail = (props: PropType) => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     // setPayments(value);
   };
-  
+
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
   const stepsStatus = () => {
@@ -442,8 +443,8 @@ const OrderDetail = (props: PropType) => {
   useEffect(() => {
     if (isFirstLoad.current || reload) {
       if (!Number.isNaN(OrderId)) {
-        setShipmentMethod(4)
-        setShippingFeeInformedCustomer(0)
+        setShipmentMethod(4);
+        setShippingFeeInformedCustomer(0);
         dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
       } else {
         setError(true);
@@ -1122,11 +1123,13 @@ const OrderDetail = (props: PropType) => {
                   customerDetail={customerDetail}
                   storeDetail={storeDetail}
                   stepsStatusValue={stepsStatusValue}
-                  totalPaid={OrderDetail?.total_paid
-                    ? OrderDetail?.total_paid
-                    : paymentType === 2
-                    ? totalPaid
-                    : 0}
+                  totalPaid={
+                    OrderDetail?.total_paid
+                      ? OrderDetail?.total_paid
+                      : paymentType === 2
+                      ? totalPaid
+                      : 0
+                  }
                   officeTime={officeTime}
                   shipmentMethod={shipmentMethod}
                   isVisibleShipping={isVisibleShipping}
@@ -1163,6 +1166,7 @@ const OrderDetail = (props: PropType) => {
                   countChangeSubStatus={countChangeSubStatus}
                   reload={reload}
                 />
+                <SidebarOrderHistory customerId={customerDetail?.id} />
               </Col>
             </Row>
             <OrderDetailBottomBar

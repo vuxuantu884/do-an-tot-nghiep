@@ -7,7 +7,7 @@ import PackList from "./pack-support/pack-list";
 import ReportHandOver from "./pack-support/report-hand-over";
 import { DeliveryServicesGetList, loadOrderPackAction } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useDispatch } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
@@ -19,14 +19,6 @@ const { TabPane } = Tabs;
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
-
-  //queryParams
-  const [queryParams, setQueryParams] = useState<any>({
-    sort_type: "desc",
-    sort_column: "id",
-    limit: 1,
-    page: 1,
-  });
 
   //useState
 
@@ -54,7 +46,7 @@ const PackSupportScreen: React.FC = () => {
     dispatch(loadOrderPackAction(setData))
   },[dispatch]);
 
-  console.log(data);
+  console.log("data",data);
 
   useEffect(() => {
     dispatch(
@@ -67,13 +59,6 @@ const PackSupportScreen: React.FC = () => {
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch, setListStores]);
-
-  const onPageChange = useCallback(
-    (page, limit) => {
-      setQueryParams({ ...queryParams, page, limit });
-    },
-    [queryParams, setQueryParams]
-  );
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -113,11 +98,7 @@ const PackSupportScreen: React.FC = () => {
         </Row>
         <Row gutter={24}>
           <Col xs={24}>
-            <PackList
-              data={data}
-              queryParams={queryParams}
-              onPageChange={onPageChange}
-            />
+            <PackList data={data}/>
           </Col>
         </Row>
 

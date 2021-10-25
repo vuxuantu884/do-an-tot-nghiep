@@ -102,6 +102,17 @@ const getDetailInventoryTransferAction = (
   });
 };
 
+const getCopyDetailInventoryTransferAction = (
+  id: number,
+  onResult: (result: InventoryTransferDetailItem | false) => void
+) => {
+  return BaseAction(InventoryType.GET_COPY_DETAIL_INVENTORY_TRANSFER, {
+    id,
+    onResult,
+  });
+};
+
+
 const deleteInventoryTransferAction = (
   id: number,
   request: DeleteTicketRequest,
@@ -152,4 +163,5 @@ export {
   getLogisticGateAwayAction,
   getFeesAction,
   adjustmentInventoryAction,
+  getCopyDetailInventoryTransferAction,
 };
