@@ -408,3 +408,7 @@ export const createShippingOrderAction = (
     },
   };
 };
+
+export const loadOrderPackAction = (setData: (data:PageResponse<any>)=>void) => {
+  return BaseAction(OrderType.GET_LOCALSTOGARE_PACK, { setData });
+};
