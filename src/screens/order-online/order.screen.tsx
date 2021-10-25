@@ -784,6 +784,8 @@ export default function Order() {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
       setVisibleCustomer(true);
+      let shippingAddressItem = customer.shipping_addresses.find((p:any) => p.default === true);
+      if(shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
     } else {
       setLoyaltyPoint(null);
     }
@@ -1064,6 +1066,7 @@ export default function Order() {
                       loyaltyPoint={loyaltyPoint}
                       loyaltyUsageRules={loyaltyUsageRules}
                       ShippingAddressChange={onChangeShippingAddress}
+                      shippingAddress={shippingAddress}
                       BillingAddressChange={onChangeBillingAddress}
                       isVisibleCustomer={isVisibleCustomer}
                       setVisibleCustomer={setVisibleCustomer}

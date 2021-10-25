@@ -37,15 +37,16 @@ function CustomerShippingAddressOrder(props: any) {
           _item.id,
           customer.id,
           _item,
-          (data: ShippingAddress) => {
-            //history.replace(`${UrlConfig.ORDER}/create`);
+          (data: any) => {
             if (data) {
               dispatch(
                 CustomerDetail(customer.id, (datas: CustomerResponse) => {
                   handleChangeCustomer(datas);
                 })
               );
-              handleShippingAddress(data);
+
+              if(data!==null)
+                handleShippingAddress(data);
               showSuccess("Đặt mặc định thành công");
             } else {
               showError("Đặt mặc định thất bại");
@@ -90,7 +91,7 @@ function CustomerShippingAddressOrder(props: any) {
       visible: true,
     },
     {
-      title: "Địa chỉ",
+      title: "Địa chỉ chi tiết",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {
@@ -103,7 +104,7 @@ function CustomerShippingAddressOrder(props: any) {
             >
               {`${row.full_address ? row.full_address : ""}`}
             </span>
-            <span
+            {/* <span
               className="text"
               title={row.code}
               style={{ color: "#222222", display: "block" }}
@@ -111,7 +112,7 @@ function CustomerShippingAddressOrder(props: any) {
               {`${row.ward ? row.ward : ""}${
                 row.district ? " - " + row.district : ""
               }${row.city ? " - " + row.city : ""}`}
-            </span>
+            </span> */}
           </div>
         );
       },
