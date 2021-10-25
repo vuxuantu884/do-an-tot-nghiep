@@ -134,9 +134,9 @@ const CustomerUpdate = (props: any) => {
     }
   }, [customer, customerForm, countryId]);
 
-  const reload = React.useCallback(() => {
-    dispatch(CustomerDetail(params.id, setCustomer));
-  }, [dispatch, params.id]);
+  const goBack = () => {
+    history.goBack();
+  };
 
   const setResult = React.useCallback(
     (result) => {
@@ -232,7 +232,7 @@ const CustomerUpdate = (props: any) => {
           </Link>
           <div>
             <Button
-              onClick={() => reload()}
+              onClick={goBack}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >
