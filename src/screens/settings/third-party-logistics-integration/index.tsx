@@ -68,9 +68,9 @@ function ThirdPartyLogisticsIntegration() {
                             {single.name}
                           </Link>
                         </h3>
-                        <div className="singleThirdParty__info-instruction">
+                        {/* <div className="singleThirdParty__info-instruction">
                           <Link to={"/"}>Xem hướng dẫn kết nối</Link>
-                        </div>
+                        </div> */}
                       </div>
                       <div className="singleThirdParty__connect">
                         {single.active ? (

@@ -136,6 +136,13 @@ export type StockTransferSubmit = {
   exception_items: [];
 };
 
+export type TrackingLogs = {
+  fulfillment_code: string,
+  shipping_message: string,
+  shipping_status: string,
+  updated_date: string,
+};
+
 export type ShipmentItem = {
   id: number,
   delivery_service_id: number,
@@ -148,6 +155,7 @@ export type ShipmentItem = {
   partner_shop_id: number,
   money_collection: string,
   transport_type: string,
+  tracking_logs: TrackingLogs[],
   transport_type_name: string,
   cod: number,
   insurance: string,
@@ -197,7 +205,7 @@ export interface InventoryTransferDetailItem {
   store_transfer: Store;
   store_receive: Store;
   line_items: Array<LineItem>;
-  shipment: Array<ShipmentItem>;
+  shipment: ShipmentItem;
   exception_items: [];
 };
 
@@ -245,4 +253,21 @@ export interface InventoryTransferShipmentRequest {
   who_paid: string | null,
   expected_delivery_time: string | null,
   office_time:boolean | null,
+}
+
+export interface TransportTypeRS {
+  code:	string,
+  external_service_code:	string,
+  name:	string,
+  description:	string,
+  active: boolean,
+}
+export interface LogisticGateAwayResponse {
+  id:	number,
+  code:	string,
+  external_service_code:	string,
+  logo:	string,
+  name:	string,
+  active:	boolean,
+  transport_types: Array<TransportTypeRS>
 }

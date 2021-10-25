@@ -1,6 +1,6 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
-import StickyUnderNavbar from "component/container/StickyUnderNavbar";
+import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
 import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
@@ -55,7 +55,7 @@ const InventoryScreen: React.FC = () => {
       title="Danh sách tồn kho"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

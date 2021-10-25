@@ -35,7 +35,8 @@ type PropType = {
     code: string,
     item: any,
     fee: number,
-    name: string
+    name: string,
+    serviceName: string,
   ) => void;
   fulfillments: FulFillmentResponse[] | null | undefined;
   isCloneOrder?: boolean;
@@ -401,7 +402,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                                 service.total_fee,
                                                 (deliveryService as any)[
                                                   deliveryServiceName
-                                                ].name
+                                                ].name,
+                                                service.transport_type_name,
                                               );
                                             }}
                                             disabled={

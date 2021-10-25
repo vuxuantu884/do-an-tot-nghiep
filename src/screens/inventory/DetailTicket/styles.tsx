@@ -1,4 +1,6 @@
 import styled from "styled-components";
+import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
+import { BG_COLOR_TAG } from "../ListTicket/ListTicketTab/InventoryTransfer/styles";
 
 export const StyledWrapper = styled.div`
   position: relative;
@@ -93,6 +95,92 @@ export const StyledWrapper = styled.div`
           margin-right: 5px;
         }
       }
+    }
+  }
+
+  .inventory-transfer-action {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+
+    & .button-draft {
+      margin-right: 20px;
+    }
+  }
+  .ant-table-summary>tr>td, .ant-table-summary>tr>th {
+    border-bottom: none;
+  }
+
+  .inventory-transfer-table, .inventory-info {
+    .ant-tag {
+      padding: 2px 8px;
+      border-radius: 20px;
+  
+      &.${STATUS_INVENTORY_TRANSFER.TRANSFERRING.status} {
+        background: ${BG_COLOR_TAG.TRANSFERRING.background};
+        color: ${BG_COLOR_TAG.TRANSFERRING.color};
+      }
+      &.${STATUS_INVENTORY_TRANSFER.PENDING.status} {
+        background: ${BG_COLOR_TAG.PENDING.background};
+        color: ${BG_COLOR_TAG.PENDING.color};
+      }
+      &.${STATUS_INVENTORY_TRANSFER.RECEIVED.status} {
+        background: ${BG_COLOR_TAG.RECEIVED.background};
+        color: ${BG_COLOR_TAG.RECEIVED.color};
+      }
+    }
+  }
+
+  .shipment {
+    align-items: center;
+    &-logo {
+      width: 200px;
+      margin-right: 20px;
+      img {
+        width: 100%;
+      }
+    }
+    &-detail {
+      & > span {
+        color: #2A2A86;
+        font-size: 18px;
+        margin-left: 5px;
+        width: 20px;
+      }
+    }
+  }
+
+  .timeline-collapse {
+    margin-top: 30px;
+    border: unset;
+    width: 100%;
+    min-height: 100px;
+    background-color: #fff;
+
+    .ant-collapse-content {
+      border: unset;
+    }
+    .ant-collapse-item {
+      border: unset;
+
+      & .ant-collapse-header{
+        position: absolute;
+        right: 0;
+        z-index: 2;
+      }
+    }
+
+    .ant-timeline-item-last>.ant-timeline-item-content {
+      min-height: unset;
+      top: 2px;
+      & > span {
+        padding: 0 10px;
+      }
+    }
+
+    .ant-timeline-item-head-blue {
+      background: #e5e5e5;
+      border: none;
     }
   }
 `;

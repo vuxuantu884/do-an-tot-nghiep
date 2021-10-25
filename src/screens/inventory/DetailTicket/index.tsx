@@ -1,12 +1,15 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag } from "antd";
+import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
+import copy from 'copy-to-clipboard';
 import {
+  CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   PaperClipOutlined,
@@ -21,18 +24,31 @@ import {
   deleteInventoryTransferAction,
   getDetailInventoryTransferAction,
   inventoryGetSenderStoreAction,
+  inventoryGetVariantByStoreAction,
+  receivedInventoryTransferAction,
+  getFeesAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem, Store } from "model/inventory/transfer";
+import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
-import InventoryShipment from "../common/ChosesShipment";
-import { getFeesAction } from "domain/actions/order/order.action";
-import { SumWeightInventory } from "utils/AppUtils";
+import InventoryShipment, { deliveryService } from "../common/ChosesShipment";
+import { findAvatar, SumWeightInventory } from "utils/AppUtils";
 import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
+import { STATUS_INVENTORY_TRANSFER } from "../ListTicket/constants";
+import NumberInput from "component/custom/number-input.custom";
+import { VariantResponse } from "model/product/product.model";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import { showError, showSuccess } from "utils/ToastUtils";
+import ProductItem from "screens/purchase-order/component/product-item";
+import { PageResponse } from "model/base/base-metadata.response";
+import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
+import _ from "lodash";
+import { AiOutlineClose } from "react-icons/ai";
+import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 
 export interface InventoryParams {
   id: string;
@@ -44,15 +60,23 @@ const DetailTicket: FC = () => {
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
+  const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
 
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
+  const productSearchRef = createRef<CustomAutoComplete>();
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
+  const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
+    [] as Array<VariantResponse>
+  );
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+
+  const { Panel } = Collapse;
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
@@ -61,6 +85,7 @@ const DetailTicket: FC = () => {
         setError(true);
         return;
       } else {
+        setDataTable(result.line_items);
         setData(result);
       }
     },
@@ -68,11 +93,223 @@ const DetailTicket: FC = () => {
     [dispatch]
   );
 
+  function onRealQuantityChange(quantity: number | null, index: number) {
+    const dataTableClone = _.cloneDeep(dataTable);
+    dataTableClone[index].real_quantity = quantity;
+
+    setDataTable(dataTableClone);
+  }
+
+  const [resultSearch, setResultSearch] = useState<
+    PageResponse<VariantResponse> | any
+  >();
+
+  const onSearchProduct = (value: string) => {
+    const storeId = data?.from_store_id;
+    if (!storeId) {
+      showError("Vui lòng chọn kho gửi");
+      return;
+    } else if (value.trim() !== "" && value.length >= 3) {
+      dispatch(
+        inventoryGetVariantByStoreAction(
+          {
+            status: "active",
+            limit: 10,
+            page: 1,
+            store_id: storeId,
+            info: value.trim(),
+          },
+          setResultSearch
+        )
+      );
+    }
+  };
+
+  let textTag = '';
+  let classTag = '';
+  switch (data?.status) {
+    case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
+      textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
+      classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
+      break;
+    
+    case STATUS_INVENTORY_TRANSFER.PENDING.status:
+      textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
+      classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
+      break;
+    case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
+      textTag = STATUS_INVENTORY_TRANSFER.RECEIVED.name;
+      classTag = STATUS_INVENTORY_TRANSFER.RECEIVED.status;
+      break;
+    case STATUS_INVENTORY_TRANSFER.CANCELED.status:
+      textTag = STATUS_INVENTORY_TRANSFER.CANCELED.name;
+      classTag = STATUS_INVENTORY_TRANSFER.CANCELED.status;
+      break;
+    default:
+      textTag = STATUS_INVENTORY_TRANSFER.CONFIRM.name;
+      classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+      break;
+  }
+
+  const renderResult = useMemo(() => {
+    let options: any[] = [];
+    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: <ProductItem data={item} key={item.id.toString()} />,
+        value: item.id.toString(),
+      });
+    });
+    return options;
+  }, [resultSearch]);
+
+  const onSelectProduct = (value: string) => {
+    const dataTemp = [...dataTable];
+    const selectedItem = resultSearch?.items?.find(
+      (variant: VariantResponse) => variant.id.toString() === value
+    );
+    const variantPrice =
+      selectedItem &&
+      selectedItem.variant_prices &&
+      selectedItem.variant_prices[0] &&
+      selectedItem.variant_prices[0].retail_price;
+    const newResult = {
+      sku: selectedItem.sku,
+      barcode: selectedItem.barcode,
+      variant_name: selectedItem.name,
+      variant_id: selectedItem.id,
+      variant_image: findAvatar(selectedItem.variant_images),
+      product_name: selectedItem.product.name,
+      product_id: selectedItem.product.id,
+      available: selectedItem.available,
+      amount: 0,
+      price: variantPrice,
+      transfer_quantity: 0,
+      real_quantity: 0,
+      weight: selectedItem?.weight ? selectedItem?.weight : 0,
+      weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
+    };
+
+    if (
+      !dataTemp.some(
+        (variant: VariantResponse) => variant.variant_id === newResult.variant_id
+      )
+    ) {
+      setDataTable((prev: any) => prev.concat([newResult]));
+    }
+  };
+
+  function getTotalRealQuantity() {
+    let total = 0;
+    dataTable.forEach((element: LineItem) => {
+      total += element.real_quantity;
+    });
+
+    return total;
+  }
+
+  function onDeleteItem(index: number) {
+    // delete row
+    const temps = [...dataTable];
+    temps.splice(index, 1);
+    setDataTable(temps);
+  }
+
+  const onPickManyProduct = (result: Array<VariantResponse>) => {
+    
+    const newResult = result?.map((item) => {
+      const variantPrice =
+        item &&
+        item.variant_prices &&
+        item.variant_prices[0] &&
+        item.variant_prices[0].retail_price;
+      return {
+        sku: item.sku,
+        barcode: item.barcode,
+        variant_name: item.name,
+        variant_id: item.id,
+        variant_image: findAvatar(item.variant_images),
+        product_name: item.product.name,
+        product_id: item.product.id,
+        available: item.available,
+        amount: 0,
+        price: variantPrice,
+        transfer_quantity: 0,
+        real_quantity: 0,
+        weight: item.weight,
+        weight_unit: item.weight_unit
+      };
+    });
+
+    newResult.forEach((item, index) => {
+      let isFindIndex = dataTable.findIndex(
+        (itemOld: VariantResponse) => itemOld.variant_id === item.variant_id
+      );
+      if (isFindIndex !== -1) {
+        newResult.splice(index, 1);
+      }
+    });
+
+    const dataTemp = [...dataTable, ...newResult];
+
+    setDataTable(dataTemp);
+    setVisibleManyProduct(false);
+  };
+
+  const createCallback = useCallback(
+    (result: InventoryTransferDetailItem) => {
+      if (result) {
+        showSuccess("Nhập hàng liệu thành công");
+        setDataTable(result.line_items);
+        setData(result);
+        history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
+      }
+    },
+    [history]
+  );  
+
+  const onReceive = useCallback(() => {
+    if (data && dataTable) {
+      data.line_items = dataTable;
+      let dataUpdate: any = {};
+      
+      stores.forEach((store) => {
+        if (store.id === Number(data?.from_store_id)) {
+          dataUpdate.store_transfer = {
+            id: data?.store_transfer?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+        if (store.id === Number(data?.to_store_id)) {
+          dataUpdate.store_receive = {
+            id: data?.store_receive?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+      })
+      dataUpdate.from_store_id = data?.from_store_id;
+      dataUpdate.to_store_id = data?.to_store_id;
+      dataUpdate.attached_files = data?.attached_files;
+      dataUpdate.line_items = data?.line_items;
+      dataUpdate.exception_items = data?.exception_items;
+      dataUpdate.note = data?.note;
+      dataUpdate.version = data?.version;
+      dispatch(receivedInventoryTransferAction(data.id, dataUpdate, createCallback));
+    }
+  }, [createCallback, data, dataTable, dispatch, stores])
+
   const columns: ColumnsType<any> = [
     {
       title: "STT",
       align: "center",
-      width: "50px",
+      width: "70px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
         index + 1,
     },
@@ -147,6 +384,141 @@ const DetailTicket: FC = () => {
     },
   ];
 
+  const columnsTransfer: ColumnsType<any> = [
+    {
+      title: "STT",
+      align: "center",
+      width: "70px",
+      render: (value: string, record: PurchaseOrderLineItem, index: number) =>
+        index + 1,
+    },
+    {
+      title: "Ảnh",
+      width: "60px",
+      dataIndex: "variant_image",
+      render: (value: string, record: any) => {
+        return (
+          <div className="product-item-image">
+            <img src={value ? value : imgDefIcon} alt="" className="" />
+          </div>
+        );
+      },
+    },
+    {
+      title: "Sản phẩm",
+      width: "200px",
+      className: "ant-col-info",
+      dataIndex: "variant_name",
+      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+        <div>
+          <div>
+            <div className="product-item-sku">
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+              >
+                {record.sku}
+              </Link>
+            </div>
+            <div className="product-item-name">
+              <span className="product-item-name-detail">{value}</span>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Giá bán",
+      dataIndex: "price",
+      align: "center",
+      width: 100,
+      render: (value) => {
+        return <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      },
+    },
+    {
+      title: "Số lượng",
+      width: 100,
+      align: "center",
+      dataIndex: "transfer_quantity",
+    },
+    {
+      title: "Thành tiền",
+      dataIndex: "amount",
+      align: "center",
+      width: 200,
+      render: (value) => {
+        return <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      },
+    },
+    {
+      title: "Thực nhận",
+      dataIndex: "real_quantity",
+      align: "center",
+      width: 100,
+      render: (value, row, index: number) => {     
+        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+          return value ? value : 0;
+        }
+        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+          return <NumberInput
+            isFloat={false}
+            id={`item-quantity-${index}`}
+            min={0}
+            value={value ? value : 0}
+            onChange={(quantity) => {
+              onRealQuantityChange(quantity, index);
+            }}
+          />
+        }
+      },
+    },
+    {
+      title: "Lệch",
+      align: "center",
+      width: 200,
+      render: (item, row: LineItem) => {
+        console.log('row', row);
+        
+        const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
+        if (totalDifference) {
+          return <NumberFormat
+            value={totalDifference}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        }
+        return 0;
+      },
+    },
+    {
+      title: "",
+      fixed: dataTable?.length !== 0 && "right",
+      width: 50,
+      render: (_: string, row, index) => {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+          return false;
+        }
+        return <Button
+          onClick={() => onDeleteItem(index)}
+          className="product-item-delete"
+          icon={<AiOutlineClose />}
+        />
+      },
+    },
+  ];
+
   const deleteTicketResult = useCallback(result => {
     if (!result) {
       setError(true);
@@ -209,9 +581,9 @@ const DetailTicket: FC = () => {
         setStores
       )
     );
+    
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
-
   return (
     <StyledWrapper>
       <ContentContainer
@@ -220,12 +592,12 @@ const DetailTicket: FC = () => {
         title={`Chuyển hàng ${data?.code}`}
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {
-            name: "Đặt hàng",
-            path: `${UrlConfig.PURCHASE_ORDER}`,
+            name: "Chuyển hàng",
+            path: `${UrlConfig.INVENTORY_TRANSFER}`,
           },
           {
             name: `Đơn hàng ${id}`,
@@ -233,7 +605,7 @@ const DetailTicket: FC = () => {
         ]}
         extra={
           <InventoryStep
-            status={"canceled"}
+            status={data?.status}
             inventoryTransferDetail={data}
           />
         }
@@ -281,62 +653,237 @@ const DetailTicket: FC = () => {
                   </Row>
                 </Card>
 
-                <Card
-                  title="DANH SÁCH SẢN PHẨM"
-                  bordered={false}
-                  className={"product-detail"}
-                >
-                  <div>
-                    <Table
-                      rowClassName="product-table-row"
-                      tableLayout="fixed"
-                      scroll={{ y: 300 }}
-                      pagination={false}
-                      columns={columns}
-                      dataSource={data.line_items}
-                      summary={() => (
-                        <Table.Summary>
-                          <Table.Summary.Row>
-                            <Table.Summary.Cell align={"right"} index={2} colSpan={3}>
-                              <b>Tổng số lượng:</b>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell align={"center"} index={3}>
-                              <b>{data.total_quantity}</b>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}>
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell align={"center"} index={5}>
-                              <b><NumberFormat
-                                  value={data.total_amount}
+                    {
+                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                      data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && (
+                        <Card
+                          title="DANH SÁCH SẢN PHẨM"
+                          bordered={false}
+                          extra={<Tag className={classTag}>{textTag}</Tag>}
+                          className={"inventory-transfer-table"}
+                        >
+                          <Table
+                            rowClassName="product-table-row"
+                            tableLayout="fixed"
+                            scroll={{ y: 300 }}
+                            pagination={false}
+                            columns={columns}
+                            dataSource={data.line_items}
+                            summary={() => (
+                              <Table.Summary>
+                                <Table.Summary.Row>
+                                  <Table.Summary.Cell align={"right"} index={2} colSpan={3}>
+                                    <b>Tổng số lượng:</b>
+                                  </Table.Summary.Cell>
+                                  <Table.Summary.Cell align={"center"} index={3}>
+                                    <b>{data.total_quantity}</b>
+                                  </Table.Summary.Cell>
+                                  <Table.Summary.Cell index={4}>
+                                  </Table.Summary.Cell>
+                                  <Table.Summary.Cell align={"center"} index={5}>
+                                    <b><NumberFormat
+                                        value={data.total_amount}
+                                        className="foo"
+                                        displayType={"text"}
+                                        thousandSeparator={true}
+                                      /></b>
+                                  </Table.Summary.Cell>
+                                </Table.Summary.Row>
+                              </Table.Summary>
+                            )}
+                          />
+                        </Card>
+                      )
+                    }
+                {
+                  (data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status 
+                    || data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+                    || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && (
+                  <Card
+                    title="Danh sách sản phẩm"
+                    bordered={false}
+                    extra={<Tag className={classTag}>{textTag}</Tag>}
+                    className={"inventory-transfer-table"}
+                  >
+                    <div>
+                      {
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        <Input.Group className="display-flex">
+                          <CustomAutoComplete
+                            id="#product_search_variant"
+                            dropdownClassName="product"
+                            placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                            onSearch={onSearchProduct}
+                            dropdownMatchSelectWidth={456}
+                            style={{ width: "100%" }}
+                            showAdd={true}
+                            textAdd="Thêm mới sản phẩm"
+                            onSelect={onSelectProduct}
+                            options={renderResult}
+                            ref={productSearchRef}
+                          />
+                          <Button
+                            onClick={() => {
+                              setVisibleManyProduct(true);
+                            }}
+                            style={{ width: 132, marginLeft: 10 }}
+                            icon={<img src={PlusOutline} alt="" />}
+                          >
+                            &nbsp;&nbsp; Chọn nhiều
+                          </Button>
+                        </Input.Group>
+                        )
+                      }
+                      
+                      <Table
+                        className="inventory-table"
+                        rowClassName="product-table-row"
+                        tableLayout="fixed"
+                        scroll={{ y: 300 }}
+                        pagination={false}
+                        columns={columnsTransfer}
+                        dataSource={dataTable}
+                        summary={() => {
+                          let totalQuantity = 0;
+                          let totalAmount = 0;
+                          let totalDifferenceAmount = 0;
+                          dataTable.forEach((element: LineItem) => {
+                            totalDifferenceAmount += (element.real_quantity - element.transfer_quantity) * element.price;
+                            totalQuantity += element.transfer_quantity;
+                            totalAmount += element.transfer_quantity * element.price;
+                          });
+                          return (
+                          <Table.Summary fixed>
+                            <Table.Summary.Row>
+                              <Table.Summary.Cell align={"right"} index={1} colSpan={3}>
+                                <b>Tổng số lượng:</b>
+                              </Table.Summary.Cell>
+                              <Table.Summary.Cell index={2} >
+                              </Table.Summary.Cell>
+
+                              <Table.Summary.Cell align={"center"} index={3} >
+                                <b>{totalQuantity}</b>
+                              </Table.Summary.Cell>
+
+                              <Table.Summary.Cell align={"center"} index={4}>
+                                <b><NumberFormat
+                                  value={totalAmount}
                                   className="foo"
                                   displayType={"text"}
                                   thousandSeparator={true}
                                 /></b>
-                            </Table.Summary.Cell>
-                          </Table.Summary.Row>
-                        </Table.Summary>
-                      )}
-                    />
-                  </div>
-                </Card>
-                <Card
-                  title={"CHUYỂN HÀNG"}
-                  extra={
-                    <Button
-                      className={"choses-shipper-button"}
-                      onClick={() => setIsVisibleInventoryShipment(true)}
-                    >
-                      Chọn hãng vận chuyển
-                    </Button>
-                  }
-                ></Card>
+                              </Table.Summary.Cell>
+
+                              <Table.Summary.Cell align={"center"} index={5}>
+                                <b>{getTotalRealQuantity()}</b>
+                              </Table.Summary.Cell>
+                              
+                              <Table.Summary.Cell align={"center"} index={6}>
+                                <b>
+                                  <NumberFormat
+                                    value={totalDifferenceAmount}
+                                    className="foo"
+                                    displayType={"text"}
+                                    thousandSeparator={true}
+                                  />
+                                </b>
+                              </Table.Summary.Cell>
+                            </Table.Summary.Row>
+                          </Table.Summary>
+                        )}}
+                      />
+                      {
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                          <div className="inventory-transfer-action">
+                            <Button
+                              type="default"
+                              className="button-draft"
+                              size="large"
+                              onClick={() => {}}
+                            >
+                              Cập nhật
+                            </Button>
+                            <Button
+                              type="primary"
+                              className="ant-btn-primary"
+                              size="large"
+                              onClick={onReceive}
+                            >
+                              Nhận hàng
+                            </Button>
+    
+                          </div>
+                        )
+                      }
+                    </div>
+                  </Card>
+                  )
+                }
+                {
+                  data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status && 
+                  <Card
+                    title={"CHUYỂN HÀNG"}
+                    style={{minHeight: "210px;"}}
+                    extra={ 
+                      data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
+                        <Button
+                          className={"choses-shipper-button"}
+                          onClick={() => setIsVisibleInventoryShipment(true)}
+                        >
+                          Chọn hãng vận chuyển
+                        </Button>
+                    }
+                  >
+                    {
+                      (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+                      || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                      || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && 
+                      <>
+                        <Row className="shipment">
+                          <div className="shipment-logo">
+                            <img
+                              src={(deliveryService as any)[data?.shipment?.delivery_service_code]?.logo}
+                              alt=""
+                            />
+                          </div>
+                          <div className="shipment-detail">
+                            Mã vận đơn: <span>{data?.shipment?.order_code}</span>
+                            <CopyOutlined style={{color: "#71767B"}} onClick={() => copy(data.shipment.order_code)} />
+                          </div>
+                        </Row>
+                        <Row>
+                          <Collapse className="timeline-collapse" defaultActiveKey={['1']}>
+                            <Panel header="Đóng" key="1">
+                              <Timeline>
+                              {
+                                data?.shipment?.tracking_logs?.map(item => {
+                                  return (
+                                    <Timeline.Item>
+                                      <span><b>{item.shipping_message}</b></span> 
+                                      &#8226; 
+                                      <span>{ConvertUtcToLocalDate(
+                                          item.updated_date,
+                                          "DD/MM/YYYY HH:mm"
+                                        )}</span>
+                                    </Timeline.Item>
+                                  )
+                                })
+                              }
+                              </Timeline>
+                            </Panel>
+                          </Collapse>
+                        </Row>
+                      </>
+                    }
+                  </Card>
+                }
               </Col>
               <Col span={6}>
                 <Card
                   title={"THÔNG TIN PHIẾU"}
                   bordered={false}
                   className={"inventory-info"}
-                  extra={<Tag>Chờ chuyển</Tag>}
+                  extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
                     <RowDetail title="ID Phiếu" value={data.code} />
@@ -453,18 +1000,45 @@ const DetailTicket: FC = () => {
                       {" In phiếu chuyển"}
                     </Link>
                   </Button>
-                  <Button danger onClick={() => setIsDeleteTicket(true)}>
-                    <DeleteOutlined /> Hủy phiếu
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      history.push(
-                        `${UrlConfig.INVENTORY_TRANSFER}/${data?.id}/update`
-                      );
-                    }}
-                  >
-                    <EditOutlined /> Sửa thông tin
-                  </Button>
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
+                    
+                    <Button danger onClick={() => setIsDeleteTicket(true)}>
+                      <DeleteOutlined /> Hủy phiếu
+                    </Button>
+                  }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status ) && (
+                      <>
+                      <Button onClick={() => setIsDeleteTicket(true)}>
+                        Kiểm kho theo sản phẩm
+                      </Button>
+                      <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
+                        Cân bằng nhanh
+                      </Button>
+                      </>
+                    )
+                  }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && 
+                    <Button
+                      onClick={() => {
+                        history.push(
+                          `${UrlConfig.INVENTORY_TRANSFER}/${data?.id}/update`
+                        );
+                      }}
+                    >
+                      <EditOutlined /> Sửa thông tin
+                    </Button>
+                  }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
+                    <Button
+                    >
+                      Tạo bản sao
+                    </Button>
+                  }
                 </Space>
               }
             />
@@ -484,12 +1058,41 @@ const DetailTicket: FC = () => {
           />
         }
         {
+          isBalanceTransfer &&
+          <InventoryTransferBalanceModal
+            onOk={(result) => {
+              if (result) {
+                setIsBalanceTransfer(false);
+                showSuccess("Cân bằng kho thành công");
+                setData(result);
+              }
+            }}
+            onCancel={() => setIsBalanceTransfer(false)}
+            visible={isBalanceTransfer}
+            data={data}
+          />
+        }
+        {visibleManyProduct && (
+          <PickManyProductModal
+            storeID={data?.from_store_id}
+            selected={[]}
+            onSave={onPickManyProduct}
+            onCancel={() => setVisibleManyProduct(false)}
+            visible={visibleManyProduct}
+          />
+        )}
+        {
           isVisibleInventoryShipment && 
           <InventoryShipment
             visible={isVisibleInventoryShipment}
             dataTicket={data}
             onCancel={() => setIsVisibleInventoryShipment(false)}
-            onOk={() => {}}
+            onOk={item => {
+              setIsVisibleInventoryShipment(false);
+              setDataTable(item?.line_items);
+              setData(item);
+
+            }}
             infoFees={infoFees}
           />
         }

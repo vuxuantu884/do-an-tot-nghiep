@@ -13,6 +13,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import {
   inventoryGetApi,
   inventoryGetHistoryApi,
+  logisticGateAwayGetApi,
 } from "service/inventory";
 import { showError } from "utils/ToastUtils";
 import {
@@ -27,11 +28,16 @@ import {
   getListLogInventoryTransferApi,
   inventoryTransferGetDetailVariantIdsApi,
   createInventoryTransferShipment,
+  receivedInventoryTransfer,
+  adjustmentInventory,
+  getInfoDeliveryFees,
+  inventorGetCopyDetailApi,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
 import { VariantStore } from "model/inventory/variant";
 import { VariantResponse } from "model/product/product.model";
+import { FeesResponse } from "model/response/order/order.response";
 
 function* inventoryGetListSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
@@ -104,12 +110,62 @@ function* inventoryGetSaga(action: YodyAction) {
   }
 }
 
+function* logisticGateAwayGetSaga(action: YodyAction) {
+  let { onResult } = action.payload;
+  try {
+    const response: BaseResponse<AllInventoryResponse> =
+      yield call(logisticGateAwayGetApi);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* inventoryGetDetailSaga(action: YodyAction) {
 
   const { id, onResult } = action.payload;
   try {
     let response: BaseResponse<InventoryTransferDetailItem> = yield call(
       inventorGetDetailApi,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* inventoryGetCopyDetailSaga(action: YodyAction) {
+
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<InventoryTransferDetailItem> = yield call(
+      inventorGetCopyDetailApi,
       id
     );
     switch (response.code) {
@@ -338,6 +394,32 @@ function* createInventoryTransferShipmentSaga(action: YodyAction) {
   }
 }
 
+function* adjustmentInventorySaga(action: YodyAction) {
+  let { id, onResult } = action.payload;
+  
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      adjustmentInventory,
+      id,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:        
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 //UPDATE
 function* updateInventoryTransferSaga(action: YodyAction) {
   let { id, data, onResult } = action.payload;
@@ -366,14 +448,66 @@ function* updateInventoryTransferSaga(action: YodyAction) {
   }
 }
 
+function* receivedInventoryTransferSaga(action: YodyAction) {
+  let { id, data, onResult } = action.payload;
+  
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      receivedInventoryTransfer,
+      id,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* InfoFeesSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<FeesResponse>> = yield call(
+      getInfoDeliveryFees,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.GET_LIST_INVENTORY_TRANSFER, inventoryGetListSaga);
   yield takeLatest(InventoryType.GET_LIST_LOG_INVENTORY_TRANSFER, inventoryGetLogListSaga);
+  yield takeLatest(InventoryType.GET_LOGISTIC_SERVICE, logisticGateAwayGetSaga);
   yield takeLatest(InventoryType.GET_DETAIL_INVENTORY_TRANSFER, inventoryGetDetailSaga);
+  yield takeLatest(InventoryType.GET_COPY_DETAIL_INVENTORY_TRANSFER, inventoryGetCopyDetailSaga);
+  yield takeLatest(InventoryType.GET_INFO_FEES_INVENTORY, InfoFeesSaga);
   yield takeLatest(InventoryType.DELETE_INVENTORY_TRANSFER, inventoryTransferDeleteSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER, createInventoryTransferSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER_SHIPMENT, createInventoryTransferShipmentSaga);
+  yield takeLatest(InventoryType.ADJUSTMENT_INVENTORY, adjustmentInventorySaga);
   yield takeLatest(InventoryType.UPDATE_INVENTORY_TRANSFER, updateInventoryTransferSaga);
+  yield takeLatest(InventoryType.RECEIVED_INVENTORY__TRANSFER, receivedInventoryTransferSaga);
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT_TRANSFER, inventoryGetDetailVariantIdsSaga);
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
   yield takeLatest(InventoryType.GET_HISTORY, inventoryGetHistorySaga);

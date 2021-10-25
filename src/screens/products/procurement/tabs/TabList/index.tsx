@@ -16,7 +16,7 @@ import {
   ProcurementStatus,
   ProcurementStatusName
 } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { useQuery } from "utils/useQuery";
 import TabListFilter from "../../filter/TabList.filter";
 
@@ -59,7 +59,7 @@ const TabList: React.FC = () => {
     }
     search();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.location.search, dispatch]);
+  }, [history.location.search, dispatch,]);
 
   return (
     <div className="margin-top-20">
@@ -73,8 +73,11 @@ const TabList: React.FC = () => {
             title: "Mã nhập kho",
             dataIndex: "code",
             fixed: "left",
+            width: 120,
             render: (value, record, index) => (
-              <Link to={`${UrlConfig.PURCHASE_ORDER}#procurement${record.id}`}>
+              <Link
+                to={`${UrlConfig.PURCHASE_ORDER}/${record.purchase_order.id}/#procurement_${record.id}`}
+              >
                 {value}
               </Link>
             ),
@@ -83,10 +86,9 @@ const TabList: React.FC = () => {
             title: "Mã đơn mua",
             dataIndex: "purchase_order",
             fixed: "left",
+            width: 120,
             render: (value, record, index) => (
-              <Link to={`${UrlConfig.PURCHASE_ORDER}/${value.id}`}>
-                {value.code}
-              </Link>
+              <Link to={`${UrlConfig.PURCHASE_ORDER}/${value.id}`}>{value.code}</Link>
             ),
           },
           {
@@ -97,7 +99,8 @@ const TabList: React.FC = () => {
           {
             title: "Ngày nhận hàng dự kiến",
             dataIndex: "expect_receipt_date",
-            render: (value, record, index) => ConvertUtcToLocalDate(value),
+            render: (value, record, index) =>
+              ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
           },
           {
             title: "Ngày duyệt",
@@ -120,9 +123,20 @@ const TabList: React.FC = () => {
             render: (value, record, index) => value,
           },
           {
+            title: "Nhà cung cấp",
+            dataIndex: "purchase_order",
+            render: (value) => value?.supplier,
+          },
+          {
             title: "Merchandiser",
             dataIndex: "purchase_order",
-            render : (value)=> value?.merchandiser
+            render: (value) => (
+              <>
+                {value.merchandiser_code}
+                <br />
+                {value.merchandiser}
+              </>
+            ),
           },
           {
             title: "Trạng thái",
@@ -183,7 +197,10 @@ const TabList: React.FC = () => {
             align: "center",
             dataIndex: "procurement_items",
             render: (value, record: PurchaseProcument, index) => {
-              if (record.status === ProcurementStatus.not_received) {
+              if (
+                record.status === ProcurementStatus.not_received ||
+                record.status === ProcurementStatus.received
+              ) {
                 let totalConfirmQuantity = 0;
                 value.forEach((item: PurchaseProcumentLineItem) => {
                   totalConfirmQuantity += item.quantity;

@@ -33,8 +33,9 @@ import {
   deleteEcommerceItem,
   putConnectEcommerceItem,
 } from "domain/actions/ecommerce/ecommerce.actions";
-
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+
+import ConfirmConnectProductModal from "./ConfirmConnectProductModal";
 
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
@@ -52,6 +53,8 @@ import {
   StyledProductListDropdown,
   StyledYodyProductColumn,
 } from "./styles";
+import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
+
 
 type NotConnectedItemsProps = {
   categoryList?: Array<any>;
@@ -71,6 +74,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [isVisibleConfirmConnectItemsModal, setIsVisibleConfirmConnectItemsModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
 
   const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
@@ -82,6 +87,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
   let notMatchSelectedRow: any[] = [];
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
+
+  const [connectedYodyProductsRequest, setConnectedYodyProductsRequest] = useState<any>({
+    variants: null
+  });
 
   const params: ProductEcommerceQuery = useMemo(
     () => ({
@@ -163,26 +172,28 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   };
 
   const RenderProductColumn = (
-    item: any,
+    ecommerceItem: any,
     copyConnectItemList: any,
     updateConnectItemList: any
   ) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
-    const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
-      useState(false);
+    const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
+    const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
 
-    const saveConnectYodyProduct = (itemId: any) => {
+
+    // handle save connect Yody product
+    const saveConnectYodyProduct = () => {
       const newConnectItemList =
         copyConnectItemList &&
         copyConnectItemList.filter((item: any) => {
-          return item.core_variant_id !== itemId;
+          return item.core_variant_id !== productSelected.id;
         });
 
       const connectProductSelected = {
-        id: item.id,
+        id: ecommerceItem.id,
         core_variant_id: productSelected.id,
         core_sku: productSelected.sku,
         core_variant: productSelected.name,
@@ -197,8 +208,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         variants: [connectProductSelected],
       };
 
+      setIsLoading(true);
       dispatch(
         putConnectEcommerceItem(request, (result) => {
+          setIsVisibleConfirmConnectModal(false);
+          setIsLoading(false);
           if (result) {
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
@@ -207,6 +221,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           }
         })
       );
+    };
+
+    const handleSaveConnectYodyProduct = () => {
+      if (ecommerceItem?.ecommerce_price === productSelected?.retail_price) {
+        saveConnectYodyProduct();
+      } else {
+        setIsVisibleConfirmConnectModal(true);
+      }
+    };
+
+    const cancelConfirmConnectModal = () => {
+      setIsVisibleConfirmConnectModal(false);
     };
 
     const cancelConnectYodyProduct = (itemId: any) => {
@@ -219,6 +245,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       updateConnectItemList(newConnectItemList);
       setProductSelected(null);
     };
+
+    // end handle save connect Yody product
 
     const onInputSearchProductFocus = () => {
       setIsInputSearchProductFocus(true);
@@ -280,7 +308,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       setProductSelected(productSelectedData);
 
       const connectItem = {
-        id: item.id,
+        id: ecommerceItem.id,
         core_variant_id: productSelectedData.id,
         core_sku: productSelectedData.sku,
         core_variant: productSelectedData.name,
@@ -419,7 +447,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <div className="button">
               <Button
                 type="primary"
-                onClick={() => saveConnectYodyProduct(productSelected.id)}
+                onClick={handleSaveConnectYodyProduct}
               >
                 Lưu
               </Button>
@@ -432,6 +460,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </div>
           </div>
         )}
+
+        {isVisibleConfirmConnectModal &&
+          <ConfirmConnectProductModal
+            isVisible={isVisibleConfirmConnectModal}
+            isLoading={isLoading}
+            okConfirmConnectModal={saveConnectYodyProduct}
+            cancelConfirmConnectModal={cancelConfirmConnectModal}
+          />
+        }
       </StyledYodyProductColumn>
     );
   };
@@ -441,6 +478,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Ảnh",
       visible: true,
       align: "center",
+      width: "70px",
       render: (l: any, v: any, i: any) => {
         return (
           <img
@@ -454,6 +492,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Sku/ itemID (Sàn)",
       visible: true,
+      width: "150px",
       render: (l: any, v: any, i: any) => {
         return (
           <div>
@@ -467,6 +506,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Sản phẩm (Sàn)",
       visible: true,
+      width: "250px",
       render: (l: any, v: any, i: any) => {
         return <div>{l.ecommerce_variant}</div>;
       },
@@ -475,6 +515,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Giá bán (Sàn)",
       visible: true,
       align: "center",
+      width: "90px",
       render: (l: any, v: any, i: any) => {
         return (
           <span>
@@ -492,17 +533,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     {
       title: "Ghép nối",
       visible: true,
+      align: "center",
+      width: "150px",
       render: (l: any, v: any, i: any) => {
         return (
-          <div>
+          <StyledProductConnectStatus>
             {l.connect_status === "waiting" && (
-              <span style={{ color: "#2A2A86" }}>Chưa ghép nối</span>
+              <span className="not-connect-status">Chưa ghép nối</span>
             )}
-          </div>
+          </StyledProductConnectStatus>
         );
       },
     },
     {
+      width: "60px",
       render: (l: any, v: any, i: any) => {
         return (
           <img
@@ -607,14 +651,35 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setVisibleFilter(false);
   }, []);
 
-  //Save connected Yody product
+  //handle save connected Yody product
   const disableSaveConnectedYodyProduct = () => {
     return connectItemList.length === 0;
   };
 
-  const saveConnectedYodyProduct = () => {
+  const connectedYodyProducts = () => {
+    setIsLoading(true);
+    dispatch(
+      putConnectEcommerceItem(connectedYodyProductsRequest, (result) => {
+        setIsVisibleConfirmConnectItemsModal(false);
+        setIsLoading(false);
+        if (result) {
+          setConnectItemList(notMatchConnectItemList);
+          tempConnectItemList = notMatchConnectItemList;
+          setSelectedRow(notMatchSelectedRow);
+
+          showSuccess("Ghép nối sản phẩm thành công");
+          history.replace(`${history.location.pathname}#connected-item`);
+        } else {
+          showError("Ghép nối sản phẩm thất bại");
+        }
+      })
+    );
+  };
+  
+  const handleConnectedYodyProducts = () => {
     const yodyProductConnectCheck: any[] = [];
     let isSaveAble = true;
+    let isNotEqualPrice = false;
 
     let tempSelectedRow: any[] = [];
     selectedRow.forEach((rowData) => {
@@ -633,6 +698,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         );
         if (itemMatch) {
           yodyProductConnectCheck.push(item);
+          isNotEqualPrice = (itemMatch.ecommerce_price !== item.core_price) ? true : false;
         } else {
           notMatchConnectItemList.push(item);
         }
@@ -657,23 +723,17 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       const request = {
         variants: yodyProductConnectCheck,
       };
-      dispatch(
-        putConnectEcommerceItem(request, (result) => {
-          if (result) {
-            setConnectItemList(notMatchConnectItemList);
-            tempConnectItemList = notMatchConnectItemList;
-            setSelectedRow(notMatchSelectedRow);
 
-            showSuccess("Ghép nối sản phẩm thành công");
-            reloadPage();
-            history.replace(`${history.location.pathname}#connected-item`);
-          } else {
-            showError("Ghép nối sản phẩm thất bại");
-          }
-        })
-      );
+      setConnectedYodyProductsRequest(request);
+
+      if (isNotEqualPrice) {
+        setIsVisibleConfirmConnectItemsModal(true);
+      } else {
+        connectedYodyProducts();
+      }
     }
   };
+  //end handle save connected Yody product
 
   //select shop
   const getPlaceholderSelectShop = () => {
@@ -703,7 +763,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   const renderShopList = (isNewFilter: any) => {
     return (
-      <StyledComponent>
+      <StyledProductFilter>
         <div className="render-shop-list">
           {ecommerceShopList.map((item: any) => (
             <div key={item.id} className="shop-name">
@@ -738,7 +798,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             </div>
           )}
         </div>
-      </StyledComponent>
+      </StyledProductFilter>
     );
   };
 
@@ -759,7 +819,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   return (
     <StyledComponent>
-      <div className="not-connected-items">
+      <StyledProductFilter>
         <div className="filter">
           <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
             <Form.Item name="ecommerce_id" className="select-channel-dropdown">
@@ -842,6 +902,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           onSelectedChange={onSelectTable}
           columns={columns}
           dataSource={variantData.items}
+          scroll={{ x: 1100 }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantData.metadata && variantData.metadata.total,
@@ -854,9 +915,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         />
 
         <Button
-          className="save-pairing-button"
+          style={{ margin: "20px 0" }}
           type="primary"
-          onClick={saveConnectedYodyProduct}
+          onClick={handleConnectedYodyProducts}
           disabled={disableSaveConnectedYodyProduct()}
           size="large"
           icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
@@ -956,6 +1017,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           </Form>
         </BaseFilter>
 
+        {isVisibleConfirmConnectItemsModal &&
+          <ConfirmConnectProductModal
+            isVisible={isVisibleConfirmConnectItemsModal}
+            isLoading={isLoading}
+            okConfirmConnectModal={connectedYodyProducts}
+            cancelConfirmConnectModal={() => setIsVisibleConfirmConnectItemsModal(false)}
+          />
+        }
+
         <Modal
           width="600px"
           visible={isShowDeleteItemModal}
@@ -969,7 +1039,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
           </div>
         </Modal>
-      </div>
+      </StyledProductFilter>
     </StyledComponent>
   );
 };

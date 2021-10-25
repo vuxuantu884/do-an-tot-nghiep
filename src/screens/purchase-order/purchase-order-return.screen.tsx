@@ -51,10 +51,14 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
         showError("Cần ít nhất một phiếu nhập kho để hoàn trả");
         return;
       }
-      setLoading(true);
       values.line_return_items = values.line_return_items.filter(
         (item: any) => item.quantity_return > 0
       );
+      if(values.line_return_items.length === 0) {
+        showError("Cần trả ít nhất 1 sản phẩm");
+        return;
+      }
+      setLoading(true);
       dispatch(POReturnAction(idNumber, values, onUpdateCall));
     },
     [dispatch, idNumber, onUpdateCall]
@@ -133,7 +137,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
       title={`Trả hàng cho đơn mua hàng ${id}`}
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

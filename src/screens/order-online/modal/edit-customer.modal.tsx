@@ -49,7 +49,6 @@ type EditCustomerModalProps = {
   modalAction: string;
   isVisibleCollapseCustomer: boolean;
   districtId: number | null;
-  titleNotify: string;
   onCancel: () => void;
   ShowAddressModalAdd: () => void;
   ShowAddressModalEdit: () => void;
@@ -87,7 +86,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     formItem,
     modalAction,
     districtId,
-    titleNotify,
     isVisibleCollapseCustomer,
     ShowAddressModalAdd,
     ShowAddressModalEdit,
@@ -194,10 +192,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
       if (result !== null && result !== undefined) {
         //customerForm.resetFields();
         handleChangeCustomer(result);
-        showSuccess(titleNotify);
+        if(!isCreateForm)
+          showSuccess("Cập nhập khách hàng thành công");
+        else  showSuccess("Thêm mới khách hàng thành công");
       }
     },
-    [handleChangeCustomer, titleNotify]
+    [handleChangeCustomer,isCreateForm]
   );
 
   const handleSubmit = useCallback(
@@ -436,7 +436,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
             name="full_address"
             style={formItem !== null?{marginBottom:"0px"}:{}}
           >
-            <Input placeholder="Địa chỉi" prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>} />
+            <Input placeholder="Địa chỉ" prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>} />
           </Form.Item>
         </Col>
       </Row>

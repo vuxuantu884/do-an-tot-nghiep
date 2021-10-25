@@ -5,9 +5,9 @@ import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
 import ReportHandOver from "./pack-support/report-hand-over";
-import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, loadOrderPackAction } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useDispatch } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
@@ -19,14 +19,6 @@ const { TabPane } = Tabs;
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
-
-  //queryParams
-  const [queryParams, setQueryParams] = useState<any>({
-    sort_type: "desc",
-    sort_column: "id",
-    limit: 1,
-    page: 1,
-  });
 
   //useState
 
@@ -50,6 +42,12 @@ const PackSupportScreen: React.FC = () => {
     setListStores,
   };
 
+  useEffect(()=>{
+    dispatch(loadOrderPackAction(setData))
+  },[dispatch]);
+
+  console.log("data",data);
+
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
@@ -62,14 +60,6 @@ const PackSupportScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch, setListStores]);
 
-  const onPageChange = useCallback(
-    (page, limit) => {
-      setQueryParams({ ...queryParams, page, limit });
-    },
-    [queryParams, setQueryParams]
-  );
-
-  console.log(data);
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer
@@ -99,7 +89,7 @@ const PackSupportScreen: React.FC = () => {
                     listThirdPartyLogistics={listThirdPartyLogistics}
                   ></PackInfo>
                 </TabPane>
-                <TabPane tab="Bàn giao" key="2">
+                <TabPane tab="Biên bản bàn giao" key="2">
                   <PackReportHandOver/>
                 </TabPane>
               </Tabs>
@@ -108,11 +98,7 @@ const PackSupportScreen: React.FC = () => {
         </Row>
         <Row gutter={24}>
           <Col xs={24}>
-            <PackList
-              data={data}
-              queryParams={queryParams}
-              onPageChange={onPageChange}
-            />
+            <PackList data={data}/>
           </Col>
         </Row>
 

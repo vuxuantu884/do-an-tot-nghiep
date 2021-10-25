@@ -4,8 +4,10 @@ import React from "react";
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
 const DetailTicket = React.lazy(() => import("screens/inventory/DetailTicket/index"));
 const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
+const CopyTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
 const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
+const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
 
 //PO
 const PurchaseOrderListScreen = React.lazy(
@@ -135,6 +137,29 @@ export const inventory: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
+      {
+        path: `${UrlConfig.INVENTORY_TRANSFER}/:id/update`,
+        exact: true,
+        title: "Chuyển hàng",
+        icon: "icon-dot",
+        component: CopyTicket,
+        key: "submenu31",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.INVENTORY_TRANSFER}/import`,
+        exact: true,
+        title: "Chuyển hàng",
+        icon: "icon-dot",
+        component: ImportInventoryScreen,
+        key: "submenu31",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      
     ],
   },
 ];

@@ -32,6 +32,7 @@ import {
   PurchaseOrder,
   PurchaseOrderPrint
 } from "model/purchase-order/purchase-order.model";
+import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -112,6 +113,8 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
   const [statusAction, setStatusAction] = useState<string>("");
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isSuggest, setSuggest] = useState<boolean>(false);
+  const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
+  const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
   
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -239,7 +242,12 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
   const redirectToReturn = useCallback(() => {
     console.log('poData?.status', poData?.status);
     if(poData?.status === POStatus.FINALIZED){
+      setPaymentItem(undefined);
       setVisiblePaymentModal(true)
+      setInitValue({
+        is_refund: true,
+        amount: poData.total_paid,
+      });
     }else{
        history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
       params: poData,
@@ -442,7 +450,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
@@ -546,7 +554,11 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
                 poId={parseInt(id)}
                 loadDetail={loadDetail}
                 isVisiblePaymentModal={visiblePaymentModal}
+                paymentItem={paymentItem}
+                setPaymentItem={setPaymentItem}
                 setVisiblePaymentModal={setVisiblePaymentModal}
+                initValue={initValue}
+                setInitValue={setInitValue}
               />
             ) : (
               <POPaymentConditionsForm

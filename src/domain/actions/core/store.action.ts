@@ -1,4 +1,4 @@
-import { StoreResponse } from "model/core/store.model";
+import { StoreResponse, StoreValidateRequest } from "model/core/store.model";
 import BaseAction from "base/base.action";
 import { StoreType } from "domain/types/core.type";
 import { StoreQuery } from "model/core/store.model";
@@ -22,7 +22,7 @@ export const StoreSearchAction = (
 
 export const StoreCreateAction = (
   request: StoreCreateRequest,
-  onCreateSuccess: () => void
+  onCreateSuccess: (data: StoreResponse|false) => void
 ) => {
   return BaseAction(StoreType.STORE_CREATE, { request, onCreateSuccess });
 };
@@ -73,4 +73,11 @@ export const StoreSearchListAction = (
   setData: (data: Array<StoreResponse>) => void
 ) => {
   return BaseAction(StoreType.GET_SEARCH_STORE_REQUEST, { name,setData });
+};
+
+export const StoreValidateAction = (
+  data: StoreValidateRequest,
+  setData: (data: true|Array<string>) => void
+) => {
+  return BaseAction(StoreType.STORE_VALIDATE, { data, setData });
 };

@@ -54,7 +54,7 @@ const SizeCreateScreen: React.FC = () => {
       title="Thêm mới kích cỡ"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

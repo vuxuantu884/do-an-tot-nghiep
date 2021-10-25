@@ -1,3 +1,4 @@
+import { InfoCircleOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -8,33 +9,33 @@ import {
   Input,
   Row,
   Select,
-  Space,
+  Space
 } from "antd";
+import StoreTooltip from "assets/icon/store-tooltip.png";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import ContentContainer from "component/container/content.container";
+import CustomDatepicker from "component/custom/date-picker.custom";
+import NumberInput from "component/custom/number-input.custom";
+import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
   GroupGetAction,
-  WardGetByDistrictAction,
+  WardGetByDistrictAction
 } from "domain/actions/content/content.action";
-import { StoreCreateAction, StoreRankAction } from "domain/actions/core/store.action";
-import { StoreCreateRequest } from "model/core/store.model";
+import { StoreCreateAction, StoreRankAction, StoreValidateAction } from "domain/actions/core/store.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
+import { GroupResponse } from "model/content/group.model";
+import { WardResponse } from "model/content/ward.model";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { StoreCreateRequest, StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { RuleObject, StoreValue } from "rc-field-form/lib/interface";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { StoreRankResponse } from "model/core/store-rank.model";
-import { WardResponse } from "model/content/ward.model";
-import { GroupResponse } from "model/content/group.model";
-import CustomDatepicker from "component/custom/date-picker.custom";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import UrlConfig from "config/url.config";
-import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
-import NumberInput from "component/custom/number-input.custom";
-import StoreTooltip from "assets/icon/store-tooltip.png";
-import { InfoCircleOutlined } from "@ant-design/icons";
-import BottomBarContainer from "component/container/bottom-bar.container";
 
 const { Item } = Form;
 const { Panel } = Collapse;
@@ -57,6 +58,8 @@ const initRequest: StoreCreateRequest = {
   latitude: null,
   longtitude: null,
   group_id: null,
+  is_saleable: true,
+  is_stocktaking: false,
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -74,8 +77,13 @@ const StoreCreateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const [formMain] = Form.useForm();
-  const firstload = useRef(true);
+
   //EndState
+
+  //ref
+  const firstload = useRef(true);
+  const debounceSearchStoreNameRef = useRef<ReturnType<typeof setTimeout>>();
+
   const onSelectDistrict = useCallback(
     (value: number) => {
       let cityId = -1;
@@ -93,12 +101,41 @@ const StoreCreateScreen: React.FC = () => {
     },
     [cityViews, dispatch, formMain]
   );
-  const onCreateSuccess = useCallback(() => {
-    history.push(UrlConfig.STORE);
-  }, [history]);
+  const onCreateSuccess = useCallback(
+    (data: StoreResponse | false) => {
+      if (!data) {
+        return;
+      }
+      history.push(`${UrlConfig.STORE}/${data.id}`);
+    },
+    [history]
+  );
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
+
+  const checkDuplicateStoreName = (
+    rule: RuleObject,
+    value: StoreValue,
+    callback: (error?: string) => void
+  ) => {
+    if (debounceSearchStoreNameRef.current) {
+      clearTimeout(debounceSearchStoreNameRef.current);
+    }
+
+    debounceSearchStoreNameRef.current = setTimeout(() => {
+      dispatch(
+        StoreValidateAction({ name: value }, (data) => {
+          console.log(data);
+          if (data instanceof Array) {
+            callback("Tên cửa hàng đã tồn tại");
+          } else {
+            callback();
+          }
+        })
+      );
+    }, 300);
+  };
   const onFinish = useCallback(
     (values: StoreCreateRequest) => {
       dispatch(StoreCreateAction(values, onCreateSuccess));
@@ -119,7 +156,7 @@ const StoreCreateScreen: React.FC = () => {
       title="Thêm mới cửa hàng"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
@@ -187,6 +224,26 @@ const StoreCreateScreen: React.FC = () => {
             </Col>
           </Row>
           <Row gutter={50}>
+            <Col>
+              <Item
+                noStyle
+                shouldUpdate={(prev, current) =>
+                  prev.is_saleable !== current.is_saleable ||
+                  prev.status !== current.status
+                }
+              >
+                {({ getFieldValue }) => {
+                  let status = getFieldValue("status");
+                  return (
+                    <Item valuePropName="checked" name="is_stocktaking">
+                      <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
+                    </Item>
+                  );
+                }}
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
@@ -195,6 +252,11 @@ const StoreCreateScreen: React.FC = () => {
                   {
                     pattern: RegUtil.STRINGUTF8,
                     message: "Tên danh mục không gồm kí tự đặc biệt",
+                  },
+                  {
+                    validator: (rule, value, callback) => {
+                      checkDuplicateStoreName(rule, value, callback);
+                    },
                   },
                 ]}
                 label="Tên cửa hàng"
@@ -330,7 +392,7 @@ const StoreCreateScreen: React.FC = () => {
           </Row>
         </Card>
         <Collapse
-          style={{marginBottom: 50}}
+          style={{ marginBottom: 50 }}
           defaultActiveKey="1"
           className="ant-collapse-card margin-top-20"
           expandIconPosition="right"

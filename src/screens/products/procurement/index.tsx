@@ -1,6 +1,6 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
-import StickyUnderNavbar from "component/container/StickyUnderNavbar";
+import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
 import UrlConfig from "config/url.config";
 import { useEffect, useState } from "react";
 import { RouteComponentProps, useParams } from "react-router";
@@ -38,7 +38,7 @@ const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) =
       title="Danh sách đơn nhập kho"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

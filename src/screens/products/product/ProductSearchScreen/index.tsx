@@ -2,7 +2,7 @@ import { Button, Card, Row, Space, Tabs } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import ContentContainer from "component/container/content.container";
-import StickyUnderNavbar from "component/container/StickyUnderNavbar";
+import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/url.config";
 import React, { useEffect, useState } from "react";
@@ -49,7 +49,7 @@ const ListProductScreen: React.FC = () => {
         title="Quản lý sản phẩm"
         breadcrumb={[
           {
-            name: "Tổng quản",
+            name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {

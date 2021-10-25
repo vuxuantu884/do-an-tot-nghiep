@@ -223,7 +223,7 @@ const SizeListScreen: React.FC = () => {
       title="Quản lý kích cỡ"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

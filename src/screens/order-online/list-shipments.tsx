@@ -1,7 +1,7 @@
 import { Button, Card, Row, Space } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -99,9 +99,9 @@ const ListOrderScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const [tableLoading, setTableLoading] = useState(true);
+  const [isFilter, setIsFilter] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [details, setDetails] = useState(false);
-  const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
   let dataQuery: ShipmentSearchQuery = {
@@ -402,11 +402,10 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log("filter start", `${UrlConfig.SHIPMENTS}?${queryParam}`);
+      setIsFilter(true) 
       history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
     },
     [history, params]
@@ -523,6 +522,7 @@ const ListOrderScreen: React.FC = () => {
   const setSearchResult = useCallback(
     (result: PageResponse<ShipmentModel> | false) => {
       setTableLoading(false);
+      setIsFilter(false);
       if (!!result) {
         setData(result);
       }
@@ -535,21 +535,14 @@ const ListOrderScreen: React.FC = () => {
     [columns]
   );
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
+  const setDataAccounts = (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return;
       }
       setAccounts(data.items);
-    },
-    []
-  );
+    };
 
   useEffect(() => {
-    if (isFirstLoad.current) {
-      setTableLoading(true);
-    }
-    isFirstLoad.current = false;
     setTableLoading(true);
     dispatch(getShipmentsAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
@@ -559,7 +552,7 @@ const ListOrderScreen: React.FC = () => {
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(getListReasonRequest(setReasons));
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -613,7 +606,7 @@ const ListOrderScreen: React.FC = () => {
               onMenuClick={onMenuClick}
               actions={actions}
               onFilter={onFilter}
-              isLoading={tableLoading}
+              isLoading={isFilter}
               params={params}
               listSource={listSource}
               listStore={listStore}

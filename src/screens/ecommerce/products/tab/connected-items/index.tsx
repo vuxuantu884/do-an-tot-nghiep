@@ -25,6 +25,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
@@ -50,6 +51,8 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 
 import { StyledComponent } from "./styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
+import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
+
 
 type ConnectedItemsProps = {
   categoryList?: Array<any>;
@@ -263,11 +266,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     }
   };
 
+  const convertDateTimeFormat = (dateTimeData: any) => {
+    const formatDateTime = "DD/MM/YYYY HH:mm:ss";
+    return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
+  };
+
   const [columns] = React.useState<Array<ICustomTableColumType<any>>>([
     {
       title: "Ảnh",
       visible: true,
       align: "center",
+      width: "70px",
       render: (l: any, v: any, i: any) => {
         return (
           <img
@@ -281,6 +290,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     {
       title: "Sku/ itemID (Sàn)",
       visible: true,
+      width: "150px",
       render: (l: any, v: any, i: any) => {
         return (
           <div>
@@ -294,6 +304,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     {
       title: "Sản phẩm (Sàn)",
       visible: true,
+      width: "300px",
       render: (l: any, v: any, i: any) => {
         return <div>{l.ecommerce_variant}</div>;
       },
@@ -302,6 +313,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Giá bán (Sàn)",
       visible: true,
       align: "center",
+      width: "100px",
       render: (l: any, v: any, i: any) => {
         return (
           <span>
@@ -316,12 +328,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       render: (l: any, v: any, i: any) => {
         const link = `https://dev.yody.io/unicorn/admin/products/${l.core_product_id}/variants/${l.core_variant_id}`;
         return (
-          <div>
-            <div onClick={() => window.open(link, "_blank")} className="link">
-              {l.core_variant}
-            </div>
+          <StyledProductLink>
+            <a href={link} rel="noreferrer" target="_blank">{l.core_variant}</a>
             <div>{l.core_sku}</div>
-          </div>
+          </StyledProductLink>
         );
       },
     },
@@ -329,6 +339,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Giá bán (Yody)",
       visible: true,
       align: "center",
+      width: "100px",
       render: (l: any, v: any, i: any) => {
         return <span>{formatCurrency(l.core_price)}</span>;
       },
@@ -337,6 +348,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Tồn",
       visible: true,
       align: "center",
+      width: "60px",
       render: (l: any, v: any, i: any) => {
         return <span>{l.stock}</span>;
       },
@@ -344,18 +356,15 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     {
       title: "Ghép nối",
       visible: true,
+      align: "center",
+      width: "150px",
       render: (l: any, v: any, i: any) => {
         return (
-          <div>
+          <StyledProductConnectStatus>
             {l.connect_status === "connected" && (
-              <span style={{ color: "#27AE60" }}>Thành công</span>
+              <span className="success-status">Thành công</span>
             )}
-            {l.connect_status === "warning" && (
-              <Tooltip title="Chú ý giá bán (sàn) và giá bán (admin) bị lệch nhau" color="blue">
-                <span style={{ color: "#FCAF17" }}>Warning</span>
-              </Tooltip>
-            )}
-          </div>
+          </StyledProductConnectStatus>
         );
       },
     },
@@ -381,23 +390,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       },
       visible: true,
       align: "center",
+      width: "150px",
       render: (l: any, v: any, i: any) => {
         return (
-          <div>
+          <StyledProductConnectStatus>
             {l.sync_stock_status === "done" && (
-              <Tooltip title={l.updated_date}>
-                <span style={{ color: "#27AE60" }}>Thành công</span>
+              <Tooltip title={convertDateTimeFormat(l.updated_date)}>
+                <span className="success-status">Thành công</span>
               </Tooltip>
             )}
             {l.sync_stock_status === "error" && (
               <Tooltip title="error">
-                <span style={{ color: "#E24343" }}>Thất bại</span>
+                <span className="error-status">Thất bại</span>
               </Tooltip>
             )}
             {l.sync_stock_status === "in_progress" && (
-              <span style={{ color: "#FFA500" }}>Đang xử lý</span>
+              <span className="warning-status">Đang xử lý</span>
             )}
-          </div>
+          </StyledProductConnectStatus>
         );
       },
     },
@@ -428,7 +438,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
       query.category_id = value.category_id;
-      query.connect_status = value.connect_status || "connected";
+      query.connect_status = "connected";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
@@ -492,17 +502,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       isActive: false,
       ecommerce_id: 4,
     },
-  ];
-
-  const CONNECT_STATUS = [
-    {
-      name:"Thành công",
-      value:"connected"
-    },
-    {
-      name:"Warning",
-      value:"warning"
-   },
   ];
 
   const bootstrapReducer = useSelector(
@@ -583,7 +582,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const renderShopList = (isNewFilter: any) => {
     return (
-      <StyledComponent>
+      <StyledProductFilter>
         <div className="render-shop-list">
           {ecommerceShopList.map((item: any) => (
             <div key={item.id} className="shop-name">
@@ -618,7 +617,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             </div>
           )}
         </div>
-      </StyledComponent>
+      </StyledProductFilter>
     );
   };
 
@@ -722,7 +721,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   return (
     <StyledComponent>
-      <div className="connected-items">
+      <StyledProductFilter>
         <div className="filter">
           <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
             <Form.Item name="action" className="action-dropdown">
@@ -819,280 +818,263 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
             </Form.Item>
           </Form>
         </div>
+      </StyledProductFilter>
 
-        <CustomTable
-          isRowSelection
-          isLoading={tableLoading}
-          onSelectedChange={onSelectTable}
-          columns={columnFinal}
-          dataSource={variantConnectedItem}
-          scroll={{ x: 1500 }}
-          pagination={{
-            pageSize: variantData.metadata && variantData.metadata.limit,
-            total: variantConnectedItem && variantConnectedItem.length,
-            current: variantData.metadata && variantData.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          rowKey={(data) => data.id}
-        />
+      <CustomTable
+        isRowSelection
+        isLoading={tableLoading}
+        onSelectedChange={onSelectTable}
+        columns={columnFinal}
+        dataSource={variantConnectedItem}
+        scroll={{ x: 1500 }}
+        pagination={{
+          pageSize: variantData.metadata && variantData.metadata.limit,
+          total: variantConnectedItem && variantConnectedItem.length,
+          current: variantData.metadata && variantData.metadata.page,
+          showSizeChanger: true,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+        }}
+        rowKey={(data) => data.id}
+      />
 
-        <BaseFilter
-          onClearFilter={onClearFilterAdvanceClick}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
-          visible={visibleFilter}
-          width={400}
-          footerStyle={{
-            display: "flex",
-            flexDirection: "row-reverse",
-            justifyContent: "space-between",
-          }}
-          confirmButtonTitle="Áp dụng bộ lọc"
-          deleteButtonTitle={
-            <div>
-              <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-              <span style={{ color: "red" }}>Xóa bộ lọc</span>
-            </div>
-          }
-        >
-          <StyledBaseFilter>
-            <Form
-              form={formAdvance}
-              onFinish={onSearch}
-              initialValues={params}
-              layout="vertical"
+      <BaseFilter
+        onClearFilter={onClearFilterAdvanceClick}
+        onFilter={onFilterClick}
+        onCancel={onCancelFilter}
+        visible={visibleFilter}
+        width={400}
+        footerStyle={{
+          display: "flex",
+          flexDirection: "row-reverse",
+          justifyContent: "space-between",
+        }}
+        confirmButtonTitle="Áp dụng bộ lọc"
+        deleteButtonTitle={
+          <div>
+            <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
+            <span style={{ color: "red" }}>Xóa bộ lọc</span>
+          </div>
+        }
+      >
+        <StyledBaseFilter>
+          <Form
+            form={formAdvance}
+            onFinish={onSearch}
+            initialValues={params}
+            layout="vertical"
+          >
+            <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
+              <Select
+                showSearch
+                placeholder="Chọn sàn"
+                allowClear
+                onSelect={(value) => getShopEcommerce(value)}
+                onClear={removeEcommerce}
+              >
+                {ECOMMERCE_LIST &&
+                  ECOMMERCE_LIST.map((item: any) => (
+                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                      <div>
+                        <img
+                          src={item.icon}
+                          alt={item.id}
+                          style={{ marginRight: "10px" }}
+                        />
+                        <span>{item.title}</span>
+                      </div>
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              className="select-store-dropdown"
+              label={<b>CHỌN GIAN HÀNG</b>}
             >
-              <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
+              {isEcommerceSelected && (
                 <Select
                   showSearch
-                  placeholder="Chọn sàn"
-                  allowClear
-                  onSelect={(value) => getShopEcommerce(value)}
-                  onClear={removeEcommerce}
-                >
-                  {ECOMMERCE_LIST &&
-                    ECOMMERCE_LIST.map((item: any) => (
-                      <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                        <div>
-                          <img
-                            src={item.icon}
-                            alt={item.id}
-                            style={{ marginRight: "10px" }}
-                          />
-                          <span>{item.title}</span>
-                        </div>
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
+                  disabled={tableLoading || !isEcommerceSelected}
+                  placeholder={getPlaceholderSelectShop()}
+                  allowClear={shopIdSelected && shopIdSelected.length > 0}
+                  dropdownRender={() => renderShopList(true)}
+                  onClear={removeSelectedShop}
+                />
+              )}
 
-              <Form.Item
-                className="select-store-dropdown"
-                label={<b>CHỌN GIAN HÀNG</b>}
-              >
-                {isEcommerceSelected && (
+              {!isEcommerceSelected && (
+                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
                   <Select
                     showSearch
-                    disabled={tableLoading || !isEcommerceSelected}
+                    disabled={true}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(true)}
                     onClear={removeSelectedShop}
                   />
-                )}
+                </Tooltip>
+              )}
+            </Form.Item>
 
-                {!isEcommerceSelected && (
-                  <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
-                    <Select
-                      showSearch
-                      disabled={true}
-                      placeholder={getPlaceholderSelectShop()}
-                      allowClear={shopIdSelected && shopIdSelected.length > 0}
-                      dropdownRender={() => renderShopList(true)}
-                      onClear={removeSelectedShop}
-                    />
-                  </Tooltip>
-                )}
-              </Form.Item>
+            <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
+              <Select showSearch placeholder="Chọn danh mục" allowClear>
+                {categoryList?.map((item: any) => (
+                  <Option key={item.category_id} value={item.category_id}>
+                    {item.display_category_name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-              <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
-                <Select showSearch placeholder="Chọn danh mục" allowClear>
-                  {categoryList?.map((item: any) => (
-                    <Option key={item.category_id} value={item.category_id}>
-                      {item.display_category_name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="connect_status"
-                label={<b>TRẠNG THÁI GHÉP NỐI</b>}
+            <Form.Item
+              name="update_stock_status"
+              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
+            >
+              <Select
+                showSearch
+                placeholder="Chọn trạng thái đồng bộ tồn kho"
+                allowClear
               >
-                <Select
-                  showSearch
-                  placeholder="Chọn trạng thái ghép nối"
-                  allowClear
-                >
-                  {CONNECT_STATUS?.map((item) => (
+                {STOCK_STATUS &&
+                  STOCK_STATUS.map((item) => (
                     <Option key={item.value} value={item.value}>
                       {item.name}
                     </Option>
                   ))}
-                </Select>
-              </Form.Item>
+              </Select>
+            </Form.Item>
 
-              <Form.Item
-                name="update_stock_status"
-                label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn trạng thái đồng bộ tồn kho"
-                  allowClear
-                >
-                  {STOCK_STATUS &&
-                    STOCK_STATUS.map((item) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item label={<b>NGÀY GHÉP NỐI</b>}>
-                <div className="select-connection-date">
-                  <div className="date-option">
-                    <Button
-                      onClick={() => onSelectDate("yesterday")}
-                      className={
-                        dateButtonSelected === "yesterday" ? "active-btn" : ""
-                      }
-                    >
-                      Hôm qua
-                    </Button>
-
-                    <Button
-                      onClick={() => onSelectDate("today")}
-                      className={
-                        dateButtonSelected === "today" ? "active-btn" : ""
-                      }
-                    >
-                      Hôm nay
-                    </Button>
-
-                    <Button
-                      onClick={() => onSelectDate("thisweek")}
-                      className={
-                        dateButtonSelected === "thisweek" ? "active-btn" : ""
-                      }
-                    >
-                      Tuần này
-                    </Button>
-                  </div>
-
-                  <div className="date-option">
-                    <Button
-                      onClick={() => onSelectDate("lastweek")}
-                      className={
-                        dateButtonSelected === "lastweek" ? "active-btn" : ""
-                      }
-                    >
-                      Tuần trước
-                    </Button>
-
-                    <Button
-                      onClick={() => onSelectDate("thismonth")}
-                      className={
-                        dateButtonSelected === "thismonth" ? "active-btn" : ""
-                      }
-                    >
-                      Tháng này
-                    </Button>
-
-                    <Button
-                      onClick={() => onSelectDate("lastmonth")}
-                      className={
-                        dateButtonSelected === "lastmonth" ? "active-btn" : ""
-                      }
-                    >
-                      Tháng trước
-                    </Button>
-                  </div>
-
-                  <div style={{ margin: "10px 0" }}>
-                    <SettingOutlined style={{ marginRight: "5px" }} />
-                    <span>Tùy chọn khoảng thời gian tạo:</span>
-                  </div>
-
-                  <DatePicker.RangePicker
-                    format="DD-MM-YYYY"
-                    style={{ width: "100%" }}
-                    value={[
-                      connectionStartDate
-                        ? moment(connectionStartDate, "DD-MM-YYYY")
-                        : null,
-                      connectionEndDate
-                        ? moment(connectionEndDate, "DD-MM-YYYY")
-                        : null,
-                    ]}
-                    onChange={(date, dateString) =>
-                      onChangeRangeDate(date, dateString)
+            <Form.Item label={<b>NGÀY GHÉP NỐI</b>}>
+              <div className="select-connection-date">
+                <div className="date-option">
+                  <Button
+                    onClick={() => onSelectDate("yesterday")}
+                    className={
+                      dateButtonSelected === "yesterday" ? "active-btn" : ""
                     }
-                  />
+                  >
+                    Hôm qua
+                  </Button>
+
+                  <Button
+                    onClick={() => onSelectDate("today")}
+                    className={
+                      dateButtonSelected === "today" ? "active-btn" : ""
+                    }
+                  >
+                    Hôm nay
+                  </Button>
+
+                  <Button
+                    onClick={() => onSelectDate("thisweek")}
+                    className={
+                      dateButtonSelected === "thisweek" ? "active-btn" : ""
+                    }
+                  >
+                    Tuần này
+                  </Button>
                 </div>
-              </Form.Item>
-            </Form>
-          </StyledBaseFilter>
-        </BaseFilter>
 
-        <Modal
-          width="600px"
-          visible={isShowModalDisconnect}
-          okText="Đồng ý"
-          cancelText="Hủy"
-          onCancel={cancelDisconnectModal}
-          onOk={okDisconnectModal}
-        >
-          <div>
-            <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
-            <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
-          </div>
-        </Modal>
+                <div className="date-option">
+                  <Button
+                    onClick={() => onSelectDate("lastweek")}
+                    className={
+                      dateButtonSelected === "lastweek" ? "active-btn" : ""
+                    }
+                  >
+                    Tuần trước
+                  </Button>
 
-        <Modal
-          width="600px"
-          visible={isShowDeleteItemModal}
-          okText="Đồng ý"
-          cancelText="Hủy"
-          onCancel={cancelDeleteItemModal}
-          onOk={okDeleteItemModal}
-        >
-          <div>
-            <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
-            <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
-          </div>
-        </Modal>
+                  <Button
+                    onClick={() => onSelectDate("thismonth")}
+                    className={
+                      dateButtonSelected === "thismonth" ? "active-btn" : ""
+                    }
+                  >
+                    Tháng này
+                  </Button>
 
-        <Modal
-          width="600px"
-          visible={isShowSyncStockModal}
-          title="Đồng bộ tồn kho"
-          okText="Đồng bộ"
-          cancelText="Hủy"
-          onCancel={cancelSyncStockModal}
-          onOk={okSyncStockModal}
-        >
-          <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
-            <Space direction="vertical">
-              <Radio value={false}>Đồng bộ các sản phẩm đã chọn</Radio>
-              <Radio value={true}>Đồng bộ tất cả sản phẩm</Radio>
-            </Space>
-          </Radio.Group>
-        </Modal>
-      </div>
+                  <Button
+                    onClick={() => onSelectDate("lastmonth")}
+                    className={
+                      dateButtonSelected === "lastmonth" ? "active-btn" : ""
+                    }
+                  >
+                    Tháng trước
+                  </Button>
+                </div>
+
+                <div style={{ margin: "10px 0" }}>
+                  <SettingOutlined style={{ marginRight: "5px" }} />
+                  <span>Tùy chọn khoảng thời gian tạo:</span>
+                </div>
+
+                <DatePicker.RangePicker
+                  format="DD-MM-YYYY"
+                  style={{ width: "100%" }}
+                  value={[
+                    connectionStartDate
+                      ? moment(connectionStartDate, "DD-MM-YYYY")
+                      : null,
+                    connectionEndDate
+                      ? moment(connectionEndDate, "DD-MM-YYYY")
+                      : null,
+                  ]}
+                  onChange={(date, dateString) =>
+                    onChangeRangeDate(date, dateString)
+                  }
+                />
+              </div>
+            </Form.Item>
+          </Form>
+        </StyledBaseFilter>
+      </BaseFilter>
+
+      <Modal
+        width="600px"
+        visible={isShowModalDisconnect}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        onCancel={cancelDisconnectModal}
+        onOk={okDisconnectModal}
+      >
+        <div>
+          <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
+          <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
+        </div>
+      </Modal>
+
+      <Modal
+        width="600px"
+        visible={isShowDeleteItemModal}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        onCancel={cancelDeleteItemModal}
+        onOk={okDeleteItemModal}
+      >
+        <div>
+          <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
+          <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
+        </div>
+      </Modal>
+
+      <Modal
+        width="600px"
+        visible={isShowSyncStockModal}
+        title="Đồng bộ tồn kho"
+        okText="Đồng bộ"
+        cancelText="Hủy"
+        onCancel={cancelSyncStockModal}
+        onOk={okSyncStockModal}
+      >
+        <Radio.Group onChange={onChangeSyncOption} value={syncStockAll}>
+          <Space direction="vertical">
+            <Radio value={false}>Đồng bộ các sản phẩm đã chọn</Radio>
+            <Radio value={true}>Đồng bộ tất cả sản phẩm</Radio>
+          </Space>
+        </Radio.Group>
+      </Modal>
     </StyledComponent>
   );
 };

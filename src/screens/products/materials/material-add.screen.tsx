@@ -50,7 +50,7 @@ const AddMaterial: React.FC = () => {
       title="Thêm chất liệu"
       breadcrumb={[
         {
-          name: "Tổng quản",
+          name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {

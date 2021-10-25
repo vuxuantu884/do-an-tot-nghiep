@@ -4,7 +4,7 @@ import BaseAxios from "base/base.axios";
 import { ApiConfig } from "config/api.config";
 
 const getListStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
-  let link = `${ApiConfig.CORE}/stores?simple=true&status=active`;
+  let link = `${ApiConfig.CORE}/stores?simple=true&status=active&saleable=true`;
   return BaseAxios.get(link);
 };
 
@@ -12,7 +12,7 @@ const getSearchListStore = (
   name: string
 ): Promise<BaseResponse<Array<StoreResponse>>> => {
   if (!name) name = "";
-  let link = `${ApiConfig.CORE}/stores?name=${name}&simple=true&status=active&saleabl=true`;
+  let link = `${ApiConfig.CORE}/stores?name=${name}&simple=true&status=active&saleable=true`;
   return BaseAxios.get(link);
 };
 

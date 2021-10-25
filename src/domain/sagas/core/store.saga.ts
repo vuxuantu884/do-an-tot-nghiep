@@ -14,6 +14,7 @@ import {
   storesDetailCustomApi,
   storesPostApi,
   storesPutApi,
+  storeValidateApi,
 } from "service/core/store.services";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
@@ -119,13 +120,16 @@ function* storeCreateSaga(action: YodyAction) {
         onCreateSuccess(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onCreateSuccess(false);
         yield put(unauthorizedAction());
         break;
       default:
+        onCreateSuccess(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onCreateSuccess(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -219,6 +223,26 @@ function* storeGetSearchSaga(action: YodyAction) {
   }
 }
 
+function* storeValidateSaga(action: YodyAction) {
+  let {data, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<StoreResponse>> = yield call(storeValidateApi, data);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setData(response.errors)
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.GET_SEARCH_STORE_REQUEST, storeGetSearchSaga);
@@ -232,4 +256,5 @@ export function* storeSaga() {
   yield takeLatest(StoreType.STORE_DETAIL, storeDetailSaga);
   yield takeLatest(StoreType.STORE_DETAIL_CUSTOM, storeDetailCustomSaga);
   yield takeLatest(StoreType.STORE_UPDATE, storeUpdateSaga);
+  yield takeLatest(StoreType.STORE_VALIDATE, storeValidateSaga);
 }

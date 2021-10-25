@@ -135,6 +135,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
+  const [serviceName, setServiceName] = useState<string>("");
   const [hvc, setHvc] = useState<number | null>(null);
   const [hvcName, setHvcName] = useState<string | null>(null);
   const [hvcCode, setHvcCode] = useState<string | null>(null);
@@ -654,6 +655,7 @@ const ScreenReturnCreate = (props: PropType) => {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id đối tác vận chuyển
       delivery_service_provider_type: "", //shipper
+      delivery_transport_type: "",
       shipper_code: "",
       shipper_name: "",
       handover_id: null,
@@ -684,6 +686,7 @@ const ScreenReturnCreate = (props: PropType) => {
           ...objShipment,
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
+          delivery_transport_type: serviceName,
           delivery_service_provider_code: hvcCode,
           delivery_service_provider_name: hvcName,
           sender_address_id: storeId,
@@ -909,6 +912,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setOfficeTime={setOfficeTime}
                     officeTime={officeTime}
                     setServiceType={setServiceType}
+                    setServiceName={setServiceName}
                     setHVC={setHvc}
                     setHvcName={setHvcName}
                     setHvcCode={setHvcCode}

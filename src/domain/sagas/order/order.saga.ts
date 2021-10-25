@@ -17,9 +17,10 @@ import {
 } from "model/response/order/order.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { getAmountPayment } from "utils/AppUtils";
+import { getAmountPayment, isUndefinedOrNull } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   cancelOrderApi,
   confirmDraftOrderService,
@@ -59,6 +60,8 @@ import {
   updateShipment,
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import { getPackInfo } from 'utils/LocalStorageUtils';
+import { loadOrderPackAction } from "domain/actions/order/order.action";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -771,6 +774,29 @@ function* createShippingOrderSaga(action: YodyAction) {
   }
 }
 
+
+function* loadOrderPackSaga(action: YodyAction){
+  let { setData } = action.payload;
+  let appSetting: string = yield call(getPackInfo);
+  let appSettingObj:PageResponse<any> = JSON.parse(appSetting);
+  if(appSettingObj)
+  {
+    setData(appSettingObj);
+  }
+  else
+  {
+    setData({
+      metadata: {
+        limit: 1,
+        page: 1,
+        total: 0,
+      },
+      items: [],
+    });
+  }
+}
+
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
@@ -810,4 +836,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_FULFILLMENTS_PACKED, getFulfillmentsPackedSaga);
   yield takeLatest(OrderType.CONFIRM_DRAFT_ORDER, confirmDraftOrderSaga);
   yield takeLatest(OrderType.CREATE_SHIPPING_ORDER, createShippingOrderSaga);
+  yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga)
 }

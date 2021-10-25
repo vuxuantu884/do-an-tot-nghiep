@@ -118,7 +118,6 @@ export const getInfoDeliveryFees = (
   request: GetFeesRequest
 ): Promise<BaseResponse<VTPFeeResponse>> => {
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/fees`, request);
-  // return BaseAxios.post(`${ApiConfig.ORDER}/shipping-orders/fees`, request);
 };
 
 export const getOrderDetail = (id: number): Promise<BaseResponse<OrderResponse>> => {
