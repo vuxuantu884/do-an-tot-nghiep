@@ -1,8 +1,10 @@
 import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Select } from "antd";
+import { Card, Col, Form, Input, Row, Select } from "antd";
 import { AccountResponse } from "model/account/account.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import React from "react";
 import CustomerInputTags from "../../custom-input-tags";
+import SidebarOrderHistory from "./SidebarOrderHistory";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -13,10 +15,11 @@ type PropType = {
   levelOrder?: number;
   updateOrder?: boolean;
   isSplitOrder?: boolean;
+  customerId?: number | undefined;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder, isSplitOrder } = props;
+  const { accounts, onChangeTag, tags, isCloneOrder, isSplitOrder, customerId } = props;
 
   return (
     <StyledComponent>
@@ -91,7 +94,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             ))}
           </Select>
         </Form.Item>
-        {/* <Form.Item
+        <Form.Item
           label="Nhân viên điều phối"
           name="coordinator_code"
           rules={[
@@ -125,7 +128,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
               </Select.Option>
             ))}
           </Select>
-        </Form.Item> */}
+        </Form.Item>
         <Form.Item
           label="Tham chiếu"
           name="reference_code"
@@ -148,10 +151,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         </Form.Item>
       </Card>
       <Card title="THÔNG TIN BỔ SUNG">
-      <Form.Item
-          name="customer_note22222222222222"
-          label="Ghi chú của khách"
-        >
+        <Form.Item name="customer_note" label="Ghi chú của khách">
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
@@ -187,6 +187,19 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           />
         </Form.Item>
       </Card>
+      <Card title="Lịch sử mua hàng">
+        <Row className="" gutter={5} style={{ flexDirection: "column" }}>
+          <Col span={24} style={{ marginBottom: 6 }}>
+            <b>Ghi chú nội bộ:</b>
+          </Col>
+          <Col span={24}>
+            <span className="text-focus" style={{ wordWrap: "break-word" }}>
+              "Không có ghi chú"
+            </span>
+          </Col>
+        </Row>
+      </Card>
+      <SidebarOrderHistory customerId={customerId} />
     </StyledComponent>
   );
 };

@@ -54,9 +54,9 @@ function CardProductBottom(props: PropType) {
       <Row gutter={24}>
         <Col xs={24} lg={11}>
           <div className="optionRow">
-            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
+            {/* <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
               Bỏ chiết khấu tự động
-            </Checkbox>
+            </Checkbox> */}
           </div>
         </Col>
         <Col xs={24} lg={10}>

@@ -1,32 +1,32 @@
 export interface OrderItemModel {
-  product_id:number;
+  product_id: number;
   variant_id: number;
   quantity: number;
   sku: string;
-  variant:string;
+  variant: string;
 }
 export interface OrderPaymentModel {
   id: number;
   payment_method_id: number;
   payment_method: string;
   amount: number;
-  source: string|null;
+  source: string | null;
   paid_amount: number;
   return_amount: number;
   status: string;
   type: string;
-  total: number|0;
+  total: number | 0;
 }
 
 export interface OrderFulfillmentsModel {
   id: number;
   shipment: {
     delivery_service_provider_id: number;
-    delivery_service_provider_name: string|null;
+    delivery_service_provider_name: string | null;
     delivery_service_provider_type: string;
-    id: number
+    id: number;
   };
-  
+
   status: string;
 }
 export interface OrderModel {
@@ -39,12 +39,12 @@ export interface OrderModel {
   store: string;
   source: string;
   status: string;
-  sub_status: string|null;
-  fulfillment_status: string|null;
-  packed_status: string|null;
-  received_status: string|null;
-  payment_status: string|null;
-  return_status: string|null;
+  sub_status: string | null;
+  fulfillment_status: string | null;
+  packed_status: string | null;
+  received_status: string | null;
+  payment_status: string | null;
+  return_status: string | null;
   total_line_amount_after_line_discount: number;
   items: Array<{
     id: number;
@@ -53,68 +53,68 @@ export interface OrderModel {
   pre_payments: string;
   payments: Array<OrderPaymentModel>;
   fulfillments: Array<OrderFulfillmentsModel>;
-  account_code: string|null;
-  account: string|null;
-  assignee_code: string|null;
-  assignee: string|null;
-  finalized_on: string|null;
-  cancelled_on: string|null;
-  finished_on: string|null;
-  created_date: string|null;
-  note: string|null;
-  customer_note: string|null;
-  tags: string|null;
-  reference_code: string|null;
+  account_code: string | null;
+  account: string | null;
+  assignee_code: string | null;
+  assignee: string | null;
+  finalized_on: string | null;
+  cancelled_on: string | null;
+  finished_on: string | null;
+  created_date: string | null;
+  note: string | null;
+  customer_note: string | null;
+  tags: string | null;
+  reference_code: string | null;
 }
 
 export interface OrderSearchQuery {
   page: number;
   limit: number;
-  is_online?: string|null;
-  sort_type: string|null;
-  sort_column: string|null;
-  code: string|null;
+  is_online?: string | null;
+  sort_type: string | null;
+  sort_column: string | null;
+  code: string | null;
   store_ids: [];
   source_ids: [];
-  customer_ids:Array<number>;
-  issued_on_min: string|null;
-  issued_on_max: string|null;
-  issued_on_predefined: string|null;
-  finalized_on_min: string|null;
-  finalized_on_max: string|null;
-  finalized_on_predefined: string|null;
-  ship_on_min: string|null;
-  ship_on_max: string|null;
-  ship_on_predefined: string|null;
-  expected_receive_on_min: string|null;
-  expected_receive_on_max: string|null;
-  expected_receive_predefined: string|null;
-  completed_on_min: string|null;
-  completed_on_max: string|null;
-  completed_on_predefined: string|null;
-  cancelled_on_min: string|null;
-  cancelled_on_max: string|null;
-  cancelled_on_predefined: string|null;
+  customer_ids: Array<number>;
+  issued_on_min: string | null;
+  issued_on_max: string | null;
+  issued_on_predefined: string | null;
+  finalized_on_min: string | null;
+  finalized_on_max: string | null;
+  finalized_on_predefined: string | null;
+  ship_on_min: string | null;
+  ship_on_max: string | null;
+  ship_on_predefined: string | null;
+  expected_receive_on_min: string | null;
+  expected_receive_on_max: string | null;
+  expected_receive_predefined: string | null;
+  completed_on_min: string | null;
+  completed_on_max: string | null;
+  completed_on_predefined: string | null;
+  cancelled_on_min: string | null;
+  cancelled_on_max: string | null;
+  cancelled_on_predefined: string | null;
   order_status: [];
-  sub_status_id?: [],
+  sub_status_id?: [];
   fulfillment_status: [];
   payment_status: [];
   return_status: [];
   account_codes?: [];
   assignee_codes?: [];
-  price_min: number|undefined;
-  price_max: number|undefined;
+  price_min: number | undefined;
+  price_max: number | undefined;
   payment_method_ids: [];
   delivery_types: [];
   delivery_provider_ids: [];
   shipper_ids: [];
-  note: string|null;
-  customer_note: string|null;
+  note: string | null;
+  customer_note: string | null;
   tags: [];
-  reference_code: string|null
+  reference_code: string | null;
 }
 
-export interface EcommerceOrderSearchQuery  extends OrderSearchQuery {
-  shop_ids: [],
-  ecommerce_id: null,
+export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
+  shop_ids: [];
+  ecommerce_id: null;
 }
