@@ -27,6 +27,7 @@ import {
   inventoryGetVariantByStoreAction,
   receivedInventoryTransferAction,
   getFeesAction,
+  cancelShipmentInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -49,6 +50,7 @@ import PickManyProductModal from "screens/purchase-order/modal/pick-many-product
 import _ from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
+import ModalConfirm from "component/modal/ModalConfirm";
 
 export interface InventoryParams {
   id: string;
@@ -65,6 +67,9 @@ const DetailTicket: FC = () => {
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [isVisibleModalWarning, setIsVisibleModalWarning] =
+    useState<boolean>(false);
+
 
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -488,8 +493,6 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 200,
       render: (item, row: LineItem) => {
-        console.log('row', row);
-        
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
           return <NumberFormat
@@ -537,6 +540,7 @@ const DetailTicket: FC = () => {
       )
     );
   };
+
   useEffect(() => {
     if (!stores && !data) return;
     else {
@@ -589,7 +593,7 @@ const DetailTicket: FC = () => {
       <ContentContainer
         isError={isError}
         isLoading={isLoading}
-        title={`Chuyển hàng ${data?.code}`}
+        title={`Chuyển hàng ${data? data.code : ''}`}
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -632,7 +636,7 @@ const DetailTicket: FC = () => {
                       />
                       <RowDetail
                         title="Địa chỉ"
-                        value={ConvertFullAddress(data.store_receive)}
+                        value={ConvertFullAddress(data.store_transfer)}
                       />
                     </Col>{" "}
                     <Col span={12}>
@@ -647,7 +651,7 @@ const DetailTicket: FC = () => {
                       />
                       <RowDetail
                         title="Địa chỉ"
-                        value={ConvertFullAddress(data.store_transfer)}
+                        value={ConvertFullAddress(data.store_receive)}
                       />
                     </Col>
                   </Row>
@@ -823,7 +827,6 @@ const DetailTicket: FC = () => {
                   data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status && 
                   <Card
                     title={"CHUYỂN HÀNG"}
-                    style={{minHeight: "210px;"}}
                     extra={ 
                       data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status &&
                         <Button
@@ -874,6 +877,19 @@ const DetailTicket: FC = () => {
                           </Collapse>
                         </Row>
                       </>
+                    }
+                    {
+                      data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        <div className="inventory-transfer-action">
+                          
+                          <Button
+                            type="default"
+                            onClick={() => setIsVisibleModalWarning(true)}
+                          >
+                            Huỷ giao hàng
+                          </Button>
+                        </div>
+                      )
                     }
                   </Card>
                 }
@@ -1011,7 +1027,7 @@ const DetailTicket: FC = () => {
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.PENDING.status ) && (
                       <>
-                      <Button onClick={() => setIsDeleteTicket(true)}>
+                      <Button onClick={() => {}}>
                         Kiểm kho theo sản phẩm
                       </Button>
                       <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
@@ -1044,6 +1060,24 @@ const DetailTicket: FC = () => {
             />
           </>
         )}
+        {
+          isVisibleModalWarning && 
+          <ModalConfirm
+            onCancel={() => {
+              setIsVisibleModalWarning(false);
+            }}
+            onOk={() => {
+              if (data) {
+                setIsVisibleModalWarning(false);
+                dispatch(cancelShipmentInventoryTransferAction(data?.id, data?.shipment.id, onResult));
+              }
+            }}
+            okText="Đồng ý"
+            cancelText="Tiếp tục"
+            title={`Bạn có muốn huỷ giao hàng?`}
+            visible={isVisibleModalWarning}
+          />
+        }
         {
           isDeleteTicket &&
           <DeleteTicketModal

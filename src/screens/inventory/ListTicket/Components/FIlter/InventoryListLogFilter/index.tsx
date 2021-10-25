@@ -312,6 +312,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
               <Select
                 placeholder="Kho gửi"
                 showArrow
+                showSearch
               >
                 <Option
                   value={""}
@@ -339,6 +340,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
               <Select
                 placeholder="Kho nhận"
                 showArrow
+                showSearch
                 optionFilterProp="children"
               >
                 <Option
