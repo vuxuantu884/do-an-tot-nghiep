@@ -863,7 +863,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      setAddressError("Thiếu thông tin địa chỉ khách hàng");
+      setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
     }
   }, [
     props.customerDetail,
