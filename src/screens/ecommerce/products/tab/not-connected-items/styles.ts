@@ -1,44 +1,6 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .not-connected-items {
-    padding: 20px;
-
-    .filter {
-      .ant-form {
-        display: flex;
-      }
-    }
-
-    .filter-item {
-      margin-right: 15px;
-    }
-
-    .select-channel-dropdown {
-      margin-right: 15px;
-      width: 150px;
-    }
-
-    .select-store-dropdown {
-      margin-right: 15px;
-      width: 200px;
-    }
-
-    .shoppe-search {
-      margin-right: 15px;
-      width: 230px;
-    }
-
-    .yody-search {
-      margin-right: 15px;
-      width: 200px;
-    }
-
-    .save-pairing-button {
-      margin: 20px 0;
-    }
-  }
-
   .delete-item-icon {
     cursor: pointer;
     width: 26px;
@@ -46,25 +8,6 @@ export const StyledComponent = styled.div`
       border: 1px solid #5c5c5c;
     }
   }
-
-  .render-shop-list {
-    .shop-name {
-      padding: 5px 10px;
-      white-space: nowrap;
-      &:hover{
-        background-color: #f4f4f7;
-      }
-      .check-box-name {
-        display: flex;
-        .name {
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-      }
-    }
-  }
-
 `;
 
 export const StyledYodyProductColumn = styled.div`
