@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 type InventoryTransferBalanceModalProps = {
   data: InventoryTransferDetailItem | null;
   onCancel: () => void;
-  onOk: () => void;
+  onOk: (item: InventoryTransferDetailItem | null) => void;
   visible: boolean;
 };
 
@@ -149,7 +149,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
               if (data?.id) {
                 dispatch(adjustmentInventoryAction(data.id, (result) => {
                   if (result) {
-                    onOk();
+                    onOk(result);
                   }
                 }))
               }
