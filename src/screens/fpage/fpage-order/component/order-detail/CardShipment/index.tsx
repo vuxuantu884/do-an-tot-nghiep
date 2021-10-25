@@ -194,7 +194,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      setAddressError("Thiếu thông tin địa chỉ khách hàng");
+      setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 
