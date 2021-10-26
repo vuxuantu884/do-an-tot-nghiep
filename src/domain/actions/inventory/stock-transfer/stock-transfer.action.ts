@@ -48,6 +48,18 @@ const creatInventoryTransferAction = (
   });
 };
 
+const cancelShipmentInventoryTransferAction = (
+  transferId: number,
+  shipmentId: number,
+  onResult: (data: InventoryTransferDetailItem) => void
+) => {
+  return BaseAction(InventoryType.CANCEL_SHIPMENT_INVENTORY, {
+    transferId,
+    shipmentId,
+    onResult,
+  });
+};
+
 const updateInventoryTransferAction = (
   id: number,
   data: Partial<StockTransferSubmit>,
@@ -164,4 +176,5 @@ export {
   getFeesAction,
   adjustmentInventoryAction,
   getCopyDetailInventoryTransferAction,
+  cancelShipmentInventoryTransferAction,
 };

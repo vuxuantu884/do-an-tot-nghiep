@@ -197,6 +197,7 @@ export interface InventoryTransferDetailItem {
   total_variant: number;
   total_quantity: number;
   total_amount: number;
+  pending_date: string;
   transfer_date: Date;
   receive_date: string;
   cancel_date: string;
@@ -271,3 +272,10 @@ export interface LogisticGateAwayResponse {
   active:	boolean,
   transport_types: Array<TransportTypeRS>
 }
+
+export interface InventoryProcessImport {
+  total_process: string;
+  processed: string;
+  success: string;
+  error: string;
+};
