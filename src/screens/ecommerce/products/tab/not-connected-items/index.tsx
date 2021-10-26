@@ -250,10 +250,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     };
 
     const initQueryVariant: VariantSearchQuery = {
-      limit: 10,
       page: 1,
-      status: "active",
-      saleable: true,
     };
 
     const [resultSearchVariant, setResultSearchVariant] = React.useState<
