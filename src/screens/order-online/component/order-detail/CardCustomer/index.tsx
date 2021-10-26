@@ -13,12 +13,9 @@ import {
   Avatar,
   Button,
   Card,
-  Checkbox,
-  Col,
   Divider,
   Form,
   Input,
-  Select,
   Row,
   Space,
   Tag,
@@ -86,6 +83,8 @@ type CustomerCardProps = {
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress:ShippingAddress|any;
+  setModalAction:(item:modalActionType)=>void;
+  modalAction:modalActionType;
 };
 
 //Add query for search Customer
@@ -116,7 +115,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     levelOrder = 0,
     setVisibleCustomer,
     isVisibleCustomer,
-    shippingAddress
+    shippingAddress,
+    setModalAction,
+    modalAction
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -136,8 +137,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
-
-  const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalActionShipping, setModalActionShipping] = useState<modalActionType>("create");
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -640,6 +639,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
             {modalAction === CONSTANTS.MODAL_ACTION_TYPE.edit && customer!==null && (
               <UpdateCustomer
+                levelOrder={levelOrder}
                 areas={areas}
                 wards={wards}
                 groups={groups}
