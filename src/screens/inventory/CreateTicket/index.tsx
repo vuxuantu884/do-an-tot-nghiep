@@ -42,6 +42,7 @@ import {
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
   InventoryTransferDetailItem,
+  LineItem,
   StockTransferSubmit,
   Store,
 } from "model/inventory/transfer";
@@ -100,11 +101,12 @@ const CreateTicket: FC = () => {
   }
 
   function getTotalQuantity(): number {
-    const lineItemList = Object.keys(quantityInput);
-    let total = lineItemList.reduce(function (previousValue, currentValue) {
-      return previousValue + quantityInput[currentValue];
-    }, 0);
-    return total ? total : 0;
+    let total = 0;
+    dataTable.forEach((element: LineItem) => {
+      total += element.transfer_quantity;
+    });
+
+    return total;
   }
 
   function onDeleteItem(variantId: number) {

@@ -57,15 +57,25 @@ function SidebarOrderHistory(props: PropType) {
                         {moment(single.finalized_on).format(formatDate)}
                       </h4>
                       <div className="singleHistoryOrder__date">
-                        <Link target="_blank" to={`${UrlConfig.ORDER}/${single.id}`} style={{fontWeight:"bold"}}>
+                        <Link
+                          target="_blank"
+                          to={`${UrlConfig.ORDER}/${single.id}`}
+                          style={{ fontWeight: "bold" }}
+                        >
                           {single.code}
                         </Link>{" "}
-                        - SL: {single.items.length}
+                        -{" "}
+                        <span style={{ whiteSpace: "nowrap" }}>
+                          SL: {single.items.length}
+                        </span>
                       </div>
                     </div>
                   </Col>
                   <Col span={9}>
-                    <div className="singleHistoryOrder__status" style={{textAlign:"right"}}>
+                    <div
+                      className="singleHistoryOrder__status"
+                      style={{ textAlign: "right" }}
+                    >
                       <h4 className="singleHistoryOrder__mainStatus">
                         {formatCurrency(single.total_line_amount_after_line_discount)}
                         <span

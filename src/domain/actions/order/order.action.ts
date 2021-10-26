@@ -419,7 +419,7 @@ export const loadOrderPackAction = (setData: (data: PageResponse<any>) => void) 
  */
 export const splitOrderAction = (
   params: SplitOrderRequest,
-  handleData: (data: PageResponse<any>) => void
+  handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.SPLIT_ORDER,

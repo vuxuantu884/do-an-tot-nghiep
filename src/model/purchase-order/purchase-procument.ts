@@ -2,11 +2,13 @@ import { BaseQuery } from "model/base/base.query";
 import { ParsedUrlQueryInput } from "querystring";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
+import { PurchaseOrder } from "./purchase-order.model";
 export interface PurchaseProcument extends BaseObject {
   reference: string;
   store_id: number;
   expect_receipt_date: string;
   procurement_items: Array<PurchaseProcumentLineItem>;
+  purchase_order: PurchaseOrder;
   status: string;
   note: string;
   actived_date: string|null;
