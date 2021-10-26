@@ -1023,7 +1023,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
-            {/* <span>Chính sách giá:</span>
+            <span>Chính sách giá:</span>
             <Form.Item name="price_type">
               <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">
@@ -1031,7 +1031,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 </Select.Option>
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
-            </Form.Item> */}
+            </Form.Item>
             <Button
               onClick={() => {
                 ShowInventoryModal();

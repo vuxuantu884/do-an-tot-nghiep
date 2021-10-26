@@ -1664,6 +1664,7 @@ export default function Order(props: PropType) {
                                             orderSettings={orderSettings}
                                             orderId={OrderDetail?.id}
                                           />
+                                          
                                         </div>
 
                                         <div className="saleorder-header-content__date">
