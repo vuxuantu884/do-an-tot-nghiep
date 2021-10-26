@@ -143,8 +143,6 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
         data.delivery_service_code = serviceCode;
         data.delivery_service_name = serviceType;
         data.delivery_service_logo = "";
-        data.order_code = `YOD${dataTicket?.code}`;
-        data.fulfillment_code = dataTicket?.code;
         data.store_id = dataTicket?.from_store_id;
         data.transport_type = serviceType;
         data.transport_type_name = (deliveryService as any)[serviceCode].name;
@@ -162,6 +160,9 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
           onOk(result);
         }));
 
+      }
+      else {
+        console.log('dataTicket is null');
       }
     },
     [dataTicket, hvc, serviceCode, serviceType, serviceFeeTotal, officeTime, dispatch, onOk]
@@ -252,8 +253,6 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                   <tbody className="ant-table-tbody">
                     {["yody", "ghtk", "ghn", "vtp", "dhl"].map(
                       (deliveryServiceName: string, index) => {
-                        console.log('(serviceFee as any)[deliveryServiceName]', deliveryServiceName);
-                        
                         return (
                           ((serviceFee as any)[deliveryServiceName].length && (
                             <React.Fragment key={deliveryServiceName}>

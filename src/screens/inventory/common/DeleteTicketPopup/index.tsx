@@ -54,7 +54,6 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
 
   const onFinish = useCallback(
     (data) => {
-      console.log("data", data);
 
       const choses_reason = reasons.find(
         (element) => element.value === data.reason

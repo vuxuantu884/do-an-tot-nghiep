@@ -133,8 +133,11 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     // if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
     //   // onPayments([]);
     // }
-    if (value === ShipmentMethodOption.DELIVER_LATER || value === ShipmentMethodOption.PICK_AT_STORE) {
-      setShippingFeeInformedCustomer(0)
+    if (
+      value === ShipmentMethodOption.DELIVER_LATER ||
+      value === ShipmentMethodOption.PICK_AT_STORE
+    ) {
+      setShippingFeeInformedCustomer(0);
     }
   };
 
@@ -157,7 +160,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setFee(fee);
     setHvcName && setHvcName(name);
     setHvcCode && setHvcCode(code);
-    setServiceName(serviceName)
+    setServiceName(serviceName);
   };
 
   useLayoutEffect(() => {
@@ -216,8 +219,8 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     if (
       customerInfo &&
       storeDetail &&
-      (getShippingAddressDefault(customerInfo)?.city_id ||
-        getShippingAddressDefault(customerInfo)?.district_id) &&
+      getShippingAddressDefault(customerInfo)?.city_id &&
+      getShippingAddressDefault(customerInfo)?.district_id &&
       getShippingAddressDefault(customerInfo)?.ward_id &&
       getShippingAddressDefault(customerInfo)?.full_address
     ) {
@@ -252,7 +255,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
     } else {
-      setAddressError("Thiếu thông tin địa chỉ khách hàng 1");
+      setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
     }
   }, [amount, customerInfo, dispatch, items, storeDetail]);
 

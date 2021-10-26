@@ -46,7 +46,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
 
   const CreateDate = props.inventoryTransferDetail?.created_date ? moment(props.inventoryTransferDetail?.created_date).format(formatDate) : '';
   const TransferDate = props.inventoryTransferDetail?.transfer_date ? moment(props.inventoryTransferDetail?.transfer_date).format(formatDate) : '';
-  const UpdateDate = props.inventoryTransferDetail?.updated_date ? moment(props.inventoryTransferDetail?.updated_date).format(formatDate) : '';
+  const PendingDate = props.inventoryTransferDetail?.pending_date ? moment(props.inventoryTransferDetail?.pending_date).format(formatDate) : '';
   const ReceiveDate = props.inventoryTransferDetail?.receive_date ? moment(props.inventoryTransferDetail?.receive_date).format(formatDate) : '';
   
 
@@ -72,7 +72,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         />
         <Steps.Step
           title="Chờ xử lý"
-          description={UpdateDate}
+          description={PendingDate}
         />
         <Steps.Step
           title={!(props.status === "cancelled") ? "Đã nhập" : "Huỷ phiếu"}

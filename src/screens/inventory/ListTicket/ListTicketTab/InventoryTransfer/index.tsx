@@ -1,5 +1,5 @@
 import { MenuAction } from "component/table/ActionButton";
-import { getListInventoryTransferAction, inventoryGetSenderStoreAction, updateInventoryTransferAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { deleteInventoryTransferAction, getListInventoryTransferAction, inventoryGetSenderStoreAction, updateInventoryTransferAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
@@ -8,6 +8,7 @@ import CustomTable from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Input, Modal, Tag, Form } from "antd";
 import { InventoryTransferTabWrapper } from "./styles";
@@ -22,6 +23,7 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import NumberFormat from "react-number-format";
 import { showSuccess } from "utils/ToastUtils";
+import DeleteTicketModal from "screens/inventory/common/DeleteTicketPopup";
 const { TextArea } = Input;
 
 const ACTIONS_INDEX = {
@@ -96,10 +98,13 @@ const InventoryTransferTab: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
+  const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
+
   const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
-  
+ 
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
     ...initQuery,
@@ -275,6 +280,20 @@ const InventoryTransferTab: React.FC = () => {
     
   ]);
 
+  const onDeleteTicket = (value: string | undefined) => {
+    dispatch(
+      deleteInventoryTransferAction(
+        selectedRowKeys[0],
+        {note: value ? value : ""},
+        () => {
+          setIsDeleteTicket(false)
+          dispatch(getListInventoryTransferAction(params, setSearchResult));
+        }
+        
+      )
+    );
+  };
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -353,6 +372,9 @@ const InventoryTransferTab: React.FC = () => {
         case ACTIONS_INDEX.MAKE_COPY:
           history.push(`${UrlConfig.INVENTORY_TRANSFER}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`);
           break;    
+        case ACTIONS_INDEX.DELETE_TICKET:
+          setIsDeleteTicket(true)
+          break;    
         default:
           break;
       }
@@ -371,11 +393,12 @@ const InventoryTransferTab: React.FC = () => {
 
   const onSelectedChange = useCallback((selectedRow) => {
     
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);    
+    const selectedRowKeys = selectedRow.map((row: any) => row.id);
+    setSelectedRowData(selectedRow);
     setSelectedRowKeys(selectedRowKeys);
 
   }, []);
-
+  
   //get store
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -499,6 +522,19 @@ const InventoryTransferTab: React.FC = () => {
           </Modal>
         )
       }
+      {
+          isDeleteTicket &&
+          <DeleteTicketModal
+            onOk={onDeleteTicket}
+            onCancel={() => setIsDeleteTicket(false)}
+            visible={isDeleteTicket}
+            icon={WarningRedIcon}
+            textStore={selectedRowData[0]?.from_store_name}
+            okText="Đồng ý"
+            cancelText="Thoát"
+            title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${selectedRowData[0]?.code}`}
+          />
+        }
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}

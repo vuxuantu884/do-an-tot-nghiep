@@ -90,41 +90,6 @@ export const StyledComponent = styled.div`
   }
 
   .ecommerce-order-filter {
-    .order-filter {
-      .first-line {
-        display: flex;
-        .ecommerce-dropdown {
-          margin-right: 10px;
-          margin-bottom: 20px;
-          width: 287px;
-        }
-      }
-      .second-line {
-        display: flex;
-        justify-content: space-between;
-        .page-filter {
-          padding: 0;
-        }
-        .id_order_ecommerce {
-          width: 26%;
-          min-width: 100px;
-          margin-right: 10px;
-        }
-        .input-search {
-          width: 80%;
-          min-width: 100px;
-          margin-right: 10px;
-        }
-
-        button {
-          margin-right: 10px;
-        }
-        .setting-button {
-          margin-right: 0;
-        }
-      }
-    }
-
     .order-filter-tags {
       .tag {
         padding: 10px 10px;
@@ -133,6 +98,40 @@ export const StyledComponent = styled.div`
         border-radius: 50px;
       }
     }
+  }
+`;
+
+export const StyledOrderFilter = styled.div`
+  .order-filter {
+    overflow-x: scroll;
+    .ant-form {
+      display: flex;
+    }
+  }
+
+  .filter-item {
+    margin-right: 10px;
+  }
+
+  .ecommerce-dropdown {
+    margin-right: 10px;
+    width: 150px;
+    min-width: 150px;
+  }
+
+  .select-store-dropdown {
+    margin-right: 10px;
+    min-width: 180px;
+  }
+
+  .search-id-order-ecommerce {
+    margin-right: 10px;
+    min-width: 180px;
+  }
+
+  .search-term-input {
+    margin-right: 10px;
+    min-width: 180px;
   }
 
   .render-shop-list {
@@ -145,10 +144,26 @@ export const StyledComponent = styled.div`
       .check-box-name {
         display: flex;
         .name {
-          width: 230px;
           overflow: hidden;
           text-overflow: ellipsis;
         }
+      }
+    }
+  }
+
+  .action-dropdown {
+    width: 110px;
+    margin-right: 10px;
+    .action-button {
+      padding: 6px 15px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      color: $primary-color;
+      &:hover {
+        color: $primary-color;
+        border: 1px solid $primary-color;
+        color: $primary-color;
       }
     }
   }

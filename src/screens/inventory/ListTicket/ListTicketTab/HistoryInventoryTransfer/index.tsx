@@ -147,8 +147,9 @@ const HistoryInventoryTransferTab: React.FC = () => {
       align: "center",
       render: (value: string) => {
 
-        const dataItem = JSON.parse(value);        
-        return <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${dataItem.id}`}>{dataItem.code}</Link>
+        const dataItem = JSON.parse(value);
+        
+        return <Link to={`${UrlConfig.INVENTORY_TRANSFER}/${dataItem?.id}`}>{dataItem?.code}</Link>
       }
     },
     {

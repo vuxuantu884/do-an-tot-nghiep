@@ -137,6 +137,13 @@ const TransferService = {
   ): Promise<BaseResponse<string>> => {
     return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/receive/${id}`, data);
   },
+
+    //cancel shipment 
+    cancelShipmentInventoryTransfer: (
+      transferId: number, shipmentId: number
+    ): Promise<BaseResponse<string>> => {
+      return BaseAxios.delete(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment/${shipmentId}`);
+    }
 };
 
 
@@ -148,6 +155,7 @@ export const {
   updateInventoryTransfer,
   createInventoryTransferShipment,
   receivedInventoryTransfer,
+  cancelShipmentInventoryTransfer,
   adjustmentInventory
 } =
   TransferService;

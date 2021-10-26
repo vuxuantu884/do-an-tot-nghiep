@@ -387,7 +387,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Col>
         <Col span={6}>
           <div style={{ textAlign: "right", padding: "0 20px" }}>
-            <div style={{ display: "inline-block", textAlign: "left" }}>
+            <div style={{ display: "inline-block", textAlign: "right" }}>
               <Col style={{ color: "#222222" }}>
                 {`${findPrice(item.variant_prices, AppConfig.currency)} `}
                 <span
@@ -1138,7 +1138,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 disabled={levelOrder > 3}
                 dropdownRender={(menu) => (
                   <div>
-                    <div
+                    {/* <div
                       className="row-search w-100"
                       style={{
                         minHeight: "42px",
@@ -1160,7 +1160,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                         </div>
                       </div>
                     </div>
-                    <Divider style={{ margin: "4px 0" }} />
+                    <Divider style={{ margin: "4px 0" }} /> */}
                     {menu}
                   </div>
                 )}

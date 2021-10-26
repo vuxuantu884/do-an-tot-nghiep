@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { StyledWrapper } from "./styles";
+import { ImportStatusWrapper, StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
@@ -16,35 +16,47 @@ import {
   Select,
   Space,
   Upload,
+  Modal,
+  Typography,
+  List,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
+import excelIcon from "assets/icon/icon-excel.svg";
 import { useDispatch } from "react-redux";
 import {
   inventoryGetSenderStoreAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
+  InventoryProcessImport,
   InventoryTransferDetailItem,
   Store,
 } from "model/inventory/transfer";
 
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import { InventoryParams } from "../DetailTicket";
-import BaseAxios from "base/base.axios";
 import { ApiConfig } from "config/api.config";
+import BaseAxios from "base/base.axios";
+import { showError } from "utils/ToastUtils";
 
 const { Option } = Select;
+const { Text } = Typography;
 
 const UpdateTicket: FC = () => {
   const [form] = Form.useForm();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
 
+  const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
+  const [dataProcess, setDataProcess] = useState<InventoryProcessImport | null>(null);
+  const [dataUploadError, setDataUploadError] = useState<Array<string> | null>(null);
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
@@ -53,6 +65,9 @@ const UpdateTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  const dataFileExcel = ['https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_40262b05-2164-4e50-9763-3b7807e8ecb9_original.xls',
+  'https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_63f04682-c041-4d14-9d8c-5fe24b4fe7f2_original.xlsx']
 
   // get store
   useEffect(() => {
@@ -80,6 +95,7 @@ const UpdateTicket: FC = () => {
   };
 
   const onFinish = useCallback((data: any) => {
+    setIsLoading(true);
     if (stores) {
       stores.forEach((store) => {
         if (store.id === Number(data.from_store_id)) {
@@ -105,20 +121,30 @@ const UpdateTicket: FC = () => {
     data.fileUpload = data.fileUpload.file;
     delete data.from_store_id;
     delete data.to_store_id;
-    console.log('data', data);
-  
-    const ImportInventoryExcel = (config: any) => {
-      BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, data, config)
-    }
 
-    ImportInventoryExcel({
-      onDownloadProgress: (progressEvent: any) => {
-        const percentage = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        console.log('percentage', percentage);
+    const formData = new FormData();
+    formData.append('fileUpload', data.fileUpload);
+    formData.append('storeTransfer',JSON.stringify(data.storeTransfer));
+    formData.append('storeReceive',JSON.stringify(data.storeReceive));
+    formData.append('note', data.note ? data.note : '');
+    
+    BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData ).then((res: any) => {
+      if (res) {
+      setIsLoading(false);
+
+        setIsStatusModalVisible(true);
+        setDataProcess(res.process);
+        setDataUploadError(res.errors);
       }
-    });
+      if (res.data) {
+        setData(res.data);
+        setDataProcess(res.process);
+        setDataUploadError(res.errors);
+      }
+    }).catch( err => {
+      showError(err);
+    })
+
   },[stores]);
 
   useEffect(() => {
@@ -245,6 +271,7 @@ const UpdateTicket: FC = () => {
                       name="fileUpload"
                     >
                       <Upload
+                        beforeUpload={() => false}
                       >
                         <Button icon={<UploadOutlined />}>Chọn file</Button>
                       </Upload>
@@ -253,6 +280,20 @@ const UpdateTicket: FC = () => {
                 </Card>
               </Col>
               <Col span={6}>
+                <Card
+                  title={"Link file Excel mẫu"}
+                  bordered={false}
+                  className={"inventory-note"}
+                >
+                  <List>
+                    <List.Item>
+                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[0]} download="Import_Transfer">Excel 2003 (.xls)</a> </Typography.Text>
+                    </List.Item>
+                    <List.Item>
+                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[1]} download="Import_Transfer">Excel 2007 (.xlsx)</a> </Typography.Text>
+                    </List.Item>
+                  </List>
+                </Card>
                 <Card
                   title={"GHI CHÚ"}
                   bordered={false}
@@ -286,6 +327,8 @@ const UpdateTicket: FC = () => {
                   <Button
                     htmlType={"submit"}
                     type="primary"
+                    disabled={isLoading}
+                    loading={isLoading}
                   >
                     Import
                   </Button>
@@ -294,6 +337,64 @@ const UpdateTicket: FC = () => {
             />
           </Form>
       </ContentContainer>
+      {
+        isStatusModalVisible && (
+          <Modal 
+            title="Nhập file"
+            visible={isStatusModalVisible}
+            centered
+            footer={[
+              <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
+                Huỷ
+              </Button>,
+              <Button 
+                disabled={!!dataUploadError}
+                type="primary"
+                onClick={() => {
+                  history.push(`${UrlConfig.INVENTORY_TRANSFER}/createImport`, data);
+                }}>
+                Xác nhận
+              </Button>,
+            ]}
+          >
+            <ImportStatusWrapper>
+              <Row className="status">
+                <Col span={6}>
+                  <div><Text>Tổng cộng</Text></div>
+                  <div><b>{dataProcess?.total_process}</b></div>
+                </Col>
+                <Col span={6}>
+                  <div><Text>Đã xử lí</Text></div>
+                  <div><b>{dataProcess?.processed}</b></div>
+                </Col>
+                <Col span={6}>
+                  <div><Text>Thành công</Text></div>
+                  <div><Text type="success"><b>{dataProcess?.success}</b></Text></div>
+                </Col>
+                <Col span={6}>
+                  <div>Lỗi</div>
+                  <div><Text type="danger"><b>{dataProcess?.error}</b></Text></div>
+                </Col>
+              </Row>
+              <Row className="import-info">
+                <div className="title"><b>Chi tiết: </b></div>
+                <div className="content">
+                  <ul>
+                    {
+                      dataUploadError ? dataUploadError.map( item => {
+                        return <li><span className="danger">&#8226;</span><Text type="danger">{item}</Text></li>
+                      }) : (
+                        <li><span className="success">&#8226;</span><Text type="success">Thành công</Text></li>
+                      )
+                    }
+                  </ul>
+                </div>
+              </Row>
+
+            </ImportStatusWrapper>
+          </Modal>
+        )
+      }
     </StyledWrapper>
   );
 };

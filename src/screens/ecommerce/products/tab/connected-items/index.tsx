@@ -419,18 +419,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     ),
   ]);
 
-  const columnFinal = React.useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
-
-  const variantConnectedItem =
-    variantData &&
-    variantData.items &&
-    variantData.items.filter((item: any) => {
-      return item.connect_status === "connected";
-    });
-
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.shop_ids = shopIdSelected;
@@ -455,6 +443,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       query.limit = limit;
       setQuery({ ...query, page, limit });
       getProductUpdated({ ...query });
+      window.scrollTo(0, 0);
     },
     [query, getProductUpdated]
   );
@@ -473,7 +462,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const removeEcommerce = () => {
     setIsEcommerceSelected(false);
     setShopIdSelected([]);
-    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
   };
 
   const ECOMMERCE_LIST = [
@@ -824,12 +812,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelectTable}
-        columns={columnFinal}
-        dataSource={variantConnectedItem}
+        columns={columns}
+        dataSource={variantData.items}
         scroll={{ x: 1500 }}
         pagination={{
           pageSize: variantData.metadata && variantData.metadata.limit,
-          total: variantConnectedItem && variantConnectedItem.length,
+          total: variantData.metadata && variantData.metadata.total,
           current: variantData.metadata && variantData.metadata.page,
           showSizeChanger: true,
           onChange: onPageChange,
