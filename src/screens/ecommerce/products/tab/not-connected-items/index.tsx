@@ -74,6 +74,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [diffPriceProductList, setDiffPriceProductList] = useState<Array<any>>([]);
   const [isVisibleConfirmConnectItemsModal, setIsVisibleConfirmConnectItemsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
@@ -170,6 +171,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
+    const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
 
@@ -186,7 +188,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         id: ecommerceItem.id,
         core_variant_id: productSelected.id,
         core_sku: productSelected.sku,
-        core_variant: productSelected.name,
+        core_variant: productSelected.core_variant,
         core_price: productSelected.retail_price,
         core_product_id: productSelected.product_id,
         ecommerce_correspond_to_core: 1,
@@ -217,6 +219,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       if (ecommerceItem?.ecommerce_price === productSelected?.retail_price) {
         saveConnectYodyProduct();
       } else {
+        setDiffPriceProduct([productSelected]);
         setIsVisibleConfirmConnectModal(true);
       }
     };
@@ -283,7 +286,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         resultSearchVariant.items.find((item) => item.id === idItemSelected);
 
       const productSelectedData = {
-        name: itemSelected && itemSelected.name,
+        core_variant: itemSelected && itemSelected.name,
         sku: itemSelected && itemSelected.sku,
         variant_prices: itemSelected && itemSelected.variant_prices,
         retail_price:
@@ -301,7 +304,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         id: ecommerceItem.id,
         core_variant_id: productSelectedData.id,
         core_sku: productSelectedData.sku,
-        core_variant: productSelectedData.name,
+        core_variant: productSelectedData.core_variant,
         core_price: productSelectedData.retail_price,
         core_product_id: productSelectedData.product_id,
         ecommerce_correspond_to_core: 1,
@@ -413,7 +416,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <li>
                 <b>Tên sản phẩm: </b>
                 <span onClick={gotoProductDetail} className="link">
-                  {productSelected.name}
+                  {productSelected.core_variant}
                 </span>
               </li>
 
@@ -455,6 +458,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectModal}
             isLoading={isLoading}
+            dataSource={diffPriceProduct}
             okConfirmConnectModal={saveConnectYodyProduct}
             cancelConfirmConnectModal={cancelConfirmConnectModal}
           />
@@ -696,6 +700,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const yodyProductConnectCheck: any[] = [];
     let isSaveAble = true;
     let isNotEqualPrice = false;
+    let diffPriceProductListData: any[] = [];
 
     let tempSelectedRow: any[] = [];
     selectedRow.forEach((rowData) => {
@@ -714,7 +719,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         );
         if (itemMatch) {
           yodyProductConnectCheck.push(item);
-          isNotEqualPrice = (itemMatch.ecommerce_price !== item.core_price) ? true : false;
+          if (itemMatch.ecommerce_price !== item.core_price) {
+            isNotEqualPrice = true;
+            diffPriceProductListData.push(item);
+          }
         } else {
           notMatchConnectItemList.push(item);
         }
@@ -743,6 +751,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       setConnectedYodyProductsRequest(request);
 
       if (isNotEqualPrice) {
+        setDiffPriceProductList(diffPriceProductListData);
         setIsVisibleConfirmConnectItemsModal(true);
       } else {
         connectedYodyProducts();
@@ -1038,6 +1047,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectItemsModal}
             isLoading={isLoading}
+            dataSource={diffPriceProductList}
             okConfirmConnectModal={connectedYodyProducts}
             cancelConfirmConnectModal={() => setIsVisibleConfirmConnectItemsModal(false)}
           />
