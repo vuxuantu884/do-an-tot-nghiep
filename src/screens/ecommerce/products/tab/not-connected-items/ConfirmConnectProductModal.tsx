@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Modal } from "antd";
+import CustomTable from "component/table/CustomTable";
 
 type ConfirmConnectProductModalProps = {
   isVisible: boolean;
   isLoading: boolean;
+  dataSource: any;
   okConfirmConnectModal: () => void;
   cancelConfirmConnectModal: () => void;
 };
@@ -15,10 +18,10 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
   const {
     isVisible,
     isLoading,
+    dataSource,
     okConfirmConnectModal,
     cancelConfirmConnectModal,
   } = props;
-
 
   const onOk = () => {
     okConfirmConnectModal();
@@ -27,23 +30,49 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
   const onCancel = () => {
     cancelConfirmConnectModal();
   };
-  
+
+  const [columns] = useState<any>([
+    {
+      title: "STT",
+      align: "center",
+      width: "13%",
+      render: (l: any, v: any, i: any) => {
+        return (
+          <div>{i + 1}</div>
+        );
+      },
+    },
+    {
+      title: "Nội dung",
+      render: (item: any, v: any, i: any) => {
+        return (
+          <div>
+            Sản phẩm <b>{item.core_variant}</b> lệch giá
+          </div>
+        );
+      },
+    }
+  ]);
+
 
   return (
     <Modal
       width="600px"
       visible={isVisible}
-      title="Xác nhận ghép nối sản phẩm"
-      okText="Đồng ý"
-      cancelText="Hủy"
+      title="Cảnh báo"
+      okText="Tiếp tục"
+      cancelText="Thoát"
       onCancel={onCancel}
       onOk={onOk}
       confirmLoading={isLoading}
+      maskClosable={false}
     >
-      <div>
-        <div>Giá bán sàn và giá bán Yody đang chênh lệch.</div>
-        <div>Bạn có chắc chắn muốn ghép nối sản phẩm không?</div>
-      </div>
+      <CustomTable
+        columns={columns}
+        dataSource={dataSource}
+        pagination={false}
+        scroll={{ y: 300 }}
+      />
     </Modal>
   );
 };
