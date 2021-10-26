@@ -5,18 +5,16 @@ import {
   Button,
   Card,
   Checkbox,
-  Col,
-  Divider,
-  Dropdown,
+  Col, Dropdown,
   Form,
   FormInstance,
   Input,
   Menu,
-  Row,
   Select,
+  Row,
   Space,
   Table,
-  Tooltip,
+  Tooltip
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -24,7 +22,6 @@ import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
-import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
@@ -32,11 +29,12 @@ import UrlConfig from "config/url.config";
 import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import {
   StoreGetListAction,
-  StoreSearchListAction,
+  StoreSearchListAction
 } from "domain/actions/core/store.action";
+import { splitOrderAction } from "domain/actions/order/order.action";
 import {
   SearchBarCode,
-  searchVariantsOrderRequestAction,
+  searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -44,7 +42,8 @@ import { InventoryResponse } from "model/inventory";
 import { OrderItemDiscountModel } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderLineItemRequest, SplitOrderRequest } from "model/request/order.request";
+import { OrderResponse } from "model/response/order/order.response";
 import React, {
   createRef,
   useCallback,
@@ -52,7 +51,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useState,
+  useState
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -70,7 +69,7 @@ import {
   getTotalDiscount,
   getTotalQuantity,
   haveAccess,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -100,11 +99,11 @@ type CardProductProps = {
   inventoryResponse: Array<InventoryResponse> | null;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   setStoreForm: (id: number | null) => void;
-  setStoreId?: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
   orderId?: string;
   isSplitOrder?: boolean;
+  orderDetail?: OrderResponse | null;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -125,10 +124,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     selectStore,
     setStoreForm,
     handleCardItems,
-    setStoreId,
     levelOrder = 0,
     orderId,
     isSplitOrder,
+    orderDetail,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -929,7 +928,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
+    if (listStores && listStores.length) {
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -940,9 +939,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên
     if (newData && newData[0]?.id) {
       formRef.current?.setFieldsValue({ store_id: newData[0].id });
-      if (setStoreId) {
-        setStoreId(newData[0].id);
-      }
+      selectStore(newData[0].id);
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -984,13 +981,29 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const handleSplitOrder = () => {
-    if (!orderId || splitOrderNumber === 0) {
+    if (!orderId || !orderDetail || !userReducer.account) {
       return;
     }
-    const splitLink = `${process.env.PUBLIC_URL}/orders/create?action=clone&cloneId=${orderId}&type=split-order`;
-    for (let i = 0; i < splitOrderNumber; i++) {
-      window.open(splitLink, "_blank");
+    if (!splitOrderNumber) {
+      showError("Vui lòng điền số lượng tách đơn!");
+      return;
     }
+    const params: SplitOrderRequest = {
+      order_code: orderDetail.code,
+      quantity: splitOrderNumber,
+      updated_by: userReducer.account.updated_by || "",
+      updated_name: userReducer.account.updated_name || "",
+    };
+    dispatch(
+      splitOrderAction(params, (response) => {
+        if (response) {
+          response.data.forEach((singleOrderId: number) => {
+            const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update`;
+            window.open(singleSplitLink, "_blank");
+          });
+        }
+      })
+    );
   };
 
   useEffect(() => {
@@ -1030,7 +1043,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 {isShowSplitOrder && (
                   <React.Fragment>
                     <NumberInput
-                      style={{ width: 45 }}
+                      style={{ width: 50 }}
                       max={50}
                       value={splitOrderNumber}
                       onChange={(value) => {

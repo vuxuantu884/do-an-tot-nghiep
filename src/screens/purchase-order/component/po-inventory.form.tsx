@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 import { POStatus, ProcumentStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import ProcumentConfirmModal from "../modal/procument-confirm.modal";
-import ProcumentInventoryModal from "../modal/procument-inventory.modal.tsx";
+import ProcumentInventoryModal from "../modal/procument-inventory.modal";
 import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/POInventoryDraft";
 import POInventoryView from "./po-inventory/po-inventory.view";

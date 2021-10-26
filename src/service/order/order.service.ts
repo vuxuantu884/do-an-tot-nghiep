@@ -12,6 +12,7 @@ import {
   GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
+  SplitOrderRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
@@ -331,4 +332,13 @@ export const createShippingOrderService = (
   params: CreateShippingOrderRequest
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
+};
+
+/**
+ * tách đơn
+ */
+export const splitOrderService = (
+  params: SplitOrderRequest
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/orders/split`, params);
 };

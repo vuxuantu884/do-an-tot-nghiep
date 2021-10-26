@@ -15,10 +15,11 @@ type PropType = {
   fulfillment: FulFillmentResponse | null | undefined;
   orderSettings?: OrderSettingsModel;
   orderId?: number;
+  onPrint?: () => void;
 };
 
 const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
-  const { fulfillment, orderId } = props;
+  const { fulfillment, orderId, onPrint } = props;
   const dispatch = useDispatch();
   const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
@@ -132,6 +133,7 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
                     let result = textResponse.replaceAll("<p></p>", "");
                     setPrintContent(result);
                     handlePrint();
+                    onPrint && onPrint();
                   }
                 )
               );

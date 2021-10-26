@@ -274,12 +274,12 @@ const ProductCreateScreen: React.FC = () => {
         }
         if (newVariants.length === 0) {
           newVariants.push({
-            name: name,
+            name:  name,
             color_id: null,
             color: null,
             size_id: null,
             size: null,
-            sku: code,
+            sku: `${code}-MAU`,
             quantity: 0,
             variant_images: [],
           });
@@ -292,6 +292,7 @@ const ProductCreateScreen: React.FC = () => {
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    onNameChange();
     if (value.length === 7)
       dispatch(
         productCheckDuplicateCodeAction(value, (message) => {
@@ -307,14 +308,9 @@ const ProductCreateScreen: React.FC = () => {
       );
   };
 
-  const onNameChange = useCallback(
-    (event) => {
-      listVariantsFilter(colorSelected, sizeSelected);
-    },
-    [colorSelected, listVariantsFilter, sizeSelected]
-  );
- 
- 
+  const onNameChange = useCallback(() => {
+    listVariantsFilter(colorSelected, sizeSelected);
+  }, [colorSelected, listVariantsFilter, sizeSelected]);
 
   const onMaterialChange = (id: number) => {    
     dispatch(detailMaterialAction(id, (material)=>handleChangeMaterial(material,form)));
