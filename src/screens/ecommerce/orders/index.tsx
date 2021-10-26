@@ -78,7 +78,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_max: null,
   ship_on_predefined: null,
   shop_ids: [],
-  ecommerce_id: null,
+  channel_id: 3,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -594,6 +594,7 @@ const EcommerceOrderSync: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({ ...params });
+      window.scrollTo(0, 0);
     },
     [params]
   );
