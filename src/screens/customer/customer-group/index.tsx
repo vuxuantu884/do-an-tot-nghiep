@@ -27,7 +27,6 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 
