@@ -292,6 +292,7 @@ const ProductCreateScreen: React.FC = () => {
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    onNameChange();
     if (value.length === 7)
       dispatch(
         productCheckDuplicateCodeAction(value, (message) => {
@@ -307,14 +308,9 @@ const ProductCreateScreen: React.FC = () => {
       );
   };
 
-  const onNameChange = useCallback(
-    (event) => {
-      listVariantsFilter(colorSelected, sizeSelected);
-    },
-    [colorSelected, listVariantsFilter, sizeSelected]
-  );
- 
- 
+  const onNameChange = useCallback(() => {
+    listVariantsFilter(colorSelected, sizeSelected);
+  }, [colorSelected, listVariantsFilter, sizeSelected]);
 
   const onMaterialChange = (id: number) => {    
     dispatch(detailMaterialAction(id, (material)=>handleChangeMaterial(material,form)));
