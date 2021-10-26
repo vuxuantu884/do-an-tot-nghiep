@@ -70,21 +70,24 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import UrlConfig from "config/url.config";
 import * as CONSTANTS from "utils/Constants";
+import UpdateCustomer from "./UpdateCustomer";
+import CreateCustomer from "./CreateCustomer";
 //#end region
 
 type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
-  setVisibleCustomer:(item:boolean)=>void;
-  setModalAction:(item:modalActionType)=>void;
+  setVisibleCustomer: (item: boolean) => void;
+  setModalAction: (item: modalActionType) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
-  isVisibleCustomer:boolean;
-  modalAction:modalActionType;
+  isVisibleCustomer: boolean;
+  modalAction: modalActionType;
+  shippingAddress:ShippingAddress|any;
 };
 
 //Add query for search Customer
@@ -116,15 +119,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setModalAction,
     modalAction,
     setVisibleCustomer,
-    isVisibleCustomer
+    isVisibleCustomer,
+    shippingAddress
   } = props;
   //State
-  const [addressesForm] = Form.useForm();
-  const shippingWarRef: any = useRef(null);
+  // const [addressesForm] = Form.useForm();
+  // const shippingWarRef: any = useRef(null);
 
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(false);
+  // const [isVisibleBilling, setVisibleBilling] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(true);
   const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
@@ -136,11 +140,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
-  //Shipping
-  const [shippingDistrictId, setShippingDistrictId] = React.useState<any>(null);
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
-    []
-  );
 
   // const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -153,9 +152,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleShippingModal, setIsVisibleShippingModal] =
     React.useState<boolean>(false);
 
-  const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
-    useState(false);
-
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
   const autoCompleteElement: any = document.getElementById("search_customer");
@@ -163,15 +159,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
-
-  //element
-  const btnUpdateCustomerElement = document.getElementById("btnUpdateCustomer");
-
   //#region Modal
-  const ShowBillingAddress = (e: any) => {
-    setVisibleBilling(e.target.checked);
-  };
+  // const ShowBillingAddress = (e: any) => {
+  //   setVisibleBilling(e.target.checked);
+  // };
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
@@ -190,12 +181,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   };
 
   const ShowAddressModalAdd = () => {
-    setModalAction("create");
+    //setModalAction("create");
     setVisibleAddress(true);
   };
 
   const ShowAddressModalEdit = () => {
-    setModalAction("edit");
+    //setModalAction("edit");
     setVisibleAddress(true);
   };
 
@@ -331,7 +322,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Delete customer
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
-    setVisibleBilling(false);
     setVisibleCustomer(false);
   };
 
@@ -392,19 +382,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   }, [dispatch, districtId]);
 
   useEffect(() => {
-    if (shippingDistrictId) {
-      dispatch(WardGetByDistrictAction(shippingDistrictId, setShippingWards));
-    }
-  }, [dispatch, shippingDistrictId]);
-
-  useEffect(() => {
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
-  useEffect(()=>{
-      if(customer)
-        setDistrictId(customer.district_id);
-  },[customer]);
+  useEffect(() => {
+    if (customer) setDistrictId(customer.district_id);
+  }, [customer]);
 
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
@@ -412,17 +395,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const handleShippingChangeArea = (districtId: string) => {
-    if (districtId) {
-      setShippingDistrictId(districtId);
-      if (shippingWarRef.current) shippingWarRef.current.value = null;
-    }
-  };
-
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
       OkConfirmCustomerEdit();
-      handleCustomer(customers); 
+      handleCustomer(customers);
     }
   };
 
@@ -446,12 +422,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           )
         );
     }
-  };
-
-  const DefaultWard = () => {
-    let value = addressesForm.getFieldsValue();
-    value.ward_id = null;
-    addressesForm.setFieldsValue(value);
   };
 
   const rankName = loyaltyUsageRules.find(
@@ -590,7 +560,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 <span className="customer-detail-icon">
                   <img src={callIcon} alt="" className="icon-customer-info" />
                 </span>
-                <a className="customer-detail-text text-body primary" style={{color:"#5656A2"}} href={`tel:${customer?.phone === undefined? "0987654321": customer?.phone}`}>0965143608</a>
+                <a
+                  className="customer-detail-text text-body primary"
+                  style={{ color: "#5656A2" }}
+                  href={`tel:${
+                    customer?.phone === undefined
+                      ? "0987654321"
+                      : customer?.phone
+                  }`}
+                >
+                  {" "}
+                  {customer?.phone === undefined
+                    ? "0987654321"
+                    : customer?.phone}
+                </a>
               </Space>
 
               <Space className="customer-detail-point">
@@ -626,12 +609,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              {levelOrder < 3 && <Space className="customer-detail-action">
-                <CloseOutlined
-                  onClick={CustomerDeleteInfo}
-                  style={{ marginRight: "5px" }}
-                />
-              </Space>}
+              {levelOrder < 3 && (
+                <Space className="customer-detail-action">
+                  <CloseOutlined
+                    onClick={CustomerDeleteInfo}
+                    style={{ marginRight: "5px" }}
+                  />
+                </Space>
+              )}
             </Row>
             <Divider
               className="margin-0"
@@ -640,13 +625,39 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </div>
         )}
       </div>
-      {(isVisibleCustomer === true || customer !== null) && (
+      {isVisibleCustomer === true && (
         <div>
-          <div>
-            {isVisibleCustomer === true && (
-              <div>
-                <div style={{ marginTop: "14px" }}>
-                  <EditCustomerModal
+          <div style={{ marginTop: "14px" }}>
+            {modalAction === CONSTANTS.MODAL_ACTION_TYPE.create && (
+              <CreateCustomer
+                areas={areas}
+                wards={wards}
+                groups={groups}
+                handleChangeArea={handleChangeArea}
+                handleChangeCustomer={handleChangeCustomer}
+                ShippingAddressChange={props.ShippingAddressChange}
+                keySearchCustomer={keySearchCustomer}
+              />
+            )}
+
+            {modalAction === CONSTANTS.MODAL_ACTION_TYPE.edit && customer!==null && (
+              <UpdateCustomer
+                areas={areas}
+                wards={wards}
+                groups={groups}
+                customerItem={customer}
+                shippingAddress={shippingAddress}
+                handleChangeArea={handleChangeArea}
+                handleChangeCustomer={handleChangeCustomer}
+                setSingleShippingAddress={setSingleShippingAddress}
+                ShippingAddressChange={props.ShippingAddressChange}
+                ShowAddressModalEdit={ShowAddressModalEdit}
+                showAddressModalDelete={showAddressModalDelete}
+                ShowAddressModalAdd={ShowAddressModalAdd}
+              />
+            )}
+
+            {/* <EditCustomerModal
                     areas={areas}
                     wards={wards}
                     groups={groups}
@@ -664,203 +675,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     setVisibleCollapseCustomer={setVisibleCollapseCustomer}
                     setVisibleBtnUpdate={setVisibleBtnUpdate}
                     ShippingAddressChange={props.ShippingAddressChange}
-                  />
-                </div>
-                {isVisibleCollapseCustomer === true && (
-                  <Divider orientation="left" style={{ padding: 0, margin: 0,color:"#5656A1" }}>
-                      <div>
-                          <Button
-                            type="link"
-                            icon={<UpOutlined />}
-                            style={{ padding: "0px" }}
-                            onClick={() => {
-                              setVisibleCollapseCustomer(false);
-                            }}
-                          >
-                            Thu gọn
-                          </Button>
-                      </div>
-                    </Divider>
-                  )}
-              </div>
-            )}
-          </div>
-
-          <div>
-            {customer === null &&(
-               <div className="send-order-box">
-                 <Row style={{ marginTop: 15 }}>
-                  <Col md={24} style={{float:"right",marginTop: "-10px"}}>
-                  { isVisibleBtnUpdate === true &&  (
-                     <Button
-                      type="primary"
-                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                      className="create-button-custom ant-btn-outline fixed-button"
-                      onClick={()=>{
-                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
-                        btnUpdateCustomerElement?.click();
-                      }}
-                      >
-                        {modalAction=== CONSTANTS.MODAL_ACTION_TYPE.create?"Thêm mới" : "Cập nhập"}
-                      </Button>
-                    )}
-                  </Col>
-                </Row>
-               </div>
-            )}
-            {customer !== null && (
-              <div className="send-order-box">
-                <Row gutter={12} style={{ marginTop: 15 }}>
-                  <Col md={12}>
-                    <Checkbox
-                      className="checkbox-style"
-                      onChange={ShowBillingAddress}
-                      style={{ marginLeft: "3px" }}
-                      disabled={levelOrder > 3}
-                    >
-                      Gửi hoá đơn
-                    </Checkbox>
-                  </Col>
-                  <Col md={12} style={{float:"right",marginTop: "-10px"}}>
-                  { isVisibleBtnUpdate === true&& !isVisibleBilling  && (
-                     <Button
-                      type="primary"
-                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                      className="create-button-custom ant-btn-outline fixed-button"
-                      onClick={()=>{
-                        console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
-                        btnUpdateCustomerElement?.click();
-                      }}
-                      >
-                         {modalAction=== CONSTANTS.MODAL_ACTION_TYPE.create?"Thêm mới" : "Cập nhập"}
-                      </Button>
-                    )}
-                  </Col>
-                </Row>
-
-                {customer.billing_addresses !== undefined && (
-                  <Row
-                    gutter={24}
-                    hidden={!isVisibleBilling}
-                    style={{ marginTop: "14px" }}
-                  >
-                    <Col xs={24} lg={12}>
-                      <Form.Item
-                        name="district_id"
-                        //label="Khu vực"
-                        // rules={[
-                        //   {
-                        //     required: true,
-                        //     message: "Vui lòng chọn khu vực",
-                        //   },
-                        // ]}
-                      >
-                        <Select
-                          className="select-with-search"
-                          showSearch
-                          allowClear
-                          placeholder={
-                            <React.Fragment>
-                              <EnvironmentOutlined style={{color:"#71767B"}}/>
-                              <span> Chọn khu vực</span>
-                            </React.Fragment>
-                          }
-                          style={{ width: "100%" }}
-                          onChange={(value: any) => {
-                            handleShippingChangeArea(value);
-                            DefaultWard();
-                          }}
-                          optionFilterProp="children"
-                        >
-                          {areas.map((area: any) => (
-                            <Select.Option key={area.id} value={area.id}>
-                              {area.city_name + ` - ${area.name}`}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} lg={12}>
-                      <Form.Item
-                        name="ward_id"
-                        //label="Phường xã"
-                        // rules={[
-                        //   {
-                        //     required: true,
-                        //     message: "Vui lòng chọn phường/xã",
-                        //   },
-                        // ]}
-                      >
-                        <Select
-                          className="select-with-search"
-                          showSearch
-                          allowClear
-                          optionFilterProp="children"
-                          style={{ width: "100%" }}
-                          placeholder={
-                            <React.Fragment>
-                              <EnvironmentOutlined style={{color:"#71767B"}}/>
-                              <span> Chọn phường/xã</span>
-                            </React.Fragment>
-                          }
-                          ref={shippingWarRef}
-                        >
-                          {shippingWards.map((ward: any) => (
-                            <Select.Option key={ward.id} value={ward.id}>
-                              {ward.name}
-                            </Select.Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} lg={12}>
-                      <Form.Item
-                        name="full_address"
-                        //label="Địa chỉ"
-                      >
-                        <Input
-                          placeholder="Địa chỉ"
-                          prefix={<EnvironmentOutlined style={{color:"#71767B"}}/>}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} lg={12}>
-                      <Form.Item
-                        name="email_note"
-                        //label="Email"
-                      >
-                        <Input
-                          placeholder="Điền email"
-                          prefix={<MailOutlined style={{color:"#71767B"}}/>}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                )}
-              </div>
-            )}
-
-            {customer !== null && isVisibleBilling===true &&(
-               <Row style={{ marginTop: 15 }}>
-                <Col md={24} style={{float:"right",marginTop: "-10px"}}>
-                { isVisibleBtnUpdate === true &&  (
-                    <Button
-                    type="primary"
-                    style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
-                    className="create-button-custom ant-btn-outline fixed-button"
-                    onClick={()=>{
-                      console.log("btnUpdateCustomerElement",btnUpdateCustomerElement)
-                      btnUpdateCustomerElement?.click();
-                    }}
-                    >
-                      {modalAction=== CONSTANTS.MODAL_ACTION_TYPE.create?"Thêm mới" : "Cập nhập"}
-                    </Button>
-                  )}
-                </Col>
-             </Row>
-            )}
+                  /> */}
           </div>
         </div>
       )}

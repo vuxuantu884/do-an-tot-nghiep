@@ -63,7 +63,7 @@ const PackSupportScreen: React.FC = () => {
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
       <ContentContainer
-        title="Đóng gói và biên bản bàn giao"
+        title="Hỗ trợ đóng gói"
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -74,7 +74,7 @@ const PackSupportScreen: React.FC = () => {
             path: UrlConfig.ORDER,
           },
           {
-            name: "Đóng gói và biên bản bàn giao",
+            name: "Hỗ trợ đóng gói",
           },
         ]}
       >
