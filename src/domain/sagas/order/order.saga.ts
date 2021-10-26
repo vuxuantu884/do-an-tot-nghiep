@@ -1,6 +1,7 @@
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { ReturnModel } from "model/order/return.model";
 import { ShipmentModel } from "model/order/shipment.model";
@@ -13,14 +14,10 @@ import {
   OrderConfig,
   OrderResponse,
   // OrderSubStatusResponse,
-  TrackingLogFulfillmentResponse,
+  TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { getAmountPayment, isUndefinedOrNull } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { YodyAction } from "../../../base/base.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
   cancelOrderApi,
   confirmDraftOrderService,
@@ -40,8 +37,12 @@ import {
   orderPutApi,
   putFulfillmentsPackApi,
   splitOrderService,
-  updateDeliveryConnectService,
+  updateDeliveryConnectService
 } from "service/order/order.service";
+import { getAmountPayment } from "utils/AppUtils";
+import { getPackInfo } from "utils/LocalStorageUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { YodyAction } from "../../../base/base.action";
 import { OrderType } from "../../types/order.type";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
 import { SourceResponse } from "./../../../model/response/order/source.response";
@@ -58,11 +59,9 @@ import {
   setSubStatusService,
   updateFulFillmentStatus,
   updatePayment,
-  updateShipment,
+  updateShipment
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
-import { getPackInfo } from "utils/LocalStorageUtils";
-import { loadOrderPackAction } from "domain/actions/order/order.action";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;

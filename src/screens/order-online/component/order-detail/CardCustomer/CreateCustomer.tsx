@@ -1,17 +1,3 @@
-import React, { createRef, useCallback, useEffect, useState } from "react";
-import {
-  Form,
-  Col,
-  Input,
-  Row,
-  Select,
-  DatePicker,
-  Button,
-  Divider,
-  FormInstance,
-  Checkbox,
-} from "antd";
-import { useDispatch } from "react-redux";
 import {
   BarcodeOutlined,
   CalendarOutlined,
@@ -21,25 +7,32 @@ import {
   PhoneOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
+import {
+  Button, Checkbox, Col, DatePicker, Divider, Form, FormInstance, Input,
+  Row,
+  Select
+} from "antd";
+import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CreateShippingAddress,
   CustomerCreateAction,
   CustomerDetail,
-  UpdateShippingAddress,
+  UpdateShippingAddress
 } from "domain/actions/customer/customer.action";
+import { WardResponse } from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
-  CustomerShippingAddress,
+  CustomerShippingAddress
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { WardGetByDistrictAction } from "domain/actions/content/content.action";
-import { WardResponse } from "model/content/ward.model";
 import moment from "moment";
+import React, { createRef, useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 
 type CreateCustomerProps = {
   areas: any;
