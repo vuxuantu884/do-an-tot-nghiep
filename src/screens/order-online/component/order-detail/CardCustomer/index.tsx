@@ -79,14 +79,12 @@ type CustomerCardProps = {
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
   setVisibleCustomer: (item: boolean) => void;
-  setModalAction: (item: modalActionType) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
   loyaltyUsageRules: Array<LoyaltyUsageResponse>;
   levelOrder?: number;
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
-  modalAction: modalActionType;
   shippingAddress:ShippingAddress|any;
 };
 
@@ -116,8 +114,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     loyaltyPoint,
     loyaltyUsageRules,
     levelOrder = 0,
-    setModalAction,
-    modalAction,
     setVisibleCustomer,
     isVisibleCustomer,
     shippingAddress
@@ -141,7 +137,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
 
-  // const [modalAction, setModalAction] = useState<modalActionType>("edit");
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [modalActionShipping, setModalActionShipping] = useState<modalActionType>("create");
+
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   // const [shippingAddress, setShippingAddress] =
   //   useState<ShippingAddress | null>(null);
@@ -181,12 +179,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   };
 
   const ShowAddressModalAdd = () => {
-    //setModalAction("create");
+    setModalActionShipping("create");
     setVisibleAddress(true);
   };
 
   const ShowAddressModalEdit = () => {
-    //setModalAction("edit");
+    setModalActionShipping("edit");
     setVisibleAddress(true);
   };
 
@@ -685,7 +683,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         handleChangeCustomer={handleChangeCustomer}
         formItem={singleShippingAddress}
         visible={isVisibleAddress}
-        modalAction={modalAction}
+        modalAction={modalActionShipping}
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
       />
