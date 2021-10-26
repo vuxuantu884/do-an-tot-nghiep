@@ -145,9 +145,11 @@ const CreateTicket: FC = () => {
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
+    
     if (value) {
       const from_store_id = form.getFieldValue("from_store_id");
       const to_store_id = form.getFieldValue("to_store_id");
+
       if (from_store_id === to_store_id) {
         callback(`Kho gửi không được trùng với kho nhận`);
       } else {
@@ -643,6 +645,7 @@ const CreateTicket: FC = () => {
                     <Form.Item
                       name="from_store_id"
                       label={<b>Kho gửi</b>}
+                      validateFirst
                       rules={[
                         {
                           required: true,
@@ -695,6 +698,7 @@ const CreateTicket: FC = () => {
                     <Form.Item
                       name="to_store_id"
                       label={<b>Kho nhận</b>}
+                      validateFirst
                       rules={[
                         {
                           required: true,
