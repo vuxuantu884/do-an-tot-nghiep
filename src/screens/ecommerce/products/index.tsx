@@ -58,7 +58,8 @@ const Products: React.FC = () => {
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    connection_start_date: null,
+    create_time_from: null,
+    create_time_to: null,
   });
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
