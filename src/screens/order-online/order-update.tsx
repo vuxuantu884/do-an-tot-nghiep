@@ -881,8 +881,11 @@ export default function Order(props: PropType) {
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
+      let shippingAddressItem = customer.shipping_addresses.find((p:any) => p.default === true);
+      if(shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
     } else {
       setLoyaltyPoint(null);
+      onChangeShippingAddress(null);
     }
   }, [dispatch, customer]);
 
@@ -1064,6 +1067,8 @@ export default function Order(props: PropType) {
                     isVisibleCustomer={isVisibleCustomer}
                     setVisibleCustomer={setVisibleCustomer}
                     shippingAddress={shippingAddress}
+                    modalAction={modalAction}
+                    setModalAction={setModalAction}
                   />
                   <CardProduct
                     orderId={id}

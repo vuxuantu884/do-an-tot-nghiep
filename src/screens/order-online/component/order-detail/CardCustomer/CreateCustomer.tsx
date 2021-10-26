@@ -62,8 +62,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] =
     useState(false);
 
-  const [isVisibleShipping, setVisibleShipping] = useState(false);
-  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(true);
+  const [isVisibleShipping, setVisibleShipping] = useState(true);
+  const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
 
   const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
 
@@ -72,27 +72,44 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     phone:keySearchCustomer
   }:{}
 
-  // const initialFormValueCustomer =pattern.test(keySearchCustomer)?{
-  //   full_name:customerItem.full_name,
-  //   district_id:customerItem.district_id,
-  //   phone:customerItem.phone,
-  //   ward_id:customerItem.ward_id,
-  //   card_number:customerItem.card_number,
-  //   full_address:customerItem.full_address,
-  //   gender:customerItem.gender,
-  //   birthday:customerItem.birthday ? moment(customerItem.birthday) : null,
-  //   customer_group_id:customerItem.customer_group_id
-  // }:{
-  //   full_name:"",
-  //   district_id:null,
-  //   phone:"",
-  //   ward_id:null,
-  //   card_number:null,
-  //   full_address:null,
-  //   gender:null,
-  //   birthday:null,
-  //   customer_group_id:null
-  // }
+   //element
+   const txtCustomerFullname = document.getElementById("customer_add_full_name");
+   const txtCustomerPhone = document.getElementById("customer_add_phone");
+   const txtCustomerNumber = document.getElementById("customer_add_card_number");
+   const txtCustomerFullAddress = document.getElementById("customer_add_full_address");
+   const txtCustomerBirthday = document.getElementById("customer_add_birthday");
+   //
+   const txtShippingAddName = document.getElementById("shippingAddress_add_name");
+   const txtShippingAddPhone = document.getElementById("shippingAddress_add_phone");
+   const txtShippingFullAddress = document.getElementById("shippingAddress_add_full_address");
+
+  //event
+  txtCustomerFullname?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtCustomerPhone?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtCustomerNumber?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtCustomerFullAddress?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtCustomerBirthday?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtShippingAddName?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtShippingAddPhone?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+  txtShippingFullAddress?.addEventListener("change", (e: any) => {
+    setVisibleBtnUpdate(true)
+  });
+
+  console.log("isVisibleBtnUpdate",isVisibleBtnUpdate)
 
   const DefaultWard = () => {
     let value = customerForm.getFieldsValue();
@@ -110,7 +127,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     (result: CustomerResponse) => {
       if (result !== null && result !== undefined) {
         showSuccess("Thêm mới khách hàng thành công");
-        if(isVisibleShipping===true)
+        if(isVisibleShipping===false)
         {
             shippingFormRef.current?.validateFields();
 
@@ -274,7 +291,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 onChange={(value) => {
                   handleChangeArea(value);
                   DefaultWard();
-                  //setVisibleBtnUpdate(true);
+                  setVisibleBtnUpdate(true);
                 }}
                 optionFilterProp="children"
               >
@@ -332,7 +349,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                   </React.Fragment>
                 }
                 onChange={() => {
-                  //setVisibleBtnUpdate(true);
+                  setVisibleBtnUpdate(true);
                 }}
               >
                 {wards.map((ward: any) => (
@@ -399,7 +416,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     }
                     className="select-with-search"
                     onChange={() => {
-                      //setVisibleBtnUpdate(true);
+                      setVisibleBtnUpdate(true);
                     }}
                   >
                     <Select.Option key={1} value={"male"}>
@@ -444,7 +461,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       />
                     }
                     onChange={() => {
-                      //setVisibleBtnUpdate(true);
+                     setVisibleBtnUpdate(true);
                     }}
                   />
                 </Form.Item>
@@ -467,7 +484,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     }
                     className="select-with-search"
                     onChange={() => {
-                      //setVisibleBtnUpdate(true);
+                      setVisibleBtnUpdate(true);
                     }}
                   >
                     {groups &&
@@ -513,12 +530,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 setVisibleShipping(!isVisibleShipping);
               }}
               style={{ marginLeft: "3px" }}
+              checked={isVisibleShipping}
               //disabled={levelOrder > 3}
             >
               Địa chỉ của KH cũng là địa chỉ giao hàng
             </Checkbox>
           </Col>
-          {isVisibleShipping === false && (
+          {isVisibleShipping === true && isVisibleBtnUpdate===true && (
             <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
               <Button
                 type="primary"
@@ -534,8 +552,8 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           )}
         </Row>
 
-        {isVisibleShipping === true && (
-          <Form ref={shippingFormRef} layout="vertical">
+        {isVisibleShipping === false && (
+          <Form ref={shippingFormRef} layout="vertical" name="shippingAddress_add">
             <Row gutter={24} style={{ marginTop: "14px" }}>
               <Col xs={24} lg={12}>
                 <Form.Item
@@ -601,6 +619,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                         values.ward_id = null;
                         shippingFormRef.current?.setFieldsValue(values);
                         handleShippingWards(value);
+                        setVisibleBtnUpdate(true);
                     }}
                     optionFilterProp="children"
                   >
@@ -666,7 +685,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         )}
       </div>
 
-      {isVisibleShipping === true && (
+      {isVisibleShipping === false && (
         <Row style={{ marginTop: 15 }}>
           <Col md={24} style={{ float: "right", marginTop: "-10px" }}>
             {isVisibleBtnUpdate === true && (
