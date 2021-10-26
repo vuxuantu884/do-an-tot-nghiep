@@ -18,29 +18,29 @@ import {
   Table,
   Tag,
   Tooltip,
-  Typography,
+  Typography
 } from "antd";
-import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
-import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
+import UrlConfig from "config/url.config";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   SearchBarCode,
-  searchVariantsOrderRequestAction,
+  searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
   OrderItemDiscountModel,
-  OrderSettingsModel,
+  OrderSettingsModel
 } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -52,9 +52,10 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useState,
+  useState
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
@@ -69,12 +70,10 @@ import {
   getTotalDiscount,
   getTotalQuantity,
   haveAccess,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { Link } from "react-router-dom";
-import UrlConfig from "config/url.config";
 
 type CardProductProps = {
   items?: Array<OrderLineItemRequest>;
