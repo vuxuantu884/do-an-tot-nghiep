@@ -825,6 +825,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
   // end
+
+  const onPrint = () => {
+    onOkShippingConfirm();
+    setReload(true)
+  };
   useEffect(() => {
     if (!props.storeDetail) {
       setAddressError("Thiếu thông tin địa chỉ cửa hàng");
@@ -1031,6 +1036,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             fulfillment={fulfillment}
                             orderSettings={orderSettings}
                             orderId={OrderDetail?.id}
+                            onPrint={onPrint}
                           />
                         </div>
 
