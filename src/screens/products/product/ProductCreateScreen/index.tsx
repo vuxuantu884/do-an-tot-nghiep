@@ -274,12 +274,12 @@ const ProductCreateScreen: React.FC = () => {
         }
         if (newVariants.length === 0) {
           newVariants.push({
-            name: name,
+            name:  name,
             color_id: null,
             color: null,
             size_id: null,
             size: null,
-            sku: code,
+            sku: `${code}-MAU`,
             quantity: 0,
             variant_images: [],
           });
