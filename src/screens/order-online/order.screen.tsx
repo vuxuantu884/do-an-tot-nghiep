@@ -141,7 +141,7 @@ export default function Order() {
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [modalAction, setModalAction] = useState<modalActionType>("create");
+  // const [modalAction, setModalAction] = useState<modalActionType>("create");
 
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
@@ -1070,8 +1070,6 @@ export default function Order() {
                       BillingAddressChange={onChangeBillingAddress}
                       isVisibleCustomer={isVisibleCustomer}
                       setVisibleCustomer={setVisibleCustomer}
-                      setModalAction={setModalAction}
-                      modalAction={modalAction}
                     />
                     <CardProduct
                       changeInfo={onChangeInfoProduct}

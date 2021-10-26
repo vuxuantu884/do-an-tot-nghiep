@@ -107,18 +107,18 @@ import moment from "moment";
       customer_group_id:null
     }
 
-    let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
+    //let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
     const initialFormValueshippingAddress =
-    shippingAddressItem && shippingAddressItem!==null
+    shippingAddress && shippingAddress!==null
       ? {
           card_number:customerItem.card_number,
-          name:shippingAddressItem?.name,
-          district_id:shippingAddressItem?.district_id,
-          country_id:shippingAddressItem?.country_id,
-          city_id:shippingAddressItem?.city_id,
-          phone:shippingAddressItem?.phone,
-          ward_id:shippingAddressItem?.ward_id,
-          full_address:shippingAddressItem?.full_address
+          name:shippingAddress?.name,
+          district_id:shippingAddress?.district_id,
+          country_id:shippingAddress?.country_id,
+          city_id:shippingAddress?.city_id,
+          phone:shippingAddress?.phone,
+          ward_id:shippingAddress?.ward_id,
+          full_address:shippingAddress?.full_address
         }
       : {
         card_number:customerItem.card_number,
@@ -132,10 +132,10 @@ import moment from "moment";
         };
 
       useEffect(() => {
-        if (shippingAddressItem) {
-          dispatch(WardGetByDistrictAction(shippingAddressItem.district_id, setShippingWards));
+        if (shippingAddress) {
+          dispatch(WardGetByDistrictAction(shippingAddress.district_id, setShippingWards));
         }
-      }, [dispatch,shippingAddressItem]);
+      }, [dispatch,shippingAddress]);
 
     // let shippingAddressItem = customerItem.shipping_addresses.find((p:any) => p.default === true);
     // const initialFormValueshippingAddress=shippingAddressItem?{
@@ -223,6 +223,11 @@ import moment from "moment";
     const onOkPress = useCallback(() => {
       shippingAddressForm.submit();
     }, [shippingAddressForm]);
+
+    useEffect(() => {
+      if(shippingAddress)
+        shippingAddressForm.resetFields();
+    }, [shippingAddressForm,shippingAddress]);
   
     return (
       <>
