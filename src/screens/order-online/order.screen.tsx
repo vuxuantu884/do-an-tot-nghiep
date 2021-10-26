@@ -1090,7 +1090,6 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
-                      setStoreId={setStoreId}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
@@ -1137,7 +1136,6 @@ export default function Order() {
                       tags={tags}
                       isCloneOrder={isCloneOrder}
                       onChangeTag={onChangeTag}
-                      isSplitOrder={typeParam === "split-order"}
                       customerId={customer?.id}
                     />
                   </Col>

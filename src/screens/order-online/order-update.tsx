@@ -814,7 +814,9 @@ export default function Order(props: PropType) {
             shipper_code: newShipperCode,
             shipping_fee_informed_to_customer: response.shipping_fee_informed_to_customer,
             payments: new_payments,
-            reference_code: response.reference_code,
+            reference_code: response.linked_order_code
+              ? response.linked_order_code
+              : response.reference_code,
             url: response.url,
             note: response.note,
             tags: response.tags,
@@ -1091,6 +1093,7 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     updateOrder={true}
                     isSplitOrder
+                    orderDetail={OrderDetail}
                   />
 
                   {OrderDetail !== null &&
@@ -1661,6 +1664,7 @@ export default function Order(props: PropType) {
                                             orderSettings={orderSettings}
                                             orderId={OrderDetail?.id}
                                           />
+                                          
                                         </div>
 
                                         <div className="saleorder-header-content__date">
@@ -2132,6 +2136,7 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     updateOrder={true}
                     customerId={customer?.id}
+                    orderDetail={OrderDetail}
                   />
                 </Col>
               </Row>

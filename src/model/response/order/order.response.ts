@@ -73,6 +73,7 @@ export interface OrderResponse extends BaseObject {
   point_refund?: number;
   money_refund?: number;
   shipment: ShipmentResponse | null | undefined;
+  linked_order_code: string | null;
 }
 
 export interface OrderLineItemResponse {
@@ -360,8 +361,8 @@ export interface StoreCustomResponse extends BaseObject {
   begin_date: string;
   number_of_account: number;
   accounts: Array<any>;
-  is_saleable: boolean,
-  is_stocktaking: boolean,
+  is_saleable: boolean;
+  is_stocktaking: boolean;
 }
 
 export interface OrderSubStatusResponse {
