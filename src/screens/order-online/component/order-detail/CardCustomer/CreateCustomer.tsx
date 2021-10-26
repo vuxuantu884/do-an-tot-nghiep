@@ -27,6 +27,7 @@ import {
   CreateShippingAddress,
   CustomerCreateAction,
   CustomerDetail,
+  UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
 import {
   CustomerContactClass,
@@ -46,13 +47,20 @@ type CreateCustomerProps = {
   groups: any;
   handleChangeArea: any;
   handleChangeCustomer: any;
-  keySearchCustomer:string;
+  keySearchCustomer: string;
   ShippingAddressChange: (items: any) => void;
 };
 
 const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
-  const { areas, wards, groups, handleChangeArea, handleChangeCustomer, ShippingAddressChange,keySearchCustomer } =
-    props;
+  const {
+    areas,
+    wards,
+    groups,
+    handleChangeArea,
+    handleChangeCustomer,
+    ShippingAddressChange,
+    keySearchCustomer,
+  } = props;
 
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
@@ -65,51 +73,63 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   const [isVisibleShipping, setVisibleShipping] = useState(true);
   const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
 
-  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>([]);
+  const [shippingWards, setShippingWards] = React.useState<Array<WardResponse>>(
+    []
+  );
 
-  var pattern = new RegExp(RegUtil.PHONE)
-  const initialFormValueCustomer=pattern.test(keySearchCustomer)?{
-    phone:keySearchCustomer
-  }:{}
+  var pattern = new RegExp(RegUtil.PHONE);
+  const initialFormValueCustomer = pattern.test(keySearchCustomer)
+    ? {
+        phone: keySearchCustomer,
+      }
+    : {};
 
-   //element
-   const txtCustomerFullname = document.getElementById("customer_add_full_name");
-   const txtCustomerPhone = document.getElementById("customer_add_phone");
-   const txtCustomerNumber = document.getElementById("customer_add_card_number");
-   const txtCustomerFullAddress = document.getElementById("customer_add_full_address");
-   const txtCustomerBirthday = document.getElementById("customer_add_birthday");
-   //
-   const txtShippingAddName = document.getElementById("shippingAddress_add_name");
-   const txtShippingAddPhone = document.getElementById("shippingAddress_add_phone");
-   const txtShippingFullAddress = document.getElementById("shippingAddress_add_full_address");
+  //element
+  const txtCustomerFullname = document.getElementById("customer_add_full_name");
+  const txtCustomerPhone = document.getElementById("customer_add_phone");
+  const txtCustomerNumber = document.getElementById("customer_add_card_number");
+  const txtCustomerFullAddress = document.getElementById(
+    "customer_add_full_address"
+  );
+  const txtCustomerBirthday = document.getElementById("customer_add_birthday");
+  //
+  const txtShippingAddName = document.getElementById(
+    "shippingAddress_add_name"
+  );
+  const txtShippingAddPhone = document.getElementById(
+    "shippingAddress_add_phone"
+  );
+  const txtShippingFullAddress = document.getElementById(
+    "shippingAddress_add_full_address"
+  );
 
   //event
   txtCustomerFullname?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtCustomerPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtCustomerNumber?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtCustomerFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtCustomerBirthday?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtShippingAddName?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtShippingAddPhone?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
   txtShippingFullAddress?.addEventListener("change", (e: any) => {
-    setVisibleBtnUpdate(true)
+    setVisibleBtnUpdate(true);
   });
 
-  console.log("isVisibleBtnUpdate",isVisibleBtnUpdate)
+  console.log("isVisibleBtnUpdate", isVisibleBtnUpdate);
 
   const DefaultWard = () => {
     let value = customerForm.getFieldsValue();
@@ -117,73 +137,110 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     customerForm.setFieldsValue(value);
   };
 
-  const handleShippingWards=useCallback((value:number)=>{
-    if(value){
+  const handleShippingWards = useCallback(
+    (value: number) => {
+      if (value) {
         dispatch(WardGetByDistrictAction(value, setShippingWards));
-    }
-  },[dispatch]);
+      }
+    },
+    [dispatch]
+  );
 
   const createCustomerCallback = useCallback(
     (result: CustomerResponse) => {
       if (result !== null && result !== undefined) {
         showSuccess("Thêm mới khách hàng thành công");
-        if(isVisibleShipping===false)
-        {
-            shippingFormRef.current?.validateFields();
+        if (isVisibleShipping === false) {
+          shippingFormRef.current?.validateFields();
 
-            let district_id = shippingFormRef.current?.getFieldValue("district_id");
-            let area = areas.find((area: any) => area.id === district_id);
-            
-            let shippingAddress = {
-              id : 0,
-              is_default : false,
-              default : false,
-              country : "",
-              city : "",
-              district : "",
-              ward : "",
-              zip_code : "",
-              customer_id : 0,
-              created_by : null,
-              created_name : "",
-              updated_by : null,
-              updated_name : "",
-              request_id : "",
-              operator_kc_id :"",
-              name: shippingFormRef.current?.getFieldValue("name"),
-              phone: shippingFormRef.current?.getFieldValue("phone"),
-              country_id: 233,
-              district_id: shippingFormRef.current?.getFieldValue("district_id"),
-              ward_id: shippingFormRef.current?.getFieldValue("ward_id"),
-              city_id: area ? area.city_id : null,
-              full_address: shippingFormRef.current?.getFieldValue("full_address"),
-            };
-    
-            dispatch(
-              CreateShippingAddress(
-                result.id,
-                shippingAddress,
-                (data: CustomerShippingAddress) => {
-                  if (data) {
-                    dispatch(
-                      CustomerDetail(result.id, (data_i: CustomerResponse) => {
-                        handleChangeCustomer(data_i);
+          let district_id =
+            shippingFormRef.current?.getFieldValue("district_id");
+          let area = areas.find((area: any) => area.id === district_id);
 
-                        let shippingAddressesItem=data_i.shipping_addresses.find((x)=>x.default===true);
-                        ShippingAddressChange(shippingAddressesItem);
-                      })
-                    );
-                  } else {
-                    showError("Thêm địa chỉ thất bại");
-                  }
+          let shippingAddress = {
+            id: 0,
+            is_default: false,
+            default: false,
+            country: "",
+            city: "",
+            district: "",
+            ward: "",
+            zip_code: "",
+            customer_id: 0,
+            created_by: null,
+            created_name: "",
+            updated_by: null,
+            updated_name: "",
+            request_id: "",
+            operator_kc_id: "",
+            name: shippingFormRef.current?.getFieldValue("name"),
+            phone: shippingFormRef.current?.getFieldValue("phone"),
+            country_id: 233,
+            district_id: shippingFormRef.current?.getFieldValue("district_id"),
+            ward_id: shippingFormRef.current?.getFieldValue("ward_id"),
+            city_id: area ? area.city_id : null,
+            full_address:
+              shippingFormRef.current?.getFieldValue("full_address"),
+          };
+
+          dispatch(
+            CreateShippingAddress(
+              result.id,
+              shippingAddress,
+              (data: CustomerShippingAddress) => {
+                if (data) {
+                  dispatch(
+                    UpdateShippingAddress(
+                      data.id,
+                      result.id,
+                      {...data,is_default:true},
+                      (data: any) => {
+                        if (data) {
+                          dispatch(
+                            CustomerDetail(
+                              result.id,
+                              (data_i: CustomerResponse) => {
+                                handleChangeCustomer(data_i);
+
+                                let shippingAddressesItem =
+                                  data_i.shipping_addresses.find(
+                                    (x) => x.default === true
+                                  );
+                                ShippingAddressChange(shippingAddressesItem);
+                                setVisibleBtnUpdate(false);
+                                // showSuccess(
+                                //   "Cập nhật địa chỉ giao hàng thành công"
+                                // );
+                              }
+                            )
+                          );
+                          //if(data!==null) ShippingAddressChange(data);
+                        } else {
+                          showError("Cập nhật địa chỉ giao hàng thất bại");
+                        }
+                      }
+                    )
+                  );
+                } else {
+                  showError("Thêm địa chỉ thất bại");
                 }
-              )
-            );
+              }
+            )
+          );
+        } else {
+          handleChangeCustomer(result);
+          setVisibleBtnUpdate(false);
         }
-        else handleChangeCustomer(result);
       }
     },
-    [dispatch, handleChangeCustomer, areas, shippingFormRef,isVisibleShipping,ShippingAddressChange]
+    [
+      dispatch,
+      handleChangeCustomer,
+      areas,
+      shippingFormRef,
+      isVisibleShipping,
+      ShippingAddressChange,
+    ]
   );
 
   const handleSubmit = useCallback(
@@ -313,7 +370,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 {
                   required: true,
                   message: "Vui lòng nhập Số điện thoại",
-                }
+                },
               ]}
               name="phone"
               //label="Số điện thoại"
@@ -454,14 +511,14 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     style={{ width: "100%" }}
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
-                    defaultValue={moment('01/01/1991', "DD/MM/YYYY")}
+                    defaultValue={moment("01/01/1991", "DD/MM/YYYY")}
                     suffixIcon={
                       <CalendarOutlined
                         style={{ color: "#71767B", float: "left" }}
                       />
                     }
                     onChange={() => {
-                     setVisibleBtnUpdate(true);
+                      setVisibleBtnUpdate(true);
                     }}
                   />
                 </Form.Item>
@@ -536,7 +593,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               Địa chỉ của KH cũng là địa chỉ giao hàng
             </Checkbox>
           </Col>
-          {isVisibleShipping === true && isVisibleBtnUpdate===true && (
+          {isVisibleShipping === true && isVisibleBtnUpdate === true && (
             <Col md={12} style={{ float: "right", marginTop: "-10px" }}>
               <Button
                 type="primary"
@@ -553,7 +610,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         </Row>
 
         {isVisibleShipping === false && (
-          <Form ref={shippingFormRef} layout="vertical" name="shippingAddress_add">
+          <Form
+            ref={shippingFormRef}
+            layout="vertical"
+            name="shippingAddress_add"
+          >
             <Row gutter={24} style={{ marginTop: "14px" }}>
               <Col xs={24} lg={12}>
                 <Form.Item
@@ -615,11 +676,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     }
                     style={{ width: "100%" }}
                     onChange={(value: number) => {
-                        let values = shippingFormRef.current?.getFieldsValue();
-                        values.ward_id = null;
-                        shippingFormRef.current?.setFieldsValue(values);
-                        handleShippingWards(value);
-                        setVisibleBtnUpdate(true);
+                      let values = shippingFormRef.current?.getFieldsValue();
+                      values.ward_id = null;
+                      shippingFormRef.current?.setFieldsValue(values);
+                      handleShippingWards(value);
+                      setVisibleBtnUpdate(true);
                     }}
                     optionFilterProp="children"
                   >

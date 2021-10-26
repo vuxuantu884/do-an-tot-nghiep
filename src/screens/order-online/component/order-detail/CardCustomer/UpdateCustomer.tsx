@@ -218,6 +218,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               );
 
               //if(data!==null) ShippingAddressChange(data);
+              setVisibleBtnUpdate(false);
               showSuccess("Cập nhật địa chỉ giao hàng thành công");
             } else {
               showError("Cập nhật địa chỉ giao hàng thất bại");
@@ -543,7 +544,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             )}
           </div>
           {isVisibleCollapseCustomer === true && (
-            <Form
+            
+           <div>
+              <Row style={{ margin: "10px 0px" }}>
+                <div className="page-filter-left">THÔNG TIN KHÁCH HÀNG</div>
+              </Row>
+              <Form
               layout="vertical"
               initialValues={initialFormValueCustomer}
               form={customerForm}
@@ -782,6 +788,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                 </Col>
               </Row>
             </Form>
+           </div>
           )}
 
           {isVisibleCollapseCustomer === true && (
