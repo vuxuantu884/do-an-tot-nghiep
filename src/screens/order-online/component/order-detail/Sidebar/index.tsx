@@ -1,6 +1,7 @@
 import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Col, Form, Input, Row, Select } from "antd";
+import { Card, Form, Input, Select } from "antd";
 import { AccountResponse } from "model/account/account.model";
+import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
 import CustomerInputTags from "../../custom-input-tags";
 import SidebarOrderHistory from "./SidebarOrderHistory";
@@ -13,12 +14,12 @@ type PropType = {
   isCloneOrder?: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
-  isSplitOrder?: boolean;
   customerId?: number | undefined;
+  orderDetail?: OrderResponse | null;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder, isSplitOrder, customerId } = props;
+  const { accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail } = props;
 
   return (
     <StyledComponent>
@@ -136,7 +137,12 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} disabled={isSplitOrder} />
+          {/* khi có link gốc khi tách, disable field này */}
+          <Input
+            placeholder="Điền tham chiếu"
+            maxLength={255}
+            disabled={orderDetail?.linked_order_code ? true : false}
+          />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
@@ -185,18 +191,6 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             isCloneOrder={isCloneOrder}
           />
         </Form.Item>
-      </Card>
-      <Card title="Lịch sử mua hàng">
-        <Row className="" gutter={5} style={{ flexDirection: "column" }}>
-          <Col span={24} style={{ marginBottom: 6 }}>
-            <b>Ghi chú nội bộ:</b>
-          </Col>
-          <Col span={24}>
-            <span className="text-focus" style={{ wordWrap: "break-word" }}>
-              "Không có ghi chú"
-            </span>
-          </Col>
-        </Row>
       </Card>
       <SidebarOrderHistory customerId={customerId} />
     </StyledComponent>

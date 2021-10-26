@@ -5,13 +5,9 @@ import OrderUpdate from "screens/order-online/order-update";
 import PackSupportScreen from "screens/order-online/pack-support.screen";
 
 const ListOrder = React.lazy(() => import("screens/order-online/index.screen"));
-const OrderDetail = React.lazy(
-  () => import("screens/order-online/order-detail")
-);
+const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
-const ReturnOrder = React.lazy(
-  () => import("screens/order-online/return.screen")
-);
+const ReturnOrder = React.lazy(() => import("screens/order-online/return.screen"));
 const ScreenReturnCreate = React.lazy(
   () => import("screens/order-online/order-return/create")
 );
@@ -46,7 +42,7 @@ const bill: Array<RouteMenu> = [
       {
         path: `${UrlConfig.ORDER}`,
         exact: true,
-        title: "Chi tiết đơn hàng",
+        title: "Danh sách đơn hàng",
         icon: "icon-dot",
         component: ListOrder,
         key: "submenu5412",

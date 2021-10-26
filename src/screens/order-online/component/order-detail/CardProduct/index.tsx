@@ -34,17 +34,20 @@ import {
   StoreGetListAction,
   StoreSearchListAction,
 } from "domain/actions/core/store.action";
+import { splitOrderAction } from "domain/actions/order/order.action";
 import {
   SearchBarCode,
   searchVariantsOrderRequestAction,
 } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
+import { SplitOrderRequest } from "model/request/order.request";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderItemDiscountModel } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderResponse } from "model/response/order/order.response";
 import React, {
   createRef,
   useCallback,
@@ -100,11 +103,11 @@ type CardProductProps = {
   inventoryResponse: Array<InventoryResponse> | null;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   setStoreForm: (id: number | null) => void;
-  setStoreId?: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
   orderId?: string;
   isSplitOrder?: boolean;
+  orderDetail?: OrderResponse | null;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -125,10 +128,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     selectStore,
     setStoreForm,
     handleCardItems,
-    setStoreId,
     levelOrder = 0,
     orderId,
     isSplitOrder,
+    orderDetail,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -929,7 +932,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
+    if (listStores && listStores.length) {
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -940,9 +943,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên
     if (newData && newData[0]?.id) {
       formRef.current?.setFieldsValue({ store_id: newData[0].id });
-      if (setStoreId) {
-        setStoreId(newData[0].id);
-      }
+      selectStore(newData[0].id);
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -984,13 +985,29 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const handleSplitOrder = () => {
-    if (!orderId || splitOrderNumber === 0) {
+    if (!orderId || !orderDetail || !userReducer.account) {
       return;
     }
-    const splitLink = `${process.env.PUBLIC_URL}/orders/create?action=clone&cloneId=${orderId}&type=split-order`;
-    for (let i = 0; i < splitOrderNumber; i++) {
-      window.open(splitLink, "_blank");
+    if (!splitOrderNumber) {
+      showError("Vui lòng điền số lượng tách đơn!");
+      return;
     }
+    const params: SplitOrderRequest = {
+      order_code: orderDetail.code,
+      quantity: splitOrderNumber,
+      updated_by: userReducer.account.updated_by || "",
+      updated_name: userReducer.account.updated_name || "",
+    };
+    dispatch(
+      splitOrderAction(params, (response) => {
+        if (response) {
+          response.data.forEach((singleOrderId: number) => {
+            const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update`;
+            window.open(singleSplitLink, "_blank");
+          });
+        }
+      })
+    );
   };
 
   useEffect(() => {
@@ -1006,7 +1023,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
-            <span>Chính sách giá:</span>
+            {/* <span>Chính sách giá:</span>
             <Form.Item name="price_type">
               <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">
@@ -1014,7 +1031,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 </Select.Option>
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
-            </Form.Item>
+            </Form.Item> */}
             <Button
               onClick={() => {
                 ShowInventoryModal();
@@ -1030,7 +1047,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 {isShowSplitOrder && (
                   <React.Fragment>
                     <NumberInput
-                      style={{ width: 45 }}
+                      style={{ width: 50 }}
                       max={50}
                       value={splitOrderNumber}
                       onChange={(value) => {
