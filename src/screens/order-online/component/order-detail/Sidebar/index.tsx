@@ -1,8 +1,10 @@
 import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Select } from "antd";
+import { Card, Form, Input, Select, Col, Row } from "antd";
+import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
+import { Link } from "react-router-dom";
 import CustomerInputTags from "../../custom-input-tags";
 import SidebarOrderHistory from "./SidebarOrderHistory";
 import { StyledComponent } from "./styles";
@@ -94,10 +96,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item
-          label="Nhân viên điều phối"
-          name="coordinator_code"
-        >
+        <Form.Item label="Nhân viên điều phối" name="coordinator_code">
           <Select
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
@@ -131,12 +130,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             icon: <InfoCircleOutlined />,
           }}
         >
-          {/* khi có link gốc khi tách, disable field này */}
-          <Input
-            placeholder="Điền tham chiếu"
-            maxLength={255}
-            disabled={orderDetail?.linked_order_code ? true : false}
-          />
+          <Input placeholder="Điền tham chiếu" maxLength={255} />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
@@ -148,6 +142,17 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         >
           <Input placeholder="Điền đường dẫn" maxLength={255} />
         </Form.Item>
+        {orderDetail?.linked_order_code && (
+          <div>
+            <label>Đơn tách:{"   "}</label>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
+            >
+              <strong>{orderDetail.linked_order_code}</strong>
+            </Link>
+          </div>
+        )}
       </Card>
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">
