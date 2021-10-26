@@ -1063,8 +1063,7 @@ export default function Order(props: PropType) {
                     updateOrder={true}
                     isVisibleCustomer={isVisibleCustomer}
                     setVisibleCustomer={setVisibleCustomer}
-                    setModalAction={setModalAction}
-                    modalAction={modalAction}
+                    shippingAddress={shippingAddress}
                   />
                   <CardProduct
                     orderId={id}

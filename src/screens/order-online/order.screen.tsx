@@ -141,7 +141,7 @@ export default function Order() {
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [modalAction, setModalAction] = useState<modalActionType>("create");
+  // const [modalAction, setModalAction] = useState<modalActionType>("create");
 
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
@@ -784,6 +784,8 @@ export default function Order() {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
       setVisibleCustomer(true);
+      let shippingAddressItem = customer.shipping_addresses.find((p:any) => p.default === true);
+      if(shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
     } else {
       setLoyaltyPoint(null);
     }
@@ -1064,11 +1066,10 @@ export default function Order() {
                       loyaltyPoint={loyaltyPoint}
                       loyaltyUsageRules={loyaltyUsageRules}
                       ShippingAddressChange={onChangeShippingAddress}
+                      shippingAddress={shippingAddress}
                       BillingAddressChange={onChangeBillingAddress}
                       isVisibleCustomer={isVisibleCustomer}
                       setVisibleCustomer={setVisibleCustomer}
-                      setModalAction={setModalAction}
-                      modalAction={modalAction}
                     />
                     <CardProduct
                       changeInfo={onChangeInfoProduct}

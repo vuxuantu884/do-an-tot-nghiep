@@ -23,7 +23,6 @@ export const InventoryShipmentWrapper = styled.div`
     width: 100%;
   }
   .logoHVC {
-    height: 41px;
     width: 100px;
   }
   .ant {

@@ -165,14 +165,14 @@ export const StyledWrapper = styled.div`
 
       & .ant-collapse-header{
         position: absolute;
-        right: 0;
+        right: 30px;
         z-index: 2;
       }
     }
 
     .ant-timeline-item-last>.ant-timeline-item-content {
       min-height: unset;
-      top: 2px;
+      top: -3px;
       & > span {
         padding: 0 10px;
       }
