@@ -756,6 +756,7 @@ const EcommerceOrderSync: React.FC = () => {
             isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               tableLoading
                 ? false
