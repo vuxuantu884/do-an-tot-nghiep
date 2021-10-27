@@ -83,8 +83,6 @@ export default function FpageOrders(props: any) {
   } = props;
 
   const dispatch = useDispatch();
-  const [isSaveDraft, setIsSaveDraft] = useState(false);
-  const [creating, setCreating] = useState(false);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] =
@@ -380,8 +378,6 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setCreating(false);
-      setIsSaveDraft(false);
       if (value) {
         showSuccess("Đơn được lưu và duyệt thành công");
         setIsClearOrderTab(true);
@@ -399,7 +395,8 @@ export default function FpageOrders(props: any) {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount =
+      getTotalAmountAfferDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -436,7 +433,8 @@ export default function FpageOrders(props: any) {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    values.total_line_amount_after_line_discount =
+      total_line_amount_after_line_discount;
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -448,30 +446,19 @@ export default function FpageOrders(props: any) {
         element?.focus();
       } else {
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-          if (typeButton === OrderStatus.DRAFT) {
-            setIsSaveDraft(true);
-          } else {
-            setCreating(true);
-          }
-          if (values.delivery_service_provider_id === null &&
-            typeButton !== OrderStatus.DRAFT) {
+          if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
-            setCreating(false);
           } else {
             setLoadingCreateButton(true);
             dispatch(orderFpageCreateAction(values, createOrderCallback, setLoadingCreateButton));
           }
         } else {
-          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+            !serviceType
+          ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
-            setCreating(false);
           } else {
-            if (typeButton === OrderStatus.DRAFT) {
-              setIsSaveDraft(true);
-            } else {
-              setCreating(true);
-            }
-
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
               if (bolCheckPointfocus) {
@@ -866,12 +853,6 @@ export default function FpageOrders(props: any) {
     },
     [formRef]
   );
-
-  const saveDraftOrder = () => {
-    typeButton = OrderStatus.DRAFT;
-    formRef.current?.submit();
-  };
-
   return (
     <div className="fpage-order" style={{ marginTop: 56 }}>
       {isLoadForm && (
@@ -991,25 +972,12 @@ export default function FpageOrders(props: any) {
               <Button
                 className="order-button-width"
                 onClick={() => window.location.reload()}
-                disabled={creating || loadingCreateButton}
               >
                 Hủy
               </Button>
 
               <Button
-                className="order-button-width"
-                type="default"
-                ghost
-                onClick={saveDraftOrder}
-                loading={isSaveDraft}
-                disabled={creating || loadingCreateButton}
-              >
-                Lưu nháp
-              </Button>
-
-              <Button
                 loading={loadingCreateButton}
-                disabled={creating}
                 type="primary"
                 className="order-button-width"
                 id="save-and-confirm"
