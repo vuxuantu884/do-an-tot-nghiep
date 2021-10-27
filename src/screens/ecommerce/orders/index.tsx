@@ -504,17 +504,6 @@ const EcommerceOrderSync: React.FC = () => {
       width: "200px",
     },
     {
-      title: "Phương thức thanh toán",
-      dataIndex: "payments",
-      key: "payments_type",
-      visible: true,
-      width: "200px",
-      render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag key={payment.id}>{payment.payment_method}</Tag>;
-        }),
-    },
-    {
       title: "Nhân viên bán hàng",
       key: "assignee",
       visible: true,
