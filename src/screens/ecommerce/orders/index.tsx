@@ -78,7 +78,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_max: null,
   ship_on_predefined: null,
   shop_ids: [],
-  ecommerce_id: null,
+  channel_id: 3,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -117,10 +117,11 @@ const EcommerceOrderSync: React.FC = () => {
     useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] =
     useState(false);
-  const [downloadedOrderData, setDownloadedOrderData] = useState<any>({
+  const [downloadOrderData, setDownloadOrderData] = useState<any>({
     total: 0,
-    create_order_count: 0,
-    update_order_count: 0,
+    create_total: 0,
+    update_total: 0,
+    error_total: 0,
   });
 
   const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
@@ -593,6 +594,7 @@ const EcommerceOrderSync: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({ ...params });
+      window.scrollTo(0, 0);
     },
     [params]
   );
@@ -663,7 +665,7 @@ const EcommerceOrderSync: React.FC = () => {
     setIsShowResultGetOrderModal(true);
 
     if (data && data.total) {
-      setDownloadedOrderData(data);
+      setDownloadOrderData(data);
     }
   };
 
@@ -756,6 +758,7 @@ const EcommerceOrderSync: React.FC = () => {
             isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               tableLoading
                 ? false
@@ -789,7 +792,7 @@ const EcommerceOrderSync: React.FC = () => {
             visible={isShowResultGetOrderModal}
             onCancel={closeResultGetOrderModal}
             onOk={closeResultGetOrderModal}
-            data={downloadedOrderData}
+            downloadOrderData={downloadOrderData}
           />
         )}
 

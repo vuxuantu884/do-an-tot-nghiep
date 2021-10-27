@@ -8,7 +8,8 @@ export interface ProductEcommerceQuery extends BaseQuery {
   update_stock_status: String | null;
   sku_or_name_ecommerce: String | null;
   sku_or_name_core: String | null;
-  connection_start_date: null; //todo thai
+  create_time_from: any | null;
+  create_time_to: any | null;
 }
 
 export interface PostProductEcommerceQuery {
