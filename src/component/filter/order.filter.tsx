@@ -1,12 +1,10 @@
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
-  Select,
   Tag,
   InputNumber,
   Radio
@@ -23,6 +21,7 @@ import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
+import CustomDatepicker from "component/custom/new-date-picker.custom";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
@@ -45,7 +44,6 @@ type OrderFilterProps = {
 };
 
 const { Item } = Form;
-const { Option } = Select;
 
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
@@ -137,81 +135,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [onMenuClick]
   );
   
-  const onChangeDate = useCallback(
-    (dates, type) => {
-      console.log(dates, type)
-      // switch(type) {
-      //   case 'issuedOnMin':
-      //     setIssuedClick('')
-      //     setIssuedOnMin(dateString[0])
-      //     setIssuedOnMax(dateString[1])
-      //     break;
-      //   case 'issuedOnMax':
-      //     setIssuedClick('')
-      //     setIssuedOnMin(dateString[0])
-      //     setIssuedOnMax(dateString[1])
-      //     break;  
-      //   case 'finalized':
-      //     setFinalizedClick('')
-      //     setFinalizedOnMin(dateString[0])
-      //     setFinalizedOnMax(dateString[1])
-      //     break;
-      //   case 'completed':
-      //     setCompletedClick('')
-      //     setCompletedOnMin(dateString[0])
-      //     setCompletedOnMax(dateString[1])
-      //     break;
-      //   case 'cancelled':
-      //     setCancelledClick('')
-      //     setCancelledOnMin(dateString[0])
-      //     setCancelledOnMax(dateString[1])
-      //     break;
-      //   case 'expected':
-      //     setExpectedClick('')
-      //     setExpectedReceiveOnMin(dateString[0])
-      //     setExpectedReceiveOnMax(dateString[1])
-      //     break;   
-      //   default: break
-      // }
-    },
-    []
-  );
-
-  const onChangeRangeDate = useCallback(
-    (dates, dateString, type) => {
-      console.log(dates, dateString, type)
-      switch(type) {
-        case 'issued':
-          setIssuedClick('')
-          setIssuedOnMin(dateString[0])
-          setIssuedOnMax(dateString[1])
-          break;
-        case 'finalized':
-          setFinalizedClick('')
-          setFinalizedOnMin(dateString[0])
-          setFinalizedOnMax(dateString[1])
-          break;
-        case 'completed':
-          setCompletedClick('')
-          setCompletedOnMin(dateString[0])
-          setCompletedOnMax(dateString[1])
-          break;
-        case 'cancelled':
-          setCancelledClick('')
-          setCancelledOnMin(dateString[0])
-          setCancelledOnMax(dateString[1])
-          break;
-        case 'expected':
-          setExpectedClick('')
-          setExpectedReceiveOnMin(dateString[0])
-          setExpectedReceiveOnMax(dateString[1])
-          break;   
-        default: break
-      }
-    },
-    []
-  );
-
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -226,32 +149,22 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           break;
         case 'issued':
           setIssuedClick('')
-          setIssuedOnMin(null)
-          setIssuedOnMax(null)
           onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
           break;
         case 'finalized':
           setFinalizedClick('')
-          setFinalizedOnMin(null)
-          setFinalizedOnMax(null)
           onFilter && onFilter({...params, finalized_on_min: null, finalized_on_max: null});
           break;
         case 'completed':
           setCompletedClick('')
-          setCompletedOnMin(null)
-          setCompletedOnMax(null)
           onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
           break;
         case 'cancelled':
           setCancelledClick('')
-          setCancelledOnMin(null)
-          setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'expected':
           setExpectedClick('')
-          setExpectedReceiveOnMin(null)
-          setExpectedReceiveOnMax(null)
           onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
           break;  
         case 'order_status':
@@ -315,6 +228,43 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [cancelledClick, setCancelledClick] = useState('');
   const [expectedClick, setExpectedClick] = useState('');
 
+  
+
+  const listSources = useMemo(() => {
+    return listSource.filter((item) => item.code !== "pos");
+  }, [listSource]);
+  
+  const initialValues = useMemo(() => {
+    console.log('params', params);
+    
+    return {
+      ...params,
+      issued_on_min: params.issued_on_min? moment(params.issued_on_min, "DD-MM-YYYY") : undefined,
+      issued_on_max: params.issued_on_max? moment(params.issued_on_max, "DD-MM-YYYY") : undefined,
+      finalized_on_min: params.finalized_on_min? moment(params.finalized_on_min, "DD-MM-YYYY") : null,
+      finalized_on_max: params.finalized_on_max? moment(params.finalized_on_max, "DD-MM-YYYY") : null,
+      completed_on_min: params.completed_on_min? moment(params.completed_on_min, "DD-MM-YYYY") : null,
+      completed_on_max: params.completed_on_max? moment(params.completed_on_max, "DD-MM-YYYY") : null,
+      cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
+      cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
+      expected_receive_on_min: params.expected_receive_on_min? moment(params.expected_receive_on_min, "DD-MM-YYYY") : null,
+      expected_receive_on_max: params.expected_receive_on_max? moment(params.expected_receive_on_max, "DD-MM-YYYY") : null,
+
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
+      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
+      fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
+      payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
+      return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
+      payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
+      delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
+      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
+      tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
+      account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
+  }}, [params])
+  
   const clickOptionDate = useCallback(
     (type, value) => {
     let minValue = null;
@@ -358,100 +308,87 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         
         if (issuedClick === value ) {
           setIssuedClick('')
-          setIssuedOnMin(null)
-          setIssuedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            issued_on_min: undefined,
+            issued_on_max: undefined
+          })
         } else {
           setIssuedClick(value)
-          setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            issued_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            issued_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'finalized':
         
         if (finalizedClick === value ) {
           setFinalizedClick('')
-          setFinalizedOnMin(null)
-          setFinalizedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            finalized_on_min: undefined,
+            finalized_on_max: undefined
+          })
         } else {
           setFinalizedClick(value)
-          setFinalizedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setFinalizedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            finalized_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            finalized_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'completed':
         
         if (completedClick === value ) {
           setCompletedClick('')
-          setCompletedOnMin(null)
-          setCompletedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            completed_on_min: undefined,
+            completed_on_max: undefined
+          })
         } else {
           setCompletedClick(value)
-          setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            completed_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            completed_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'cancelled':
         
         if (cancelledClick === value ) {
           setCancelledClick('')
-          setCancelledOnMin(null)
-          setCancelledOnMax(null)
+          formRef?.current?.setFieldsValue({
+            cancelled_on_min: undefined,
+            cancelled_on_max: undefined
+          })
         } else {
           setCancelledClick(value)
-          setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            cancelled_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            cancelled_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'expected':
         
         if (expectedClick === value ) {
           setExpectedClick('')
-          setExpectedReceiveOnMin(null)
-          setExpectedReceiveOnMax(null)
+          formRef?.current?.setFieldsValue({
+            expected_receive_on_min: undefined,
+            expected_receive_on_max: undefined
+          })
         } else {
           setExpectedClick(value)
-          setExpectedReceiveOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setExpectedReceiveOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            expected_receive_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            expected_receive_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break  
       default:
         break
     }
-  }, [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]);
+  }, [cancelledClick, completedClick, expectedClick, finalizedClick, formRef, issuedClick]);
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
-  }, [listSource]);
-  
-  const initialValues = useMemo(() => {
-    console.log('params', params);
-    
-    return {
-      ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
-      order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
-      fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
-      payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
-      return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
-      payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
-      delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
-      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
-      tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
-      account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
-  }}, [params])
-  const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
-  const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
-  const [finalizedOnMin, setFinalizedOnMin] = useState(initialValues.finalized_on_min? moment(initialValues.finalized_on_min, "DD-MM-YYYY") : null);
-  const [finalizedOnMax, setFinalizedOnMax] = useState(initialValues.finalized_on_max? moment(initialValues.finalized_on_max, "DD-MM-YYYY") : null);
-  const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
-  const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_max? moment(initialValues.completed_on_max, "DD-MM-YYYY") : null);
-  const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
-  const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_max? moment(initialValues.cancelled_on_max, "DD-MM-YYYY") : null);
-  const [expectedReceiveOnMin, setExpectedReceiveOnMin] = useState(initialValues.expected_receive_on_min? moment(initialValues.expected_receive_on_min, "DD-MM-YYYY") : null);
-  const [expectedReceiveOnMax, setExpectedReceiveOnMax] = useState(initialValues.expected_receive_on_max? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY") : null);
   const onFinish = useCallback(
     (values) => {
       if (values?.price_min > values?.price_max) {
@@ -462,22 +399,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         }
       }
       console.log('values filter 2', values);
-      const valuesForm = {
-        ...values,
-        issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        finalized_on_min: finalizedOnMin ? moment(finalizedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        finalized_on_max: finalizedOnMax ? moment(finalizedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        expected_receive_on_min: expectedReceiveOnMin ? moment(expectedReceiveOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        expected_receive_on_max: expectedReceiveOnMax ? moment(expectedReceiveOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-      }
-      onFilter && onFilter(valuesForm);
+      
+      onFilter && onFilter(values);
     },
-    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, finalizedOnMax, finalizedOnMin]
+    [onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -507,7 +432,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+      let textOrderCreateDate = (initialValues.issued_on_min ? moment(initialValues.issued_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.issued_on_max ? moment(initialValues.issued_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
@@ -515,7 +440,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
-      let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
+      let textOrderFinalizedDate = (initialValues.finalized_on_min ? moment(initialValues.finalized_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.finalized_on_max ? moment(initialValues.finalized_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'finalized',
         name: 'Ngày duyệt đơn',
@@ -523,7 +448,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
-      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
+      let textOrderCompleteDate = (initialValues.completed_on_min ? moment(initialValues.completed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.completed_on_max ? moment(initialValues.completed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'completed',
         name: 'Ngày hoàn tất đơn',
@@ -531,7 +456,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -540,7 +465,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
-      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? initialValues.expected_receive_on_min : '??') + " ~ " + (initialValues.expected_receive_on_max ? initialValues.expected_receive_on_max : '??')
+      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? moment(initialValues.expected_receive_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.expected_receive_on_max ? moment(initialValues.expected_receive_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'expected',
         name: 'Ngày dự kiến nhận hàng',
@@ -694,13 +619,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textAccount
       })
     }
-    if (initialValues.expected_receive_predefined) {
-      list.push({
-        key: 'expected_receive_predefined',
-        name: 'Ngày dự kiến nhận hàng',
-        value: initialValues.expected_receive_predefined
-      })
-    }
+    
     if (initialValues.note) {
       list.push({
         key: 'note',
@@ -749,10 +668,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       return 800
     }
   }
+  const clearFilter = () => {
+    onClearFilter && onClearFilter();
+    setIssuedClick('')
+    setCompletedClick('')
+    setCancelledClick('')
+    setExpectedClick('')
+    setFinalizedClick('')
+  
+    setVisible(false);
+  }
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, [])
-  console.log('initialValues', initialValues);
+
   return (
     <div>
       <div className="order-options">
@@ -795,10 +724,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={() => {
-            onClearFilter && onClearFilter();
-            setVisible(false);
-          }}
+          onClearFilter={() => clearFilter()}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -827,6 +753,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     }}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {listStore?.map((item) => (
                       <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -837,19 +764,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Item>
                 <p>Trạng thái đơn</p>
                 <Item name="order_status">
-                  <Select
+                  <CustomSelect
                     mode="multiple"
                     showSearch placeholder="Chọn trạng thái đơn hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {status?.map((item) => (
-                      <Option key={item.value} value={item.value.toString()}>
+                      <CustomSelect.Option key={item.value} value={item.value.toString()}>
                         {item.name}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
               <Col span={8} xxl={6}>
@@ -864,6 +792,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     notFoundContent="Không tìm thấy kết quả"
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {listSources.map((item, index) => (
                       <CustomSelect.Option
@@ -878,22 +807,24 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Item>
                 <p>Giao hàng</p>
                 <Item name="fulfillment_status">
-                  <Select
-                    mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng"
+                  <CustomSelect
+                    mode="multiple" showSearch 
+                    showArrow placeholder="Chọn trạng thái giao hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                       {fulfillmentStatus.map((item, index) => (
-                        <Option
+                        <CustomSelect.Option
                           style={{ width: "100%" }}
                           key={index.toString()}
                           value={item.value.toString()}
                         >
                           {item.name}
-                        </Option>
+                        </CustomSelect.Option>
                       ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
               <Col span={8}  xxl={6}>
@@ -910,22 +841,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </div>
                 <div className="date-range">
                   <Item name="issued_on_min" style={{width: "45%", marginBottom: 0}}>
-                    <DatePicker
+                    <CustomDatepicker
                       format="DD-MM-YYYY"
                       placeholder="Từ ngày"
                       style={{width: "100%"}}
-                      // value={issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null}
-                      onChange={(date) => onChangeDate(date, 'issuedOnMin')}
                     />
                   </Item>
                   <div className="swap-right-icon"><SwapRightOutlined /></div>
                   <Item name="issued_on_max" style={{width: "45%", marginBottom: 0}}>
-                    <DatePicker
+                    <CustomDatepicker
                       format="DD-MM-YYYY"
                       placeholder="Đến ngày"
                       style={{width: "100%"}}
-                      // value={issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null}
-                      onChange={(date) => onChangeDate(date, 'issuedOnMax')}
                     />
                   </Item>
                 </div>
@@ -943,12 +870,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Button onClick={() => clickOptionDate('finalized', 'thismonth')} className={finalizedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                   <Button onClick={() => clickOptionDate('finalized', 'lastmonth')} className={finalizedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                 </div>
-                <DatePicker.RangePicker
-                  format="DD-MM-YYYY"
-                  style={{width: "100%"}}
-                  value={[finalizedOnMin? moment(finalizedOnMin, "DD-MM-YYYY") : null, finalizedOnMax? moment(finalizedOnMax, "DD-MM-YYYY") : null]}
-                  onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'finalized')}
-                />
+                <div className="date-range">
+                  <Item name="finalized_on_min" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Từ ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="finalized_on_max" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Đến ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                </div>
               </Col>
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày hoàn tất đơn</p>
@@ -962,12 +900,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Button onClick={() => clickOptionDate('completed', 'thismonth')} className={completedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                   <Button onClick={() => clickOptionDate('completed', 'lastmonth')} className={completedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                 </div>
-                <DatePicker.RangePicker
-                  format="DD-MM-YYYY"
-                  style={{width: "100%"}}
-                  value={[completedOnMin? moment(completedOnMin, "DD-MM-YYYY") : null, completedOnMax? moment(completedOnMax, "DD-MM-YYYY") : null]}
-                  onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'completed')}
-                />
+                <div className="date-range">
+                  <Item name="completed_on_min" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Từ ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="completed_on_max" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Đến ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                </div>
               </Col>
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày huỷ đơn</p>
@@ -981,114 +930,134 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Button onClick={() => clickOptionDate('cancelled', 'thismonth')} className={cancelledClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                   <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')} className={cancelledClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                 </div>
-                <DatePicker.RangePicker
-                  format="DD-MM-YYYY"
-                  style={{width: "100%"}}
-                  value={[cancelledOnMin? moment(cancelledOnMin, "DD-MM-YYYY") : null, cancelledOnMax? moment(cancelledOnMax, "DD-MM-YYYY") : null]}
-                  onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'cancelled')}
-                />
+                <div className="date-range">
+                  <Item name="cancelled_on_min" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Từ ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="cancelled_on_max" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Đến ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                </div>
               </Col>
             
               <Col span={8} xxl={6}>
                 <p>Trạng thái xử lý đơn</p>
                 <Item name="sub_status_id">
-                  <Select
+                  <CustomSelect
                     mode="multiple"
+                    showArrow
                     showSearch
                     placeholder="Chọn trạng thái xử lý đơn"
                     notFoundContent="Không tìm thấy kết quả"
                     style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {subStatus?.map((item: any) => (
-                      <Option key={item.id} value={item.id.toString()}>
+                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
                         {item.sub_status}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
                 <p>Thanh toán</p>
                 <Item name="payment_status">
-                  <Select mode="multiple"
+                  <CustomSelect
+                    mode="multiple" showArrow
                     showSearch placeholder="Chọn trạng thái thanh toán"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {paymentStatus.map((item, index) => (
-                      <Option
+                      <CustomSelect.Option
                         style={{ width: "100%" }}
                         key={index.toString()}
                         value={item.value.toString()}
                       >
                         {item.name}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
               <Col span={8} xxl={6}>
                 <p>Trả hàng</p>
                 <Item name="return_status">
-                  <Select
-                    mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng"
+                  <CustomSelect
+                    mode="multiple" showSearch
+                    showArrow placeholder="Chọn trạng thái trả hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
                   >
-                    <Option
+                    <CustomSelect.Option
                       style={{ width: "100%" }}
                       key="1"
                       value="1"
                     >
                       Pending trạng thái trả hàng
-                    </Option>
-                  </Select>
+                    </CustomSelect.Option>
+                  </CustomSelect>
                 </Item>
                 <p>Nhân viên bán hàng</p>
                 <Item name="assignee_codes">
-                  <Select
-                    mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng"
+                  <CustomSelect
+                    mode="multiple" showSearch
+                    showArrow placeholder="Chọn nhân viên bán hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                       {accounts.map((item, index) => (
-                        <Option
+                        <CustomSelect.Option
                           style={{ width: "100%" }}
                           key={index.toString()}
                           value={item.code.toString()}
                         >
                           {`${item.full_name} - ${item.code}`}
-                        </Option>
+                        </CustomSelect.Option>
                       ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
               <Col span={8} xxl={6}>
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
-                  <Select
-                    mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
+                  <CustomSelect
+                    mode="multiple" showSearch
+                    showArrow placeholder="Chọn nhân viên tạo đơn"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {accounts.map((item, index) => (
-                      <Option
+                      <CustomSelect.Option
                         style={{ width: "100%" }}
                         key={index.toString()}
                         value={item.code.toString()}
                       >
                         {`${item.full_name} - ${item.code}`}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
                 <p>Tổng tiền</p>
-                <Input.Group compact>
-                  <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
+                <div className="date-range">
+                  <Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
                     <InputNumber
                       className="price_min"
                       placeholder="Từ"
@@ -1097,18 +1066,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     />
                   </Item>
                   
-                  <Input
-                    className="site-input-split"
-                    style={{
-                      width: '10%',
-                      borderLeft: 0,
-                      borderRight: 0,
-                      pointerEvents: 'none',
-                    }}
-                    placeholder="~"
-                    readOnly
-                  />
-                  <Item name="price_max" style={{width: '45%',textAlign: 'center'}}>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="price_max" style={{width: '45%', marginBottom: 0}}>
                     <InputNumber
                       className="site-input-right price_max"
                       placeholder="Đến"
@@ -1116,121 +1075,121 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       max="1000000000"
                     />
                   </Item>
-                </Input.Group>
+                </div>
               </Col>
               <Col span={8} xxl={6}>
                 <p>Phương thức thanh toán</p>
                 <Item name="payment_method_ids">
-                  <Select
-                    mode="multiple" optionFilterProp="children" showSearch
+                  <CustomSelect
+                    mode="multiple" optionFilterProp="children"
+                    showSearch showArrow
                     notFoundContent="Không tìm thấy kết quả"
                     placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {listPaymentMethod.map((item, index) => (
-                      <Option
+                      <CustomSelect.Option
                         style={{ width: "100%" }}
                         key={index.toString()}
                         value={item.id.toString()}
                       >
                         {item.name}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
-                <p>Ngày dự kiến nhận hàng</p>
-                <Item name="payment_method_ids">
-                  <Select
-                    mode="multiple" optionFilterProp="children" showSearch
-                    notFoundContent="Không tìm thấy kết quả"
-                    placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
+                <p>Đối tác giao hàng</p>
+                <Item name="shipper_ids">
+                  <CustomSelect
+                    mode="multiple" showSearch
+                    showArrow placeholder="Chọn đối tác giao hàng"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children"
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
-                    {listPaymentMethod.map((item, index) => (
-                      <Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.id.toString()}
-                      >
-                        {item.name}
-                      </Option>
+                    {accounts.filter(account => account.is_shipper === true)?.map((account) => (
+                      <CustomSelect.Option key={account.id} value={account.id}>
+                        {account.full_name} - {account.code}
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
-                  {/* <Panel header="NGÀY DỰ KIẾN NHÂN HÀNG" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('expected', 'yesterday')} className={expectedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'today')} className={expectedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'thisweek')} className={expectedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('expected', 'lastweek')} className={expectedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'thismonth')} className={expectedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'lastmonth')} className={expectedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
+              <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
+                <p>Ngày dự kiến nhận hàng</p>
+                <div className="date-option">
+                  <Button onClick={() => clickOptionDate('expected', 'yesterday')} className={expectedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                  <Button onClick={() => clickOptionDate('expected', 'today')} className={expectedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                  <Button onClick={() => clickOptionDate('expected', 'thisweek')} className={expectedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                </div>
+                <div className="date-option">
+                  <Button onClick={() => clickOptionDate('expected', 'lastweek')} className={expectedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                  <Button onClick={() => clickOptionDate('expected', 'thismonth')} className={expectedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                  <Button onClick={() => clickOptionDate('expected', 'lastmonth')} className={expectedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                </div>
+                <div className="date-range">
+                  <Item name="expected_receive_on_min" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
                       format="DD-MM-YYYY"
+                      placeholder="Từ ngày"
                       style={{width: "100%"}}
-                      value={[expectedReceiveOnMin? moment(expectedReceiveOnMin, "DD-MM-YYYY") : null, expectedReceiveOnMax? moment(expectedReceiveOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'expected')}
-                    /> */}
+                    />
+                  </Item>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="expected_receive_on_max" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Đến ngày"
+                      style={{width: "100%"}}
+                    />
+                  </Item>
+                </div>
+              </Col>
               <Col span={8} xxl={6}>
                 <p>Hình thức vận chuyển</p>
                 <Item name="delivery_types">
-                  <Select
+                  <CustomSelect
                     mode="multiple"
                     optionFilterProp="children" showSearch
-                    notFoundContent="Không tìm thấy kết quả"
+                    showArrow notFoundContent="Không tìm thấy kết quả"
                     placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
                     getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
                   >
                     {/* <Option value="">Hình thức vận chuyển</Option> */}
                     {serviceType?.map((item) => (
-                      <Option key={item.value} value={item.value}>
+                      <CustomSelect.Option key={item.value} value={item.value}>
                         {item.name}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
                 <p>Đơn vị vận chuyển</p>
                 <Item name="delivery_provider_ids">
-                <Select
-                  mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                <CustomSelect
+                  mode="multiple" showSearch
+                  showArrow placeholder="Chọn đơn vị vận chuyển"
                   notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                   optionFilterProp="children"
                   getPopupContainer={trigger => trigger.parentNode}
+                  maxTagCount='responsive'
                 >
                   {deliveryService?.map((item) => (
-                    <Option key={item.id} value={item.id}>
+                    <CustomSelect.Option key={item.id} value={item.id}>
                       {item.name}
-                    </Option>
+                    </CustomSelect.Option>
                   ))}
-                </Select>
+                </CustomSelect>
                 </Item>
               </Col>
               <Col span={8} xxl={6}>
-                <p>Đối tác giao hàng</p>
-                <Item name="shipper_ids">
-                <Select
-                  mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
-                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children"
-                  getPopupContainer={trigger => trigger.parentNode}
-                >
-                  {accounts.filter(account => account.is_shipper === true)?.map((account) => (
-                    <Option key={account.id} value={account.id}>
-                      {account.full_name} - {account.code}
-                    </Option>
-                  ))}
-                </Select>
-                </Item>
                 <p>Tags</p>
                 <Item name="tags">
-                <Select mode="tags" optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
+                <CustomSelect mode="tags" optionFilterProp="children" showSearch showArrow placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
                   
-                </Select>
+                </CustomSelect>
                 </Item>
                 
               </Col>
