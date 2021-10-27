@@ -104,6 +104,7 @@ type CardProductProps = {
   orderId?: string;
   isSplitOrder?: boolean;
   orderDetail?: OrderResponse | null;
+  fetchData?: () => void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -128,6 +129,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     orderId,
     isSplitOrder,
     orderDetail,
+    fetchData
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -1001,6 +1003,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update`;
             window.open(singleSplitLink, "_blank");
           });
+          fetchData && fetchData()
         }
       })
     );

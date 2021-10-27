@@ -1,5 +1,5 @@
 import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Select, Col, Row } from "antd";
+import { Card, Form, Input, Select } from "antd";
 import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse } from "model/response/order/order.response";
@@ -22,6 +22,48 @@ type PropType = {
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
   const { accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail } = props;
+
+  const renderSplitOrder = () => {
+    const splitCharacter = "-"
+    if(!orderDetail?.linked_order_code) {
+      return;
+    }
+    let result = orderDetail.linked_order_code.split(splitCharacter);
+    console.log('result', result)
+    if(result.length > 1) {
+      return (
+        <div>
+            <label>Đơn tách:{"   "}</label>
+            {result.map((single, index) => {
+              return (
+                <React.Fragment>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ORDER}/${single}`}
+                >
+                  <strong>{single}</strong>
+                </Link>
+                {index < (result.length - 1) && ", "}
+                </React.Fragment>
+
+              )
+            })}
+          </div>
+      )
+    }else {
+      return (
+        <div>
+            <label>Đơn gốc tách đơn:{"   "}</label>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
+            >
+              <strong>{orderDetail.linked_order_code}</strong>
+            </Link>
+          </div>
+      )
+    }
+  };
 
   return (
     <StyledComponent>
@@ -142,17 +184,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         >
           <Input placeholder="Điền đường dẫn" maxLength={255} />
         </Form.Item>
-        {orderDetail?.linked_order_code && (
-          <div>
-            <label>Đơn tách:{"   "}</label>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
-            >
-              <strong>{orderDetail.linked_order_code}</strong>
-            </Link>
-          </div>
-        )}
+        {renderSplitOrder()}
       </Card>
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">

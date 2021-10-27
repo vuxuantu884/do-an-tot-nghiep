@@ -722,7 +722,7 @@ export default function Order(props: PropType) {
 
   const fetchData = () => {
     dispatch(
-      OrderDetailAction(Number(id), (res) => {
+      OrderDetailAction(id, (res) => {
         const response = {
           ...res,
           // ffm des id
@@ -1092,6 +1092,7 @@ export default function Order(props: PropType) {
                     updateOrder={true}
                     isSplitOrder
                     orderDetail={OrderDetail}
+                    fetchData={fetchData}
                   />
 
                   {OrderDetail !== null &&

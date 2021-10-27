@@ -510,7 +510,7 @@ export default function FpageOrders(props: any) {
     const fetchData = () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
-          OrderDetailAction(+cloneIdParam, (response) => {
+          OrderDetailAction(cloneIdParam, (response) => {
             const { customer_id } = response;
 
             if (customer_id) {
