@@ -74,6 +74,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
+  const [diffPriceProductList, setDiffPriceProductList] = useState<Array<any>>([]);
   const [isVisibleConfirmConnectItemsModal, setIsVisibleConfirmConnectItemsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
@@ -103,7 +104,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
-      connection_start_date: null,
+      create_time_from: null,
+      create_time_to: null,
     }),
     []
   );
@@ -118,22 +120,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    connection_start_date: null,
+    create_time_from: null,
+    create_time_to: null,
   });
 
-  const updateEcommerceShopList = React.useCallback((result) => {
-    const shopList: any[] = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopList.push({
-          id: item.id,
-          name: item.name,
-          isSelected: false,
-        });
-      });
-    }
-    setEcommerceShopList(shopList);
-  }, []);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -163,8 +153,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       );
     }
   };
+  //end handle delete item
 
-  //handle update connectItemList
+  //handle update connect item
   const updateConnectItemList = (newConnectItemList: any) => {
     tempConnectItemList = newConnectItemList;
 
@@ -180,6 +171,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
+    const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
 
@@ -196,7 +188,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         id: ecommerceItem.id,
         core_variant_id: productSelected.id,
         core_sku: productSelected.sku,
-        core_variant: productSelected.name,
+        core_variant: productSelected.core_variant,
         core_price: productSelected.retail_price,
         core_product_id: productSelected.product_id,
         ecommerce_correspond_to_core: 1,
@@ -227,6 +219,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       if (ecommerceItem?.ecommerce_price === productSelected?.retail_price) {
         saveConnectYodyProduct();
       } else {
+        setDiffPriceProduct([productSelected]);
         setIsVisibleConfirmConnectModal(true);
       }
     };
@@ -257,10 +250,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     };
 
     const initQueryVariant: VariantSearchQuery = {
-      limit: 10,
       page: 1,
-      status: "active",
-      saleable: true,
     };
 
     const [resultSearchVariant, setResultSearchVariant] = React.useState<
@@ -293,7 +283,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         resultSearchVariant.items.find((item) => item.id === idItemSelected);
 
       const productSelectedData = {
-        name: itemSelected && itemSelected.name,
+        core_variant: itemSelected && itemSelected.name,
         sku: itemSelected && itemSelected.sku,
         variant_prices: itemSelected && itemSelected.variant_prices,
         retail_price:
@@ -311,7 +301,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         id: ecommerceItem.id,
         core_variant_id: productSelectedData.id,
         core_sku: productSelectedData.sku,
-        core_variant: productSelectedData.name,
+        core_variant: productSelectedData.core_variant,
         core_price: productSelectedData.retail_price,
         core_product_id: productSelectedData.product_id,
         ecommerce_correspond_to_core: 1,
@@ -423,7 +413,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <li>
                 <b>Tên sản phẩm: </b>
                 <span onClick={gotoProductDetail} className="link">
-                  {productSelected.name}
+                  {productSelected.core_variant}
                 </span>
               </li>
 
@@ -465,6 +455,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectModal}
             isLoading={isLoading}
+            dataSource={diffPriceProduct}
             okConfirmConnectModal={saveConnectYodyProduct}
             cancelConfirmConnectModal={cancelConfirmConnectModal}
           />
@@ -563,6 +554,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.shop_ids = shopIdSelected;
+
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
       query.category_id = value.category_id;
@@ -570,7 +562,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
-      query.connection_start_date = value.connection_start_date;
+      query.create_time_from = value.create_time_from;
+      query.create_time_to = value.create_time_to;
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
@@ -583,26 +576,48 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.limit = limit;
       setQuery({ ...query, page, limit });
       getProductUpdated({ ...query });
+      window.scrollTo(0, 0);
     },
     [query, getProductUpdated]
   );
 
-  const getShopEcommerce = (ecommerceId: any) => {
-    setIsEcommerceSelected(true);
-    setShopIdSelected([]);
+  // get ecommerce shop list
+  const updateEcommerceShopList = React.useCallback((result) => {
+    const shopList: any[] = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false,
+        });
+      });
+    }
+    setEcommerceShopList(shopList);
+  }, []);
+
+  const getEcommerceShop = (ecommerceId: any) => {
     dispatch(
       getShopEcommerceList(
         { ecommerce_id: ecommerceId },
         updateEcommerceShopList
       )
     );
+  }
+  // end get ecommerce shop list
+
+  //handle select ecommerce
+  const handleSelectEcommerce = (ecommerceId: any) => {
+    setIsEcommerceSelected(true);
+    setShopIdSelected([]);
+    getEcommerceShop(ecommerceId);
   };
 
   const removeEcommerce = () => {
     setIsEcommerceSelected(false);
     setShopIdSelected([]);
-    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
   };
+  //end handle select ecommerce
 
   const ECOMMERCE_LIST = [
     {
@@ -632,6 +647,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
   ];
 
+  // handle filter
   const onFilterClick = React.useCallback(() => {
     setVisibleFilter(false);
     formAdvance.submit();
@@ -650,6 +666,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const onCancelFilter = React.useCallback(() => {
     setVisibleFilter(false);
   }, []);
+  //end handle filter
 
   //handle save connected Yody product
   const disableSaveConnectedYodyProduct = () => {
@@ -680,6 +697,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const yodyProductConnectCheck: any[] = [];
     let isSaveAble = true;
     let isNotEqualPrice = false;
+    let diffPriceProductListData: any[] = [];
 
     let tempSelectedRow: any[] = [];
     selectedRow.forEach((rowData) => {
@@ -698,7 +716,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         );
         if (itemMatch) {
           yodyProductConnectCheck.push(item);
-          isNotEqualPrice = (itemMatch.ecommerce_price !== item.core_price) ? true : false;
+          if (itemMatch.ecommerce_price !== item.core_price) {
+            isNotEqualPrice = true;
+            diffPriceProductListData.push(item);
+          }
         } else {
           notMatchConnectItemList.push(item);
         }
@@ -727,6 +748,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       setConnectedYodyProductsRequest(request);
 
       if (isNotEqualPrice) {
+        setDiffPriceProductList(diffPriceProductListData);
         setIsVisibleConfirmConnectItemsModal(true);
       } else {
         connectedYodyProducts();
@@ -735,7 +757,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   };
   //end handle save connected Yody product
 
-  //select shop
+  // handle select shop
   const getPlaceholderSelectShop = () => {
     if (shopIdSelected && shopIdSelected.length > 0) {
       return `Đã chọn: ${shopIdSelected.length} gian hàng`;
@@ -811,6 +833,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     setEcommerceShopList(copyEcommerceShopList);
     setShopIdSelected([]);
   };
+  // end handle select shop
 
   //select row table
   const onSelectTable = React.useCallback((selectedRow: Array<any>) => {
@@ -828,7 +851,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 disabled={tableLoading}
                 placeholder="Chọn sàn"
                 allowClear
-                onSelect={(value) => getShopEcommerce(value)}
+                onSelect={(value) => handleSelectEcommerce(value)}
                 onClear={removeEcommerce}
               >
                 {ECOMMERCE_LIST &&
@@ -956,7 +979,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 showSearch
                 placeholder="Chọn sàn"
                 allowClear
-                onSelect={(value) => getShopEcommerce(value)}
+                onSelect={(value) => handleSelectEcommerce(value)}
                 onClear={removeEcommerce}
               >
                 {ECOMMERCE_LIST &&
@@ -1021,6 +1044,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectItemsModal}
             isLoading={isLoading}
+            dataSource={diffPriceProductList}
             okConfirmConnectModal={connectedYodyProducts}
             cancelConfirmConnectModal={() => setIsVisibleConfirmConnectItemsModal(false)}
           />

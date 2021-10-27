@@ -24,54 +24,6 @@ const PackReportHandOver: React.FC = () => {
     items: [],
   });
 
-  const dataSource = [
-    {
-      key1: '1',
-      key2: '2',
-      key3: '2',
-      key4: '2',
-      key5: '2',
-      key6: '2',
-      key7: '2',
-      key8: '2',
-      key9: '2',
-      key10: '2',
-      key11: '2',
-      key12: '2',
-      key13: '2',
-    },
-    {
-      key1: '1',
-      key2: '2',
-      key3: '2',
-      key4: '2',
-      key5: '2',
-      key6: '2',
-      key7: '2',
-      key8: '2',
-      key9: '2',
-      key10: '2',
-      key11: '2',
-      key12: '2',
-      key13: '2',
-    },
-    {
-      key1: '1',
-      key2: '2',
-      key3: '2',
-      key4: '2',
-      key5: '2',
-      key6: '2',
-      key7: '2',
-      key8: '2',
-      key9: '2',
-      key10: '2',
-      key11: '2',
-      key12: '2',
-      key13: '2',
-    },
-  ];
-
   // const dataSource = [
   //   {
   //     key: '1',

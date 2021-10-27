@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import {
@@ -10,13 +10,12 @@ import {
   InputNumber,
   Checkbox,
   Tooltip,
+  Dropdown,
 } from "antd";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined, DownOutlined } from "@ant-design/icons";
 import moment from "moment";
 
-import { MenuAction } from "component/table/ActionButton";
 import BaseFilter from "component/filter/base.filter";
-import CustomFilter from "component/table/custom.filter";
 
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceOrderSearchQuery } from "model/order/order.model";
@@ -35,13 +34,13 @@ import sendoIcon from "assets/icon/e-sendo.svg";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 
 import {
-  StyledComponent,
   StyledEcommerceOrderBaseFilter,
+  StyledOrderFilter,
 } from "screens/ecommerce/orders/orderStyles";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
-  actions: Array<MenuAction>;
+  actionList: any;
   listStore: Array<StoreResponse> | undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
@@ -61,34 +60,83 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 ) => {
   const {
     params,
-    actions,
+    actionList,
     listStore,
     accounts,
     deliveryService,
     subStatus,
     tableLoading,
-    onMenuClick,
     onClearFilter,
     onFilter,
     onShowColumnSetting,
   } = props;
 
   const dispatch = useDispatch();
-  const [formAdvanceFilter] = Form.useForm();
-  const [formBasicFilter] = Form.useForm();
+  const [formFilter] = Form.useForm();
 
-  const [filterType, setFilterType] = useState("");
   const [visible, setVisible] = useState(false);
-  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(!!params.channel_id);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
-  const [isBasicEcommerceSelected, setIsBasicEcommerceSelected] =
-    useState(false);
-  const [basicEcommerceShopList, setBasicEcommerceShopList] = useState<
-    Array<any>
-  >([]);
+  
+  useEffect(() => {
+    const ecommerceId = getEcommerceId(params.channel_id);
+    getEcommerceShopList(ecommerceId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  let initialValues = useMemo(() => {
+    return {
+      ...params,
+      store_ids: Array.isArray(params.store_ids)
+        ? params.store_ids
+        : [params.store_ids],
+      channel_id: params.channel_id,
+      shop_ids: Array.isArray(params.shop_ids)
+        ? params.shop_ids
+        : [params.shop_ids],
+      order_status: Array.isArray(params.order_status)
+        ? params.order_status
+        : [params.order_status],
+      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
+      fulfillment_status: Array.isArray(params.fulfillment_status)
+        ? params.fulfillment_status
+        : [params.fulfillment_status],
+      payment_status: Array.isArray(params.payment_status)
+        ? params.payment_status
+        : [params.payment_status],
+      return_status: Array.isArray(params.return_status)
+        ? params.return_status
+        : [params.return_status],
+      payment_method_ids: Array.isArray(params.payment_method_ids)
+        ? params.payment_method_ids
+        : [params.payment_method_ids],
+      delivery_provider_ids: Array.isArray(params.delivery_provider_ids)
+        ? params.delivery_provider_ids
+        : [params.delivery_provider_ids],
+      shipper_ids: Array.isArray(params.shipper_ids)
+        ? params.shipper_ids
+        : [params.shipper_ids],
+      tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      assignee_codes: Array.isArray(params.assignee_codes)
+        ? params.assignee_codes
+        : [params.assignee_codes],
+      account_codes: Array.isArray(params.account_codes)
+        ? params.account_codes
+        : [params.account_codes],
+    };
+  }, [params]);
+
+  const getEcommerceId = (channelId: any) => {
+    let ecommerceId = null;
+    if (channelId) {
+      ecommerceId = ECOMMERCE_LIST.find(item => item.channel_id === channelId)?.ecommerce_id;
+    }
+    return ecommerceId;
+  }
+
+  // handle Select Ecommerce
   const updateEcommerceShopList = useCallback((result) => {
     const shopList: any[] = [];
     if (result && result.length > 0) {
@@ -105,7 +153,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     setEcommerceShopList(shopList);
   }, []);
 
-  const getShopEcommerce = (ecommerceId: any) => {
+  const getEcommerceShopList = (ecommerceId: any) => {
     dispatch(
       getShopEcommerceList(
         { ecommerce_id: ecommerceId },
@@ -114,82 +162,19 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     );
   };
 
-  const clearShopEcommerceSelected = () => {
-    let newFormValues = formAdvanceFilter?.getFieldsValue();
-    newFormValues.shop_ids = [];
-    formAdvanceFilter?.setFieldsValue(newFormValues);
-  };
-
-  const selectEcommerce = (ecommerceId: any) => {
-    clearShopEcommerceSelected();
+  const handleSelectEcommerce = (channelId: any) => {
     setIsEcommerceSelected(true);
-    getShopEcommerce(ecommerceId);
-  };
-
-  const removeEcommerce = () => {
-    clearShopEcommerceSelected();
-    setIsEcommerceSelected(false);
-  };
-
-  // handle basic filter
-
-  const updateBasicEcommerceShopList = useCallback((result) => {
-    const shopList: any[] = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopList.push({
-          id: item.id,
-          name: item.name,
-          isSelected: false,
-          ecommerce: item.ecommerce,
-        });
-      });
-    }
-
-    setBasicEcommerceShopList(shopList);
-  }, []);
-
-  const getBasicShopEcommerce = (ecommerceId: any) => {
-    dispatch(
-      getShopEcommerceList(
-        { ecommerce_id: ecommerceId },
-        updateBasicEcommerceShopList
-      )
-    );
-  };
-
-  const clearBasicShopEcommerceSelected = () => {
     setShopIdSelected([]);
-    let newFormValues = formBasicFilter?.getFieldsValue();
-    newFormValues.shop_ids = [];
-    formBasicFilter?.setFieldsValue(newFormValues);
+    const ecommerceId = getEcommerceId(channelId);
+    getEcommerceShopList(ecommerceId);
   };
 
-  const selectBasicEcommerce = (ecommerceId: any) => {
-    clearBasicShopEcommerceSelected();
-    setIsBasicEcommerceSelected(true);
-    getBasicShopEcommerce(ecommerceId);
-  };
-
-  const removeBasicEcommerce = () => {
-    clearBasicShopEcommerceSelected();
-    setIsBasicEcommerceSelected(false);
-  };
-
-  const onBasicFinish = useCallback(
-    (values) => {
-      const basicFormValues = { ...values, shop_ids: shopIdSelected };
-      onFilter && onFilter(basicFormValues);
-    },
-    [onFilter, shopIdSelected]
-  );
-
-  const onBasicFilter = useCallback(() => {
-    setFilterType("basic");
-    formBasicFilter?.submit();
-  }, [formBasicFilter]);
-
-  // end handle basic filter
+  const handleRemoveEcommerce = useCallback(() => {
+    setIsEcommerceSelected(false);
+    setShopIdSelected([]);
+    formFilter?.setFieldsValue({ channel_id: null });
+  },[formFilter]);
+   // end handle Select Ecommerce
 
   const ECOMMERCE_LIST = useMemo(
     () => [
@@ -198,18 +183,21 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         icon: shopeeIcon,
         id: "shopee",
         ecommerce_id: 1,
+        channel_id: 3,
       },
       {
         title: "Sàn Tiki",
         icon: tikiIcon,
         id: "tiki",
         ecommerce_id: 2,
+        channel_id: 4,
       },
       {
         title: "Sàn Lazada",
         icon: lazadaIcon,
         id: "lazada",
         ecommerce_id: 3,
+        channel_id: 5,
       },
       {
         title: "Sàn Sendo",
@@ -217,6 +205,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         id: "sendo",
         isActive: false,
         ecommerce_id: 4,
+        channel_id: 6,
       },
     ],
     []
@@ -230,6 +219,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
   };
 
+   // handle Select Shop
   const onSelectShopChange = (shop: any, e: any) => {
     if (e.target.checked) {
       shop.isSelected = true;
@@ -247,9 +237,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   const renderShopList = () => {
     return (
-      <StyledComponent>
+      <StyledOrderFilter>
         <div className="render-shop-list">
-          {basicEcommerceShopList.map((item: any) => (
+          {ecommerceShopList.map((item: any) => (
             <div key={item.id} className="shop-name">
               <Checkbox
                 onChange={(e) => onSelectShopChange(item, e)}
@@ -279,25 +269,26 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             </div>
           ))}
 
-          {basicEcommerceShopList.length === 0 && (
+          {ecommerceShopList.length === 0 && (
             <div style={{ color: "#737373", padding: 10 }}>
               Không có dữ liệu
             </div>
           )}
         </div>
-      </StyledComponent>
+      </StyledOrderFilter>
     );
   };
 
-  const removeSelectedShop = () => {
-    const copyEcommerceShopList = [...basicEcommerceShopList];
+  const handleRemoveSelectedShop = useCallback(() => {
+    const copyEcommerceShopList = [...ecommerceShopList];
     copyEcommerceShopList.forEach((item: any) => {
       item.isSelected = false;
     });
 
-    setBasicEcommerceShopList(copyEcommerceShopList);
+    setEcommerceShopList(copyEcommerceShopList);
     setShopIdSelected([]);
-  };
+  }, [ecommerceShopList]);
+  // end handle Select Shop
 
   const status = useMemo(
     () => [
@@ -312,6 +303,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     ],
     []
   );
+
   const fulfillmentStatus = useMemo(
     () => [
       { name: "Chưa giao", value: "unshipped" },
@@ -326,6 +318,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     ],
     []
   );
+
   const paymentStatus = useMemo(
     () => [
       { name: "Chưa trả", value: "unpaid" },
@@ -335,6 +328,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     ],
     []
   );
+
   const paymentType = useMemo(
     () => [
       { name: "Tiền mặt", value: 1 },
@@ -364,11 +358,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     []
   );
 
+  // handle filter action
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    setFilterType("advance");
-    formAdvanceFilter?.submit();
-  }, [formAdvanceFilter]);
+    formFilter?.submit();
+  }, [formFilter]);
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -378,174 +372,78 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     setVisible(false);
   }, []);
 
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+  const onClearBaseFilter = () => {
+    setVisible(false);
+    onClearFilter && onClearFilter();
+  };
+  // end handle filter action
 
-  const onChangeRangeDate = useCallback((dates, dateString, type) => {
-    switch (type) {
-      case "issued":
-        setIssuedClick("");
-        setIssuedOnMin(dateString[0]);
-        setIssuedOnMax(dateString[1]);
-        break;
-      case "finalized":
-        setFinalizedClick("");
-        setFinalizedOnMin(dateString[0]);
-        setFinalizedOnMax(dateString[1]);
-        break;
-      case "completed":
-        setCompletedClick("");
-        setCompletedOnMin(dateString[0]);
-        setCompletedOnMax(dateString[1]);
-        break;
-      case "cancelled":
-        setCancelledClick("");
-        setCancelledOnMin(dateString[0]);
-        setCancelledOnMax(dateString[1]);
-        break;
-      case "expected":
-        setExpectedClick("");
-        setExpectedReceiveOnMin(dateString[0]);
-        setExpectedReceiveOnMax(dateString[1]);
-        break;
-      default:
-        break;
-    }
-  }, []);
-
-  const onCloseTag = useCallback(
-    (e, tag) => {
-      if (!tableLoading) {
-        e.preventDefault();
-        switch (tag.key) {
-          case "store":
-            onFilter && onFilter({ ...params, store_ids: [] });
-            break;
-          case "ecommerce_id":
-            onFilter &&
-              onFilter({ ...params, ecommerce_id: null, shop_ids: [] });
-            break;
-          case "shop_ids":
-            onFilter && onFilter({ ...params, shop_ids: [] });
-            break;
-          case "issued":
-            setIssuedClick("");
-            setIssuedOnMin(null);
-            setIssuedOnMax(null);
-            onFilter &&
-              onFilter({ ...params, issued_on_min: null, issued_on_max: null });
-            break;
-          case "finalized":
-            setFinalizedClick("");
-            setFinalizedOnMin(null);
-            setFinalizedOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                finalized_on_min: null,
-                finalized_on_max: null,
-              });
-            break;
-          case "completed":
-            setCompletedClick("");
-            setCompletedOnMin(null);
-            setCompletedOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                completed_on_min: null,
-                completed_on_max: null,
-              });
-            break;
-          case "cancelled":
-            setCancelledClick("");
-            setCancelledOnMin(null);
-            setCancelledOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                cancelled_on_min: null,
-                cancelled_on_max: null,
-              });
-            break;
-          case "expected":
-            setExpectedClick("");
-            setExpectedReceiveOnMin(null);
-            setExpectedReceiveOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                expected_receive_on_min: null,
-                expected_receive_on_max: null,
-              });
-            break;
-          case "order_status":
-            onFilter && onFilter({ ...params, order_status: [] });
-            break;
-          case "sub_status_id":
-            onFilter && onFilter({ ...params, sub_status_id: [] });
-            break;
-          case "fulfillment_status":
-            onFilter && onFilter({ ...params, fulfillment_status: [] });
-            break;
-          case "payment_status":
-            onFilter && onFilter({ ...params, payment_status: [] });
-            break;
-          case "assignee_codes":
-            onFilter && onFilter({ ...params, assignee_codes: [] });
-            break;
-          case "account_codes":
-            onFilter && onFilter({ ...params, account_codes: [] });
-            break;
-          case "price":
-            onFilter &&
-              onFilter({ ...params, price_min: null, price_max: null });
-            break;
-          case "payment_method":
-            onFilter && onFilter({ ...params, payment_method_ids: [] });
-            break;
-          case "expected_receive_predefined":
-            onFilter &&
-              onFilter({ ...params, expected_receive_predefined: "" });
-            break;
-          case "delivery_types":
-            onFilter && onFilter({ ...params, delivery_types: [] });
-            break;
-          case "delivery_provider_ids":
-            onFilter && onFilter({ ...params, delivery_provider_ids: [] });
-            break;
-          case "shipper_ids":
-            onFilter && onFilter({ ...params, shipper_ids: [] });
-            break;
-          case "note":
-            onFilter && onFilter({ ...params, note: "" });
-            break;
-          case "customer_note":
-            onFilter && onFilter({ ...params, customer_note: "" });
-            break;
-          case "tags":
-            onFilter && onFilter({ ...params, tags: [] });
-            break;
-          case "reference_code":
-            onFilter && onFilter({ ...params, reference_code: "" });
-            break;
-          default:
-            break;
-        }
-      }
-    },
-    [onFilter, params, tableLoading]
-  );
-
+  // handle select date
   const [issuedClick, setIssuedClick] = useState("");
   const [finalizedClick, setFinalizedClick] = useState("");
   const [completedClick, setCompletedClick] = useState("");
   const [cancelledClick, setCancelledClick] = useState("");
   const [expectedClick, setExpectedClick] = useState("");
+
+  const [issuedOnMin, setIssuedOnMin] = useState(
+    initialValues.issued_on_min
+      ? moment(initialValues.issued_on_min, "DD-MM-YYYY")
+      : null
+  );
+
+  const [issuedOnMax, setIssuedOnMax] = useState(
+    initialValues.issued_on_max
+      ? moment(initialValues.issued_on_max, "DD-MM-YYYY")
+      : null
+  );
+
+  const [finalizedOnMin, setFinalizedOnMin] = useState(
+    initialValues.finalized_on_min
+      ? moment(initialValues.finalized_on_min, "DD-MM-YYYY")
+      : null
+  );
+
+  const [finalizedOnMax, setFinalizedOnMax] = useState(
+    initialValues.finalized_on_max
+      ? moment(initialValues.finalized_on_max, "DD-MM-YYYY")
+      : null
+  );
+
+  const [completedOnMin, setCompletedOnMin] = useState(
+    initialValues.completed_on_min
+      ? moment(initialValues.completed_on_min, "DD-MM-YYYY")
+      : null
+  );
+
+  const [completedOnMax, setCompletedOnMax] = useState(
+    initialValues.completed_on_max
+      ? moment(initialValues.completed_on_max, "DD-MM-YYYY")
+      : null
+  );
+
+  const [cancelledOnMin, setCancelledOnMin] = useState(
+    initialValues.cancelled_on_min
+      ? moment(initialValues.cancelled_on_min, "DD-MM-YYYY")
+      : null
+  );
+
+  const [cancelledOnMax, setCancelledOnMax] = useState(
+    initialValues.cancelled_on_max
+      ? moment(initialValues.cancelled_on_max, "DD-MM-YYYY")
+      : null
+  );
+
+  const [expectedReceiveOnMin, setExpectedReceiveOnMin] = useState(
+    initialValues.expected_receive_on_min
+      ? moment(initialValues.expected_receive_on_min, "DD-MM-YYYY")
+      : null
+  );
+
+  const [expectedReceiveOnMax, setExpectedReceiveOnMax] = useState(
+    initialValues.expected_receive_on_max
+      ? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY")
+      : null
+  );
 
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -662,98 +560,38 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]
   );
 
-  const initialValues = useMemo(() => {
-    return {
-      ...params,
-      store_ids: Array.isArray(params.store_ids)
-        ? params.store_ids
-        : [params.store_ids],
-      ecommerce_id: params.ecommerce_id,
-      shop_ids: Array.isArray(params.shop_ids)
-        ? params.shop_ids
-        : [params.shop_ids],
-      order_status: Array.isArray(params.order_status)
-        ? params.order_status
-        : [params.order_status],
-      sub_status_id: Array.isArray(params.sub_status_id) ? params.sub_status_id : [params.sub_status_id],
-      fulfillment_status: Array.isArray(params.fulfillment_status)
-        ? params.fulfillment_status
-        : [params.fulfillment_status],
-      payment_status: Array.isArray(params.payment_status)
-        ? params.payment_status
-        : [params.payment_status],
-      return_status: Array.isArray(params.return_status)
-        ? params.return_status
-        : [params.return_status],
-      payment_method_ids: Array.isArray(params.payment_method_ids)
-        ? params.payment_method_ids
-        : [params.payment_method_ids],
-      delivery_provider_ids: Array.isArray(params.delivery_provider_ids)
-        ? params.delivery_provider_ids
-        : [params.delivery_provider_ids],
-      shipper_ids: Array.isArray(params.shipper_ids)
-        ? params.shipper_ids
-        : [params.shipper_ids],
-      tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      assignee_codes: Array.isArray(params.assignee_codes)
-        ? params.assignee_codes
-        : [params.assignee_codes],
-      account_codes: Array.isArray(params.account_codes)
-        ? params.account_codes
-        : [params.account_codes],
-    };
-  }, [params]);
-
-  const [issuedOnMin, setIssuedOnMin] = useState(
-    initialValues.issued_on_min
-      ? moment(initialValues.issued_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [issuedOnMax, setIssuedOnMax] = useState(
-    initialValues.issued_on_max
-      ? moment(initialValues.issued_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [finalizedOnMin, setFinalizedOnMin] = useState(
-    initialValues.finalized_on_min
-      ? moment(initialValues.finalized_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [finalizedOnMax, setFinalizedOnMax] = useState(
-    initialValues.finalized_on_max
-      ? moment(initialValues.finalized_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [completedOnMin, setCompletedOnMin] = useState(
-    initialValues.completed_on_min
-      ? moment(initialValues.completed_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [completedOnMax, setCompletedOnMax] = useState(
-    initialValues.completed_on_max
-      ? moment(initialValues.completed_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [cancelledOnMin, setCancelledOnMin] = useState(
-    initialValues.cancelled_on_min
-      ? moment(initialValues.cancelled_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [cancelledOnMax, setCancelledOnMax] = useState(
-    initialValues.cancelled_on_max
-      ? moment(initialValues.cancelled_on_max, "DD-MM-YYYY")
-      : null
-  );
-  const [expectedReceiveOnMin, setExpectedReceiveOnMin] = useState(
-    initialValues.expected_receive_on_min
-      ? moment(initialValues.expected_receive_on_min, "DD-MM-YYYY")
-      : null
-  );
-  const [expectedReceiveOnMax, setExpectedReceiveOnMax] = useState(
-    initialValues.expected_receive_on_max
-      ? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY")
-      : null
-  );
+  const onChangeRangeDate = useCallback((dates, dateString, type) => {
+    switch (type) {
+      case "issued":
+        setIssuedClick("");
+        setIssuedOnMin(dateString[0]);
+        setIssuedOnMax(dateString[1]);
+        break;
+      case "finalized":
+        setFinalizedClick("");
+        setFinalizedOnMin(dateString[0]);
+        setFinalizedOnMax(dateString[1]);
+        break;
+      case "completed":
+        setCompletedClick("");
+        setCompletedOnMin(dateString[0]);
+        setCompletedOnMax(dateString[1]);
+        break;
+      case "cancelled":
+        setCancelledClick("");
+        setCancelledOnMin(dateString[0]);
+        setCancelledOnMax(dateString[1]);
+        break;
+      case "expected":
+        setExpectedClick("");
+        setExpectedReceiveOnMin(dateString[0]);
+        setExpectedReceiveOnMax(dateString[1]);
+        break;
+      default:
+        break;
+    }
+  }, []);
+  // end handle select date
 
   const onFinish = useCallback(
     (values) => {
@@ -765,8 +603,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         };
       }
 
-      const valuesForm = {
+      const formValues = {
         ...values,
+        shop_ids: shopIdSelected,
         issued_on_min: issuedOnMin
           ? moment(issuedOnMin, "DD-MM-YYYY")?.format("DD-MM-YYYY")
           : null,
@@ -798,9 +637,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           ? moment(expectedReceiveOnMax, "DD-MM-YYYY").format("DD-MM-YYYY")
           : null,
       };
-      onFilter && onFilter(valuesForm);
+      
+      onFilter && onFilter(formValues);
     },
     [
+      shopIdSelected,
       cancelledOnMax,
       cancelledOnMin,
       completedOnMax,
@@ -815,6 +656,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     ]
   );
 
+  // handle tag filter
   let filters = useMemo(() => {
     let list = [];
     if (initialValues.store_ids.length) {
@@ -832,24 +674,22 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       });
     }
 
-    if (initialValues.ecommerce_id) {
+    if (initialValues.channel_id) {
       const ecommerceSelected = ECOMMERCE_LIST?.find(
-        (item) => item.ecommerce_id === initialValues.ecommerce_id
+        (item) => item.channel_id === initialValues.channel_id
       );
       let textStores = ecommerceSelected?.title;
       list.push({
-        key: "ecommerce_id",
+        key: "channel_id",
         name: "Sàn",
         value: textStores,
       });
     }
 
     if (initialValues.shop_ids.length) {
-      const shopList =
-        filterType === "advance" ? ecommerceShopList : basicEcommerceShopList;
       let textShop = "";
       initialValues.shop_ids.forEach((shop_id: any) => {
-        const shop = shopList?.find((shop) => shop.id.toString() === shop_id.toString());
+        const shop = ecommerceShopList?.find((shop) => shop.id.toString() === shop_id.toString());
         textShop = shop ? textShop + shop.name + "; " : textShop;
       });
       list.push({
@@ -1162,9 +1002,135 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     subStatus,
     ECOMMERCE_LIST,
     ecommerceShopList,
-    basicEcommerceShopList,
-    filterType,
   ]);
+
+  // close tag filter
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      if (!tableLoading) {
+        e.preventDefault();
+        switch (tag.key) {
+          case "store":
+            onFilter && onFilter({ ...params, store_ids: [] });
+            break;
+          case "channel_id":
+            handleRemoveEcommerce();
+            onFilter &&
+              onFilter({ ...params, channel_id: null, shop_ids: [] });
+            break;
+          case "shop_ids":
+            handleRemoveSelectedShop();
+            onFilter && onFilter({ ...params, shop_ids: [] });
+            break;
+          case "issued":
+            setIssuedClick("");
+            setIssuedOnMin(null);
+            setIssuedOnMax(null);
+            onFilter &&
+              onFilter({ ...params, issued_on_min: null, issued_on_max: null });
+            break;
+          case "finalized":
+            setFinalizedClick("");
+            setFinalizedOnMin(null);
+            setFinalizedOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                finalized_on_min: null,
+                finalized_on_max: null,
+              });
+            break;
+          case "completed":
+            setCompletedClick("");
+            setCompletedOnMin(null);
+            setCompletedOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                completed_on_min: null,
+                completed_on_max: null,
+              });
+            break;
+          case "cancelled":
+            setCancelledClick("");
+            setCancelledOnMin(null);
+            setCancelledOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                cancelled_on_min: null,
+                cancelled_on_max: null,
+              });
+            break;
+          case "expected":
+            setExpectedClick("");
+            setExpectedReceiveOnMin(null);
+            setExpectedReceiveOnMax(null);
+            onFilter &&
+              onFilter({
+                ...params,
+                expected_receive_on_min: null,
+                expected_receive_on_max: null,
+              });
+            break;
+          case "order_status":
+            onFilter && onFilter({ ...params, order_status: [] });
+            break;
+          case "sub_status_id":
+            onFilter && onFilter({ ...params, sub_status_id: [] });
+            break;
+          case "fulfillment_status":
+            onFilter && onFilter({ ...params, fulfillment_status: [] });
+            break;
+          case "payment_status":
+            onFilter && onFilter({ ...params, payment_status: [] });
+            break;
+          case "assignee_codes":
+            onFilter && onFilter({ ...params, assignee_codes: [] });
+            break;
+          case "account_codes":
+            onFilter && onFilter({ ...params, account_codes: [] });
+            break;
+          case "price":
+            onFilter &&
+              onFilter({ ...params, price_min: null, price_max: null });
+            break;
+          case "payment_method":
+            onFilter && onFilter({ ...params, payment_method_ids: [] });
+            break;
+          case "expected_receive_predefined":
+            onFilter &&
+              onFilter({ ...params, expected_receive_predefined: "" });
+            break;
+          case "delivery_types":
+            onFilter && onFilter({ ...params, delivery_types: [] });
+            break;
+          case "delivery_provider_ids":
+            onFilter && onFilter({ ...params, delivery_provider_ids: [] });
+            break;
+          case "shipper_ids":
+            onFilter && onFilter({ ...params, shipper_ids: [] });
+            break;
+          case "note":
+            onFilter && onFilter({ ...params, note: "" });
+            break;
+          case "customer_note":
+            onFilter && onFilter({ ...params, customer_note: "" });
+            break;
+          case "tags":
+            onFilter && onFilter({ ...params, tags: [] });
+            break;
+          case "reference_code":
+            onFilter && onFilter({ ...params, reference_code: "" });
+            break;
+          default:
+            break;
+        }
+      }
+    },
+    [handleRemoveEcommerce, handleRemoveSelectedShop, onFilter, params, tableLoading]
+  );
+  // end handle tag filter
 
   const getEcommerceIcon = (shop: any) => {
     switch (shop) {
@@ -1182,134 +1148,134 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   };
 
   return (
-    <div className="ecommerce-order-filter">
+    <StyledOrderFilter>
       <div className="order-filter">
         <Form
-          form={formBasicFilter}
-          onFinish={onBasicFinish}
+          form={formFilter}
+          onFinish={onFinish}
           initialValues={initialValues}
         >
-          <div className="first-line">
-            <Item name="ecommerce_id" className="ecommerce-dropdown">
+          <Form.Item className="action-dropdown">
+            <Dropdown
+              overlay={actionList}
+              trigger={["click"]}
+              disabled={tableLoading}
+            >
+              <Button className="action-button">
+                <div style={{ marginRight: 10 }}>Thao tác</div>
+                <DownOutlined />
+              </Button>
+            </Dropdown>
+          </Form.Item>
+          
+          <Item name="channel_id" className="ecommerce-dropdown">
+            <Select
+              showSearch
+              disabled={tableLoading}
+              placeholder="Chọn sàn"
+              allowClear
+              onSelect={(value) => handleSelectEcommerce(value)}
+              onClear={handleRemoveEcommerce}
+            >
+              {ECOMMERCE_LIST &&
+                ECOMMERCE_LIST.map((item: any) => (
+                  <Option key={item.channel_id} value={item.channel_id}>
+                    <div>
+                      <img
+                        src={item.icon}
+                        alt={item.id}
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>{item.title}</span>
+                    </div>
+                  </Option>
+                ))}
+            </Select>
+          </Item>
+
+          <Form.Item className="select-store-dropdown">
+            {isEcommerceSelected && (
               <Select
                 showSearch
-                disabled={tableLoading}
-                placeholder="Chọn sàn"
-                allowClear
-                onSelect={(value) => selectBasicEcommerce(value)}
-                onClear={removeBasicEcommerce}
-              >
-                {ECOMMERCE_LIST &&
-                  ECOMMERCE_LIST.map((item: any) => (
-                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                      <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
-                        <span>{item.title}</span>
-                      </div>
-                    </Option>
-                  ))}
-              </Select>
-            </Item>
-
-            {!isBasicEcommerceSelected && (
-              <Item name="shop_ids" className="ecommerce-dropdown">
-                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
-                  <Select
-                    showSearch
-                    showArrow
-                    disabled={true}
-                    placeholder="Chọn gian hàng"
-                  />
-                </Tooltip>
-              </Item>
+                disabled={tableLoading || !isEcommerceSelected}
+                placeholder={getPlaceholderSelectShop()}
+                allowClear={shopIdSelected && shopIdSelected.length > 0}
+                dropdownRender={() => renderShopList()}
+                onClear={handleRemoveSelectedShop}
+              />
             )}
 
-            {isBasicEcommerceSelected && (
-              <Item name="shop_ids" className="ecommerce-dropdown">
+            {!isEcommerceSelected && (
+              <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
                 <Select
-                  allowClear
-                  showArrow
-                  disabled={tableLoading || !isBasicEcommerceSelected}
+                  showSearch
+                  disabled={true}
                   placeholder={getPlaceholderSelectShop()}
-                  notFoundContent="Không tìm thấy shop"
+                  allowClear={shopIdSelected && shopIdSelected.length > 0}
                   dropdownRender={() => renderShopList()}
-                  onClear={removeSelectedShop}
+                  onClear={handleRemoveSelectedShop}
                 />
-              </Item>
+              </Tooltip>
             )}
-          </div>
+          </Form.Item>
 
-          <div className="second-line">
-            <CustomFilter
-              onMenuClick={onActionClick}
-              menu={actions}
-              actionDisable={tableLoading}
-              children={undefined}
-            />
-
-            <Item name="id_order_ecommerce" className="id_order_ecommerce">
-              <Input
-                disabled={tableLoading}
-                prefix={<img src={search} alt="" />}
-                placeholder="ID đơn hàng (sàn)"
-                onBlur={(e) => {
-                  formBasicFilter?.setFieldsValue({
-                    id_order_ecommerce: e.target.value.trim(),
-                  });
-                }}
-              />
-            </Item>
-
-            <Item name="search_term" className="input-search">
-              <Input
-                disabled={tableLoading}
-                prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
-                onBlur={(e) => {
-                  formBasicFilter?.setFieldsValue({
-                    search_term: e.target.value.trim(),
-                  });
-                }}
-              />
-            </Item>
-
-            <Item>
-              <Button
-                type="primary"
-                onClick={onBasicFilter}
-                disabled={tableLoading}
-              >
-                Lọc
-              </Button>
-            </Item>
-
-            <Item>
-              <Button
-                icon={<FilterOutlined />}
-                onClick={openFilter}
-                disabled={tableLoading}
-              >
-                Thêm bộ lọc
-              </Button>
-            </Item>
-            <Button
-              className="setting-button"
-              icon={<SettingOutlined />}
-              onClick={onShowColumnSetting}
+          <Item name="id_order_ecommerce" className="search-id-order-ecommerce">
+            <Input
               disabled={tableLoading}
+              prefix={<img src={search} alt="" />}
+              placeholder="ID đơn hàng (sàn)"
+              onBlur={(e) => {
+                formFilter?.setFieldsValue({
+                  id_order_ecommerce: e.target.value.trim(),
+                });
+              }}
             />
-          </div>
+          </Item>
+
+          <Item name="search_term" className="search-term-input">
+            <Input
+              disabled={tableLoading}
+              prefix={<img src={search} alt="" />}
+              placeholder="ID đơn hàng, SĐT KH"
+              onBlur={(e) => {
+                formFilter?.setFieldsValue({
+                  search_term: e.target.value.trim(),
+                });
+              }}
+            />
+          </Item>
+
+          <Item className="filter-item">
+            <Button
+              type="primary"
+              // onClick={onBasicFilter}
+              htmlType="submit" 
+              disabled={tableLoading}
+            >
+              Lọc
+            </Button>
+          </Item>
+
+          <Item className="filter-item">
+            <Button
+              icon={<FilterOutlined />}
+              onClick={openFilter}
+              disabled={tableLoading}
+            >
+              Thêm bộ lọc
+            </Button>
+          </Item>
+
+          <Button
+            className="setting-button"
+            icon={<SettingOutlined />}
+            onClick={onShowColumnSetting}
+            disabled={tableLoading}
+          />
         </Form>
 
         <BaseFilter
-          onClearFilter={() => {
-            onClearFilter && onClearFilter();
-            setVisible(false);
-          }}
+          onClearFilter={onClearBaseFilter}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -1319,18 +1285,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             flexDirection: "row-reverse",
             justifyContent: "space-between",
           }}
-          confirmButtonTitle="Áp dụng bộ lọc"
+          confirmButtonTitle="Lọc"
           deleteButtonTitle={
             <div>
               <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-              <span style={{ color: "red" }}>Xóa bộ lọc</span>
+              <span style={{ color: "red" }}>Xoá bộ lọc</span>
             </div>
           }
         >
           <StyledEcommerceOrderBaseFilter>
             {visible && (
               <Form
-                form={formAdvanceFilter}
+                form={formFilter}
                 onFinish={onFinish}
                 initialValues={params}
                 layout="vertical"
@@ -1351,19 +1317,19 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   </Select>
                 </Form.Item>
 
-                <Form.Item label={<b>SÀN TMĐT</b>} name="ecommerce_id">
+                <Form.Item label={<b>SÀN TMĐT</b>} name="channel_id">
                   <Select
                     showSearch
                     placeholder="Chọn sàn"
                     allowClear
-                    onSelect={(value) => selectEcommerce(value)}
-                    onClear={removeEcommerce}
+                    onSelect={(value) => handleSelectEcommerce(value)}
+                    onClear={handleRemoveEcommerce}
                   >
                     {ECOMMERCE_LIST &&
                       ECOMMERCE_LIST.map((item: any) => (
                         <Option
-                          key={item.ecommerce_id}
-                          value={item.ecommerce_id}
+                          key={item.channel_id}
+                          value={item.channel_id}
                         >
                           <div>
                             <img
@@ -1378,45 +1344,34 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   </Select>
                 </Form.Item>
 
-                {!isEcommerceSelected && (
-                  <Form.Item label={<b>GIAN HÀNG</b>} name="shop_ids">
-                    <Tooltip title="Yêu cầu chọn sàn TMĐT" color={"blue"}>
+                <Form.Item
+                  className="select-store-dropdown"
+                  label={<b>CHỌN GIAN HÀNG</b>}
+                >
+                  {isEcommerceSelected && (
+                    <Select
+                      showSearch
+                      disabled={tableLoading || !isEcommerceSelected}
+                      placeholder={getPlaceholderSelectShop()}
+                      allowClear={shopIdSelected && shopIdSelected.length > 0}
+                      dropdownRender={() => renderShopList()}
+                      onClear={handleRemoveSelectedShop}
+                    />
+                  )}
+
+                  {!isEcommerceSelected && (
+                    <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
                       <Select
                         showSearch
-                        showArrow
                         disabled={true}
-                        placeholder="Chọn gian hàng"
+                        placeholder={getPlaceholderSelectShop()}
+                        allowClear={shopIdSelected && shopIdSelected.length > 0}
+                        dropdownRender={() => renderShopList()}
+                        onClear={handleRemoveSelectedShop}
                       />
                     </Tooltip>
-                  </Form.Item>
-                )}
-
-                {isEcommerceSelected && (
-                  <Form.Item label={<b>CHỌN GIAN HÀNG</b>} name="shop_ids">
-                    <Select
-                      mode="multiple"
-                      allowClear
-                      showArrow
-                      disabled={tableLoading || !isEcommerceSelected}
-                      placeholder="Chọn gian hàng"
-                      notFoundContent="Không tìm thấy shop"
-                    >
-                      {ecommerceShopList?.map((item) => (
-                        <Option key={item.id} value={item.id.toString()}>
-                          <img
-                            src={getEcommerceIcon(item.ecommerce)}
-                            alt={item.id}
-                            style={{
-                              marginRight: "5px",
-                              height: "16px",
-                            }}
-                          />
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                )}
+                  )}
+                </Form.Item>
 
                 <Form.Item label={<b>NGÀY TẠO ĐƠN</b>}>
                   <SelectDateFilter
@@ -1648,7 +1603,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             );
           })}
       </div>
-    </div>
+    </StyledOrderFilter>
   );
 };
 

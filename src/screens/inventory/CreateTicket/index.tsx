@@ -42,9 +42,11 @@ import {
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
   InventoryTransferDetailItem,
+  LineItem,
   StockTransferSubmit,
   Store,
 } from "model/inventory/transfer";
+import _ from "lodash";
 
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantImage, VariantResponse } from "model/product/product.model";
@@ -77,6 +79,7 @@ const CreateTicket: FC = () => {
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [hasError, setHasError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
   const [fromStoreData, setFormStoreData] = useState<Store>();
@@ -85,62 +88,25 @@ const CreateTicket: FC = () => {
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
 
-  function updateVariantQuantity(
-    oldVariantList: Array<VariantResponse>,
-    newVariant: VariantResponse
-  ): Array<VariantResponse> {
-    const hasVariant = oldVariantList.some(
-      (variant) => variant.id === newVariant.id
-    );
-    if (hasVariant) {
-      oldVariantList.forEach((variant, index, arr) => {
-        if (variant.id === newVariant.id) {
-          arr[index] = newVariant;
-        }
-      });
-    } else {
-      oldVariantList.push(newVariant);
-    }
+  function onQuantityChange(quantity: number | null, index: number) {
+    const dataTableClone = _.cloneDeep(dataTable);
+    dataTableClone[index].transfer_quantity = quantity;
 
-    const updateQuantityInput = { ...quantityInput };
-    oldVariantList.forEach(
-      (variant: any) => (updateQuantityInput[variant.id] = variant.transfer_quantity)
-    );
-    setQuantityInput(updateQuantityInput);
-    return oldVariantList;
-  }
-
-  function onQuantityChange(record: VariantResponse, transfer_quantity: number | null) {
-    if (!transfer_quantity) {
-      transfer_quantity = 0;
-    }
-    const newVariant = { ...record, transfer_quantity };
-
-    let oldVariant = form.getFieldValue(VARIANTS_FIELD);
-    if (!Array.isArray(oldVariant) || !oldVariant) {
-      oldVariant = [];
-    }
-
-    const updatedVariant = updateVariantQuantity(oldVariant, newVariant);
-
-    form.setFieldsValue({ [VARIANTS_FIELD]: updatedVariant });
-  }
-
-  function getValueInputQuantity(id: number | string) {
-    // return quantityInput
-    if (quantityInput.hasOwnProperty(id)) {
-      return quantityInput[id];
-    } else {
-      return 0;
-    }
+    const amountNumber = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
+    dataTableClone[index].amount = amountNumber;
+    
+    setDataTable(dataTableClone);
+    
+    form.setFieldsValue({ [VARIANTS_FIELD]: dataTableClone });
   }
 
   function getTotalQuantity(): number {
-    const lineItemList = Object.keys(quantityInput);
-    let total = lineItemList.reduce(function (previousValue, currentValue) {
-      return previousValue + quantityInput[currentValue];
-    }, 0);
-    return total ? total : 0;
+    let total = 0;
+    dataTable.forEach((element: LineItem) => {
+      total += element.transfer_quantity;
+    });
+
+    return total;
   }
 
   function onDeleteItem(variantId: number) {
@@ -179,9 +145,11 @@ const CreateTicket: FC = () => {
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
+    
     if (value) {
       const from_store_id = form.getFieldValue("from_store_id");
       const to_store_id = form.getFieldValue("to_store_id");
+
       if (from_store_id === to_store_id) {
         callback(`Kho gửi không được trùng với kho nhận`);
       } else {
@@ -257,6 +225,7 @@ const CreateTicket: FC = () => {
       ...new Map(dataTemp.map((item) => [item.id, item])).values(),
     ];
 
+    setDataTable(arrayUnique);
     form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
 
     setDataTable(arrayUnique);
@@ -329,8 +298,11 @@ const CreateTicket: FC = () => {
     (result: InventoryTransferDetailItem) => {
       // setLoadingSaveButton(false);
       if (result) {
+        setIsLoading(false);
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
+      } else {
+        setIsLoading(false);
       }
     },
     [history]
@@ -374,6 +346,35 @@ const CreateTicket: FC = () => {
   };
 
   const onFinish = (data: StockTransferSubmit) => {
+    let countError = 0;
+    let arrError: Array<string> = [];
+    dataTable?.forEach((element: VariantResponse, index: number) => {
+      const thisInput = document.getElementById(`item-quantity-${index}`);
+      if (!element.transfer_quantity) {
+        if (thisInput) thisInput.style.borderColor = "red";
+        countError++;
+        arrError.push(`${index + 1}`);
+      } else if (element.transfer_quantity === 0) {
+        if (thisInput) thisInput.style.borderColor = "red";
+        countError++;
+        arrError.push(`${index + 1}`);
+      } else if (
+        element.transfer_quantity > (element.available ? element.available : 0)
+      ) {
+        if (thisInput) thisInput.style.borderColor = "red";
+        arrError.push(`${index + 1}`);
+        countError++;
+      } else {
+        if (thisInput) thisInput.style.borderColor = "unset";
+      }
+    });
+
+    if (countError > 0) {
+      showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
+      setHasError(true);
+      return;
+    } 
+
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
         data.store_transfer = {
@@ -426,6 +427,7 @@ const CreateTicket: FC = () => {
     delete data.from_store_id;
     delete data.to_store_id;
     
+    setIsLoading(true);
     dispatch(creatInventoryTransferAction(data, createCallback));
   };
 
@@ -448,34 +450,57 @@ const CreateTicket: FC = () => {
       if (thisInput) thisInput.style.borderColor = "unset";
       setHasError(false);
     }
-  };
-
-  useEffect(() => {
-    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
-
-    if (dataTable.length === 0) {
-      setHasError(false);
-    }
+    
+    let countError = 0;
 
     dataLineItems?.forEach((element: VariantResponse, index: number) => {
       const thisInput = document.getElementById(`item-quantity-${index}`);
       if (!element.transfer_quantity) {
         if (thisInput) thisInput.style.borderColor = "red";
+        countError++;
         setHasError(true);
       } else if (element.transfer_quantity === 0) {
         if (thisInput) thisInput.style.borderColor = "red";
+        countError++;
         setHasError(true);
       } else if (
         element.transfer_quantity > (element.available ? element.available : 0)
       ) {
         if (thisInput) thisInput.style.borderColor = "red";
+        countError++;
         setHasError(true);
       } else {
         if (thisInput) thisInput.style.borderColor = "unset";
         setHasError(false);
       }
+    }, () => {
+      if (countError > 0) {
+        setHasError(true);
+      }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  };
+
+  useEffect(() => {
+    if (dataTable.length === 0) {
+      setHasError(false);
+    }
+    
+    dataTable?.forEach((element: VariantResponse, index: number) => {
+      const thisInput = document.getElementById(`item-quantity-${index}`);
+      if (!element.transfer_quantity) {
+        if (thisInput) thisInput.style.borderColor = "red";
+      } else if (element.transfer_quantity === 0) {
+        if (thisInput) thisInput.style.borderColor = "red";
+      } else if (
+        element.transfer_quantity > (element.available ? element.available : 0)
+      ) {
+        if (thisInput) thisInput.style.borderColor = "red";
+      } else {
+        if (thisInput) thisInput.style.borderColor = "unset";
+        setHasError(false);
+      }
+    });
+  
   }, [dataTable, hasError]);
 
   const columns: ColumnsType<any> = [
@@ -558,9 +583,9 @@ const CreateTicket: FC = () => {
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
-            value={getValueInputQuantity(row.id)}
+            value={value}
             onChange={(quantity) => {
-              onQuantityChange(row, quantity);
+              onQuantityChange(quantity, index);
             }}
             onBlur={() => {
               checkError(index);
@@ -620,6 +645,7 @@ const CreateTicket: FC = () => {
                     <Form.Item
                       name="from_store_id"
                       label={<b>Kho gửi</b>}
+                      validateFirst
                       rules={[
                         {
                           required: true,
@@ -672,6 +698,7 @@ const CreateTicket: FC = () => {
                     <Form.Item
                       name="to_store_id"
                       label={<b>Kho nhận</b>}
+                      validateFirst
                       rules={[
                         {
                           required: true,
@@ -823,7 +850,7 @@ const CreateTicket: FC = () => {
             }
             rightComponent={
               <Space>
-                <Button disabled={hasError} htmlType={"submit"} type="primary">
+                <Button loading={isLoading} disabled={hasError || isLoading} htmlType={"submit"} type="primary">
                   Tạo phiếu
                 </Button>
               </Space>

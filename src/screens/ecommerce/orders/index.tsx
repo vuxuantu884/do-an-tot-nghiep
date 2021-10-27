@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Tag, Tooltip } from "antd";
+import { Button, Card, Menu, Tag, Tooltip } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -34,7 +34,6 @@ import {
 
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
@@ -59,16 +58,6 @@ import {
   StyledComponent,
 } from "screens/ecommerce/orders/orderStyles";
 
-const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In phiếu giao hàng",
-  },
-  {
-    id: 2,
-    name: "In phiếu xuất kho",
-  },
-];
 
 const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
@@ -89,7 +78,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_max: null,
   ship_on_predefined: null,
   shop_ids: [],
-  ecommerce_id: null,
+  channel_id: 3,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -128,10 +117,11 @@ const EcommerceOrderSync: React.FC = () => {
     useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] =
     useState(false);
-  const [downloadedOrderData, setDownloadedOrderData] = useState<any>({
+  const [downloadOrderData, setDownloadOrderData] = useState<any>({
     total: 0,
-    create_order_count: 0,
-    update_order_count: 0,
+    create_total: 0,
+    update_total: 0,
+    error_total: 0,
   });
 
   const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
@@ -200,6 +190,19 @@ const EcommerceOrderSync: React.FC = () => {
     },
   ];
 
+  const actionList = (
+    <Menu>
+      <Menu.Item key="1">
+        <span onClick={() => onMenuClick(1)}>In phiếu giao hàng</span>
+      </Menu.Item>
+  
+      <Menu.Item key="2">
+        <span onClick={() => onMenuClick(2)}>In phiếu xuất kho</span>
+      </Menu.Item>
+    </Menu>
+  );
+  
+
   const convertProgressStatus = (value: any) => {
     switch (value) {
       case "partial_paid":
@@ -240,15 +243,14 @@ const EcommerceOrderSync: React.FC = () => {
     {
       title: "ID đơn hàng",
       key: "order_id",
-      dataIndex: "code",
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
       width: "3.5%",
-      render: (value: string, i: OrderModel) => (
+      render: (data: any, i: OrderModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-          <div>({value})</div>
+          <Link to={`${UrlConfig.ORDER}/${i.id}`}>{data.code}</Link>
+          <div>({data.reference_code})</div>
         </div>
       ),
     },
@@ -592,6 +594,7 @@ const EcommerceOrderSync: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({ ...params });
+      window.scrollTo(0, 0);
     },
     [params]
   );
@@ -606,6 +609,7 @@ const EcommerceOrderSync: React.FC = () => {
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
+    window.location.reload();
   }, []);
 
   const onMenuClick = useCallback(
@@ -661,7 +665,7 @@ const EcommerceOrderSync: React.FC = () => {
     setIsShowResultGetOrderModal(true);
 
     if (data && data.total) {
-      setDownloadedOrderData(data);
+      setDownloadOrderData(data);
     }
   };
 
@@ -734,13 +738,13 @@ const EcommerceOrderSync: React.FC = () => {
           </>
         }
       >
-        <Card style={{ padding: "20px" }}>
+        <Card>
           <EcommerceOrderFilter
             tableLoading={tableLoading}
             onMenuClick={onMenuClick}
-            actions={actions}
+            actionList={actionList}
             onFilter={onFilter}
-            onClearFilter={() => onClearFilter()}
+            onClearFilter={onClearFilter}
             params={params}
             listStore={listStore}
             accounts={accounts}
@@ -753,7 +757,8 @@ const EcommerceOrderSync: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: 350 }}
+            scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               tableLoading
                 ? false
@@ -787,7 +792,7 @@ const EcommerceOrderSync: React.FC = () => {
             visible={isShowResultGetOrderModal}
             onCancel={closeResultGetOrderModal}
             onOk={closeResultGetOrderModal}
-            data={downloadedOrderData}
+            downloadOrderData={downloadOrderData}
           />
         )}
 

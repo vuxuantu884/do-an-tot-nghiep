@@ -93,7 +93,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
-      connection_start_date: null,
+      create_time_from: null,
+      create_time_to: null,
     }),
     []
   );
@@ -108,22 +109,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    connection_start_date: null,
+    create_time_from: null,
+    create_time_to: null,
   });
 
-  const updateEcommerceShopList = React.useCallback((result) => {
-    const shopList: any[] = [];
-    if (result && result.length > 0) {
-      result.forEach((item: any) => {
-        shopList.push({
-          id: item.id,
-          name: item.name,
-          isSelected: false,
-        });
-      });
-    }
-    setEcommerceShopList(shopList);
-  }, []);
 
   const reloadPage = () => {
     getProductUpdated(query);
@@ -419,21 +408,45 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     ),
   ]);
 
-  const columnFinal = React.useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  //handle convert to timestamp
+  const convertStartDateToTimestamp = (dateData: any) => {
+    const startDateValue = dateData?.split("-");
+    const day = startDateValue && startDateValue[0];
+    const month = startDateValue && startDateValue[1];
+    const year = startDateValue && startDateValue[2];
+    
+    const startDate = month + "." + day + "." + year + " 00:00:00";
+    const startDateTimestamp = moment(new Date(startDate)).unix();
+    return startDateTimestamp;
+  }
+  
+  const convertEndDateToTimestamp = (dateData: any) => {
+    const endDateValue = dateData?.split("-");
+    const today = new Date();
+    let time = "23:59:59";
 
-  const variantConnectedItem =
-    variantData &&
-    variantData.items &&
-    variantData.items.filter((item: any) => {
-      return item.connect_status === "connected";
-    });
+    if ((Number(endDateValue[0]) === Number(today.getDate())) &&
+        (Number(endDateValue[1]) === Number(today.getMonth()) + 1) &&
+        (Number(endDateValue[2]) === Number(today.getFullYear()))
+      ) {
+      time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    }
+
+    const day = endDateValue && endDateValue[0];
+    const month = endDateValue && endDateValue[1];
+    const year = endDateValue && endDateValue[2];
+
+    const endDate = month + "." + day + "." + year + " " + time;
+    const endDateTimestamp = moment(new Date(endDate)).unix();
+    return endDateTimestamp;
+  }
+  //end handle convert to timestamp
 
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.shop_ids = shopIdSelected;
+      value.create_time_from = connectionStartDate ? convertStartDateToTimestamp(connectionStartDate) : null;      
+      value.create_time_to = connectionEndDate ? convertEndDateToTimestamp(connectionEndDate) : null;
 
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
@@ -442,7 +455,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
-      query.connection_start_date = value.connection_start_date; //todo thai
+      query.create_time_from = value.create_time_from;
+      query.create_time_to = value.create_time_to;
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
@@ -455,26 +469,48 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       query.limit = limit;
       setQuery({ ...query, page, limit });
       getProductUpdated({ ...query });
+      window.scrollTo(0, 0);
     },
     [query, getProductUpdated]
   );
 
-  const getShopEcommerce = (ecommerceId: any) => {
-    setIsEcommerceSelected(true);
-    setShopIdSelected([]);
+  //handle select ecommerce
+  const updateEcommerceShopList = React.useCallback((result) => {
+    const shopList: any[] = [];
+    if (result && result.length > 0) {
+      result.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false,
+        });
+      });
+    }
+    setEcommerceShopList(shopList);
+  }, []);
+
+  const getEcommerceShop = (ecommerceId: any) => {
     dispatch(
       getShopEcommerceList(
         { ecommerce_id: ecommerceId },
         updateEcommerceShopList
       )
     );
+  }
+  //end handle select ecommerce
+
+  //handle select ecommerce
+  const handleSelectEcommerce = (ecommerceId: any) => {
+    setIsEcommerceSelected(true);
+    setShopIdSelected([]);
+    getEcommerceShop(ecommerceId);
   };
 
   const removeEcommerce = () => {
     setIsEcommerceSelected(false);
     setShopIdSelected([]);
-    dispatch(getShopEcommerceList({}, updateEcommerceShopList));
   };
+  //end handle select ecommerce
 
   const ECOMMERCE_LIST = [
     {
@@ -631,26 +667,19 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     setShopIdSelected([]);
   };
 
-  //handle select connection date
-
-  //todo thai: need update
   const [connectionStartDate, setConnectionStartDate] = useState(
-    params.connection_start_date
-      ? moment(params.connection_start_date, "DD-MM-YYYY")
-      : null
+    params.create_time_from || null
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    params.connection_start_date
-      ? moment(params.connection_start_date, "DD-MM-YYYY")
-      : null
+    params.create_time_to || null
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
 
   const onSelectDate = useCallback(
     (value) => {
-      let startDateValue = null;
-      let endDateValue = null;
+      let startDateValue;
+      let endDateValue;
 
       switch (value) {
         case "today":
@@ -705,8 +734,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         setConnectionEndDate(null);
       } else {
         setDateButtonSelected(value);
-        setConnectionStartDate(moment(startDateValue, "DD-MM-YYYY"));
-        setConnectionEndDate(moment(endDateValue, "DD-MM-YYYY"));
+        setConnectionStartDate(startDateValue);
+        setConnectionEndDate(endDateValue);
       }
     },
     [dateButtonSelected]
@@ -743,7 +772,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                 disabled={tableLoading}
                 placeholder="Chọn sàn"
                 allowClear
-                onSelect={(value) => getShopEcommerce(value)}
+                onSelect={(value) => handleSelectEcommerce(value)}
                 onClear={removeEcommerce}
               >
                 {ECOMMERCE_LIST &&
@@ -824,12 +853,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelectTable}
-        columns={columnFinal}
-        dataSource={variantConnectedItem}
+        columns={columns}
+        dataSource={variantData.items}
         scroll={{ x: 1500 }}
         pagination={{
           pageSize: variantData.metadata && variantData.metadata.limit,
-          total: variantConnectedItem && variantConnectedItem.length,
+          total: variantData.metadata && variantData.metadata.total,
           current: variantData.metadata && variantData.metadata.page,
           showSizeChanger: true,
           onChange: onPageChange,
@@ -869,7 +898,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                 showSearch
                 placeholder="Chọn sàn"
                 allowClear
-                onSelect={(value) => getShopEcommerce(value)}
+                onSelect={(value) => handleSelectEcommerce(value)}
                 onClear={removeEcommerce}
               >
                 {ECOMMERCE_LIST &&

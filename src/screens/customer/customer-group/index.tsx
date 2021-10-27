@@ -1,35 +1,33 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Menu, Dropdown } from "antd";
-import ContentContainer from "component/container/content.container";
-import FormCustomerGroup from "screens/customer/customer-group/group.form.modal";
-import CustomerModal from "../customer-modal";
-import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTable from "component/table/CustomTable";
-import UrlConfig from "config/url.config";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import editIcon from "assets/icon/edit.svg";
+import { Button, Card, Dropdown, Menu } from "antd";
 import deleteIcon from "assets/icon/deleteIcon.svg";
+import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-
+import ContentContainer from "component/container/content.container";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
 import {
   actionAddCustomerGroup,
   actionDeleteCustomerGroup,
   actionEditCustomerGroup,
-  actionFetchListCustomerGroup,
+  actionFetchListCustomerGroup
 } from "domain/actions/customer/customer.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
   CustomerGroupModel,
-  CustomerGroupResponseModel,
+  CustomerGroupResponseModel
 } from "model/response/customer/customer-group.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
+import FormCustomerGroup from "screens/customer/customer-group/group.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import CustomerModal from "../customer-modal";
+import { StyledComponent } from "./styles";
+
 
 const SettingCustomerGroup: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
@@ -202,16 +200,15 @@ const SettingCustomerGroup: React.FC = () => {
     sort_type: "desc",
     sort_column: "id",
   });
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, params]
+    [params]
   );
 
   const addCustomerGroup = () => {
@@ -312,7 +309,6 @@ const SettingCustomerGroup: React.FC = () => {
           },
           {
             name: "Nhóm khách hàng",
-            path: UrlConfig.CUSTOMER + "/customers-group",
           },
         ]}
         extra={addCustomerGroup()}
