@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Menu, Tag } from "antd";
+import { Button, Card, Menu } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -17,7 +17,6 @@ import {
   OrderFulfillmentsModel,
   OrderItemModel,
   OrderModel,
-  OrderPaymentModel,
   EcommerceOrderSearchQuery,
 } from "model/order/order.model";
 import { AccountResponse } from "model/account/account.model";

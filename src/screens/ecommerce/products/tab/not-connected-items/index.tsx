@@ -42,7 +42,6 @@ import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import filterIcon from "assets/icon/filter.svg";
 import saveIcon from "assets/icon/save.svg";
 import closeIcon from "assets/icon/X_close.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
@@ -650,9 +649,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     formAdvance.submit();
   }, [formAdvance]);
 
-  const onClearFilterAdvanceClick = React.useCallback(() => {
-    formAdvance.setFieldsValue(params);
+  const onClearBaseFilter = React.useCallback(() => {
+    removeEcommerce();
     setVisibleFilter(false);
+
+    formAdvance.setFieldsValue(params);
     formAdvance.submit();
   }, [formAdvance, params]);
 
@@ -916,6 +917,76 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </Form.Item>
             </Form>
           </div>
+
+          <BaseFilter
+            onClearFilter={onClearBaseFilter}
+            onFilter={onFilterClick}
+            onCancel={onCancelFilter}
+            visible={visibleFilter}
+            width={400}
+          >
+            <Form
+              form={formAdvance}
+              onFinish={onSearch}
+              //ref={formRef}
+              initialValues={params}
+              layout="vertical"
+            >
+              <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
+                <Select
+                  showSearch
+                  placeholder="Chọn sàn"
+                  allowClear
+                  onSelect={(value) => handleSelectEcommerce(value)}
+                  onClear={removeEcommerce}
+                >
+                  {ECOMMERCE_LIST &&
+                    ECOMMERCE_LIST.map((item: any) => (
+                      <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                        <div>
+                          <img
+                            src={item.icon}
+                            alt={item.id}
+                            style={{ marginRight: "10px" }}
+                          />
+                          <span>{item.title}</span>
+                        </div>
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                className="select-store-dropdown"
+                label={<b>CHỌN GIAN HÀNG</b>}
+              >
+                {isEcommerceSelected && (
+                  <Select
+                    showSearch
+                    disabled={tableLoading || !isEcommerceSelected}
+                    placeholder={getPlaceholderSelectShop()}
+                    allowClear={shopIdSelected && shopIdSelected.length > 0}
+                    dropdownRender={() => renderShopList(true)}
+                    onClear={removeSelectedShop}
+                  />
+                )}
+
+                {!isEcommerceSelected && (
+                  <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                    <Select
+                      showSearch
+                      disabled={true}
+                      placeholder={getPlaceholderSelectShop()}
+                      allowClear={shopIdSelected && shopIdSelected.length > 0}
+                      dropdownRender={() => renderShopList(true)}
+                      onClear={removeSelectedShop}
+                    />
+                  </Tooltip>
+                )}
+              </Form.Item>
+
+            </Form>
+          </BaseFilter>
         </StyledProductFilter>
 
         <CustomTable
@@ -948,88 +1019,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           Lưu các cặp đã chọn
         </Button>
       </Card>
-
-      <BaseFilter
-        onClearFilter={onClearFilterAdvanceClick}
-        onFilter={onFilterClick}
-        onCancel={onCancelFilter}
-        visible={visibleFilter}
-        width={400}
-        footerStyle={{
-          display: "flex",
-          flexDirection: "row-reverse",
-          justifyContent: "space-between",
-        }}
-        confirmButtonTitle="Áp dụng bộ lọc"
-        deleteButtonTitle={
-          <div>
-            <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-            <span style={{ color: "red" }}>Xóa bộ lọc</span>
-          </div>
-        }
-      >
-        <Form
-          form={formAdvance}
-          onFinish={onSearch}
-          //ref={formRef}
-          initialValues={params}
-          layout="vertical"
-        >
-          <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
-            <Select
-              showSearch
-              placeholder="Chọn sàn"
-              allowClear
-              onSelect={(value) => handleSelectEcommerce(value)}
-              onClear={removeEcommerce}
-            >
-              {ECOMMERCE_LIST &&
-                ECOMMERCE_LIST.map((item: any) => (
-                  <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                    <div>
-                      <img
-                        src={item.icon}
-                        alt={item.id}
-                        style={{ marginRight: "10px" }}
-                      />
-                      <span>{item.title}</span>
-                    </div>
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            className="select-store-dropdown"
-            label={<b>CHỌN GIAN HÀNG</b>}
-          >
-            {isEcommerceSelected && (
-              <Select
-                showSearch
-                disabled={tableLoading || !isEcommerceSelected}
-                placeholder={getPlaceholderSelectShop()}
-                allowClear={shopIdSelected && shopIdSelected.length > 0}
-                dropdownRender={() => renderShopList(true)}
-                onClear={removeSelectedShop}
-              />
-            )}
-
-            {!isEcommerceSelected && (
-              <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
-                <Select
-                  showSearch
-                  disabled={true}
-                  placeholder={getPlaceholderSelectShop()}
-                  allowClear={shopIdSelected && shopIdSelected.length > 0}
-                  dropdownRender={() => renderShopList(true)}
-                  onClear={removeSelectedShop}
-                />
-              </Tooltip>
-            )}
-          </Form.Item>
-
-        </Form>
-      </BaseFilter>
 
       {isVisibleConfirmConnectItemsModal &&
         <ConfirmConnectProductModal
