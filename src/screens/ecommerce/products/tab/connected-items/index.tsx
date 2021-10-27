@@ -55,7 +55,6 @@ import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } fr
 
 
 type ConnectedItemsProps = {
-  categoryList?: Array<any>;
   variantData: any;
   getProductUpdated: any;
   tableLoading: any;
@@ -64,7 +63,7 @@ type ConnectedItemsProps = {
 const ConnectedItems: React.FC<ConnectedItemsProps> = (
   props: ConnectedItemsProps
 ) => {
-  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
+  const { variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -88,7 +87,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       limit: 30,
       ecommerce_id: null,
       shop_ids: [],
-      category_id: null,
       connect_status: "connected",
       update_stock_status: null,
       sku_or_name_core: "",
@@ -104,7 +102,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     limit: 30,
     ecommerce_id: null,
     shop_ids: [],
-    category_id: null,
     connect_status: "connected",
     update_stock_status: null,
     sku_or_name_core: "",
@@ -450,7 +447,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
-      query.category_id = value.category_id;
       query.connect_status = "connected";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
@@ -944,16 +940,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                   />
                 </Tooltip>
               )}
-            </Form.Item>
-
-            <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
-              <Select showSearch placeholder="Chọn danh mục" allowClear>
-                {categoryList?.map((item: any) => (
-                  <Option key={item.category_id} value={item.category_id}>
-                    {item.display_category_name}
-                  </Option>
-                ))}
-              </Select>
             </Form.Item>
 
             <Form.Item
