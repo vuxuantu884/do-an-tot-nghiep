@@ -93,9 +93,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         ? params.store_ids
         : [params.store_ids],
       channel_id: params.channel_id,
-      shop_ids: Array.isArray(params.shop_ids)
-        ? params.shop_ids
-        : [params.shop_ids],
+      ecommerce_shop_ids: Array.isArray(params.ecommerce_shop_ids)
+        ? params.ecommerce_shop_ids
+        : [params.ecommerce_shop_ids],
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
@@ -605,7 +605,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
       const formValues = {
         ...values,
-        shop_ids: shopIdSelected,
+        ecommerce_shop_ids: shopIdSelected,
         issued_on_min: issuedOnMin
           ? moment(issuedOnMin, "DD-MM-YYYY")?.format("DD-MM-YYYY")
           : null,
@@ -686,14 +686,14 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       });
     }
 
-    if (initialValues.shop_ids.length) {
+    if (initialValues.ecommerce_shop_ids.length) {
       let textShop = "";
-      initialValues.shop_ids.forEach((shop_id: any) => {
+      initialValues.ecommerce_shop_ids.forEach((shop_id: any) => {
         const shop = ecommerceShopList?.find((shop) => shop.id.toString() === shop_id.toString());
         textShop = shop ? textShop + shop.name + "; " : textShop;
       });
       list.push({
-        key: "shop_ids",
+        key: "ecommerce_shop_ids",
         name: "Shop",
         value: textShop,
       });
@@ -1015,11 +1015,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         case "channel_id":
           handleRemoveEcommerce();
           onFilter &&
-            onFilter({ ...params, channel_id: null, shop_ids: [] });
+            onFilter({ ...params, channel_id: null, ecommerce_shop_ids: [] });
           break;
-        case "shop_ids":
+        case "ecommerce_shop_ids":
           handleRemoveSelectedShop();
-          onFilter && onFilter({ ...params, shop_ids: [] });
+          onFilter && onFilter({ ...params, ecommerce_shop_ids: [] });
           break;
         case "issued":
           setIssuedClick("");

@@ -80,7 +80,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_min: null,
   ship_on_max: null,
   ship_on_predefined: null,
-  shop_ids: [],
+  ecommerce_shop_ids: [],
   channel_id: 3,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
