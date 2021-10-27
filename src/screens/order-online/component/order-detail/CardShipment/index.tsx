@@ -46,7 +46,6 @@ type CardShipmentProps = {
   customer: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
   levelOrder?: number;
-  updateOrder?: boolean;
   isCancelValidateDelivery: boolean;
   totalAmountCustomerNeedToPay?: number;
   serviceType3PL: string | undefined;
@@ -58,6 +57,8 @@ type CardShipmentProps = {
 };
 
 /**
+ * component dùng trong trang tạo đơn, chi tiết đơn hàng (đơn nháp), update đơn hàng, đổi trả
+ * 
  * isCancelValidateDelivery: ko validate khi tạo đơn nháp
  *
  * shipmentMethod: truyền giá trị mặc định
@@ -92,7 +93,6 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     orderPrice,
     shipmentMethod,
     levelOrder = 0,
-    updateOrder,
     totalAmountCustomerNeedToPay = 0,
     serviceType3PL,
     form,
@@ -281,7 +281,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
 
   return (
     <StyledComponent>
-      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 2">
         <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>
