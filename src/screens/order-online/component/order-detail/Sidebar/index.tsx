@@ -29,7 +29,6 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
       return;
     }
     let result = orderDetail.linked_order_code.split(splitCharacter);
-    console.log('result', result)
     if(result.length > 1) {
       return (
         <div>
