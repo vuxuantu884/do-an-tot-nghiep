@@ -15,6 +15,7 @@ const ApiConfig = {
   INVENTORY: `${v1}/${AppConfig.INVENTORY_SERVICE}`,
   LOYALTY: `${v1}/${AppConfig.LOYALTY_SERVICE}`,
   ECOMMERCE: `${v1}/${AppConfig.ECOMMERCE_SERVICE}`,
+  PROMOTION: `${v1}/${AppConfig.PROMOTION_SERVICE}`,
 };
 
 export { ApiConfig };

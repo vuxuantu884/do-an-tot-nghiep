@@ -1,5 +1,5 @@
 export const AppConfig = {
-  baseUrl: process.env.REACT_APP_BASE_URL,
+  baseUrl: process.env.REACT_APP_BASE_URL || 'http://localhost:3004',
   timeOut: process.env.REACT_APP_TIME_OUT
     ? parseInt(process.env.REACT_APP_TIME_OUT)
     : 20000,
@@ -23,4 +23,5 @@ export const AppConfig = {
   INVENTORY_SERVICE: process.env.REACT_APP_INVENTORY_SERVICE,
   LOYALTY_SERVICE: process.env.REACT_APP_LOYALTY_SERVICE,
   ECOMMERCE_SERVICE: process.env.REACT_APP_ECOMMERCE_SERVICE,
+  PROMOTION_SERVICE: process.env.REACT_APP_PROMOTION_SERVICE || 'promotion',
 };

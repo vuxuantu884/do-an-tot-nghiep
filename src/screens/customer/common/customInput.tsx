@@ -41,7 +41,7 @@ function CustomInput(props: any) {
     >
       {type === "textarea" ? (
         <Input.TextArea
-          style={{minHeight: 150}}
+          style={{minHeight: 130}}
           disabled={disabled}
           maxLength={maxLength}
           placeholder={`${placeholder}`}
