@@ -1008,13 +1008,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       });
     }
 
-    if (initialValues.reference_code) {
-      list.push({
-        key: "reference_code",
-        name: "Mã tham chiếu",
-        value: initialValues.reference_code,
-      });
-    }
     return list;
   }, [
     accounts,
@@ -1146,9 +1139,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         case "tags":
           onFilter && onFilter({ ...params, tags: [] });
           break;
-        case "reference_code":
-          onFilter && onFilter({ ...params, reference_code: "" });
-          break;
         default:
           break;
       }
@@ -1244,14 +1234,19 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             )}
           </Form.Item>
 
-          <Item name="id_order_ecommerce" className="search-id-order-ecommerce">
+          <Item name="reference_code" className="search-id-order-ecommerce">
             <Input
               disabled={tableLoading}
               prefix={<img src={search} alt="" />}
               placeholder="ID đơn hàng (sàn)"
               onBlur={(e) => {
                 formFilter?.setFieldsValue({
-                  id_order_ecommerce: e.target.value.trim(),
+                  reference_code: e.target.value.trim(),
+                });
+              }}
+              onPressEnter={(e: any) => {
+                formFilter?.setFieldsValue({
+                  reference_code: e.target.value.trim(),
                 });
               }}
             />
