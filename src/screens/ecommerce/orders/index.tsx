@@ -81,7 +81,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_max: null,
   ship_on_predefined: null,
   ecommerce_shop_ids: [],
-  channel_id: 3,
+  channel_id: undefined,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -139,6 +139,7 @@ const EcommerceOrderSync: React.FC = () => {
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
     ...initQuery,
+    channel_id: 3,
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
@@ -617,7 +618,6 @@ const EcommerceOrderSync: React.FC = () => {
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
-    window.location.reload();
   }, []);
 
   const onMenuClick = useCallback(
@@ -754,6 +754,7 @@ const EcommerceOrderSync: React.FC = () => {
             onFilter={onFilter}
             onClearFilter={onClearFilter}
             params={params}
+            initQuery={initQuery}
             listStore={listStore}
             accounts={accounts}
             deliveryService={delivery_service}
