@@ -22,20 +22,18 @@ import {
   cancelOrderApi,
   confirmDraftOrderService,
   createDeliveryMappedStoreService,
-  createGoodsReceiptsService,
   createShippingOrderService,
   deleteDeliveryMappedStoreService,
   getChannelApi,
   getDeliveryMappedStoresService,
   getDeliveryTransportTypesService,
   getFulfillmentsApi,
-  getGoodsReceiptsSerchService,
-  getGoodsReceiptsTypeService,
   getInfoDeliveryFees,
   getOrderConfig,
   getPaymentMethod,
   getReasonsApi,
   getReturnApi,
+  getSourcesEcommerceService,
   orderPostApi,
   orderPutApi,
   putFulfillmentsPackApi,
@@ -48,7 +46,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import { OrderType } from "../../types/order.type";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
-import { SourceResponse } from "./../../../model/response/order/source.response";
+import { SourceEcommerceResponse, SourceResponse } from "./../../../model/response/order/source.response";
 import {
   getDeliverieServices,
   getListOrderApi,
@@ -65,12 +63,6 @@ import {
   updateShipment
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
-<<<<<<< HEAD
-import { getPackInfo } from 'utils/LocalStorageUtils';
-import { loadOrderPackAction } from "domain/actions/order/order.action";
-import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
-=======
->>>>>>> develop
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -826,6 +818,22 @@ function* splitOrderSaga(action: YodyAction) {
   }
 }
 
+function* getSourcesEcommerceSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<SourceEcommerceResponse>> = yield call(
+      getSourcesEcommerceService
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
@@ -867,4 +875,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_SHIPPING_ORDER, createShippingOrderSaga);
   yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga);
   yield takeLatest(OrderType.SPLIT_ORDER, splitOrderSaga);
+  yield takeLatest(OrderType.SOURCES_ECOMMERCE, getSourcesEcommerceSaga);
 }

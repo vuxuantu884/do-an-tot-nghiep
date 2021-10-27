@@ -8,7 +8,7 @@ export const getGoodsReceiptsType = (setData: (data: Array<GoodsReceiptsTypeResp
 };
 
 export const createGoodsReceipts = (data:GoodsReceiptsRequest,setData: (data: GoodsReceiptsTypeResponse) => void) => {
-    return BaseAction(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, { setData });
+    return BaseAction(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, {data, setData });
 };
 
 export const getGoodsReceiptsSerch = (data:any,setData: (data: Array<any>) => void) => {

@@ -41,7 +41,7 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { SourceResponse } from "model/response/order/source.response";
+import { SourceEcommerceResponse, SourceResponse } from "model/response/order/source.response";
 import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
@@ -359,3 +359,9 @@ export const splitOrderService = (
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/orders/split`, params);
 }
+/**
+ * biên bản sàn
+ */
+export const getSourcesEcommerceService = (): Promise<BaseResponse<Array<SourceEcommerceResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources/ecommerce`);
+};
