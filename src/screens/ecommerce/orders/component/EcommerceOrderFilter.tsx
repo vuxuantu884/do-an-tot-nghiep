@@ -1007,128 +1007,126 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   // close tag filter
   const onCloseTag = useCallback(
     (e, tag) => {
-      if (!tableLoading) {
-        e.preventDefault();
-        switch (tag.key) {
-          case "store":
-            onFilter && onFilter({ ...params, store_ids: [] });
-            break;
-          case "channel_id":
-            handleRemoveEcommerce();
-            onFilter &&
-              onFilter({ ...params, channel_id: null, shop_ids: [] });
-            break;
-          case "shop_ids":
-            handleRemoveSelectedShop();
-            onFilter && onFilter({ ...params, shop_ids: [] });
-            break;
-          case "issued":
-            setIssuedClick("");
-            setIssuedOnMin(null);
-            setIssuedOnMax(null);
-            onFilter &&
-              onFilter({ ...params, issued_on_min: null, issued_on_max: null });
-            break;
-          case "finalized":
-            setFinalizedClick("");
-            setFinalizedOnMin(null);
-            setFinalizedOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                finalized_on_min: null,
-                finalized_on_max: null,
-              });
-            break;
-          case "completed":
-            setCompletedClick("");
-            setCompletedOnMin(null);
-            setCompletedOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                completed_on_min: null,
-                completed_on_max: null,
-              });
-            break;
-          case "cancelled":
-            setCancelledClick("");
-            setCancelledOnMin(null);
-            setCancelledOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                cancelled_on_min: null,
-                cancelled_on_max: null,
-              });
-            break;
-          case "expected":
-            setExpectedClick("");
-            setExpectedReceiveOnMin(null);
-            setExpectedReceiveOnMax(null);
-            onFilter &&
-              onFilter({
-                ...params,
-                expected_receive_on_min: null,
-                expected_receive_on_max: null,
-              });
-            break;
-          case "order_status":
-            onFilter && onFilter({ ...params, order_status: [] });
-            break;
-          case "sub_status_id":
-            onFilter && onFilter({ ...params, sub_status_id: [] });
-            break;
-          case "fulfillment_status":
-            onFilter && onFilter({ ...params, fulfillment_status: [] });
-            break;
-          case "payment_status":
-            onFilter && onFilter({ ...params, payment_status: [] });
-            break;
-          case "assignee_codes":
-            onFilter && onFilter({ ...params, assignee_codes: [] });
-            break;
-          case "account_codes":
-            onFilter && onFilter({ ...params, account_codes: [] });
-            break;
-          case "price":
-            onFilter &&
-              onFilter({ ...params, price_min: null, price_max: null });
-            break;
-          case "payment_method":
-            onFilter && onFilter({ ...params, payment_method_ids: [] });
-            break;
-          case "expected_receive_predefined":
-            onFilter &&
-              onFilter({ ...params, expected_receive_predefined: "" });
-            break;
-          case "delivery_types":
-            onFilter && onFilter({ ...params, delivery_types: [] });
-            break;
-          case "delivery_provider_ids":
-            onFilter && onFilter({ ...params, delivery_provider_ids: [] });
-            break;
-          case "shipper_ids":
-            onFilter && onFilter({ ...params, shipper_ids: [] });
-            break;
-          case "note":
-            onFilter && onFilter({ ...params, note: "" });
-            break;
-          case "customer_note":
-            onFilter && onFilter({ ...params, customer_note: "" });
-            break;
-          case "tags":
-            onFilter && onFilter({ ...params, tags: [] });
-            break;
-          case "reference_code":
-            onFilter && onFilter({ ...params, reference_code: "" });
-            break;
-          default:
-            break;
-        }
+      e.preventDefault();
+      switch (tag.key) {
+        case "store":
+          onFilter && onFilter({ ...params, store_ids: [] });
+          break;
+        case "channel_id":
+          handleRemoveEcommerce();
+          onFilter &&
+            onFilter({ ...params, channel_id: null, shop_ids: [] });
+          break;
+        case "shop_ids":
+          handleRemoveSelectedShop();
+          onFilter && onFilter({ ...params, shop_ids: [] });
+          break;
+        case "issued":
+          setIssuedClick("");
+          setIssuedOnMin(null);
+          setIssuedOnMax(null);
+          onFilter &&
+            onFilter({ ...params, issued_on_min: null, issued_on_max: null });
+          break;
+        case "finalized":
+          setFinalizedClick("");
+          setFinalizedOnMin(null);
+          setFinalizedOnMax(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              finalized_on_min: null,
+              finalized_on_max: null,
+            });
+          break;
+        case "completed":
+          setCompletedClick("");
+          setCompletedOnMin(null);
+          setCompletedOnMax(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              completed_on_min: null,
+              completed_on_max: null,
+            });
+          break;
+        case "cancelled":
+          setCancelledClick("");
+          setCancelledOnMin(null);
+          setCancelledOnMax(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              cancelled_on_min: null,
+              cancelled_on_max: null,
+            });
+          break;
+        case "expected":
+          setExpectedClick("");
+          setExpectedReceiveOnMin(null);
+          setExpectedReceiveOnMax(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              expected_receive_on_min: null,
+              expected_receive_on_max: null,
+            });
+          break;
+        case "order_status":
+          onFilter && onFilter({ ...params, order_status: [] });
+          break;
+        case "sub_status_id":
+          onFilter && onFilter({ ...params, sub_status_id: [] });
+          break;
+        case "fulfillment_status":
+          onFilter && onFilter({ ...params, fulfillment_status: [] });
+          break;
+        case "payment_status":
+          onFilter && onFilter({ ...params, payment_status: [] });
+          break;
+        case "assignee_codes":
+          onFilter && onFilter({ ...params, assignee_codes: [] });
+          break;
+        case "account_codes":
+          onFilter && onFilter({ ...params, account_codes: [] });
+          break;
+        case "price":
+          onFilter &&
+            onFilter({ ...params, price_min: null, price_max: null });
+          break;
+        case "payment_method":
+          onFilter && onFilter({ ...params, payment_method_ids: [] });
+          break;
+        case "expected_receive_predefined":
+          onFilter &&
+            onFilter({ ...params, expected_receive_predefined: "" });
+          break;
+        case "delivery_types":
+          onFilter && onFilter({ ...params, delivery_types: [] });
+          break;
+        case "delivery_provider_ids":
+          onFilter && onFilter({ ...params, delivery_provider_ids: [] });
+          break;
+        case "shipper_ids":
+          onFilter && onFilter({ ...params, shipper_ids: [] });
+          break;
+        case "note":
+          onFilter && onFilter({ ...params, note: "" });
+          break;
+        case "customer_note":
+          onFilter && onFilter({ ...params, customer_note: "" });
+          break;
+        case "tags":
+          onFilter && onFilter({ ...params, tags: [] });
+          break;
+        case "reference_code":
+          onFilter && onFilter({ ...params, reference_code: "" });
+          break;
+        default:
+          break;
       }
     },
-    [handleRemoveEcommerce, handleRemoveSelectedShop, onFilter, params, tableLoading]
+    [handleRemoveEcommerce, handleRemoveSelectedShop, onFilter, params]
   );
   // end handle tag filter
 
@@ -1595,7 +1593,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               <Tag
                 key={filter.key}
                 className="tag"
-                closable
+                closable={!tableLoading}
                 onClose={(e) => onCloseTag(e, filter)}
               >
                 {filter.name}: {filter.value}
