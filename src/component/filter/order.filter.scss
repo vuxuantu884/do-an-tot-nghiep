@@ -132,12 +132,23 @@
             }
           }
         }
-        .button-option {
+        .button-option-1 {
           display: flex;
           justify-content: space-between;
           margin-bottom: 10px;
           .ant-btn {
             width: 48%;
+          }
+        }
+        .button-option-2 {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+          .ant-btn {
+            width: 30%;
+            padding: 0px 5px;
+            height: 40px;
+            line-height: 29px;
           }
         }
       }

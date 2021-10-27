@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Col, Drawer, Row, Space } from "antd";
+import { Button, Drawer, Row, Space } from "antd";
 import { Scrollbars } from "react-custom-scrollbars";
 
 type BaseFilterProps = {
