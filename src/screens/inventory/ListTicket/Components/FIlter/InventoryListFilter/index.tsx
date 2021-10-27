@@ -384,6 +384,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 className="select-item"
               >
                 <Select
+                  optionFilterProp="children"
                   placeholder="Kho gửi"
                   showArrow
                   showSearch
