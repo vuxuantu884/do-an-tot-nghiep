@@ -1,0 +1,331 @@
+import {
+  Card,
+  Button,
+  Form,
+  Input,
+  Select,
+} from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import actionColumn from "./actions/action.column";
+import CustomFilter from "component/table/custom.filter";
+import ContentContainer from "component/container/content.container";
+import settingGearIcon from "../../../assets/icon/setting-gear-icon.svg";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
+import moment from "moment";
+import "./promotion-code.scss";
+import { PlusOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { PageResponse } from "model/base/base-metadata.response";
+import { MenuAction } from "component/table/ActionButton";
+import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
+import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
+import { DiscountSearchQuery } from "model/query/discount.query";
+import { getQueryParams, useQuery } from "../../../utils/useQuery";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+
+const PromotionCode = () => {
+  const promotionStatuses = [
+    {
+      code: 'APPLYING',
+      value: 'Đang áp dụng',
+      style: {
+        background: "rgba(42, 42, 134, 0.1)",
+        borderRadius: "100px",
+        color: "rgb(42, 42, 134)",
+        padding: "5px 10px"
+      }
+    },
+    {
+      code: 'TEMP_STOP',
+      value: 'Tạm ngưng',
+      style: {
+        background: "rgba(252, 175, 23, 0.1)",
+        borderRadius: "100px",
+        color: "#FCAF17",
+        padding: "5px 10px"
+      }},
+    {
+      code: 'WAIT_FOR_START',
+      value: 'Chờ áp dụng' ,
+      style: {
+        background: "rgb(245, 245, 245)",
+        borderRadius: "100px",
+        color: "rgb(102, 102, 102)",
+        padding: "5px 10px"
+      }},
+    {
+      code: 'ENDED',
+      value: 'Kết thúc',
+      style: {
+        background: "rgba(39, 174, 96, 0.1)",
+        borderRadius: "100px",
+        color: "rgb(39, 174, 96)",
+        padding: "5px 10px"
+      }},
+    {
+      code: 'CANCELLED',
+      value: 'Đã huỷ',
+      style: {
+        background: "rgba(226, 67, 67, 0.1)",
+        borderRadius: "100px",
+        color: "rgb(226, 67, 67)",
+        padding: "5px 10px"
+      }},
+  ]
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "Kích hoạt",
+    },
+    {
+      id: 2,
+      name: "Tạm ngừng",
+    },
+    {
+      id: 3,
+      name: "Xuất Excel",
+    },
+    {
+      id: 4,
+      name: "Xoá",
+    },
+  ];
+  
+  const initQuery: DiscountSearchQuery = {
+    request: "",
+    from_created_date: "",
+    to_created_date: "",
+    status: "",
+    applied_shop: "",
+    applied_source: "",
+    customer_category: "",
+    discount_method: ""
+  };
+  const dispatch = useDispatch();
+  const query = useQuery();
+  
+  const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  })
+  let dataQuery: DiscountSearchQuery = {
+    ...initQuery,
+    ...getQueryParams(query)
+  }
+  const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+  
+  const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
+    setData(data)
+    setTableLoading(false)
+  }, [])
+  
+  const [showSettingColumn, setShowSettingColumn] = React.useState<boolean>(false);
+
+  useEffect(() => {
+    dispatch(getListPromotionCode(params, fetchData));
+  }, [dispatch, fetchData, params]);
+  
+  const onPageChange = useCallback(
+    (page, limit) => {
+      setParams({ ...params, page, limit });
+    },
+    [params]
+  );
+  
+  const onFilter = useCallback(values => {
+    let newParams = {...params, ...values, page: 1};
+    setParams({...newParams})
+  }, [params])
+
+  const handleUpdate = (item: any) => {
+    console.log(item);
+  };
+  const handleShowDeleteModal = (item: any) => {
+    console.log(item);
+  };
+  const [columns, setColumn] = React.useState<Array<ICustomTableColumType<any>>>([
+    {
+      title: "Mã",
+      visible: true,
+      fixed: "left",
+      width: "10",
+      render: (value: any, item: any, index: number) =>
+        <Link
+          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`}
+          style={{color: '#2A2A86', fontWeight: 500}}
+        >
+          {value.code}
+        </Link>,
+    },
+    {
+      title: "Tên đợt phát hành",
+      visible: true,
+      fixed: "left",
+      dataIndex: "name",
+      width: "10",
+    },
+    {
+      title: "SL mã",
+      visible: true,
+      fixed: "left",
+      dataIndex: "code_amount",
+      width: "10",
+    },
+    {
+      title: "Đã sử dụng",
+      visible: true,
+      fixed: "left",
+      dataIndex: "used_amount",
+      width: "10",
+    },
+    {
+      title: "Thời gian",
+      visible: true,
+      fixed: "left",
+      align: 'center',
+      width: "10",
+      render: (value: any, item: any, index: number) =>
+        <div>{`${item.start_time && moment(item.start_time).format(DATE_FORMAT.DDMMYYY)} - ${item.end_time && moment(item.end_time).format(DATE_FORMAT.DDMMYYY)}`}</div>,
+    },
+    {
+      title: "Người tạo",
+      visible: true,
+      dataIndex: "created_by",
+      fixed: "left",
+      align: 'center',
+      width: "10",
+    },
+    {
+      title: "Trạng thái",
+      visible: true,
+      fixed: "left",
+      dataIndex: 'status',
+      align: 'center',
+      width: '12%',
+      render: (value: any, item: any, index: number) => {
+        const status: any | null = promotionStatuses.find(e => e.code === value);
+        return (<div
+          style={status?.style}
+        >
+          {status?.value}
+        </div>)
+      }
+    },
+    actionColumn(handleUpdate, handleShowDeleteModal),
+  ]);
+  const columnFinal = React.useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
+
+  return (
+    <ContentContainer
+      title="Danh sách đợt phát hành"
+      breadcrumb={[
+        {
+          name: "Tổng quan",
+          path: UrlConfig.HOME,
+        },
+        {
+          name: "Khuyến mãi",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+        },
+        {
+          name: "Đợt phát hành",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+        },
+      ]}
+      extra={
+        <>
+          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`}>
+            <Button
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<PlusOutlined />}
+            >
+              Thêm mới đợt phát hành
+            </Button>
+          </Link>
+        </>
+      }
+    >
+      <Card>
+        <div className="padding-20 promotion-code-search-filter">
+          <CustomFilter menu={actions}>
+            <Form onFinish={onFilter} initialValues={params} layout="inline">
+              <Form.Item name="request">
+                <Input
+                  // style={{ marginLeft: 16, width: "100%" }}
+                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  placeholder="Tìm kiếm theo mã, tên đợt phát hành"
+                />
+              </Form.Item>
+              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Form.Item>
+              <Form.Item>
+                <Button>Thêm bộ lọc</Button>
+              </Form.Item>
+              <Form.Item>
+                <Button
+                  onClick={() => setShowSettingColumn(true)}
+                  icon={
+                    <img
+                      style={{ marginBottom: 3 }}
+                      src={settingGearIcon}
+                      alt=""
+                    ></img>
+                  }
+                ></Button>
+              </Form.Item>
+            </Form>
+          </CustomFilter>
+
+          {/* <Card style={{ position: "relative" }}> */}
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            scroll={{ x: 2000 }}
+            sticky={{ offsetScroll: 5 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: any) => item.id}
+          />
+        </div>
+      </Card>
+      <ModalSettingColumn
+        visible={showSettingColumn}
+        onCancel={() => {
+          setShowSettingColumn(false);
+        }}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data);
+        }}
+        data={columns}
+      />
+    </ContentContainer>
+  );
+};
+
+export default PromotionCode;

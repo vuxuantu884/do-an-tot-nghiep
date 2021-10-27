@@ -30,8 +30,8 @@ import { sizeSaga } from "./product/size.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
 import { settingOrdersSaga } from "./settings/order-settings.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
-import { OrderReturnSaga } from "./order/order-return.saga";
 import { discountSaga } from "./promotion/discount/discount.saga";
+import { promotionCodeSaga } from "./promotion/promotion-code/promotion-code.saga";
 
 function* rootSaga() {
   yield all([
@@ -67,6 +67,7 @@ function* rootSaga() {
     ecommerceSaga(),
     OrderReturnSaga(),
     discountSaga(),
+    promotionCodeSaga(),
   ]);
 }
 
