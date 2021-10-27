@@ -2,11 +2,8 @@
 //#region Import
 import {
   CloseOutlined,
-  EnvironmentOutlined,
   LoadingOutlined,
-  MailOutlined,
   SearchOutlined,
-  UpOutlined,
 } from "@ant-design/icons";
 import {
   AutoComplete,
@@ -59,7 +56,6 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
-import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";

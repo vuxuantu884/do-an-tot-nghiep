@@ -25,7 +25,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   props: CustomerCardUpdateProps
 ) => {
   const { loyaltyPoint, loyaltyUsageRules } = props;
-  const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
+  // const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   // const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   // const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -45,19 +45,19 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   // const OkConfirmCustomer = useCallback(() => {
   //   setVisibleCustomer(false);
   // }, []);
-  const ShowAddressModal = () => {
-    // setVisibleAddress(true);
-    setVisibleShippingAddress(false);
-    // setVisibleBillingAddress(false);
-  };
+  // const ShowAddressModal = () => {
+  //   // setVisibleAddress(true);
+  //   setVisibleShippingAddress(false);
+  //   // setVisibleBillingAddress(false);
+  // };
 
   const ShowBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
 
-  const handleVisibleBillingAddressChange = (value: boolean) => {
-    // setVisibleBillingAddress(value);
-  };
+  // const handleVisibleBillingAddressChange = (value: boolean) => {
+  //   // setVisibleBillingAddress(value);
+  // };
   let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
 
   const rankName = loyaltyUsageRules.find(
