@@ -116,5 +116,5 @@ export interface OrderSearchQuery {
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
   shop_ids: [];
-  ecommerce_id: null;
+  channel_id: number | undefined;
 }

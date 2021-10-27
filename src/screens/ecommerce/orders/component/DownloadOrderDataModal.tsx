@@ -210,7 +210,9 @@ const DownloadOrderDataModal: React.FC<DownloadOrderDataModalType> = (
       cancelText="Hủy"
       onCancel={cancelGetOrderModal}
       onOk={postEcommerceOrder}
-      okButtonProps={{disabled: isDisableOkButton()}}
+      okButtonProps={{ disabled: isDisableOkButton() }}
+      cancelButtonProps={{ disabled: isLoading }}
+      closable={!isLoading}
       maskClosable={false}
       confirmLoading={isLoading}
     >

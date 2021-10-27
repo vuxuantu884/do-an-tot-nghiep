@@ -592,7 +592,7 @@ export default function Order() {
     const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
-          OrderDetailAction(+cloneIdParam, async (response) => {
+          OrderDetailAction(cloneIdParam, async (response) => {
             const { customer_id } = response;
 
             if (customer_id) {
