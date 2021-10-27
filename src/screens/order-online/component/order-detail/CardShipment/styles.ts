@@ -12,7 +12,7 @@ export const StyledComponent = styled.div`
   }
   .orders-shipment {
     .ant-row {
-      justify-content: space-between;
+      /* justify-content: space-between; */
     }
     &__dateLabel {
       float: left;

@@ -1796,7 +1796,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 </div>
               </Row>
               {/*--- Chuyển hãng vận chuyển ----*/}
-              {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+              {/* {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                 <>
                   {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                     <ShipmentMethodDeliverPartner
@@ -1855,7 +1855,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </div>
                   </Col>
                 </>
-              )}
+              )} */}
 
               {/* Tự vận chuyển */}
               {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (

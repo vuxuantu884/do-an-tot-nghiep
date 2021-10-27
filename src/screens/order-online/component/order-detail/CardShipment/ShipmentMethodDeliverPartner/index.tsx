@@ -1,35 +1,29 @@
-import { Col, Form, Row } from "antd";
+import { Col, Form, FormInstance, Row } from "antd";
 import LogoDHL from "assets/img/LogoDHL.svg";
 import LogoGHN from "assets/img/LogoGHN.svg";
 import LogoGHTK from "assets/img/LogoGHTK.svg";
 import LogoVTP from "assets/img/LogoVTP.svg";
 import NumberInput from "component/custom/number-input.custom";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
-import { OrderPaymentRequest } from "model/request/order.request";
-import {
-  FeesResponse,
-  // DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderResponse,
-} from "model/response/order/order.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { FeesResponse } from "model/response/order/order.response";
+import { ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  amount: number | undefined;
-  totalPaid?: number | undefined;
-  shippingFeeCustomer: number | null;
-  discountValue: number | null | undefined;
-  OrderDetail?: OrderResponse | null;
-  payments?: OrderPaymentRequest[] | null;
-  setShippingFeeInformedCustomer: (value: number | null) => void;
-  // deliveryServices: DeliveryServiceResponse[] | null;
+  totalAmountCustomerNeedToPay: number | undefined;
+  serviceType3PL?: string | null;
+  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   infoFees: FeesResponse[];
-  serviceType?: string | null;
+  addressError: string;
+  levelOrder?: number;
+  orderPrice?: number;
+  customer: CustomerResponse | null;
+  form: FormInstance<any>;
   changeServiceType: (
     id: number,
     code: string,
@@ -38,48 +32,27 @@ type PropType = {
     name: string,
     serviceName: string,
   ) => void;
-  fulfillments: FulFillmentResponse[] | null | undefined;
-  isCloneOrder?: boolean;
-  addressError: string;
-  levelOrder?: number;
-  totalAmountReturnProducts?: number;
+  setShippingFeeInformedToCustomer: (value: number) => void;
 };
 
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
-    amount,
-    totalPaid,
-    shippingFeeCustomer,
-    discountValue,
-    // OrderDetail,
-    // payments,
-    setShippingFeeInformedCustomer,
-    // deliveryServices,
+    totalAmountCustomerNeedToPay,
+    shippingServiceConfig,
+    setShippingFeeInformedToCustomer,
     infoFees,
-    serviceType,
+    serviceType3PL,
     changeServiceType,
-    // fulfillments,
-    // isCloneOrder,
     addressError,
     levelOrder = 0,
-    totalAmountReturnProducts,
+    orderPrice,
+    customer,
+    form,
   } = props;
 
   console.log("propsShipmentmethod", props);
 
-  const createOrderContext = useContext(OrderCreateContext);
-  console.log("createOrderContext", createOrderContext);
-  const totalAmountCustomerNeedToPayShipper =
-    createOrderContext?.price.totalAmountCustomerNeedToPay ?
-      createOrderContext?.price.totalAmountCustomerNeedToPay : ((amount ? amount : 0) +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      (discountValue ? discountValue : 0) -
-      (totalPaid ? totalPaid : 0) -
-      // totalAmountPaid() -
-      (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
-
-
-  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType);
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState(serviceType3PL);
 
   // const totalAmountPaid = () => {
   //   let total = 0;
@@ -137,25 +110,21 @@ function ShipmentMethodDeliverPartner(props: PropType) {
   //   );
   // };
 
-  const customerShippingAddress = createOrderContext?.shipping.shippingAddress;
-  const form = createOrderContext?.form;
-  const orderPrice = createOrderContext?.order.orderAmount;
-
   /**
    * check cấu hình đơn hàng để tính phí ship báo khách
    */
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
+      const customerShippingAddress = customer?.shipping_addresses.find(
+        (single) => single.default
+      );
       if (!customerShippingAddress || orderPrice === undefined) {
         return;
       }
       const customerShippingAddressCityId = customerShippingAddress.city_id;
 
-      if (
-        !createOrderContext?.shipping.shippingServiceConfig ||
-        !customerShippingAddress
-      ) {
+      if (!shippingServiceConfig || !customerShippingAddress) {
         return;
       }
       //check thời gian
@@ -198,18 +167,17 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       };
 
       // filter thời gian, active
-      const filteredShippingServiceConfig =
-        createOrderContext?.shipping.shippingServiceConfig.filter((single) => {
-          return (
-            checkIfIsInTimePeriod(single.start_date, single.end_date) &&
-            single.status === ORDER_SETTINGS_STATUS.active &&
-            single.external_service_transport_types &&
-            checkIfListServicesContainSingle(
-              single.external_service_transport_types,
-              transportType
-            )
-          );
-        });
+      const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
+        return (
+          checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+          single.status === ORDER_SETTINGS_STATUS.active &&
+          single.external_service_transport_types &&
+          checkIfListServicesContainSingle(
+            single.external_service_transport_types,
+            transportType
+          )
+        );
+      });
 
       console.log("filteredShippingServiceConfig", filteredShippingServiceConfig);
 
@@ -262,18 +230,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         });
         console.log("result", result);
         form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
-        setShippingFeeInformedCustomer(result);
+        setShippingFeeInformedToCustomer(result);
       } else {
         form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
-        setShippingFeeInformedCustomer(0);
+        setShippingFeeInformedToCustomer(0);
       }
     },
     [
-      createOrderContext?.shipping.shippingServiceConfig,
-      customerShippingAddress,
+      customer?.shipping_addresses,
       form,
       orderPrice,
-      setShippingFeeInformedCustomer,
+      setShippingFeeInformedToCustomer,
+      shippingServiceConfig,
     ]
   );
 
@@ -296,9 +264,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPayShipper &&
-                  totalAmountCustomerNeedToPayShipper > 0
-                    ? totalAmountCustomerNeedToPayShipper
+                  totalAmountCustomerNeedToPay && totalAmountCustomerNeedToPay > 0
+                    ? totalAmountCustomerNeedToPay
                     : 0
                 }
                 className="formInputAmount"
@@ -310,17 +277,22 @@ function ShipmentMethodDeliverPartner(props: PropType) {
           <Col md={12}>
             <Form.Item
               label="Phí ship báo khách:"
-              // name="shipping_fee_informed_to_customer"
+              name="shipping_fee_informed_to_customer"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
-                value={shippingFeeCustomer || 0}
                 className="formInputAmount"
                 maxLength={15}
                 minLength={0}
-                onChange={setShippingFeeInformedCustomer}
+                onChange={(value) => {
+                  if (value) {
+                    setShippingFeeInformedToCustomer(value);
+                  } else {
+                    setShippingFeeInformedToCustomer(0);
+                  }
+                }}
               />
             </Form.Item>
           </Col>
@@ -360,11 +332,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                               </td>
                               <td style={{ padding: 0 }}>
                                 {(sercivesFee as any)[deliveryServiceName].map(
-                                  (service: any) => {
+                                  (service: any, index: number) => {
                                     return (
                                       <div
                                         style={{ padding: "8px 16px" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        key={index}
                                       >
                                         <label className="radio-container">
                                           <input
@@ -420,9 +393,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                               </td>
                               <td style={{ padding: 0, textAlign: "right" }}>
                                 {(sercivesFee as any)[deliveryServiceName].map(
-                                  (service: any) => {
+                                  (service: any, index: number) => {
                                     return (
-                                      <>
+                                      <React.Fragment key={index}>
                                         <div
                                           style={{ padding: "8px 16px" }}
                                           className="custom-table__has-border-bottom custom-table__has-select-radio"
@@ -435,7 +408,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                             thousandSeparator={true}
                                           />
                                         </div>
-                                      </>
+                                      </React.Fragment>
                                     );
                                   }
                                 )}

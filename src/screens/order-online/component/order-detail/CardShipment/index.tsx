@@ -1,33 +1,36 @@
 // @ts-ignore
-import { Card, Checkbox, Col, DatePicker, Form, Row, Select, Space } from "antd";
+import {
+  Card,
+  Checkbox,
+  Col,
+  DatePicker,
+  Form,
+  FormInstance,
+  Row,
+  Select,
+  Space,
+} from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
+import { getFeesAction } from "domain/actions/order/order.action";
 import {
-  // DeliveryServicesGetList,
-  getFeesAction,
-} from "domain/actions/order/order.action";
+  actionGetOrderConfig,
+  actionListConfigurationShippingServiceAndShippingFee,
+} from "domain/actions/settings/order-settings.action";
 import { AccountResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
+import { OrderLineItemRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { StoreCustomResponse } from "model/response/order/order.response";
 import {
-  // DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderResponse,
-  StoreCustomResponse,
-} from "model/response/order/order.response";
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel,
+} from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {
-  useContext,
-  // useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption } from "utils/Constants";
@@ -38,107 +41,79 @@ import { StyledComponent } from "./styles";
 
 type CardShipmentProps = {
   shipmentMethod: number;
-  setShipmentMethodProps: (value: number) => void;
-  setShippingFeeInformedCustomer: (value: number | null) => void;
-  setShippingFeeInformedCustomerHVC: (value: number | null) => void;
-  setPaymentMethod: (value: number) => void;
-  setHVC: (value: number) => void;
-  setHvcName?: (value: string) => void;
-  setHvcCode?: (value: string) => void;
-  setOfficeTime: (value: boolean) => void;
-  serviceType?: string | null;
-  setServiceType: (value?: string) => void;
-  setServiceName: (value: string) => void;
-  storeDetail?: StoreCustomResponse | null;
-  amount: number;
-  totalPaid?: number;
-  paymentMethod: number;
-  shippingFeeCustomer: number | null;
-  shippingFeeCustomerHVC: number | null;
-  customerInfo: CustomerResponse | null;
+  orderPrice?: number;
+  storeDetail: StoreCustomResponse | undefined;
+  customer: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
-  discountValue: number | null;
-  officeTime: boolean | undefined;
-  setFee: (value: number) => void;
-  OrderDetail?: OrderResponse | null;
-  payments?: OrderPaymentRequest[];
-  onPayments: (value: Array<OrderPaymentRequest>) => void;
-  fulfillments: FulFillmentResponse[];
-  isCloneOrder: boolean;
   levelOrder?: number;
-  updateOrder?: boolean;
-  totalAmountReturnProducts?: number;
+  isCancelValidateDelivery: boolean;
+  totalAmountCustomerNeedToPay?: number;
+  serviceType3PL: string | undefined;
+  form: FormInstance<any>;
+  setServiceType3PL: (value: string | undefined) => void;
+  setShipmentMethod: (value: number) => void;
+  setShippingFeeInformedToCustomer: (value: number) => void;
+  setHVC: (value: number) => void;
 };
 
+/**
+ * component dùng trong trang tạo đơn, chi tiết đơn hàng (đơn nháp), update đơn hàng, đổi trả
+ * 
+ * isCancelValidateDelivery: ko validate khi tạo đơn nháp
+ *
+ * shipmentMethod: truyền giá trị mặc định
+ *
+ * orderPrice: giá trị đơn hàng, để tính phí ship hãng vận chuyển, khi apply cấu hình đơn hàng
+ *
+ * items: hàng hóa trong đơn hàng, để tính phí ship
+ *
+ * totalAmountCustomerNeedToPay: tổng số tiền thu hộ - bằng số tiền khách cần trả
+ *
+ * serviceType3PL: loại dịch vụ hãng vận chuyển
+ *
+ * setServiceType3PL: xử lý khi chọn loại dịch vụ hãng vận chuyển
+ *
+ * setShipmentMethod: xử lý khi chọn loại shipment
+ *
+ * setShippingFeeInformedToCustomer: xử lý khi điền phí ship báo khách
+ *
+ * setHVC: xử lý khi chọn hãng vận chuyển
+ *
+ * form
+ *
+ * customer: thông tin khách hàng - tính phí ship
+ *
+ * storeDetail: thông tin cửa hàng - tính phí ship
+ */
 const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => {
   const {
-    OrderDetail,
-    setShipmentMethodProps,
-    setHVC,
-    setHvcName,
-    setHvcCode,
-    serviceType,
-    setServiceType,
-    setServiceName,
-    setFee,
-    customerInfo,
-    amount,
-    totalPaid,
+    customer,
     storeDetail,
     items,
-    setShippingFeeInformedCustomer,
-    discountValue,
-    shippingFeeCustomer,
-    officeTime,
-    setOfficeTime,
+    orderPrice,
     shipmentMethod,
-    payments,
-    // onPayments,
-    fulfillments,
-    isCloneOrder,
     levelOrder = 0,
-    totalAmountReturnProducts,
+    totalAmountCustomerNeedToPay = 0,
+    serviceType3PL,
+    form,
+    isCancelValidateDelivery,
+    setHVC,
+    setShipmentMethod,
+    setShippingFeeInformedToCustomer,
+    setServiceType3PL,
   } = props;
+  console.log("orderPrice", orderPrice);
   const dispatch = useDispatch();
-  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
-
-  // data context
-  const createOrderContext = useContext(OrderCreateContext);
-
-  const orderConfig = createOrderContext?.orderConfig;
-  const form = createOrderContext?.form;
+  const [listShippers, setListShippers] = useState<Array<AccountResponse> | null>(null);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
 
   const ShipMethodOnChange = (value: number) => {
-    setServiceType(undefined);
-    setShipmentMethodProps(value);
-    if (levelOrder < 3) {
-      // setPaymentMethod(value);
-    }
-    setShipmentMethodProps(value);
-    // if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
-    //   if (value === ShipmentMethodOption.SELF_DELIVER) {
-    //     // setPaymentMethod(PaymentMethodOption.COD);
-    //   }
-    // }
-
-    // if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-    //   console.log("start request fees");
-    //   // getInfoDeliveryFees();
-    //   // setPaymentMethod(PaymentMethodOption.COD);
-    //   //reset payment
-    //   // onPayments([]);
-    // }
-    // if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
-    //   // onPayments([]);
-    // }
-    if (
-      value === ShipmentMethodOption.DELIVER_LATER ||
-      value === ShipmentMethodOption.PICK_AT_STORE
-    ) {
-      setShippingFeeInformedCustomer(0);
-    }
+    setShipmentMethod(value);
   };
 
   const shipping_requirements = useSelector(
@@ -153,19 +128,9 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     name: string,
     serviceName: string
   ) => {
-    console.log("changeServiceType", item);
-
+    setServiceType3PL(code);
     setHVC(id);
-    setServiceType(item);
-    setFee(fee);
-    setHvcName && setHvcName(name);
-    setHvcCode && setHvcCode(code);
-    setServiceName(serviceName);
   };
-
-  useLayoutEffect(() => {
-    dispatch(ShipperGetListAction(setShipper));
-  }, [dispatch]);
 
   useLayoutEffect(() => {
     // dispatch(DeliveryServicesGetList(setDeliveryServices));
@@ -217,12 +182,12 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
       setAddressError("Thiếu thông tin địa chỉ cửa hàng");
     }
     if (
-      customerInfo &&
+      customer &&
       storeDetail &&
-      getShippingAddressDefault(customerInfo)?.city_id &&
-      getShippingAddressDefault(customerInfo)?.district_id &&
-      getShippingAddressDefault(customerInfo)?.ward_id &&
-      getShippingAddressDefault(customerInfo)?.full_address
+      (getShippingAddressDefault(customer)?.city_id ||
+        getShippingAddressDefault(customer)?.district_id) &&
+      getShippingAddressDefault(customer)?.ward_id &&
+      getShippingAddressDefault(customer)?.full_address
     ) {
       let request = {
         from_city_id: storeDetail?.city_id,
@@ -230,15 +195,15 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
         from_district_id: storeDetail?.district_id,
         from_district: storeDetail?.district_name,
         from_ward_id: storeDetail?.ward_id,
-        to_country_id: getShippingAddressDefault(customerInfo)?.country_id,
-        to_city_id: getShippingAddressDefault(customerInfo)?.city_id,
-        to_city: getShippingAddressDefault(customerInfo)?.city,
-        to_district_id: getShippingAddressDefault(customerInfo)?.district_id,
-        to_district: getShippingAddressDefault(customerInfo)?.district,
-        to_ward_id: getShippingAddressDefault(customerInfo)?.ward_id,
+        to_country_id: getShippingAddressDefault(customer)?.country_id,
+        to_city_id: getShippingAddressDefault(customer)?.city_id,
+        to_city: getShippingAddressDefault(customer)?.city,
+        to_district_id: getShippingAddressDefault(customer)?.district_id,
+        to_district: getShippingAddressDefault(customer)?.district,
+        to_ward_id: getShippingAddressDefault(customer)?.ward_id,
         from_address: storeDetail?.address,
-        to_address: getShippingAddressDefault(customerInfo)?.full_address,
-        price: amount,
+        to_address: getShippingAddressDefault(customer)?.full_address,
+        price: totalAmountCustomerNeedToPay,
         quantity: 1,
         weight: SumWeight(items),
         length: 0,
@@ -257,7 +222,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     } else {
       setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
     }
-  }, [amount, customerInfo, dispatch, items, storeDetail]);
+  }, [customer, dispatch, items, storeDetail, totalAmountCustomerNeedToPay]);
 
   const renderShipmentTabHeader = () => {
     return (
@@ -292,9 +257,32 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     );
   };
 
+  useEffect(() => {
+    dispatch(ShipperGetListAction(setListShippers));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+      })
+    );
+  }, [dispatch]);
+
+  /**
+   * orderSettings
+   */
+  useEffect(() => {
+    dispatch(
+      actionGetOrderConfig((response) => {
+        setOrderConfig(response);
+      })
+    );
+  }, [dispatch]);
+
   return (
     <StyledComponent>
-      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
+      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 2">
         <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>
@@ -312,13 +300,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
 
             <Col md={6}>
               <Form.Item name="office_time">
-                <Checkbox
-                  checked={officeTime}
-                  onChange={(e) => setOfficeTime(e.target.checked)}
-                  style={{ marginTop: "8px" }}
-                >
-                  Giờ hành chính
-                </Checkbox>
+                <Checkbox style={{ marginTop: "8px" }}>Giờ hành chính</Checkbox>
               </Form.Item>
             </Col>
             <Col md={9}>
@@ -380,38 +362,28 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
             {/*--- Chuyển hãng vận chuyển ----*/}
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
-                amount={amount}
-                totalPaid={totalPaid}
-                serviceType={serviceType}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                serviceType3PL={serviceType3PL}
+                shippingServiceConfig={shippingServiceConfig}
                 changeServiceType={changeServiceType}
-                // deliveryServices={deliveryServices}
-                discountValue={discountValue}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                 infoFees={infoFees}
-                setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-                shippingFeeCustomer={shippingFeeCustomer}
-                OrderDetail={OrderDetail}
-                payments={payments}
-                fulfillments={fulfillments}
-                isCloneOrder={isCloneOrder}
                 addressError={addressError}
                 levelOrder={levelOrder}
-                totalAmountReturnProducts={totalAmountReturnProducts}
+                orderPrice={orderPrice}
+                customer={customer}
+                form={form}
               />
             )}
-
             {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <ShipmentMethodSelfDelivery
-                setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-                shippingFeeCustomer={shippingFeeCustomer}
-                amount={amount}
-                totalPaid={totalPaid}
-                discountValue={discountValue}
-                shipper={shipper}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                 levelOrder={levelOrder}
-                totalAmountReturnProducts={totalAmountReturnProducts}
+                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                isCancelValidateDelivery={isCancelValidateDelivery}
+                listShippers={listShippers}
               />
             )}
-
             {/*--- Nhận tại cửa hàng ----*/}
             {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
