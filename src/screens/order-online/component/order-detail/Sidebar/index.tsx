@@ -1,7 +1,10 @@
 import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Col, Form, Input, Row, Select } from "antd";
+import { Card, Form, Input, Select } from "antd";
+import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
+import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
+import { Link } from "react-router-dom";
 import CustomerInputTags from "../../custom-input-tags";
 import SidebarOrderHistory from "./SidebarOrderHistory";
 import { StyledComponent } from "./styles";
@@ -13,12 +16,53 @@ type PropType = {
   isCloneOrder?: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
-  isSplitOrder?: boolean;
   customerId?: number | undefined;
+  orderDetail?: OrderResponse | null;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder, isSplitOrder, customerId } = props;
+  const { accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail } = props;
+
+  const renderSplitOrder = () => {
+    const splitCharacter = "-"
+    if(!orderDetail?.linked_order_code) {
+      return;
+    }
+    let result = orderDetail.linked_order_code.split(splitCharacter);
+    if(result.length > 1) {
+      return (
+        <div>
+            <label>Đơn tách:{"   "}</label>
+            {result.map((single, index) => {
+              return (
+                <React.Fragment>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ORDER}/${single}`}
+                >
+                  <strong>{single}</strong>
+                </Link>
+                {index < (result.length - 1) && ", "}
+                </React.Fragment>
+
+              )
+            })}
+          </div>
+      )
+    }else {
+      return (
+        <div>
+            <label>Đơn gốc tách đơn:{"   "}</label>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
+            >
+              <strong>{orderDetail.linked_order_code}</strong>
+            </Link>
+          </div>
+      )
+    }
+  };
 
   return (
     <StyledComponent>
@@ -93,10 +137,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item
-          label="Nhân viên điều phối"
-          name="coordinator_code"
-        >
+        <Form.Item label="Nhân viên điều phối" name="coordinator_code">
           <Select
             className="select-with-search"
             notFoundContent="Không tìm thấy kết quả"
@@ -130,7 +171,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} disabled={isSplitOrder} />
+          <Input placeholder="Điền tham chiếu" maxLength={255} />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
@@ -142,6 +183,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         >
           <Input placeholder="Điền đường dẫn" maxLength={255} />
         </Form.Item>
+        {renderSplitOrder()}
       </Card>
       <Card title="THÔNG TIN BỔ SUNG">
         <Form.Item name="customer_note" label="Ghi chú của khách">
@@ -179,18 +221,6 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             isCloneOrder={isCloneOrder}
           />
         </Form.Item>
-      </Card>
-      <Card title="Lịch sử mua hàng">
-        <Row className="" gutter={5} style={{ flexDirection: "column" }}>
-          <Col span={24} style={{ marginBottom: 6 }}>
-            <b>Ghi chú nội bộ:</b>
-          </Col>
-          <Col span={24}>
-            <span className="text-focus" style={{ wordWrap: "break-word" }}>
-              "Không có ghi chú"
-            </span>
-          </Col>
-        </Row>
       </Card>
       <SidebarOrderHistory customerId={customerId} />
     </StyledComponent>

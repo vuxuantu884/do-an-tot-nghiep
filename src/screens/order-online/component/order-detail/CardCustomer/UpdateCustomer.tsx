@@ -8,37 +8,28 @@ import {
   PlusOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import {
-  Form,
-  Col,
-  Input,
-  Row,
-  Select,
-  DatePicker,
-  Button,
-  Divider,
-  Popover,
-  FormInstance,
+  Button, Col, DatePicker, Divider, Form, FormInstance, Input, Popover, Row,
+  Select
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CustomerDetail,
-  UpdateShippingAddress,
+  UpdateShippingAddress
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import {
   CustomerResponse,
-  ShippingAddress,
+  ShippingAddress
 } from "model/response/customer/customer.response";
+import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomerShippingAddressOrder from "screens/fpage/fpage-order/component/order-detail/CardCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
-import moment from "moment";
-import { property } from "lodash";
 
 type UpdateCustomerProps = {
   areas: any;

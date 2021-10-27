@@ -406,15 +406,17 @@ const UpdateTicket: FC = () => {
           form.setFieldsValue({ from_store_id: fromStoreData ? fromStoreData.id : initDataForm?.from_store_id });
         },
         onOk: () => {
-          
           setFormStoreData(storeData);
-          const variants_id = dataTable?.map((item: VariantResponse) => item.id);
+          const variants_id = dataTable?.map((item: VariantResponse) => {
+            return item.id ? item.id : item.variant_id;
+          });
       
           if (variants_id?.length > 0) {
             setIsLoadingTable(true);
             dispatch(
               inventoryGetDetailVariantIdsAction(variants_id, storeData.id, (result: Array<InventoryResponse> | null) => {
-                if (result) {
+                if (result && result.length > 0) {
+                  
                   setModalConfirm({ visible: false });
                   setIsLoadingTable(false);
                   const newDataTable = dataTable.map((itemOld: VariantResponse) => {
@@ -437,6 +439,8 @@ const UpdateTicket: FC = () => {
                 }
               })
             );
+          } else {
+            setModalConfirm({ visible: false })
           }
         },
       });

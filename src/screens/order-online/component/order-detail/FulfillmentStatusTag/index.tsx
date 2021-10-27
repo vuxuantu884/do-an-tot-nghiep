@@ -82,6 +82,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       backgroundColor: "rgba(39, 174, 96, 0.1)",
     },
   ];
+
   const findStatusTagWithReturning = () => {
     if (!fulfillment) {
       return;
@@ -93,6 +94,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       );
     });
   };
+
   const findStatusTagWithReturned = () => {
     if (!fulfillment) {
       return;

@@ -1,50 +1,50 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import {EditOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
   Card,
   Checkbox,
   Col,
-  Divider,
   Dropdown,
   Form,
   FormInstance,
   Input,
   Menu,
-  Row,
   Select,
+  Row,
   Space,
   Table,
   Tooltip,
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
+import {RefSelectProps} from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
-import addIcon from "assets/img/plus_1.svg";
 import NumberInput from "component/custom/number-input.custom";
-import { AppConfig } from "config/app.config";
-import { Type } from "config/type.config";
+import {AppConfig} from "config/app.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
+import {OrderCreateContext} from "contexts/order-online/order-create-context";
 import {
   StoreGetListAction,
   StoreSearchListAction,
 } from "domain/actions/core/store.action";
+import {splitOrderAction} from "domain/actions/order/order.action";
 import {
   SearchBarCode,
   searchVariantsOrderRequestAction,
 } from "domain/actions/product/products.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
-import { OrderItemDiscountModel } from "model/other/order/order-model";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemRequest } from "model/request/order.request";
+import {PageResponse} from "model/base/base-metadata.response";
+import {StoreResponse} from "model/core/store.model";
+import {InventoryResponse} from "model/inventory";
+import {OrderItemDiscountModel} from "model/other/order/order-model";
+import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {OrderLineItemRequest, SplitOrderRequest} from "model/request/order.request";
+import {OrderResponse} from "model/response/order/order.response";
 import React, {
   createRef,
   useCallback,
@@ -54,8 +54,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
@@ -72,11 +72,11 @@ import {
   haveAccess,
   replaceFormatString,
 } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
+import {MoneyType} from "utils/Constants";
+import {showError, showSuccess} from "utils/ToastUtils";
 import DiscountGroup from "../../discount-group";
 import CardProductBottom from "./CardProductBottom";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type CardProductProps = {
   storeId: number | null;
@@ -100,11 +100,12 @@ type CardProductProps = {
   inventoryResponse: Array<InventoryResponse> | null;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   setStoreForm: (id: number | null) => void;
-  setStoreId?: (id: number | null) => void;
   levelOrder?: number;
   updateOrder?: boolean;
   orderId?: string;
   isSplitOrder?: boolean;
+  orderDetail?: OrderResponse | null;
+  fetchData?: () => void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -125,10 +126,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     selectStore,
     setStoreForm,
     handleCardItems,
-    setStoreId,
     levelOrder = 0,
     orderId,
     isSplitOrder,
+    orderDetail,
+    fetchData,
   } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
@@ -367,25 +369,25 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             src={avatar === "" ? imgDefault : avatar}
             alt="anh"
             placeholder={imgDefault}
-            style={{ width: "50%", borderRadius: 5 }}
+            style={{width: "50%", borderRadius: 5}}
           />
         </Col>
         <Col span={14}>
-          <div style={{ padding: "5px 0" }}>
+          <div style={{padding: "5px 0"}}>
             <span
               className="searchDropdown__productTitle"
-              style={{ color: "#37394D" }}
+              style={{color: "#37394D"}}
               title={item.name}
             >
               {item.name}
             </span>
-            <div style={{ color: "#95A1AC" }}>{item.sku}</div>
+            <div style={{color: "#95A1AC"}}>{item.sku}</div>
           </div>
         </Col>
         <Col span={6}>
-          <div style={{ textAlign: "right", padding: "0 20px" }}>
-            <div style={{ display: "inline-block", textAlign: "right" }}>
-              <Col style={{ color: "#222222" }}>
+          <div style={{textAlign: "right", padding: "0 20px"}}>
+            <div style={{display: "inline-block", textAlign: "right"}}>
+              <Col style={{color: "#222222"}}>
                 {`${findPrice(item.variant_prices, AppConfig.currency)} `}
                 <span
                   style={{
@@ -397,7 +399,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   đ
                 </span>
               </Col>
-              <div style={{ color: "#737373" }}>
+              <div style={{color: "#737373"}}>
                 Có thể bán:
                 <span
                   style={{
@@ -431,7 +433,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const ProductColumn = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "left" }}>Sản phẩm</div>
+        <div style={{textAlign: "left"}}>Sản phẩm</div>
       </div>
     ),
     width: "34%",
@@ -468,13 +470,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </div>
             </div>
           </div>
-          <div style={{ marginTop: 5 }}>
+          <div style={{marginTop: 5}}>
             {l.gifts &&
               l.gifts.map((a, index1) => (
                 <div key={index1} className="yody-pos-addition yody-pos-gift">
                   <div>
                     <img src={giftIcon} alt="" />
-                    <i style={{ marginLeft: 7 }}>
+                    <i style={{marginLeft: 7}}>
                       {a.variant} ({a.quantity})
                     </i>
                   </div>
@@ -510,9 +512,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "center" }}>Số lượng</div>
+        <div style={{textAlign: "center"}}>Số lượng</div>
         {items && getTotalQuantity(items) > 0 && (
-          <span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
+          <span style={{color: "#2A2A86"}}>({getTotalQuantity(items)})</span>
         )}
       </div>
     ),
@@ -523,7 +525,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       return (
         <div className="yody-pos-qtt">
           <NumberInput
-            style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
+            style={{textAlign: "right", fontWeight: 500, color: "#222222"}}
             value={l.quantity}
             onChange={(value) => onChangeQuantity(value, index)}
             maxLength={4}
@@ -538,8 +540,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const PriceColumnt = {
     title: () => (
       <div>
-        <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+        <span style={{color: "#222222", textAlign: "right"}}>Đơn giá</span>
+        <span style={{color: "#808080", marginLeft: "6px", fontWeight: 400}}>₫</span>
       </div>
     ),
     className: "yody-pos-price text-right",
@@ -599,8 +601,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const TotalPriceColumn = {
     title: () => (
       <div className="text-center">
-        <span style={{ color: "#222222" }}>Tổng tiền</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+        <span style={{color: "#222222"}}>Tổng tiền</span>
+        <span style={{color: "#808080", marginLeft: "6px", fontWeight: 400}}>₫</span>
       </div>
     ),
     align: "right",
@@ -677,22 +679,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               placement="bottomRight"
               disabled={levelOrder > 3}
             >
-              <Button
-                type="text"
-                className="p-0 ant-btn-custom"
-                style={{ border: "0px" }}
-              >
-                <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
+              <Button type="text" className="p-0 ant-btn-custom" style={{border: "0px"}}>
+                <img src={arrowDownIcon} alt="" style={{width: 17}} />
               </Button>
             </Dropdown>
             <Button
-              style={{ background: "transparent", border: "0px" }}
+              style={{background: "transparent", border: "0px"}}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
               disabled={levelOrder > 3}
             >
-              <img src={XCloseBtn} alt="" style={{ width: 22 }} />
+              <img src={XCloseBtn} alt="" style={{width: 22}} />
             </Button>
           </div>
         </div>
@@ -929,7 +927,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
-    if (listStores && listStores != null) {
+    if (listStores && listStores.length) {
       newData = listStores.filter((store) =>
         haveAccess(
           store.id,
@@ -939,10 +937,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     }
     // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên
     if (newData && newData[0]?.id) {
-      formRef.current?.setFieldsValue({ store_id: newData[0].id });
-      if (setStoreId) {
-        setStoreId(newData[0].id);
-      }
+      formRef.current?.setFieldsValue({store_id: newData[0].id});
+      selectStore(newData[0].id);
     }
     return newData;
   }, [listStores, userReducer.account]);
@@ -984,13 +980,39 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const handleSplitOrder = () => {
-    if (!orderId || splitOrderNumber === 0) {
+    if (!orderId || !orderDetail || !userReducer.account) {
       return;
     }
-    const splitLink = `${process.env.PUBLIC_URL}/orders/create?action=clone&cloneId=${orderId}&type=split-order`;
-    for (let i = 0; i < splitOrderNumber; i++) {
-      window.open(splitLink, "_blank");
+    if (splitOrderNumber === undefined) {
+      showError("Vui lòng điền số lượng tách đơn!");
+      return;
     }
+    if (items && splitOrderNumber > items?.length) {
+      showError("Số lượng tách đơn không được lớn hơn số lượng loại sản phẩm!");
+      return;
+    }
+    if (splitOrderNumber < 2 || splitOrderNumber > 20) {
+      showError("Số lượng tách đơn cần lớn hơn 1 và nhỏ hơn 20!");
+      return;
+    }
+
+    const params: SplitOrderRequest = {
+      order_code: orderDetail.code,
+      quantity: splitOrderNumber,
+      updated_by: userReducer.account.updated_by || "",
+      updated_name: userReducer.account.updated_name || "",
+    };
+    dispatch(
+      splitOrderAction(params, (response) => {
+        if (response) {
+          response.data.forEach((singleOrderId: number) => {
+            const singleSplitLink = `${process.env.PUBLIC_URL}/orders/${singleOrderId}/update`;
+            window.open(singleSplitLink, "_blank");
+          });
+          fetchData && fetchData();
+        }
+      })
+    );
   };
 
   useEffect(() => {
@@ -1008,7 +1030,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
             <span>Chính sách giá:</span>
             <Form.Item name="price_type">
-              <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
+              <Select style={{minWidth: 145, height: 38}} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">
                   Giá bán lẻ
                 </Select.Option>
@@ -1030,8 +1052,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 {isShowSplitOrder && (
                   <React.Fragment>
                     <NumberInput
-                      style={{ width: 45 }}
-                      max={50}
+                      style={{width: 50}}
                       value={splitOrderNumber}
                       onChange={(value) => {
                         if (value) {
@@ -1044,7 +1065,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                     <Button
                       type="primary"
                       onClick={handleSplitOrder}
-                      style={{ padding: "0 10px" }}
+                      style={{padding: "0 10px"}}
                     >
                       Thực hiện
                     </Button>
@@ -1070,7 +1091,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 className="select-with-search"
                 showSearch
                 allowClear
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
@@ -1154,9 +1175,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={
                     searchProducts ? (
-                      <LoadingOutlined style={{ color: "#2a2a86" }} />
+                      <LoadingOutlined style={{color: "#2a2a86"}} />
                     ) : (
-                      <SearchOutlined style={{ color: "#ABB4BD" }} />
+                      <SearchOutlined style={{color: "#ABB4BD"}} />
                     )
                   }
                   disabled={levelOrder > 3}

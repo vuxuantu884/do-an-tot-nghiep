@@ -722,7 +722,7 @@ export default function Order(props: PropType) {
 
   const fetchData = () => {
     dispatch(
-      OrderDetailAction(Number(id), (res) => {
+      OrderDetailAction(id, (res) => {
         const response = {
           ...res,
           // ffm des id
@@ -1091,6 +1091,8 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     updateOrder={true}
                     isSplitOrder
+                    orderDetail={OrderDetail}
+                    fetchData={fetchData}
                   />
 
                   {OrderDetail !== null &&
@@ -1661,6 +1663,7 @@ export default function Order(props: PropType) {
                                             orderSettings={orderSettings}
                                             orderId={OrderDetail?.id}
                                           />
+                                          
                                         </div>
 
                                         <div className="saleorder-header-content__date">
@@ -2132,6 +2135,7 @@ export default function Order(props: PropType) {
                     levelOrder={levelOrder}
                     updateOrder={true}
                     customerId={customer?.id}
+                    orderDetail={OrderDetail}
                   />
                 </Col>
               </Row>

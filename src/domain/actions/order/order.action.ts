@@ -103,7 +103,7 @@ export const PaymentMethodGetList = (
   return BaseAction(OrderType.GET_LIST_PAYMENT_METHOD, { setData });
 };
 
-export const OrderDetailAction = (id: number, setData: (data: OrderResponse) => void) => {
+export const OrderDetailAction = (id: string, setData: (data: OrderResponse) => void) => {
   return BaseAction(OrderType.GET_ORDER_DETAIL_REQUEST, { id, setData });
 };
 
@@ -419,7 +419,7 @@ export const loadOrderPackAction = (setData: (data: PageResponse<any>) => void) 
  */
 export const splitOrderAction = (
   params: SplitOrderRequest,
-  handleData: (data: PageResponse<any>) => void
+  handleData: (data: any) => void
 ) => {
   return {
     type: OrderType.SPLIT_ORDER,

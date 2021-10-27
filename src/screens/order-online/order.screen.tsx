@@ -592,7 +592,7 @@ export default function Order() {
     const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
-          OrderDetailAction(+cloneIdParam, async (response) => {
+          OrderDetailAction(cloneIdParam, async (response) => {
             const { customer_id } = response;
 
             if (customer_id) {
@@ -1090,7 +1090,6 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
-                      setStoreId={setStoreId}
                     />
                     <CardPayments
                       setSelectedPaymentMethod={handlePaymentMethod}
@@ -1137,7 +1136,6 @@ export default function Order() {
                       tags={tags}
                       isCloneOrder={isCloneOrder}
                       onChangeTag={onChangeTag}
-                      isSplitOrder={typeParam === "split-order"}
                       customerId={customer?.id}
                     />
                   </Col>

@@ -12,6 +12,7 @@ import {
   GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
+  SplitOrderRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
@@ -121,7 +122,7 @@ export const getInfoDeliveryFees = (
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/fees`, request);
 };
 
-export const getOrderDetail = (id: number): Promise<BaseResponse<OrderResponse>> => {
+export const getOrderDetail = (id: string): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${id}`;
   return BaseAxios.get(link);
 };
@@ -350,3 +351,11 @@ export const getGoodsReceiptsSerchService = (
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipts/search?${queryString}`);
 };
+/**
+ * tách đơn
+ */
+export const splitOrderService = (
+  params: SplitOrderRequest
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/orders/split`, params);
+}

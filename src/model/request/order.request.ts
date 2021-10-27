@@ -446,4 +446,6 @@ export interface CreateShippingOrderRequest {
 export interface SplitOrderRequest {
   order_code: string;
   quantity: number;
+  updated_by: string;
+  updated_name: string;
 }

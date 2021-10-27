@@ -15,7 +15,6 @@ import UpdateProductDataModal from "./component/UpdateProductDataModal";
 
 import {
   postProductEcommerceList,
-  getCategoryList,
   getProductEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
 
@@ -37,7 +36,6 @@ const Products: React.FC = () => {
   const [itemsUpdated, setItemsUpdated] = useState(0);
   const [itemsNotConnected, setItemsNotConnected] = useState(0);
 
-  const [categoryList, setCategoryList] = useState<Array<any>>([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
@@ -53,12 +51,12 @@ const Products: React.FC = () => {
     limit: 30,
     ecommerce_id: null,
     shop_ids: [],
-    category_id: null,
     connect_status: null,
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    connection_start_date: null,
+    create_time_from: null,
+    create_time_to: null,
   });
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
@@ -73,17 +71,11 @@ const Products: React.FC = () => {
     dispatch(getProductEcommerceList(queryRequest, updateVariantData));
   }, [dispatch, updateVariantData]);
 
-  const updateCategoryData = useCallback((result) => {
-    if (!!result && result.items) {
-      setCategoryList(result.items);
-    }
-  }, []);
 
   useEffect(() => {
     setTableLoading(true);
     dispatch(getProductEcommerceList(query, updateVariantData));
-    dispatch(getCategoryList({}, updateCategoryData));
-  }, [dispatch, updateCategoryData, query, updateVariantData]);
+  }, [dispatch, query, updateVariantData]);
 
   useEffect(() => {
     const requestQuery = { ...query };
@@ -184,7 +176,6 @@ const Products: React.FC = () => {
             <TabPane tab="Tất cả sản phẩm" key="total-item">
               <TotalItemsEcommerce
                 tableLoading={tableLoading}
-                categoryList={categoryList}
                 variantData={variantData}
                 getProductUpdated={getProductUpdated}
               />
@@ -193,7 +184,6 @@ const Products: React.FC = () => {
             <TabPane tab="Sản phẩm đã ghép" key="connected-item">
               <ConnectedItems
                 tableLoading={tableLoading}
-                categoryList={categoryList}
                 variantData={variantData}
                 getProductUpdated={getProductUpdated}
               />
@@ -202,7 +192,6 @@ const Products: React.FC = () => {
             <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
               <NotConnectedItems
                 tableLoading={tableLoading}
-                categoryList={categoryList}
                 variantData={variantData}
                 getProductUpdated={getProductUpdated}
               />

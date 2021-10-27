@@ -14,6 +14,13 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryInventoryFilter from "../filter/history.filter";
 import { TabProps } from "./tab.props";
 
+enum DocumentType {
+  PURCHASE_ORDER = "purchase_order",
+  ORDER = "order",
+  RETURN_ORDER = "return_order",
+  RETURN_PO = "return_po",
+}
+
 const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   const {stores} = props;
   const history = useHistory();
@@ -69,6 +76,21 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
     },
     [history, params]
   );
+
+  const getUrlByDocumentType = (type: string) => {
+    switch (type) {
+      case DocumentType.ORDER:
+        return UrlConfig.ORDER;
+      case DocumentType.RETURN_ORDER:
+        return UrlConfig.ORDERS_RETURN;
+      case DocumentType.PURCHASE_ORDER:
+      case DocumentType.RETURN_PO:
+        return UrlConfig.PURCHASE_ORDER;
+      default:
+        return type;
+    }
+  };
+
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<HistoryInventoryResponse>>
   >([
@@ -86,13 +108,12 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       )
     },
     {
-      title: 'ID chứng từ',
+      title: 'Mã chứng từ',
       visible: true,
       dataIndex: 'code',
-      render: (value, record:any) => (
+      render: (value, record:HistoryInventoryResponse) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${record.document_code}`}>{value}</Link>
-          
+          <Link to={`${getUrlByDocumentType(record.document_type)}/${record.parent_document_id}`}>{value}</Link>          
         </div>
       )
     },

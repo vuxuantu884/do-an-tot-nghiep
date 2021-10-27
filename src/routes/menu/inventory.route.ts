@@ -38,7 +38,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PURCHASE_ORDER}/create`,
         exact: true,
-        title: "Thêm sản phẩm mới",
+        title: "Tạo mới đơn đặt hàng",
         icon: "icon-dot",
         component: PurchaseOrderCreateScreen,
         key: "submenu221",
@@ -49,7 +49,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PURCHASE_ORDER}/:id`,
         exact: true,
-        title: "Thêm sản phẩm mới",
+        title: "Quản lý đơn đặt hàng",
         icon: "icon-dot",
         component: PurchaseOrderDetailScreen,
         key: "submenu222",

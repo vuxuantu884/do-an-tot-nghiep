@@ -5,6 +5,9 @@ export const globalCssCustomForm = css`
   .ant-form label {
     font-size: 1rem;
   }
+  .ant-form-item-label>label{
+    font-weight: 500;
+  }
   .ant-form-item-label
     label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after {
     position: absolute;

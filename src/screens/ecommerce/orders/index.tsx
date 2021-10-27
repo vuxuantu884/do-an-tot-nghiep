@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Menu, Tag, Tooltip } from "antd";
+import { Button, Card, Menu, Tag } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { generateQuery } from "utils/AppUtils";
-import { showSuccess } from "utils/ToastUtils";
+// todo thai: handle later
+// import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
@@ -40,7 +41,8 @@ import CustomTable, {
 import DownloadOrderDataModal from "./component/DownloadOrderDataModal";
 import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataModal";
 import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
-import UpdateConnectionModal from "./component/UpdateConnectionModal";
+// todo thai: handle later
+// import UpdateConnectionModal from "./component/UpdateConnectionModal";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
@@ -49,9 +51,10 @@ import ImageDHL from "assets/img/imageDHL.svg";
 import CircleEmptyIcon from "assets/icon/circle_empty.svg";
 import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
-import ConnectIcon from "assets/icon/connect.svg";
-import SuccessIcon from "assets/icon/success.svg";
-import ErrorIcon from "assets/icon/error.svg";
+// // todo thai: handle later
+// import ConnectIcon from "assets/icon/connect.svg";
+// import SuccessIcon from "assets/icon/success.svg";
+// import ErrorIcon from "assets/icon/error.svg";
 
 import {
   nameQuantityWidth,
@@ -77,8 +80,8 @@ const initQuery: EcommerceOrderSearchQuery = {
   ship_on_min: null,
   ship_on_max: null,
   ship_on_predefined: null,
-  shop_ids: [],
-  ecommerce_id: null,
+  ecommerce_shop_ids: [],
+  channel_id: undefined,
   expected_receive_on_min: null,
   expected_receive_on_max: null,
   expected_receive_predefined: null,
@@ -113,19 +116,22 @@ const EcommerceOrderSync: React.FC = () => {
   const dispatch = useDispatch();
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
-  const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
-    useState(false);
+  // todo thai: handle later
+  // const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
+  //   useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] =
     useState(false);
-  const [downloadedOrderData, setDownloadedOrderData] = useState<any>({
+  const [downloadOrderData, setDownloadOrderData] = useState<any>({
     total: 0,
-    create_order_count: 0,
-    update_order_count: 0,
+    create_total: 0,
+    update_total: 0,
+    error_total: 0,
   });
 
-  const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
-    []
-  );
+  // todo thai: handle later
+  // const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
+  //   []
+  // );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
@@ -133,6 +139,7 @@ const EcommerceOrderSync: React.FC = () => {
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
     ...initQuery,
+    channel_id: 3,
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<EcommerceOrderSearchQuery>(dataQuery);
@@ -218,23 +225,24 @@ const EcommerceOrderSync: React.FC = () => {
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
-  const handleUpdateProductConnection = (data: any) => {
-    setUpdateConnectionData(data.items);
-    setIsShowUpdateConnectionModal(true);
+  // // todo thai: handle later
+  // const handleUpdateProductConnection = (data: any) => {
+  //   setUpdateConnectionData(data.items);
+  //   setIsShowUpdateConnectionModal(true);
 
-    showSuccess("Click mở modal cập nhật ghép nối nè");
-  };
+  //   showSuccess("Click mở modal cập nhật ghép nối nè");
+  // };
 
-  const cancelUpdateConnectionModal = () => {
-    setIsShowUpdateConnectionModal(false);
-  };
+  // const cancelUpdateConnectionModal = () => {
+  //   setIsShowUpdateConnectionModal(false);
+  // };
 
-  const updateProductConnection = () => {
-    setIsShowUpdateConnectionModal(false);
+  // const updateProductConnection = () => {
+  //   setIsShowUpdateConnectionModal(false);
 
-    showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
+    // showSuccess("Sẽ gọi api cập nhật ghép nối tại đây :)");
     //thai todo: call API
-  };
+  // };
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
@@ -245,11 +253,12 @@ const EcommerceOrderSync: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: "3.5%",
+      width: "4.5%",
       render: (data: any, i: OrderModel) => (
         <div>
           <Link to={`${UrlConfig.ORDER}/${i.id}`}>{data.code}</Link>
           <div>({data.reference_code})</div>
+          <div>{data.ecommerce_shop_name}</div>
         </div>
       ),
     },
@@ -552,35 +561,36 @@ const EcommerceOrderSync: React.FC = () => {
       key: "customer_note",
       visible: true,
     },
-    {
-      title: (
-        <Tooltip
-          overlay="Tình trạng ghép nối của sản phẩm"
-          placement="topRight"
-          color="blue"
-        >
-          <img src={ConnectIcon} alt="" />
-        </Tooltip>
-      ),
-      key: "connect_status",
-      visible: true,
-      width: 50,
-      align: "center",
-      render: (data) => {
-        if (data.connect_status) {
-          return <img src={SuccessIcon} alt="" />;
-        } else {
-          return (
-            <img
-              src={ErrorIcon}
-              alt=""
-              onClick={() => handleUpdateProductConnection(data)}
-              style={{ cursor: "pointer" }}
-            />
-          );
-        }
-      },
-    },
+    // //todo thai: handle later
+    // {
+    //   title: (
+    //     <Tooltip
+    //       overlay="Tình trạng ghép nối của sản phẩm"
+    //       placement="topRight"
+    //       color="blue"
+    //     >
+    //       <img src={ConnectIcon} alt="" />
+    //     </Tooltip>
+    //   ),
+    //   key: "connect_status",
+    //   visible: true,
+    //   width: 50,
+    //   align: "center",
+    //   render: (data) => {
+    //     if (data.connect_status) {
+    //       return <img src={SuccessIcon} alt="" />;
+    //     } else {
+    //       return (
+    //         <img
+    //           src={ErrorIcon}
+    //           alt=""
+    //           onClick={() => handleUpdateProductConnection(data)}
+    //           style={{ cursor: "pointer" }}
+    //         />
+    //       );
+    //     }
+    //   },
+    // },
   ]);
 
   const onSelectedChange = useCallback((selectedRow) => {
@@ -593,6 +603,7 @@ const EcommerceOrderSync: React.FC = () => {
       params.page = page;
       params.limit = size;
       setPrams({ ...params });
+      window.scrollTo(0, 0);
     },
     [params]
   );
@@ -607,7 +618,6 @@ const EcommerceOrderSync: React.FC = () => {
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
-    window.location.reload();
   }, []);
 
   const onMenuClick = useCallback(
@@ -663,7 +673,7 @@ const EcommerceOrderSync: React.FC = () => {
     setIsShowResultGetOrderModal(true);
 
     if (data && data.total) {
-      setDownloadedOrderData(data);
+      setDownloadOrderData(data);
     }
   };
 
@@ -744,6 +754,7 @@ const EcommerceOrderSync: React.FC = () => {
             onFilter={onFilter}
             onClearFilter={onClearFilter}
             params={params}
+            initQuery={initQuery}
             listStore={listStore}
             accounts={accounts}
             deliveryService={delivery_service}
@@ -756,6 +767,7 @@ const EcommerceOrderSync: React.FC = () => {
             isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               tableLoading
                 ? false
@@ -789,10 +801,11 @@ const EcommerceOrderSync: React.FC = () => {
             visible={isShowResultGetOrderModal}
             onCancel={closeResultGetOrderModal}
             onOk={closeResultGetOrderModal}
-            data={downloadedOrderData}
+            downloadOrderData={downloadOrderData}
           />
         )}
 
+        {/* // todo thai: handle later
         {isShowUpdateConnectionModal && (
           <UpdateConnectionModal
             visible={isShowUpdateConnectionModal}
@@ -800,7 +813,7 @@ const EcommerceOrderSync: React.FC = () => {
             onOk={updateProductConnection}
             data={updateConnectionData}
           />
-        )}
+        )} */}
 
         {showSettingColumn && (
           <ModalSettingColumn

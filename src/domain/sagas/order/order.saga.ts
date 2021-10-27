@@ -1,6 +1,7 @@
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { ReturnModel } from "model/order/return.model";
 import { ShipmentModel } from "model/order/shipment.model";
@@ -13,14 +14,10 @@ import {
   OrderConfig,
   OrderResponse,
   // OrderSubStatusResponse,
-  TrackingLogFulfillmentResponse,
+  TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { getAmountPayment, isUndefinedOrNull } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { YodyAction } from "../../../base/base.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
   cancelOrderApi,
   confirmDraftOrderService,
@@ -42,8 +39,13 @@ import {
   orderPostApi,
   orderPutApi,
   putFulfillmentsPackApi,
-  updateDeliveryConnectService,
-} from "../../../service/order/order.service";
+  splitOrderService,
+  updateDeliveryConnectService
+} from "service/order/order.service";
+import { getAmountPayment } from "utils/AppUtils";
+import { getPackInfo } from "utils/LocalStorageUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { YodyAction } from "../../../base/base.action";
 import { OrderType } from "../../types/order.type";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
 import { SourceResponse } from "./../../../model/response/order/source.response";
@@ -60,12 +62,15 @@ import {
   setSubStatusService,
   updateFulFillmentStatus,
   updatePayment,
-  updateShipment,
+  updateShipment
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
+<<<<<<< HEAD
 import { getPackInfo } from 'utils/LocalStorageUtils';
 import { loadOrderPackAction } from "domain/actions/order/order.action";
 import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
+=======
+>>>>>>> develop
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -778,16 +783,13 @@ function* createShippingOrderSaga(action: YodyAction) {
   }
 }
 
-function* loadOrderPackSaga(action: YodyAction){
+function* loadOrderPackSaga(action: YodyAction) {
   let { setData } = action.payload;
   let appSetting: string = yield call(getPackInfo);
-  let appSettingObj:PageResponse<any> = JSON.parse(appSetting);
-  if(appSettingObj)
-  {
+  let appSettingObj: PageResponse<any> = JSON.parse(appSetting);
+  if (appSettingObj) {
     setData(appSettingObj);
-  }
-  else
-  {
+  } else {
     setData({
       metadata: {
         limit: 1,
@@ -799,6 +801,30 @@ function* loadOrderPackSaga(action: YodyAction){
   }
 }
 
+function* splitOrderSaga(action: YodyAction) {
+  let { params, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(splitOrderService, params);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess(`Tách đơn thành công!`);
+        handleData(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError(`Tách đơn thất bại!`);
+  } finally {
+    yield put(hideLoading());
+  }
+}
 
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
@@ -840,4 +866,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CONFIRM_DRAFT_ORDER, confirmDraftOrderSaga);
   yield takeLatest(OrderType.CREATE_SHIPPING_ORDER, createShippingOrderSaga);
   yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga);
+  yield takeLatest(OrderType.SPLIT_ORDER, splitOrderSaga);
 }
