@@ -5,6 +5,8 @@ import React from "react";
 const accumulate = React.lazy(() => import ("screens/loyalty/accumulate/index"))
 const loyaltyPage = React.lazy(() => import ("screens/loyalty/index"))
 const loyaltyAccumulateDetail = React.lazy(() => import ("screens/loyalty/accumulate/detail"))
+const discountPage = React.lazy(() => import("screens/promotion/discount"))
+const createDiscountPage = React.lazy(() => import("screens/promotion/discount/discount.create"))
 
 const promotion: Array<RouteMenu> = [
   {
@@ -61,6 +63,29 @@ const promotion: Array<RouteMenu> = [
             subMenu: [],
           }
         ],
+      },
+    ],
+  },
+  {
+    path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
+    exact: true,
+    title: "Chiết khấu",
+    icon: 'icon-dot',
+    component: discountPage,
+    key: "submenu106",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
+        exact: true,
+        title: "Tạo chiết khấu",
+        icon: "icon-dot",
+        component: createDiscountPage,
+        key: "submenu1061",
+        isShow: true,
+        header: null,
+        subMenu: [],
       },
     ],
   },
