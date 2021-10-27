@@ -1,5 +1,5 @@
-import { BaseObject } from "model/base/base.response";
-import { StoreResponse } from "model/core/store.model";
+import {BaseObject} from "model/base/base.response";
+import {StoreResponse} from "model/core/store.model";
 
 export interface OrderResponse extends BaseObject {
   company_id: number | null;
@@ -225,9 +225,12 @@ export interface ShippingAddress {
 }
 
 export interface ShipmentResponse extends BaseObject {
+  delivery_service_provider_code: string | null;
   delivery_service_provider_id: number | null;
+  delivery_service_provider_name: string | null;
   delivery_service_provider_type: string | null;
   delivery_transport_type: string | null;
+  insurance_fee: number | null;
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;

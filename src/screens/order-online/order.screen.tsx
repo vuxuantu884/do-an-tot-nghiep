@@ -1,14 +1,15 @@
-import { Col, Form, FormInstance, Input, Row } from "antd";
+import {Col, Form, FormInstance, Input, Row} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { Type } from "config/type.config";
+import CreateOrderCardShipment from "component/order/CreateOrder/CreateOrderCardShipment";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import {OrderCreateContext} from "contexts/order-online/order-create-context";
+import {AccountSearchAction} from "domain/actions/account/account.action";
+import {StoreDetailCustomAction} from "domain/actions/core/store.action";
+import {CustomerDetail} from "domain/actions/customer/customer.action";
+import {inventoryGetDetailVariantIdsSaga} from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -23,11 +24,12 @@ import {
   actionGetOrderConfig,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { InventoryResponse } from "model/inventory";
-import { modalActionType } from "model/modal/modal.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {InventoryResponse} from "model/inventory";
+import {modalActionType} from "model/modal/modal.model";
+import {thirdPLModel} from "model/order/shipment.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -38,12 +40,11 @@ import {
   ShipmentRequest,
   ShippingAddress,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {
-  FulFillmentResponse,
   OrderConfig,
   OrderResponse,
   StoreCustomResponse,
@@ -53,25 +54,27 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { getAmountPaymentRequest, getTotalAmountAfferDiscount } from "utils/AppUtils";
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router-dom";
 import {
-  MoneyPayThreePls,
+  getAmountPaymentRequest,
+  getTotalAmountAfferDiscount,
+  scrollAndFocusToDomElement,
+} from "utils/AppUtils";
+import {
   OrderStatus,
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
+import {showError, showSuccess} from "utils/ToastUtils";
+import {useQuery} from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardPayments from "./component/order-detail/CardPayments";
 import CardProduct from "./component/order-detail/CardProduct";
-import CardShipment from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
@@ -94,7 +97,7 @@ export default function Order() {
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
-  const [serviceName, setServiceName] = useState<string>("");
+
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
@@ -105,11 +108,16 @@ export default function Order() {
   >([]);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
-  const [hvc, setHvc] = useState<number | null>(null);
-  const [hvcCode, setHvcCode] = useState<string | null>(null);
-  const [hvcName, setHvcName] = useState<string | null>(null);
-
-  const [fee, setFee] = useState<number | null>(null);
+  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+    delivery_service_provider_code: "",
+    delivery_service_provider_id: null,
+    insurance_fee: null,
+    delivery_service_provider_name: "",
+    delivery_transport_type: "",
+    service: "",
+    shipping_fee_paid_to_three_pls: null,
+  });
+  console.log("thirdPL", thirdPL);
   const [creating, setCreating] = useState(false);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
@@ -123,7 +131,6 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [serviceType3PL, setServiceType3PL] = useState<string>();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [listOrderConfigs, setListOrderConfigs] =
     useState<OrderConfigResponseModel | null>(null);
@@ -155,7 +162,7 @@ export default function Order() {
   };
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
-    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
+    form.setFieldsValue({shipping_fee_informed_to_customer: value});
     setShippingFeeInformedToCustomer(value);
   };
 
@@ -179,11 +186,7 @@ export default function Order() {
     setPaymentMethod(value);
   };
 
-  // const onPayments = (value: Array<OrderPaymentRequest>) => {
-  //   setPayments(value);
-  // };
-
-  const onShipmentSelect = (value: number) => {
+  const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
@@ -328,15 +331,15 @@ export default function Order() {
       case ShipmentMethodOption.DELIVER_PARTNER:
         return {
           ...objShipment,
-          delivery_service_provider_id: hvc,
+          delivery_service_provider_id: thirdPL.delivery_service_provider_id,
           delivery_service_provider_type: "external_service",
-          delivery_transport_type: serviceName,
-          delivery_service_provider_code: hvcCode,
-          delivery_service_provider_name: hvcName,
+          delivery_transport_type: thirdPL.delivery_transport_type,
+          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
+          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
           sender_address_id: storeId,
           shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          service: serviceType3PL!,
-          shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
+          service: thirdPL.service,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
@@ -523,7 +526,7 @@ export default function Order() {
         } else {
           if (
             shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !serviceType3PL
+            !thirdPL.delivery_transport_type
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
             setCreating(false);
@@ -590,7 +593,7 @@ export default function Order() {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(cloneIdParam, async (response) => {
-            const { customer_id } = response;
+            const {customer_id} = response;
 
             if (customer_id) {
               dispatch(
@@ -737,6 +740,21 @@ export default function Order() {
                     break;
                   case ShipmentMethod.EXTERNAL_SERVICE:
                     newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
+                    const shipmentDeliverPartner = response?.fulfillments[0]?.shipment;
+                    setThirdPL({
+                      delivery_service_provider_code:
+                        shipmentDeliverPartner.delivery_service_provider_code,
+                      delivery_service_provider_id:
+                        shipmentDeliverPartner.delivery_service_provider_id,
+                      insurance_fee: shipmentDeliverPartner.insurance_fee,
+                      delivery_service_provider_name:
+                        shipmentDeliverPartner.delivery_service_provider_name,
+                      delivery_transport_type:
+                        shipmentDeliverPartner.delivery_transport_type,
+                      service: shipmentDeliverPartner.service,
+                      shipping_fee_paid_to_three_pls:
+                        shipmentDeliverPartner.shipping_fee_paid_to_three_pls,
+                    });
                     break;
                   case ShipmentMethod.PICK_AT_STORE:
                     newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
@@ -784,8 +802,10 @@ export default function Order() {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
       setVisibleCustomer(true);
-      let shippingAddressItem = customer.shipping_addresses.find((p:any) => p.default === true);
-      if(shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
+      let shippingAddressItem = customer.shipping_addresses.find(
+        (p: any) => p.default === true
+      );
+      if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
     } else {
       setLoyaltyPoint(null);
     }
@@ -940,7 +960,7 @@ export default function Order() {
 
   const setStoreForm = useCallback(
     (id: number | null) => {
-      formRef.current?.setFieldsValue({ store_id: id });
+      formRef.current?.setFieldsValue({store_id: id});
       // setInitialForm({
       //   ...initialForm,
       //   store_id: id
@@ -950,7 +970,6 @@ export default function Order() {
   );
 
   // khách cần trả
-
   const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
     let value = 0;
     if (items !== null) {
@@ -960,8 +979,15 @@ export default function Order() {
     }
     return value;
   };
+
+  /**
+   * tổng số tiền đã trả
+   */
   const totalAmountPayment = getAmountPayment(payments);
 
+  /**
+   * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
+   */
   const totalAmountCustomerNeedToPay = useMemo(() => {
     return (
       orderAmount +
@@ -971,6 +997,9 @@ export default function Order() {
     );
   }, [discountValue, orderAmount, shippingFeeInformedToCustomer, totalAmountPayment]);
 
+  /**
+   * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
+   */
   const totalAmountOrder =
     orderAmount +
     (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
@@ -1038,14 +1067,11 @@ export default function Order() {
                 initialValues={initialForm}
                 ref={formRef}
                 form={form}
-                onFinishFailed={({ errorFields }: any) => {
+                onFinishFailed={({errorFields}: any) => {
                   const element: any = document.getElementById(
                     errorFields[0].name.join("")
                   );
-                  element?.focus();
-                  const y =
-                    element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                  window.scrollTo({ top: y, behavior: "smooth" });
+                  scrollAndFocusToDomElement(element);
                 }}
                 onFinish={onFinish}
               >
@@ -1064,7 +1090,7 @@ export default function Order() {
                 <Form.Item noStyle hidden name="tags">
                   <Input />
                 </Form.Item>
-                <Row gutter={20} style={{ marginBottom: "70px" }}>
+                <Row gutter={20} style={{marginBottom: "70px"}}>
                   <Col md={18}>
                     <CardCustomer
                       customer={customer}
@@ -1108,7 +1134,7 @@ export default function Order() {
                       loyaltyRate={loyaltyRate}
                       isDisablePostPayment={isDisablePostPayment}
                     />
-                    <CardShipment
+                    <CreateOrderCardShipment
                       shipmentMethod={shipmentMethod}
                       orderPrice={orderAmount}
                       storeDetail={storeDetail}
@@ -1117,11 +1143,10 @@ export default function Order() {
                       isCancelValidateDelivery={false}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
-                      setShipmentMethod={setShipmentMethod}
-                      setHVC={setHvc}
+                      onSelectShipment={onSelectShipment}
+                      thirdPL={thirdPL}
+                      setThirdPL={setThirdPL}
                       form={form}
-                      serviceType3PL={serviceType3PL}
-                      setServiceType3PL={setServiceType3PL}
                     />
                   </Col>
                   <Col md={6}>

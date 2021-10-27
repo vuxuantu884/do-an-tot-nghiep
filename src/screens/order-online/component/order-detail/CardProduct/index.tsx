@@ -170,8 +170,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const orderConfig = createOrderContext?.orderConfig;
 
-  console.log("createOrderContext", createOrderContext);
-
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
   //Function

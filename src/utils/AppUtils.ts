@@ -896,3 +896,12 @@ export const getServiceName = (item: OrderResponse) => {
     }
   }
 };
+
+export const scrollAndFocusToDomElement = (element?: HTMLElement) => {
+  if (!element) {
+    return;
+  }
+  element.focus();
+  const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
+  window.scrollTo({top: y, behavior: "smooth"});
+};
