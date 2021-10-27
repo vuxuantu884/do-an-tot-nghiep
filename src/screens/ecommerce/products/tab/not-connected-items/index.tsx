@@ -57,7 +57,6 @@ import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommer
 
 
 type NotConnectedItemsProps = {
-  categoryList?: Array<any>;
   variantData: any;
   getProductUpdated: any;
   tableLoading: any;
@@ -66,7 +65,7 @@ type NotConnectedItemsProps = {
 const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   props: NotConnectedItemsProps
 ) => {
-  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
+  const { variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -99,7 +98,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       limit: 30,
       ecommerce_id: null,
       shop_ids: [],
-      category_id: null,
       connect_status: "waiting",
       update_stock_status: null,
       sku_or_name_core: "",
@@ -115,7 +113,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     limit: 30,
     ecommerce_id: null,
     shop_ids: [],
-    category_id: null,
     connect_status: "waiting",
     update_stock_status: null,
     sku_or_name_core: "",
@@ -557,7 +554,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
 
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
-      query.category_id = value.category_id;
       query.connect_status = "waiting";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
@@ -1027,16 +1023,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               )}
             </Form.Item>
 
-            <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
-              <Select showSearch placeholder="Chọn danh mục" allowClear>
-                {categoryList &&
-                  categoryList.map((item: any) => (
-                    <Option key={item.category_id} value={item.category_id}>
-                      {item.display_category_name}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
           </Form>
         </BaseFilter>
 
