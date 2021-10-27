@@ -25,12 +25,15 @@ import {
   cancelOrderApi,
   confirmDraftOrderService,
   createDeliveryMappedStoreService,
+  createGoodsReceiptsService,
   createShippingOrderService,
   deleteDeliveryMappedStoreService,
   getChannelApi,
   getDeliveryMappedStoresService,
   getDeliveryTransportTypesService,
   getFulfillmentsApi,
+  getGoodsReceiptsSerchService,
+  getGoodsReceiptsTypeService,
   getInfoDeliveryFees,
   getOrderConfig,
   getPaymentMethod,
@@ -62,6 +65,7 @@ import {
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
 import { getPackInfo } from 'utils/LocalStorageUtils';
 import { loadOrderPackAction } from "domain/actions/order/order.action";
+import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -774,7 +778,6 @@ function* createShippingOrderSaga(action: YodyAction) {
   }
 }
 
-
 function* loadOrderPackSaga(action: YodyAction){
   let { setData } = action.payload;
   let appSetting: string = yield call(getPackInfo);
@@ -836,5 +839,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_FULFILLMENTS_PACKED, getFulfillmentsPackedSaga);
   yield takeLatest(OrderType.CONFIRM_DRAFT_ORDER, confirmDraftOrderSaga);
   yield takeLatest(OrderType.CREATE_SHIPPING_ORDER, createShippingOrderSaga);
-  yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga)
+  yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga);
 }

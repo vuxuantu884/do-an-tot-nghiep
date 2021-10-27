@@ -28,6 +28,8 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
+  const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
+  //const setListGoodsReceipts=orderPackContextData.setListGoodsReceipts
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -75,7 +77,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Cửa hàng"
-                name=""
+                name="store_id"
                 rules={[
                   {
                     required: true,
@@ -117,7 +119,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Hãng vận chuyển"
-                name=""
+                name="hvc"
                 rules={[
                   {
                     required: true,
@@ -160,7 +162,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Loại biên bản"
-                name=""
+                name="receipt_type_id"
                 rules={[
                   {
                     required: true,
@@ -189,7 +191,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {testAraay.map((item, index) => (
+                  {listGoodsReceipts.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -203,7 +205,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Biên bản sàn"
-                name=""
+                name="ecommerce_id"
                 rules={[
                   {
                     required: true,
@@ -245,8 +247,53 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item
+                label="ID đơn hàng"
+                name="codes"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn kiểu biên bản",
+                  },
+                ]}
+              >
+                <Select
+                  className="select-with-search"
+                  showSearch
+                  allowClear
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Chọn ID đơn hàng/ Mã hãng vận chuyển"
+                  notFoundContent="Không tìm thấy kết quả"
+                  onChange={(value?: number) => {
+                    console.log(value);
+                  }}
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return (
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }
+                    return false;
+                  }}
+                >
+                  {testAraay.map((item, index) => (
+                    <Select.Option key={index.toString()} value={item.id}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+
+          <Row gutter={24}>
+            <Col md={24}>
+              <Form.Item
                 label="Mô tả:"
-                name=""
+                name="description"
                 rules={[
                   {
                     required: true,

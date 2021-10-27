@@ -14,6 +14,8 @@ import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import PackReportHandOver from "./pack-support/pack-report-hand-over";
+import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
+import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 
 const { TabPane } = Tabs;
 
@@ -34,12 +36,15 @@ const PackSupportScreen: React.FC = () => {
   
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [listGoodsReceipts,setListGoodsReceipts] =useState<Array<GoodsReceiptsTypeResponse>>([]);
 
   const packSupportContextData={
     listThirdPartyLogistics,
     setListThirdPartyLogistics,
     listStores,
     setListStores,
+    listGoodsReceipts,
+    setListGoodsReceipts
   };
 
   useEffect(()=>{
@@ -55,6 +60,11 @@ const PackSupportScreen: React.FC = () => {
       })
     );
   }, [dispatch]);
+
+  useEffect(()=>{
+    dispatch(getGoodsReceiptsType(setListGoodsReceipts))
+  },[dispatch]);
+
 
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));

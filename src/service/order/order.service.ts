@@ -17,6 +17,7 @@ import {
   UpdatePaymentRequest,
   VTPFeeRequest,
 } from "model/request/order.request";
+import { GoodsReceiptsRequest } from "model/request/pack.request";
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
@@ -40,10 +41,10 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
+import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
 import { getToken } from "utils/LocalStorageUtils";
-// import { getToken } from "utils/LocalStorageUtils";
 
 export const getListOrderApi = (
   query: OrderSearchQuery
@@ -331,4 +332,21 @@ export const createShippingOrderService = (
   params: CreateShippingOrderRequest
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
+};
+
+export const getGoodsReceiptsTypeService=():Promise<BaseResponse<GoodsReceiptsTypeResponse>>=>{
+  const link = `${ApiConfig.ORDER}/goods-receipts/types`;
+  return BaseAxios.get(link);
+}
+
+export const createGoodsReceiptsService=(params:GoodsReceiptsRequest):Promise<BaseResponse<GoodsReceiptsResponse>>=>{
+  const link = `${ApiConfig.ORDER}/goods-receipts`;
+  return BaseAxios.post(link,params);
+}
+
+export const getGoodsReceiptsSerchService = (
+  query: any
+): Promise<BaseResponse<any>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipts/search?${queryString}`);
 };
