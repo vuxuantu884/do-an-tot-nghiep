@@ -117,10 +117,11 @@ const EcommerceOrderSync: React.FC = () => {
     useState(false);
   const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] =
     useState(false);
-  const [downloadedOrderData, setDownloadedOrderData] = useState<any>({
+  const [downloadOrderData, setDownloadOrderData] = useState<any>({
     total: 0,
-    create_order_count: 0,
-    update_order_count: 0,
+    create_total: 0,
+    update_total: 0,
+    error_total: 0,
   });
 
   const [updateConnectionData, setUpdateConnectionData] = useState<Array<any>>(
@@ -663,7 +664,7 @@ const EcommerceOrderSync: React.FC = () => {
     setIsShowResultGetOrderModal(true);
 
     if (data && data.total) {
-      setDownloadedOrderData(data);
+      setDownloadOrderData(data);
     }
   };
 
@@ -756,6 +757,7 @@ const EcommerceOrderSync: React.FC = () => {
             isLoading={tableLoading}
             showColumnSetting={true}
             scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               tableLoading
                 ? false
@@ -789,7 +791,7 @@ const EcommerceOrderSync: React.FC = () => {
             visible={isShowResultGetOrderModal}
             onCancel={closeResultGetOrderModal}
             onOk={closeResultGetOrderModal}
-            data={downloadedOrderData}
+            downloadOrderData={downloadOrderData}
           />
         )}
 
