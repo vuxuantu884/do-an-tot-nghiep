@@ -1107,9 +1107,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <Col span={14}>
                                 <b>
                                   {/* Lấy ra đối tác */}
-                                  {fulfillment.shipment
+                                  {(fulfillment.shipment
                                     ?.delivery_service_provider_type ===
-                                    "external_service" && (
+                                    "external_service" || fulfillment.shipment?.delivery_service_provider_type === "shopee") && (
                                     <img
                                       style={{ width: "112px", height: 25 }}
                                       src={InfoServiceDeliveryDetail(
