@@ -23,11 +23,12 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
         rowKey={(record) => record.id}
         columns={[
           {
-            title: "Id chứng từ",
-            dataIndex: "document_code",
+            title: "Mã chứng từ",
+            dataIndex: "code",
           },
           {
             title: 'Thao tác',
+            dataIndex: "action",
           },
           {
             title: "Thời gian",

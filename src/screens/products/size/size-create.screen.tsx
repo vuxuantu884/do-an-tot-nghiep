@@ -7,20 +7,18 @@ import {
   Input,
   Row,
   Select,
-  Space,
+  Space
 } from "antd";
+import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { sizeCreateAction } from "domain/actions/product/size.action";
-import { CategoryView } from "model/product/category.model";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { SizeCreateRequest } from "model/product/size.model";
-import { CategoryResponse } from "model/product/category.model";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { convertCategory } from "utils/AppUtils";
-import ContentContainer from "component/container/content.container";
-import { RegUtil } from "utils/RegUtils";
 
 const { Option } = Select;
 
@@ -78,11 +76,7 @@ const SizeCreateScreen: React.FC = () => {
               <Form.Item
                 className="form-group form-group-with-search"
                 rules={[
-                  { required: true, message: "Vui lòng nhập kích cỡ" },
-                  {
-                    pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                    message: "Kích cỡ không chứa ký tự đặc biệt",
-                  },
+                  { required: true, message: "Vui lòng nhập kích cỡ" },                
                 ]}
                 label="Kích cỡ"
                 name="code"
