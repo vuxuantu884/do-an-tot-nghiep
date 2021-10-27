@@ -90,10 +90,7 @@ const UpdateConnectionModal: React.FC<UpdateConnectionModalType> = (
     };
 
     const initQueryVariant: VariantSearchQuery = {
-      limit: 10,
       page: 1,
-      status: "active",
-      saleable: true,
     };
 
     const [resultSearchVariant, setResultSearchVariant] = React.useState<
