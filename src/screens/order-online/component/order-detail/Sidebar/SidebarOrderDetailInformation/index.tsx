@@ -12,7 +12,7 @@ function SidebarOrderDetailInformation(props: PropType) {
   const { OrderDetail } = props;
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG">
+      <Card title="THÔNG TIN ĐƠN HÀNG 3">
         <Row className="" gutter={5}>
           <Col span={10}>Cửa hàng:</Col>
           <Col span={14}>

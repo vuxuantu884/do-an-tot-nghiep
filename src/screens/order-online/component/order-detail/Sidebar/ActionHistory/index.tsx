@@ -10,7 +10,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   countChangeSubStatus: number;
-  orderId: string;
+  orderId?: number | null;
   reload?: boolean;
 };
 
@@ -81,9 +81,12 @@ function ActionHistory(props: PropType) {
   };
 
   useEffect(() => {
+    if(!orderId) {
+      return;
+    }
     if (orderId || reload) {
       dispatch(
-        actionGetOrderActionLogs(+orderId, (response: OrderActionLogResponse[]) => {
+        actionGetOrderActionLogs(orderId, (response: OrderActionLogResponse[]) => {
           setActionLog(response);
         })
       );
