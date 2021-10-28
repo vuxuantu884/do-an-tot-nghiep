@@ -19,6 +19,7 @@ import BaseFilter from "component/filter/base.filter";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
+import UrlConfig from "config/url.config";
 import TotalItemActionColumn from "./TotalItemActionColumn";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -233,7 +234,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        const link = `https://dev.yody.io/unicorn/admin/products/${l.core_product_id}/variants/${l.core_variant_id}`;
+        const link = `${UrlConfig.PRODUCT}/${l.core_product_id}/variants/${l.core_variant_id}`
         return (
           <StyledProductLink>
             <a href={link} rel="noreferrer" target="_blank">{l.core_variant}</a>
