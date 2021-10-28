@@ -128,8 +128,6 @@ const PromotionCode = () => {
     setTableLoading(false)
   }, [])
   
-  const [showSettingColumn, setShowSettingColumn] = React.useState<boolean>(false);
-
   useEffect(() => {
     dispatch(getListPromotionCode(params, fetchData));
   }, [dispatch, fetchData, params]);
@@ -152,15 +150,15 @@ const PromotionCode = () => {
   const handleShowDeleteModal = (item: any) => {
     console.log(item);
   };
-  const [columns, setColumn] = React.useState<Array<ICustomTableColumType<any>>>([
+  const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "10",
+      width: "7%",
       render: (value: any, item: any, index: number) =>
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`}
+          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
           {value.code}
@@ -171,30 +169,30 @@ const PromotionCode = () => {
       visible: true,
       fixed: "left",
       dataIndex: "name",
-      width: "10",
+      width: "20%",
     },
     {
       title: "SL mã",
       visible: true,
       fixed: "left",
       dataIndex: "code_amount",
-      width: "10",
+      width: "10%",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
       dataIndex: "used_amount",
-      width: "10",
+      width: "10%",
     },
     {
       title: "Thời gian",
       visible: true,
       fixed: "left",
       align: 'center',
-      width: "10",
+      width: "20%",
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.start_time && moment(item.start_time).format(DATE_FORMAT.DDMMYYY)} - ${item.end_time && moment(item.end_time).format(DATE_FORMAT.DDMMYYY)}`}</div>,
+        <div>{`${item.start_date && moment(item.start_date).format(DATE_FORMAT.DDMMYYY)} - ${item.end_date && moment(item.end_date).format(DATE_FORMAT.DDMMYYY)}`}</div>,
     },
     {
       title: "Người tạo",
@@ -202,7 +200,7 @@ const PromotionCode = () => {
       dataIndex: "created_by",
       fixed: "left",
       align: 'center',
-      width: "10",
+      width: "10%",
     },
     {
       title: "Trạng thái",
@@ -221,7 +219,7 @@ const PromotionCode = () => {
       }
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
-  ]);
+  ];
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -345,7 +343,6 @@ const PromotionCode = () => {
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
-            scroll={{ x: 2000 }}
             sticky={{ offsetScroll: 5 }}
             pagination={{
               pageSize: data.metadata.limit,

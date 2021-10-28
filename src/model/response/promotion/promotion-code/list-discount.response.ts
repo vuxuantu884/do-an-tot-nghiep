@@ -6,8 +6,8 @@ export interface ListPromotionCodeResponse extends BaseObject {
   name: string;
   code_amount: string;
   used_amount: string;
-  start_time: string;
-  end_time: string;
+  start_date: string;
+  end_date: string;
   created_by: string;
   status: string;
 }
