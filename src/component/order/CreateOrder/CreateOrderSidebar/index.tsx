@@ -5,22 +5,37 @@ import {AccountResponse} from "model/account/account.model";
 import {OrderResponse} from "model/response/order/order.response";
 import React from "react";
 import {Link} from "react-router-dom";
-import CustomerInputTags from "../../custom-input-tags";
 import SidebarOrderHistory from "./SidebarOrderHistory";
+import CustomInputTags from "component/custom/custom-input-tags";
 import {StyledComponent} from "./styles";
 
 type PropType = {
   accounts: AccountResponse[];
-  onChangeTag: (value: []) => void;
   tags: string;
   isCloneOrder?: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
   customerId?: number | undefined;
   orderDetail?: OrderResponse | null;
+  onChangeTag: (value: []) => void;
 };
 
-const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
+/**
+ * sử dụng trong tạo đơn hàng, sửa đơn hàng, clone
+ *
+ * accounts: danh sách nhân viên
+ *
+ * leverOrder: phân quyền
+ *
+ * updateOrder: sửa đơn hàng
+ *
+ * customerId: id khách hàng, để lấy thông tin lịch sử giao dịch
+ *
+ * orderDetail: chi tiết đơn hàng
+ *
+ * onChangeTag: xử lý khi thay đổi tag
+ */
+const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
   const {accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail} = props;
 
   const renderSplitOrder = () => {
@@ -62,7 +77,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG 3">
+      <Card title="THÔNG TIN ĐƠN HÀNG 10">
         <Form.Item
           label="Nhân viên bán hàng"
           name="assignee_code"
@@ -211,11 +226,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           }}
           // name="tags"
         >
-          <CustomerInputTags
-            onChangeTag={onChangeTag}
-            tags={tags}
-            isCloneOrder={isCloneOrder}
-          />
+          <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
         </Form.Item>
       </Card>
       <SidebarOrderHistory customerId={customerId} />
@@ -223,4 +234,4 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
   );
 };
 
-export default OrderDetailSidebar;
+export default CreateOrderSidebar;

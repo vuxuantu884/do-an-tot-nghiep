@@ -3,6 +3,7 @@ import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import CreateOrderCardShipment from "component/order/CreateOrder/CreateOrderCardShipment";
+import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
 import {OrderCreateContext} from "contexts/order-online/order-create-context";
@@ -75,7 +76,6 @@ import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardPayments from "./component/order-detail/CardPayments";
 import CardProduct from "./component/order-detail/CardProduct";
-import OrderDetailSidebar from "./component/order-detail/Sidebar";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
 let typeButton = "";
@@ -124,7 +124,7 @@ export default function Order() {
   >(0);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [tags, setTag] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
@@ -247,10 +247,10 @@ export default function Order() {
 
   const onChangeTag = useCallback(
     (value: []) => {
-      const strTag = value.join(", ");
-      setTag(strTag);
+      const strTag = value.join(",");
+      setTags(strTag);
     },
-    [setTag]
+    [setTags]
   );
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
@@ -526,9 +526,9 @@ export default function Order() {
         } else {
           if (
             shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !thirdPL.delivery_transport_type
+            !thirdPL.service
           ) {
-            showError("Vui lòng chọn đơn vị vận chuyển");
+            showError("Vui lòng chọn đơn vị vận chuyển 3");
             setCreating(false);
           } else {
             if (typeButton === OrderStatus.DRAFT) {
@@ -659,7 +659,7 @@ export default function Order() {
                 setStoreId(response.store_id);
               }
               if (response.tags) {
-                setTag(response.tags);
+                setTags(response.tags);
               }
               if (response?.discounts && response?.discounts[0]) {
                 if (response.discounts[0].value) {
@@ -784,7 +784,7 @@ export default function Order() {
         setPayments([]);
         setOfficeTime(false);
         setStoreId(null);
-        setTag("");
+        setTags("");
         setIsLoadForm(true);
         setShippingFeeInformedToCustomer(0);
         setDiscountRate(0);
@@ -1150,7 +1150,7 @@ export default function Order() {
                     />
                   </Col>
                   <Col md={6}>
-                    <OrderDetailSidebar
+                    <CreateOrderSidebar
                       accounts={accounts}
                       tags={tags}
                       isCloneOrder={isCloneOrder}

@@ -371,7 +371,10 @@ function CreateOrderCardShipment(props: PropType) {
             )}
             {/*--- Nhận tại cửa hàng ----*/}
             {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-              <ShipmentMethodReceiveAtStore storeDetail={storeDetail} />
+              <ShipmentMethodReceiveAtStore
+                storeDetail={storeDetail}
+                isCancelValidateDelivery={isCancelValidateDelivery}
+              />
             )}
           </div>
         </div>
