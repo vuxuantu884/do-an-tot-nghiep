@@ -1,5 +1,5 @@
 import {
-  Card,
+  Button,
   Checkbox,
   Col,
   DatePicker,
@@ -57,9 +57,12 @@ type PropType = {
   totalAmountCustomerNeedToPay?: number;
   form: FormInstance<any>;
   thirdPL?: thirdPLModel;
+  isShowButtonCreateShipment?: boolean;
   onSelectShipment: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
+  handleCreateShipment?: () => void;
+  handleCancelCreateShipment?: () => void;
 };
 
 /**
@@ -88,8 +91,14 @@ type PropType = {
  * customer: thông tin khách hàng - tính phí ship
  *
  * storeDetail: thông tin cửa hàng - tính phí ship
+ *
+ * isShowButtonCreateShipment: hiển thị button tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
+ *
+ * handleCreateShipment: xử lý khi click nút tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
+ *
+ * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
-function CreateOrderCardShipment(props: PropType) {
+function OrderCardShipment(props: PropType) {
   const {
     customer,
     storeDetail,
@@ -101,9 +110,12 @@ function CreateOrderCardShipment(props: PropType) {
     form,
     isCancelValidateDelivery,
     thirdPL,
+    isShowButtonCreateShipment = false,
     setThirdPL,
     onSelectShipment,
     setShippingFeeInformedToCustomer,
+    handleCreateShipment,
+    handleCancelCreateShipment,
   } = props;
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
@@ -122,20 +134,6 @@ function CreateOrderCardShipment(props: PropType) {
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
-
-  useEffect(() => {
-    // dispatch(DeliveryServicesGetList(setDeliveryServices));
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (orderConfig) {
-      if (orderConfig.for_all_order) {
-        form?.setFieldsValue({
-          requirements: orderConfig.order_config_action,
-        });
-      }
-    }
-  }, [form, orderConfig]);
 
   const shipmentButton: Array<ShipmentButtonType> = [
     {
@@ -159,6 +157,68 @@ function CreateOrderCardShipment(props: PropType) {
       icon: IconWallClock,
     },
   ];
+
+  const renderShipmentTabHeader = () => {
+    return (
+      <React.Fragment>
+        {shipmentButton.map((button) => (
+          <div key={button.value}>
+            {shipmentMethod !== button.value ? (
+              <div
+                className="saleorder_shipment_button 2"
+                key={button.value}
+                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
+              >
+                <img src={button.icon} alt="icon"></img>
+                <span>{button.name}</span>
+              </div>
+            ) : (
+              <div
+                className={
+                  shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+                    ? "saleorder_shipment_button border"
+                    : "saleorder_shipment_button active"
+                }
+                key={button.value}
+              >
+                <img src={button.icon} alt="icon"></img>
+                <span>{button.name}</span>
+              </div>
+            )}
+          </div>
+        ))}
+      </React.Fragment>
+    );
+  };
+
+  const renderButtonCreateActionHtml = () => {
+    if (isShowButtonCreateShipment) {
+      return (
+        <div style={{marginTop: 20}}>
+          <Button
+            type="primary"
+            className="create-button-custom"
+            style={{float: "right"}}
+            onClick={() => {
+              handleCreateShipment && handleCreateShipment();
+            }}
+          >
+            Tạo đơn giao hàng
+          </Button>
+          <Button
+            className="ant-btn-outline fixed-button cancle-button create-button-custom"
+            onClick={() => {
+              handleCancelCreateShipment && handleCancelCreateShipment();
+            }}
+            style={{float: "right"}}
+          >
+            Hủy
+          </Button>
+        </div>
+      );
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (!storeDetail) {
@@ -208,42 +268,26 @@ function CreateOrderCardShipment(props: PropType) {
     }
   }, [customer, dispatch, items, storeDetail, totalAmountCustomerNeedToPay]);
 
-  const renderShipmentTabHeader = () => {
-    return (
-      <React.Fragment>
-        {shipmentButton.map((button) => (
-          <div key={button.value}>
-            {shipmentMethod !== button.value ? (
-              <div
-                className="saleorder_shipment_button 2"
-                key={button.value}
-                onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            ) : (
-              <div
-                className={
-                  shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                    ? "saleorder_shipment_button border"
-                    : "saleorder_shipment_button active"
-                }
-                key={button.value}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </React.Fragment>
-    );
-  };
-
   useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));
   }, [dispatch]);
+
+  useEffect(() => {
+    // dispatch(DeliveryServicesGetList(setDeliveryServices));
+  }, [dispatch]);
+
+  /**
+   * Chọn yêu cầu xem hàng
+   */
+  useEffect(() => {
+    if (orderConfig) {
+      if (orderConfig.for_all_order) {
+        form?.setFieldsValue({
+          requirements: orderConfig.order_config_action,
+        });
+      }
+    }
+  }, [form, orderConfig]);
 
   useEffect(() => {
     dispatch(
@@ -266,121 +310,121 @@ function CreateOrderCardShipment(props: PropType) {
 
   return (
     <StyledComponent>
-      <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 2">
-        <div className="orders-shipment">
-          <Row gutter={24}>
-            <Col md={9}>
-              <span className="orders-shipment__dateLabel">Hẹn giao:</span>
-              <Form.Item name="dating_ship">
-                <DatePicker
-                  format={dateFormat}
-                  style={{width: "100%"}}
-                  className="r-5 w-100 ip-search"
-                  placeholder="Chọn ngày giao"
-                  disabledDate={(current: any) => moment().add(-1, "days") >= current}
-                />
-              </Form.Item>
-            </Col>
+      <div className="orders-shipment">
+        <Row gutter={24}>
+          <Col md={9}>
+            <span className="orders-shipment__dateLabel">Hẹn giao:</span>
+            <Form.Item name="dating_ship">
+              <DatePicker
+                format={dateFormat}
+                style={{width: "100%"}}
+                className="r-5 w-100 ip-search"
+                placeholder="Chọn ngày giao"
+                disabledDate={(current: any) => moment().add(-1, "days") >= current}
+              />
+            </Form.Item>
+          </Col>
 
-            <Col md={6}>
-              <Form.Item name="office_time">
-                <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
-              </Form.Item>
-            </Col>
-            <Col md={9}>
-              <span className="orders-shipment__dateLabel">Yêu cầu:</span>
-              <Form.Item name="requirements">
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  showArrow
-                  notFoundContent="Không tìm thấy kết quả"
-                  style={{width: "100%"}}
-                  placeholder="Chọn yêu cầu"
-                  disabled={orderConfig?.for_all_order}
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {shipping_requirements?.map((item, index) => (
-                    <Select.Option
-                      style={{width: "100%"}}
-                      key={index.toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+          <Col md={6}>
+            <Form.Item name="office_time">
+              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+            </Form.Item>
+          </Col>
+          <Col md={9}>
+            <span className="orders-shipment__dateLabel">Yêu cầu:</span>
+            <Form.Item name="requirements">
+              <Select
+                className="select-with-search"
+                showSearch
+                showArrow
+                notFoundContent="Không tìm thấy kết quả"
+                style={{width: "100%"}}
+                placeholder="Chọn yêu cầu"
+                disabled={orderConfig?.for_all_order}
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipping_requirements?.map((item, index) => (
+                  <Select.Option
+                    style={{width: "100%"}}
+                    key={index.toString()}
+                    value={item.value}
+                  >
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
 
-          <Row>
-            <div
-              className="saleorder_shipment_method_btn 2"
-              style={
-                shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                  ? {border: "none"}
-                  : {borderBottom: "1px solid #2A2A86"}
-              }
-            >
-              <Space size={10} align="start">
-                {renderShipmentTabHeader()}
-              </Space>
-            </div>
-          </Row>
+        <Row>
           <div
-            className="saleorder_shipment_method_content"
+            className="saleorder_shipment_method_btn 2"
             style={
-              shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
-                ? {marginTop: 15}
-                : undefined
+              shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+                ? {border: "none"}
+                : {borderBottom: "1px solid #2A2A86"}
             }
           >
-            {/*--- Chuyển hãng vận chuyển ----*/}
-            {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
-              <ShipmentMethodDeliverPartner
-                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                thirdPL={thirdPL}
-                setThirdPL={setThirdPL}
-                shippingServiceConfig={shippingServiceConfig}
-                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-                infoFees={infoFees}
-                addressError={addressError}
-                levelOrder={levelOrder}
-                orderPrice={orderPrice}
-                customer={customer}
-                form={form}
-              />
-            )}
-            {/*--- Tự vận chuyển ----*/}
-            {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
-              <ShipmentMethodSelfDelivery
-                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                levelOrder={levelOrder}
-                setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-                isCancelValidateDelivery={isCancelValidateDelivery}
-                listShippers={listShippers}
-              />
-            )}
-            {/*--- Nhận tại cửa hàng ----*/}
-            {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-              <ShipmentMethodReceiveAtStore
-                storeDetail={storeDetail}
-                isCancelValidateDelivery={isCancelValidateDelivery}
-              />
-            )}
+            <Space size={10} align="start">
+              {renderShipmentTabHeader()}
+            </Space>
           </div>
+        </Row>
+        <div
+          className="saleorder_shipment_method_content"
+          style={
+            shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
+              ? {marginTop: 15}
+              : undefined
+          }
+        >
+          {/*--- Chuyển hãng vận chuyển ----*/}
+          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
+            <ShipmentMethodDeliverPartner
+              totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+              thirdPL={thirdPL}
+              setThirdPL={setThirdPL}
+              shippingServiceConfig={shippingServiceConfig}
+              setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+              infoFees={infoFees}
+              addressError={addressError}
+              levelOrder={levelOrder}
+              orderPrice={orderPrice}
+              customer={customer}
+              form={form}
+              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+            />
+          )}
+          {/*--- Tự vận chuyển ----*/}
+          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
+            <ShipmentMethodSelfDelivery
+              totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+              levelOrder={levelOrder}
+              setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+              isCancelValidateDelivery={isCancelValidateDelivery}
+              listShippers={listShippers}
+              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+            />
+          )}
+          {/*--- Nhận tại cửa hàng ----*/}
+          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
+            <ShipmentMethodReceiveAtStore
+              storeDetail={storeDetail}
+              isCancelValidateDelivery={isCancelValidateDelivery}
+            />
+          )}
         </div>
-      </Card>
+      </div>
     </StyledComponent>
   );
 }
 
-export default CreateOrderCardShipment;
+export default OrderCardShipment;

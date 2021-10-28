@@ -2,69 +2,58 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
   Col,
   Collapse,
-  DatePicker,
   Form,
   FormInstance,
   Row,
-  Select,
   Space,
   Tag,
   Typography,
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import deliveryIcon from "assets/icon/delivery.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import eyeOutline from "assets/icon/eye_outline.svg";
-import selfdeliver from "assets/icon/self_shipping.svg";
-import shoppingBag from "assets/icon/shopping_bag.svg";
-import wallClock from "assets/icon/wall_clock.svg";
 import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
-import NumberInput from "component/custom/number-input.custom";
-import CustomSelect from "component/custom/select.custom";
+import OrderCardShipment from "component/order/OrderShipment";
 import UrlConfig from "config/url.config";
-import { ShipperGetListAction } from "domain/actions/account/account.action";
+import {ShipperGetListAction} from "domain/actions/account/account.action";
 import {
-  getFeesAction,
   getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
-import { OrderSettingsModel } from "model/other/order/order-model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {AccountResponse} from "model/account/account.model";
+import {StoreResponse} from "model/core/store.model";
+import {thirdPLModel} from "model/order/shipment.model";
+import {OrderSettingsModel} from "model/other/order/order-model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdateShipmentRequest,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import {CustomerResponse} from "model/response/customer/customer.response";
 import {
   OrderResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { setTimeout } from "timers";
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {setTimeout} from "timers";
 import {
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency,
   getAmountPayment,
-  getShippingAddressDefault,
   InfoServiceDeliveryDetail,
-  replaceFormatString,
-  SumWeight,
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
@@ -75,17 +64,16 @@ import {
   PaymentMethodOption,
   ShipmentMethodOption,
 } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
+import {delivery_service} from "../common/delivery-service";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
-import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
-import { delivery_service } from "../common/delivery-service";
 
-const { Panel } = Collapse;
-const { Link } = Typography;
+const {Panel} = Collapse;
+const {Link} = Typography;
 //#endregion
 type UpdateShipmentCardProps = {
   shippingFeeInformedCustomer: number;
@@ -102,7 +90,7 @@ type UpdateShipmentCardProps = {
   stepsStatusValue?: string;
   totalPaid?: number;
   officeTime: boolean | undefined;
-  shipmentMethod: number | null;
+  shipmentMethod: number;
   isVisibleShipping: boolean | null;
   paymentType: number | null;
   customerDetail: CustomerResponse | null;
@@ -132,6 +120,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const history = useHistory();
   // node dom
   const formRefShipment = createRef<FormInstance>();
+  const [form] = Form.useForm();
   // action
   const dispatch = useDispatch();
   // ffm asc id
@@ -167,6 +156,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
+
+  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+    delivery_service_provider_code: "",
+    delivery_service_provider_id: null,
+    insurance_fee: null,
+    delivery_service_provider_name: "",
+    delivery_transport_type: "",
+    service: "",
+    shipping_fee_paid_to_three_pls: null,
+  });
   //#endregion
   // show shipping
   const ShowShipping = () => {
@@ -207,26 +206,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     ) {
       props.setShippingFeeInformedCustomer(0);
     }
-  };
-
-  const changeShippingFeeInformedCustomer = (value: any) => {
-    props.setShippingFeeInformedCustomer(value);
-  };
-
-  const changeServiceType = (
-    id: number,
-    code: string,
-    item: any,
-    fee: number,
-    name: string,
-    serviceName: string
-  ) => {
-    setHvc(id);
-    setHvcCode(code);
-    setHvcName(name);
-    setServiceType(item);
-    setFee(fee);
-    setServiceName(serviceName);
   };
 
   //#endregion
@@ -633,8 +612,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       fulfillment: FulFillmentRequest,
       action: OrderStatus.FINALIZED,
     };
-    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
-      showError("Vui lòng chọn đơn vị vận chuyển");
+    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
+      showError("Vui lòng chọn đơn vị vận chuyển!");
     } else {
       setUpdateShipment(true);
       (async () => {
@@ -647,45 +626,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       // setUpdateShipment(false);
     }
   };
-
-  // shipment button action
-  interface ShipmentButtonModel {
-    name: string | null;
-    value: number;
-    icon: string | undefined;
-  }
-
-  const shipmentButton: Array<ShipmentButtonModel> = [
-    {
-      name: "Chuyển đối tác giao hàng",
-      value: 1,
-      icon: deliveryIcon,
-    },
-    {
-      name: "Tự giao hàng",
-      value: 2,
-      icon: selfdeliver,
-    },
-    {
-      name: "Nhận tại cửa hàng",
-      value: 3,
-      icon: shoppingBag,
-    },
-    {
-      name: "Giao hàng sau",
-      value: 4,
-      icon: wallClock,
-    },
-  ];
-
-  //set req to request
-  const setRequirementNameCallback = useCallback(
-    (value) => {
-      const reqObj = shipping_requirements?.find((r) => r.value === value);
-      setRequirementName(reqObj ? reqObj?.name : "");
-    },
-    [setRequirementName, shipping_requirements]
-  );
   // get req to view
   const getRequirementName = useCallback(() => {
     if (
@@ -822,66 +762,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
-  const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  const [addressError, setAddressError] = useState<string>("");
   // end
 
   const onPrint = () => {
     onOkShippingConfirm();
-    setReload(true)
+    setReload(true);
   };
-  useEffect(() => {
-    if (!props.storeDetail) {
-      setAddressError("Thiếu thông tin địa chỉ cửa hàng");
-    }
-    if (
-      props.customerDetail &&
-      props.storeDetail &&
-      (getShippingAddressDefault(props.customerDetail)?.city_id ||
-        getShippingAddressDefault(props.customerDetail)?.district_id) &&
-      getShippingAddressDefault(props.customerDetail)?.ward_id &&
-      getShippingAddressDefault(props.customerDetail)?.full_address
-    ) {
-      let request = {
-        from_city_id: props.storeDetail?.city_id,
-        from_city: props.storeDetail?.city_name,
-        from_district_id: props.storeDetail?.district_id,
-        from_district: props.storeDetail?.district_name,
-        from_ward_id: props.storeDetail?.ward_id,
-        to_country_id: getShippingAddressDefault(props.customerDetail)?.country_id,
-        to_city_id: getShippingAddressDefault(props.customerDetail)?.city_id,
-        to_city: getShippingAddressDefault(props.customerDetail)?.city,
-        to_district_id: getShippingAddressDefault(props.customerDetail)?.district_id,
-        to_district: getShippingAddressDefault(props.customerDetail)?.district,
-        to_ward_id: getShippingAddressDefault(props.customerDetail)?.ward_id,
-        from_address: props.storeDetail?.address,
-        to_address: getShippingAddressDefault(props.customerDetail)?.full_address,
-        price: OrderDetail?.total_line_amount_after_line_discount,
-        quantity: 1,
-        weight: SumWeight(OrderDetail?.items),
-        length: 0,
-        height: 0,
-        width: 0,
-        service_id: 0,
-        service: "",
-        option: "",
-        insurance: 0,
-        coupon: "",
-        cod: 0,
-      };
-      console.log("request", request);
-      setAddressError("");
-      dispatch(getFeesAction(request, setInfoFees));
-    } else {
-      setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
-    }
-  }, [
-    props.customerDetail,
-    dispatch,
-    props.storeDetail,
-    OrderDetail?.total_line_amount_after_line_discount,
-    OrderDetail?.items,
-  ]);
 
   useEffect(() => {
     getRequirementName();
@@ -905,7 +791,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title={
           <Space>
             <div className="d-flex">
-              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 55</span>
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
@@ -928,8 +814,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               props.OrderDetail?.fulfillments.length > 0 &&
               props.OrderDetail?.fulfillments[0].shipment?.expected_received_date && (
                 <div className="text-menu">
-                  <img src={calendarOutlined} style={{ marginRight: 9.5 }} alt=""></img>
-                  <span style={{ color: "#222222", lineHeight: "16px" }}>
+                  <img src={calendarOutlined} style={{marginRight: 9.5}} alt=""></img>
+                  <span style={{color: "#222222", lineHeight: "16px"}}>
                     {props.OrderDetail?.fulfillments &&
                     props.OrderDetail?.fulfillments.length > 0 &&
                     props.OrderDetail?.fulfillments[0].shipment?.expected_received_date
@@ -957,7 +843,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             {requirementNameView && (
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
-                <span style={{ marginLeft: "5px", fontWeight: 500 }}>
+                <span style={{marginLeft: "5px", fontWeight: 500}}>
                   {requirementNameView}
                 </span>
               </div>
@@ -970,7 +856,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             fulfillment.shipment && (
               <div
                 key={fulfillment.id}
-                style={{ paddingTop: 0, paddingBottom: 20, marginTop: -12 }}
+                style={{paddingTop: 0, paddingBottom: 20, marginTop: -12}}
               >
                 <Collapse
                   className="saleorder_shipment_order_colapse payment_success"
@@ -978,7 +864,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     fulfillment.status !== FulFillmentStatus.RETURNED ? "1" : "",
                   ]}
                   // onChange={(e) => console.log(e[0])}
-                  expandIcon={({ isActive }) => (
+                  expandIcon={({isActive}) => (
                     <div className="saleorder-header-arrow">
                       <img
                         alt=""
@@ -1028,7 +914,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               onClick={(e) => copyOrderID(e, fulfillment.code)}
                               src={copyFileBtn}
                               alt=""
-                              style={{ width: 23 }}
+                              style={{width: 23}}
                             />
                           </div>
                           <FulfillmentStatusTag fulfillment={fulfillment} />
@@ -1041,10 +927,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </div>
 
                         <div className="saleorder-header-content__date">
-                          <span style={{ color: "#000000d9", marginRight: 6 }}>
+                          <span style={{color: "#000000d9", marginRight: 6}}>
                             Ngày tạo:
                           </span>
-                          <span style={{ color: "#000000d9" }}>
+                          <span style={{color: "#000000d9"}}>
                             {moment(fulfillment.shipment?.created_date).format(
                               "DD/MM/YYYY"
                             )}
@@ -1060,16 +946,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Row gutter={24}>
                           <Col md={12}>
                             <b>
-                              <img
-                                style={{ marginRight: 12 }}
-                                src={storeBluecon}
-                                alt=""
-                              />
+                              <img style={{marginRight: 12}} src={storeBluecon} alt="" />
                               NHẬN TẠI CỬA HÀNG
                             </b>
                           </Col>
                         </Row>
-                        <Row gutter={24} style={{ paddingTop: "15px" }}>
+                        <Row gutter={24} style={{paddingTop: "15px"}}>
                           <Col md={12}>
                             <Row gutter={30}>
                               <Col span={10}>
@@ -1121,7 +1003,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 {fulfillment.shipment?.delivery_service_provider_type ===
                                   "external_service" && (
                                   <img
-                                    style={{ width: "112px", height: 25 }}
+                                    style={{width: "112px", height: 25}}
                                     src={InfoServiceDeliveryDetail(
                                       delivery_service,
                                       fulfillment.shipment.delivery_service_provider_id
@@ -1221,7 +1103,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Panel
                           header={
                             <Row>
-                              <Col style={{ alignItems: "center" }}>
+                              <Col style={{alignItems: "center"}}>
                                 <b
                                   style={{
                                     marginRight: "10px",
@@ -1244,12 +1126,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <div className="orders-shipment-item-view-wrap">
                                 <div className="orders-shipment-item-name">
                                   <div>
-                                    <Link style={{ color: "#2A2A86" }}>{item.sku}</Link>
+                                    <Link style={{color: "#2A2A86"}}>{item.sku}</Link>
                                   </div>
                                   <Badge
                                     status="default"
                                     text={item.variant}
-                                    style={{ marginLeft: 7 }}
+                                    style={{marginLeft: 7}}
                                   />
                                 </div>
                                 <div
@@ -1264,7 +1146,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                   ) : (
                                     <div></div>
                                   )}
-                                  <span style={{ marginRight: 10 }}>
+                                  <span style={{marginRight: 10}}>
                                     {item.quantity >= 10
                                       ? item.quantity
                                       : "0" + item.quantity}
@@ -1293,7 +1175,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <Panel
                                 header={
                                   <Row>
-                                    <Col style={{ alignItems: "center" }}>
+                                    <Col style={{alignItems: "center"}}>
                                       <span
                                         style={{
                                           marginRight: "10px",
@@ -1327,7 +1209,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                           }
                                           src={copyFileBtn}
                                           alt=""
-                                          style={{ width: 23 }}
+                                          style={{width: 23}}
                                         />
                                       </div>
                                     </Col>
@@ -1346,7 +1228,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               >
                                 <Collapse
                                   className="orders-timeline"
-                                  expandIcon={({ isActive }) => (
+                                  expandIcon={({isActive}) => (
                                     <img
                                       src={doubleArrow}
                                       alt=""
@@ -1382,7 +1264,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                               color: "#737373",
                                             }}
                                           ></i>{" "}
-                                          <span style={{ color: "#737373" }}>
+                                          <span style={{color: "#737373"}}>
                                             {moment(item.created_date).format(
                                               "DD/MM/YYYY HH:mm"
                                             )}
@@ -1491,7 +1373,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
             <Button
               type="primary"
-              style={{ margin: "0 10px", padding: "0 25px" }}
+              style={{margin: "0 10px", padding: "0 25px"}}
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => {
                 history.push(
@@ -1550,7 +1432,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               "pick_at_store" && (
               <Button
                 type="primary"
-                style={{ marginLeft: "10px", padding: "0 25px" }}
+                style={{marginLeft: "10px", padding: "0 25px"}}
                 className="create-button-custom ant-btn-outline fixed-button"
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
@@ -1568,7 +1450,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               "pick_at_store" && (
               <Button
                 type="primary"
-                style={{ marginLeft: "10px" }}
+                style={{marginLeft: "10px"}}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={onOkShippingConfirm}
                 loading={updateShipment}
@@ -1582,7 +1464,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             <Button
               type="primary"
               className="create-button-custom ant-btn-outline fixed-button"
-              style={{ marginLeft: "10px" }}
+              style={{marginLeft: "10px"}}
               onClick={onOkShippingConfirm}
               loading={updateShipment}
               disabled={cancelShipment}
@@ -1597,7 +1479,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               "pick_at_store" && (
               <Button
                 type="primary"
-                style={{ marginLeft: "10px", padding: "0 25px" }}
+                style={{marginLeft: "10px", padding: "0 25px"}}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippingConfirm(true)}
                 loading={updateShipment}
@@ -1609,7 +1491,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           {props.stepsStatusValue === FulFillmentStatus.SHIPPING && (
             <Button
               type="primary"
-              style={{ marginLeft: "10px" }}
+              style={{marginLeft: "10px"}}
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => setIsvibleShippedConfirm(true)}
               loading={updateShipment}
@@ -1626,7 +1508,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               "pick_at_store" && (
               <Button
                 type="primary"
-                style={{ marginLeft: "10px", padding: "0 25px" }}
+                style={{marginLeft: "10px", padding: "0 25px"}}
                 className="create-button-custom ant-btn-outline fixed-button"
                 onClick={() => setIsvibleShippedConfirm(true)}
                 loading={updateShipment}
@@ -1669,389 +1551,36 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           <div>
             <Form
               initialValues={initialFormUpdateShipment}
-              ref={formRefShipment}
-              onFinishFailed={({ errorFields }: any) => {
+              form={form}
+              onFinishFailed={({errorFields}: any) => {
                 const element: any = document.getElementById(
                   errorFields[0].name.join("")
                 );
                 element?.focus();
                 const y =
                   element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                window.scrollTo({ top: y, behavior: "smooth" });
+                window.scrollTo({top: y, behavior: "smooth"});
               }}
               onFinish={onFinishUpdateFulFillment}
               layout="vertical"
             >
-              <Row gutter={24} style={{ justifyContent: "space-between" }}>
-                <Col md={9}>
-                  <span
-                    style={{
-                      float: "left",
-                      lineHeight: "40px",
-                      marginRight: "10px",
-                    }}
-                  >
-                    Hẹn giao:
-                  </span>
-                  <Form.Item name="dating_ship">
-                    <DatePicker
-                      format="DD/MM/YYYY HH:mm A"
-                      style={{ width: "100%" }}
-                      className="r-5 w-100 ip-search"
-                      placeholder="dd/mm/yyyy"
-                      disabledDate={(current: any) => moment().add(-1, "days") >= current}
-                    />
-                  </Form.Item>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Item>
-                    <Checkbox
-                      style={{ marginTop: "8px" }}
-                      checked={props.officeTime}
-                      onChange={(e) => props.setOfficeTime(e.target.checked)}
-                    >
-                      Giờ hành chính
-                    </Checkbox>
-                  </Form.Item>
-                </Col>
-                <Col md={9}>
-                  <span
-                    style={{
-                      float: "left",
-                      lineHeight: "40px",
-                      marginRight: "10px",
-                    }}
-                  >
-                    Yêu cầu:
-                  </span>
-                  <Form.Item name="requirements">
-                    <Select
-                      onChange={(value) => setRequirementNameCallback(value)}
-                      className="select-with-search"
-                      showSearch
-                      showArrow
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      placeholder="Chọn yêu cầu"
-                      filterOption={(input, option) => {
-                        if (option) {
-                          return (
-                            option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                            0
-                          );
-                        }
-                        return false;
-                      }}
-                    >
-                      {shipping_requirements?.map((item, index) => (
-                        <Select.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value}
-                        >
-                          {item.name}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row>
-                <div
-                  className="saleorder_shipment_method_btn"
-                  style={
-                    shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                      ? { border: "none" }
-                      : { borderBottom: "1px solid #2A2A86", marginBottom: 20 }
-                  }
-                >
-                  <Space size={10}>
-                    {shipmentButton.map((button) => (
-                      <div key={button.value}>
-                        {shipmentMethod !== button.value ? (
-                          <div
-                            className="saleorder_shipment_button"
-                            onClick={() => ShipMethodOnChange(button.value)}
-                          >
-                            <img src={button.icon} alt="icon"></img>
-                            <span>{button.name}</span>
-                          </div>
-                        ) : (
-                          <div
-                            className={
-                              shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                                ? "saleorder_shipment_button saleorder_shipment_button_border"
-                                : "saleorder_shipment_button_active"
-                            }
-                            key={button.value}
-                          >
-                            <img src={button.icon} alt="icon"></img>
-                            <span>{button.name}</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </Space>
-                </div>
-              </Row>
-              {/*--- Chuyển hãng vận chuyển ----*/}
-              {/* {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
-                <>
-                  {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
-                    <ShipmentMethodDeliverPartner
-                      amount={props.OrderDetail?.total_line_amount_after_line_discount}
-                      totalPaid={props.totalPaid}
-                      serviceType={serviceType}
-                      changeServiceType={changeServiceType}
-                      discountValue={OrderDetail?.total_discount}
-                      infoFees={infoFees}
-                      setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
-                      shippingFeeCustomer={props.shippingFeeInformedCustomer}
-                      OrderDetail={OrderDetail}
-                      payments={OrderDetail?.payments}
-                      fulfillments={OrderDetail?.fulfillments}
-                      // isCloneOrder={isCloneOrder}
-                      addressError={addressError}
-                    />
-                  )}
-
-                  <Col md={24} style={{ margin: "20px 0", padding: "20px 0 25px 0" }}>
-                    <div>
-                      <Button
-                        type="primary"
-                        className="create-button-custom"
-                        style={{
-                          float: "right",
-                          padding: "0 25px",
-                          letterSpacing: "0.2px",
-                        }}
-                        // htmlType="submit"
-                        onClick={() => formRefShipment.current?.submit()}
-                        loading={updateShipment}
-                        disabled={
-                          props.stepsStatusValue === OrderStatus.CANCELLED ||
-                          props.stepsStatusValue === FulFillmentStatus.SHIPPED
-                        }
-                      >
-                        Tạo đơn giao hàng
-                      </Button>
-                      <Button
-                        className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                        onClick={() => {
-                          setVisibleShipping(false);
-                          props.setShippingFeeInformedCustomer(0);
-                        }}
-                        loading={cancelShipment}
-                        style={{
-                          float: "right",
-                          padding: "0 25px",
-                          letterSpacing: "0.2px",
-                        }}
-                        disabled={updateShipment}
-                      >
-                        Huỷ
-                      </Button>
-                    </div>
-                  </Col>
-                </>
-              )} */}
-
-              {/* Tự vận chuyển */}
-              {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
-                <div>
-                  <Row gutter={24}>
-                    <Col md={12}>
-                      <Form.Item
-                        label="Đối tác giao hàng"
-                        name="shipper_code"
-                        rules={[
-                          {
-                            required: shipmentMethod === 2,
-                            message: "Vui lòng chọn đối tác giao hàng",
-                          },
-                        ]}
-                      >
-                        <CustomSelect
-                          className="select-with-search"
-                          showSearch
-                          style={{ width: "100%" }}
-                          notFoundContent="Không tìm thấy kết quả"
-                          placeholder="Chọn đối tác giao hàng"
-                          filterOption={(input, option) => {
-                            if (option) {
-                              return (
-                                option.children
-                                  .toLowerCase()
-                                  .indexOf(input.toLowerCase()) >= 0
-                              );
-                            }
-                            return false;
-                          }}
-                        >
-                          {shipper?.map((item, index) => (
-                            <CustomSelect.Option
-                              style={{ width: "100%" }}
-                              key={index.toString()}
-                              value={item.code}
-                            >
-                              {`${item.full_name} - ${item.mobile}`}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Form.Item>
-                      {/* {isShowTakeHelper && ( */}
-                      <Form.Item label="Tiền thu hộ">
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={15}
-                          minLength={0}
-                          value={customerNeedToPayValue}
-                          onChange={(value) => setTakeMoneyHelper(value)}
-                        />
-                      </Form.Item>
-                      {/* )} */}
-                    </Col>
-                    <Col md={12}>
-                      <Form.Item
-                        name="shipping_fee_paid_to_three_pls"
-                        label="Phí ship trả đối tác giao hàng"
-                      >
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={15}
-                          minLength={0}
-                          onChange={() => {}}
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        // name="shipping_fee_informed_to_customer"
-                        label="Phí ship báo khách"
-                      >
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          value={props.shippingFeeInformedCustomer || 0}
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={15}
-                          minLength={0}
-                          onChange={(e: any) => changeShippingFeeInformedCustomer(e)}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col md={24}>
-                      <div>
-                        <Button
-                          type="primary"
-                          className="create-button-custom"
-                          style={{ float: "right" }}
-                          // htmlType="submit"
-                          onClick={() => formRefShipment.current?.submit()}
-                          loading={updateShipment}
-                          disabled={
-                            props.stepsStatusValue === OrderStatus.CANCELLED ||
-                            props.stepsStatusValue === FulFillmentStatus.SHIPPED
-                          }
-                        >
-                          Tạo đơn giao hàng
-                        </Button>
-                        <Button
-                          className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                          onClick={() => {
-                            setVisibleShipping(false);
-                            props.setShippingFeeInformedCustomer(0);
-                          }}
-                          style={{ float: "right" }}
-                          loading={cancelShipment}
-                          disabled={updateShipment}
-                        >
-                          Huỷ
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              )}
-              {/*--- Nhận tại cửa hàng ----*/}
-              {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-                <div className="receive-at-store">
-                  <b>
-                    <img style={{ marginRight: 12 }} src={storeBluecon} alt="" /> THÔNG
-                    TIN CỬA HÀNG
-                  </b>
-
-                  <Row style={{ paddingTop: "19px" }}>
-                    <Col md={3} lg={2}>
-                      <div>Tên cửa hàng:</div>
-                    </Col>
-                    <b className="row-info-content">
-                      <Typography.Link style={{ color: "#222222" }}>
-                        {props.storeDetail?.name}
-                      </Typography.Link>
-                    </b>
-                  </Row>
-                  <Row className="row-info padding-top-10">
-                    <Col md={3} lg={2}>
-                      <div>Số điện thoại:</div>
-                    </Col>
-                    <b className="row-info-content">{props.storeDetail?.hotline}</b>
-                  </Row>
-                  <Row className="row-info padding-top-10">
-                    <Col md={3} lg={2}>
-                      <div>Địa chỉ:</div>
-                    </Col>
-                    <b className="row-info-content">{props.storeDetail?.address}</b>
-                  </Row>
-                  <Row>
-                    <Col md={24}>
-                      <div>
-                        <Button
-                          type="primary"
-                          className="create-button-custom"
-                          style={{ float: "right" }}
-                          // htmlType="submit"
-                          onClick={() => formRefShipment.current?.submit()}
-                          loading={updateShipment}
-                          disabled={
-                            props.stepsStatusValue === OrderStatus.CANCELLED ||
-                            props.stepsStatusValue === FulFillmentStatus.SHIPPED
-                          }
-                        >
-                          Tạo đơn giao hàng
-                        </Button>
-                        <Button
-                          className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                          onClick={() => setVisibleShipping(false)}
-                          loading={cancelShipment}
-                          style={{ float: "right" }}
-                          disabled={updateShipment}
-                        >
-                          Hủy
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              )}
+              <OrderCardShipment
+                shipmentMethod={shipmentMethod}
+                orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+                storeDetail={props.storeDetail}
+                customer={props.customerDetail}
+                items={OrderDetail?.items}
+                isCancelValidateDelivery={false}
+                totalAmountCustomerNeedToPay={customerNeedToPayValue}
+                setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
+                onSelectShipment={setShipmentMethod}
+                thirdPL={thirdPL}
+                setThirdPL={setThirdPL}
+                form={form}
+                isShowButtonCreateShipment
+                handleCreateShipment={() => form.submit()}
+                handleCancelCreateShipment={() => setVisibleShipping(false)}
+              />
             </Form>
             {/*--- Giao hàng sau ----*/}
             <Row className="ship-later-box" hidden={shipmentMethod !== 4}></Row>

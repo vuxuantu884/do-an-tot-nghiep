@@ -1,26 +1,28 @@
-import { Col, Form, Row } from "antd";
+import {Col, Form, Row} from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import { OrderCreateContext } from "contexts/order-online/order-create-context";
-import { AccountResponse } from "model/account/account.model";
-import React, { useContext } from "react";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
+import {OrderCreateContext} from "contexts/order-online/order-create-context";
+import {AccountResponse} from "model/account/account.model";
+import React, {useContext} from "react";
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   totalAmountCustomerNeedToPay: number;
-  setShippingFeeInformedToCustomer: (value: number) => void;
   levelOrder?: number;
   isCancelValidateDelivery: boolean;
   listShippers: AccountResponse[] | null;
+  setShippingFeeInformedToCustomer: (value: number) => void;
+  renderButtonCreateActionHtml: () => JSX.Element | null;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
-    setShippingFeeInformedToCustomer,
     levelOrder = 0,
     totalAmountCustomerNeedToPay,
     isCancelValidateDelivery,
     listShippers,
+    setShippingFeeInformedToCustomer,
+    renderButtonCreateActionHtml,
   } = props;
 
   console.log("listShippers", listShippers);
@@ -48,7 +50,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 className="select-with-search"
                 showSearch
                 notFoundContent="Không tìm thấy kết quả"
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 placeholder="Chọn đối tác giao hàng"
                 filterOption={(input, option) => {
                   if (option) {
@@ -62,7 +64,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               >
                 {listShippers?.map((item, index) => (
                   <CustomSelect.Option
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                     key={index.toString()}
                     value={item.code}
                   >
@@ -141,6 +143,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
             </Form.Item>
           </Col>
         </Row>
+        {renderButtonCreateActionHtml && renderButtonCreateActionHtml()}
       </div>
     </StyledComponent>
   );

@@ -1,14 +1,14 @@
-import { Button, Card, Col, Collapse, Divider, Form, Modal, Row, Space, Tag } from "antd";
+import {Button, Card, Col, Collapse, Divider, Form, Modal, Row, Space, Tag} from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
-import { OrderDetailContext } from "contexts/order-online/order-detail-context";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreDetailAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
+import {OrderDetailContext} from "contexts/order-online/order-detail-context";
+import {AccountSearchAction} from "domain/actions/account/account.action";
+import {StoreDetailAction} from "domain/actions/core/store.action";
+import {CustomerDetail} from "domain/actions/customer/customer.action";
+import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
+import {actionSetIsReceivedOrderReturn} from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
   confirmDraftOrderAction,
@@ -16,29 +16,22 @@ import {
   PaymentMethodGetList,
   UpdatePaymentAction,
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {OrderSettingsModel} from "model/other/order/order-model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   OrderPaymentRequest,
   UpdateOrderPaymentRequest,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import {OrderResponse, StoreCustomResponse} from "model/response/order/order.response";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
@@ -46,9 +39,9 @@ import {
   getAmountPayment,
   SumCOD,
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, PaymentMethodCode } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import {FulFillmentStatus, OrderStatus, PaymentMethodCode} from "utils/Constants";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {showSuccess} from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
@@ -62,7 +55,8 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 import CardShipment from "./component/order-detail/CardShipment";
-const { Panel } = Collapse;
+import OrderShipment from "component/order/OrderShipment";
+const {Panel} = Collapse;
 
 type PropType = {
   id?: string;
@@ -72,7 +66,7 @@ type OrderParam = {
 };
 
 const OrderDetail = (props: PropType) => {
-  let { id } = useParams<OrderParam>();
+  let {id} = useParams<OrderParam>();
   const history = useHistory();
   if (!id && props.id) {
     id = props.id;
@@ -273,7 +267,7 @@ const OrderDetail = (props: PropType) => {
     } else {
       let _data = {
         ...data,
-        fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id)
+        fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id),
       };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
@@ -543,7 +537,7 @@ const OrderDetail = (props: PropType) => {
   }, []);
 
   const initialFormValue = {
-    returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
+    returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
   };
 
   const totalAmountCustomerNeedToPay = useMemo(() => {
@@ -580,6 +574,29 @@ const OrderDetail = (props: PropType) => {
       payments: [],
       setPayments: (payments: OrderPaymentRequest[]) => {},
     },
+  };
+
+  const renderShipment = () => {
+    if (true) {
+      return (
+        <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 253">
+          <OrderShipment
+            shipmentMethod={shipmentMethod}
+            orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+            storeDetail={storeDetail}
+            customer={customerDetail}
+            items={OrderDetail?.items}
+            isCancelValidateDelivery={false}
+            totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+            setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
+            onSelectShipment={setShipmentMethod}
+            thirdPL={undefined}
+            setThirdPL={() => {}}
+            form={form}
+          />
+        </Card>
+      );
+    }
   };
 
   useEffect(() => {
@@ -625,7 +642,7 @@ const OrderDetail = (props: PropType) => {
       >
         <div className="orders">
           <Form layout="vertical" initialValues={initialFormValue} form={form}>
-            <Row gutter={24} style={{ marginBottom: "70px" }}>
+            <Row gutter={24} style={{marginBottom: "70px"}}>
               <Col md={18}>
                 {/*--- customer ---*/}
                 <UpdateCustomerCard
@@ -706,7 +723,7 @@ const OrderDetail = (props: PropType) => {
                         </Space>
                       }
                     >
-                      <div style={{ marginBottom: 20 }}>
+                      <div style={{marginBottom: 20}}>
                         <Row>
                           <Col span={12}>
                             <span className="text-field margin-right-40">
@@ -728,7 +745,7 @@ const OrderDetail = (props: PropType) => {
                                 ? `Còn phải trả:`
                                 : `Hoàn tiền cho khách:`}
                             </span>
-                            <b style={{ color: "red" }}>
+                            <b style={{color: "red"}}>
                               {OrderDetail?.fulfillments &&
                               OrderDetail?.fulfillments.length > 0 &&
                               OrderDetail?.fulfillments[0].shipment?.cod
@@ -748,7 +765,7 @@ const OrderDetail = (props: PropType) => {
 
                       {OrderDetail?.payments && (
                         <div>
-                          <div style={{ padding: "0 24px" }}>
+                          <div style={{padding: "0 24px"}}>
                             <Collapse
                               className="orders-timeline"
                               defaultActiveKey={["100"]}
@@ -786,7 +803,7 @@ const OrderDetail = (props: PropType) => {
                                                 </b>
                                                 <span>{payment.reference}</span>
                                                 {payment.payment_method_id === 5 && (
-                                                  <span style={{ marginLeft: 10 }}>
+                                                  <span style={{marginLeft: 10}}>
                                                     {payment.amount / 1000} điểm
                                                   </span>
                                                 )}
@@ -883,7 +900,7 @@ const OrderDetail = (props: PropType) => {
                                               "shipped" ? (
                                                 <Tag
                                                   className="orders-tag orders-tag-warning"
-                                                  style={{ marginLeft: 10 }}
+                                                  style={{marginLeft: 10}}
                                                 >
                                                   Đang chờ thu
                                                 </Tag>
@@ -943,12 +960,12 @@ const OrderDetail = (props: PropType) => {
                           isShowPaymentPartialPayment === false &&
                           checkPaymentStatusToShow(OrderDetail) !== 1 && (
                             <div className="text-right">
-                              <Divider style={{ margin: "10px 0" }} />
+                              <Divider style={{margin: "10px 0"}} />
                               <Button
                                 type="primary"
                                 className="ant-btn-outline fixed-button"
                                 onClick={() => setShowPaymentPartialPayment(true)}
-                                style={{ marginTop: 10 }}
+                                style={{marginTop: 10}}
                                 disabled={
                                   stepsStatusValue === OrderStatus.CANCELLED ||
                                   stepsStatusValue === FulFillmentStatus.SHIPPED ||
@@ -1000,7 +1017,7 @@ const OrderDetail = (props: PropType) => {
                         </Space>
                       }
                     >
-                      <div style={{ marginBottom: 20 }}>
+                      <div style={{marginBottom: 20}}>
                         <Row>
                           <Col span={12}>
                             <span className="text-field margin-right-40">
@@ -1012,12 +1029,12 @@ const OrderDetail = (props: PropType) => {
                             <span className="text-field margin-right-40">
                               Còn phải trả:
                             </span>
-                            <b style={{ color: "red" }}>0</b>
+                            <b style={{color: "red"}}>0</b>
                           </Col>
                         </Row>
                       </div>
-                      <Divider style={{ margin: "0px" }} />
-                      <div style={{ padding: "20px 20px 0 20px" }}>
+                      <Divider style={{margin: "0px"}} />
+                      <div style={{padding: "20px 20px 0 20px"}}>
                         <Collapse
                           className="orders-timeline"
                           defaultActiveKey={["1"]}
@@ -1041,7 +1058,7 @@ const OrderDetail = (props: PropType) => {
                                 COD
                                 <Tag
                                   className="orders-tag orders-tag-warning"
-                                  style={{ marginLeft: 10 }}
+                                  style={{marginLeft: 10}}
                                 >
                                   Đang chờ thu
                                 </Tag>
@@ -1161,7 +1178,7 @@ const OrderDetail = (props: PropType) => {
                 />
                 {/*--- end shipment ---*/}
 
-                <CardShipment
+                {/* <CardShipment
                   shipmentMethod={shipmentMethod}
                   orderPrice={OrderDetail?.total_line_amount_after_line_discount}
                   storeDetail={storeDetail}
@@ -1175,7 +1192,9 @@ const OrderDetail = (props: PropType) => {
                   form={form}
                   serviceType3PL={serviceType3PL}
                   setServiceType3PL={setServiceType3PL}
-                />
+                /> */}
+
+                {/* {renderShipment()} */}
 
                 {OrderDetail?.order_return_origin?.items && (
                   <CardReturnReceiveProducts
@@ -1197,7 +1216,7 @@ const OrderDetail = (props: PropType) => {
                 />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
                 <ActionHistory
-                  orderId={ OrderDetail?.id}
+                  orderId={OrderDetail?.id}
                   countChangeSubStatus={countChangeSubStatus}
                   reload={reload}
                 />

@@ -1,14 +1,14 @@
-import { Card, Col, Row } from "antd";
+import {Card, Col, Row} from "antd";
 import UrlConfig from "config/url.config";
-import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
-import { OrderModel } from "model/order/order.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {GetListOrderCustomerAction} from "domain/actions/order/order.action";
+import {OrderModel} from "model/order/order.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import moment from "moment";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { formatCurrency } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Link} from "react-router-dom";
+import {formatCurrency} from "utils/AppUtils";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   customerId: number | undefined;
@@ -16,7 +16,7 @@ type PropType = {
 
 function SidebarOrderHistory(props: PropType) {
   const formatDate = "hh:mm DD-MM-YYYY";
-  const { customerId } = props;
+  const {customerId} = props;
   console.log("customerId", customerId);
   const dispatch = useDispatch();
   const [customerHistory, setCustomerHistory] = useState<OrderModel[] | null>(null);
@@ -47,7 +47,7 @@ function SidebarOrderHistory(props: PropType) {
     <StyledComponent>
       <Card title="Lịch sử mua hàng">
         {!customerHistory
-          ? "Vui lòng chọn khách hàng"
+          ? "Vui lòng chọn khách hàng!"
           : customerHistory?.map((single) => {
               return (
                 <Row className="" gutter={15} key={single.id}>
@@ -60,12 +60,12 @@ function SidebarOrderHistory(props: PropType) {
                         <Link
                           target="_blank"
                           to={`${UrlConfig.ORDER}/${single.id}`}
-                          style={{ fontWeight: "bold" }}
+                          style={{fontWeight: "bold"}}
                         >
                           {single.code}
                         </Link>{" "}
                         -{" "}
-                        <span style={{ whiteSpace: "nowrap" }}>
+                        <span style={{whiteSpace: "nowrap"}}>
                           SL: {single.items.length}
                         </span>
                       </div>
@@ -74,12 +74,12 @@ function SidebarOrderHistory(props: PropType) {
                   <Col span={9}>
                     <div
                       className="singleHistoryOrder__status"
-                      style={{ textAlign: "right" }}
+                      style={{textAlign: "right"}}
                     >
                       <h4 className="singleHistoryOrder__mainStatus">
                         {formatCurrency(single.total_line_amount_after_line_discount)}
                         <span
-                          style={{ color: "#808080", marginLeft: "2px", fontWeight: 400 }}
+                          style={{color: "#808080", marginLeft: "2px", fontWeight: 400}}
                         >
                           ₫
                         </span>

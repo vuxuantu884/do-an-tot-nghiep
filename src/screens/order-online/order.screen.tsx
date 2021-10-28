@@ -1,8 +1,8 @@
-import {Col, Form, FormInstance, Input, Row} from "antd";
+import {Card, Col, Form, FormInstance, Input, Row} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import CreateOrderCardShipment from "component/order/CreateOrder/CreateOrderCardShipment";
+import OrderShipment from "component/order/OrderShipment";
 import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -1134,20 +1134,23 @@ export default function Order() {
                       loyaltyRate={loyaltyRate}
                       isDisablePostPayment={isDisablePostPayment}
                     />
-                    <CreateOrderCardShipment
-                      shipmentMethod={shipmentMethod}
-                      orderPrice={orderAmount}
-                      storeDetail={storeDetail}
-                      customer={customer}
-                      items={items}
-                      isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                      setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
-                      onSelectShipment={onSelectShipment}
-                      thirdPL={thirdPL}
-                      setThirdPL={setThirdPL}
-                      form={form}
-                    />
+
+                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 252">
+                      <OrderShipment
+                        shipmentMethod={shipmentMethod}
+                        orderPrice={orderAmount}
+                        storeDetail={storeDetail}
+                        customer={customer}
+                        items={items}
+                        isCancelValidateDelivery={false}
+                        totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                        setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        onSelectShipment={onSelectShipment}
+                        thirdPL={thirdPL}
+                        setThirdPL={setThirdPL}
+                        form={form}
+                      />
+                    </Card>
                   </Col>
                   <Col md={6}>
                     <CreateOrderSidebar

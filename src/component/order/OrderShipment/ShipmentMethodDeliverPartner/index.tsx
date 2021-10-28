@@ -27,6 +27,7 @@ type PropType = {
   thirdPL: thirdPLModel | undefined;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
+  renderButtonCreateActionHtml: () => JSX.Element | null;
 };
 
 function ShipmentMethodDeliverPartner(props: PropType) {
@@ -42,6 +43,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     thirdPL,
     setThirdPL,
     setShippingFeeInformedToCustomer,
+    renderButtonCreateActionHtml,
   } = props;
 
   const deliveryService: any = useMemo(() => {
@@ -87,6 +89,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   const shippingFeeApplyOrderSetting = useCallback(
     (transportType: string) => {
+      console.log("3333");
       const customerShippingAddress = customer?.shipping_addresses.find(
         (single) => single.default
       );
@@ -377,6 +380,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             </div>
           </div>
         </div>
+        {renderButtonCreateActionHtml && renderButtonCreateActionHtml()}
       </div>
     </StyledComponent>
   );

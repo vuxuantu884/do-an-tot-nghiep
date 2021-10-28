@@ -1,4 +1,4 @@
-import { BugOutlined } from "@ant-design/icons";
+import {BugOutlined} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -17,21 +17,21 @@ import Cash from "component/icon/Cash";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 import YdCoin from "component/icon/YdCoin";
-import { PaymentMethodGetList } from "domain/actions/order/order.action";
-import { OrderPaymentRequest } from "model/request/order.request";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
+import {PaymentMethodGetList} from "domain/actions/order/order.action";
+import {OrderPaymentRequest} from "model/request/order.request";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import {useEffect, useMemo, useState} from "react";
+import {useDispatch} from "react-redux";
+import {formatCurrency, formatSuffixPoint, replaceFormat} from "utils/AppUtils";
 import {
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethodOption,
 } from "utils/Constants";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
-const { Panel } = Collapse;
+const {Panel} = Collapse;
 
 type CardPaymentsProps = {
   payments: OrderPaymentRequest[];
@@ -187,7 +187,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
             // required
-            style={{ marginBottom: 0 }}
+            style={{marginBottom: 0}}
           >
             <Radio.Group
               value={paymentMethod}
@@ -225,7 +225,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
               )}
             {paymentMethod === PaymentMethodOption.COD &&
               shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-                <div className="order-cod-payment-footer" style={{ height: 83 }}>
+                <div className="order-cod-payment-footer" style={{height: 83}}>
                   <div>
                     <div>
                       <div>
@@ -243,9 +243,9 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
           <Row
             gutter={24}
             hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
-            style={{ marginTop: 18 }}
+            style={{marginTop: 18}}
           >
-            <div style={{ padding: "0 24px", maxWidth: "100%" }}>
+            <div style={{padding: "0 24px", maxWidth: "100%"}}>
               <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
                 <Panel
                   className="orders-timeline-custom orders-dot-status"
@@ -265,11 +265,11 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                   showArrow={false}
                   // disabled={levelOrder > 2}
                 >
-                  <div style={{ width: "1200px", maxWidth: "100%" }}>
+                  <div style={{width: "1200px", maxWidth: "100%"}}>
                     <Row gutter={24}>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{ paddingRight: "20px" }}>
+                          <span style={{paddingRight: "20px"}}>
                             Tiền khách phải trả:{" "}
                           </span>
                           <strong>{formatCurrency(totalAmountOrder)}</strong>
@@ -277,19 +277,19 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
+                          <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
                           <strong>
                             {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                           </strong>
                         </div>
                       </Col>
-                      <Divider style={{ margin: "10px 0" }} />
+                      <Divider style={{margin: "10px 0"}} />
                       <Col xs={24} lg={24}>
                         <Row
                           className="btn-list-method"
                           gutter={5}
                           align="middle"
-                          style={{ marginLeft: 0, marginRight: 0 }}
+                          style={{marginLeft: 0, marginRight: 0}}
                         >
                           {ListPaymentMethods.map((method, index) => {
                             // console.log("method", method);
@@ -326,7 +326,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                             return (
                               <Col key={method.code} className="btn-payment-method">
                                 <Button
-                                  style={{ display: "flex", padding: 10 }}
+                                  style={{display: "flex", padding: 10}}
                                   type={
                                     payments.some(
                                       (p) =>
@@ -358,13 +358,13 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                         <Row
                           gutter={24}
                           className="row-price"
-                          style={{ height: 38, margin: "10px 0" }}
+                          style={{height: 38, margin: "10px 0"}}
                         >
                           <Col
                             lg={15}
                             xxl={9}
                             className="row-large-title"
-                            style={{ padding: "8px 0", marginLeft: 2 }}
+                            style={{padding: "8px 0", marginLeft: 2}}
                           >
                             <b>Khách cần trả:</b>
                           </Col>
@@ -379,7 +379,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                             }}
                           >
                             <span className="t-result-blue">
-                              {formatCurrency(totalAmountCustomerNeedToPay)}
+                              {formatCurrency(totalAmountOrder)}
                             </span>
                           </Col>
                         </Row>
@@ -391,11 +391,11 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                               gutter={20}
                               className="row-price"
                               key={method.code}
-                              style={{ margin: "10px 0" }}
+                              style={{margin: "10px 0"}}
                             >
-                              <Col lg={15} xxl={9} style={{ padding: "0" }}>
+                              <Col lg={15} xxl={9} style={{padding: "0"}}>
                                 <Row align="middle">
-                                  <b style={{ padding: "8px 0" }}>
+                                  <b style={{padding: "8px 0"}}>
                                     {method.payment_method}:
                                   </b>
                                   {method.payment_method_code ===
@@ -442,7 +442,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                   {method.code === PaymentMethodCode.BANK_TRANSFER ? (
                                     <Col
                                       className="point-spending"
-                                      style={{ marginLeft: 12 }}
+                                      style={{marginLeft: 12}}
                                       lg={14}
                                       xxl={14}
                                     >
@@ -462,7 +462,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                   className="lbl-money"
                                   lg={6}
                                   xxl={6}
-                                  style={{ marginLeft: 10 }}
+                                  style={{marginLeft: 10}}
                                 >
                                   <InputNumber
                                     size="middle"
@@ -501,7 +501,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                     marginLeft: 10,
                                   }}
                                 >
-                                  <span style={{ padding: "14px", lineHeight: 1 }}>
+                                  <span style={{padding: "14px", lineHeight: 1}}>
                                     {formatCurrency(method.amount)}
                                   </span>
                                 </Col>
@@ -512,9 +512,9 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                         <Row
                           gutter={20}
                           className="row-price"
-                          style={{ height: 38, margin: "10px 0 0 0" }}
+                          style={{height: 38, margin: "10px 0 0 0"}}
                         >
-                          <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
+                          <Col lg={15} xxl={9} style={{padding: "8px 0"}}>
                             <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                           </Col>
                           <Col
@@ -527,7 +527,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                               fontSize: "20px",
                             }}
                           >
-                            <span style={{ color: false ? "blue" : "red" }}>
+                            <span style={{color: false ? "blue" : "red"}}>
                               {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                             </span>
                           </Col>
