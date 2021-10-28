@@ -6,13 +6,13 @@ import {
   Tag,
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import moment from "moment";
 import actionColumn from "./actions/action.column";
-import CustomFilter from "component/table/custom.filter";
 import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/url.config";
+import CustomFilter from "component/table/custom.filter";
 import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig from "config/url.config";
-import moment from "moment";
 import "./promotion-code.scss";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
@@ -302,7 +302,6 @@ const PromotionCode = () => {
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request">
                 <Input
-                  // style={{ marginLeft: 16, width: "100%" }}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />

@@ -8,6 +8,7 @@ const loyaltyAccumulateDetail = React.lazy(() => import ("screens/loyalty/accumu
 const discountPage = React.lazy(() => import("screens/promotion/discount"))
 const promotionCodePage = React.lazy(() => import("screens/promotion/promotion-code"))
 const createDiscountPage = React.lazy(() => import("screens/promotion/discount/discount.create"))
+const createPromotionCodePage = React.lazy(() => import("screens/promotion/promotion-code/promotion-code.create"))
 
 const promotion: Array<RouteMenu> = [
   {
@@ -99,7 +100,19 @@ const promotion: Array<RouteMenu> = [
     key: "submenu107",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`,
+        exact: true,
+        title: "Tạo khuyến mãi",
+        icon: "icon-dot",
+        component: createPromotionCodePage,
+        key: "submenu1071",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
   },
 ]
 

@@ -391,4 +391,13 @@
       cursor: pointer;
     }
   }
-  
+  hr {
+    border-top: 1px solid #E5E5E5;
+  }
+
+  .anticon-info-circle {
+    svg {
+      cursor: pointer;
+      color: #2d9cdb;
+    }
+  }
