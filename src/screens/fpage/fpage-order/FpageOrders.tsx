@@ -574,6 +574,7 @@ export default function FpageOrders(props: any) {
                     discount_amount: item.discount_amount,
                     position: item.position,
                     gifts: giftResponse,
+                    available:item.available
                   };
                 });
               let newDatingShip = initialForm.dating_ship;

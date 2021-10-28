@@ -648,6 +648,7 @@ export default function Order() {
                     discount_amount: item.discount_amount,
                     position: item.position,
                     gifts: giftResponse,
+                    available:item.available
                   };
                 });
               setItems(responseItems);
@@ -889,23 +890,38 @@ export default function Order() {
 
   const checkInventory = () => {
     let status = true;
-    if (inventoryResponse && inventoryResponse.length && items && items != null) {
-      let productItem = null;
-      let newData: Array<InventoryResponse> = [];
-      newData = inventoryResponse.filter((store) => store.store_id === storeId);
-      newData.forEach(function (value) {
-        productItem = items.find((x: any) => x.variant_id === value.variant_id);
-        if (
-          ((value.available ? value.available : 0) <= 0 ||
-            (productItem ? productItem?.quantity : 0) >
-              (value.available ? value.available : 0)) &&
-          configOrder?.sellable_inventory !== true
-        ) {
+
+    if(items && items != null)
+    {
+      items.forEach(function (value) {
+        let available = value.available===null?0:value.available;
+        if(available<=0 && configOrder?.sellable_inventory !== true)
+        {
           status = false;
-          showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
+          setCreating(false);
         }
       });
     }
+
+    // if (inventoryResponse && inventoryResponse.length && items && items != null) {
+    //   let productItem = null;
+    //   let newData: Array<InventoryResponse> = [];
+    //   newData = inventoryResponse.filter((store) => store.store_id === storeId);
+    //   newData.forEach(function (value) {
+    //     productItem = items.find((x: any) => x.variant_id === value.variant_id);
+    //     if (
+    //       ((value.available ? value.available : 0) <= 0 ||
+    //         (productItem ? productItem?.quantity : 0) >
+    //           (value.available ? value.available : 0)) &&
+    //       configOrder?.sellable_inventory !== true
+    //     ) {
+    //       status = false;
+    //       showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+    //       setCreating(false);
+    //     }
+    //   });
+    // }
     return status;
   };
 
