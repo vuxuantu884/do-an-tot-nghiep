@@ -654,12 +654,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
       switch (value) {
         case "today":
-          startDateValue = ConvertDateToUtc(moment().startOf("day"));
-          endDateValue = ConvertDateToUtc(moment().endOf("day"));
+          startDateValue = ConvertDateToUtc(moment());
+          endDateValue = ConvertDateToUtc(moment());
           break;
         case "yesterday":
-          startDateValue = ConvertDateToUtc(moment().startOf("day").subtract(1, "days"));
-          endDateValue = ConvertDateToUtc(moment().endOf("day").subtract(1, "days"));
+          startDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
+          endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
           startDateValue = ConvertDateToUtc(moment().startOf("week"));
@@ -696,8 +696,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const onChangeRangeDate = useCallback((dates, dateString) => {
     setDateButtonSelected("");
-    const startDateUtc = ConvertDateToUtc(dates[0].startOf("day"));
-    const endDateUtc = ConvertDateToUtc(dates[1].endOf("day"));
+    const startDateUtc = dates[0].utc().format();
+    const endDateUtc = dates[1].utc().format();
     setConnectionStartDate(startDateUtc);
     setConnectionEndDate(endDateUtc);
   }, []);
@@ -980,10 +980,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                   style={{ width: "100%" }}
                   value={[
                     connectionStartDate
-                      ? moment(ConvertUtcToLocalDate(connectionStartDate), "DD-MM-YYYY")
+                      ? moment(new Date(connectionStartDate), "DD-MM-YYYY")
                       : null,
                     connectionEndDate
-                      ? moment(ConvertUtcToLocalDate(connectionEndDate), "DD-MM-YYYY")
+                      ? moment(new Date(connectionEndDate), "DD-MM-YYYY")
                       : null,
                   ]}
                   onChange={(date, dateString) =>
