@@ -11,7 +11,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -340,16 +340,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
-      packed_on_min: params.packed_on_min? moment(params.packed_on_min, "DD-MM-YYYY") : undefined,
-      packed_on_max: params.packed_on_max? moment(params.packed_on_max, "DD-MM-YYYY") : undefined,
-      ship_on_min: params.ship_on_min? moment(params.ship_on_min, "DD-MM-YYYY") : null,
-      ship_on_max: params.ship_on_max? moment(params.ship_on_max, "DD-MM-YYYY") : null,
-      exported_on_min: params.exported_on_min? moment(params.exported_on_min, "DD-MM-YYYY") : null,
-      exported_on_max: params.exported_on_max? moment(params.exported_on_max, "DD-MM-YYYY") : null,
-      cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
-      cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
-      received_on_min: params.received_on_min? moment(params.received_on_min, "DD-MM-YYYY") : null,
-      received_on_max: params.received_on_max? moment(params.received_on_max, "DD-MM-YYYY") : null,
+      // packed_on_min: params.packed_on_min? moment(params.packed_on_min, "DD-MM-YYYY") : undefined,
+      // packed_on_max: params.packed_on_max? moment(params.packed_on_max, "DD-MM-YYYY") : undefined,
+      // ship_on_min: params.ship_on_min? moment(params.ship_on_min, "DD-MM-YYYY") : null,
+      // ship_on_max: params.ship_on_max? moment(params.ship_on_max, "DD-MM-YYYY") : null,
+      // exported_on_min: params.exported_on_min? moment(params.exported_on_min, "DD-MM-YYYY") : null,
+      // exported_on_max: params.exported_on_max? moment(params.exported_on_max, "DD-MM-YYYY") : null,
+      // cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
+      // cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
+      // received_on_min: params.received_on_min? moment(params.received_on_min, "DD-MM-YYYY") : null,
+      // received_on_max: params.received_on_max? moment(params.received_on_max, "DD-MM-YYYY") : null,
 
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
@@ -466,7 +466,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.packed_on_min || initialValues.packed_on_max) {
-      let textOrderCreateDate = (initialValues.packed_on_min ? moment(initialValues.packed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.packed_on_max ? moment(initialValues.packed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCreateDate = (initialValues.packed_on_min ? initialValues.packed_on_min : '??') + " ~ " + (initialValues.packed_on_max ? initialValues.packed_on_max : '??')
       list.push({
         key: 'packed',
         name: 'Ngày đóng gói',
@@ -474,7 +474,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? moment(initialValues.ship_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.ship_on_max ? moment(initialValues.ship_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
       list.push({
         key: 'ship',
         name: 'Ngày giao hàng',
@@ -482,7 +482,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
-      let textOrderExportedate = (initialValues.exported_on_min ? moment(initialValues.exported_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.exported_on_max ? moment(initialValues.exported_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderExportedate = (initialValues.exported_on_min ? initialValues.exported_on_min : '??') + " ~ " + (initialValues.exported_on_max ? initialValues.exported_on_max : '??')
       list.push({
         key: 'exported',
         name: 'Ngày xuất kho',
@@ -490,7 +490,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -499,25 +499,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.received_on_min || initialValues.received_on_max) {
-      let textExpectReceiveDate = (initialValues.received_on_min ? moment(initialValues.received_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.received_on_max ? moment(initialValues.received_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
       list.push({
         key: 'received',
         name: 'Ngày hoàn tất đơn',
         value: textExpectReceiveDate
       })
     }
-    // if (initialValues.status.length) {
-    //   let textStatus = ""
-    //   initialValues.status.forEach(i => {
-    //     const findStatus = status?.find(item => item.value === i)
-    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-    //   })
-    //   list.push({
-    //     key: 'status',
-    //     name: 'Trạng thái đơn hàng',
-    //     value: textStatus
-    //   })
-    // }
+
     if (initialValues.reference_status.length) {
       let textStatus = ""
       
@@ -670,6 +659,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
   }
 
+  const clearFilter = () => {
+    onClearFilter && onClearFilter();
+    setPackedClick('')
+    setExportedClick('')
+    setShipClick('')
+    setReceivedClick('')
+    setCancelledClick('')
+  
+    setVisible(false);
+  };
+  useLayoutEffect(() => {
+    window.addEventListener('resize', () => setVisible(false))
+  }, []);
+
   useEffect(() => {
     if (params.variant_ids.length) {
       (async () => {
@@ -740,10 +743,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={() => {
-            onClearFilter && onClearFilter();
-            setVisible(false);
-          }}
+          onClearFilter={() => clearFilter()}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -762,7 +762,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="store_ids">
                   <CustomSelect
                     mode="multiple"
-                    showArrow
+                    showArrow allowClear
                     showSearch
                     placeholder="Cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
@@ -807,8 +807,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <CustomSelect
                     mode="multiple"
                     style={{ width: '100%'}}
-                    showArrow
-                    showSearch
+                    showArrow maxTagCount='responsive'
+                    showSearch allowClear
                     placeholder="Nguồn đơn hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     optionFilterProp="children"
@@ -1009,8 +1009,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Select
                   mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
                   notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow
-                  getPopupContainer={trigger => trigger.parentNode}
+                  optionFilterProp="children" showArrow maxTagCount='responsive'
+                  getPopupContainer={trigger => trigger.parentNode} allowClear
                 >
                   {accounts.filter(account => account.is_shipper === true)?.map((account) => (
                     <Option key={account.id} value={account.id.toString()}>
@@ -1023,9 +1023,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="account_codes">
                   <Select
                     mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
-                    notFoundContent="Không tìm thấy kết quả" showArrow
+                    notFoundContent="Không tìm thấy kết quả" showArrow maxTagCount='responsive'
                     optionFilterProp="children" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode}
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
                     {accounts.map((item, index) => (
                       <Option
@@ -1047,8 +1047,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Sản phẩm</p>
                 <Item name="variant_ids">
                   <DebounceSelect
-                    mode="multiple" showArrow
-                    placeholder="Tìm kiếm sản phẩm"
+                    mode="multiple" showArrow maxTagCount='responsive'
+                    placeholder="Tìm kiếm sản phẩm" allowClear
                     fetchOptions={searchVariants}
                     optionsVariant={optionsVariant}
                     style={{
@@ -1061,10 +1061,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Hình thức vận chuyển</p>
                 <Item name="delivery_types">
                   <Select
-                    mode="multiple" showArrow
+                    mode="multiple" showArrow maxTagCount='responsive'
                     optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
                     placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode}
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
                     {serviceType?.map((item) => (
                       <Option key={item.value} value={item.value}>
@@ -1078,8 +1078,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Select
                   mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
                   notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow
-                  getPopupContainer={trigger => trigger.parentNode}
+                  optionFilterProp="children" showArrow maxTagCount='responsive'
+                  getPopupContainer={trigger => trigger.parentNode} allowClear
                 >
                   {deliveryService?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -1095,8 +1095,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Select
                     mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children" showArrow
-                    getPopupContainer={trigger => trigger.parentNode}
+                    optionFilterProp="children" showArrow maxTagCount='responsive'
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
                     {reasons.map((reason) => (
                       <Option key={reason.id.toString()} value={reason.id.toString()}>
@@ -1113,7 +1113,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={12} xxl={8}>
                 <p>Tags</p>
                 <Item name="tags">
-                  <Select mode="tags" showArrow optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
+                  <Select
+                    mode="tags"showArrow maxTagCount='responsive'
+                    optionFilterProp="children" showSearch
+                    placeholder="Chọn 1 hoặc nhiều tag"
+                    style={{width: '100%'}} allowClear
+                  >
                 </Select>
                 </Item>
                 <p>Ghi chú nội bộ</p>

@@ -1,13 +1,13 @@
-import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Select } from "antd";
+import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
+import {Card, Form, Input, Select} from "antd";
 import UrlConfig from "config/url.config";
-import { AccountResponse } from "model/account/account.model";
-import { OrderResponse } from "model/response/order/order.response";
+import {AccountResponse} from "model/account/account.model";
+import {OrderResponse} from "model/response/order/order.response";
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import CustomerInputTags from "../../custom-input-tags";
 import SidebarOrderHistory from "./SidebarOrderHistory";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   accounts: AccountResponse[];
@@ -21,46 +21,42 @@ type PropType = {
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail } = props;
+  const {accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail} = props;
 
   const renderSplitOrder = () => {
-    const splitCharacter = "-"
-    if(!orderDetail?.linked_order_code) {
+    const splitCharacter = "-";
+    if (!orderDetail?.linked_order_code) {
       return;
     }
     let result = orderDetail.linked_order_code.split(splitCharacter);
-    if(result.length > 1) {
+    if (result.length > 1) {
       return (
         <div>
-            <label>Đơn tách:{"   "}</label>
-            {result.map((single, index) => {
-              return (
-                <React.Fragment>
-                <Link
-                  target="_blank"
-                  to={`${UrlConfig.ORDER}/${single}`}
-                >
+          <label>Đơn tách:{"   "}</label>
+          {result.map((single, index) => {
+            return (
+              <React.Fragment>
+                <Link target="_blank" to={`${UrlConfig.ORDER}/${single}`}>
                   <strong>{single}</strong>
                 </Link>
-                {index < (result.length - 1) && ", "}
-                </React.Fragment>
-
-              )
-            })}
-          </div>
-      )
-    }else {
+                {index < result.length - 1 && ", "}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      );
+    } else {
       return (
         <div>
-            <label>Đơn gốc tách đơn:{"   "}</label>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
-            >
-              <strong>{orderDetail.linked_order_code}</strong>
-            </Link>
-          </div>
-      )
+          <label>Đơn gốc tách đơn:{"   "}</label>
+          <Link
+            target="_blank"
+            to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
+          >
+            <strong>{orderDetail.linked_order_code}</strong>
+          </Link>
+        </div>
+      );
     }
   };
 
@@ -158,7 +154,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           >
             {accounts.map((item, index) => (
               <Select.Option key={index.toString()} value={item.code}>
-                {`${item.full_name} - ${item.code}`}
+                {`${item.code} - ${item.full_name}`}
               </Select.Option>
             ))}
           </Select>
@@ -190,7 +186,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
-            style={{ minHeight: "130px" }}
+            style={{minHeight: "130px"}}
           />
         </Form.Item>
         <Form.Item
@@ -204,7 +200,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
-            style={{ minHeight: "130px" }}
+            style={{minHeight: "130px"}}
           />
         </Form.Item>
         <Form.Item

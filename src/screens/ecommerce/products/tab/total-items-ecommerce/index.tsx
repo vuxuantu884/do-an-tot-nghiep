@@ -33,7 +33,6 @@ import {
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -475,9 +474,18 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     formAdvance.submit();
   }, [formAdvance]);
 
-  const onClearFilterAdvanceClick = React.useCallback(() => {
-    formAdvance.setFieldsValue(params);
+  const onClearConnectionDate = () => {
+    setDateButtonSelected("");
+    setConnectionStartDate(null);
+    setConnectionEndDate(null);
+  };
+
+  const onClearBaseFilter = React.useCallback(() => {
+    removeEcommerce();
+    onClearConnectionDate();
     setVisibleFilter(false);
+
+    formAdvance.setFieldsValue(params);
     formAdvance.submit();
   }, [formAdvance, params]);
 
@@ -770,23 +778,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       </Card>
 
       <BaseFilter
-        onClearFilter={onClearFilterAdvanceClick}
+        onClearFilter={onClearBaseFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
         width={400}
-        footerStyle={{
-          display: "flex",
-          flexDirection: "row-reverse",
-          justifyContent: "space-between",
-        }}
-        confirmButtonTitle="Áp dụng bộ lọc"
-        deleteButtonTitle={
-          <div>
-            <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-            <span style={{ color: "red" }}>Xóa bộ lọc</span>
-          </div>
-        }
+        className="order-filter-drawer2"
       >
         <StyledBaseFilter>
           <Form
