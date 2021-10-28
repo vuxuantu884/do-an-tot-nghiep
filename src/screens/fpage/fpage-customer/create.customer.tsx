@@ -16,19 +16,13 @@ import {
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
-import {
-  CustomerModel,
-  CustomerContactClass,
-} from "model/request/customer.request";
+import { CustomerModel, CustomerContactClass } from "model/request/customer.request";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
 import GeneralInformation from "./general.information";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
@@ -42,17 +36,19 @@ const FpageCustomerDetail = (props: any) => {
     setCustomer,
     setIsButtonSelected,
     customer,
-    customerPhoneList,
-    setCustomerPhoneList,
     getCustomerWhenPhoneChange,
     orderHistory,
     setIsClearOrderField,
-    deletePhone,
     metaData,
     onPageChange,
-    customerFbName,
     loyaltyPoint,
     loyaltyUsageRules,
+    customerPhone,
+    customerPhones,
+    customerFbName,
+    addFpPhone,
+    deleteFpPhone,
+    setFpDefaultPhone,
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -147,18 +143,14 @@ const FpageCustomerDetail = (props: any) => {
     {
       title: "Ngày",
       render: (value: any, row: any, index: any) => {
-        return (
-          <div>{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>
-        );
+        return <div>{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
       },
     },
     {
       title: "Tổng thu",
       align: "center",
       render: (value: any, row: any, index: any) => {
-        return (
-          <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>
-        );
+        return <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>;
       },
     },
     {
@@ -166,9 +158,7 @@ const FpageCustomerDetail = (props: any) => {
       dataIndex: "status",
       align: "center",
       render: (value: any, row: any, index: any) => {
-        const statusTag = status_order.find(
-          (status) => status.value === row.status
-        );
+        const statusTag = status_order.find((status) => status.value === row.status);
         return (
           <div>
             <Tag
@@ -296,9 +286,7 @@ const FpageCustomerDetail = (props: any) => {
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
-      birthday: values.birthday
-        ? new Date(values.birthday).toUTCString()
-        : null,
+      birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()
         : null,
@@ -314,16 +302,12 @@ const FpageCustomerDetail = (props: any) => {
         },
       ],
     };
-    dispatch(
-      CreateCustomer({ ...new CustomerModel(), ...piece }, setResultCreate)
-    );
+    dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResultCreate));
   };
   const handleSubmitUpdate = (values: any) => {
     const processValue = {
       ...values,
-      birthday: values.birthday
-        ? new Date(values.birthday).toUTCString()
-        : null,
+      birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()
         : null,
@@ -380,24 +364,6 @@ const FpageCustomerDetail = (props: any) => {
     },
   };
 
-  // const searchByPhoneCallback = useCallback(
-  //   (value: any) => {
-  //     if (value !== undefined) {
-  //       setCustomer(value);
-  //     } else {
-  //       setCustomer(null);
-  //     }
-  //   },
-  //   [setCustomer]
-  // );
-
-  // useEffect(() => {
-  //   if (customerPhone) {
-  //     initQueryCustomer.phone = customerPhone;
-  //     dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
-  //   }
-  // }, [dispatch, customerPhone, searchByPhoneCallback]);
-
   return (
     <div style={{ marginTop: 56 }}>
       <Form
@@ -422,16 +388,18 @@ const FpageCustomerDetail = (props: any) => {
               wards={wards}
               handleChangeArea={handleChangeArea}
               AccountChangeSearch={AccountChangeSearch}
-              phones={customerPhoneList}
-              setPhones={setCustomerPhoneList}
               getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
               customerId={customerId}
               notes={notes}
               handleNote={handleNote}
               customer={customer}
-              deletePhone={deletePhone}
               loyaltyPoint={loyaltyPoint}
               loyaltyUsageRules={loyaltyUsageRules}
+              customerPhone={customerPhone}
+              customerPhones={customerPhones}
+              addFpPhone={addFpPhone}
+              deleteFpPhone={deleteFpPhone}
+              setFpDefaultPhone={setFpDefaultPhone}
             />
           </Col>
         </Row>
@@ -468,18 +436,12 @@ const FpageCustomerDetail = (props: any) => {
             Hủy
           </Button>
           {!customer && (
-            <Button
-              type="primary"
-              htmlType="submit"
-            >
+            <Button type="primary" htmlType="submit">
               Tạo mới khách hàng
             </Button>
           )}
           {customer && (
-            <Button
-              type="primary"
-              htmlType="submit"
-            >
+            <Button type="primary" htmlType="submit">
               Lưu khách hàng
             </Button>
           )}
