@@ -1,31 +1,29 @@
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
-  Collapse,
   Tag,
   Select,
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
+import CustomDatepicker from "component/custom/new-date-picker.custom";
 import { ReturnSearchQuery } from "model/order/return.model";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 
-const { Panel } = Collapse;
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
   actions: Array<MenuAction>;
@@ -83,25 +81,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     [onMenuClick]
   );
 
-  const onChangeRangeDate = useCallback(
-    (dates, dateString, type) => {
-      console.log(dates, dateString, type)
-      switch(type) {
-        
-        case 'created':
-          setCreatedOnMin(dateString[0])
-          setCreatedOnMax(dateString[1])
-          break;
-        case 'received':
-          setReceivedOnMin(dateString[0])
-          setReceivedOnMax(dateString[1])
-          break;
-        default: break
-      }
-    },
-    []
-  );
-
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -113,19 +92,16 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           break;
         
         case 'created':
-          setCreatedOnMin(null)
-          setCreatedOnMax(null)
+          setCreatedClick('')
           onFilter && onFilter({...params, created_on_min: null, created_on_max: null});
           break;
         case 'received':
-          setReceivedOnMin(null)
-          setReceivedOnMax(null)
+          setReceivedClick('')
           onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
           break;
         case 'reason_ids':
           onFilter && onFilter({...params, reason_ids: []});
           break;
-        
         case 'is_received':
           onFilter && onFilter({...params, is_received: []});
           break;
@@ -180,37 +156,41 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
     console.log('minValue', minValue);
     console.log('maxValue', maxValue);
-    
     switch(type) {
-      
       case 'created':
-        
         if (createdClick === value ) {
           setCreatedClick('')
-          setCreatedOnMin(null)
-          setCreatedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            created_on_min: undefined,
+            created_on_max: undefined
+          })
         } else {
           setCreatedClick(value)
-          setCreatedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setCreatedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            created_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            created_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'received':
-      
         if (receivedClick === value ) {
           setReceivedClick('')
-          setReceivedOnMin(null)
-          setReceivedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            received_on_min: undefined,
+            received_on_max: undefined
+          })
         } else {
           setReceivedClick(value)
-          setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setReceivedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            received_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            received_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       default:
         break
     }
-  }, [receivedClick, createdClick]);
+  }, [createdClick, receivedClick, formRef]);
 
   const initialValues = useMemo(() => {
     return {
@@ -220,10 +200,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
   }}, [params])
-  const [createdOnMin, setCreatedOnMin] = useState(initialValues.created_on_min? moment(initialValues.created_on_min, "DD-MM-YYYY") : null);
-  const [createdOnMax, setCreatedOnMax] = useState(initialValues.created_on_max? moment(initialValues.created_on_max, "DD-MM-YYYY") : null);
-  const [receivedOnMin, setReceivedOnMin] = useState(initialValues.received_on_min? moment(initialValues.received_on_min, "DD-MM-YYYY") : null);
-  const [receivedOnMax, setReceivedOnMax] = useState(initialValues.received_on_max? moment(initialValues.received_on_max, "DD-MM-YYYY") : null);
   
   const [isReceived, setIsReceived] = useState<any[]>(initialValues.is_received);
   const [paymentStatus, setPaymentStatus] = useState<any[]>(initialValues.payment_status);
@@ -294,14 +270,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         ...values,
         is_received: isReceived,
         payment_status: paymentStatus,
-        created_on_min: createdOnMin ? moment(createdOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        created_on_max: createdOnMax ? moment(createdOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        received_on_min: receivedOnMin ? moment(receivedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        received_on_max: receivedOnMax ? moment(receivedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
       }
       onFilter && onFilter(valuesForm);
     },
-    [isReceived, paymentStatus, createdOnMin, createdOnMax, receivedOnMin, receivedOnMax, onFilter]
+    [isReceived, paymentStatus, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -378,6 +350,25 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     
     return list
   }, [initialValues.created_on_max, initialValues.created_on_min, initialValues.is_received, initialValues.payment_status, initialValues.reason_ids, initialValues.received_on_max, initialValues.received_on_min, initialValues.store_ids, listStore, reasons]);
+  const widthScreen = () => {
+    if (window.innerWidth >= 1600) {
+      return 1400
+    } else if (window.innerWidth < 1600 && window.innerWidth >=1200){
+      return 1000
+    } else {
+      return 800
+    }
+  }
+  const clearFilter = () => {
+    onClearFilter && onClearFilter();
+    setCreatedClick('')
+    setReceivedClick('')
+  
+    setVisible(false);
+  };
+  useLayoutEffect(() => {
+    window.addEventListener('resize', () => setVisible(false))
+  }, []);
 
   useEffect(() => {
     setIsReceived(Array.isArray(params.is_received) ? params.is_received : [params.is_received])
@@ -419,15 +410,12 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={() => {
-            onClearFilter && onClearFilter();
-            setVisible(false);
-          }}
+          onClearFilter={() => clearFilter()}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
           className="order-filter-drawer"
-          width={500}
+          width={widthScreen()}
         >
           {visible && <Form
             onFinish={onFinish}
@@ -435,162 +423,150 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
-                  <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
-                    <Item name="store_ids">
-                      <CustomSelect
-                        mode="multiple"
-                        allowClear
-                        showArrow
-                        placeholder="Cửa hàng"
-                        optionFilterProp="children"
-                        style={{
-                          width: '100%'
-                        }}
-                        notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive"
-                      >
-                        {listStore?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Panel>
-                </Collapse>
+            <Row gutter={20}>
+              <Col span={12}>
+                <p>Kho cửa hàng</p>
+                <Item name="store_ids">
+                  <CustomSelect
+                    mode="multiple"
+                    allowClear
+                    showArrow
+                    placeholder="Cửa hàng"
+                    optionFilterProp="children"
+                    style={{
+                      width: '100%'
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                    maxTagCount="responsive"
+                  >
+                    {listStore?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+                <p>Lý do trả hàng</p>
+                <Item name="reason_ids">
+                  <CustomSelect
+                    mode="multiple" showSearch placeholder="Chọn lý do trả hàng"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children" maxTagCount='responsive' showArrow
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
+                  >
+                    {reasons.map((reason) => (
+                      <CustomSelect.Option key={reason.id.toString()} value={reason.id.toString()}>
+                        {reason.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.is_received.length ? ["1"]: []}>
-                  <Panel header="TRẠNG THÁI NHẬN HÀNG" key="1" className="header-filter">
-                    <div className="button-option">
-                      <Button
-                        onClick={() => changeIsReceived('true')}
-                        className={isReceived.includes('true') ? 'active' : 'deactive'}
-                      >
-                        Đã nhận hàng
-                      </Button>
-                      
-                      <Button
-                        onClick={() => changeIsReceived('false')}
-                        className={isReceived.includes('false') ? 'active' : 'deactive'}
-                      >
-                        Chưa nhận hàng
-                      </Button>
-                    </div>
-                  </Panel>
-                </Collapse>
+              <Col span={12}>
+                <p>Trạng thái nhận hàng</p>
+                <div className="button-option-1" style={{marginBottom: '20px'}}>
+                  <Button
+                    onClick={() => changeIsReceived('true')}
+                    className={isReceived.includes('true') ? 'active' : 'deactive'}
+                  >
+                    Đã nhận hàng
+                  </Button>
+                  
+                  <Button
+                    onClick={() => changeIsReceived('false')}
+                    className={isReceived.includes('false') ? 'active' : 'deactive'}
+                  >
+                    Chưa nhận hàng
+                  </Button>
+                </div>
+                <p>Trạng thái hoàn tiền</p>
+                <div className="button-option-2">
+                  <Button
+                    onClick={() => changePaymentStatus('unpaid')}
+                    className={paymentStatus.includes('unpaid') ? 'active' : 'deactive'}
+                  >
+                    Chưa hoàn tiền
+                  </Button>
+                  <Button
+                    onClick={() => changePaymentStatus('partial_paid')}
+                    className={paymentStatus.includes('partial_paid') ? 'active' : 'deactive'}
+                  >
+                    Hoàn tiền một phần
+                  </Button>
+                  <Button
+                    onClick={() => changePaymentStatus('paid')}
+                    className={paymentStatus.includes('paid') ? 'active' : 'deactive'}
+                  >
+                    Hoàn tiền toàn bộ
+                  </Button>
+                </div>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.payment_status.length ? ["1"]: []}>
-                  <Panel header="TRẠNG THÁI HOÀN TIỀN" key="1" className="header-filter">
-                    <div className="button-option">
-                      <Button
-                        onClick={() => changePaymentStatus('unpaid')}
-                        className={paymentStatus.includes('unpaid') ? 'active' : 'deactive'}
-                      >
-                        Chưa hoàn tiền
-                      </Button>
-                      <Button
-                        onClick={() => changePaymentStatus('partial_paid')}
-                        className={paymentStatus.includes('partial_paid') ? 'active' : 'deactive'}
-                      >
-                        Hoàn tiền một phần
-                      </Button>
-                    </div>
-                    <div className="button-option">
-                      <Button
-                        onClick={() => changePaymentStatus('paid')}
-                        className={paymentStatus.includes('paid') ? 'active' : 'deactive'}
-                      >
-                        Hoàn tiền toàn bộ
-                      </Button>
-                    </div>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.created_on_min && initialValues.created_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('created', 'yesterday')} className={createdClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('created', 'today')} className={createdClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('created', 'thisweek')} className={createdClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('created', 'lastweek')} className={createdClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('created', 'thismonth')} className={createdClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('created', 'lastmonth')} className={createdClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
+              <Col span={12}>
+                <p>Ngày tạo đơn</p>
+                <div className="date-option">
+                  <Button onClick={() => clickOptionDate('created', 'yesterday')} className={createdClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                  <Button onClick={() => clickOptionDate('created', 'today')} className={createdClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                  <Button onClick={() => clickOptionDate('created', 'thisweek')} className={createdClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                </div>
+                <div className="date-option">
+                  <Button onClick={() => clickOptionDate('created', 'lastweek')} className={createdClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                  <Button onClick={() => clickOptionDate('created', 'thismonth')} className={createdClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                  <Button onClick={() => clickOptionDate('created', 'lastmonth')} className={createdClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                </div>
+                <div className="date-range">
+                  <Item name="created_on_min" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
                       format="DD-MM-YYYY"
+                      placeholder="Từ ngày"
                       style={{width: "100%"}}
-                      value={[createdOnMin? moment(createdOnMin, "DD-MM-YYYY") : null, createdOnMax? moment(createdOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'created')}
+                      onChange={() => setCreatedClick('')}
                     />
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.received_on_min && initialValues.received_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY TRẢ HÀNG" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('received', 'thisweek')} className={receivedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('received', 'lastweek')} className={receivedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('received', 'thismonth')} className={receivedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('received', 'lastmonth')} className={receivedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
+                  </Item>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="created_on_max" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
                       format="DD-MM-YYYY"
+                      placeholder="Đến ngày"
                       style={{width: "100%"}}
-                      value={[receivedOnMin? moment(receivedOnMin, "DD-MM-YYYY") : null, receivedOnMax? moment(receivedOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'received')}
-                    /> 
-                  </Panel>
-                </Collapse>
+                      onChange={() => setCreatedClick('')}
+                    />
+                  </Item>
+                </div>
+              </Col>
+
+              <Col span={12}>
+                <p>Ngày trả hàng</p>
+                <div className="date-option">
+                  <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                  <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                  <Button onClick={() => clickOptionDate('received', 'thisweek')} className={receivedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                </div>
+                <div className="date-option">
+                  <Button onClick={() => clickOptionDate('received', 'lastweek')} className={receivedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                  <Button onClick={() => clickOptionDate('received', 'thismonth')} className={receivedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                  <Button onClick={() => clickOptionDate('received', 'lastmonth')} className={receivedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                </div>
+                <div className="date-range">
+                  <Item name="received_on_min" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Từ ngày"
+                      style={{width: "100%"}}
+                      onChange={() => setReceivedClick('')}
+                    />
+                  </Item>
+                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                  <Item name="received_on_max" style={{width: "45%", marginBottom: 0}}>
+                    <CustomDatepicker
+                      format="DD-MM-YYYY"
+                      placeholder="Đến ngày"
+                      style={{width: "100%"}}
+                      onChange={() => setReceivedClick('')}
+                    />
+                  </Item>
+                </div>
               </Col>
             </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.reason_ids.length ? ["1"]: []}>
-                  <Panel header="LÝ DO TRẢ HÀNG" key="1" className="header-filter">
-                    <Item name="reason_ids">
-                      <Select
-                        mode="multiple" showSearch placeholder="Chọn lý do trả hàng"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {reasons.map((reason) => (
-                          <Option key={reason.id.toString()} value={reason.id.toString()}>
-                            {reason.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                    
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
           </Form>}
         </BaseFilter>
       </div>
