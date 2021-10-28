@@ -1,13 +1,11 @@
 import {
   Button,
   Col,
-  DatePicker,
   Form,
   FormInstance,
   Input,
   Row,
   Select,
-  Collapse,
   Tag,
   Radio
 } from "antd";
@@ -18,9 +16,10 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
+import CustomDatepicker from "component/custom/new-date-picker.custom";
 import { ShipmentSearchQuery } from "model/order/shipment.model";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
@@ -28,7 +27,6 @@ import { StoreResponse } from "model/core/store.model";
 import DebounceSelect from "./component/debounce-select";
 import { searchVariantsApi, getVariantApi } from "service/product/product.service";
 
-const { Panel } = Collapse;
 type OrderFilterProps = {
   params: ShipmentSearchQuery;
   actions: Array<MenuAction>;
@@ -137,40 +135,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [onMenuClick]
   );
 
-  const onChangeRangeDate = useCallback(
-    (dates, dateString, type) => {
-      switch(type) {
-        case 'packed':
-          setPackedClick('')
-          setPackedOnMin(dateString[0])
-          setPackedOnMax(dateString[1])
-          break;
-        case 'ship':
-          setShipClick('')
-          setShipOnMin(dateString[0])
-          setShipOnMax(dateString[1])
-          break;
-        case 'exported':
-          setExportedClick('')
-          setExportedOnMin(dateString[0])
-          setExportedOnMax(dateString[1])
-          break;
-        case 'cancelled':
-          setCancelledClick('')
-          setCancelledOnMin(dateString[0])
-          setCancelledOnMax(dateString[1])
-          break;
-        case 'received':
-          setReceivedClick('')
-          setReceivedOnMin(dateString[0])
-          setReceivedOnMax(dateString[1])
-          break;   
-        default: break
-      }
-    },
-    []
-  );
-
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -183,32 +147,22 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           break;
         case 'packed':
           setPackedClick('')
-          setPackedOnMin(null)
-          setPackedOnMax(null)
           onFilter && onFilter({...params, packed_on_min: null, packed_on_max: null});
           break;
         case 'ship':
           setShipClick('')
-          setShipOnMin(null)
-          setShipOnMax(null)
           onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
           break;
         case 'exported':
           setExportedClick('')
-          setExportedOnMin(null)
-          setExportedOnMax(null)
           onFilter && onFilter({...params, exported_on_min: null, exported_on_max: null});
           break;
         case 'cancelled':
           setCancelledClick('')
-          setCancelledOnMin(null)
-          setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'received':
           setReceivedClick('')
-          setReceivedOnMin(null)
-          setReceivedOnMax(null)
           onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
           break;  
         // trạng thái đơn 
@@ -240,7 +194,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, account_codes: []});
           break;
         case 'cancel_reason':
-          onFilter && onFilter({...params, cancel_reason: ""});
+          onFilter && onFilter({...params, cancel_reason: []});
           break;
         case 'note':
           onFilter && onFilter({...params, note: ""});
@@ -303,62 +257,82 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       case 'packed':
         if (packedClick === value ) {
           setPackedClick('')
-          setPackedOnMin(null)
-          setPackedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            packed_on_min: undefined,
+            packed_on_max: undefined
+          })
         } else {
           setPackedClick(value)
-          setPackedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setPackedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            packed_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            packed_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'exported':
         if (exportedClick === value ) {
           setExportedClick('')
-          setExportedOnMin(null)
-          setExportedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            exported_on_min: undefined,
+            exported_on_max: undefined
+          })
         } else {
           setExportedClick(value)
-          setExportedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setExportedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            exported_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            exported_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'ship':
         if (shipClick === value ) {
           setShipClick('')
-          setShipOnMin(null)
-          setShipOnMax(null)
+          formRef?.current?.setFieldsValue({
+            ship_on_min: undefined,
+            ship_on_max: undefined
+          })
         } else {
           setShipClick(value)
-          setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            ship_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            ship_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'received':
         if (receivedClick === value ) {
           setReceivedClick('')
-          setReceivedOnMin(null)
-          setReceivedOnMax(null)
+          formRef?.current?.setFieldsValue({
+            received_on_min: undefined,
+            received_on_max: undefined
+          })
         } else {
           setReceivedClick(value)
-          setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setReceivedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            received_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            received_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       case 'cancelled':
         if (cancelledClick === value ) {
           setCancelledClick('')
-          setCancelledOnMin(null)
-          setCancelledOnMax(null)
+          formRef?.current?.setFieldsValue({
+            cancelled_on_min: undefined,
+            cancelled_on_max: undefined
+          })
         } else {
           setCancelledClick(value)
-          setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          formRef?.current?.setFieldsValue({
+            cancelled_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
+            cancelled_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+          })
         }
         break
       default:
         break
     }
-  }, [cancelledClick, exportedClick, packedClick, receivedClick, shipClick]);
+  }, [cancelledClick, exportedClick, formRef, packedClick, receivedClick, shipClick]);
 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
@@ -366,6 +340,17 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
+      packed_on_min: params.packed_on_min? moment(params.packed_on_min, "DD-MM-YYYY") : undefined,
+      packed_on_max: params.packed_on_max? moment(params.packed_on_max, "DD-MM-YYYY") : undefined,
+      ship_on_min: params.ship_on_min? moment(params.ship_on_min, "DD-MM-YYYY") : null,
+      ship_on_max: params.ship_on_max? moment(params.ship_on_max, "DD-MM-YYYY") : null,
+      exported_on_min: params.exported_on_min? moment(params.exported_on_min, "DD-MM-YYYY") : null,
+      exported_on_max: params.exported_on_max? moment(params.exported_on_max, "DD-MM-YYYY") : null,
+      cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
+      cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
+      received_on_min: params.received_on_min? moment(params.received_on_min, "DD-MM-YYYY") : null,
+      received_on_max: params.received_on_max? moment(params.received_on_max, "DD-MM-YYYY") : null,
+
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       // status: Array.isArray(params.status) ? params.status : [params.status],
@@ -379,16 +364,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       cancel_reason: Array.isArray(params.cancel_reason) ? params.cancel_reason : [params.cancel_reason],
   }}, [params])
-  const [packedOnMin, setPackedOnMin] = useState(initialValues.packed_on_min? moment(initialValues.packed_on_min, "DD-MM-YYYY") : null);
-  const [packedOnMax, setPackedOnMax] = useState(initialValues.packed_on_max? moment(initialValues.packed_on_max, "DD-MM-YYYY") : null);
-  const [exportedOnMin, setExportedOnMin] = useState(initialValues.exported_on_min? moment(initialValues.exported_on_min, "DD-MM-YYYY") : null);
-  const [exportedOnMax, setExportedOnMax] = useState(initialValues.exported_on_max? moment(initialValues.exported_on_max, "DD-MM-YYYY") : null);
-  const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
-  const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
-  const [receivedOnMin, setReceivedOnMin] = useState(initialValues.received_on_min? moment(initialValues.received_on_min, "DD-MM-YYYY") : null);
-  const [receivedOnMax, setReceivedOnMax] = useState(initialValues.received_on_max? moment(initialValues.received_on_max, "DD-MM-YYYY") : null);
-  const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
-  const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_max? moment(initialValues.cancelled_on_max, "DD-MM-YYYY") : null);
   
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
   const [control, setControl] = useState<any[]>(initialValues.reference_status);
@@ -458,21 +433,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       const valuesForm = {
         ...values,
         print_status: print,
-        reference_status: control,
-        packed_on_min: packedOnMin ? moment(packedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        packed_on_max: packedOnMax ? moment(packedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        exported_on_min: exportedOnMin ? moment(exportedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        exported_on_max: exportedOnMax ? moment(exportedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        received_on_min: receivedOnMin ? moment(receivedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        received_on_max: receivedOnMax ? moment(receivedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        reference_status: control
       }
       onFilter && onFilter(valuesForm);
     },
-    [print, control, packedOnMin, packedOnMax, exportedOnMin, exportedOnMax, shipOnMin, shipOnMax, receivedOnMin, receivedOnMax, cancelledOnMin, cancelledOnMax, onFilter]
+    [print, control, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -501,7 +466,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.packed_on_min || initialValues.packed_on_max) {
-      let textOrderCreateDate = (initialValues.packed_on_min ? initialValues.packed_on_min : '??') + " ~ " + (initialValues.packed_on_max ? initialValues.packed_on_max : '??')
+      let textOrderCreateDate = (initialValues.packed_on_min ? moment(initialValues.packed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.packed_on_max ? moment(initialValues.packed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'packed',
         name: 'Ngày đóng gói',
@@ -509,7 +474,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+      let textOrderShipDate = (initialValues.ship_on_min ? moment(initialValues.ship_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.ship_on_max ? moment(initialValues.ship_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'ship',
         name: 'Ngày giao hàng',
@@ -517,7 +482,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
-      let textOrderExportedate = (initialValues.exported_on_min ? initialValues.exported_on_min : '??') + " ~ " + (initialValues.exported_on_max ? initialValues.exported_on_max : '??')
+      let textOrderExportedate = (initialValues.exported_on_min ? moment(initialValues.exported_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.exported_on_max ? moment(initialValues.exported_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'exported',
         name: 'Ngày xuất kho',
@@ -525,7 +490,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -534,7 +499,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.received_on_min || initialValues.received_on_max) {
-      let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
+      let textExpectReceiveDate = (initialValues.received_on_min ? moment(initialValues.received_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.received_on_max ? moment(initialValues.received_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
       list.push({
         key: 'received',
         name: 'Ngày hoàn tất đơn',
@@ -569,7 +534,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.shipper_ids.length) {
       let textAccount = ""
       initialValues.shipper_ids.forEach(i => {
-        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
+        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id.toString() === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
       list.push({
@@ -695,6 +660,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   },
   [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.shipper_ids, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, accounts, deliveryService, printStatus, optionsVariant, serviceType, reasons]
   );
+  const widthScreen = () => {
+    if (window.innerWidth >= 1600) {
+      return 1400
+    } else if (window.innerWidth < 1600 && window.innerWidth >=1200){
+      return 1000
+    } else {
+      return 800
+    }
+  }
 
   useEffect(() => {
     if (params.variant_ids.length) {
@@ -774,7 +748,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onCancel={onCancelFilter}
           visible={visible}
           className="order-filter-drawer"
-          width={500}
+          width={widthScreen()}
         >
           {visible && <Form
             onFinish={onFinish}
@@ -782,70 +756,95 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
-                  <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
-                    <Item name="store_ids">
-                      <CustomSelect
-                        mode="multiple"
-                        showArrow
-                        showSearch
-                        placeholder="Cửa hàng"
-                        notFoundContent="Không tìm thấy kết quả"
-                        style={{
-                          width: '100%'
-                        }}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {listStore?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Panel>
-                </Collapse>
+            <Row gutter={20}>
+              <Col span={12} xxl={8}>
+                <p>Kho cửa hàng</p>
+                <Item name="store_ids">
+                  <CustomSelect
+                    mode="multiple"
+                    showArrow
+                    showSearch
+                    placeholder="Cửa hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    style={{
+                      width: '100%'
+                    }}
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {listStore?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+                <p>Trạng thái đối soát</p>
+                <div className="button-option-2">
+                  <Button
+                    onClick={() => changeControl('hasControl')}
+                    className={control.includes('hasControl') ? 'active' : 'deactive'}
+                  >
+                    Đã đối soát
+                  </Button>
+                  <Button
+                    onClick={() => changeControl('controlling')}
+                    className={control.includes('controlling') ? 'active' : 'deactive'}
+                  >
+                    Đang đối soát
+                  </Button>
+                  <Button
+                    onClick={() => changeControl('notControl')}
+                    className={control.includes('notControl') ? 'active' : 'deactive'}
+                  >
+                    Chưa đối soát
+                  </Button>
+                </div>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.source_ids.length ? ["1"]: []}>
-                  <Panel header="NGUỒN ĐƠN HÀNG" key="1" className="header-filter">
-                    <Item name="source_ids" style={{ margin: "10px 0px" }}>
-                      <CustomSelect
-                        mode="multiple"
-                        style={{ width: '100%'}}
-                        showArrow
-                        showSearch
-                        placeholder="Nguồn đơn hàng"
-                        notFoundContent="Không tìm thấy kết quả"
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
+              <Col span={12} xxl={8}>
+                <p>Nguồn đơn hàng</p>
+                <Item name="source_ids">
+                  <CustomSelect
+                    mode="multiple"
+                    style={{ width: '100%'}}
+                    showArrow
+                    showSearch
+                    placeholder="Nguồn đơn hàng"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {listSources.map((item, index) => (
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.id.toString()}
                       >
-                        {listSources.map((item, index) => (
-                          <CustomSelect.Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.id.toString()}
-                          >
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Panel>
-                  
-                </Collapse>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+                {/* <Item name="print_status"> */}
+                <p>Trạng thái in</p>
+                <div className="button-option-1">
+                  <Button
+                    onClick={() => changeStatusPrint('true')}
+                    className={print.includes('true') ? 'active' : 'deactive'}
+                  >
+                    Đã in
+                  </Button>
+                  <Button
+                    onClick={() => changeStatusPrint('false')}
+                    className={print.includes('false') ? 'active' : 'deactive'}
+                  >
+                    Chưa in
+                  </Button>
+                </div>
+                {/* </Item> */}
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.packed_on_min && initialValues.packed_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY ĐÓNG GÓI" key="1" className="header-filter">
+              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+                  <p>Ngày đóng gói</p>
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('packed', 'yesterday')} className={packedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('packed', 'today')} className={packedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
@@ -856,50 +855,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button onClick={() => clickOptionDate('packed', 'thismonth')} className={packedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                       <Button onClick={() => clickOptionDate('packed', 'lastmonth')} className={packedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[packedOnMin? moment(packedOnMin, "DD-MM-YYYY") : null, packedOnMax? moment(packedOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'packed')}
-                    />
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.reference_status.length ? ["1"]: []}>
-                  <Panel header="TRẠNG THÁI ĐỐI SOÁT" key="1" className="header-filter">
-                    <div className="date-option">
-                      <Button
-                        onClick={() => changeControl('hasControl')}
-                        className={control.includes('hasControl') ? 'active' : 'deactive'}
-                      >
-                        Đã đối soát
-                      </Button>
-                      <Button
-                        onClick={() => changeControl('controlling')}
-                        className={control.includes('controlling') ? 'active' : 'deactive'}
-                      >
-                        Đang đối soát
-                      </Button>
-                      <Button
-                        onClick={() => changeControl('notControl')}
-                        className={control.includes('notControl') ? 'active' : 'deactive'}
-                      >
-                        Chưa đối soát
-                      </Button>
+                    <div className="date-range">
+                      <Item name="packed_on_min" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Từ ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setPackedClick('')}
+                        />
+                      </Item>
+                      <div className="swap-right-icon"><SwapRightOutlined /></div>
+                      <Item name="packed_on_max" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Đến ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setPackedClick('')}
+                        />
+                      </Item>
                     </div>
-                  </Panel>
-                </Collapse>
               </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.exported_on_min && initialValues.exported_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY XUẤT KHO" key="1" className="header-filter">
+              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+                  <p>Ngày xuất kho</p>
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('exported', 'yesterday')} className={exportedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('exported', 'today')} className={exportedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
@@ -910,21 +887,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button onClick={() => clickOptionDate('exported', 'thismonth')} className={exportedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                       <Button onClick={() => clickOptionDate('exported', 'lastmonth')} className={exportedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[exportedOnMin? moment(exportedOnMin, "DD-MM-YYYY") : null, exportedOnMax? moment(exportedOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'exported')}
-                    />
-                  </Panel>
-                </Collapse>
+                    <div className="date-range">
+                      <Item name="exported_on_min" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Từ ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setExportedClick('')}
+                        />
+                      </Item>
+                      <div className="swap-right-icon"><SwapRightOutlined /></div>
+                      <Item name="exported_on_max" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Đến ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setExportedClick('')}
+                        />
+                      </Item>
+                    </div>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.ship_on_min && initialValues.ship_on_min ? ["1"]: []}>
-                  <Panel header="NGÀY GIAO HÀNG" key="1" className="header-filter">
+              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+                  <p>Ngày giao hàng</p>
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('ship', 'yesterday')} className={shipClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('ship', 'today')} className={shipClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
@@ -935,21 +919,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button onClick={() => clickOptionDate('ship', 'thismonth')} className={shipClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                       <Button onClick={() => clickOptionDate('ship', 'lastmonth')} className={shipClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
-                    />
-                  </Panel>
-                </Collapse>
+                    <div className="date-range">
+                      <Item name="ship_on_min" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Từ ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setShipClick('')}
+                        />
+                      </Item>
+                      <div className="swap-right-icon"><SwapRightOutlined /></div>
+                      <Item name="ship_on_max" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Đến ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setShipClick('')}
+                        />
+                      </Item>
+                    </div>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.received_on_min && initialValues.received_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
+              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+                  <p>Ngày hoàn tất đơn</p>
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
@@ -960,21 +951,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button onClick={() => clickOptionDate('received', 'thismonth')} className={receivedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                       <Button onClick={() => clickOptionDate('received', 'lastmonth')} className={receivedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[receivedOnMin? moment(receivedOnMin, "DD-MM-YYYY") : null, receivedOnMax? moment(receivedOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'received')}
-                    />
-                  </Panel>
-                </Collapse>
+                    <div className="date-range">
+                      <Item name="received_on_min" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Từ ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setReceivedClick('')}
+                        />
+                      </Item>
+                      <div className="swap-right-icon"><SwapRightOutlined /></div>
+                      <Item name="received_on_max" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Đến ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setReceivedClick('')}
+                        />
+                      </Item>
+                    </div>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.cancelled_on_min && initialValues.cancelled_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY HUỶ ĐƠN" key="1" className="header-filter">
+              <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
+                  <p>Ngày huỷ đơn</p>
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('cancelled', 'yesterday')} className={cancelledClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('cancelled', 'today')} className={cancelledClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
@@ -985,220 +983,143 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button onClick={() => clickOptionDate('cancelled', 'thismonth')} className={cancelledClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
                       <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')} className={cancelledClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
-                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                      value={[cancelledOnMin? moment(cancelledOnMin, "DD-MM-YYYY") : null, cancelledOnMax? moment(cancelledOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'cancelled')}
-                    />
-                  </Panel>
-                </Collapse>
+                    <div className="date-range">
+                      <Item name="cancelled_on_min" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Từ ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setCancelledClick('')}
+                        />
+                      </Item>
+                      <div className="swap-right-icon"><SwapRightOutlined /></div>
+                      <Item name="cancelled_on_max" style={{width: "45%", marginBottom: 0}}>
+                        <CustomDatepicker
+                          format="DD-MM-YYYY"
+                          placeholder="Đến ngày"
+                          style={{width: "100%"}}
+                          onChange={() => setCancelledClick('')}
+                        />
+                      </Item>
+                    </div>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.shipper_ids.length ? ["1"]: []}>
-                  <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
-                    <Item name="shipper_ids">
-                    <Select
-                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
-                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                      optionFilterProp="children"
-                      getPopupContainer={trigger => trigger.parentNode}
-                    >
-                      {accounts.filter(account => account.is_shipper === true)?.map((account) => (
-                        <Option key={account.id} value={account.id}>
-                          {account.full_name} - {account.code}
-                        </Option>
-                      ))}
-                    </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.print_status.length ? ["1"]: []}>
-                  <Panel header="TRẠNG THÁI IN" key="1" className="header-filter">
-                    {/* <Item name="print_status"> */}
-                      <div className="button-option">
-                        <Button
-                          onClick={() => changeStatusPrint('true')}
-                          className={print.includes('true') ? 'active' : 'deactive'}
-                        >
-                          Đã in
-                        </Button>
-                        <Button
-                          onClick={() => changeStatusPrint('false')}
-                          className={print.includes('false') ? 'active' : 'deactive'}
-                        >
-                          Chưa in
-                        </Button>
-                      </div>
-                    {/* </Item> */}
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.account_codes.length ? ["1"]: []}>
-                  <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
-                    <Item name="account_codes">
-                      <Select
-                        mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
-                        notFoundContent="Không tìm thấy kết quả"
-                        optionFilterProp="children" style={{width: '100%'}}
-                        getPopupContainer={trigger => trigger.parentNode}
+              <Col span={12} xxl={8}>
+                <p>Đối tác giao hàng</p>
+                <Item name="shipper_ids">
+                <Select
+                  mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                  optionFilterProp="children" showArrow
+                  getPopupContainer={trigger => trigger.parentNode}
+                >
+                  {accounts.filter(account => account.is_shipper === true)?.map((account) => (
+                    <Option key={account.id} value={account.id.toString()}>
+                      {account.full_name} - {account.code}
+                    </Option>
+                  ))}
+                </Select>
+                </Item>
+                <p>Nhân viên tạo đơn</p>
+                <Item name="account_codes">
+                  <Select
+                    mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
+                    notFoundContent="Không tìm thấy kết quả" showArrow
+                    optionFilterProp="children" style={{width: '100%'}}
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {accounts.map((item, index) => (
+                      <Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.code.toString()}
                       >
-                        {accounts.map((item, index) => (
-                          <Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.code.toString()}
-                          >
-                            {`${item.full_name} - ${item.code}`}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
+                        {`${item.full_name} - ${item.code}`}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.shipping_address ? ["1"]: []}>
-                  <Panel header="ĐỊA CHỈ GIAO HÀNG" key="1" className="header-filter">
-                    <Item name="shipping_address">
-                      <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm địa chỉ giao hàng" />
-                    </Item>
-                  </Panel>
-                </Collapse>
+              <Col span={12} xxl={8}>
+                <p>Địa chỉ giao hàng</p>
+                <Item name="shipping_address">
+                  <Input style={{ width: "100%", height: '40px' }} placeholder="Tìm kiếm địa chỉ giao hàng" />
+                </Item>
+                <p>Sản phẩm</p>
+                <Item name="variant_ids">
+                  <DebounceSelect
+                    mode="multiple" showArrow
+                    placeholder="Tìm kiếm sản phẩm"
+                    fetchOptions={searchVariants}
+                    optionsVariant={optionsVariant}
+                    style={{
+                      width: '100%',
+                    }}
+                  />
+                </Item>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.variant_ids.length ? ["1"]: []}>
-                  <Panel header="SẢN PHẦM" key="1" className="header-filter">
-                    <Item name="variant_ids">
-                      <DebounceSelect
-                        mode="multiple"
-                        placeholder="Tìm kiếm sản phẩm"
-                        fetchOptions={searchVariants}
-                        optionsVariant={optionsVariant}
-                        style={{
-                          width: '100%',
-                        }}
-                      />
-                    </Item>
-                  </Panel>
-                </Collapse>
+              <Col  span={12} xxl={8}>
+                <p>Hình thức vận chuyển</p>
+                <Item name="delivery_types">
+                  <Select
+                    mode="multiple" showArrow
+                    optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
+                    placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {serviceType?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+                <p>Đơn vị vận chuyển</p>
+                <Item name="delivery_provider_ids">
+                <Select
+                  mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                  notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                  optionFilterProp="children" showArrow
+                  getPopupContainer={trigger => trigger.parentNode}
+                >
+                  {deliveryService?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+                </Item>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
-                  <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_types">
-                      <Select
-                        mode="multiple"
-                        optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
-                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {serviceType?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
+              <Col  span={12} xxl={8}>
+                <p>Lý do huỷ giao</p>
+                <Item name="cancel_reason">
+                <Select
+                    mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children" showArrow
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {reasons.map((reason) => (
+                      <Option key={reason.id.toString()} value={reason.id.toString()}>
+                        {reason.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+                <p>Ghi chú của khách</p>
+                <Item name="customer_note">
+                <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
+                </Item>
               </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
-                  <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_provider_ids">
-                    <Select
-                      mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
-                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                      optionFilterProp="children"
-                      getPopupContainer={trigger => trigger.parentNode}
-                    >
-                      {deliveryService?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.cancel_reason.length ? ["1"]: []}>
-                  <Panel header="LÝ DO HUỶ GIAO" key="1" className="header-filter">
-                    <Item name="cancel_reason">
-                    <Select
-                        mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
-                        notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                        optionFilterProp="children"
-                        getPopupContainer={trigger => trigger.parentNode}
-                      >
-                        {reasons.map((reason) => (
-                          <Option key={reason.id.toString()} value={reason.id.toString()}>
-                            {reason.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.customer_note ? ["1"]: []}>
-                  <Panel header="GHI CHÚ CỦA KHÁCH" key="1" className="header-filter">
-                    <Item name="customer_note">
-                    <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.note ? ["1"]: []}>
-                  <Panel header="GHI CHÚ NỘI BỘ" key="1" className="header-filter">
-                    <Item name="note">
-                      <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row>
-            
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.tags.length ? ["1"]: []}>
-                  <Panel header="TAG" key="1" className="header-filter">
-                    <Item name="tags">
-                    <Select mode="tags" optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
-                      
-                    </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
+              <Col span={12} xxl={8}>
+                <p>Tags</p>
+                <Item name="tags">
+                  <Select mode="tags" showArrow optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
+                </Select>
+                </Item>
+                <p>Ghi chú nội bộ</p>
+                <Item name="note">
+                  <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+                </Item>
               </Col>
             </Row>
             

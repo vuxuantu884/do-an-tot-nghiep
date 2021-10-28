@@ -25,7 +25,6 @@ import { OrderProcessingStatusModel } from "model/response/order-processing-stat
 import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
 
 import search from "assets/img/search.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
@@ -1300,18 +1299,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           onCancel={onCancelFilter}
           visible={visibleBaseFilter}
           width={500}
-          footerStyle={{
-            display: "flex",
-            flexDirection: "row-reverse",
-            justifyContent: "space-between",
-          }}
-          confirmButtonTitle="Lọc"
-          deleteButtonTitle={
-            <div>
-              <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-              <span style={{ color: "red" }}>Xoá bộ lọc</span>
-            </div>
-          }
         >
           <StyledEcommerceOrderBaseFilter>
             <Form
