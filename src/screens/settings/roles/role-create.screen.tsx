@@ -7,29 +7,29 @@ import {
   Form,
   FormInstance,
   Input,
-  Row
+  Row,
 } from "antd";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { getModuleAction } from "domain/actions/auth/module.action";
-import { createRoleAction } from "domain/actions/auth/role.action";
-import { ModuleAuthorize, ModuleAuthorizeQuery } from "model/auth/module.model";
-import { PermissionsAuthorize } from "model/auth/permission.model";
-import { RoleAuthorize, RoleAuthorizeRequest } from "model/auth/roles.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { Fragment, useEffect, useState } from "react";
-import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
+import {getModuleAction} from "domain/actions/auth/module.action";
+import {createRoleAction} from "domain/actions/auth/role.action";
+import {ModuleAuthorize, ModuleAuthorizeQuery} from "model/auth/module.model";
+import {PermissionsAuthorize} from "model/auth/permission.model";
+import {RoleAuthorize, RoleAuthorizeRequest} from "model/auth/roles.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {Fragment, useEffect, useState} from "react";
+import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
+import {useDispatch} from "react-redux";
+import {useHistory} from "react-router";
 import {
   handleCheckedModule,
   handleIndeterminateModule,
-  onChangeModule
+  onChangeModule,
 } from "utils/AuthUtil";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { RoleStyled } from "./role-create.style";
+import {showError, showSuccess} from "utils/ToastUtils";
+import {RoleStyled} from "./role-create.style";
 
 const {Panel} = Collapse;
 
@@ -118,23 +118,23 @@ const RoleCreateScreen: React.FC = () => {
                         message: "Vui lòng nhập tên nhóm quyền",
                       },
                       {
-                        max: 50,
-                        message: "Tên nhóm quyền không vượt quá 50 ký tự",
+                        max: 100,
+                        message: "Tên nhóm quyền không vượt quá 100 ký tự",
                       },
                     ]}
                     label="Tên nhóm quyền"
                     name="name"
                   >
-                    <Input maxLength={50} placeholder="Nhập tên vai trò" />
+                    <Input placeholder="Nhập tên vai trò" />
                   </Form.Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
                     name="description"
                     label="Diễn dải"
-                    rules={[{max: 50, message: "Thành phần không quá 50 kí tự"}]}
+                    rules={[{max: 255, message: "Diễn dải không vượt quá 255 kí tự"}]}
                   >
-                    <Input maxLength={50} placeholder="Nhập mô tả" />
+                    <Input placeholder="Nhập diễn dải" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -243,7 +243,10 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                     indeterminate={isIndeterminate && !isChecked}
                     checked={isChecked || isIndeterminate}
                   >
-                    <b> {module.name}</b>
+                    <b>
+                      {module.name.charAt(0).toUpperCase() +
+                        module.name.slice(1).toLowerCase()}
+                    </b>
                   </Checkbox>
                   {activePanel.includes(module.id.toString()) ? (
                     <HiOutlineChevronDoubleDown color="#2A2A86" />
@@ -263,7 +266,8 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                         className="panel-content-item"
                         onChange={(e) => handleChangeCheckboxPermission(e, module)}
                       >
-                        {value.name}
+                        {value.name.charAt(0).toUpperCase() +
+                          value.name.slice(1).toLowerCase()}
                       </Checkbox>
                     </Form.Item>
                   );
