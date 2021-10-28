@@ -5,7 +5,8 @@ import {
   PlusOutlined
 } from "@ant-design/icons";
 import {
-  Affix, Button,
+  Affix,
+  Button,
   Card,
   Col,
   Collapse,
@@ -23,7 +24,8 @@ import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import UrlConfig from "config/url.config";
 import {
-  AccountCreateAction, DepartmentGetListAction,
+  AccountCreateAction,
+  DepartmentGetListAction,
   PositionGetListAction
 } from "domain/actions/account/account.action";
 import { RoleGetListAction } from "domain/actions/auth/role.action";
@@ -56,8 +58,8 @@ import { convertDistrict } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { PASSWORD_RULES } from "./account.rules";
 
-const { Item, List } = Form;
-const { Option, OptGroup } = Select;
+const {Item, List} = Form;
+const {Option, OptGroup} = Select;
 
 const DefaultCountry = 233;
 const initRequest: AccountView = {
@@ -78,7 +80,7 @@ const initRequest: AccountView = {
 
 const initRoleQuery: RoleSearchQuery = {
   page: 1,
-  size: 200,
+  limit: 200,
 };
 
 const AccountCreateScreen: React.FC = () => {
@@ -108,7 +110,7 @@ const AccountCreateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false)
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   //EndState
   //Callback
 

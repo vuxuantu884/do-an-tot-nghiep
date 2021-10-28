@@ -30,10 +30,10 @@ function* RoleGetListSaga(action: YodyAction) {
   } catch (e) {}
 }
 
-function* RoleSearchSaga(action: YodyAction) {
+function* roleSearchSaga(action: YodyAction) {
   let {query, setData} = action.payload;
   try {
-    let response: BaseResponse<PageResponse<RoleResponse>> = yield call(
+    let response: BaseResponse<PageResponse<RoleAuthorize>> = yield call(
       roleGetListAPI,
       query
     );
@@ -74,6 +74,6 @@ function* createRoleSaga(action: YodyAction) {
 
 export function* roleSaga() {
   yield takeLatest(RoleType.GET_LIST_ROLE_REQUEST, RoleGetListSaga);
-  yield takeLatest(RoleType.SEARCH_LIST_ROLE_REQUEST, RoleSearchSaga);
+  yield takeLatest(RoleType.SEARCH_LIST_ROLE_REQUEST, roleSearchSaga);
   yield takeLatest(RoleType.CREATE_ROLES, createRoleSaga);
 }
