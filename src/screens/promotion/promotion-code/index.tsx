@@ -3,13 +3,13 @@ import {
   Button,
   Form,
   Input,
-  Select,
+  Tag,
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import actionColumn from "./actions/action.column";
 import CustomFilter from "component/table/custom.filter";
 import ContentContainer from "component/container/content.container";
-import settingGearIcon from "../../../assets/icon/setting-gear-icon.svg";
+import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import moment from "moment";
@@ -25,7 +25,7 @@ import { getListPromotionCode } from "domain/actions/promotion/promotion-code/pr
 import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 
 const PromotionCode = () => {
   const promotionStatuses = [
@@ -227,6 +227,46 @@ const PromotionCode = () => {
     [columns]
   );
 
+  function tagRender(props: any) {
+    const { label, closable, onClose } = props;
+    const onPreventMouseDown = (event: any) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    return (
+      <Tag
+        className="primary-bg"
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+      >
+        {label}
+      </Tag>
+    );
+  }
+  const listStatus: Array<BaseBootstrapResponse> = [
+    {
+      value: "APPLYING",
+      name: "Đang áp dụng",
+    },
+    {
+      value: "TEMP_STOP",
+      name: "Tạm ngưng",
+    },
+    {
+      value: "WAIT_FOR_START",
+      name: "Chờ áp dụng",
+    },
+    {
+      value: "ENDED",
+      name: "Kết thúc",
+    },
+    {
+      value: "CANCELLED",
+      name: "Đã huỷ",
+    }
+  ]
+
   return (
     <ContentContainer
       title="Danh sách đợt phát hành"
@@ -269,6 +309,26 @@ const PromotionCode = () => {
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />
               </Form.Item>
+              <Form.Item>
+                <CustomSelect
+                  showSearch
+                  optionFilterProp="children"
+                  showArrow
+                  placeholder="Chọn trạng thái"
+                  allowClear
+                  tagRender={tagRender}
+                  style={{
+                    width: "100%",
+                  }}
+                  notFoundContent="Không tìm thấy kết quả"
+                >
+                  {listStatus?.map((item) => (
+                    <CustomSelect.Option key={item.value} value={item.value}>
+                      {item.name}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Form.Item>
               {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
               <Form.Item>
                 <Button type="primary" htmlType="submit">
@@ -277,18 +337,6 @@ const PromotionCode = () => {
               </Form.Item>
               <Form.Item>
                 <Button>Thêm bộ lọc</Button>
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  onClick={() => setShowSettingColumn(true)}
-                  icon={
-                    <img
-                      style={{ marginBottom: 3 }}
-                      src={settingGearIcon}
-                      alt=""
-                    ></img>
-                  }
-                ></Button>
               </Form.Item>
             </Form>
           </CustomFilter>
@@ -313,17 +361,6 @@ const PromotionCode = () => {
           />
         </div>
       </Card>
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => {
-          setShowSettingColumn(false);
-        }}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
     </ContentContainer>
   );
 };
