@@ -38,6 +38,7 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { SourceEcommerceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
 
@@ -429,3 +430,7 @@ export const splitOrderAction = (
     },
   };
 };
+
+export const getSourcesEcommerce=(setData: (data: Array<SourceEcommerceResponse>)=>void)=>{
+  return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
+}

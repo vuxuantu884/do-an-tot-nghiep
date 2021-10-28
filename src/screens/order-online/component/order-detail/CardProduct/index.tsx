@@ -745,6 +745,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       show_note: false,
       gifts: [],
       position: undefined,
+      available:variant.available
     };
     return orderLine;
   };
@@ -781,6 +782,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
+      console.log("VariantResponse",r)
       const item: OrderLineItemRequest = createItem(r);
       item.position = items.length + 1;
       if (r.id === newV) {
@@ -843,11 +845,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           setSearchProducts(true);
           try {
             await dispatch(
-              searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+                searchVariantsOrderRequestAction(initQueryVariant, (data) => {
                 setResultSearchVariant(data);
                 setSearchProducts(false);
                 setIsShowProductSearch(true);
-                // console.log('setSearchProducts false');
               })
             );
           } catch {}

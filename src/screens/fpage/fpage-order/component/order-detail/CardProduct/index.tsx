@@ -636,6 +636,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       show_note: false,
       gifts: [],
       position: undefined,
+      available:variant.available
     };
     return orderLine;
   };

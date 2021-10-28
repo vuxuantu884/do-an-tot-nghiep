@@ -5,7 +5,7 @@ import UrlConfig from "config/url.config";
 import PackInfo from "./pack-support/pack-info";
 import PackList from "./pack-support/pack-list";
 import ReportHandOver from "./pack-support/report-hand-over";
-import { DeliveryServicesGetList, loadOrderPackAction } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getSourcesEcommerce, loadOrderPackAction } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useEffect, useState } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
@@ -14,6 +14,9 @@ import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import PackReportHandOver from "./pack-support/pack-report-hand-over";
+import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
+import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
+import { SourceEcommerceResponse } from "model/response/order/source.response";
 
 const { TabPane } = Tabs;
 
@@ -34,19 +37,24 @@ const PackSupportScreen: React.FC = () => {
   
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [listGoodsReceipts,setListGoodsReceipts] =useState<Array<GoodsReceiptsTypeResponse>>([]);
+  const [listSourcesEcommerce,setListSourcesEcommerce]= useState<Array<SourceEcommerceResponse>>([]);
 
   const packSupportContextData={
     listThirdPartyLogistics,
     setListThirdPartyLogistics,
     listStores,
     setListStores,
+    listGoodsReceipts,
+    setListGoodsReceipts,
+    listSourcesEcommerce,
+    setListSourcesEcommerce,
+    data,
   };
 
   useEffect(()=>{
     dispatch(loadOrderPackAction(setData))
   },[dispatch]);
-
-  console.log("data",data);
 
   useEffect(() => {
     dispatch(
@@ -55,6 +63,15 @@ const PackSupportScreen: React.FC = () => {
       })
     );
   }, [dispatch]);
+
+  useEffect(()=>{
+    dispatch(getGoodsReceiptsType(setListGoodsReceipts))
+  },[dispatch]);
+
+  useEffect(()=>{
+    dispatch(getSourcesEcommerce(setListSourcesEcommerce))
+  },[dispatch]);
+
 
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));

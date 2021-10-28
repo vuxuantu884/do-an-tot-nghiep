@@ -77,13 +77,11 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const btnClearPackElement = document.getElementById("btnClearPack");
   const OrderRequestElement: any = document.getElementById("order_request");
   const ProductRequestElement: any = document.getElementById("product_request");
-  // const QualityRequestElement: any = document.getElementById("quality_request");
 
   //context
   const orderPackContextData = useContext(OrderPackContext);
 
   const listStores= orderPackContextData?.listStores;
-  //const setListStores= orderPackContextData?.setListStores;
 
   const shipName =
     listThirdPartyLogistics.length > 0 && orderResponse.length > 0
@@ -114,12 +112,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   ProductRequestElement?.addEventListener("focus", (e: any) => {
     ProductRequestElement.select();
   });
-
-  // QualityRequestElement?.addEventListener("focus", (e: any) => {
-  //   if (!formRef.current?.getFieldValue(["quality_request"]))
-  //     formRef.current?.setFieldsValue({ product_request: "" });
-  //   console.log(formRef.current?.getFieldValue(["quality_request"]));
-  // });
 
   const event = useCallback(
     (event: KeyboardEvent) => {
