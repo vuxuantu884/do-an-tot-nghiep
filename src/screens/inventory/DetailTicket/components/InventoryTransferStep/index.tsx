@@ -30,12 +30,20 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(4);
         break;
       case STATUS_INVENTORY_TRANSFER.CANCELED.status:
-        setCurrentStep(4);
+        if (props.inventoryTransferDetail?.created_date) {
+          setCurrentStep(1);
+        } else if (props.inventoryTransferDetail?.transfer_date) {
+          setCurrentStep(2);
+        } else if (props.inventoryTransferDetail?.pending_date) {
+          setCurrentStep(3);
+        } else if (props.inventoryTransferDetail?.receive_date) {
+          setCurrentStep(4);
+        }
         break;
       default:
         return 0;
     }
-  }, [status]);
+  }, [status, props]);
 
   useEffect(() => {
     point();
@@ -67,19 +75,19 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.status === "canceled" ? (
             <>
               <Steps.Step
-                status="process"
+                status={(CreateDate !== '') ? "process" : undefined}
                 title="Xin Hàng"
               />
               <Steps.Step
-                status="process"
+                status={(CreateDate !== '') ? "process" : undefined}
                 title="Chờ chuyển"
               />
               <Steps.Step
-                status="process"
+                status={(TransferDate !== '') ? "process" : undefined}
                 title="Đang chuyển"
               />
               <Steps.Step
-                status="process"
+                status={(PendingDate !== '') ? "process" : undefined}
                 title="Chờ xử lý"
               />
               <Steps.Step
@@ -92,18 +100,22 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             <>
               <Steps.Step
                 title="Xin Hàng"
+                status={(CreateDate !== '') ? "process" : undefined}
                 description={CreateDate}
               />
               <Steps.Step
                 title="Chờ chuyển"
+                status={(CreateDate !== '') ? "process" : undefined}
                 description={CreateDate}
               />
               <Steps.Step
                 title="Đang chuyển"
+                status={(TransferDate !== '') ? "process" : undefined}
                 description={TransferDate}
               />
               <Steps.Step
                 title="Chờ xử lý"
+                status={(PendingDate !== '') ? "process" : undefined}
                 description={PendingDate}
               />
               <Steps.Step
