@@ -1,6 +1,7 @@
 import { Card, Col, Row } from "antd";
 import UrlConfig from "config/url.config";
 import { OrderResponse } from "model/response/order/order.response";
+import React from "react";
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
 
@@ -10,6 +11,50 @@ type PropType = {
 
 function SidebarOrderDetailInformation(props: PropType) {
   const { OrderDetail } = props;
+  const renderSplitOrder = () => {
+    const splitCharacter = "-"
+    if(!OrderDetail?.linked_order_code) {
+      return;
+    }
+    let result = OrderDetail.linked_order_code.split(splitCharacter);
+    if(result.length > 1) {
+      return (
+        <Row gutter={5}>
+          <Col span={10}>Đơn tách:</Col>
+          <Col span={14}>
+          {result.map((single, index) => {
+              return (
+                <React.Fragment>
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ORDER}/${single}`}
+                >
+                  <strong>{single}</strong>
+                </Link>
+                {index < (result.length - 1) && ", "}
+                </React.Fragment>
+
+              )
+            })}
+          </Col>
+        </Row>
+      )
+    }else {
+      return (
+        <Row gutter={5}>
+          <Col span={10}>Đơn gốc tách đơn:</Col>
+          <Col span={14}>
+          <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${OrderDetail.linked_order_code}`}
+            >
+              <strong>{OrderDetail.linked_order_code}</strong>
+            </Link>
+          </Col>
+        </Row>
+      )
+    }
+  };
   return (
     <StyledComponent>
       <Card title="THÔNG TIN ĐƠN HÀNG">
@@ -101,6 +146,7 @@ function SidebarOrderDetailInformation(props: PropType) {
             )}
           </Col>
         </Row>
+        {renderSplitOrder()}
       </Card>
     </StyledComponent>
   );

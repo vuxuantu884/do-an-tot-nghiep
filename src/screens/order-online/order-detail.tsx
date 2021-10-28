@@ -241,7 +241,7 @@ const OrderDetail = (props: PropType) => {
     if (OrderDetail?.order_return_origin?.id) {
       dispatch(
         actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
-          dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
+          dispatch(OrderDetailAction(id, onGetDetailSuccess));
         })
       );
     }
@@ -442,10 +442,11 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (isFirstLoad.current || reload) {
-      if (!Number.isNaN(OrderId)) {
+      // if (!Number.isNaN(OrderId)) {
+      if (id) {
         setShipmentMethod(4);
         setShippingFeeInformedCustomer(0);
-        dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
+        dispatch(OrderDetailAction(id, onGetDetailSuccess));
       } else {
         setError(true);
       }
@@ -455,7 +456,7 @@ const OrderDetail = (props: PropType) => {
     setVisibleShipping(false);
     setShowPaymentPartialPayment(false);
     setPaymentType(2);
-  }, [dispatch, OrderId, onGetDetailSuccess, reload, OrderDetail]);
+  }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
 
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -1162,7 +1163,7 @@ const OrderDetail = (props: PropType) => {
                 />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
                 <ActionHistory
-                  orderId={id}
+                  orderId={ OrderDetail?.id}
                   countChangeSubStatus={countChangeSubStatus}
                   reload={reload}
                 />

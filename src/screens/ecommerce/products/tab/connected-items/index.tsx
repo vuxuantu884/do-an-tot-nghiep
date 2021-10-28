@@ -13,6 +13,7 @@ import {
   Menu,
   Checkbox,
   DatePicker,
+  Card,
 } from "antd";
 import {
   SearchOutlined,
@@ -42,7 +43,6 @@ import {
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -55,7 +55,6 @@ import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } fr
 
 
 type ConnectedItemsProps = {
-  categoryList?: Array<any>;
   variantData: any;
   getProductUpdated: any;
   tableLoading: any;
@@ -64,7 +63,7 @@ type ConnectedItemsProps = {
 const ConnectedItems: React.FC<ConnectedItemsProps> = (
   props: ConnectedItemsProps
 ) => {
-  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
+  const { variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -88,7 +87,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       limit: 30,
       ecommerce_id: null,
       shop_ids: [],
-      category_id: null,
       connect_status: "connected",
       update_stock_status: null,
       sku_or_name_core: "",
@@ -104,7 +102,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     limit: 30,
     ecommerce_id: null,
     shop_ids: [],
-    category_id: null,
     connect_status: "connected",
     update_stock_status: null,
     sku_or_name_core: "",
@@ -450,7 +447,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
-      query.category_id = value.category_id;
       query.connect_status = "connected";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
@@ -551,9 +547,18 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     formAdvance.submit();
   }, [formAdvance]);
 
-  const onClearFilterAdvanceClick = React.useCallback(() => {
-    formAdvance.setFieldsValue(params);
+  const onClearConnectionDate = () => {
+    setDateButtonSelected("");
+    setConnectionStartDate(null);
+    setConnectionEndDate(null);
+  };
+
+  const onClearBaseFilter = React.useCallback(() => {
+    removeEcommerce();
+    onClearConnectionDate();
     setVisibleFilter(false);
+
+    formAdvance.setFieldsValue(params);
     formAdvance.submit();
   }, [formAdvance, params]);
 
@@ -750,141 +755,132 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   return (
     <StyledComponent>
-      <StyledProductFilter>
-        <div className="filter">
-          <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
-            <Form.Item name="action" className="action-dropdown">
-              <Dropdown
-                overlay={actionList}
-                trigger={["click"]}
-                disabled={tableLoading}
-              >
-                <Button className="action-button">
-                  <div style={{ marginRight: 10 }}>Thao tác</div>
-                  <DownOutlined />
-                </Button>
-              </Dropdown>
-            </Form.Item>
+      <Card>
+        <StyledProductFilter>
+          <div className="filter">
+            <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
+              <Form.Item name="action" className="action-dropdown">
+                <Dropdown
+                  overlay={actionList}
+                  trigger={["click"]}
+                  disabled={tableLoading}
+                >
+                  <Button className="action-button">
+                    <div style={{ marginRight: 10 }}>Thao tác</div>
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </Form.Item>
 
-            <Form.Item name="ecommerce_id" className="select-channel-dropdown">
-              <Select
-                showSearch
-                disabled={tableLoading}
-                placeholder="Chọn sàn"
-                allowClear
-                onSelect={(value) => handleSelectEcommerce(value)}
-                onClear={removeEcommerce}
-              >
-                {ECOMMERCE_LIST &&
-                  ECOMMERCE_LIST.map((item: any) => (
-                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                      <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
-                        <span>{item.title}</span>
-                      </div>
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item className="select-store-dropdown">
-              {isEcommerceSelected && (
+              <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading || !isEcommerceSelected}
-                  placeholder={getPlaceholderSelectShop()}
-                  allowClear={shopIdSelected && shopIdSelected.length > 0}
-                  dropdownRender={() => renderShopList(false)}
-                  onClear={removeSelectedShop}
-                />
-              )}
+                  disabled={tableLoading}
+                  placeholder="Chọn sàn"
+                  allowClear
+                  onSelect={(value) => handleSelectEcommerce(value)}
+                  onClear={removeEcommerce}
+                >
+                  {ECOMMERCE_LIST &&
+                    ECOMMERCE_LIST.map((item: any) => (
+                      <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                        <div>
+                          <img
+                            src={item.icon}
+                            alt={item.id}
+                            style={{ marginRight: "10px" }}
+                          />
+                          <span>{item.title}</span>
+                        </div>
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
 
-              {!isEcommerceSelected && (
-                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+              <Form.Item className="select-store-dropdown">
+                {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={true}
+                    disabled={tableLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(false)}
                     onClear={removeSelectedShop}
                   />
-                </Tooltip>
-              )}
-            </Form.Item>
+                )}
 
-            <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
-              <Input
-                disabled={tableLoading}
-                prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, tên sản phẩm sàn"
-              />
-            </Form.Item>
+                {!isEcommerceSelected && (
+                  <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                    <Select
+                      showSearch
+                      disabled={true}
+                      placeholder={getPlaceholderSelectShop()}
+                      allowClear={shopIdSelected && shopIdSelected.length > 0}
+                      dropdownRender={() => renderShopList(false)}
+                      onClear={removeSelectedShop}
+                    />
+                  </Tooltip>
+                )}
+              </Form.Item>
 
-            <Form.Item name="sku_or_name_core" className="yody-search">
-              <Input
-                disabled={tableLoading}
-                prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, Sản phẩm Yody"
-              />
-            </Form.Item>
+              <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
+                <Input
+                  disabled={tableLoading}
+                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  placeholder="SKU, tên sản phẩm sàn"
+                />
+              </Form.Item>
 
-            <Form.Item className="filter-item">
-              <Button type="primary" htmlType="submit" disabled={tableLoading}>
-                Lọc
-              </Button>
-            </Form.Item>
+              <Form.Item name="sku_or_name_core" className="yody-search">
+                <Input
+                  disabled={tableLoading}
+                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  placeholder="SKU, Sản phẩm Yody"
+                />
+              </Form.Item>
 
-            <Form.Item>
-              <Button onClick={openFilter} disabled={tableLoading}>
-                <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
-                <span>Thêm bộ lọc</span>
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </StyledProductFilter>
+              <Form.Item className="filter-item">
+                <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                  Lọc
+                </Button>
+              </Form.Item>
 
-      <CustomTable
-        isRowSelection
-        isLoading={tableLoading}
-        onSelectedChange={onSelectTable}
-        columns={columns}
-        dataSource={variantData.items}
-        scroll={{ x: 1500 }}
-        pagination={{
-          pageSize: variantData.metadata && variantData.metadata.limit,
-          total: variantData.metadata && variantData.metadata.total,
-          current: variantData.metadata && variantData.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        rowKey={(data) => data.id}
-      />
+              <Form.Item>
+                <Button onClick={openFilter} disabled={tableLoading}>
+                  <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
+                  <span>Thêm bộ lọc</span>
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
+        </StyledProductFilter>
+
+        <CustomTable
+          isRowSelection
+          isLoading={tableLoading}
+          onSelectedChange={onSelectTable}
+          columns={columns}
+          dataSource={variantData.items}
+          scroll={{ x: 1500 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          pagination={{
+            pageSize: variantData.metadata && variantData.metadata.limit,
+            total: variantData.metadata && variantData.metadata.total,
+            current: variantData.metadata && variantData.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          rowKey={(data) => data.id}
+        />
+      </Card>
 
       <BaseFilter
-        onClearFilter={onClearFilterAdvanceClick}
+        onClearFilter={onClearBaseFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
         width={400}
-        footerStyle={{
-          display: "flex",
-          flexDirection: "row-reverse",
-          justifyContent: "space-between",
-        }}
-        confirmButtonTitle="Áp dụng bộ lọc"
-        deleteButtonTitle={
-          <div>
-            <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-            <span style={{ color: "red" }}>Xóa bộ lọc</span>
-          </div>
-        }
       >
         <StyledBaseFilter>
           <Form
@@ -944,16 +940,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                   />
                 </Tooltip>
               )}
-            </Form.Item>
-
-            <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
-              <Select showSearch placeholder="Chọn danh mục" allowClear>
-                {categoryList?.map((item: any) => (
-                  <Option key={item.category_id} value={item.category_id}>
-                    {item.display_category_name}
-                  </Option>
-                ))}
-              </Select>
             </Form.Item>
 
             <Form.Item

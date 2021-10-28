@@ -9,8 +9,8 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import copy from 'copy-to-clipboard';
 import {
+  CloseCircleOutlined,
   CopyOutlined,
-  DeleteOutlined,
   EditOutlined,
   PaperClipOutlined,
   PrinterOutlined,
@@ -522,9 +522,14 @@ const DetailTicket: FC = () => {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
       width: 50,
+      dataIndex: "transfer_quantity",
       render: (value: string, row, index) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status ||
-          data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) {
+        if (
+          (parseInt(value) !== 0 &&
+            (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status 
+            || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+          )
+          || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
           return false;
         }
         return <Button
@@ -540,10 +545,12 @@ const DetailTicket: FC = () => {
     if (!result) {
       setError(true);
       return;
-    } else {            
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
+    } else {
+      setIsDeleteTicket(false);
+      showSuccess("Huỷ phiếu thành công");
+      setData(result);
     }
-  }, [history])
+  }, [])
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
@@ -1044,7 +1051,7 @@ const DetailTicket: FC = () => {
                       data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
                     
                     <Button danger onClick={() => setIsDeleteTicket(true)}>
-                      <DeleteOutlined /> Hủy phiếu
+                      <CloseCircleOutlined style={{ color: '#E24343' }} /> Hủy phiếu
                     </Button>
                   }
                   {

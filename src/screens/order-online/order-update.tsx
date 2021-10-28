@@ -722,7 +722,7 @@ export default function Order(props: PropType) {
 
   const fetchData = () => {
     dispatch(
-      OrderDetailAction(Number(id), (res) => {
+      OrderDetailAction(id, (res) => {
         const response = {
           ...res,
           // ffm des id
@@ -814,9 +814,7 @@ export default function Order(props: PropType) {
             shipper_code: newShipperCode,
             shipping_fee_informed_to_customer: response.shipping_fee_informed_to_customer,
             payments: new_payments,
-            reference_code: response.linked_order_code
-              ? response.linked_order_code
-              : response.reference_code,
+            reference_code: response.reference_code,
             url: response.url,
             note: response.note,
             tags: response.tags,
@@ -1094,6 +1092,7 @@ export default function Order(props: PropType) {
                     updateOrder={true}
                     isSplitOrder
                     orderDetail={OrderDetail}
+                    fetchData={fetchData}
                   />
 
                   {OrderDetail !== null &&

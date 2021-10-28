@@ -1,5 +1,5 @@
 import { Steps } from "antd";
-import { CheckOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { StyledWrapper } from "./styles";
@@ -29,6 +29,9 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
         setCurrentStep(4);
         break;
+      case STATUS_INVENTORY_TRANSFER.CANCELED.status:
+        setCurrentStep(4);
+        break;
       default:
         return 0;
     }
@@ -40,7 +43,8 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
 
   const progressDot = (dot: any, { status, index }: any) => (
     <div className="ant-steps-icon-dot">
-      {(status === "process" || status === "finish") && <CheckOutlined />}
+      {(status === "process") && <CheckOutlined />}
+      {(status === "error") && <CloseOutlined style={{ fontSize: '16px', color: '#fff' }} />}
     </div>
   );
 
@@ -48,6 +52,7 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const TransferDate = props.inventoryTransferDetail?.transfer_date ? moment(props.inventoryTransferDetail?.transfer_date).format(formatDate) : '';
   const PendingDate = props.inventoryTransferDetail?.pending_date ? moment(props.inventoryTransferDetail?.pending_date).format(formatDate) : '';
   const ReceiveDate = props.inventoryTransferDetail?.receive_date ? moment(props.inventoryTransferDetail?.receive_date).format(formatDate) : '';
+  const CanceledDate = props.inventoryTransferDetail?.cancel_date ? moment(props.inventoryTransferDetail?.cancel_date).format(formatDate) : '';
   
 
   return (
@@ -58,26 +63,56 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         current={currentStep}
         className="inventory-transfer-step"
       >
-        <Steps.Step
-          title="Xin Hàng"
-          description={CreateDate}
-        />
-        <Steps.Step
-          title="Chờ chuyển"
-          description={CreateDate}
-        />
-        <Steps.Step
-          title="Đang chuyển"
-          description={TransferDate}
-        />
-        <Steps.Step
-          title="Chờ xử lý"
-          description={PendingDate}
-        />
-        <Steps.Step
-          title={!(props.status === "cancelled") ? "Đã nhập" : "Huỷ phiếu"}
-          description={ReceiveDate}
-        />
+        {
+          props.status === "canceled" ? (
+            <>
+              <Steps.Step
+                status="process"
+                title="Xin Hàng"
+              />
+              <Steps.Step
+                status="process"
+                title="Chờ chuyển"
+              />
+              <Steps.Step
+                status="process"
+                title="Đang chuyển"
+              />
+              <Steps.Step
+                status="process"
+                title="Chờ xử lý"
+              />
+              <Steps.Step
+                status="error"
+                title="Huỷ phiếu"
+                description={CanceledDate}
+              />
+            </>
+          ) : (
+            <>
+              <Steps.Step
+                title="Xin Hàng"
+                description={CreateDate}
+              />
+              <Steps.Step
+                title="Chờ chuyển"
+                description={CreateDate}
+              />
+              <Steps.Step
+                title="Đang chuyển"
+                description={TransferDate}
+              />
+              <Steps.Step
+                title="Chờ xử lý"
+                description={PendingDate}
+              />
+              <Steps.Step
+                title="Đã nhập"
+                description={ReceiveDate}
+              />
+            </>
+          )
+        }
       </Steps>
     </StyledWrapper>
   );
