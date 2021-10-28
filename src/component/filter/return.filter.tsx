@@ -6,7 +6,6 @@ import {
   Input,
   Row,
   Tag,
-  Select,
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
@@ -39,7 +38,6 @@ type ReturnFilterProps = {
 };
 
 const { Item } = Form;
-const { Option } = Select;
 
 const ReturnFilter: React.FC<ReturnFilterProps> = (
   props: ReturnFilterProps
