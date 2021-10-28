@@ -16,7 +16,7 @@ import moment from "moment";
 
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import TotalItemActionColumn from "./TotalItemActionColumn";
@@ -79,8 +79,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
-      create_time_from: null,
-      create_time_to: null,
+      connected_date_from: null,
+      connected_date_to: null,
     }),
     []
   );
@@ -94,8 +94,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    create_time_from: null,
-    create_time_to: null,
+    connected_date_from: null,
+    connected_date_to: null,
   });
 
 
@@ -176,38 +176,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     const formatDateTime = "DD/MM/YYYY HH:mm:ss";
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
-
-  const convertStartDateToTimestamp = (dateData: any) => {
-    const startDateValue = dateData?.split("-");
-    const day = startDateValue && startDateValue[0];
-    const month = startDateValue && startDateValue[1];
-    const year = startDateValue && startDateValue[2];
-    
-    const startDate = month + "." + day + "." + year + " 00:00:00";
-    const startDateTimestamp = moment(new Date(startDate)).unix();
-    return startDateTimestamp;
-  }
-  
-  const convertEndDateToTimestamp = (dateData: any) => {
-    const endDateValue = dateData?.split("-");
-    const today = new Date();
-    let time = "23:59:59";
-
-    if ((Number(endDateValue[0]) === Number(today.getDate())) &&
-        (Number(endDateValue[1]) === Number(today.getMonth()) + 1) &&
-        (Number(endDateValue[2]) === Number(today.getFullYear()))
-      ) {
-      time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    }
-
-    const day = endDateValue && endDateValue[0];
-    const month = endDateValue && endDateValue[1];
-    const year = endDateValue && endDateValue[2];
-
-    const endDate = month + "." + day + "." + year + " " + time;
-    const endDateTimestamp = moment(new Date(endDate)).unix();
-    return endDateTimestamp;
-  }
   //end handle convert date time
 
   const [columns] = useState<any>([
@@ -366,8 +334,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.shop_ids = shopIdSelected;
-      value.create_time_from = connectionStartDate ? convertStartDateToTimestamp(connectionStartDate) : null;      
-      value.create_time_to = connectionEndDate ? convertEndDateToTimestamp(connectionEndDate) : null;
+      value.connected_date_from = connectionStartDate;
+      value.connected_date_to = connectionEndDate;
 
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
@@ -375,8 +343,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
-      query.create_time_from = value.create_time_from;
-      query.create_time_to = value.create_time_to;
+      query.connected_date_from = value.connected_date_from;
+      query.connected_date_to = value.connected_date_to;
       
     }
 
@@ -590,10 +558,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   //handle select connection date
   const [connectionStartDate, setConnectionStartDate] = useState(
-    params.create_time_from || null
+    params.connected_date_from || null
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    params.create_time_to || null
+    params.connected_date_to || null
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
@@ -605,46 +573,28 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
       switch (value) {
         case "today":
-          startDateValue = moment().startOf("day").format("DD-MM-YYYY");
-          endDateValue = moment().endOf("day").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("day"));
+          endDateValue = ConvertDateToUtc(moment().endOf("day"));
           break;
         case "yesterday":
-          startDateValue = moment()
-            .startOf("day")
-            .subtract(1, "days")
-            .format("DD-MM-YYYY");
-          endDateValue = moment()
-            .endOf("day")
-            .subtract(1, "days")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("day").subtract(1, "days"));
+          endDateValue = ConvertDateToUtc(moment().endOf("day").subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = moment().startOf("week").format("DD-MM-YYYY");
-          endDateValue = moment().endOf("week").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("week"));
+          endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = moment()
-            .startOf("week")
-            .subtract(1, "weeks")
-            .format("DD-MM-YYYY");
-          endDateValue = moment()
-            .endOf("week")
-            .subtract(1, "weeks")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks"));
+          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          startDateValue = moment().startOf("month").format("DD-MM-YYYY");
-          endDateValue = moment().endOf("month").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("month"));
+          endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = moment()
-            .startOf("month")
-            .subtract(1, "months")
-            .format("DD-MM-YYYY");
-          endDateValue = moment()
-            .endOf("month")
-            .subtract(1, "months")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months"));
+          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
           break;
@@ -665,8 +615,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   const onChangeRangeDate = useCallback((dates, dateString) => {
     setDateButtonSelected("");
-    setConnectionStartDate(dateString[0]);
-    setConnectionEndDate(dateString[1]);
+    const startDateUtc = ConvertDateToUtc(dates[0].startOf("day"));
+    const endDateUtc = ConvertDateToUtc(dates[1].endOf("day"));
+    setConnectionStartDate(startDateUtc);
+    setConnectionEndDate(endDateUtc);
   }, []);
   //end handle select connection date
 
@@ -943,10 +895,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                   style={{ width: "100%" }}
                   value={[
                     connectionStartDate
-                      ? moment(connectionStartDate, "DD-MM-YYYY")
+                      ? moment(ConvertUtcToLocalDate(connectionStartDate), "DD-MM-YYYY")
                       : null,
                     connectionEndDate
-                      ? moment(connectionEndDate, "DD-MM-YYYY")
+                      ? moment(ConvertUtcToLocalDate(connectionEndDate), "DD-MM-YYYY")
                       : null,
                   ]}
                   onChange={(date, dateString) =>

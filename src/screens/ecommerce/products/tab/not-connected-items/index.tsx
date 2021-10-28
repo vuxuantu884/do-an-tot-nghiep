@@ -102,8 +102,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
-      create_time_from: null,
-      create_time_to: null,
+      connected_date_from: null,
+      connected_date_to: null,
     }),
     []
   );
@@ -117,8 +117,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    create_time_from: null,
-    create_time_to: null,
+    connected_date_from: null,
+    connected_date_to: null,
   });
 
 
@@ -558,8 +558,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
-      query.create_time_from = value.create_time_from;
-      query.create_time_to = value.create_time_to;
+      query.connected_date_from = value.connected_date_from;
+      query.connected_date_to = value.connected_date_to;
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
