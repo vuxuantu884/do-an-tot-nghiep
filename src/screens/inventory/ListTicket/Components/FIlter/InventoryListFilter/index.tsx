@@ -237,7 +237,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
           setCreateDateClick('')
           setIsFromCreatedDate(null)
           setIsToCreatedDate(null)
-          onFilter && onFilter({...params, form_created_date: null, to_created_date: null});
+          onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         case 'transfer_date':
           setTransferDateClick('')
@@ -282,12 +282,12 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       }
       const valuesForm = {
         ...values,
-        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        to_created_date: isToCreatedDate ? moment(isToCreatedDate, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        from_transfer_date: isFromTransferDate ? moment(isFromTransferDate, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        to_transfer_date: isToTransferDate ? moment(isToTransferDate, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        from_receive_date: isFromReceiveDate ? moment(isFromReceiveDate, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        to_receive_date: isToReceiveDate ? moment(isToReceiveDate, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
+        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
+        from_transfer_date: isFromTransferDate ? moment(isFromTransferDate) : null,
+        to_transfer_date: isToTransferDate ? moment(isToTransferDate) : null,
+        from_receive_date: isFromReceiveDate ? moment(isFromReceiveDate) : null,
+        to_receive_date: isToReceiveDate ? moment(isToReceiveDate) : null,
         
       }
       onFilter && onFilter(valuesForm);
@@ -346,7 +346,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
-      let textCreatedDate = (initialValues.from_created_date ? initialValues.from_created_date : '??') + " ~ " + (initialValues.to_created_date ? initialValues.to_created_date : '??')
+      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY') : '??')
       list.push({
         key: 'created_date',
         name: 'Ngày tạo',
@@ -354,7 +354,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
-      let textTransferDate = (initialValues.from_transfer_date ? initialValues.from_transfer_date : '??') + " ~ " + (initialValues.to_transfer_date ? initialValues.to_transfer_date : '??')
+      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY') : '??')
       list.push({
         key: 'transfer_date',
         name: 'Ngày chuyển',
@@ -362,7 +362,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
-      let textReceiveDate = (initialValues.from_receive_date ? initialValues.from_receive_date : '??') + " ~ " + (initialValues.to_receive_date ? initialValues.to_receive_date : '??')
+      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY') : '??')
       list.push({
         key: 'receive_date',
         name: 'Ngày nhận',
