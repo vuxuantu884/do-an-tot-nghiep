@@ -5,7 +5,6 @@ import {
   Col,
   Collapse,
   Form,
-  FormInstance,
   Row,
   Space,
   Tag,
@@ -44,7 +43,7 @@ import {
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useHistory} from "react-router";
 import {setTimeout} from "timers";
@@ -57,13 +56,7 @@ import {
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
-import {
-  FulFillmentStatus,
-  MoneyPayThreePls,
-  OrderStatus,
-  PaymentMethodOption,
-  ShipmentMethodOption,
-} from "utils/Constants";
+import {FulFillmentStatus, OrderStatus, ShipmentMethodOption} from "utils/Constants";
 import {showError, showSuccess} from "utils/ToastUtils";
 import {delivery_service} from "../common/delivery-service";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
@@ -119,7 +112,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   const history = useHistory();
   // node dom
-  const formRefShipment = createRef<FormInstance>();
   const [form] = Form.useForm();
   // action
   const dispatch = useDispatch();
@@ -135,7 +127,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
   //   useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] = useState<boolean>(false);
-  const [requirementName, setRequirementName] = useState<string | null>(null);
   const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
   const [updateShipment, setUpdateShipment] = useState(false);
   const [cancelShipment, setCancelShipment] = useState(false);
@@ -144,13 +135,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-
-  const [hvc, setHvc] = useState<number | null>(null);
-  const [hvcCode, setHvcCode] = useState<string | null>(null);
-  const [hvcName, setHvcName] = useState<string | null>(null);
-  const [serviceType, setServiceType] = useState<string>();
-  const [serviceName, setServiceName] = useState<string>("");
-  const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
 
   const shipping_requirements = useSelector(
@@ -183,29 +167,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }, 100);
     clearTimeout(decWidth);
     navigator.clipboard.writeText(data ? data : "").then(() => {});
-  };
-  //#region Product
-  const ShipMethodOnChange = (value: number) => {
-    setShipmentMethod(value);
-    if (
-      props.OrderDetail !== null &&
-      value === ShipmentMethodOption.SELF_DELIVER &&
-      checkPaymentStatusToShow(props.OrderDetail) !== 1
-    ) {
-      props.setVisibleUpdatePayment(true);
-      setPaymentType(PaymentMethodOption.COD);
-    }
-
-    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      setPaymentType(PaymentMethodOption.COD);
-      props.setVisibleUpdatePayment(true);
-    }
-    if (
-      value === ShipmentMethodOption.PICK_AT_STORE ||
-      value === ShipmentMethodOption.DELIVER_LATER
-    ) {
-      props.setShippingFeeInformedCustomer(0);
-    }
   };
 
   //#endregion
@@ -539,7 +500,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
     value.expected_received_date = value.dating_ship?.utc().format();
-    value.requirements_name = requirementName;
+    let requirement = form.getFieldValue("requirements");
+    const reqObj = shipping_requirements?.find((r) => r.value === requirement);
+    value.requirements_name = reqObj?.name || null;
+
     value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
@@ -550,20 +514,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       }
 
       if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
-        value.delivery_service_provider_id = hvc;
+        value.delivery_service_provider_id = thirdPL.delivery_service_provider_id;
         value.delivery_service_provider_type = "external_service";
-        value.delivery_service_provider_code = hvcCode;
-        value.delivery_service_provider_name = hvcName;
+        value.delivery_service_provider_code = thirdPL.delivery_service_provider_code;
+        value.delivery_service_provider_name = thirdPL.delivery_service_provider_name;
         // delivery_transport_type = serviceName
-        value.delivery_transport_type = serviceName;
+        value.delivery_transport_type = thirdPL.delivery_transport_type;
         value.sender_address_id = props.OrderDetail.store_id;
-        value.service = serviceType!;
+        value.service = thirdPL.service;
         value.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
-        if (hvc === 1) {
-          value.shipping_fee_paid_to_three_pls = fee;
-        } else {
-          value.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE; //mặc định 20k
-        }
+        value.shipping_fee_paid_to_three_pls = thirdPL.shipping_fee_paid_to_three_pls;
       }
     }
     if (props.OrderDetail != null) {
