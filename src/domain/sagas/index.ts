@@ -31,6 +31,7 @@ import { settingOrderProcessingStatusSaga } from "./settings/order-processing-st
 import { settingOrdersSaga } from "./settings/order-settings.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
 import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
+import { moduleSaga } from "./auth/module.saga";
 
 function* rootSaga() {
   yield all([
@@ -65,7 +66,8 @@ function* rootSaga() {
     loyaltySaga(),
     ecommerceSaga(),
     OrderReturnSaga(),
-    GoodsReceiptsSaga()
+    GoodsReceiptsSaga(),
+    moduleSaga()
   ]);
 }
 
