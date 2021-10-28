@@ -7,6 +7,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -21,28 +22,28 @@ import {
   OrderItemModel,
   OrderModel,
   OrderPaymentModel,
-  OrderSearchQuery,
+  OrderSearchQuery
 } from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel,
+  OrderProcessingStatusResponseModel
 } from "model/response/order-processing-status.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import moment from "moment";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { delivery_service } from "./common/delivery-service";
 import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
-import { exportFile, getFile } from "service/other/export.service";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { HttpStatus } from "config/http-status.config";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 // import { fields_order, fields_order_standard } from "./common/fields.export";
 
 const actions: Array<MenuAction> = [
@@ -152,9 +153,24 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "ID đơn hàng",
       dataIndex: "code",
-      render: (value: string, i: OrderModel) => (
-        <Link  target="_blank"  to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-      ),
+      render: (value: string, i: OrderModel) => {
+        console.log('i', i)
+        return (
+          <React.Fragment>
+            <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>
+              {value}
+            </Link>
+            <div style={{fontSize: "0.86em"}}>
+              {moment(i.created_date).format("hh:mm DD-MM-YYYY")}
+            </div>
+            <div style={{fontSize: "0.86em", marginTop:5}}>
+              <Link target="_blank" to={`${UrlConfig.STORE}/${i?.store_id}`}>
+                {i.store}
+              </Link>
+            </div>
+          </React.Fragment>
+        )
+      },
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
@@ -260,7 +276,7 @@ const ListOrderScreen: React.FC = () => {
       key: "customer.amount_money",
       visible: true,
       align: "right",
-      width: "3.5%",
+      width: "90px",
     },
     {
       title: "HTVC",
@@ -376,7 +392,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 120,
+      width: 70,
     },
     {
       title: "Xuất kho",
@@ -391,7 +407,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 120,
+      width: 70,
     },
     {
       title: "Thanh toán",
@@ -418,7 +434,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 120,
+      width: 70,
     },
     {
       title: "Trả hàng",
@@ -445,7 +461,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 120,
+      width: 70,
     },
     {
       title: "Tổng SL sản phẩm",
@@ -458,6 +474,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
+      width: 70,
     },
     {
       title: "Khu vực",

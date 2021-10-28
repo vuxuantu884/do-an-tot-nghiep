@@ -37,6 +37,7 @@ export interface OrderModel {
   customer_phone_number: string;
   store_full_address: string;
   store: string;
+  store_id: number;
   source: string;
   status: string;
   sub_status: string | null;
