@@ -268,7 +268,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             </Col>
           </Row>
 
-          <Row gutter={24}>
+          {/* <Row gutter={24}>
             <Col md={24}>
               <Form.Item
                 label="ID đơn hàng"
@@ -310,7 +310,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                 </Select>
               </Form.Item>
             </Col>
-          </Row>
+          </Row> */}
 
           <Row gutter={24}>
             <Col md={24}>
