@@ -620,9 +620,9 @@ function* getListReasonSaga(action: YodyAction) {
 
 function* cancelOrderSaga(action: YodyAction) {
   yield put(showLoading());
-  let { id, onSuccess, onError } = action.payload;
+  let { id, reason_id, reason, onSuccess, onError } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(cancelOrderApi, id);
+    let response: BaseResponse<any> = yield call(cancelOrderApi, id, reason_id, reason);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Huỷ đơn hàng thành công!");

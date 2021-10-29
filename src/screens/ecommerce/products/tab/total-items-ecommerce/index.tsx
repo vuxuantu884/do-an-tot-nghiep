@@ -19,6 +19,7 @@ import BaseFilter from "component/filter/base.filter";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
+import UrlConfig from "config/url.config";
 import TotalItemActionColumn from "./TotalItemActionColumn";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -233,7 +234,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       title: "Sản phẩm (Yody)",
       visible: true,
       render: (l: any, v: any, i: any) => {
-        const link = `https://dev.yody.io/unicorn/admin/products/${l.core_product_id}/variants/${l.core_variant_id}`;
+        const link = `${UrlConfig.PRODUCT}/${l.core_product_id}/variants/${l.core_variant_id}`
         return (
           <StyledProductLink>
             <a href={link} rel="noreferrer" target="_blank">{l.core_variant}</a>
@@ -571,14 +572,15 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       let startDateValue = null;
       let endDateValue = null;
 
+
       switch (value) {
         case "today":
-          startDateValue = ConvertDateToUtc(moment().startOf("day"));
-          endDateValue = ConvertDateToUtc(moment().endOf("day"));
+          startDateValue = ConvertDateToUtc(moment());
+          endDateValue = ConvertDateToUtc(moment());
           break;
         case "yesterday":
-          startDateValue = ConvertDateToUtc(moment().startOf("day").subtract(1, "days"));
-          endDateValue = ConvertDateToUtc(moment().endOf("day").subtract(1, "days"));
+          startDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
+          endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
           startDateValue = ConvertDateToUtc(moment().startOf("week"));
@@ -615,8 +617,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   const onChangeRangeDate = useCallback((dates, dateString) => {
     setDateButtonSelected("");
-    const startDateUtc = ConvertDateToUtc(dates[0].startOf("day"));
-    const endDateUtc = ConvertDateToUtc(dates[1].endOf("day"));
+    const startDateUtc = dates[0].utc().format();
+    const endDateUtc = dates[1].utc().format();
     setConnectionStartDate(startDateUtc);
     setConnectionEndDate(endDateUtc);
   }, []);
@@ -895,10 +897,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                   style={{ width: "100%" }}
                   value={[
                     connectionStartDate
-                      ? moment(ConvertUtcToLocalDate(connectionStartDate), "DD-MM-YYYY")
+                      ? moment(new Date(connectionStartDate), "DD-MM-YYYY")
                       : null,
                     connectionEndDate
-                      ? moment(ConvertUtcToLocalDate(connectionEndDate), "DD-MM-YYYY")
+                      ? moment(new Date(connectionEndDate), "DD-MM-YYYY")
                       : null,
                   ]}
                   onChange={(date, dateString) =>

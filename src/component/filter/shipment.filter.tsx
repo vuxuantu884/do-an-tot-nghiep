@@ -305,7 +305,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     (values) => {
       let error = false;
       formRef?.current?.getFieldsError([
-        'created_on_min', 'created_on_max',
+        'packed_on_min', 'packed_on_max',
+        'ship_on_min', 'ship_on_max',
+        'exported_on_min', 'exported_on_max',
+        'cancelled_on_min', 'cancelled_on_max',
         'received_on_min', 'received_on_max'
       ]).forEach(field => {
         if (field.errors.length) {
@@ -874,7 +877,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col  span={12} xxl={8}>
                 <p>Lý do huỷ giao</p>
                 <Item name="cancel_reason">
-                <Select
+                  <Select
                     mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children" showArrow maxTagCount='responsive'
