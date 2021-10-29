@@ -308,17 +308,17 @@ const PromotionDetailScreen: React.FC = () => {
                   }}>
                     <div className="card-discount-code" onClick={() => setShowAddCodeManual(true)}>
                       <img style={{ background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)" }} src={VoucherIcon} alt="" />
-                      <p>Thêm mã thủ công</p>
+                      <p style={{fontWeight: 500}}>Thêm mã thủ công</p>
                       <p>Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã nhiều lần</p>
                     </div>
                     <div className="card-discount-code" onClick={() => setShowAddCodeRandom(true)}>
                       <img style={{ background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)" }} src={AddListCouponIcon} alt="" />
-                      <p>Thêm mã ngẫu nhiên</p>
+                      <p style={{fontWeight: 500}}>Thêm mã ngẫu nhiên</p>
                       <p>Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho mỗi khách hàng 1 mã</p>
                     </div>
                     <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
                       <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
-                      <p>Nhập file Excel</p>
+                      <p style={{fontWeight: 500}}>Nhập file Excel</p>
                       <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
                       <Link to="">Tải file mẫu</Link>
                     </div>
