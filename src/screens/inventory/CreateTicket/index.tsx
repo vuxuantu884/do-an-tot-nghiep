@@ -145,18 +145,24 @@ const CreateTicket: FC = () => {
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
-    
     if (value) {
       const from_store_id = form.getFieldValue("from_store_id");
       const to_store_id = form.getFieldValue("to_store_id");
 
       if (from_store_id === to_store_id) {
-        callback(`Kho gửi không được trùng với kho nhận`);
+        callback(`Kho gửi và kho nhận không được trùng nhau`);
       } else {
-        callback();
+        form.setFields([
+          {
+            name: "to_store_id",
+            errors: []
+          },
+          {
+            name: "from_store_id",
+            errors: []
+          }
+        ])
       }
-    } else {
-      callback();
     }
   };
 
@@ -176,7 +182,7 @@ const CreateTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -208,7 +214,7 @@ const CreateTicket: FC = () => {
         (variant: VariantResponse) => variant.id === selectedItem.id
       )
     ) {
-      setDataTable((prev: any) => prev.concat([selectedItem]));
+      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 0}]));
     }
   };
 
@@ -860,6 +866,7 @@ const CreateTicket: FC = () => {
             <PickManyProductModal
               storeID={form.getFieldValue("from_store_id")}
               selected={[]}
+              isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
               visible={visibleManyProduct}

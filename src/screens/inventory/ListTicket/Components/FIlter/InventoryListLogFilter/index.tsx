@@ -114,8 +114,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
-          setIsFromCreatedDate(dateString[0])
-          setIsToCreatedDate(dateString[1])
+          setIsFromCreatedDate(moment(dateString[0], 'DD-MM-YYYY'))
+          setIsToCreatedDate(moment(dateString[1], 'DD-MM-YYYY'))
           break;
         default: break
       }

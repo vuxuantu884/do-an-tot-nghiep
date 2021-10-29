@@ -134,7 +134,7 @@ const DetailTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -880,11 +880,11 @@ const DetailTicket: FC = () => {
                             />
                           </div>
                           <div className="shipment-detail">
-                            Mã vận đơn: <span>{data?.shipment?.order_code}</span>
+                            Mã vận đơn: <span>{data?.shipment?.tracking_code}</span>
                             <CopyOutlined style={{color: "#71767B"}}
                               onClick={() => {
                                 showSuccess('Đã copy');
-                                copy(data.shipment.order_code);
+                                copy(data.shipment.tracking_code);
                               }} 
                             />
                           </div>
@@ -1164,6 +1164,7 @@ const DetailTicket: FC = () => {
         }
         {visibleManyProduct && (
           <PickManyProductModal
+            isTransfer
             storeID={data?.from_store_id}
             selected={[]}
             onSave={onPickManyProduct}

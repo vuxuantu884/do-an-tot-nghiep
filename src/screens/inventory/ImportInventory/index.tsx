@@ -343,6 +343,7 @@ const UpdateTicket: FC = () => {
             title="Nhập file"
             visible={isStatusModalVisible}
             centered
+            onCancel={() => {setIsStatusModalVisible(false)}}
             footer={[
               <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
                 Huỷ
