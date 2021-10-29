@@ -251,11 +251,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   const event = useCallback((event:KeyboardEvent)=>{
     if (event.target instanceof HTMLBodyElement) {
-      //console.log(event.key);
       if (event.key !== "Enter") {
           barcode = barcode + event.key;
       } else if (event.key === "Enter") {
-          if (barcode !== "" && event &&  orderConfig?.allow_choose_item && items && storeId) {
+          if (barcode !== "" && event && items && storeId) {
               console.log(barcode);
               dispatch(
                 SearchBarCode(barcode, (data: VariantResponse) => {
@@ -306,7 +305,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
       return;
     }
-  },[]);
+  },[items]);
 
   useEffect(() => {
     window.addEventListener("keypress", event);
