@@ -1,4 +1,4 @@
-import { Button, Card, Col, Image, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Row, Space, Tag } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -8,13 +8,19 @@ import {
 } from "domain/actions/product/products.action";
 import { ProductResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation, useParams } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { Link } from "react-router-dom";
-import VoucherIcon from "assets/icon/voucher.svg";
-import AddImportCouponIcon from "assets/icon/add_import_coupon_code.svg";
-import AddListCouponIcon from "assets/icon/add_list_coupon_code.svg";
+import VoucherIcon from "assets/img/voucher.svg";
+import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
+import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
+import CloseIcon from "assets/icon/x-close-red.svg";
+import UserIcon from "assets/icon/user-icon.svg";
+import DiscountIcon from "assets/icon/discount.svg";
+import "../promotion-code.scss";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import ModalAddCode from "../components/ModalAddCode";
 
 export interface ProductParams {
   id: string;
@@ -45,7 +51,9 @@ const PromotionDetailScreen: React.FC = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  const [active, setActive] = useState<number>(0);
+  const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
+  const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
+  const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<ProductResponse | null>(null);
   
   const idNumber = parseInt(id);
@@ -61,29 +69,6 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
-  const currentVariant = useMemo(() => {
-    if (data && data.variants.length > 0) {
-      return data.variants[active];
-    }
-    return null;
-  }, [active, data]);
-
-  const productStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.product_status
-  );
-
-  const statusValue = useMemo(() => {
-    if (!productStatusList) {
-      return "";
-    }
-    let index = productStatusList?.findIndex(
-      (item) => item.value === data?.status
-    );
-    if (index !== -1) {
-      return productStatusList?.[index].name;
-    }
-    return "";
-  }, [data?.status, productStatusList]);
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -149,7 +134,7 @@ const PromotionDetailScreen: React.FC = () => {
       return details;
     }
   }, [promotion]);
-
+ 
   const timeApply = [
     {
       name: "Từ",
@@ -194,21 +179,9 @@ const PromotionDetailScreen: React.FC = () => {
               <Card
                 className="card"
                 title={
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{alignItems: "center" }}>
                     <span className="title-card">THÔNG TIN CÁ NHÂN</span>
-                    <Tag
-                      className="orders-tag"
-                      style={{
-                        marginLeft: 10,
-                        backgroundColor: "#27AE60",
-                        color: "#ffffff",
-                        fontSize: 12,
-                        fontWeight: 400,
-                        marginBottom: 6,
-                      }}
-                    >
-                      Đang áp dụng
-                    </Tag>
+                    <Tag className="status-tag"> Đang áp dụng </Tag>
                   </div>
                 }
               >
@@ -289,27 +262,22 @@ const PromotionDetailScreen: React.FC = () => {
                         ))}
                   </Col>
                 </Row>
-                <hr style={{
-                    margin: "18px 0",
-                    borderBottom: "1px solid #E5E5E5",
-                    borderTop: "none",
-                  }}/>
+                <hr />
                 <Row gutter={30}>
-                  <Col span={24} > 
-                    <span>Không được áp dụng chung với các khuyến mại khác</span>
+                  <Col span={24}> 
+                    <img src={CloseIcon} alt="" />
+                    <span style={{marginLeft: 14}}>Không được áp dụng chung với các khuyến mại khác</span>
                   </Col>
                   <Col span={24} style={{marginTop: 15}}>
-                    <span>Khách hàng không bị giới hạn số lần sử dụng mã</span>
+                    <img src={UserIcon} alt="" />
+                    <span style={{marginLeft: 14}}>Khách hàng không bị giới hạn số lần sử dụng mã</span>
                   </Col>
                   <Col span={24} style={{marginTop: 15}}>
-                    <span>Mỗi mã được sử dụng 1 lần</span>
+                    <img src={DiscountIcon} alt="" />
+                    <span style={{marginLeft: 14}}>Mỗi mã được sử dụng 1 lần</span>
                   </Col>
                 </Row>
-                <hr style={{
-                    margin: "18px 0",
-                    borderBottom: "1px solid #E5E5E5",
-                    borderTop: "none",
-                }}/>
+                <hr />
                 <Row gutter={30}>
                   <Col span={24} style={{textAlign: "right"}}>
                     <Link to={``}>
@@ -321,7 +289,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Card
                 className="card"
                 title={
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ alignItems: "center" }}>
                     <span className="title-card">Mã giảm giá</span>
                   </div>
                 }
@@ -337,69 +305,30 @@ const PromotionDetailScreen: React.FC = () => {
                   <Col span="24" style={{
                     display: "flex",
                     gap: 15,
-                }}>
-                      <div style={{
-                        backgroundColor: "#F5F5F5",
-                        borderRadius: "10px",
-                        width: "100%",
-                        height: "216px",
-                        padding: "15px 13px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}>
-                        <img style={{ 
-                          marginBottom: "11px",
-                          background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
-                          borderRadius: "50%",
-                      }} src={VoucherIcon} alt="" />
-                        <p>Thêm mã thủ công</p>
-                        <p>Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã nhiều lần</p>
-                      </div>
-                      <div style={{
-                        backgroundColor: "#F5F5F5",
-                        borderRadius: "10px",
-                        width: "100%",
-                        height: "216px",
-                        padding: "15px 13px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}>
-                        <img style={{ 
-                          marginBottom: "11px",
-                          background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
-                          borderRadius: "50%",
-                      }} src={AddListCouponIcon} alt="" />
-                        <p>Thêm mã ngẫu nhiên</p>
-                        <p>Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho mỗi khách hàng 1 mã</p>
-                      </div>
-                      <div style={{
-                        backgroundColor: "#F5F5F5",
-                        borderRadius: "10px",
-                        width: "100%",
-                        height: "216px",
-                        padding: "15px 13px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}>
-                        <img style={{ 
-                          marginBottom: "11px",
-                          background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
-                          borderRadius: "50%",
-                      }} src={AddImportCouponIcon} alt="" />
-                        <p>Nhập file Excel</p>
-                        <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
-                        <Link to="">Tải file mẫu</Link>
-                      </div>
+                  }}>
+                    <div className="card-discount-code" onClick={() => setShowAddCodeManual(true)}>
+                      <img style={{ background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)" }} src={VoucherIcon} alt="" />
+                      <p>Thêm mã thủ công</p>
+                      <p>Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã nhiều lần</p>
+                    </div>
+                    <div className="card-discount-code" onClick={() => setShowAddCodeRandom(true)}>
+                      <img style={{ background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)" }} src={AddListCouponIcon} alt="" />
+                      <p>Thêm mã ngẫu nhiên</p>
+                      <p>Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho mỗi khách hàng 1 mã</p>
+                    </div>
+                    <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+                      <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
+                      <p>Nhập file Excel</p>
+                      <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
+                      <Link to="">Tải file mẫu</Link>
+                    </div>
                   </Col>
                 </Row>
               </Card>
               <Card
                 className="card"
                 title={
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ alignItems: "center" }}>
                     <span className="title-card">Điều kiện mua hàng</span>
                   </div>
                 }
@@ -554,6 +483,42 @@ const PromotionDetailScreen: React.FC = () => {
           </Space>
           
         }
+      />
+      <ModalAddCode
+        visible={showAddCodeManual}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã thủ công"
+        onCancel={() => {
+          setShowAddCodeManual(false);
+        }}
+        onOk={() => {
+          setShowAddCodeManual(false);
+        }}
+      />
+      <ModalAddCode
+        visible={showAddCodeRandom}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã ngẫu nhiên"
+        onCancel={() => {
+          setShowAddCodeRandom(false);
+        }}
+        onOk={() => {
+          setShowAddCodeRandom(false);
+        }}
+      />
+      <ModalAddCode
+        visible={showImportFile}
+        okText="Nhập file"
+        cancelText="Huỷ"
+        title="Nhập file mã giảm giá"
+        onCancel={() => {
+          setShowImportFile(false);
+        }}
+        onOk={() => {
+          setShowImportFile(false);
+        }}
       />
     </ContentContainer>
   );
