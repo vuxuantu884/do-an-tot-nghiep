@@ -29,7 +29,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
       width={600}
     >
        <div>
-        <Form.Item label="Chọn lý do" labelCol={{span: 4}}>
+        <Form.Item label="Chọn lý do" labelCol={{span: 4}} style={{alignItems:"center"}}>
           <CustomSelect
             showSearch placeholder="Chọn lý do huỷ đơn"
             notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
@@ -52,7 +52,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
         <Form.Item label="Lý do khác" labelCol={{span: 4}}>
           <Input.TextArea
             onChange={(e) => setReason(e.target.value)}
-            style={{ width: "100%", height: '40px' }}
+            style={{ width: "100%", height: '80px' }}
             placeholder="Nhập lý do huỷ đơn hàng"
           />
         </Form.Item>)}

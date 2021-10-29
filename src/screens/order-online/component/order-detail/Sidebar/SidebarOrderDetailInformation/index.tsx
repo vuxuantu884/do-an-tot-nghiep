@@ -152,6 +152,26 @@ function SidebarOrderDetailInformation(props: PropType) {
             )}
           </Col>
         </Row>
+        <Row gutter={5}>
+          <Col span={10}>Tham chiếu:</Col>
+          <Col span={14} style={{wordWrap: "break-word"}}>
+            {OrderDetail?.url ? (
+              <a href={OrderDetail?.url}>{OrderDetail?.reference}</a>
+            ) : (
+              <span className="text-focus">-</span>
+            )}
+          </Col>
+        </Row>
+        {OrderDetail?.reason_name && (
+          <Row gutter={5}>
+            <Col span={10}>Lý do huỷ:</Col>
+            <Col span={14}>
+              <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
+                {OrderDetail?.reason_name}
+              </span>
+            </Col>
+          </Row>
+        )}
         {renderSplitOrder()}
       </Card>
     </StyledComponent>

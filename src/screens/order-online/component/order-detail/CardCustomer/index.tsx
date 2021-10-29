@@ -78,9 +78,9 @@ type CustomerCardProps = {
   levelOrder?: number;
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
-  shippingAddress:ShippingAddress|any;
-  setModalAction:(item:modalActionType)=>void;
-  modalAction:modalActionType;
+  shippingAddress: ShippingAddress | any;
+  setModalAction: (item: modalActionType) => void;
+  modalAction: modalActionType;
 };
 
 //Add query for search Customer
@@ -149,7 +149,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const autoCompleteRef = useRef<any>(null);
   const autoCompleteElement: any = document.getElementById("search_customer");
 
-  const [timeRef, setTimeRef] = React.useState<any>();
+  //const [timeRef, setTimeRef] = React.useState<any>();
   const [typingTimer, setTypingTimer] = useState(0);
 
   //#region Modal
@@ -257,18 +257,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const CustomerChangeSearch = useCallback(
     (value) => {
-      clearTimeout(timeRef);
+      // clearTimeout(timeRef);
+      // setKeySearchCustomer(value);
+      // setSearchCustomer(true);
+      // let time = setTimeout(() => {
+      //   initQueryCustomer.request = value.trim();
+      //   dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+      //   setSearchCustomer(false);
+      // }, typingTimer);
+      // setTimeRef(time);
+      // setTypingTimer(3000);
+
       setKeySearchCustomer(value);
       setSearchCustomer(true);
-      let time = setTimeout(() => {
-        initQueryCustomer.request = value.trim();
-        dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
-        setSearchCustomer(false);
-      }, typingTimer);
-      setTimeRef(time);
-      setTypingTimer(3000);
+      initQueryCustomer.request = value.trim();
+      dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
+      setSearchCustomer(false);
     },
-    [dispatch, timeRef, typingTimer, setTypingTimer]
+    [dispatch, typingTimer, setTypingTimer]
   );
 
   //Render result search
@@ -556,11 +562,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 <a
                   className="customer-detail-text text-body primary"
                   style={{ color: "#5656A2" }}
-                  href={`tel:${
-                    customer?.phone === undefined
+                  href={`tel:${customer?.phone === undefined
                       ? "0987654321"
                       : customer?.phone
-                  }`}
+                    }`}
                 >
                   {" "}
                   {customer?.phone === undefined
@@ -633,7 +638,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               />
             )}
 
-            {modalAction === CONSTANTS.MODAL_ACTION_TYPE.edit && customer!==null && (
+            {modalAction === CONSTANTS.MODAL_ACTION_TYPE.edit && customer !== null && (
               <UpdateCustomer
                 levelOrder={levelOrder}
                 areas={areas}
