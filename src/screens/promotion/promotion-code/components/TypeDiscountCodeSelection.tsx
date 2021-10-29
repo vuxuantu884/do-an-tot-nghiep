@@ -4,10 +4,10 @@ import "../promotion-code.scss";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import CustomInput from "component/custom/custom-input";
 
 const FixedPriceSelection = (props: any) => {
   const {form} = props;
+  const [typeUnit, setTypeUnit] = useState("PERCENT")
 
   return (
     <Col span={24}>
@@ -16,7 +16,6 @@ const FixedPriceSelection = (props: any) => {
           <Form.Item
             required
             label="Giá trị khuyến mại:"
-            
           >
             <Input.Group compact>
               <Form.Item
@@ -34,7 +33,7 @@ const FixedPriceSelection = (props: any) => {
                   replace={(a) => replaceFormatString(a)}
                   maxLength={6}
                   isFloat
-                  placeholder="Giá trị khuyến mại"
+                  placeholder=" "
                   style={{ width: "calc(100% - 70px)" }}
                 />
               </Form.Item>
@@ -42,51 +41,77 @@ const FixedPriceSelection = (props: any) => {
                 <Select
                   placeholder="Đơn vị"
                   style={{ width: "70px" }}
-                  value="%"
+                  defaultValue={"PERCENT"}
+                  onChange={(value: string) => setTypeUnit(value)}
                 >
-                  <Select.Option key='percent' value="%">
-                      {"%"}
-                  </Select.Option>
+                  <Select.Option key='percent' value="PERCENT"> {"%"} </Select.Option>
+                  <Select.Option key='percent' value="VND"> {"đ"} </Select.Option>
                 </Select>
               </Form.Item>
             </Input.Group>
           </Form.Item>
         </Col>
         <Col span={8}>
-          <CustomInput
-            name="discount_code"
-            label="Mỗi mã được sử dụng:"
-            form={form}
-            message="Vui lòng mã được sử dụng"
-            placeholder="Nhập mã được sử dụng"
-            maxLength={255}
+        <Form.Item label="Mỗi mã được sử dụng:">
+          <NumberInput
+            style={{
+              textAlign: "right",
+              width: "100%",
+              color: "#222222",
+            }}
+            maxLength={999999999999}
+            minLength={0}
+            // value={}
           />
+        </Form.Item>
         </Col>
         <Col span={5}>
-          <Checkbox> Không giới hạn </Checkbox>
+          <Form.Item label=" ">
+            <Checkbox> Không giới hạn </Checkbox>
+          </Form.Item>
         </Col>
       </Row>
       <Row gutter={30}>
         <Col span={11}>
+        <Form.Item label="Tối đa:">
+          <NumberInput
+            style={{
+              textAlign: "right",
+              width: "15%",
+              color: "#222222",
+            }}
+            maxLength={999999999999}
+            minLength={0}
+            disabled={typeUnit !== "PERCENT"}
+            // value={}
+          />
+          </Form.Item>
         </Col>
         <Col span={8}>
-          <CustomInput
-            name="discount_code"
-            label="Mỗi khách được sử dụng tối đa:"
-            form={form}
-            message="Vui lòng nhập khách được sử dụng tối đa"
-            placeholder="Nhập khách được sử dụng tối đa"
-            maxLength={255}
+        <Form.Item label="Mỗi khách được sử dụng tối đa:">
+          <NumberInput
+            style={{
+              textAlign: "right",
+              width: "100%",
+              color: "#222222",
+            }}
+            minLength={0}
+            // value={}
           />
+        </Form.Item>
         </Col>
         <Col span={5}>
-          <Checkbox> Không giới hạn </Checkbox>
+        <Form.Item label=" ">
+            <Checkbox> Không giới hạn </Checkbox>
+          </Form.Item>
         </Col>
       </Row>
       <hr />
       <Row gutter={30} style={{padding: "20px 16px 0"}}>
-        <Checkbox> Áp dụng chung với các mã khuyến mại khác&nbsp;
-          <Tooltip title="Áp dụng chung với các mã khuyến mại khác"> <InfoCircleOutlined /> </Tooltip> 
+        <Checkbox> Áp dụng chung với các mã khuyến mại khác&nbsp;&nbsp;
+          <Tooltip title="Bao gồm chiết khấu khách hàng, chiết khấu tích điểm, chiết khấu tự nhập cho đơn hàng và chương trình khuyến mãi">
+            <InfoCircleOutlined /> 
+          </Tooltip> 
         </Checkbox>
       </Row>
     </Col>

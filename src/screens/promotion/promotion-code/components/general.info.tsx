@@ -13,6 +13,7 @@ import CustomSelect from "component/custom/select.custom";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { ColumnsType } from "antd/es/table/interface";
 import { AiOutlineClose } from "react-icons/ai";
+import NumberInput from "component/custom/number-input.custom";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -28,7 +29,7 @@ const GeneralInfo = (props: any) => {
   const [allSource, setAllSource] = useState(false)
   const [allCustomer, setAllCustomer] = useState(false)
   const [disabledEndDate, setDisabledEndDate] = useState(false)
-  const [type, setType] = useState("SALE_CODE")
+  const [type, setType] = useState("")
   const [product, setProduct] = useState<string>("")
   const [dataTableProduct, setDataTableProduct] = useState<Array<any> | any>([] as Array<any>);
   const [dataTableProductCate, setDataTableProductCate] = useState<Array<any> | any>([] as Array<any>);
@@ -179,7 +180,7 @@ const GeneralInfo = (props: any) => {
                 name="title"
                 label={<b>Tên đợt phát hàng: </b>}
                 form={form}
-                message="Vui lòng nhập tên đợt phát hàng"
+                message="Cần nhập tên khuyên mại"
                 placeholder="Nhập tên đợt phát hàng"
                 isRequired={true}
                 maxLength={255}
@@ -192,7 +193,7 @@ const GeneralInfo = (props: any) => {
                 form={form}
                 message="Vui lòng nhập mã đợt phát hàng"
                 placeholder="Nhập mã đợt phát hàng"
-                maxLength={255}
+                maxLength={20}
               />
             </Col>
             <Col span={24}>
@@ -202,6 +203,7 @@ const GeneralInfo = (props: any) => {
                 label={<b>Mô tả: </b>}
                 form={form}
                 placeholder="Nhập mô tả cho đợt phát hàng"
+                maxLength={500}
               />
             </Col>
           </Row>
@@ -213,7 +215,11 @@ const GeneralInfo = (props: any) => {
                 name="sale_type"
                 label={<b>Loại khuyến mãi</b>}
               >
-                <Select defaultValue={"SALE_CODE"} onChange={(value) => setType(value)}>
+                <Select 
+                  showArrow
+                  placeholder="Chọn loại mã khuyến mãi"
+                  onChange={(value: string) => setType(value)}
+                >
                   <Option value={"SALE_CODE"}>Mã giảm giá</Option>
                   <Option value={"GIFT_CODE"}>Mã quà tặng</Option>
                 </Select>
@@ -234,7 +240,15 @@ const GeneralInfo = (props: any) => {
           <Row gutter={30}>
             <Col span={12}>
               <Form.Item name="mobile" label="Đơn hàng có giá trị từ:">
-                <Input />
+                <NumberInput
+                  style={{
+                    textAlign: "right",
+                    width: "100%",
+                    color: "#222222",
+                  }}
+                  minLength={0}
+                  // value={}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -243,6 +257,7 @@ const GeneralInfo = (props: any) => {
                 label={<b>Áp dụng cho:</b>}
               >
                 <Select defaultValue="" onChange={(value) => setProduct(value)}>
+                <Option value={"CHOOSE_OPTION"}>Chọn điều kiện</Option>
                   <Option value={"PRODUCT"}>Sản phẩm</Option>
                   <Option value={"CATEGORY_PRODUCT"}>Danh mục sản phẩm</Option>
                 </Select>
@@ -260,7 +275,9 @@ const GeneralInfo = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Checkbox> Tất cả sản phẩm </Checkbox>
+                  <Form.Item>
+                    <Checkbox> Tất cả sản phẩm </Checkbox>
+                  </Form.Item>
                 </Col>
                 <Col span={24}>
                   <Table
