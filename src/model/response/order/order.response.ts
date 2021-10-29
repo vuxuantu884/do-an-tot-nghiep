@@ -106,6 +106,7 @@ export interface OrderLineItemResponse {
   discount_amount: number;
   position?: number;
   gifts: Array<OrderLineItemResponse>;
+  available:number|null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {

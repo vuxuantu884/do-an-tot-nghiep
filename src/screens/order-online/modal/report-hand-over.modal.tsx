@@ -2,11 +2,12 @@ import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useCallback, useContext, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
 
 import { Input } from "antd";
+import { createGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
 const { TextArea } = Input;
 
 type ReportHandOverModalProps = {
@@ -24,10 +25,16 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
     (state: RootReducerType) => state.userReducer
   );
 
+  const dispatch = useDispatch();
+  const [goodsReceiptsForm] = Form.useForm();
+
   const orderPackContextData = useContext(OrderPackContext);
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
+  const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
+  const listSourcesEcommerce=orderPackContextData.listSourcesEcommerce;
+  const data=orderPackContextData.data;
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
@@ -61,21 +68,40 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
     },
   ];
 
-  console.log("orderPackContextData", orderPackContextData);
+  const onOk=()=>{
+    goodsReceiptsForm.submit();
+  }
+
+  const handSubmit = useCallback((value:any) => {
+    let codes: any[] = [];
+    
+    data.items.forEach(function (i: any) {
+      codes.push(i.code);
+    });
+
+    let param={
+      ...value,
+      codes:codes
+    }
+    dispatch(createGoodsReceipts(param, (value:any)=>{
+      console.log("Goods",value)
+    }));
+  },[dispatch, data])
+
   return (
     <>
       <Modal
         title="Tạo biên bản bàn giao"
         visible={visible}
-        onOk={handleOk}
+        onOk={onOk}
         onCancel={handleCancel}
       >
-        <Form layout="vertical" ref={formRef}>
+        <Form layout="vertical" form={goodsReceiptsForm} ref={formRef} onFinish={handSubmit}>
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item
                 label="Cửa hàng"
-                name=""
+                name="store_id"
                 rules={[
                   {
                     required: true,
@@ -117,7 +143,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Hãng vận chuyển"
-                name=""
+                name="hvc"
                 rules={[
                   {
                     required: true,
@@ -160,7 +186,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Loại biên bản"
-                name=""
+                name="receipt_type_id"
                 rules={[
                   {
                     required: true,
@@ -189,7 +215,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {testAraay.map((item, index) => (
+                  {listGoodsReceipts.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -203,7 +229,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Biên bản sàn"
-                name=""
+                name="ecommerce_id"
                 rules={[
                   {
                     required: true,
@@ -232,7 +258,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {testAraay.map((item, index) => (
+                  {listSourcesEcommerce.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -242,11 +268,55 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             </Col>
           </Row>
 
+          {/* <Row gutter={24}>
+            <Col md={24}>
+              <Form.Item
+                label="ID đơn hàng"
+                name="codes"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn kiểu biên bản",
+                  },
+                ]}
+              >
+                <Select
+                  className="select-with-search"
+                  showSearch
+                  allowClear
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Chọn ID đơn hàng/ Mã hãng vận chuyển"
+                  notFoundContent="Không tìm thấy kết quả"
+                  onChange={(value?: number) => {
+                    console.log(value);
+                  }}
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return (
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }
+                    return false;
+                  }}
+                >
+                  {testAraay.map((item, index) => (
+                    <Select.Option key={index.toString()} value={item.id}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row> */}
+
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item
                 label="Mô tả:"
-                name=""
+                name="description"
                 rules={[
                   {
                     required: true,

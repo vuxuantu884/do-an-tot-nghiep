@@ -1,4 +1,5 @@
-import { Button, Col, Drawer, Row, Space } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Button, Drawer, Row, Space } from "antd";
 import { Scrollbars } from "react-custom-scrollbars";
 
 type BaseFilterProps = {
@@ -26,17 +27,15 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       visible={visible}
       className={className}
       footer={
-        <Row gutter={10}>
-          <Col md={24}>
-            <Space direction="vertical" style={footerStyle || {width: "100%"}} >
-              <Button onClick={onFilter} type="primary" block>
-                {confirmButtonTitle || "Lọc"}
-              </Button>
-              <Button onClick={onClearFilter} block>
-                {deleteButtonTitle || "Xoá bộ lọc"}
-              </Button>
-            </Space>
-          </Col>
+        <Row style={footerStyle} justify="end">
+          <Space size="middle">
+            <Button style={{ color: '#E24343'}} icon={<DeleteOutlined />} onClick={onClearFilter}>
+              {deleteButtonTitle || "Xoá bộ lọc"}
+            </Button>
+            <Button onClick={onFilter} type="primary">
+              {confirmButtonTitle || "Áp dụng bộ lọc"}
+            </Button>
+          </Space>
         </Row>
       }
     >

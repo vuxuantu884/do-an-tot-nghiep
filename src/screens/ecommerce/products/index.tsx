@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Card, Tabs, Button, Modal } from "antd";
+import { Tabs, Button, Modal } from "antd";
 import { DownloadOutlined } from "@ant-design/icons"
 
 import { PageResponse } from "model/base/base-metadata.response";
@@ -15,7 +15,6 @@ import UpdateProductDataModal from "./component/UpdateProductDataModal";
 
 import {
   postProductEcommerceList,
-  getCategoryList,
   getProductEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
 
@@ -24,6 +23,21 @@ import checkCircleIcon from "assets/icon/check-circle.svg";
 import { StyledComponent } from "./styles";
 
 const { TabPane } = Tabs;
+
+const PRODUCT_TAB = {
+  total: {
+    title: "Tất cả sản phẩm",
+    key: "total-item"
+  },
+  connected: {
+    title: "Sản phẩm đã ghép",
+    key: "connected-item"
+  },
+  notConnected: {
+    title: "Sản phẩm chưa ghép",
+    key: "not-connected-item"
+  }
+}
 
 const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
@@ -37,7 +51,6 @@ const Products: React.FC = () => {
   const [itemsUpdated, setItemsUpdated] = useState(0);
   const [itemsNotConnected, setItemsNotConnected] = useState(0);
 
-  const [categoryList, setCategoryList] = useState<Array<any>>([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [variantData, setVariantData] = useState<PageResponse<any>>({
     metadata: {
@@ -53,13 +66,12 @@ const Products: React.FC = () => {
     limit: 30,
     ecommerce_id: null,
     shop_ids: [],
-    category_id: null,
     connect_status: null,
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    create_time_from: null,
-    create_time_to: null,
+    connected_date_from: null,
+    connected_date_to: null,
   });
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
@@ -74,36 +86,22 @@ const Products: React.FC = () => {
     dispatch(getProductEcommerceList(queryRequest, updateVariantData));
   }, [dispatch, updateVariantData]);
 
-  const updateCategoryData = useCallback((result) => {
-    if (!!result && result.items) {
-      setCategoryList(result.items);
-    }
-  }, []);
-
-  useEffect(() => {
-    setTableLoading(true);
-    dispatch(getProductEcommerceList(query, updateVariantData));
-    dispatch(getCategoryList({}, updateCategoryData));
-  }, [dispatch, updateCategoryData, query, updateVariantData]);
-
   useEffect(() => {
     const requestQuery = { ...query };
-
-    if (history.location.hash) {
-      switch (history.location.hash) {
-        case "#total-item":
-          requestQuery.connect_status = null;
-          setActiveTab("total-item");
-          break;
-        case "#connected-item":
-          requestQuery.connect_status = "connected";
-          setActiveTab("connected-item");
-          break;
-        case "#not-connected-item":
-          requestQuery.connect_status = "waiting";
-          setActiveTab("not-connected-item");
-          break;
-      }
+    switch (history.location.hash) {
+      case "#total-item":
+        requestQuery.connect_status = null;
+        setActiveTab(PRODUCT_TAB.total.key);
+        break;
+      case "#connected-item":
+        requestQuery.connect_status = "connected";
+        setActiveTab(PRODUCT_TAB.connected.key);
+        break;
+      case "#not-connected-item":
+        requestQuery.connect_status = "waiting";
+        setActiveTab(PRODUCT_TAB.notConnected.key);
+        break;
+      default: break;
     }
 
     getProductUpdated(requestQuery);
@@ -177,39 +175,35 @@ const Products: React.FC = () => {
           </>
         }
       >
-        <Card>
-          <Tabs
-            activeKey={activeTab}
-            onChange={(active) => { handleOnchangeTab(active) }}
-          >
-            <TabPane tab="Tất cả sản phẩm" key="total-item">
-              <TotalItemsEcommerce
-                tableLoading={tableLoading}
-                categoryList={categoryList}
-                variantData={variantData}
-                getProductUpdated={getProductUpdated}
-              />
-            </TabPane>
-
-            <TabPane tab="Sản phẩm đã ghép" key="connected-item">
-              <ConnectedItems
-                tableLoading={tableLoading}
-                categoryList={categoryList}
-                variantData={variantData}
-                getProductUpdated={getProductUpdated}
-              />
-            </TabPane>
-
-            <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
-              <NotConnectedItems
-                tableLoading={tableLoading}
-                categoryList={categoryList}
-                variantData={variantData}
-                getProductUpdated={getProductUpdated}
-              />
-            </TabPane>
-          </Tabs>
-        </Card>
+        <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
+          <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
+          <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
+          <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
+        </Tabs>
+        
+        {activeTab === PRODUCT_TAB.total.key &&
+          <TotalItemsEcommerce
+            tableLoading={tableLoading}
+            variantData={variantData}
+            getProductUpdated={getProductUpdated}
+          />
+        }
+        
+        {activeTab === PRODUCT_TAB.connected.key &&
+          <ConnectedItems
+            tableLoading={tableLoading}
+            variantData={variantData}
+            getProductUpdated={getProductUpdated}
+          />
+        }
+        
+        {activeTab === PRODUCT_TAB.notConnected.key &&
+          <NotConnectedItems
+            tableLoading={tableLoading}
+            variantData={variantData}
+            getProductUpdated={getProductUpdated}
+          />
+        }
       </ContentContainer>
 
       {isShowGetProductModal &&

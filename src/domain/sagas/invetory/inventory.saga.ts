@@ -89,14 +89,14 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
   const { variant_id, store_id, setData } = action.payload;
   try {
     console.log(variant_id)
-    const response: BaseResponse<Array<InventoryResponse>> = yield call(
+    const response: BaseResponse<PageResponse<Array<InventoryResponse>>> = yield call(
       inventoryGetDetailVariantIdsApi,
       variant_id,
       store_id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

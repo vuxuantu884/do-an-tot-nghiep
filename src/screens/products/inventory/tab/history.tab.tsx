@@ -108,7 +108,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       )
     },
     {
-      title: 'ID chứng từ',
+      title: 'Mã chứng từ',
       visible: true,
       dataIndex: 'code',
       render: (value, record:HistoryInventoryResponse) => (

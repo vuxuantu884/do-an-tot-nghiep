@@ -898,6 +898,25 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   }, [updateShipment, cancelShipment, disabledActions]);
 
+  // todo thai: update khi có logo các đối tác giao hàng
+  const renderDeliveryPartner = (shipment: any) => {
+    const delivery = delivery_service?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+    if (delivery && delivery.logo) {
+      return (
+        <img
+          style={{ width: "112px", height: 25 }}
+          src={delivery?.logo}
+          alt=""
+        />
+      )
+    } else {
+      return (
+        <span>{shipment.delivery_service_provider_name}</span>
+      )
+    }
+  }
+  //////////////////
+
   return (
     <div>
       <Card
@@ -1118,16 +1137,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             <Col span={14}>
                               <b>
                                 {/* Lấy ra đối tác */}
-                                {fulfillment.shipment?.delivery_service_provider_type ===
-                                  "external_service" && (
-                                  <img
-                                    style={{ width: "112px", height: 25 }}
-                                    src={InfoServiceDeliveryDetail(
-                                      delivery_service,
-                                      fulfillment.shipment.delivery_service_provider_id
-                                    )}
-                                    alt=""
-                                  ></img>
+                                {(fulfillment.shipment?.delivery_service_provider_type === "external_service"
+                                  || fulfillment.shipment?.delivery_service_provider_type === "shopee") && (
+                                    renderDeliveryPartner(fulfillment.shipment)
+                                  // <img
+                                  //   style={{ width: "112px", height: 25 }}
+                                  //   src={InfoServiceDeliveryDetail(
+                                  //     delivery_service,
+                                  //     fulfillment.shipment.delivery_service_provider_id
+                                  //   )}
+                                  //   alt=""
+                                  // ></img>
                                 )}
 
                                 {fulfillment.shipment?.delivery_service_provider_type ===

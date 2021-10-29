@@ -58,7 +58,6 @@ export const StyledUpdateProductDataModal = styled.div`
 //common product style
 export const StyledProductFilter = styled.div`
   .filter {
-    margin-top: 20px;
     overflow-x: scroll;
     .ant-form {
       display: flex;
