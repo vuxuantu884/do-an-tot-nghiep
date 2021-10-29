@@ -152,8 +152,10 @@ function FpageCRM() {
   const getCustomerWhenChoicePhone = React.useCallback(
     (phoneNumber: any) => {
       setCustomerPhone(phoneNumber);
-      initQueryCustomer.phone = phoneNumber;
-      dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
+      if (phoneNumber) {
+        initQueryCustomer.phone = phoneNumber;
+        dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
+      }
     },
     [dispatch]
   );
