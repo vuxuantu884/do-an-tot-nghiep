@@ -5,7 +5,8 @@ import {
   PlusOutlined
 } from "@ant-design/icons";
 import {
-  Affix, Button,
+  Affix,
+  Button,
   Card,
   Col,
   Collapse,
@@ -23,7 +24,8 @@ import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import UrlConfig from "config/url.config";
 import {
-  AccountCreateAction, DepartmentGetListAction,
+  AccountCreateAction,
+  DepartmentGetListAction,
   PositionGetListAction
 } from "domain/actions/account/account.action";
 import { RoleGetListAction } from "domain/actions/auth/role.action";
@@ -56,8 +58,8 @@ import { convertDistrict } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { PASSWORD_RULES } from "./account.rules";
 
-const { Item, List } = Form;
-const { Option, OptGroup } = Select;
+const {Item, List} = Form;
+const {Option, OptGroup} = Select;
 
 const DefaultCountry = 233;
 const initRequest: AccountView = {
@@ -78,7 +80,7 @@ const initRequest: AccountView = {
 
 const initRoleQuery: RoleSearchQuery = {
   page: 1,
-  size: 200,
+  limit: 200,
 };
 
 const AccountCreateScreen: React.FC = () => {
@@ -108,7 +110,7 @@ const AccountCreateScreen: React.FC = () => {
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false)
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   //EndState
   //Callback
 
@@ -297,7 +299,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
+                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
@@ -305,7 +307,7 @@ const AccountCreateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+                  rules={[{required: true, message: "Vui lòng chọn giới tính"}]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -324,7 +326,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Mã nhân viên"
                   name="code"
-                  rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="VD: YD0000" size="large" />
@@ -334,7 +336,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
+                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
@@ -344,13 +346,16 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[...PASSWORD_RULES, { required: true, message: "Vui lòng nhập tên đăng nhập" }]}
+                  rules={[
+                    ...PASSWORD_RULES,
+                    {required: true, message: "Vui lòng nhập tên đăng nhập"},
+                  ]}
                   name="password"
                   label="Mật khẩu"
                   hasFeedback
                 >
                   <Input.Password
-                  autoComplete="new-password"
+                    autoComplete="new-password"
                     className="r-5"
                     placeholder="Nhập mật khẩu"
                     size="large"
@@ -366,8 +371,8 @@ const AccountCreateScreen: React.FC = () => {
                   label="Nhập lại mật khẩu"
                   dependencies={["password"]}
                   hasFeedback
-                  rules={[          
-                    ({ getFieldValue }) => ({
+                  rules={[
+                    ({getFieldValue}) => ({
                       validator(_, value) {
                         if (!value || getFieldValue("password") === value) {
                           return Promise.resolve();
@@ -378,7 +383,10 @@ const AccountCreateScreen: React.FC = () => {
                     }),
                   ]}
                 >
-                  <Input.Password placeholder="Nhập lại mật khẩu" autoComplete="new-password"/>
+                  <Input.Password
+                    placeholder="Nhập lại mật khẩu"
+                    autoComplete="new-password"
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -387,7 +395,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
@@ -409,7 +417,7 @@ const AccountCreateScreen: React.FC = () => {
                         value === "all"
                       ) {
                         if (isSelectAllStore) {
-                          formRef.current?.setFieldsValue({ account_stores: [] });
+                          formRef.current?.setFieldsValue({account_stores: []});
                           setIsSelectAllStore(false);
                         } else {
                           formRef.current?.setFieldsValue({
@@ -443,7 +451,7 @@ const AccountCreateScreen: React.FC = () => {
                     format="DD/MM/YYYY"
                     style={{ width: "100%" }}
                   /> */}
-                  <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
+                  <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -528,9 +536,9 @@ const AccountCreateScreen: React.FC = () => {
           <Collapse.Panel key="1" header="Thông tin công việc">
             <div className="padding-20">
               <List name="account_jobs">
-                {(fields, { add, remove }) => (
+                {(fields, {add, remove}) => (
                   <>
-                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
+                    {fields.map(({key, name, fieldKey, ...restField}, index) => (
                       <Row key={key} gutter={16}>
                         <Col md={8}>
                           <Item
@@ -542,9 +550,10 @@ const AccountCreateScreen: React.FC = () => {
                               placeholder="Chọn bộ phận"
                               allowClear
                               showArrow
+                              showSearch
                               optionFilterProp="children"
                               onChange={(value) => onChangeDepartment(value, index)}
-                              style={{ width: "100%" }}
+                              style={{width: "100%"}}
                             >
                               {listDepartment?.map((item) => (
                                 <Option key={item.id} value={item.id}>
@@ -564,9 +573,10 @@ const AccountCreateScreen: React.FC = () => {
                               placeholder="Chọn vị trí"
                               allowClear
                               showArrow
+                              showSearch
                               optionFilterProp="children"
                               onChange={(value) => onChangePosition(value, index)}
-                              style={{ width: "100%" }}
+                              style={{width: "100%"}}
                             >
                               {listPosition?.map((item) => (
                                 <Option key={item.id} value={item.id}>
@@ -578,7 +588,7 @@ const AccountCreateScreen: React.FC = () => {
                           </Item>
                         </Col>
                         {fields.length > 1 && (
-                          <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+                          <Col md={4} style={{display: "flex", alignItems: "center"}}>
                             <Button
                               onClick={() => remove(name)}
                               icon={<DeleteOutlined />}
@@ -602,7 +612,7 @@ const AccountCreateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{ textAlign: "right"}}>
+          <div className="margin-top-10" style={{textAlign: "right"}}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy

@@ -1,11 +1,42 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { PostEcommerceOrderQuery, PostProductEcommerceQuery } from "model/query/ecommerce.query";
+import {
+  PostEcommerceOrderQuery,
+  PostProductEcommerceQuery,
+} from "model/query/ecommerce.query";
 import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { generateQuery } from 'utils/AppUtils';
+import { FpageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { generateQuery } from "utils/AppUtils";
 
+const addFpagePhone = (
+  userId: string,
+  phone: string
+): Promise<BaseResponse<FpageCustomerResponse>> => {
+  let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/phones/${phone}`;
+  return BaseAxios.post(link);
+};
+const deleteFpagePhone = (
+  userId: string,
+  phone: string
+): Promise<BaseResponse<FpageCustomerResponse>> => {
+  let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/phones/${phone}`;
+  return BaseAxios.delete(link);
+};
+const setFpageDefaultPhone = (
+  userId: string,
+  phone: string
+): Promise<BaseResponse<FpageCustomerResponse>> => {
+  let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/defaultPhone/${phone}`;
+  return BaseAxios.post(link);
+};
+const getFpageCustomer = (
+  userId: string
+): Promise<BaseResponse<FpageCustomerResponse>> => {
+  let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}`;
+  return BaseAxios.get(link);
+};
 // config sync and setting screen
 const ecommerceCreateApi = (
   request: EcommerceRequest
@@ -27,16 +58,12 @@ const ecommerceGetApi = (): Promise<BaseResponse<EcommerceResponse>> => {
   return BaseAxios.get(link);
 };
 
-const ecommerceGetByIdApi = (
-  id: number
-): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetByIdApi = (id: number): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.get(link);
 };
 
-const ecommerceDeleteApi = (
-  id: number
-): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceDeleteApi = (id: number): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.delete(link);
 };
@@ -47,7 +74,9 @@ const ecommerceConnectSyncApi = (): Promise<BaseResponse<String>> => {
   return BaseAxios.get(link);
 };
 
-const ecommerceGetConfigInfoApi = (query: any): Promise<BaseResponse<EcommerceResponse>> => {
+const ecommerceGetConfigInfoApi = (
+  query: any
+): Promise<BaseResponse<EcommerceResponse>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.ECOMMERCE}/shops/info?${params}`;
   return BaseAxios.get(link);
@@ -65,13 +94,15 @@ const ecommerceGetShopApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
-const ecommercePostVariantsApi = (requestBody: PostProductEcommerceQuery): Promise<BaseResponse<any>> => {
+const ecommercePostVariantsApi = (
+  requestBody: PostProductEcommerceQuery
+): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/variants`;
   return BaseAxios.post(link, requestBody);
 };
 
 const ecommerceDeleteItemApi = (ids: any) => {
-  let idsParam =  ids.join(',');
+  let idsParam = ids.join(",");
   let link = `${ApiConfig.ECOMMERCE}/variants?ids=${idsParam}`;
   return BaseAxios.delete(link);
 };
@@ -98,7 +129,9 @@ const ecommercePutConnectItemApi = (requestBody: any) => {
 };
 
 //ecommerce order api
-const postEcommerceOrderApi = (requestBody: PostEcommerceOrderQuery): Promise<BaseResponse<any>> => {
+const postEcommerceOrderApi = (
+  requestBody: PostEcommerceOrderQuery
+): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/orders`;
   return BaseAxios.post(link, requestBody);
 };
@@ -119,5 +152,9 @@ export {
   ecommercePostSyncStockItemApi,
   ecommerceGetCategoryListApi,
   ecommercePutConnectItemApi,
-  postEcommerceOrderApi
+  postEcommerceOrderApi,
+  getFpageCustomer,
+  addFpagePhone,
+  deleteFpagePhone,
+  setFpageDefaultPhone,
 };

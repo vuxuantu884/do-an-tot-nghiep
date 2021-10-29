@@ -12,7 +12,6 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import {
   Item,
-  Shipment,
   ShipmentModel,
   ShipmentSearchQuery,
 } from "model/order/shipment.model";
@@ -249,21 +248,26 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "HTVC",
-      dataIndex: "shipment",
-      render: (shipment?: Shipment) => {
-        const service_id = shipment?.delivery_service_provider_id;
-        const service = delivery_service.find(
-          (service) => service.id === service_id
-        );
-        return (
-          service && (
-            <img
-              src={service.logo ? service.logo : ""}
-              alt=""
-              style={{ width: "100%" }}
-            />
-          )
-        );
+      render: (record: any) => {
+        switch (record.shipment?.delivery_service_provider_type) {
+          case "external_service":
+            const service_id = record.shipment.delivery_service_provider_id;
+            const service = delivery_service.find((service) => service.id === service_id);
+            return (
+              service && (
+                <img
+                  src={service.logo ? service.logo : ""}
+                  alt=""
+                  style={{ width: "100%" }}
+                />
+              )
+            );
+          case "Shipper":
+            return `Đối tác - ${record.shipment.shipper_code} - ${record.shipment.shipper_name}`;
+          case "pick_at_store":
+            return `Nhận tại - ${record.store}`;
+          default: return ""
+        }
       },
       key: "shipment.type",
       visible: true,
@@ -601,48 +605,46 @@ const ListOrderScreen: React.FC = () => {
         }
       >
         <Card>
-          <div className="padding-20">
-            <ShipmentFilter
-              onMenuClick={onMenuClick}
-              actions={actions}
-              onFilter={onFilter}
-              isLoading={isFilter}
-              params={params}
-              listSource={listSource}
-              listStore={listStore}
-              accounts={accounts}
-              reasons={reasons}
-              deliveryService={delivery_service}
-              onShowColumnSetting={() => setShowSettingColumn(true)}
-              onClearFilter={() => onClearFilter()}
-            />
-            <CustomTable
-              isRowSelection
-              isLoading={tableLoading}
-              showColumnSetting={true}
-              scroll={{ x: 3630 }}
-              sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              onSelectedChange={(selectedRows) =>
-                onSelectedChange(selectedRows)
-              }
-              // expandable={{
-              //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-              // }}
-              onShowColumnSetting={() => setShowSettingColumn(true)}
-              dataSource={data.items}
-              columns={columnFinal}
-              rowKey={(item: ShipmentModel) => item.id}
-              className="order-list"
-            />
-          </div>
+          <ShipmentFilter
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            isLoading={isFilter}
+            params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            reasons={reasons}
+            deliveryService={delivery_service}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            onClearFilter={() => onClearFilter()}
+          />
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 3630 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onSelectedChange={(selectedRows) =>
+              onSelectedChange(selectedRows)
+            }
+            // expandable={{
+            //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
+            // }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: ShipmentModel) => item.id}
+            className="order-list"
+          />
         </Card>
 
         <ModalSettingColumn

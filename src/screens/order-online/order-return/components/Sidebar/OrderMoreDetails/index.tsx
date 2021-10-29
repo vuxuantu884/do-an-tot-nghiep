@@ -20,7 +20,7 @@ function OrderMoreDetails(props: PropType) {
           </Col>
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
-              {OrderDetail?.customer_note !== "" ? OrderDetail?.customer_note : "Không có ghi chú"}
+              {OrderDetail?.customer_note !== "" ? OrderDetail?.customer_note : "-"}
             </span>
           </Col>
         </Row>
@@ -30,7 +30,7 @@ function OrderMoreDetails(props: PropType) {
           </Col>
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
-              {OrderDetail?.note !== "" ? OrderDetail?.note : "Không có ghi chú"}
+              {OrderDetail?.note !== "" ? OrderDetail?.note : "-"}
             </span>
           </Col>
         </Row>
@@ -54,7 +54,7 @@ function OrderMoreDetails(props: PropType) {
                       {item}
                     </Tag>
                   ))
-                : "Không có tags"}
+                : "-"}
             </span>
           </Col>
         </Row>

@@ -1,14 +1,12 @@
-import { AuthProfilePermission, PermissionQuery, PermissionResponse } from 'model/auth/permission.model';
-import BaseResponse from "base/base.response";
-import { PageResponse } from "model/base/base-metadata.response";
-import { generateQuery } from 'utils/AppUtils';
 import BaseAxios from 'base/base.axios';
+import BaseResponse from "base/base.response";
 import { ApiConfig } from 'config/api.config';
+import { AuthProfilePermission } from 'model/auth/permission.model';
 
-export const permissionModuleListApi = (query: PermissionQuery): Promise<BaseResponse<PageResponse<PermissionResponse>>> => {
-  let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.AUTH}/module-permissions?${params}`);
-}
+// export const permissionModuleListApi = (query: PermissionQuery): Promise<BaseResponse<PageResponse<PermissionResponse>>> => {
+//   let params = generateQuery(query);
+//   return BaseAxios.get(`${ApiConfig.AUTH}/module-permissions?${params}`);
+// }
 
 export const profilePermissionApi = (
   operator_kc_id: string
