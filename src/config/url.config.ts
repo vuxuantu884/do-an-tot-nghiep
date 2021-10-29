@@ -29,7 +29,8 @@ const UrlConfig = {
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
   PROCUREMENT: '/procurement',
-  INVENTORY_TRANSFER: `/inventory-transfer`
+  INVENTORY_TRANSFER: `/inventory-transfer`,
+  DEPARTMENT: `/departments`
 };
 
 export const BASE_NAME_ROUTER = "/unicorn/admin";

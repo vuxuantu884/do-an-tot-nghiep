@@ -30,6 +30,7 @@ import { sizeSaga } from "./product/size.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
 import { settingOrdersSaga } from "./settings/order-settings.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
+import { departmentSaga } from "./account/department.saga";
 
 function* rootSaga() {
   yield all([
@@ -64,6 +65,7 @@ function* rootSaga() {
     loyaltySaga(),
     ecommerceSaga(),
     OrderReturnSaga(),
+    departmentSaga(),
   ]);
 }
 
