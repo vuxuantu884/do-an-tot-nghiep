@@ -9,8 +9,8 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import copy from 'copy-to-clipboard';
 import {
+  CloseCircleOutlined,
   CopyOutlined,
-  DeleteOutlined,
   EditOutlined,
   PaperClipOutlined,
   PrinterOutlined,
@@ -134,7 +134,7 @@ const DetailTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -522,9 +522,14 @@ const DetailTicket: FC = () => {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
       width: 50,
+      dataIndex: "transfer_quantity",
       render: (value: string, row, index) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status ||
-          data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) {
+        if (
+          (parseInt(value) !== 0 &&
+            (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status 
+            || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+          )
+          || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
           return false;
         }
         return <Button
@@ -540,10 +545,12 @@ const DetailTicket: FC = () => {
     if (!result) {
       setError(true);
       return;
-    } else {            
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
+    } else {
+      setIsDeleteTicket(false);
+      showSuccess("Huỷ phiếu thành công");
+      setData(result);
     }
-  }, [history])
+  }, [])
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
@@ -873,8 +880,13 @@ const DetailTicket: FC = () => {
                             />
                           </div>
                           <div className="shipment-detail">
-                            Mã vận đơn: <span>{data?.shipment?.order_code}</span>
-                            <CopyOutlined style={{color: "#71767B"}} onClick={() => copy(data.shipment.order_code)} />
+                            Mã vận đơn: <span>{data?.shipment?.tracking_code}</span>
+                            <CopyOutlined style={{color: "#71767B"}}
+                              onClick={() => {
+                                showSuccess('Đã copy');
+                                copy(data.shipment.tracking_code);
+                              }} 
+                            />
                           </div>
                         </Row>
                         <Row>
@@ -1044,7 +1056,7 @@ const DetailTicket: FC = () => {
                       data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
                     
                     <Button danger onClick={() => setIsDeleteTicket(true)}>
-                      <DeleteOutlined /> Hủy phiếu
+                      <CloseCircleOutlined style={{ color: '#E24343' }} /> Hủy phiếu
                     </Button>
                   }
                   {
@@ -1074,6 +1086,7 @@ const DetailTicket: FC = () => {
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
                     <Button
+                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}/${data.id}/update?cloneId=${data.id}`)}
                     >
                       Tạo bản sao
                     </Button>
@@ -1151,6 +1164,7 @@ const DetailTicket: FC = () => {
         }
         {visibleManyProduct && (
           <PickManyProductModal
+            isTransfer
             storeID={data?.from_store_id}
             selected={[]}
             onSave={onPickManyProduct}
@@ -1165,10 +1179,12 @@ const DetailTicket: FC = () => {
             dataTicket={data}
             onCancel={() => setIsVisibleInventoryShipment(false)}
             onOk={item => {
+              if (item) {
+                setDataTable(item?.line_items);
+                setData(item);
+                setDataShipment(item?.shipment)
+              }
               setIsVisibleInventoryShipment(false);
-              setDataTable(item?.line_items);
-              setData(item);
-              setDataShipment(item?.shipment)
             }}
             infoFees={infoFees}
           />

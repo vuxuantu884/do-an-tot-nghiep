@@ -987,12 +987,12 @@ const ScreenReturnCreate = (props: PropType) => {
 
   useEffect(() => {
     setShippingFeeCustomer(0);
-    if (orderId) {
-      dispatch(OrderDetailAction(orderId, onGetDetailSuccess));
+    if (queryOrderID) {
+      dispatch(OrderDetailAction(queryOrderID, onGetDetailSuccess));
     } else {
       setError(true);
     }
-  }, [dispatch, orderId, onGetDetailSuccess]);
+  }, [dispatch, queryOrderID, onGetDetailSuccess]);
 
   useEffect(() => {
     if (OrderDetail != null) {

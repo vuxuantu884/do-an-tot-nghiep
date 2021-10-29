@@ -264,14 +264,14 @@ const InventoryTransferTab: React.FC = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "updated_by",
+      dataIndex: "created_by",
       visible: true,
       align: "center",
       width: "150px",
     },
     {
       title: "Ngày tạo",
-      dataIndex: "updated_date",
+      dataIndex: "created_date",
       visible: true,
       align: "center",
       width: "150px",

@@ -438,47 +438,45 @@ const ListOrderScreen: React.FC = () => {
       }
     >
       <Card>
-        <div>
-          <ReturnFilter
-            onMenuClick={onMenuClick}
-            actions={actions}
-            onFilter={onFilter}
-            isLoading={isFilter}
-            params={params}
-            listSource={listSource}
-            listStore={listStore}
-            accounts={accounts}
-            reasons={reasons}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            onClearFilter={() => onClearFilter()}
-          />
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            scroll={{ x: 200 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onSelectedChange={(selectedRows) =>
-              onSelectedChange(selectedRows)
-            }
-            // expandable={{
-            //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-            // }}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: ReturnModel) => item.id}
-            className="order-list"
-          />
-        </div>
+        <ReturnFilter
+          onMenuClick={onMenuClick}
+          actions={actions}
+          onFilter={onFilter}
+          isLoading={isFilter}
+          params={params}
+          listSource={listSource}
+          listStore={listStore}
+          accounts={accounts}
+          reasons={reasons}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
+          onClearFilter={() => onClearFilter()}
+        />
+        <CustomTable
+          isRowSelection
+          isLoading={tableLoading}
+          showColumnSetting={true}
+          scroll={{ x: 200 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          onSelectedChange={(selectedRows) =>
+            onSelectedChange(selectedRows)
+          }
+          // expandable={{
+          //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
+          // }}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
+          dataSource={data.items}
+          columns={columnFinal}
+          rowKey={(item: ReturnModel) => item.id}
+          className="order-list"
+        />
       </Card>
 
       <ModalSettingColumn

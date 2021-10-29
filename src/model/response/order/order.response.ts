@@ -1,5 +1,5 @@
-import { BaseObject } from "model/base/base.response";
-import { StoreResponse } from "model/core/store.model";
+import {BaseObject} from "model/base/base.response";
+import {StoreResponse} from "model/core/store.model";
 
 export interface OrderResponse extends BaseObject {
   company_id: number | null;
@@ -74,6 +74,7 @@ export interface OrderResponse extends BaseObject {
   money_refund?: number;
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
+  ecommerce_shop_name: string | null;
 }
 
 export interface OrderLineItemResponse {
@@ -105,6 +106,7 @@ export interface OrderLineItemResponse {
   discount_amount: number;
   position?: number;
   gifts: Array<OrderLineItemResponse>;
+  available:number|null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {

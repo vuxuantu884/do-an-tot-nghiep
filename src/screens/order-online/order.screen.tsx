@@ -365,8 +365,8 @@ export default function Order() {
         if (shippingFeeInformedToCustomer !== null) {
           if (
             orderAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments) >
+            shippingFeeInformedToCustomer -
+            getAmountPaymentRequest(payments) >
             0
           ) {
             newCod =
@@ -592,7 +592,7 @@ export default function Order() {
     const fetchData = async () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
-          OrderDetailAction(+cloneIdParam, async (response) => {
+          OrderDetailAction(cloneIdParam, async (response) => {
             const { customer_id } = response;
 
             if (customer_id) {
@@ -648,6 +648,7 @@ export default function Order() {
                     discount_amount: item.discount_amount,
                     position: item.position,
                     gifts: giftResponse,
+                    available: item.available
                   };
                 });
               setItems(responseItems);
@@ -687,7 +688,7 @@ export default function Order() {
                 source_id: response.source_id,
                 assignee_code: response.assignee_code,
                 marketer_code: response.marketer_code,
-                // coordinator_code: response.coordinator_code,
+                coordinator_code: response.coordinator_code,
                 store_id: response.store_id,
                 items: responseItems,
                 dating_ship: newDatingShip,
@@ -729,7 +730,7 @@ export default function Order() {
                 response?.fulfillments[0]?.shipment?.delivery_service_provider_type
               ) {
                 switch (
-                  response.fulfillments[0].shipment?.delivery_service_provider_type
+                response.fulfillments[0].shipment?.delivery_service_provider_type
                 ) {
                   case ShipmentMethod.SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
@@ -784,8 +785,8 @@ export default function Order() {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
       setVisibleCustomer(true);
-      let shippingAddressItem = customer.shipping_addresses.find((p:any) => p.default === true);
-      if(shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
+      let shippingAddressItem = customer.shipping_addresses.find((p: any) => p.default === true);
+      if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
     } else {
       setLoyaltyPoint(null);
     }
@@ -844,8 +845,8 @@ export default function Order() {
       let limitOrderPercent = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 100
-        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
+          ? 100
+          : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
       let limitAmount = point * usageRate;
 
@@ -889,23 +890,36 @@ export default function Order() {
 
   const checkInventory = () => {
     let status = true;
-    if (inventoryResponse && inventoryResponse.length && items && items != null) {
-      let productItem = null;
-      let newData: Array<InventoryResponse> = [];
-      newData = inventoryResponse.filter((store) => store.store_id === storeId);
-      newData.forEach(function (value) {
-        productItem = items.find((x: any) => x.variant_id === value.variant_id);
-        if (
-          ((value.available ? value.available : 0) <= 0 ||
-            (productItem ? productItem?.quantity : 0) >
-              (value.available ? value.available : 0)) &&
-          configOrder?.sellable_inventory !== true
-        ) {
+
+    if (items && items != null) {
+      items.forEach(function (value) {
+        let available = value.available === null ? 0 : value.available;
+        if (available <= 0 && configOrder?.sellable_inventory !== true) {
           status = false;
-          showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+          showError(`Không thể thanh toán cho sản phẩm đã hết hàng trong kho`);
+          setCreating(false);
         }
       });
     }
+
+    // if (inventoryResponse && inventoryResponse.length && items && items != null) {
+    //   let productItem = null;
+    //   let newData: Array<InventoryResponse> = [];
+    //   newData = inventoryResponse.filter((store) => store.store_id === storeId);
+    //   newData.forEach(function (value) {
+    //     productItem = items.find((x: any) => x.variant_id === value.variant_id);
+    //     if (
+    //       ((value.available ? value.available : 0) <= 0 ||
+    //         (productItem ? productItem?.quantity : 0) >
+    //           (value.available ? value.available : 0)) &&
+    //       configOrder?.sellable_inventory !== true
+    //     ) {
+    //       status = false;
+    //       showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+    //       setCreating(false);
+    //     }
+    //   });
+    // }
     return status;
   };
 

@@ -272,10 +272,10 @@ const PackReportHandOver: React.FC = () => {
 
   return (
     <>
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div style={{ padding: "0px 24px 0 24px" }}>
         <PackFilter onMenuClick={onMenuClick} params={params}  onShowColumnSetting={() => setShowSettingColumn(true)}/>
       </div>
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div style={{ padding: "0px 24px 0 24px" }}>
       <CustomTable
             isRowSelection
             //isLoading={tableLoading}
