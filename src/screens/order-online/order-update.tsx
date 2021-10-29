@@ -777,6 +777,7 @@ export default function Order(props: PropType) {
                 discount_amount: item.discount_amount,
                 position: item.position,
                 gifts: giftResponse,
+                available:item.available
               };
             });
           let newDatingShip = initialForm.dating_ship;

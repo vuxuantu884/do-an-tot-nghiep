@@ -356,28 +356,26 @@ const EcommerceOrderSync: React.FC = () => {
       ),
     },
     {
-      title: "Đối tác giao hàng",
-      dataIndex: "fulfillments",
-      key: "shipment_type",
+      title: "Trạng thái xử lý",
+      dataIndex: "sub_status",
+      key: "sub_status",
       visible: true,
       width: "5%",
       align: "center",
-      render: (fulfillments: Array<OrderFulfillmentsModel>) => {
-        const service_id =
-          fulfillments.length && fulfillments[0].shipment
-            ? fulfillments[0].shipment.delivery_service_provider_id
-            : null;
-        const service = delivery_service.find(
-          (service) => service.id === service_id
-        );
+      render: (sub_status: string) => {
         return (
-          service && (
-            <img
-              src={service.logo ? service.logo : ""}
-              alt=""
-              style={{ width: "100%" }}
-            />
-          )
+          <div
+            style={{
+              background: "rgba(42, 42, 134, 0.1)",
+              borderRadius: "100px",
+              color: "#2A2A86",
+              width: "fit-content",
+              padding: "5px 10px",
+              margin: "0 auto",
+            }}
+          >
+            {sub_status}
+          </div>
         );
       },
     },

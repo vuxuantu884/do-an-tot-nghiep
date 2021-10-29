@@ -12,7 +12,6 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import {
   Item,
-  Shipment,
   ShipmentModel,
   ShipmentSearchQuery,
 } from "model/order/shipment.model";
@@ -249,21 +248,26 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "HTVC",
-      dataIndex: "shipment",
-      render: (shipment?: Shipment) => {
-        const service_id = shipment?.delivery_service_provider_id;
-        const service = delivery_service.find(
-          (service) => service.id === service_id
-        );
-        return (
-          service && (
-            <img
-              src={service.logo ? service.logo : ""}
-              alt=""
-              style={{ width: "100%" }}
-            />
-          )
-        );
+      render: (record: any) => {
+        switch (record.shipment?.delivery_service_provider_type) {
+          case "external_service":
+            const service_id = record.shipment.delivery_service_provider_id;
+            const service = delivery_service.find((service) => service.id === service_id);
+            return (
+              service && (
+                <img
+                  src={service.logo ? service.logo : ""}
+                  alt=""
+                  style={{ width: "100%" }}
+                />
+              )
+            );
+          case "Shipper":
+            return `Đối tác - ${record.shipment.shipper_code} - ${record.shipment.shipper_name}`;
+          case "pick_at_store":
+            return `Nhận tại - ${record.store}`;
+          default: return ""
+        }
       },
       key: "shipment.type",
       visible: true,

@@ -881,7 +881,12 @@ const DetailTicket: FC = () => {
                           </div>
                           <div className="shipment-detail">
                             Mã vận đơn: <span>{data?.shipment?.order_code}</span>
-                            <CopyOutlined style={{color: "#71767B"}} onClick={() => copy(data.shipment.order_code)} />
+                            <CopyOutlined style={{color: "#71767B"}}
+                              onClick={() => {
+                                showSuccess('Đã copy');
+                                copy(data.shipment.order_code);
+                              }} 
+                            />
                           </div>
                         </Row>
                         <Row>
@@ -1081,6 +1086,7 @@ const DetailTicket: FC = () => {
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
                     <Button
+                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}/${data.id}/update?cloneId=${data.id}`)}
                     >
                       Tạo bản sao
                     </Button>
@@ -1172,10 +1178,12 @@ const DetailTicket: FC = () => {
             dataTicket={data}
             onCancel={() => setIsVisibleInventoryShipment(false)}
             onOk={item => {
+              if (item) {
+                setDataTable(item?.line_items);
+                setData(item);
+                setDataShipment(item?.shipment)
+              }
               setIsVisibleInventoryShipment(false);
-              setDataTable(item?.line_items);
-              setData(item);
-              setDataShipment(item?.shipment)
             }}
             infoFees={infoFees}
           />

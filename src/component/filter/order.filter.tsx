@@ -20,8 +20,7 @@ import { SettingOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
-import moment from "moment";
-import CustomDatepicker from "component/custom/new-date-picker.custom";
+import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
@@ -64,7 +63,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     onShowColumnSetting
   } = props;
   const [visible, setVisible] = useState(false);
-  
+  const [rerender, setRerender] = useState(false);
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading])
@@ -119,11 +118,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
-    setVisible(false);
     formRef.current?.submit();
   }, [formRef]);
   const openFilter = useCallback(() => {
     setVisible(true);
+    setRerender(true);
   }, []);
   const onCancelFilter = useCallback(() => {
     setVisible(false);
@@ -138,6 +137,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
+      setRerender(false);
       console.log('key', tag.key)
       console.log('params', params);
       switch(tag.key) {
@@ -239,17 +239,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     
     return {
       ...params,
-      issued_on_min: params.issued_on_min? moment(params.issued_on_min, "DD-MM-YYYY") : undefined,
-      issued_on_max: params.issued_on_max? moment(params.issued_on_max, "DD-MM-YYYY") : undefined,
-      finalized_on_min: params.finalized_on_min? moment(params.finalized_on_min, "DD-MM-YYYY") : null,
-      finalized_on_max: params.finalized_on_max? moment(params.finalized_on_max, "DD-MM-YYYY") : null,
-      completed_on_min: params.completed_on_min? moment(params.completed_on_min, "DD-MM-YYYY") : null,
-      completed_on_max: params.completed_on_max? moment(params.completed_on_max, "DD-MM-YYYY") : null,
-      cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
-      cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
-      expected_receive_on_min: params.expected_receive_on_min? moment(params.expected_receive_on_min, "DD-MM-YYYY") : null,
-      expected_receive_on_max: params.expected_receive_on_max? moment(params.expected_receive_on_max, "DD-MM-YYYY") : null,
-
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
@@ -265,144 +254,34 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
   }}, [params])
   
-  const clickOptionDate = useCallback(
-    (type, value) => {
-    let minValue = null;
-    let maxValue = null;
-
-    console.log('value', value);
-    
-    switch(value) {
-      case 'today':
-        minValue = moment().startOf('day').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').format('DD-MM-YYYY')
-        break
-      case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        break
-      case 'thisweek':
-        minValue = moment().startOf('week').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').format('DD-MM-YYYY')
-        break
-      case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        break
-      case 'thismonth':
-        minValue = moment().startOf('month').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').format('DD-MM-YYYY')
-        break
-      case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        break  
-      default:
-        break
-    }
-    console.log('minValue', minValue);
-    console.log('maxValue', maxValue);
-    
-    switch(type) {
-      case 'issued':
-        
-        if (issuedClick === value ) {
-          setIssuedClick('')
-          formRef?.current?.setFieldsValue({
-            issued_on_min: undefined,
-            issued_on_max: undefined
-          })
-        } else {
-          setIssuedClick(value)
-          formRef?.current?.setFieldsValue({
-            issued_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            issued_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'finalized':
-        
-        if (finalizedClick === value ) {
-          setFinalizedClick('')
-          formRef?.current?.setFieldsValue({
-            finalized_on_min: undefined,
-            finalized_on_max: undefined
-          })
-        } else {
-          setFinalizedClick(value)
-          formRef?.current?.setFieldsValue({
-            finalized_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            finalized_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'completed':
-        
-        if (completedClick === value ) {
-          setCompletedClick('')
-          formRef?.current?.setFieldsValue({
-            completed_on_min: undefined,
-            completed_on_max: undefined
-          })
-        } else {
-          setCompletedClick(value)
-          formRef?.current?.setFieldsValue({
-            completed_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            completed_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'cancelled':
-        
-        if (cancelledClick === value ) {
-          setCancelledClick('')
-          formRef?.current?.setFieldsValue({
-            cancelled_on_min: undefined,
-            cancelled_on_max: undefined
-          })
-        } else {
-          setCancelledClick(value)
-          formRef?.current?.setFieldsValue({
-            cancelled_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            cancelled_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'expected':
-        
-        if (expectedClick === value ) {
-          setExpectedClick('')
-          formRef?.current?.setFieldsValue({
-            expected_receive_on_min: undefined,
-            expected_receive_on_max: undefined
-          })
-        } else {
-          setExpectedClick(value)
-          formRef?.current?.setFieldsValue({
-            expected_receive_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            expected_receive_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break  
-      default:
-        break
-    }
-  }, [cancelledClick, completedClick, expectedClick, finalizedClick, formRef, issuedClick]);
-
   const onFinish = useCallback(
     (values) => {
-      if (values?.price_min > values?.price_max) {
-        values = {
-          ...values,
-          price_min: values?.price_max,
-          price_max: values?.price_min,
+      let error = false;
+      formRef?.current?.getFieldsError([
+        'issued_on_min', 'issued_on_max',
+        'finalized_on_min', 'finalized_on_max',
+        'completed_on_min', 'completed_on_max',
+        'cancelled_on_min', 'cancelled_on_max',
+        'expected_receive_on_min', 'expected_receive_on_max',
+      ]).forEach(field => {
+        if (field.errors.length) {
+          error = true
         }
+      })
+      if (!error) {
+        setVisible(false);
+        if (values?.price_min > values?.price_max) {
+          values = {
+            ...values,
+            price_min: values?.price_max,
+            price_max: values?.price_min,
+          }
+        }
+        onFilter && onFilter(values);
+        setRerender(false)
       }
-      console.log('values filter 2', values);
-      
-      onFilter && onFilter(values);
     },
-    [onFilter]
+    [formRef, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -411,7 +290,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStores = ""
       initialValues.store_ids.forEach(store_id => {
         const store = listStore?.find(store => store.id.toString() === store_id)
-        textStores = store ? textStores + store.name + ";" : textStores
+        textStores = store ? textStores + store.name + "; " : textStores
       })
       list.push({
         key: 'store',
@@ -423,7 +302,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textSource = ""
       initialValues.source_ids.forEach(source_id => {
         const source = listSources?.find(source => source.id.toString() === source_id)
-        textSource = source ? textSource + source.name + ";" : textSource
+        textSource = source ? textSource + source.name + "; " : textSource
       })
       list.push({
         key: 'source',
@@ -432,7 +311,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? moment(initialValues.issued_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.issued_on_max ? moment(initialValues.issued_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
@@ -440,7 +319,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
-      let textOrderFinalizedDate = (initialValues.finalized_on_min ? moment(initialValues.finalized_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.finalized_on_max ? moment(initialValues.finalized_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
       list.push({
         key: 'finalized',
         name: 'Ngày duyệt đơn',
@@ -448,7 +327,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
-      let textOrderCompleteDate = (initialValues.completed_on_min ? moment(initialValues.completed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.completed_on_max ? moment(initialValues.completed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
       list.push({
         key: 'completed',
         name: 'Ngày hoàn tất đơn',
@@ -456,7 +335,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -465,7 +344,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
-      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? moment(initialValues.expected_receive_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.expected_receive_on_max ? moment(initialValues.expected_receive_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? initialValues.expected_receive_on_min : '??') + " ~ " + (initialValues.expected_receive_on_max ? initialValues.expected_receive_on_max : '??')
       list.push({
         key: 'expected',
         name: 'Ngày dự kiến nhận hàng',
@@ -476,7 +355,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStatus = ""
       initialValues.order_status.forEach(i => {
         const findStatus = status?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
         key: 'order_status',
@@ -489,7 +368,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       
       initialValues.sub_status_id.forEach((i: any) => {
         const findStatus = subStatus?.find(item => item.id.toString() === i.toString())
-        textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.sub_status + "; " : textStatus
       })
       list.push({
         key: 'sub_status_id',
@@ -501,7 +380,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStatus = ""
       initialValues.fulfillment_status.forEach(i => {
         const findStatus = fulfillmentStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
         key: 'fulfillment_status',
@@ -514,7 +393,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStatus = ""
       initialValues.payment_status.forEach(i => {
         const findStatus = paymentStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
         key: 'payment_status',
@@ -527,7 +406,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     //   let textStatus = ""
     //   initialValues.return_status.forEach(i => {
     //     const findStatus = paymentStatus?.find(item => item.value === i)
-    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+    //     textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
     //   })
     //   list.push({
     //     key: 'return_status',
@@ -540,7 +419,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textAccount = ""
       initialValues.assignee_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({
         key: 'assignee_codes',
@@ -553,7 +432,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textAccount = ""
       initialValues.account_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({
         key: 'account_codes',
@@ -575,7 +454,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStatus = ""
       initialValues.payment_method_ids.forEach(i => {
         const findStatus = listPaymentMethod?.find(item => item.id.toString() === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
         key: 'payment_method',
@@ -587,7 +466,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textType = ""
       initialValues.delivery_types.forEach(i => {
         const findType = serviceType?.find(item => item.value === i)
-        textType = findType ? textType + findType.name + ";" : textType
+        textType = findType ? textType + findType.name + "; " : textType
       })
       list.push({
         key: 'delivery_types',
@@ -599,7 +478,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textType = ""
       initialValues.delivery_provider_ids.forEach((i: any) => {
         const findType = deliveryService?.find(item => item.id.toString() === i.toString())
-        textType = findType ? textType + findType.name + ";" : textType
+        textType = findType ? textType + findType.name + "; " : textType
       })
       list.push({
         key: 'delivery_provider_ids',
@@ -611,7 +490,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textAccount = ""
       initialValues.shipper_ids.forEach(i => {
         const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({
         key: 'shipper_ids',
@@ -639,7 +518,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.tags.length) {
       let textStatus = ""
       initialValues.tags.forEach(i => {
-        textStatus = textStatus + i + ";"
+        textStatus = textStatus + i + "; "
       })
       list.push({
         key: 'tags',
@@ -677,10 +556,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     setFinalizedClick('')
   
     setVisible(false);
-  }
+    setRerender(false);
+  };
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
-  }, [])
+  }, []);
 
   return (
     <div>
@@ -731,7 +611,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           className="order-filter-drawer"
           width={widthScreen()}
         >
-          {visible && <Form
+          {rerender && <Form
             onFinish={onFinish}
             ref={formRef}
             initialValues={params}
@@ -744,7 +624,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="store_ids">
                   <CustomSelect
                     mode="multiple"
-                    showArrow
+                    showArrow allowClear
                     showSearch
                     placeholder="Cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
@@ -765,10 +645,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Trạng thái đơn</p>
                 <Item name="order_status">
                   <CustomSelect
-                    mode="multiple"
+                    mode="multiple" allowClear
                     showSearch placeholder="Chọn trạng thái đơn hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
+                    optionFilterProp="children" showArrow
                     getPopupContainer={trigger => trigger.parentNode}
                     maxTagCount='responsive'
                   >
@@ -786,7 +666,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <CustomSelect
                     mode="multiple"
                     style={{ width: '100%'}}
-                    showArrow
+                    showArrow allowClear
                     showSearch
                     placeholder="Nguồn đơn hàng"
                     notFoundContent="Không tìm thấy kết quả"
@@ -808,7 +688,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Giao hàng</p>
                 <Item name="fulfillment_status">
                   <CustomSelect
-                    mode="multiple" showSearch 
+                    mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn trạng thái giao hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
@@ -829,124 +709,48 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={8}  xxl={6}>
                 <p>Ngày tạo đơn</p>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('issued', 'yesterday')} className={issuedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                  <Button onClick={() => clickOptionDate('issued', 'today')} className={issuedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                  <Button onClick={() => clickOptionDate('issued', 'thisweek')} className={issuedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                </div>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('issued', 'lastweek')} className={issuedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                  <Button onClick={() => clickOptionDate('issued', 'thismonth')} className={issuedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                  <Button onClick={() => clickOptionDate('issued', 'lastmonth')} className={issuedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                </div>
-                <div className="date-range">
-                  <Item name="issued_on_min" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Từ ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
-                  <Item name="issued_on_max" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Đến ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </div>
+                <CustomRangeDatePicker
+                  fieldNameFrom="issued_on_min"
+                  fieldNameTo="issued_on_max"
+                  activeButton={issuedClick}
+                  setActiveButton={setIssuedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
             
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày duyệt đơn</p>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('finalized', 'yesterday')} className={finalizedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                  <Button onClick={() => clickOptionDate('finalized', 'today')} className={finalizedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                  <Button onClick={() => clickOptionDate('finalized', 'thisweek')} className={finalizedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                </div>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('finalized', 'lastweek')} className={finalizedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                  <Button onClick={() => clickOptionDate('finalized', 'thismonth')} className={finalizedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                  <Button onClick={() => clickOptionDate('finalized', 'lastmonth')} className={finalizedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                </div>
-                <div className="date-range">
-                  <Item name="finalized_on_min" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Từ ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
-                  <Item name="finalized_on_max" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Đến ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </div>
+                <CustomRangeDatePicker
+                  fieldNameFrom="finalized_on_min"
+                  fieldNameTo="finalized_on_max"
+                  activeButton={finalizedClick}
+                  setActiveButton={setFinalizedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày hoàn tất đơn</p>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('completed', 'yesterday')} className={completedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                  <Button onClick={() => clickOptionDate('completed', 'today')} className={completedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                  <Button onClick={() => clickOptionDate('completed', 'thisweek')} className={completedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                </div>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('completed', 'lastweek')} className={completedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                  <Button onClick={() => clickOptionDate('completed', 'thismonth')} className={completedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                  <Button onClick={() => clickOptionDate('completed', 'lastmonth')} className={completedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                </div>
-                <div className="date-range">
-                  <Item name="completed_on_min" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Từ ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
-                  <Item name="completed_on_max" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Đến ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </div>
+                <CustomRangeDatePicker
+                  fieldNameFrom="completed_on_min"
+                  fieldNameTo="completed_on_max"
+                  activeButton={completedClick}
+                  setActiveButton={setCompletedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày huỷ đơn</p>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('cancelled', 'yesterday')} className={cancelledClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                  <Button onClick={() => clickOptionDate('cancelled', 'today')} className={cancelledClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                  <Button onClick={() => clickOptionDate('cancelled', 'thisweek')} className={cancelledClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                </div>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('cancelled', 'lastweek')} className={cancelledClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                  <Button onClick={() => clickOptionDate('cancelled', 'thismonth')} className={cancelledClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                  <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')} className={cancelledClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                </div>
-                <div className="date-range">
-                  <Item name="cancelled_on_min" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Từ ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
-                  <Item name="cancelled_on_max" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Đến ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </div>
+                <CustomRangeDatePicker
+                  fieldNameFrom="cancelled_on_min"
+                  fieldNameTo="cancelled_on_max"
+                  activeButton={cancelledClick}
+                  setActiveButton={setCancelledClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
             
               <Col span={8} xxl={6}>
@@ -954,7 +758,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="sub_status_id">
                   <CustomSelect
                     mode="multiple"
-                    showArrow
+                    showArrow allowClear
                     showSearch
                     placeholder="Chọn trạng thái xử lý đơn"
                     notFoundContent="Không tìm thấy kết quả"
@@ -973,7 +777,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Thanh toán</p>
                 <Item name="payment_status">
                   <CustomSelect
-                    mode="multiple" showArrow
+                    mode="multiple" showArrow allowClear
                     showSearch placeholder="Chọn trạng thái thanh toán"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
@@ -996,7 +800,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Trả hàng</p>
                 <Item name="return_status">
                   <CustomSelect
-                    mode="multiple" showSearch
+                    mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn trạng thái trả hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
@@ -1014,7 +818,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Nhân viên bán hàng</p>
                 <Item name="assignee_codes">
                   <CustomSelect
-                    mode="multiple" showSearch
+                    mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn nhân viên bán hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
@@ -1037,7 +841,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Nhân viên tạo đơn</p>
                 <Item name="account_codes">
                   <CustomSelect
-                    mode="multiple" showSearch
+                    mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn nhân viên tạo đơn"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
@@ -1082,7 +886,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="payment_method_ids">
                   <CustomSelect
                     mode="multiple" optionFilterProp="children"
-                    showSearch showArrow
+                    showSearch showArrow allowClear
                     notFoundContent="Không tìm thấy kết quả"
                     placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
                     getPopupContainer={trigger => trigger.parentNode}
@@ -1102,7 +906,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Đối tác giao hàng</p>
                 <Item name="shipper_ids">
                   <CustomSelect
-                    mode="multiple" showSearch
+                    mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn đối tác giao hàng"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                     optionFilterProp="children"
@@ -1119,39 +923,21 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
                 <p>Ngày dự kiến nhận hàng</p>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('expected', 'yesterday')} className={expectedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                  <Button onClick={() => clickOptionDate('expected', 'today')} className={expectedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                  <Button onClick={() => clickOptionDate('expected', 'thisweek')} className={expectedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                </div>
-                <div className="date-option">
-                  <Button onClick={() => clickOptionDate('expected', 'lastweek')} className={expectedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                  <Button onClick={() => clickOptionDate('expected', 'thismonth')} className={expectedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                  <Button onClick={() => clickOptionDate('expected', 'lastmonth')} className={expectedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                </div>
-                <div className="date-range">
-                  <Item name="expected_receive_on_min" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Từ ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
-                  <Item name="expected_receive_on_max" style={{width: "45%", marginBottom: 0}}>
-                    <CustomDatepicker
-                      format="DD-MM-YYYY"
-                      placeholder="Đến ngày"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </div>
+                
+                <CustomRangeDatePicker
+                  fieldNameFrom="expected_receive_on_min"
+                  fieldNameTo="expected_receive_on_max"
+                  activeButton={expectedClick}
+                  setActiveButton={setExpectedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={8} xxl={6}>
                 <p>Hình thức vận chuyển</p>
                 <Item name="delivery_types">
                   <CustomSelect
-                    mode="multiple"
+                    mode="multiple" allowClear
                     optionFilterProp="children" showSearch
                     showArrow notFoundContent="Không tìm thấy kết quả"
                     placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
@@ -1169,7 +955,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Đơn vị vận chuyển</p>
                 <Item name="delivery_provider_ids">
                 <CustomSelect
-                  mode="multiple" showSearch
+                  mode="multiple" showSearch allowClear
                   showArrow placeholder="Chọn đơn vị vận chuyển"
                   notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                   optionFilterProp="children"
@@ -1187,7 +973,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={8} xxl={6}>
                 <p>Tags</p>
                 <Item name="tags">
-                <CustomSelect mode="tags" optionFilterProp="children" showSearch showArrow placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
+                <CustomSelect
+                  mode="tags" optionFilterProp="children"
+                  showSearch showArrow allowClear
+                  placeholder="Chọn 1 hoặc nhiều tag"
+                  style={{width: '100%'}}
+                >
                   
                 </CustomSelect>
                 </Item>

@@ -11,17 +11,16 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
-import CustomDatepicker from "component/custom/new-date-picker.custom";
+import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import { ShipmentSearchQuery } from "model/order/shipment.model";
-import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import DebounceSelect from "./component/debounce-select";
@@ -78,7 +77,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     onShowColumnSetting
   } = props;
   const [visible, setVisible] = useState(false);
-  
+  const [rerender, setRerender] = useState(false);
+
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading]);
@@ -119,11 +119,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
-    setVisible(false);
     formRef.current?.submit();
   }, [formRef]);
   const openFilter = useCallback(() => {
     setVisible(true);
+    setRerender(true);
   }, []);
   const onCancelFilter = useCallback(() => {
     setVisible(false);
@@ -138,6 +138,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
+      setRerender(false)
       switch(tag.key) {
         case 'store':
           onFilter && onFilter({...params, store_ids: []});
@@ -218,142 +219,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [receivedClick, setReceivedClick] = useState('');
   const [cancelledClick, setCancelledClick] = useState('');
 
-  const clickOptionDate = useCallback(
-    (type, value) => {
-    let minValue = null;
-    let maxValue = null;
-    console.log('value', value);
-    
-    switch(value) {
-      case 'today':
-        minValue = moment().startOf('day').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').format('DD-MM-YYYY')
-        break
-      case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        break
-      case 'thisweek':
-        minValue = moment().startOf('week').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').format('DD-MM-YYYY')
-        break
-      case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        break
-      case 'thismonth':
-        minValue = moment().startOf('month').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').format('DD-MM-YYYY')
-        break
-      case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        break  
-      default:
-        break
-    }
-    
-    switch(type) {
-      case 'packed':
-        if (packedClick === value ) {
-          setPackedClick('')
-          formRef?.current?.setFieldsValue({
-            packed_on_min: undefined,
-            packed_on_max: undefined
-          })
-        } else {
-          setPackedClick(value)
-          formRef?.current?.setFieldsValue({
-            packed_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            packed_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'exported':
-        if (exportedClick === value ) {
-          setExportedClick('')
-          formRef?.current?.setFieldsValue({
-            exported_on_min: undefined,
-            exported_on_max: undefined
-          })
-        } else {
-          setExportedClick(value)
-          formRef?.current?.setFieldsValue({
-            exported_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            exported_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'ship':
-        if (shipClick === value ) {
-          setShipClick('')
-          formRef?.current?.setFieldsValue({
-            ship_on_min: undefined,
-            ship_on_max: undefined
-          })
-        } else {
-          setShipClick(value)
-          formRef?.current?.setFieldsValue({
-            ship_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            ship_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'received':
-        if (receivedClick === value ) {
-          setReceivedClick('')
-          formRef?.current?.setFieldsValue({
-            received_on_min: undefined,
-            received_on_max: undefined
-          })
-        } else {
-          setReceivedClick(value)
-          formRef?.current?.setFieldsValue({
-            received_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            received_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      case 'cancelled':
-        if (cancelledClick === value ) {
-          setCancelledClick('')
-          formRef?.current?.setFieldsValue({
-            cancelled_on_min: undefined,
-            cancelled_on_max: undefined
-          })
-        } else {
-          setCancelledClick(value)
-          formRef?.current?.setFieldsValue({
-            cancelled_on_min: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-            cancelled_on_max: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
-          })
-        }
-        break
-      default:
-        break
-    }
-  }, [cancelledClick, exportedClick, formRef, packedClick, receivedClick, shipClick]);
-
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
   const initialValues = useMemo(() => {
     return {
       ...params,
-      packed_on_min: params.packed_on_min? moment(params.packed_on_min, "DD-MM-YYYY") : undefined,
-      packed_on_max: params.packed_on_max? moment(params.packed_on_max, "DD-MM-YYYY") : undefined,
-      ship_on_min: params.ship_on_min? moment(params.ship_on_min, "DD-MM-YYYY") : null,
-      ship_on_max: params.ship_on_max? moment(params.ship_on_max, "DD-MM-YYYY") : null,
-      exported_on_min: params.exported_on_min? moment(params.exported_on_min, "DD-MM-YYYY") : null,
-      exported_on_max: params.exported_on_max? moment(params.exported_on_max, "DD-MM-YYYY") : null,
-      cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
-      cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
-      received_on_min: params.received_on_min? moment(params.received_on_min, "DD-MM-YYYY") : null,
-      received_on_max: params.received_on_max? moment(params.received_on_max, "DD-MM-YYYY") : null,
-
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
-      // status: Array.isArray(params.status) ? params.status : [params.status],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
       shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
@@ -430,14 +303,30 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   const onFinish = useCallback(
     (values) => {
-      const valuesForm = {
-        ...values,
-        print_status: print,
-        reference_status: control
+      let error = false;
+      formRef?.current?.getFieldsError([
+        'packed_on_min', 'packed_on_max',
+        'ship_on_min', 'ship_on_max',
+        'exported_on_min', 'exported_on_max',
+        'cancelled_on_min', 'cancelled_on_max',
+        'received_on_min', 'received_on_max'
+      ]).forEach(field => {
+        if (field.errors.length) {
+          error = true
+        }
+      })
+      if (!error) {
+        setVisible(false);
+        const valuesForm = {
+          ...values,
+          print_status: print,
+          reference_status: control
+        }
+        onFilter && onFilter(valuesForm);
+        setRerender(false)
       }
-      onFilter && onFilter(valuesForm);
     },
-    [print, control, onFilter]
+    [formRef, print, control, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -445,7 +334,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStores = ""
       initialValues.store_ids.forEach(store_id => {
         const store = listStore?.find(store => store.id.toString() === store_id)
-        textStores = store ? textStores + store.name + ";" : textStores
+        textStores = store ? textStores + store.name + "; " : textStores
       })
       list.push({
         key: 'store',
@@ -457,7 +346,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textSource = ""
       initialValues.source_ids.forEach(source_id => {
         const source = listSources?.find(source => source.id.toString() === source_id)
-        textSource = source ? textSource + source.name + ";" : textSource
+        textSource = source ? textSource + source.name + "; " : textSource
       })
       list.push({
         key: 'source',
@@ -466,7 +355,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.packed_on_min || initialValues.packed_on_max) {
-      let textOrderCreateDate = (initialValues.packed_on_min ? moment(initialValues.packed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.packed_on_max ? moment(initialValues.packed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCreateDate = (initialValues.packed_on_min ? initialValues.packed_on_min : '??') + " ~ " + (initialValues.packed_on_max ? initialValues.packed_on_max : '??')
       list.push({
         key: 'packed',
         name: 'Ngày đóng gói',
@@ -474,7 +363,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? moment(initialValues.ship_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.ship_on_max ? moment(initialValues.ship_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
       list.push({
         key: 'ship',
         name: 'Ngày giao hàng',
@@ -482,7 +371,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
-      let textOrderExportedate = (initialValues.exported_on_min ? moment(initialValues.exported_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.exported_on_max ? moment(initialValues.exported_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderExportedate = (initialValues.exported_on_min ? initialValues.exported_on_min : '??') + " ~ " + (initialValues.exported_on_max ? initialValues.exported_on_max : '??')
       list.push({
         key: 'exported',
         name: 'Ngày xuất kho',
@@ -490,7 +379,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -499,31 +388,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.received_on_min || initialValues.received_on_max) {
-      let textExpectReceiveDate = (initialValues.received_on_min ? moment(initialValues.received_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.received_on_max ? moment(initialValues.received_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
       list.push({
         key: 'received',
         name: 'Ngày hoàn tất đơn',
         value: textExpectReceiveDate
       })
     }
-    // if (initialValues.status.length) {
-    //   let textStatus = ""
-    //   initialValues.status.forEach(i => {
-    //     const findStatus = status?.find(item => item.value === i)
-    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-    //   })
-    //   list.push({
-    //     key: 'status',
-    //     name: 'Trạng thái đơn hàng',
-    //     value: textStatus
-    //   })
-    // }
+
     if (initialValues.reference_status.length) {
       let textStatus = ""
       
       initialValues.reference_status.forEach(i => {
         const findStatus = controlStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
         key: 'reference_status',
@@ -535,7 +413,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textAccount = ""
       initialValues.shipper_ids.forEach(i => {
         const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id.toString() === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({
         key: 'shipper_ids',
@@ -547,7 +425,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textService = ""
       initialValues.delivery_provider_ids.forEach(i => {
         const findService = deliveryService?.find(item => item.id === i)
-        textService = findService ? textService + findService.name + ";" : textService
+        textService = findService ? textService + findService.name + "; " : textService
       })
       list.push({
         key: 'delivery_provider_ids',
@@ -560,7 +438,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textStatus = ""
       initialValues.print_status.forEach(i => {
         const findStatus = printStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+        textStatus = findStatus ? textStatus + findStatus.name + "; " : textStatus
       })
       list.push({
         key: 'print_status',
@@ -572,7 +450,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textAccount = ""
       initialValues.account_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({
         key: 'account_codes',
@@ -594,7 +472,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       
       console.log('optionsVariant', optionsVariant)
       optionsVariant.forEach(i => {
-        textVariant = textVariant + i.label + ";"
+        textVariant = textVariant + i.label + "; "
       })
       list.push({
         key: 'variant_ids',
@@ -607,7 +485,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textType = ""
       initialValues.delivery_types.forEach(i => {
         const findVariant = serviceType?.find(item => item.value === i)
-        textType = findVariant ? textType + findVariant.name + ";" : textType
+        textType = findVariant ? textType + findVariant.name + "; " : textType
       })
       list.push({
         key: 'delivery_types',
@@ -619,7 +497,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textReason = ""
       initialValues.cancel_reason.forEach(cancel_id => {
         const reason = reasons?.find(reason => reason.id.toString() === cancel_id)
-        textReason = reason ? textReason + reason.name + ";" : textReason
+        textReason = reason ? textReason + reason.name + "; " : textReason
       })
       
       list.push({
@@ -647,7 +525,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.tags.length) {
       let textStatus = ""
       initialValues.tags.forEach(i => {
-        textStatus = textStatus + i + ";"
+        textStatus = textStatus + i + "; "
       })
       list.push({
         key: 'tags',
@@ -669,6 +547,21 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       return 800
     }
   }
+
+  const clearFilter = () => {
+    onClearFilter && onClearFilter();
+    setPackedClick('')
+    setExportedClick('')
+    setShipClick('')
+    setReceivedClick('')
+    setCancelledClick('')
+  
+    setVisible(false);
+    setRerender(false);
+  };
+  useLayoutEffect(() => {
+    window.addEventListener('resize', () => setVisible(false))
+  }, []);
 
   useEffect(() => {
     if (params.variant_ids.length) {
@@ -740,17 +633,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={() => {
-            onClearFilter && onClearFilter();
-            setVisible(false);
-          }}
+          onClearFilter={() => clearFilter()}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
           className="order-filter-drawer"
           width={widthScreen()}
         >
-          {visible && <Form
+          {rerender && <Form
             onFinish={onFinish}
             ref={formRef}
             initialValues={params}
@@ -762,7 +652,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="store_ids">
                   <CustomSelect
                     mode="multiple"
-                    showArrow
+                    showArrow allowClear
                     showSearch
                     placeholder="Cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
@@ -807,8 +697,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <CustomSelect
                     mode="multiple"
                     style={{ width: '100%'}}
-                    showArrow
-                    showSearch
+                    showArrow maxTagCount='responsive'
+                    showSearch allowClear
                     placeholder="Nguồn đơn hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     optionFilterProp="children"
@@ -844,164 +734,59 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 {/* </Item> */}
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
-                  <p>Ngày đóng gói</p>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('packed', 'yesterday')} className={packedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'today')} className={packedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'thisweek')} className={packedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('packed', 'lastweek')} className={packedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'thismonth')} className={packedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'lastmonth')} className={packedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <div className="date-range">
-                      <Item name="packed_on_min" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Từ ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setPackedClick('')}
-                        />
-                      </Item>
-                      <div className="swap-right-icon"><SwapRightOutlined /></div>
-                      <Item name="packed_on_max" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Đến ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setPackedClick('')}
-                        />
-                      </Item>
-                    </div>
+                <p>Ngày đóng gói</p>
+                <CustomRangeDatePicker
+                  fieldNameFrom="packed_on_min"
+                  fieldNameTo="packed_on_max"
+                  activeButton={packedClick}
+                  setActiveButton={setPackedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
-                  <p>Ngày xuất kho</p>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('exported', 'yesterday')} className={exportedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'today')} className={exportedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'thisweek')} className={exportedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('exported', 'lastweek')} className={exportedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'thismonth')} className={exportedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'lastmonth')} className={exportedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <div className="date-range">
-                      <Item name="exported_on_min" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Từ ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setExportedClick('')}
-                        />
-                      </Item>
-                      <div className="swap-right-icon"><SwapRightOutlined /></div>
-                      <Item name="exported_on_max" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Đến ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setExportedClick('')}
-                        />
-                      </Item>
-                    </div>
+                <p>Ngày xuất kho</p>
+                <CustomRangeDatePicker
+                  fieldNameFrom="exported_on_min"
+                  fieldNameTo="exported_on_max"
+                  activeButton={exportedClick}
+                  setActiveButton={setExportedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
-                  <p>Ngày giao hàng</p>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'yesterday')} className={shipClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'today')} className={shipClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thisweek')} className={shipClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'lastweek')} className={shipClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thismonth')} className={shipClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')} className={shipClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <div className="date-range">
-                      <Item name="ship_on_min" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Từ ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setShipClick('')}
-                        />
-                      </Item>
-                      <div className="swap-right-icon"><SwapRightOutlined /></div>
-                      <Item name="ship_on_max" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Đến ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setShipClick('')}
-                        />
-                      </Item>
-                    </div>
+                <p>Ngày giao hàng</p>
+                <CustomRangeDatePicker
+                  fieldNameFrom="ship_on_min"
+                  fieldNameTo="ship_on_max"
+                  activeButton={shipClick}
+                  setActiveButton={setShipClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
-                  <p>Ngày hoàn tất đơn</p>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('received', 'thisweek')} className={receivedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('received', 'lastweek')} className={receivedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('received', 'thismonth')} className={receivedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('received', 'lastmonth')} className={receivedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <div className="date-range">
-                      <Item name="received_on_min" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Từ ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setReceivedClick('')}
-                        />
-                      </Item>
-                      <div className="swap-right-icon"><SwapRightOutlined /></div>
-                      <Item name="received_on_max" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Đến ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setReceivedClick('')}
-                        />
-                      </Item>
-                    </div>
+                <p>Ngày hoàn tất đơn</p>
+                <CustomRangeDatePicker
+                  fieldNameFrom="received_on_min"
+                  fieldNameTo="received_on_max"
+                  activeButton={receivedClick}
+                  setActiveButton={setReceivedClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px'}}>
-                  <p>Ngày huỷ đơn</p>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')} className={cancelledClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'today')} className={cancelledClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')} className={cancelledClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
-                    </div>
-                    <div className="date-option">
-                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')} className={cancelledClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')} className={cancelledClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')} className={cancelledClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
-                    </div>
-                    <div className="date-range">
-                      <Item name="cancelled_on_min" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Từ ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setCancelledClick('')}
-                        />
-                      </Item>
-                      <div className="swap-right-icon"><SwapRightOutlined /></div>
-                      <Item name="cancelled_on_max" style={{width: "45%", marginBottom: 0}}>
-                        <CustomDatepicker
-                          format="DD-MM-YYYY"
-                          placeholder="Đến ngày"
-                          style={{width: "100%"}}
-                          onChange={() => setCancelledClick('')}
-                        />
-                      </Item>
-                    </div>
+                <p>Ngày huỷ đơn</p>
+                <CustomRangeDatePicker
+                  fieldNameFrom="cancelled_on_min"
+                  fieldNameTo="cancelled_on_max"
+                  activeButton={cancelledClick}
+                  setActiveButton={setCancelledClick}
+                  format="DD-MM-YYYY"
+                  formRef={formRef}
+                />
               </Col>
               <Col span={12} xxl={8}>
                 <p>Đối tác giao hàng</p>
@@ -1009,8 +794,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Select
                   mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
                   notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow
-                  getPopupContainer={trigger => trigger.parentNode}
+                  optionFilterProp="children" showArrow maxTagCount='responsive'
+                  getPopupContainer={trigger => trigger.parentNode} allowClear
                 >
                   {accounts.filter(account => account.is_shipper === true)?.map((account) => (
                     <Option key={account.id} value={account.id.toString()}>
@@ -1023,9 +808,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Item name="account_codes">
                   <Select
                     mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
-                    notFoundContent="Không tìm thấy kết quả" showArrow
+                    notFoundContent="Không tìm thấy kết quả" showArrow maxTagCount='responsive'
                     optionFilterProp="children" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode}
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
                     {accounts.map((item, index) => (
                       <Option
@@ -1047,8 +832,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Sản phẩm</p>
                 <Item name="variant_ids">
                   <DebounceSelect
-                    mode="multiple" showArrow
-                    placeholder="Tìm kiếm sản phẩm"
+                    mode="multiple" showArrow maxTagCount='responsive'
+                    placeholder="Tìm kiếm sản phẩm" allowClear
                     fetchOptions={searchVariants}
                     optionsVariant={optionsVariant}
                     style={{
@@ -1061,10 +846,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <p>Hình thức vận chuyển</p>
                 <Item name="delivery_types">
                   <Select
-                    mode="multiple" showArrow
+                    mode="multiple" showArrow maxTagCount='responsive'
                     optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
                     placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode}
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
                     {serviceType?.map((item) => (
                       <Option key={item.value} value={item.value}>
@@ -1078,8 +863,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Select
                   mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
                   notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                  optionFilterProp="children" showArrow
-                  getPopupContainer={trigger => trigger.parentNode}
+                  optionFilterProp="children" showArrow maxTagCount='responsive'
+                  getPopupContainer={trigger => trigger.parentNode} allowClear
                 >
                   {deliveryService?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -1092,11 +877,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col  span={12} xxl={8}>
                 <p>Lý do huỷ giao</p>
                 <Item name="cancel_reason">
-                <Select
+                  <Select
                     mode="multiple" showSearch placeholder="Chọn lý do huỷ giao"
                     notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children" showArrow
-                    getPopupContainer={trigger => trigger.parentNode}
+                    optionFilterProp="children" showArrow maxTagCount='responsive'
+                    getPopupContainer={trigger => trigger.parentNode} allowClear
                   >
                     {reasons.map((reason) => (
                       <Option key={reason.id.toString()} value={reason.id.toString()}>
@@ -1113,7 +898,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={12} xxl={8}>
                 <p>Tags</p>
                 <Item name="tags">
-                  <Select mode="tags" showArrow optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
+                  <Select
+                    mode="tags"showArrow maxTagCount='responsive'
+                    optionFilterProp="children" showSearch
+                    placeholder="Chọn 1 hoặc nhiều tag"
+                    style={{width: '100%'}} allowClear
+                  >
                 </Select>
                 </Item>
                 <p>Ghi chú nội bộ</p>

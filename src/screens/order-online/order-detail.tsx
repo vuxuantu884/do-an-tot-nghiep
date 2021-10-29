@@ -1,4 +1,4 @@
-import { Button, Card, Col, Collapse, Divider, Form, Modal, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -12,6 +12,7 @@ import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-retur
 import {
   cancelOrderRequest,
   confirmDraftOrderAction,
+  getListReasonRequest,
   OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction,
@@ -54,6 +55,7 @@ import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
+import CancelOrderModal from "./modal/cancel-order.modal";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -98,7 +100,8 @@ const OrderDetail = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
+  const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>([]);
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
@@ -295,88 +298,27 @@ const OrderDetail = (props: PropType) => {
 
   const onSuccessCancel = () => {
     setReload(true);
+    setVisibleCancelModal(false)
   };
 
   const onError = () => {
     // setReload(true)
+    setVisibleCancelModal(false)
   };
 
   const handleCancelOrder = useCallback(
-    (id: any) => {
-      dispatch(cancelOrderRequest(id, onSuccessCancel, onError));
-      // dispatch(cancelOrderRequest(id));
+    (reason_id: number, reason: string) => {
+      reason = reason_id === 1 ? reason : ''
+      dispatch(cancelOrderRequest(OrderId, reason_id, reason, onSuccessCancel, onError));
     },
-    [dispatch]
-  );
-
-  const cancelModal = useCallback(
-    (type) => {
-      // console.log("OrderDetail", OrderDetail);
-      switch (type) {
-        case 1:
-          Modal.confirm({
-            title: `Xác nhận huỷ đơn hàng`,
-            content: (
-              <div>
-                <p>
-                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>? Thao tác này
-                  không thể khôi phục và tác động:
-                </p>
-                <p>- Thay đổi thông số kho các sản phẩm trong đơn hàng</p>
-                <p>
-                  - Huỷ các chứng từ liên quan: vận đơn, phiếu thu thanh toán đơn hàng,
-                  phiếu thu đặt cọc shipper
-                </p>
-                <p>- Cập nhật công nợ khách hàng, công nợ đối tác vận chuyển</p>
-                <p>- Cập nhật lịch sử khuyến mãi, lịch sử tích điểm</p>
-              </div>
-            ),
-            maskClosable: true,
-            width: "600px",
-            onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => {},
-            okText: "Xác nhận",
-            cancelText: "Huỷ",
-          });
-          break;
-        case 2:
-          Modal.confirm({
-            title: `Xác nhận huỷ đơn hàng`,
-            content: (
-              <div>
-                <p>
-                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>?
-                </p>
-              </div>
-            ),
-            maskClosable: true,
-            width: "600px",
-            onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => {},
-            okText: "Xác nhận",
-            cancelText: "Huỷ",
-          });
-          break;
-        default:
-          break;
-      }
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 500);
-    },
-    [OrderDetail, handleCancelOrder]
+    [OrderId, dispatch]
   );
 
   const orderActionsClick = useCallback(
     (type) => {
       switch (type) {
         case "cancel":
-          if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
-            cancelModal(1);
-          } else {
-            cancelModal(2);
-          }
-
+          setVisibleCancelModal(true);
           break;
         case "update":
           history.push(`${UrlConfig.ORDER}/${id}/update`);
@@ -393,7 +335,7 @@ const OrderDetail = (props: PropType) => {
           break;
       }
     },
-    [OrderDetail?.fulfillments, cancelModal, history, id]
+    [history, id]
   );
 
   /**
@@ -460,6 +402,7 @@ const OrderDetail = (props: PropType) => {
 
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getListReasonRequest(setReasons));
   }, [dispatch, setDataAccounts]);
 
   useEffect(() => {
@@ -1182,6 +1125,13 @@ const OrderDetail = (props: PropType) => {
             />
           </Form>
         </div>
+        <CancelOrderModal
+          visible={visibleCancelModal}
+          orderCode={OrderDetail?.code}
+          onCancel={() => setVisibleCancelModal(false)}
+          onOk={(reasonID: number, reason: string) => handleCancelOrder(reasonID, reason)}
+          reasons={reasons}
+        />
       </ContentContainer>
     </OrderDetailContext.Provider>
   );

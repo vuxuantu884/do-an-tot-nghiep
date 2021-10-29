@@ -16,6 +16,7 @@ import {
 import { SearchOutlined } from "@ant-design/icons";
 
 import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 
 import CustomTable from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter";
@@ -102,8 +103,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
-      create_time_from: null,
-      create_time_to: null,
+      connected_date_from: null,
+      connected_date_to: null,
     }),
     []
   );
@@ -117,8 +118,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    create_time_from: null,
-    create_time_to: null,
+    connected_date_from: null,
+    connected_date_to: null,
   });
 
 
@@ -369,7 +370,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     }, [resultSearchVariant]);
 
     const gotoProductDetail = () => {
-      const link = `https://dev.yody.io/unicorn/admin/products/${productSelected.product_id}/variants/${productSelected.id}`;
+      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`
       window.open(link, "_blank");
     };
 
@@ -558,8 +559,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
-      query.create_time_from = value.create_time_from;
-      query.create_time_to = value.create_time_to;
+      query.connected_date_from = value.connected_date_from;
+      query.connected_date_to = value.connected_date_to;
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };

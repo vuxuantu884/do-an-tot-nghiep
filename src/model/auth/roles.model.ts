@@ -1,19 +1,26 @@
+import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
-
-export interface RoleResponse extends BaseObject {
+import { ModuleAuthorize } from "./module.model";
+export interface RoleAuthorize extends BaseObject {
   name: string;
-  note: string;
+  description?: string;
+  modules?: ModuleAuthorize[];
 }
 
-export interface RoleSearchQuery {
+export interface RoleAuthorizeRequest extends RoleAuthorize {
+  permissions?: number[];
+}
+
+export interface RoleResponse extends RoleAuthorize {}
+
+export interface RoleSearchQuery extends BaseQuery {
   name?: string;
-  page?: number;
-  size?: number;
+  
 }
 
 export interface AuthenRequest {
-  user_name: string,
-  password: string,
+  user_name: string;
+  password: string;
 }
 
 export interface RoleProfile {
