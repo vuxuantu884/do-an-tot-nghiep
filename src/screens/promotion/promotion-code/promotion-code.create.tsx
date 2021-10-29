@@ -7,7 +7,7 @@ import {Button, Card, Col, Form, Row, Select} from "antd";
 import {showError} from "../../../utils/ToastUtils";
 import arrowLeft from "../../../assets/icon/arrow-left.svg";
 import {DiscountCreateModel} from "../../../model/promotion/discount.create.model";
-import GeneralInfo from "./components/general.info";
+import GeneralCreate from "./components/general.create";
 
 const CreatePromotionCodePage = () => {
   const [promotionForm] = Form.useForm();
@@ -61,7 +61,7 @@ const CreatePromotionCodePage = () => {
       >
         <Row gutter={24}>
           <Col span={24}>
-            <GeneralInfo
+            <GeneralCreate
               className="general-info"
               form={promotionForm}
               name="general_add"

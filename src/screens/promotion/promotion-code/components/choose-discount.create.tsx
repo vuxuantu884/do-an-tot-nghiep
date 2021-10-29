@@ -5,7 +5,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-const FixedPriceSelection = (props: any) => {
+const ChooseDiscount = (props: any) => {
   const {form} = props;
   const [typeUnit, setTypeUnit] = useState("PERCENT")
 
@@ -118,4 +118,4 @@ const FixedPriceSelection = (props: any) => {
   );
 }
 
-export default FixedPriceSelection;
+export default ChooseDiscount;

@@ -6,7 +6,7 @@ import {
 } from "antd";
 import "../promotion-code.scss"
 import React, {useMemo, useState} from "react";
-import TypeDiscountCodeSelection from "./TypeDiscountCodeSelection";
+import ChooseDiscount from "./choose-discount.create";
 import CustomInput from "component/custom/custom-input";
 import { SearchOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
@@ -20,7 +20,7 @@ const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
 
 
-const GeneralInfo = (props: any) => {
+const GeneralCreate = (props: any) => {
   const { form } = props;
 
   const [showTimeAdvance, setShowTimeAdvance] = useState(false)
@@ -225,7 +225,7 @@ const GeneralInfo = (props: any) => {
                 </Select>
               </Form.Item>
             </Col>
-            {type === 'SALE_CODE' && <TypeDiscountCodeSelection form={form}/>}
+            {type === 'SALE_CODE' && <ChooseDiscount form={form}/>}
           </Row>
         </Card>
         <Card
@@ -489,4 +489,4 @@ const GeneralInfo = (props: any) => {
   )
 }
 
-export default GeneralInfo;
+export default GeneralCreate;
