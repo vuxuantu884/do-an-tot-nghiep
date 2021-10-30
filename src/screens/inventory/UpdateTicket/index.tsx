@@ -219,7 +219,7 @@ const UpdateTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -1049,6 +1049,7 @@ const UpdateTicket: FC = () => {
             />
             {visibleManyProduct && (
               <PickManyProductModal
+                isTransfer
                 storeID={form.getFieldValue("from_store_id")}
                 selected={[]}
                 onSave={onPickManyProduct}

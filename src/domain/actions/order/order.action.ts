@@ -38,6 +38,7 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { SourceEcommerceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
 
@@ -49,7 +50,7 @@ export const orderCreateAction = (
 };
 
 export const orderUpdateAction = (
-  id: string,
+  id: number,
   request: OrderRequest,
   setData: (data: OrderResponse) => void,
   onError: () => void
@@ -353,11 +354,11 @@ export const getListReasonRequest = (
 };
 
 export const cancelOrderRequest = (
-  id: number | undefined,
+  id: number, reason_id: number, reason: string,
   onSuccess: (success: any) => void,
   onError: (error: any) => void
 ) => {
-  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, onSuccess, onError });
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, reason, onSuccess, onError });
 };
 
 export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
@@ -429,3 +430,7 @@ export const splitOrderAction = (
     },
   };
 };
+
+export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceResponse>) => void) => {
+  return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
+}

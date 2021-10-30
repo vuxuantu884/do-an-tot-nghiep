@@ -19,8 +19,8 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { CityView } from "model/content/district.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {CityView} from "model/content/district.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   AccountGetByIdtAction,
   DepartmentGetListAction,
@@ -36,51 +36,44 @@ import {
   AccountStoreResponse,
   AccountView,
 } from "model/account/account.model";
-import { EyeInvisibleOutlined, EyeTwoTone, PlusOutlined } from "@ant-design/icons";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { convertDistrict } from "utils/AppUtils";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
-import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
-import { RoleGetListAction } from "domain/actions/auth/role.action";
+import {EyeInvisibleOutlined, EyeTwoTone, PlusOutlined} from "@ant-design/icons";
+import {CountryResponse} from "model/content/country.model";
+import {DistrictResponse} from "model/content/district.model";
+import {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {convertDistrict} from "utils/AppUtils";
+import {StoreGetListAction} from "domain/actions/core/store.action";
+import {StoreResponse} from "model/core/store.model";
+import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
+import {RoleGetListAction} from "domain/actions/auth/role.action";
 import deleteIcon from "assets/icon/delete.svg";
 import moment from "moment";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { useParams } from "react-router-dom";
+import {DepartmentResponse} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {useParams} from "react-router-dom";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import { PASSWORD_RULES } from "./account.rules";
-import { RuleObject } from "rc-field-form/lib/interface";
+import {PASSWORD_RULES} from "./account.rules";
+import {RuleObject} from "rc-field-form/lib/interface";
 
-const { Item } = Form;
-const { Option, OptGroup } = Select;
+const {Item} = Form;
+const {Option, OptGroup} = Select;
 
 const DefaultCountry = 233;
 
 const initRoleQuery: RoleSearchQuery = {
   page: 1,
-  size: 200,
+  limit: 200,
 };
 type AccountParam = {
   code: string;
 };
 
 const AccountUpdateScreen: React.FC = () => {
-  const { code: userCode } = useParams<AccountParam>();
- 
+  const {code: userCode} = useParams<AccountParam>();
+
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const history = useHistory();
@@ -95,7 +88,7 @@ const AccountUpdateScreen: React.FC = () => {
   const listStoreRoot = useRef<Array<AccountStoreResponse>>();
   const listRolesRoot = useRef<Array<AccountRolesResponse>>();
   const idNumber = useRef<number>(0);
- 
+
   //State
   const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
     {
@@ -112,7 +105,7 @@ const AccountUpdateScreen: React.FC = () => {
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
-  const [isSelectAllStore, setIsSelectAllStore] = useState(false)
+  const [isSelectAllStore, setIsSelectAllStore] = useState(false);
   //EndState
 
   //Callback
@@ -226,7 +219,7 @@ const AccountUpdateScreen: React.FC = () => {
       };
       if (idNumber) {
         dispatch(AccountUpdateAction(idNumber.current, accountModel, onUpdateSuccess));
-      } 
+      }
     },
     [dispatch, idNumber, listaccountJob, onUpdateSuccess]
   );
@@ -273,7 +266,7 @@ const AccountUpdateScreen: React.FC = () => {
       status: data.status,
       version: data.version,
     };
-    idNumber.current= data.id;
+    idNumber.current = data.id;
     setStatus(accountView.status);
     setAccountDetail(accountView);
   }, []);
@@ -294,7 +287,6 @@ const AccountUpdateScreen: React.FC = () => {
     return listStore?.map((item) => item.id);
   }, [listStore]);
 
-
   //end memo
 
   const columns = [
@@ -310,10 +302,8 @@ const AccountUpdateScreen: React.FC = () => {
               showArrow
               optionFilterProp="children"
               onChange={(value) => onChangeDepartment(value, index, item.id)}
-              style={{ width: "100%" }}
-              defaultValue={
-                item.department_id === 0 ? undefined : item.position_id
-              }
+              style={{width: "100%"}}
+              defaultValue={item.department_id === 0 ? undefined : item.position_id}
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -337,10 +327,8 @@ const AccountUpdateScreen: React.FC = () => {
               showArrow
               optionFilterProp="children"
               onChange={(value) => onChangePosition(value, index, item.id)}
-              style={{ width: "100%" }}
-              defaultValue={
-                item.position_id === 0 ? undefined : item.position_id
-              }
+              style={{width: "100%"}}
+              defaultValue={item.position_id === 0 ? undefined : item.position_id}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -441,14 +429,14 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
+                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
                 >
                   <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+                  rules={[{required: true, message: "Vui lòng chọn giới tính"}]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -471,7 +459,7 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Mã nhân viên"
                   name="code"
-                  rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
                 >
                   <Input className="r-5" placeholder="VD: YD0000" size="large" />
                 </Item>
@@ -481,7 +469,7 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
+                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
                 >
                   <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
                 </Item>
@@ -498,7 +486,7 @@ const AccountUpdateScreen: React.FC = () => {
                     autoComplete="new-password"
                     iconRender={(visible) =>
                       visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                    }                    
+                    }
                   />
                 </Item>
               </Col>
@@ -509,7 +497,7 @@ const AccountUpdateScreen: React.FC = () => {
                   dependencies={["password"]}
                   hasFeedback
                   rules={[
-                    ({ getFieldValue }) => ({
+                    ({getFieldValue}) => ({
                       validator(_: RuleObject, value: string) {
                         if (!value || getFieldValue("password") === value) {
                           return Promise.resolve();
@@ -532,7 +520,7 @@ const AccountUpdateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
+                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
@@ -553,7 +541,7 @@ const AccountUpdateScreen: React.FC = () => {
                         value === "all"
                       ) {
                         if (isSelectAllStore) {
-                          formRef.current?.setFieldsValue({ account_stores: [] });
+                          formRef.current?.setFieldsValue({account_stores: []});
                           setIsSelectAllStore(false);
                         } else {
                           formRef.current?.setFieldsValue({
@@ -591,7 +579,7 @@ const AccountUpdateScreen: React.FC = () => {
                     format="DD/MM/YYYY"
                     style={{width: '100%'}}
                   /> */}
-                  <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
+                  <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -711,7 +699,7 @@ const AccountUpdateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
+          <div className="margin-top-10" style={{textAlign: "right"}}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy

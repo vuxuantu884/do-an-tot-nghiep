@@ -1,6 +1,6 @@
 import UrlConfig from "config/url.config";
 import React from "react";
-import { RouteMenu } from "model/other";
+import {RouteMenu} from "model/other";
 
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
@@ -60,6 +60,19 @@ const OrderSettingsCreateShippingServicesAndShippingFeeScreen = React.lazy(
 const OrderSettingsCreateShippingServicesAndShippingDetailScreen = React.lazy(
   () => import("screens/settings/order-settings/ShippingServicesAndShippingFee/id")
 );
+const DepartmentSearchScreen = React.lazy(
+  () => import("screens/settings/department/Search")
+);
+const DepartmentCreateScreen = React.lazy(
+  () => import("screens/settings/department/Create")
+);
+const DepartmentDetailScreen = React.lazy(
+  () => import("screens/settings/department/Detail")
+);
+const DepartmentUpdateScreen = React.lazy(
+  () => import("screens/settings/department/Update")
+);
+
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -93,6 +106,52 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+      },
+    ],
+  },
+  {
+    path: UrlConfig.DEPARTMENT,
+    exact: true,
+    title: "Quản lý phòng ban/bộ phận",
+    icon: "icon-dot",
+    component: DepartmentSearchScreen,
+    key: "subMenu910",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.DEPARTMENT}/create`,
+        exact: true,
+        title: "Thêm mới",
+        icon: "icon-dot",
+        component: DepartmentCreateScreen,
+        key: "subMenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.DEPARTMENT}/:id`,
+        exact: true,
+        title: "Chi tiết Phòng ban/Bộ phận",
+        icon: "icon-dot",
+        component: DepartmentDetailScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.DEPARTMENT}/:id/edit`,
+        exact: true,
+        title: "Chi tiết Phòng ban/Bộ phận",
+        icon: "icon-dot",
+        component: DepartmentUpdateScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
       },
     ],
   },

@@ -233,6 +233,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       show_note: false,
       gifts: [],
       position: undefined,
+      available:variant.available
     };
     return orderLine;
   }, []);

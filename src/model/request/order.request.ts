@@ -264,6 +264,7 @@ export interface OrderLineItemRequest {
   discount_amount: number;
   position?: number;
   gifts: Array<OrderLineItemRequest>;
+  available:number|null;
 }
 
 export interface OrderItemDiscountRequest {

@@ -631,7 +631,7 @@ const tab= document.getElementById("tab");
                         data={dataInventory}
                       />
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="Lich sử tồn kho" key={TabName.HISTORY}>
+                    <Tabs.TabPane tab="Lịch sử tồn kho" key={TabName.HISTORY}>
                       <TabProductHistory
                         onChange={onChangeDataHistory}
                         data={dataHistory}

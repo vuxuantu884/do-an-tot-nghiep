@@ -1,3 +1,4 @@
+import { showSuccess } from "./../../../utils/ToastUtils";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -21,11 +22,112 @@ import {
   ecommercePostSyncStockItemApi,
   ecommerceGetCategoryListApi,
   ecommercePutConnectItemApi,
-  postEcommerceOrderApi
+  postEcommerceOrderApi,
+  getFpageCustomer,
+  addFpagePhone,
+  deleteFpagePhone,
+  setFpageDefaultPhone,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { FpageCustomerResponse } from "model/response/ecommerce/fpage.response";
 
+function* addFpagePhoneSaga(action: YodyAction) {
+  let { userId, phone, setData } = action.payload;
+  try {
+    const response: BaseResponse<FpageCustomerResponse> = yield call(
+      addFpagePhone,
+      userId,
+      phone
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Thêm số điện thoại thành công");
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+function* deleteFpagePhoneSaga(action: YodyAction) {
+  let { userId, phone, setData } = action.payload;
+  try {
+    const response: BaseResponse<FpageCustomerResponse> = yield call(
+      deleteFpagePhone,
+      userId,
+      phone
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Xóa số điện thoại thành công");
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+function* setFpageDefaultPhoneSaga(action: YodyAction) {
+  let { userId, phone, setData } = action.payload;
+  try {
+    const response: BaseResponse<FpageCustomerResponse> = yield call(
+      setFpageDefaultPhone,
+      userId,
+      phone
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Đặt số điện thoại mặc định thành công");
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+function* getFpageCustomerSaga(action: YodyAction) {
+  let { userId, setData } = action.payload;
+  try {
+    const response: BaseResponse<FpageCustomerResponse> = yield call(
+      getFpageCustomer,
+      userId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 // connect to the eccommerce
 function* ecommerceConnectSaga(action: YodyAction) {
   let { setData } = action.payload;
@@ -202,7 +304,7 @@ function* ecommerceDeleteSaga(action: YodyAction) {
 
 function* ecommerceGetVariantsSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceGetVariantsApi,
@@ -228,7 +330,7 @@ function* ecommerceGetVariantsSaga(action: YodyAction) {
 
 function* ecommerceGetShopSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceGetShopApi,
@@ -254,7 +356,7 @@ function* ecommerceGetShopSaga(action: YodyAction) {
 
 function* ecommercePostVariantsSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommercePostVariantsApi,
@@ -280,7 +382,7 @@ function* ecommercePostVariantsSaga(action: YodyAction) {
 
 function* ecommerceDeleteItemSaga(action: YodyAction) {
   let { ids, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceDeleteItemApi,
@@ -306,7 +408,7 @@ function* ecommerceDeleteItemSaga(action: YodyAction) {
 
 function* ecommerceDisconnectItemSaga(action: YodyAction) {
   let { ids, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceDisconnectItemApi,
@@ -332,7 +434,7 @@ function* ecommerceDisconnectItemSaga(action: YodyAction) {
 
 function* ecommercePostSyncStockItemSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommercePostSyncStockItemApi,
@@ -358,7 +460,7 @@ function* ecommercePostSyncStockItemSaga(action: YodyAction) {
 
 function* ecommerceGetCategoryListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommerceGetCategoryListApi,
@@ -384,7 +486,7 @@ function* ecommerceGetCategoryListSaga(action: YodyAction) {
 
 function* ecommercePutConnectItemSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       ecommercePutConnectItemApi,
@@ -411,7 +513,7 @@ function* ecommercePutConnectItemSaga(action: YodyAction) {
 //ecommerce order saga
 function* postEcommerceOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
-  
+
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       postEcommerceOrderApi,
@@ -435,59 +537,41 @@ function* postEcommerceOrderSaga(action: YodyAction) {
   }
 }
 
-
 export function* ecommerceSaga() {
-  yield takeLatest(
-    EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST,
-    ecommerceUpdateSaga
-  );
-  yield takeLatest(
-    EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST,
-    ecommerceCreateSaga
-  );
+  yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
+  yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
+  yield takeLatest(EcommerceType.SET_FPAGE_DEFAULT_PHONE, setFpageDefaultPhoneSaga);
+  yield takeLatest(EcommerceType.GET_FPAGE_CUSTOMER, getFpageCustomerSaga);
+
+  yield takeLatest(EcommerceType.UPDATE_ECOMMERCE_CONFIG_REQUEST, ecommerceUpdateSaga);
+  yield takeLatest(EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST, ecommerceCreateSaga);
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_CONFIG_INFO_REQUEST,
     ecommerceGetConfigInfoSaga
   );
-  yield takeLatest(
-    EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST,
-    ecommerceConnectSaga
-  );
+  yield takeLatest(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, ecommerceConnectSaga);
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_CONFIG_BY_ID_REQUEST,
     ecommerceGetByIdSaga
   );
-  yield takeLatest(
-    EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST,
-    ecommerceGetSaga
-  );
+  yield takeLatest(EcommerceType.GET_ECOMMERCE_CONFIG_REQUEST, ecommerceGetSaga);
 
-  yield takeLatest(
-    EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST,
-    ecommerceDeleteSaga
-  );
+  yield takeLatest(EcommerceType.DELETE_ECOMMERCE_CONFIG_REQUEST, ecommerceDeleteSaga);
 
   yield takeLatest(
     EcommerceType.GET_ECOMMERCE_VARIANTS_REQUEST,
     ecommerceGetVariantsSaga
   );
-  
-  yield takeLatest(
-    EcommerceType.GET_ECOMMERCE_SHOP_REQUEST,
-    ecommerceGetShopSaga
-  );
+
+  yield takeLatest(EcommerceType.GET_ECOMMERCE_SHOP_REQUEST, ecommerceGetShopSaga);
 
   yield takeLatest(
     EcommerceType.POST_ECOMMERCE_VARIANTS_REQUEST,
     ecommercePostVariantsSaga
   );
 
-  yield takeLatest(
-    EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST,
-    ecommerceDeleteItemSaga
-  );
+  yield takeLatest(EcommerceType.DELETE_ECOMMERCE_ITEM_REQUEST, ecommerceDeleteItemSaga);
 
-  
   yield takeLatest(
     EcommerceType.DISCONNECT_ECOMMERCE_ITEM_REQUEST,
     ecommerceDisconnectItemSaga
@@ -509,8 +593,5 @@ export function* ecommerceSaga() {
   );
 
   //ecommerce order takeLatest
-  yield takeLatest(
-    EcommerceType.POST_ECOMMERCE_ORDER_REQUEST,
-    postEcommerceOrderSaga
-  );
+  yield takeLatest(EcommerceType.POST_ECOMMERCE_ORDER_REQUEST, postEcommerceOrderSaga);
 }

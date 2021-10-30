@@ -18,7 +18,6 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
-  OrderFulfillmentsModel,
   OrderItemModel,
   OrderModel,
   OrderPaymentModel,
@@ -280,23 +279,33 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "HTVC",
-      dataIndex: "fulfillments",
       key: "shipment.type",
-      render: (fulfillments: Array<OrderFulfillmentsModel>) => {
-        const service_id =
-          fulfillments.length && fulfillments[0].shipment
-            ? fulfillments[0].shipment.delivery_service_provider_id
-            : null;
-        const service = delivery_service.find((service) => service.id === service_id);
-        return (
-          service && (
-            <img
-              src={service.logo ? service.logo : ""}
-              alt=""
-              style={{ width: "100%" }}
-            />
-          )
-        );
+      render: (record: any) => {
+        if (record.fulfillments.length) {
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          if (newFulfillments[0].shipment) {
+            switch (newFulfillments[0].shipment.delivery_service_provider_type) {
+              case "external_service":
+                const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
+                const service = delivery_service.find((service) => service.id === service_id);
+                return (
+                  service && (
+                    <img
+                      src={service.logo ? service.logo : ""}
+                      alt=""
+                      style={{ width: "100%" }}
+                    />
+                  )
+                );
+              case "Shipper":
+                return `Đối tác - ${newFulfillments[0].shipment.shipper_code} - ${newFulfillments[0].shipment.shipper_name}`;
+              case "pick_at_store":
+                return `Nhận tại - ${record.store}`;
+              default: return ""
+            }
+          }
+        }
+        return ""
       },
       visible: true,
       width: "3.5%",

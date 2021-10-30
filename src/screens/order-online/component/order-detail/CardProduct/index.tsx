@@ -108,6 +108,8 @@ type CardProductProps = {
   fetchData?: () => void;
 };
 
+var barcode = "";
+
 const initQueryVariant: VariantSearchQuery = {
   limit: 10,
   page: 1,
@@ -177,75 +179,140 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     useState<Array<StoreResponse> | null>([]);
   //Function
 
-  const event = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement) {
-        if (
-          event.keyCode === 13 &&
-          event.target.value &&
-          event.target.id === "search_product" &&
-          orderConfig?.allow_choose_item &&
-          items &&
-          storeId
-        ) {
-          // event.target.onchange=()=>{
-          //   event.preventDefault();
-          //   event.stopPropagation();
-          // }
-          let barcode = event.target.value;
-          dispatch(
-            SearchBarCode(barcode, (data: VariantResponse) => {
-              let _items = [...items].reverse();
-              const item: OrderLineItemRequest = createItem(data);
-              let index = _items.findIndex((i) => i.variant_id === data.id);
-              item.position = items.length + 1;
+  // const event = useCallback(
+  //   (event: KeyboardEvent) => {
+  //     if (event.target instanceof HTMLInputElement) {
+  //       if (
+  //         event.keyCode === 13 &&
+  //         event.target.value &&
+  //         event.target.id === "search_product" &&
+  //         orderConfig?.allow_choose_item &&
+  //         items &&
+  //         storeId
+  //       ) {
+  //         // event.target.onchange=()=>{
+  //         //   event.preventDefault();
+  //         //   event.stopPropagation();
+  //         // }
+  //         let barcode = event.target.value;
+  //         dispatch(
+  //           SearchBarCode(barcode, (data: VariantResponse) => {
+  //             let _items = [...items].reverse();
+  //             const item: OrderLineItemRequest = createItem(data);
+  //             let index = _items.findIndex((i) => i.variant_id === data.id);
+  //             item.position = items.length + 1;
 
-              if (splitLine || index === -1) {
-                _items.push(item);
-                setAmount(amount + item.price);
-                calculateChangeMoney(
-                  _items,
-                  amount + item.price,
-                  discountRate,
-                  discountValue
-                );
-              } else {
-                let variantItems = _items.filter((item) => item.variant_id === data.id);
-                let lastIndex = variantItems.length - 1;
-                variantItems[lastIndex].quantity += 1;
-                variantItems[lastIndex].line_amount_after_line_discount +=
-                  variantItems[lastIndex].price -
-                  variantItems[lastIndex].discount_items[0].amount;
-                setAmount(
-                  amount +
-                    variantItems[lastIndex].price -
-                    variantItems[lastIndex].discount_items[0].amount
-                );
-                calculateChangeMoney(
-                  _items,
-                  amount +
-                    variantItems[lastIndex].price -
-                    variantItems[lastIndex].discount_items[0].amount,
-                  discountRate,
-                  discountValue
-                );
-              }
+  //             if (splitLine || index === -1) {
+  //               _items.push(item);
+  //               setAmount(amount + item.price);
+  //               calculateChangeMoney(
+  //                 _items,
+  //                 amount + item.price,
+  //                 discountRate,
+  //                 discountValue
+  //               );
+  //             } else {
+  //               let variantItems = _items.filter((item) => item.variant_id === data.id);
+  //               let lastIndex = variantItems.length - 1;
+  //               variantItems[lastIndex].quantity += 1;
+  //               variantItems[lastIndex].line_amount_after_line_discount +=
+  //                 variantItems[lastIndex].price -
+  //                 variantItems[lastIndex].discount_items[0].amount;
+  //               setAmount(
+  //                 amount +
+  //                   variantItems[lastIndex].price -
+  //                   variantItems[lastIndex].discount_items[0].amount
+  //               );
+  //               calculateChangeMoney(
+  //                 _items,
+  //                 amount +
+  //                   variantItems[lastIndex].price -
+  //                   variantItems[lastIndex].discount_items[0].amount,
+  //                 discountRate,
+  //                 discountValue
+  //               );
+  //             }
 
-              handleCardItems(_items.reverse());
-              autoCompleteRef.current?.blur();
-              setIsInputSearchProductFocus(false);
-              setKeySearchVariant("");
-            })
-          );
-        }
+  //             handleCardItems(_items.reverse());
+  //             autoCompleteRef.current?.blur();
+  //             setIsInputSearchProductFocus(false);
+  //             setKeySearchVariant("");
+  //           })
+  //         );
+  //       }
+  //     }
+  //   },
+  //   [items, splitLine, storeId]
+  // );
+
+  // useEffect(() => {
+  //   window.addEventListener("keydown", event);
+  // }, [event]);
+
+  const event = useCallback((event:KeyboardEvent)=>{
+    if (event.target instanceof HTMLBodyElement) {
+      if (event.key !== "Enter") {
+          barcode = barcode + event.key;
+      } else if (event.key === "Enter") {
+          if (barcode !== "" && event && items) {
+              console.log(barcode);
+              dispatch(
+                SearchBarCode(barcode, (data: VariantResponse) => {
+                  let _items = [...items].reverse();
+                  const item: OrderLineItemRequest = createItem(data);
+                  let index = _items.findIndex((i) => i.variant_id === data.id);
+                  item.position = items.length + 1;
+    
+                  if (splitLine || index === -1) {
+                    _items.push(item);
+                    setAmount(amount + item.price);
+                    calculateChangeMoney(
+                      _items,
+                      amount + item.price,
+                      discountRate,
+                      discountValue
+                    );
+                  } else {
+                    let variantItems = _items.filter((item) => item.variant_id === data.id);
+                    let lastIndex = variantItems.length - 1;
+                    variantItems[lastIndex].quantity += 1;
+                    variantItems[lastIndex].line_amount_after_line_discount +=
+                      variantItems[lastIndex].price -
+                      variantItems[lastIndex].discount_items[0].amount;
+                    setAmount(
+                      amount +
+                        variantItems[lastIndex].price -
+                        variantItems[lastIndex].discount_items[0].amount
+                    );
+                    calculateChangeMoney(
+                      _items,
+                      amount +
+                        variantItems[lastIndex].price -
+                        variantItems[lastIndex].discount_items[0].amount,
+                      discountRate,
+                      discountValue
+                    );
+                  }
+    
+                  handleCardItems(_items.reverse());
+                  autoCompleteRef.current?.blur();
+                  setIsInputSearchProductFocus(false);
+                  setKeySearchVariant("");
+                })
+              );
+              barcode = "";
+          }
       }
-    },
-    [items, splitLine, storeId]
-  );
+      return;
+    }
+  },[items]);
 
   useEffect(() => {
-    window.addEventListener("keydown", event);
-  }, [event]);
+    window.addEventListener("keypress", event);
+    return () => {
+        window.removeEventListener("keypress", event);
+    };
+}, [event]);
 
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
@@ -745,6 +812,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       show_note: false,
       gifts: [],
       position: undefined,
+      available:variant.available
     };
     return orderLine;
   };
@@ -781,6 +849,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
+      console.log("VariantResponse",r)
       const item: OrderLineItemRequest = createItem(r);
       item.position = items.length + 1;
       if (r.id === newV) {
@@ -843,11 +912,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           setSearchProducts(true);
           try {
             await dispatch(
-              searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+                searchVariantsOrderRequestAction(initQueryVariant, (data) => {
                 setResultSearchVariant(data);
                 setSearchProducts(false);
                 setIsShowProductSearch(true);
-                // console.log('setSearchProducts false');
               })
             );
           } catch {}

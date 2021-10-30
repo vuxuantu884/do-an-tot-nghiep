@@ -1,16 +1,17 @@
-import { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
 import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
+import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import copy from 'copy-to-clipboard';
 import {
+  CloseCircleOutlined,
   CopyOutlined,
-  DeleteOutlined,
   EditOutlined,
   PaperClipOutlined,
   PrinterOutlined,
@@ -51,6 +52,9 @@ import _ from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 import ModalConfirm from "component/modal/ModalConfirm";
+import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
+import { useReactToPrint } from "react-to-print";
+import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 
 export interface InventoryParams {
   id: string;
@@ -84,7 +88,31 @@ const DetailTicket: FC = () => {
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
 
   const { Panel } = Collapse;
+  const printElementRef = useRef(null);
 
+  const [printContent, setPrintContent] = useState<string>("");
+  const pageBreak = "<div class='pageBreak'></div>";
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+  const printContentCallback = useCallback(
+    (printContent: Array<PrinterInventoryTransferResponseModel>) => {
+      if (!printContent || printContent.length === 0) return;
+      const textResponse = printContent.map((single) => {
+        return (
+          "<div class='singleOrderPrint'>" +
+          single.html_content +
+          "</div>"
+        );
+      });
+      let textResponseFormatted = textResponse.join(pageBreak);
+      //xóa thẻ p thừa
+      let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
+    },
+    [handlePrint]
+  );
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
@@ -134,7 +162,7 @@ const DetailTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -522,9 +550,14 @@ const DetailTicket: FC = () => {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
       width: 50,
+      dataIndex: "transfer_quantity",
       render: (value: string, row, index) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status ||
-          data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) {
+        if (
+          (parseInt(value) !== 0 &&
+            (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status 
+            || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+          )
+          || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
           return false;
         }
         return <Button
@@ -540,10 +573,12 @@ const DetailTicket: FC = () => {
     if (!result) {
       setError(true);
       return;
-    } else {            
-      history.push(`${UrlConfig.INVENTORY_TRANSFER}`);
+    } else {
+      setIsDeleteTicket(false);
+      showSuccess("Huỷ phiếu thành công");
+      setData(result);
     }
-  }, [history])
+  }, [])
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
@@ -560,6 +595,12 @@ const DetailTicket: FC = () => {
       sessionStorage.setItem(`dataItems${data.id}`, JSON.stringify(dataTable));
       sessionStorage.setItem(`id${data.id}`, data.id.toString());
       showSuccess('Đã lưu')
+    }
+  }
+
+  const onPrintAction = (type: string) => {
+    if (data) {
+      dispatch(actionFetchPrintFormByInventoryTransferIds([data.id], type, printContentCallback));
     }
   }
 
@@ -873,8 +914,13 @@ const DetailTicket: FC = () => {
                             />
                           </div>
                           <div className="shipment-detail">
-                            Mã vận đơn: <span>{data?.shipment?.order_code}</span>
-                            <CopyOutlined style={{color: "#71767B"}} onClick={() => copy(data.shipment.order_code)} />
+                            Mã vận đơn: <span>{data?.shipment?.tracking_code}</span>
+                            <CopyOutlined style={{color: "#71767B"}}
+                              onClick={() => {
+                                showSuccess('Đã copy');
+                                copy(data.shipment.tracking_code);
+                              }} 
+                            />
                           </div>
                         </Row>
                         <Row>
@@ -1021,30 +1067,20 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
-                  <Button>
-                    <Link
-                      to={`${UrlConfig.INVENTORY_TRANSFER}/print-preview?ids=${data.id}&type=inventory_transfer_bill`}
-                      target="_blank"
-                    >
-                      <PrinterOutlined />
-                      {" In vận đơn"}
-                    </Link>
+                  <Button onClick={() => onPrintAction('inventory_transfer_bill')}>
+                    <PrinterOutlined />
+                    {" In vận đơn"}
                   </Button>
-                  <Button>
-                    <Link
-                      to={`${UrlConfig.INVENTORY_TRANSFER}/print-preview?ids=${data.id}&type=inventory_transfer`}
-                      target="_blank"
-                    >
-                      <PrinterOutlined /> 
-                      {" In phiếu chuyển"}
-                    </Link>
+                  <Button onClick={() => onPrintAction('inventory_transfer')}>
+                    <PrinterOutlined /> 
+                    {" In phiếu chuyển"}
                   </Button>
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
                       data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) && 
                     
                     <Button danger onClick={() => setIsDeleteTicket(true)}>
-                      <DeleteOutlined /> Hủy phiếu
+                      <CloseCircleOutlined style={{ color: '#E24343' }} /> Hủy phiếu
                     </Button>
                   }
                   {
@@ -1074,6 +1110,7 @@ const DetailTicket: FC = () => {
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && 
                     <Button
+                      onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}/${data.id}/update?cloneId=${data.id}`)}
                     >
                       Tạo bản sao
                     </Button>
@@ -1083,6 +1120,15 @@ const DetailTicket: FC = () => {
             />
           </>
         )}
+        <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: purify.sanitize(printContent),
+              }}
+            ></div>
+          </div>
+        </div>
         {
           isVisibleModalWarning && 
           <ModalConfirm
@@ -1151,6 +1197,7 @@ const DetailTicket: FC = () => {
         }
         {visibleManyProduct && (
           <PickManyProductModal
+            isTransfer
             storeID={data?.from_store_id}
             selected={[]}
             onSave={onPickManyProduct}
@@ -1165,10 +1212,12 @@ const DetailTicket: FC = () => {
             dataTicket={data}
             onCancel={() => setIsVisibleInventoryShipment(false)}
             onOk={item => {
+              if (item) {
+                setDataTable(item?.line_items);
+                setData(item);
+                setDataShipment(item?.shipment)
+              }
               setIsVisibleInventoryShipment(false);
-              setDataTable(item?.line_items);
-              setData(item);
-              setDataShipment(item?.shipment)
             }}
             infoFees={infoFees}
           />
