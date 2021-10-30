@@ -79,7 +79,7 @@ function OrderSources() {
       dataIndex: "code",
       visible: true,
       className: "columnTitle",
-      width: "20%",
+      width: "15%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -133,7 +133,7 @@ function OrderSources() {
       dataIndex: "department",
       visible: true,
       className: "columnTitle",
-      width: "20%",
+      width: "15%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -148,7 +148,7 @@ function OrderSources() {
       title: "Áp dụng cho đơn hàng",
       dataIndex: "active",
       visible: true,
-      width: "25%",
+      width: "15%",
       align: "center",
       render: (value, row, index) => {
         if (value) {
@@ -161,7 +161,7 @@ function OrderSources() {
       title: "Mặc định",
       dataIndex: "default",
       visible: true,
-      width: "20%",
+      width: "15%",
       align: "center",
       render: (value) => {
         if (value) {
