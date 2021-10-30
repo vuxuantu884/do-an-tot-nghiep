@@ -487,7 +487,7 @@ const PromotionDetailScreen: React.FC = () => {
         }
       />
       <ModalAddCode
-        type="MANUAL"
+        isManual={true}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -497,6 +497,19 @@ const PromotionDetailScreen: React.FC = () => {
         }}
         onOk={() => {
           setShowAddCodeManual(false);
+        }}
+      />
+      <ModalAddCode
+        isManual={false}
+        visible={showAddCodeRandom}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã ngẫu nhiên"
+        onCancel={() => {
+          setShowAddCodeRandom(false);
+        }}
+        onOk={() => {
+          setShowAddCodeRandom(false);
         }}
       />
       <Modal

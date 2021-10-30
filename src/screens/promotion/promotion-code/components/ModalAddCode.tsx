@@ -8,7 +8,7 @@ type ModalProps = {
   visible: boolean;
   onCancel: () => void;
   onOk: () => void;
-  type: string,
+  isManual: boolean,
   title: string;
   okText: string;
   cancelText: string;
@@ -17,8 +17,10 @@ type ModalProps = {
 const ModalAddCode: React.FC<ModalProps> = (
   props: ModalProps
 ) => {
-  const { type, title, visible, okText,cancelText, onCancel, onOk } = props;
+  const { isManual, title, visible, okText,cancelText, onCancel, onOk } = props;
 
+  console.log(isManual);
+  
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
@@ -40,7 +42,7 @@ const ModalAddCode: React.FC<ModalProps> = (
       cancelText={cancelText ? cancelText : "Không"}
     >
         <Row gutter={24}>
-          { type === "MANUAL" && <Col span={24}>
+          { isManual && <Col span={24}>
             <Form
               form={form}
               name="discount_add"
@@ -90,91 +92,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               </Form.List>
             </Form>
           </Col>}
-          { type === "RANDOM" && 
-          <Col span={24}>
-            <Form
-              form={form}
-              name="discount_add"
-              onFinish={() => {}}
-              onFinishFailed={({ errorFields }) => {console.log(errorFields)}}
-              layout="vertical"
-              initialValues={{ entitlements: [""] }}
-            >
-              <Row gutter={24}>
-                <Col span={24}>
-                  <Form.Item
-                    name="amount_code"
-                    label="Số lượng mã giảm giá:"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số lượng mã giảm giá",
-                      },
-                    ]}
-                  >
-                    <NumberInput 
-                      placeholder="Tối đã 1,000 mã"
-                      style={{ textAlign: "left" }}
-                      max={9999}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="b"
-                    label="Tiền tố:"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập tiền tố",
-                      },
-                    ]}
-                  >
-                    <NumberInput 
-                      placeholder="VD: YODY"
-                      style={{ textAlign: "left" }}
-                      max={9999}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="c"
-                    label="Số kí tự ngẫu nhiên:"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số kí tự ngẫu nhiên",
-                      },
-                    ]}
-                  >
-                    <NumberInput 
-                      placeholder="VD: 6"
-                      style={{ textAlign: "left" }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="d"
-                    label="Hậu tố:"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập hậu tố",
-                      },
-                    ]}
-                  >
-                    <Input 
-                      placeholder="VD: SALE"
-                      style={{ textAlign: "left" }}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Form>
-          </Col>}
-          { type === "IMPORT" && 
+          { !isManual && 
           <Col span={24}>
             <Form
               form={form}
