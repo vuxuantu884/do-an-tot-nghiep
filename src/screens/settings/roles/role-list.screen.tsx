@@ -14,7 +14,7 @@ import {useDispatch} from "react-redux";
 import {Link} from "react-router-dom";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {RoleListStyled} from "./role-list.style";
-
+import _ from "lodash";
 const defaultRoleListParams: RoleSearchQuery = {
   page: 1,
   limit: 200,
@@ -65,7 +65,7 @@ const RoleListScreen = () => {
       visible: true,
     },
     {
-      title: "Diễn dải",
+      title: "Mô tả",
       dataIndex: "description",
       visible: true,
     },
@@ -91,9 +91,8 @@ const RoleListScreen = () => {
       visible: true,
       render: (value: Array<PermissionsAuthorize>) => {
         let formatValue = "";
-        value.forEach((item, index) => {
-          // upper first letter and lower all other
-          let name = item.name.charAt(0).toUpperCase() + item.name.slice(1).toLowerCase();
+        value.forEach((item) => {
+          let name =_.capitalize(item.name);
           formatValue += name + " / ";
         });
         formatValue = formatValue.substring(0, formatValue.length - 2);

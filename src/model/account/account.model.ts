@@ -22,11 +22,15 @@ export interface AccountResponse extends AccountBaseModel, BaseObject {
   gender_name: string;
   country_name: string;
   city_name: string;
-  district_name: string;
+  district: string;
   status_name: string;
   account_jobs: Array<AccountJobResponse>;
   account_stores: Array<AccountStoreResponse>;
-  account_roles: Array<AccountRolesResponse>;
+  // account_roles: Array<AccountRolesResponse>;
+  permissions : { // dumy for demo => need to be removed
+    role:  {code : string, name : string}[],
+    modules: {permissions : string[]}[],
+  }
 }
 
 export interface AccountSearchQuery extends BaseQuery {
@@ -79,7 +83,7 @@ export interface AccountView extends AccountBaseModel {
   birthday?: string;
   account_jobs?: Array<AccountJobReQuest>;
   account_stores: Array<number>;
-  roles: Array<number>;
+  role_id : number;
 }
 
 export interface AccountRequest extends AccountBaseModel {
@@ -87,5 +91,5 @@ export interface AccountRequest extends AccountBaseModel {
   birthday?: string;
   account_jobs: Array<AccountJobResponse>;
   account_stores: Array<AccountStoreResponse>;
-  roles: Array<AccountRolesResponse>;
+  role_id : number;
 }

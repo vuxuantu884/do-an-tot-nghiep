@@ -5,6 +5,10 @@ import {RouteMenu} from "model/other";
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
 );
+
+const AccountDetailScreen = React.lazy(
+  () => import("screens/settings/account/detail")
+);
 // const ManageStoreScreen = React.lazy(
 //   () => import("screens/setting/manage-store.screen")
 // );
@@ -96,7 +100,7 @@ const setting: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.ACCOUNTS}/:code`,
+        path: `${UrlConfig.ACCOUNTS}/edit/:code`,
         exact: true,
         title: "Chỉnh sửa người dùng",
         icon: "icon-dot",
@@ -106,6 +110,17 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.ACCOUNTS}/:code`,
+        exact: true,
+        title: "Xem thông tin người dùng",
+        icon: "icon-dot",
+        component: AccountDetailScreen,
+        key: "subMenu262",
+        isShow: true,
+        header: null,
+        subMenu: [],
       },
     ],
   },
