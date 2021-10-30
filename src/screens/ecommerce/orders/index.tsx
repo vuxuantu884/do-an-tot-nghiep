@@ -14,7 +14,6 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
 import {
-  OrderFulfillmentsModel,
   OrderItemModel,
   OrderModel,
   EcommerceOrderSearchQuery,

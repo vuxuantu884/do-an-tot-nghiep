@@ -62,7 +62,6 @@ import {
   formatCurrency,
   getAmountPayment,
   getShippingAddressDefault,
-  InfoServiceDeliveryDetail,
   replaceFormatString,
   SumWeight,
   SumWeightResponse,
