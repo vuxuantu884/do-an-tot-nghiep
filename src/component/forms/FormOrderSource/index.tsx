@@ -3,6 +3,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
+import { RegUtil } from "utils/RegUtils";
 import { StyledComponent } from "./styles";
 
 type FormValueType = {
@@ -114,10 +115,18 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
               label="Mã nguồn"
               rules={[
                 { required: true, message: "Vui lòng điền mã nguồn!" },
-                { len: 4, message: "Nhập 4 ký tự!" }
+                () => ({
+                  validator(_, value) {
+                    if (RegUtil.ONLY_STRING.test(value)) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Chỉ nhập kí tự chữ và in hoa!'));
+                  },
+                }),
+                { len: 4, message: "Nhập 4 ký tự!" },
               ]}
             >
-              <Input placeholder="Nhập mã nguồn" style={{ width: "100%" }} />
+              <Input type="text" placeholder="Nhập mã nguồn" style={{ width: "100%" }} />
             </Form.Item>
           </Col>
         </Row>

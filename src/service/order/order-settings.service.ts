@@ -65,30 +65,30 @@ export const editOrderConfigActionService = (
 export const getListShippingServiceConfigService = (): Promise<
   BaseResponse<ShippingServiceConfigResponseModel[]>
 > => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/shipping-service-config`);
+  return BaseAxios.get(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config`);
 };
 
 export const createListShippingServiceConfigService = (
   params: CreateShippingServiceConfigReQuestModel
 ): Promise<BaseResponse<ShippingServiceConfigResponseModel[]>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/shipping-service-config`, params);
+  return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config`, params);
 };
 
 export const getShippingServiceConfigDetailService = (
   id: number
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/shipping-service-config/${id}`);
+  return BaseAxios.get(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}`);
 };
 
 export const updateShippingServiceConfigService = (
   id: number,
   params: CreateShippingServiceConfigReQuestModel
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/shipping-service-config/${id}`, params);
+  return BaseAxios.put(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}`, params);
 };
 
 export const deleteShippingServiceConfigService = (
   id: number
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
-  return BaseAxios.delete(`${ApiConfig.ORDER}/shipping-service-config/${id}/delete`);
+  return BaseAxios.delete(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}/delete`);
 };
