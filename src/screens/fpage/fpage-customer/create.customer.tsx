@@ -18,7 +18,7 @@ import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerModel, CustomerContactClass } from "model/request/customer.request";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
 import GeneralInformation from "./general.information";
@@ -27,6 +27,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
 import { formatCurrency } from "utils/AppUtils";
+import UrlConfig from "config/url.config";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -178,12 +179,14 @@ const FpageCustomerDetail = (props: any) => {
       title: "",
       align: "center",
       render: (value: any, row: any, index: any) => {
-        let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;
         return (
           <Tooltip placement="topLeft" title="Xem chi tiết">
-            <a target="blank" href={href}>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${row.id}`}
+            >
               <img src={urlCrimson} alt="link"></img>
-            </a>
+            </Link>
           </Tooltip>
         );
       },
