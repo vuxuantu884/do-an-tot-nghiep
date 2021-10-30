@@ -1,11 +1,36 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface DepartmentResponse extends BaseObject {
-  id: number;
-  manager: null;
-  manager_code: string | null;
-  mobile: string;
-  name: string;
-  parent: number;
-  parent_id: number;
+  name: string,
+  manager_code: string,
+  manager: string,
+  mobile: string,
+  address: string,
+  parent_id: number,
+  children: Array<DepartmentResponse>,
+}
+
+export interface DepartmentView extends BaseObject {
+  name: string,
+  level: number,
+  manager_code: string,
+  manager: string,
+  mobile: string,
+  address: string,
+  parent: DepartmentParent | null
+}
+
+export interface DepartmentRequest {
+  code: string,
+  name: string,
+  mobile: string,
+  address: string,
+  parent_id: string,
+  manager_code: string,
+}
+
+
+export interface DepartmentParent {
+  id: number,
+  name: string,
 }

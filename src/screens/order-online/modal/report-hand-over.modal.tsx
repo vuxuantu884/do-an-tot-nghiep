@@ -19,7 +19,7 @@ type ReportHandOverModalProps = {
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   props: ReportHandOverModalProps
 ) => {
-  const { handleOk, handleCancel, visible, formRef } = props;
+  const { handleCancel, visible, formRef } = props;
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -48,25 +48,6 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
     }
     return newData;
   }, [listStores, userReducer.account]);
-
-  const testAraay = [
-    {
-      id: 1,
-      name: "long chín",
-    },
-    {
-      id: 2,
-      name: "long chín 2",
-    },
-    {
-      id: 3,
-      name: "long chín 3",
-    },
-    {
-      id: 4,
-      name: "long chín 4",
-    },
-  ];
 
   const onOk=()=>{
     goodsReceiptsForm.submit();

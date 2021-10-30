@@ -84,18 +84,18 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
-          setIsFromCreatedDate(dateString[0])
-          setIsToCreatedDate(dateString[1])
+          setIsFromCreatedDate(moment(dateString[0], 'DD-MM-YYYY'))
+          setIsToCreatedDate(moment(dateString[1], 'DD-MM-YYYY'))
           break;
         case 'transfer_date':
           setTransferDateClick('')
-          setIsFromTransferDate(dateString[0])
-          setIsToTransferDate(dateString[1])
+          setIsFromTransferDate(moment(dateString[0], 'DD-MM-YYYY'))
+          setIsToTransferDate(moment(dateString[1], 'DD-MM-YYYY'))
           break;
         case 'receive_date':
           setTransferDateClick('')
-          setIsFromReceiveDate(dateString[0])
-          setIsToReceiveDate(dateString[1])
+          setIsFromReceiveDate(moment(dateString[0], 'DD-MM-YYYY'))
+          setIsToReceiveDate(moment(dateString[1], 'DD-MM-YYYY'))
           break;
         default: break
       }

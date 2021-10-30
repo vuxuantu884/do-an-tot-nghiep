@@ -6,13 +6,14 @@ import { Checkbox } from "antd";
 
 type ProductItemProps = {
   data: VariantResponse
-  showCheckBox?: boolean,
+  showCheckBox?: boolean
   checked?: boolean
   onChange?: (checked: boolean) => void
+  isTransfer ?: boolean
 }
 
 const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
-  const {data, showCheckBox, checked} = props;
+  const {data, showCheckBox, checked, isTransfer} = props;
   const avatar = Products.findAvatar(data.variant_images);
   const price_data = Products.findPrice(data.variant_prices,  AppConfig.currency);
   return (
@@ -31,7 +32,13 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
           <span className="product-item-sku">{data.sku}</span>
         </div>
         <div className="product-item-info-right">
-          <span className="product-item-price">{price_data && price_data.import_price ?  formatCurrency(price_data.import_price) : 0} <span className="currency">₫</span></span>
+          {
+            isTransfer ? (
+              <span className="product-item-price">{price_data && price_data.retail_price ?  formatCurrency(price_data.retail_price) : 0} <span className="currency">₫</span></span>
+            ) : (
+              <span className="product-item-price">{price_data && price_data.import_price ?  formatCurrency(price_data.import_price) : 0} <span className="currency">₫</span></span>
+            )
+          }
           <span className="product-item-inventory">Số lượng: <span className="value">{data.on_hand ? data.on_hand : 0}</span></span>
         </div>
       </div>

@@ -1,4 +1,3 @@
-import { ScanOutlined } from "@ant-design/icons";
 import {
   Button,
   Row,
@@ -39,6 +38,7 @@ import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
+import barcodeIcon from "assets/img/scanbarcode.svg";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
@@ -414,7 +414,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   return (
     <Form layout="vertical" ref={formRef} form={form}>
       <div style={{ padding: "24px 0 0 0" }}>
-        <Row gutter={24}>
+        <Row gutter={24} style={{ marginLeft:"0px", marginRight:"0px"}}>
           <Col md={9}>
             <Form.Item
               label="Cửa hàng"
@@ -474,7 +474,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 className="select-with-search"
                 
                 placeholder="ID đơn hàng/ Mã đơn giao"
-                addonAfter={<ScanOutlined />}
+                // addonAfter={<ScanOutlined />}
+                addonAfter={<img src={barcodeIcon} alt="" />}
                 onPressEnter={(e: any) => {
                   onKeyupOrder(e.target.value);
                 }}
@@ -514,8 +515,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   <Input
                     style={{ width: "50%" }}
                     placeholder="số lượng"
-                    //addonAfter={<img src={ImageScan} alt=""/>}
-                    addonAfter={<ScanOutlined />}
+                    addonAfter={<img src={barcodeIcon} alt="" />}
+                    //addonAfter={<ScanOutlined />}
                     onPressEnter={(e: any) => {
                       onKeyupQuality(e.target.value);
                     }}
@@ -527,12 +528,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Col>
         </Row>
       </div>
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div>
         {orderList && orderList.length > 0 && (
           <Row
             align="middle"
             justify="space-between"
-            style={{ height: "40px", borderTop: "1px solid #E5E5E5" }}
+            style={{ height: "40px", borderTop: "1px solid #E5E5E5", marginLeft:"14px", marginRight:"14px" }}
           >
             <Col md={7}>
               <Space>
@@ -587,8 +588,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Row>
         )}
       </div>
-      <div style={{ padding: "24px 0 0 0" }}>
-        <Row className="sale-product-box" justify="space-between">
+      <div>
+        <Row className="sale-product-box" justify="space-between" style={{ marginLeft:"14px", marginRight:"14px"}}>
           <Table
              locale={{
               emptyText: (
@@ -657,9 +658,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           />
         </Row>
       </div>
-      <div style={{ padding: "24px" }}>
+      <div style={{ padding: "24px 0 0 0" }}>
         {orderList && orderList.length > 0 && (
-          <Row gutter={24}>
+          <Row gutter={24} style={{ marginLeft:"2.5px", marginRight:"2.5px"}}>
             <Col md={12}>
               <Button
                 style={{ padding: "0px 50px" }}

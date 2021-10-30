@@ -8,7 +8,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
 import { PositionResponse } from 'model/account/position.model';
 
-export const getAcccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
+export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);
 }
 

@@ -10,6 +10,7 @@ type FormValueType = {
   company_id: number;
   company: string;
   sub_status?: string;
+  sub_status_code?: string;
   status?: string;
   active?: boolean;
   note?: string;
@@ -26,6 +27,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
           company: CONSTANTS.DEFAULT_FORM_VALUE.company,
           sub_status: formItem?.sub_status,
+          sub_status_code: formItem?.sub_status_code,
           status: formItem?.status,
           active: formItem?.active,
           note: formItem?.note,
@@ -34,6 +36,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
           company: CONSTANTS.DEFAULT_FORM_VALUE.company,
           sub_status: "",
+          sub_status_code: "",
           status: undefined,
           active: true,
           note: "",
@@ -73,13 +76,29 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng điền tên nguồn đơn hàng!",
+                  message: "Vui lòng điền tên trạng thái!",
                 },
                 { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
             >
               <Input
                 placeholder="Nhập tên trạng thái"
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="sub_status_code"
+              label="Code trạng thái"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng điền code trạng thái!",
+                },
+                { max: 255, message: "Không được nhập quá 255 ký tự!" },
+              ]}
+            >
+              <Input
+                placeholder="Nhập code trạng thái"
                 style={{ width: "100%" }}
               />
             </Form.Item>
