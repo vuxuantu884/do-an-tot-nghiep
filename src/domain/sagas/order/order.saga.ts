@@ -293,10 +293,10 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
 function* getDataSource(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(getSources);
+    let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data.items);
+        setData(response.data);
         break;
       default:
         break;
