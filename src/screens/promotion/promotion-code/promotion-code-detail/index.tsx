@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -21,6 +21,8 @@ import DiscountIcon from "assets/icon/discount.svg";
 import "../promotion-code.scss";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalAddCode from "../components/ModalAddCode";
+import Dragger from "antd/lib/upload/Dragger";
+import { RiUpload2Line } from "react-icons/ri";
 
 export interface ProductParams {
   id: string;
@@ -485,6 +487,7 @@ const PromotionDetailScreen: React.FC = () => {
         }
       />
       <ModalAddCode
+        type="MANUAL"
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -496,30 +499,50 @@ const PromotionDetailScreen: React.FC = () => {
           setShowAddCodeManual(false);
         }}
       />
-      <ModalAddCode
-        visible={showAddCodeRandom}
-        okText="Thêm"
-        cancelText="Thoát"
-        title="Thêm mã ngẫu nhiên"
-        onCancel={() => {
-          setShowAddCodeRandom(false);
-        }}
-        onOk={() => {
-          setShowAddCodeRandom(false);
-        }}
-      />
-      <ModalAddCode
+      <Modal
+        onCancel={() => setShowImportFile(false)}
+        width={650}
         visible={showImportFile}
-        okText="Nhập file"
-        cancelText="Huỷ"
-        title="Nhập file mã giảm giá"
-        onCancel={() => {
-          setShowImportFile(false);
-        }}
-        onOk={() => {
-          setShowImportFile(false);
-        }}
-      />
+        title="Nhập file khuyến mại"
+        footer={[
+          <Button key="back" onClick={() => setShowImportFile(false)}>
+            Huỷ
+          </Button>,
+
+          <Button
+            key="link"
+            type="primary"
+          >
+            Nhập file
+          </Button>,
+        ]}
+      >
+        <Row gutter={12}>
+          <Col span={3}>
+            Chú ý:
+          </Col>
+          <Col span={19}>
+            <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+            <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+            <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
+              không F5 hoặc tắt cửa sổ trình duyệt.</p>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <div className="dragger-wrapper">
+            <Dragger accept=".xlsx">
+              <p className="ant-upload-drag-icon">
+                <RiUpload2Line size={48}/>
+              </p>
+              <p className="ant-upload-hint">
+                Kéo file vào đây hoặc tải lên từ thiết bị
+              </p>
+            </Dragger>
+          </div>
+        </Row>
+      </Modal>
     </ContentContainer>
   );
 };
