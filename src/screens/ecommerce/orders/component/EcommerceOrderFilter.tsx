@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import {
@@ -77,16 +77,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   const [formFilter] = Form.useForm();
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
-  const [isEcommerceSelected, setIsEcommerceSelected] = useState(!!params.channel_id);
+  const [isEcommerceSelected, setIsEcommerceSelected] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
-  
-  useEffect(() => {
-    const ecommerceId = getEcommerceId(params.channel_id);
-    getEcommerceShopList(ecommerceId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   let initialValues = useMemo(() => {
     return {
@@ -94,7 +88,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids)
         ? params.store_ids
         : [params.store_ids],
-      channel_id: params.channel_id,
+        source_ids: Array.isArray(params.source_ids)
+        ? params.source_ids
+        : [params.source_ids],
       ecommerce_shop_ids: Array.isArray(params.ecommerce_shop_ids)
         ? params.ecommerce_shop_ids
         : [params.ecommerce_shop_ids],
@@ -130,10 +126,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     };
   }, [params]);
 
-  const getEcommerceId = (channelId: any) => {
+  const getEcommerceId = (sourceId: any) => {
     let ecommerceId = null;
-    if (channelId) {
-      ecommerceId = ECOMMERCE_LIST.find(item => item.channel_id === channelId)?.ecommerce_id;
+    if (sourceId) {
+      ecommerceId = ECOMMERCE_LIST.find(item => item.source_id === sourceId)?.ecommerce_id;
     }
     return ecommerceId;
   }
@@ -164,17 +160,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     );
   };
 
-  const handleSelectEcommerce = (channelId: any) => {
+  const handleSelectEcommerce = (sourceId: any) => {
     setIsEcommerceSelected(true);
     setShopIdSelected([]);
-    const ecommerceId = getEcommerceId(channelId);
+    const ecommerceId = getEcommerceId(sourceId);
     getEcommerceShopList(ecommerceId);
+    formFilter?.setFieldsValue({ source_ids: [sourceId] });
   };
 
   const handleRemoveEcommerce = useCallback(() => {
     setIsEcommerceSelected(false);
     setShopIdSelected([]);
-    formFilter?.setFieldsValue({ channel_id: null });
+    formFilter?.setFieldsValue({ source_ids: [] });
   },[formFilter]);
    // end handle Select Ecommerce
 
@@ -185,21 +182,21 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         icon: shopeeIcon,
         id: "shopee",
         ecommerce_id: 1,
-        channel_id: 3,
+        source_id: 16,
       },
       {
         title: "Sàn Tiki",
         icon: tikiIcon,
         id: "tiki",
         ecommerce_id: 2,
-        channel_id: 4,
+        source_id: 100, //todo thai need update
       },
       {
         title: "Sàn Lazada",
         icon: lazadaIcon,
         id: "lazada",
         ecommerce_id: 3,
-        channel_id: 5,
+        source_id: 19,
       },
       {
         title: "Sàn Sendo",
@@ -207,7 +204,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         id: "sendo",
         isActive: false,
         ecommerce_id: 4,
-        channel_id: 6,
+        source_id: 20,
       },
     ],
     []
@@ -701,15 +698,16 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       });
     }
 
-    if (initialValues.channel_id) {
-      const ecommerceSelected = ECOMMERCE_LIST?.find(
-        (item) => item.channel_id === initialValues.channel_id
-      );
-      let textStores = ecommerceSelected?.title;
+    if (initialValues.source_ids?.length === 1) {
+      let textEcommerce = "";
+      initialValues.source_ids.forEach((source_id: any) => {
+        const ecommerce = ECOMMERCE_LIST?.find((item) => item.source_id === source_id);
+        textEcommerce = ecommerce ? textEcommerce + ecommerce.title + "; " : textEcommerce;
+      });
       list.push({
-        key: "channel_id",
+        key: "source_ids",
         name: "Sàn",
-        value: textStores,
+        value: textEcommerce,
       });
     }
 
@@ -1021,7 +1019,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     status,
     subStatus,
     ECOMMERCE_LIST,
-    ecommerceShopList,
+    ecommerceShopList
   ]);
 
   // close tag filter
@@ -1032,10 +1030,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         case "store":
           onFilter && onFilter({ ...params, store_ids: [] });
           break;
-        case "channel_id":
+        case "source_ids":
           handleRemoveEcommerce();
           onFilter &&
-            onFilter({ ...params, channel_id: null, ecommerce_shop_ids: [] });
+            onFilter({ ...params, source_ids: [], ecommerce_shop_ids: [] });
           break;
         case "ecommerce_shop_ids":
           handleRemoveSelectedShop();
@@ -1183,7 +1181,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             </Dropdown>
           </Form.Item>
           
-          <Item name="channel_id" className="ecommerce-dropdown">
+          <Item name="source_ids" className="ecommerce-dropdown">
             <Select
               showSearch
               disabled={tableLoading}
@@ -1194,7 +1192,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             >
               {ECOMMERCE_LIST &&
                 ECOMMERCE_LIST.map((item: any) => (
-                  <Option key={item.channel_id} value={item.channel_id}>
+                  <Option key={item.source_id} value={item.source_id}>
                     <div>
                       <img
                         src={item.icon}
@@ -1328,7 +1326,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </CustomSelect>
               </Form.Item>
 
-              <Form.Item label={<b>SÀN TMĐT</b>} name="channel_id">
+              <Form.Item label={<b>SÀN TMĐT</b>} name="source_ids">
                 <Select
                   showSearch
                   placeholder="Chọn sàn"
@@ -1339,8 +1337,8 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   {ECOMMERCE_LIST &&
                     ECOMMERCE_LIST.map((item: any) => (
                       <Option
-                        key={item.channel_id}
-                        value={item.channel_id}
+                        key={item.source_id}
+                        value={item.source_id}
                       >
                         <div>
                           <img
