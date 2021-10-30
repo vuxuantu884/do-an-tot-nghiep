@@ -520,14 +520,12 @@ const EcommerceOrderSync: React.FC = () => {
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "finalized_on",
+      dataIndex: "completed_on",
       key: "completed_on",
       visible: true,
       align: "center",
       width: "200px",
-      render: (finalized_on) => (
-        <div>{convertDateTimeFormat(finalized_on)}</div>
-      ),
+      render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on)}</div>,
     },
     {
       title: "Ngày huỷ đơn",
