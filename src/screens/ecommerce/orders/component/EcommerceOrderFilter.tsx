@@ -1029,6 +1029,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       switch (tag.key) {
         case "store":
           onFilter && onFilter({ ...params, store_ids: [] });
+          formFilter?.setFieldsValue({ store_ids: [] });
           break;
         case "source_ids":
           handleRemoveEcommerce();
@@ -1092,56 +1093,69 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           break;
         case "order_status":
           onFilter && onFilter({ ...params, order_status: [] });
+          formFilter?.setFieldsValue({ order_status: [] });
           break;
         case "sub_status_id":
           onFilter && onFilter({ ...params, sub_status_id: [] });
+          formFilter?.setFieldsValue({ sub_status_id: [] });
           break;
         case "fulfillment_status":
           onFilter && onFilter({ ...params, fulfillment_status: [] });
+          formFilter?.setFieldsValue({ fulfillment_status: [] });
           break;
         case "payment_status":
           onFilter && onFilter({ ...params, payment_status: [] });
+          formFilter?.setFieldsValue({ payment_status: [] });
           break;
         case "assignee_codes":
           onFilter && onFilter({ ...params, assignee_codes: [] });
+          formFilter?.setFieldsValue({ assignee_codes: [] });
           break;
         case "account_codes":
           onFilter && onFilter({ ...params, account_codes: [] });
+          formFilter?.setFieldsValue({ account_codes: [] });
           break;
         case "price":
-          onFilter &&
-            onFilter({ ...params, price_min: null, price_max: null });
+          onFilter && onFilter({ ...params, price_min: null, price_max: null });
+          formFilter?.setFieldsValue({ price_min: null, price_max: null });
           break;
         case "payment_method":
           onFilter && onFilter({ ...params, payment_method_ids: [] });
+          formFilter?.setFieldsValue({ payment_method_ids: [] });
           break;
         case "expected_receive_predefined":
-          onFilter &&
-            onFilter({ ...params, expected_receive_predefined: "" });
+          onFilter && onFilter({ ...params, expected_receive_predefined: "" });
+          formFilter?.setFieldsValue({ expected_receive_predefined: "" });
           break;
         case "delivery_types":
           onFilter && onFilter({ ...params, delivery_types: [] });
+          formFilter?.setFieldsValue({ delivery_types: [] });
           break;
         case "delivery_provider_ids":
           onFilter && onFilter({ ...params, delivery_provider_ids: [] });
+          formFilter?.setFieldsValue({ delivery_provider_ids: [] });
           break;
         case "shipper_ids":
           onFilter && onFilter({ ...params, shipper_ids: [] });
+          formFilter?.setFieldsValue({ shipper_ids: [] });
           break;
         case "note":
           onFilter && onFilter({ ...params, note: "" });
+          formFilter?.setFieldsValue({ note: "" });
           break;
         case "customer_note":
           onFilter && onFilter({ ...params, customer_note: "" });
+          formFilter?.setFieldsValue({ customer_note: "" });
           break;
         case "tags":
           onFilter && onFilter({ ...params, tags: [] });
+          formFilter?.setFieldsValue({ tags: [] });
           break;
         default:
           break;
       }
     },
-    [handleRemoveEcommerce, handleRemoveSelectedShop, onFilter, params]
+    [formFilter, handleRemoveEcommerce, handleRemoveSelectedShop, onFilter, params]
   );
   // end handle tag filter
 
