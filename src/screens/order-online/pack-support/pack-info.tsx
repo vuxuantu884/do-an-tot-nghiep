@@ -1,4 +1,3 @@
-import { ScanOutlined } from "@ant-design/icons";
 import {
   Button,
   Row,
