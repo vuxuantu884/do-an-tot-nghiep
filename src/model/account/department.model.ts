@@ -1,7 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface DepartmentResponse extends BaseObject {
-  name:string,
+  name: string,
   manager_code: string,
   manager: string,
   mobile: string,
@@ -17,7 +17,7 @@ export interface DepartmentView extends BaseObject {
   manager: string,
   mobile: string,
   address: string,
-  parent: DepartmentParent|null
+  parent: DepartmentParent | null
 }
 
 export interface DepartmentRequest {
