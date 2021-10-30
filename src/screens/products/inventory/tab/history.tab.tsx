@@ -22,11 +22,11 @@ enum DocumentType {
 }
 
 const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
-  const {stores} = props;
+  const { stores } = props;
   const history = useHistory();
   const query = useQuery();
   const dispatch = useDispatch();
-  
+
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<HistoryInventoryResponse>>({
     metadata: {
@@ -69,7 +69,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      
+
       history.replace(
         `${UrlConfig.INVENTORY}#3?${queryParam}`
       );
@@ -111,11 +111,18 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: 'Mã chứng từ',
       visible: true,
       dataIndex: 'code',
-      render: (value, record:HistoryInventoryResponse) => (
-        <div>
-          <Link to={`${getUrlByDocumentType(record.document_type)}/${record.parent_document_id}`}>{value}</Link>          
-        </div>
-      )
+      render: (value, record: HistoryInventoryResponse) => {
+        let id = record.parent_document_id
+        if (record.document_type === DocumentType.RETURN_ORDER) {
+          id = record.document_id;
+        }
+
+        return (
+          <div>
+            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>{value}</Link>
+          </div>
+        )
+      }
     },
     {
       title: 'Thao tác',
@@ -134,7 +141,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       title: 'SL thay đổi',
       visible: true,
       dataIndex: 'quantity',
-      render: (value)=> parseInt(value) >0 ? `+${value}` : value 
+      render: (value) => parseInt(value) > 0 ? `+${value}` : value
     },
     {
       align: 'right',
@@ -169,7 +176,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         onFilter={onFilter}
         params={params}
         actions={[]}
-        onClearFilter={() => {}}
+        onClearFilter={() => { }}
         listStore={stores}
       />
       <CustomTable
@@ -178,7 +185,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         columns={columnFinal}
         scroll={{ x: 1800 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -189,7 +196,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         }}
         rowKey={(data) => data.id}
       />
-       <ModalSettingColumn
+      <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {

@@ -245,6 +245,22 @@ export const deleteOrderSourceService = (
   return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
 };
 
+export const deleteMultiOrderSourceService = (
+  sourceIds: number[]
+): Promise<BaseResponse<OrderSourceResponseModel>> => {
+  const source_ids = sourceIds;
+  const token = getToken();
+  return BaseAxios.delete(
+    `${ApiConfig.ORDER}/sources`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: { source_ids },
+    }
+  );
+};
+
 // tracking_log: Lấy ra tracking_log của fulfillment
 export const getTrackingLogFulFillment = (
   fulfillment_code: string
