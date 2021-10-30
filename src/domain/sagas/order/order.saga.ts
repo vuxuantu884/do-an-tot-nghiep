@@ -75,7 +75,7 @@ function* getListOrderSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getListOrderFpageSaga(action: YodyAction) {
@@ -89,7 +89,7 @@ function* getListOrderFpageSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getListOrderCustomerSaga(action: YodyAction) {
@@ -106,7 +106,7 @@ function* getListOrderCustomerSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getShipmentsSaga(action: YodyAction) {
@@ -120,7 +120,7 @@ function* getShipmentsSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getReturnsSaga(action: YodyAction) {
@@ -134,7 +134,7 @@ function* getReturnsSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* orderCreateSaga(action: YodyAction) {
@@ -287,21 +287,21 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getDataSource(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
+    let response: BaseResponse<any> = yield call(getSources);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* orderDetailSaga(action: YodyAction) {
@@ -543,7 +543,7 @@ function* getListSubStatusSaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* setSubStatusSaga(action: YodyAction) {
@@ -717,7 +717,7 @@ function* getFulfillmentsPackedSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* confirmDraftOrderSaga(action: YodyAction) {
@@ -831,7 +831,7 @@ function* getSourcesEcommerceSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export function* OrderOnlineSaga() {
