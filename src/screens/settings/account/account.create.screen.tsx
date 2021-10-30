@@ -38,9 +38,7 @@ import {
   AccountJobReQuest,
   AccountJobResponse,
   AccountRequest,
-  AccountResponse,
-  AccountRolesResponse,
-  AccountStoreResponse,
+  AccountResponse, AccountStoreResponse,
   AccountView
 } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
@@ -58,11 +56,11 @@ import { convertDistrict } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { PASSWORD_RULES } from "./account.rules";
 
-const {Item, List} = Form;
-const {Option, OptGroup} = Select;
+const { Item, List } = Form;
+const { Option, OptGroup } = Select;
 
 const DefaultCountry = 233;
-const initRequest: AccountView = {
+const initRequest = {
   code: "",
   user_id: "",
   user_name: "",
@@ -71,7 +69,6 @@ const initRequest: AccountView = {
   mobile: "",
   account_stores: [],
   account_jobs: [],
-  roles: [],
   address: "",
   status: "active",
   password: "",
@@ -127,15 +124,7 @@ const AccountCreateScreen: React.FC = () => {
     },
     [formRef]
   );
-  // const addNewJob = () => {
-  //   let listJob = [...listaccountJob];
-  //   listJob.push({
-  //     department_id: 0,
-  //     position_id: 0,
-  //     key: Number(moment().format('x')),
-  //   });
-  //   setAccountJob(listJob);
-  // };
+
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
     listJob[key].department_id = e;
@@ -146,11 +135,7 @@ const AccountCreateScreen: React.FC = () => {
     listJob[key].position_id = e;
     setAccountJob(listJob);
   };
-  // const onDeleteJob = (key: number) => {
-  //   let listJob = [...listaccountJob];
-  //   listJob.splice(key, 1);
-  //   setAccountJob(listJob);
-  // };
+
   const onSelectDistrict = useCallback(
     (value: number) => {
       let cityId = -1;
@@ -172,7 +157,7 @@ const AccountCreateScreen: React.FC = () => {
   const onCreateSuccess = useCallback(
     (result: AccountResponse) => {
       if (result) {
-        history.push(UrlConfig.ACCOUNTS);
+        history.push(`${UrlConfig.ACCOUNTS}/${result.code}`);
         showSuccess("Thêm mới dữ liệu thành công");
       } else {
         setLoadingSaveButton(false);
@@ -182,9 +167,8 @@ const AccountCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-      setLoadingSaveButton(true);
+
       let accStores: Array<AccountStoreResponse> = [];
-      let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
       values.account_stores.forEach((el: number) => {
@@ -192,17 +176,14 @@ const AccountCreateScreen: React.FC = () => {
           store_id: el,
         });
       });
-      values.roles.forEach((el: number) => {
-        accRoles.push({
-          role_id: el,
-        });
-      });
+
       listAccountSelected.forEach((el: AccountJobReQuest) => {
         accJobs.push({
           department_id: el.department_id,
           position_id: el.position_id,
         });
       });
+
       let accountModel: AccountRequest = {
         full_name: values.full_name,
         gender: values.gender,
@@ -212,15 +193,17 @@ const AccountCreateScreen: React.FC = () => {
         birthday: values.birthday,
         account_stores: [...accStores],
         mobile: values.mobile,
-        roles: [...accRoles],
         status: values.status,
         address: values.address,
         country_id: values.country_id,
         city_id: values.city_id,
         district_id: values.district_id,
         account_jobs: [...accJobs],
+        role_id: values.role_id,
+
       };
       dispatch(AccountCreateAction(accountModel, onCreateSuccess));
+      setLoadingSaveButton(true);
     },
     [dispatch, listaccountJob, onCreateSuccess]
   );
@@ -299,7 +282,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
+                  rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
@@ -307,7 +290,7 @@ const AccountCreateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{required: true, message: "Vui lòng chọn giới tính"}]}
+                  rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -326,7 +309,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Mã nhân viên"
                   name="code"
-                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
+                  rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="VD: YD0000" size="large" />
@@ -336,7 +319,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
+                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
@@ -348,7 +331,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   rules={[
                     ...PASSWORD_RULES,
-                    {required: true, message: "Vui lòng nhập tên đăng nhập"},
+                    { required: true, message: "Vui lòng nhập tên đăng nhập" },
                   ]}
                   name="password"
                   label="Mật khẩu"
@@ -372,7 +355,7 @@ const AccountCreateScreen: React.FC = () => {
                   dependencies={["password"]}
                   hasFeedback
                   rules={[
-                    ({getFieldValue}) => ({
+                    ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (!value || getFieldValue("password") === value) {
                           return Promise.resolve();
@@ -395,7 +378,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
+                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
                   hasFeedback
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
@@ -417,7 +400,7 @@ const AccountCreateScreen: React.FC = () => {
                         value === "all"
                       ) {
                         if (isSelectAllStore) {
-                          formRef.current?.setFieldsValue({account_stores: []});
+                          formRef.current?.setFieldsValue({ account_stores: [] });
                           setIsSelectAllStore(false);
                         } else {
                           formRef.current?.setFieldsValue({
@@ -451,12 +434,12 @@ const AccountCreateScreen: React.FC = () => {
                     format="DD/MM/YYYY"
                     style={{ width: "100%" }}
                   /> */}
-                  <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
+                  <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  name="roles"
+                  name="role_id"
                   label="Nhóm phân quyền"
                   hasFeedback
                   rules={[
@@ -468,9 +451,8 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn vị trí"
-                    allowClear
                     showArrow
-                    mode="multiple"
+                    allowClear
                     optionFilterProp="children"
                   >
                     {listRole?.map((item) => (
@@ -536,9 +518,9 @@ const AccountCreateScreen: React.FC = () => {
           <Collapse.Panel key="1" header="Thông tin công việc">
             <div className="padding-20">
               <List name="account_jobs">
-                {(fields, {add, remove}) => (
+                {(fields, { add, remove }) => (
                   <>
-                    {fields.map(({key, name, fieldKey, ...restField}, index) => (
+                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
                       <Row key={key} gutter={16}>
                         <Col md={8}>
                           <Item
@@ -553,7 +535,7 @@ const AccountCreateScreen: React.FC = () => {
                               showSearch
                               optionFilterProp="children"
                               onChange={(value) => onChangeDepartment(value, index)}
-                              style={{width: "100%"}}
+                              style={{ width: "100%" }}
                             >
                               {listDepartment?.map((item) => (
                                 <Option key={item.id} value={item.id}>
@@ -576,7 +558,7 @@ const AccountCreateScreen: React.FC = () => {
                               showSearch
                               optionFilterProp="children"
                               onChange={(value) => onChangePosition(value, index)}
-                              style={{width: "100%"}}
+                              style={{ width: "100%" }}
                             >
                               {listPosition?.map((item) => (
                                 <Option key={item.id} value={item.id}>
@@ -588,7 +570,7 @@ const AccountCreateScreen: React.FC = () => {
                           </Item>
                         </Col>
                         {fields.length > 1 && (
-                          <Col md={4} style={{display: "flex", alignItems: "center"}}>
+                          <Col md={4} style={{ display: "flex", alignItems: "center" }}>
                             <Button
                               onClick={() => remove(name)}
                               icon={<DeleteOutlined />}
@@ -612,7 +594,7 @@ const AccountCreateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{textAlign: "right"}}>
+          <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy
