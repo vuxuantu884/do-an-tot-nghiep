@@ -2,7 +2,7 @@ import { generateQuery } from 'utils/AppUtils';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { AccountSearchQuery,LoginResponse ,AccountResponse, AccountRequest} from "model/account/account.model";
+import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest } from "model/account/account.model";
 import { AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
@@ -45,7 +45,7 @@ export const AccountManyDeleteService = (ids: number[]): Promise<BaseResponse<Ac
   return BaseAxios.delete(`${ApiConfig.ACCOUNTS}/accounts/${ids}`)
 }
 
-export const getDepartmentAllApi = (): Promise<BaseResponse<DepartmentResponse>> => {
+export const getDepartmentAllApi = (): Promise<BaseResponse<DepartmentResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/departments`);
 }
 
