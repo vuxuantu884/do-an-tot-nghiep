@@ -67,6 +67,14 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     form.resetFields();
   }, [form, formItem, visible]);
 
+  useEffect(() => {
+    if (form.getFieldValue("is_active")) {
+      setIsVisibleFieldDefault(true);
+    } else {
+      setIsVisibleFieldDefault(false);
+    }
+  }, [form, visible]);
+
   return (
     <StyledComponent>
       <Form
