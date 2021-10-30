@@ -162,6 +162,7 @@ const CreateTicket: FC = () => {
             errors: []
           }
         ])
+        callback();
       }
     }
   };
@@ -374,6 +375,7 @@ const CreateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "unset";
       }
     });
+    
 
     if (countError > 0) {
       showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
