@@ -36,6 +36,7 @@ import {
   StyledEcommerceOrderBaseFilter,
   StyledOrderFilter,
 } from "screens/ecommerce/orders/orderStyles";
+import CustomSelect from "component/custom/select.custom";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -1308,19 +1309,23 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               layout="vertical"
             >
               <Form.Item label={<b>KHO CỬA HÀNG</b>} name="store_ids">
-                <Select
+                <CustomSelect
                   mode="multiple"
-                  allowClear
                   showArrow
+                  allowClear
+                  showSearch
                   placeholder="Chọn cửa hàng"
                   notFoundContent="Không tìm thấy kết quả"
+                  optionFilterProp="children"
+                  getPopupContainer={trigger => trigger.parentNode}
+                  maxTagCount='responsive'
                 >
                   {listStore?.map((item) => (
-                    <Option key={item.id} value={item.id.toString()}>
+                    <CustomSelect.Option key={item.id} value={item.id.toString()}>
                       {item.name}
-                    </Option>
+                    </CustomSelect.Option>
                   ))}
-                </Select>
+                </CustomSelect>
               </Form.Item>
 
               <Form.Item label={<b>SÀN TMĐT</b>} name="channel_id">
