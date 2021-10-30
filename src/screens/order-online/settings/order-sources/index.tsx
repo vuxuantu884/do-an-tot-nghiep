@@ -92,14 +92,14 @@ function OrderSources() {
     },
     {
       title: "Kênh",
-      dataIndex: "code",
+      dataIndex: "channel_id",
       visible: true,
       className: "columnTitle",
       width: "20%",
       render: (value, row, index) => {
         if (value) {
           const selectedChannel = listChannels.find((single) => {
-            return single.code === value
+            return single.id === value
           })
           if (selectedChannel) {
             return (
