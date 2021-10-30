@@ -31,7 +31,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { getDepartmentAllApi } from "service/accounts/account.service";
 import { deleteMultiOrderSourceService, getChannelApi } from "service/order/order.service";
 import { generateQuery } from "utils/AppUtils";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import { StyledComponent } from "./styles";
 
@@ -198,7 +198,6 @@ function OrderSources() {
   const handleDelete = () => {
     showLoading();
     deleteMultiOrderSourceService(rowKey).then((response: BaseResponse<any>) => {
-      console.log('response', response);
       switch (response.code) {
         case HttpStatus.SUCCESS:
           setTableLoading(true);
@@ -206,6 +205,7 @@ function OrderSources() {
             actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
               setListOrderSources(data.items);
               setTotal(data.metadata.total);
+              showSuccess("Xóa thành công!")
             })
           );
           setTableLoading(false);
@@ -226,12 +226,10 @@ function OrderSources() {
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.DELETE:
-          console.log("delete");
-          console.log("rowKey", rowKey);
           setIsShowConfirmDelete(true);
       }
     },
-    [ACTIONS_INDEX.DELETE, rowKey]
+    [ACTIONS_INDEX.DELETE]
   );
 
   const actions: Array<MenuAction> = [
@@ -295,8 +293,6 @@ function OrderSources() {
 
   const handleForm = {
     create: (formValues: OrderSourceModel) => {
-      console.log('formValues', formValues)
-      // return;
       dispatch(
         actionAddOrderSource(formValues, () => {
           setIsShowModal(false);
@@ -354,23 +350,8 @@ function OrderSources() {
     }
   }, [form, queryParams]);
 
-  // useEffect(() => {
-  //   const listDepartmentsFake = [
-  //     {
-  //       id: 1,
-  //       name: "phòng IT",
-  //     },
-  //     {
-  //       id: 2,
-  //       name: "phòng Nhân sự",
-  //     },
-  //   ];
-  //   setListDepartments(listDepartmentsFake);
-  // }, []);
-
   useEffect(() => {
     getDepartmentAllApi().then((response: BaseResponse<DepartmentResponse[]>) => {
-      console.log('response', response)
       switch (response.code) {
         case HttpStatus.SUCCESS:
           if (response.data) {
@@ -388,7 +369,6 @@ function OrderSources() {
 
   useEffect(() => {
     getChannelApi().then((response: BaseResponse<ChannelResponse[]>) => {
-      console.log('response', response)
       switch (response.code) {
         case HttpStatus.SUCCESS:
           if (response.data) {
@@ -489,7 +469,7 @@ function OrderSources() {
                   setModalAction("edit");
                   setModalSingleOrderSource(record);
                   setIsShowModal(true);
-                }, // click row
+                },
               };
             }}
           />
