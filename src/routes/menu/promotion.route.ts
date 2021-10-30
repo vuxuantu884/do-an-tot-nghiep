@@ -10,6 +10,7 @@ const promotionCodePage = React.lazy(() => import("screens/promotion/promotion-c
 const createDiscountPage = React.lazy(() => import("screens/promotion/discount/discount.create"))
 const createPromotionCodePage = React.lazy(() => import("screens/promotion/promotion-code/promotion-code.create"))
 const promotionCodeDetail = React.lazy(() => import("screens/promotion/promotion-code/promotion-code-detail/index"))
+const discountCodeList = React.lazy(() => import("screens/promotion/promotion-code/discount-code-list"))
 
 const promotion: Array<RouteMenu> = [
   {
@@ -120,6 +121,17 @@ const promotion: Array<RouteMenu> = [
         icon: 'icon-dot',
         component: promotionCodeDetail,
         key: "submenu1072",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/discount-code`,
+        exact: true,
+        title: "Mã chiết khấu đợt phát hành",
+        icon: 'icon-dot',
+        component: discountCodeList,
+        key: "submenu1073",
         isShow: true,
         header: null,
         subMenu: [],

@@ -1,3 +1,17 @@
+.promotion-code__search, .discount-code__search {
+  .page-filter {
+    padding-top: 0;
+  }
+  .saleorder-product-card-action > div {
+    padding: 0 !important;
+  }
+}
+.modal-show-add-discount {
+  .ant-modal-footer {
+    display: none;
+  }
+}
+
 hr {
   margin: 18px 0;
   border-bottom: 1px solid #E5E5E5;
@@ -27,7 +41,6 @@ hr {
   background-color: #F5F5F5;
   border-radius: 10px;
   width: 100%;
-  height: 216px;
   padding: 15px 13px;
   display: flex;
   flex-direction: column;
@@ -36,6 +49,9 @@ hr {
   img {
     margin-bottom: 11px;
     border-radius: 50%;
+  }
+  p {
+    text-align: center;
   }
 }
 

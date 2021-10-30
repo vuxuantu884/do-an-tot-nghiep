@@ -296,7 +296,14 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                <Row gutter={30} style={{gap: 15}}>
+                {true  && 
+                  <Row gutter={30}>
+                    <Col span={24}>
+                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
+                    </Col>
+                  </Row>
+                }
+                {false && <Row gutter={30} style={{gap: 15}}>
                   <Col span={24} style={{
                       color: "#E24343",
                       textAlign: "center",
@@ -322,10 +329,10 @@ const PromotionDetailScreen: React.FC = () => {
                       <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
                       <p style={{fontWeight: 500}}>Nhập file Excel</p>
                       <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
-                      <Link to="">Tải file mẫu</Link>
+                      <Link to="#">Tải file mẫu</Link>
                     </div>
                   </Col>
-                </Row>
+                </Row>}
               </Card>
               <Card
                 className="card"
