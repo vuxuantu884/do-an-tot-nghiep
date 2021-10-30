@@ -84,7 +84,8 @@ function PackList(props: any) {
           ),
         }}
         className="ecommerce-order-list"
-        rowKey={(item: any) => item.code}
+        //rowKey={(item: any) => item.code}
+        key={Math.random()}
       />
       </div>
     </Card>
