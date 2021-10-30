@@ -1,29 +1,40 @@
 import { MenuAction } from "component/table/ActionButton";
 import { deleteInventoryTransferAction, getListInventoryTransferAction, inventoryGetSenderStoreAction, updateInventoryTransferAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+
 import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
 import { InventoryTransferDetailItem, InventoryTransferSearchQuery, Store } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
+import purify from "dompurify";
+
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
+
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Input, Modal, Tag, Form } from "antd";
 import { InventoryTransferTabWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER } from "../../constants";
+
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { FormOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
+
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
 import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+
 import NumberFormat from "react-number-format";
 import { showSuccess } from "utils/ToastUtils";
 import DeleteTicketModal from "screens/inventory/common/DeleteTicketPopup";
+import { useReactToPrint } from "react-to-print";
+
+import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
+import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
 const { TextArea } = Input;
 
 const ACTIONS_INDEX = {
@@ -95,15 +106,40 @@ const InventoryTransferTab: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+
   const [tableLoading, setTableLoading] = useState(false);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
+
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
-
   const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
+  const printElementRef = useRef(null);
+
+  const [printContent, setPrintContent] = useState<string>("");
+  const pageBreak = "<div class='pageBreak'></div>";
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+  const printContentCallback = useCallback(
+    (printContent: Array<PrinterInventoryTransferResponseModel>) => {
+      if (!printContent || printContent.length === 0) return;
+      const textResponse = printContent.map((single) => {
+        return (
+          "<div class='singleOrderPrint'>" +
+          single.html_content +
+          "</div>"
+        );
+      });
+      let textResponseFormatted = textResponse.join(pageBreak);
+      //xóa thẻ p thừa
+      let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
+    },
+    [handlePrint]
+  );
  
   const dispatch = useDispatch();
   let dataQuery: InventoryTransferSearchQuery = {
@@ -345,16 +381,10 @@ const InventoryTransferTab: React.FC = () => {
       printType = "inventory_transfer_bill";
     } else if (index === ACTIONS_INDEX.PRINT_TICKET) {
       printType = "inventory_transfer";
-    }
-
-    let params = {
-      ids: selectedRowKeys,
-      "type": printType,
     };
-    const queryParam = generateQuery(params);
+    dispatch(actionFetchPrintFormByInventoryTransferIds(selectedRowKeys, printType, printContentCallback))
     
-    history.push(`${UrlConfig.INVENTORY_TRANSFER}/print-preview?${queryParam}`);
-  }, [history, selectedRowKeys]);
+  }, [dispatch, printContentCallback, selectedRowKeys]);
 
 
   const onMenuClick = useCallback(
@@ -417,6 +447,15 @@ const InventoryTransferTab: React.FC = () => {
   
   return (
     <InventoryTransferTabWrapper>
+      <div style={{ display: "none" }}>
+        <div className="printContent" ref={printElementRef}>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: purify.sanitize(printContent),
+            }}
+          ></div>
+        </div>
+      </div>
       <InventoryFilters
         accounts={accounts}
         params={params}

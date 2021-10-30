@@ -1,8 +1,9 @@
-import { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
 import { Button, Card, Col, Row, Space, Table, Tag, Input, Timeline, Collapse } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
+import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import PlusOutline from "assets/icon/plus-outline.svg";
@@ -51,6 +52,9 @@ import _ from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 import ModalConfirm from "component/modal/ModalConfirm";
+import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
+import { useReactToPrint } from "react-to-print";
+import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 
 export interface InventoryParams {
   id: string;
@@ -84,7 +88,31 @@ const DetailTicket: FC = () => {
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
 
   const { Panel } = Collapse;
+  const printElementRef = useRef(null);
 
+  const [printContent, setPrintContent] = useState<string>("");
+  const pageBreak = "<div class='pageBreak'></div>";
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+  const printContentCallback = useCallback(
+    (printContent: Array<PrinterInventoryTransferResponseModel>) => {
+      if (!printContent || printContent.length === 0) return;
+      const textResponse = printContent.map((single) => {
+        return (
+          "<div class='singleOrderPrint'>" +
+          single.html_content +
+          "</div>"
+        );
+      });
+      let textResponseFormatted = textResponse.join(pageBreak);
+      //xóa thẻ p thừa
+      let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
+    },
+    [handlePrint]
+  );
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
@@ -570,6 +598,12 @@ const DetailTicket: FC = () => {
     }
   }
 
+  const onPrintAction = (type: string) => {
+    if (data) {
+      dispatch(actionFetchPrintFormByInventoryTransferIds([data.id], type, printContentCallback));
+    }
+  }
+
   useEffect(() => {
     if (!stores && !data) return;
     else {
@@ -1033,23 +1067,13 @@ const DetailTicket: FC = () => {
               }
               rightComponent={
                 <Space>
-                  <Button>
-                    <Link
-                      to={`${UrlConfig.INVENTORY_TRANSFER}/print-preview?ids=${data.id}&type=inventory_transfer_bill`}
-                      target="_blank"
-                    >
-                      <PrinterOutlined />
-                      {" In vận đơn"}
-                    </Link>
+                  <Button onClick={() => onPrintAction('inventory_transfer_bill')}>
+                    <PrinterOutlined />
+                    {" In vận đơn"}
                   </Button>
-                  <Button>
-                    <Link
-                      to={`${UrlConfig.INVENTORY_TRANSFER}/print-preview?ids=${data.id}&type=inventory_transfer`}
-                      target="_blank"
-                    >
-                      <PrinterOutlined /> 
-                      {" In phiếu chuyển"}
-                    </Link>
+                  <Button onClick={() => onPrintAction('inventory_transfer')}>
+                    <PrinterOutlined /> 
+                    {" In phiếu chuyển"}
                   </Button>
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
@@ -1096,6 +1120,15 @@ const DetailTicket: FC = () => {
             />
           </>
         )}
+        <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: purify.sanitize(printContent),
+              }}
+            ></div>
+          </div>
+        </div>
         {
           isVisibleModalWarning && 
           <ModalConfirm
