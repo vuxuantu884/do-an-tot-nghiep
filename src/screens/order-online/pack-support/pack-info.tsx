@@ -46,6 +46,8 @@ type PackInfoProps = {
   fulfillmentData: PageResponse<any>;
 };
 
+var barcode = "";
+
 const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const {
     setFulfillmentsPackedItems,
@@ -103,8 +105,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     return newData;
   }, [listStores, userReducer.account]);
 
-
-
   OrderRequestElement?.addEventListener("focus", (e: any) => {
     OrderRequestElement.select();
   });
@@ -116,17 +116,38 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const event = useCallback(
     (event: KeyboardEvent) => {
         if (event.target instanceof HTMLBodyElement) {
-          if (event.key === "Enter") {
-            let product= formRef.current?.getFieldValue(["product_request"]);
-            console.log("product",product);
+          if (event.key !== "Enter") {
+            barcode = barcode + event.key;
+          }
+          else{
+            if (event.key === "Enter") 
+            {
+              if (barcode !== "" && event){
+                console.log(barcode);
+                formRef.current?.validateFields(["store_request"]);
+                formRef.current?.validateFields(["order_request"]);
+                let store_request = formRef.current?.getFieldValue(["store_request"]);
+                let order_request = formRef.current?.getFieldValue(["order_request"]);
+                if(store_request && order_request && orderResponse)
+                {
+                  formRef.current?.setFieldsValue({product_request:barcode});
+                  ProductRequestElement.select();
+                  btnFinishPackElement?.click();
+                }
+                barcode="";
+              }
+            }
           }
         }
     },
-    [formRef]
+    [formRef,ProductRequestElement,btnFinishPackElement,orderResponse]
   );
 
   useEffect(() => {
-      window.addEventListener("keydown", event);
+      window.addEventListener("keypress", event);
+      return () => {
+        window.removeEventListener("keypress", event);
+    };
   }, [event]);
 
   const onKeyupOrder = useCallback(
@@ -180,7 +201,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     [btnFinishPackElement]
   );
 
-  const onClickClearPack = () => {
+  const onClickClearPack =  () => {
     setDisableStoreId(false);
     setDisableOrder(false);
 
@@ -191,7 +212,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     formRef.current?.setFieldsValue({ quality_request: "" });
     formRef.current?.setFieldsValue({ order_request: "" });
     formRef.current?.setFieldsValue({ store_request: "" });
-  };
+  }
   //event
 
   //useEffect
