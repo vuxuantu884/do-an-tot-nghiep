@@ -1,16 +1,18 @@
 import { Card, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import emptyProduct from "assets/icon/empty_products.svg";
-import { useEffect, useState } from "react";
+//import { useEffect, useState } from "react";
 
 function PackList(props: any) {
   const { data } = props;
-  const [dataPack, setDataPack]=useState([])
-  useEffect(() => {
-    if (data.items.length > 0) {
-      setDataPack(data.items);
-    }
-  }, [data])
+  // const [dataPack, setDataPack]=useState([])
+  // useEffect(() => {
+  //   if (data.items.length > 0) {
+  //     setDataPack(data.items);
+  //   }
+  // }, [data])
+
+  console.log(data)
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
     {
@@ -68,7 +70,7 @@ function PackList(props: any) {
       <div>
       <Table 
         columns={columnsOrderPack}
-        dataSource={dataPack} 
+        dataSource={data.items} 
         locale={{
           emptyText: (
             <div className="sale_order_empty_product">
@@ -78,6 +80,7 @@ function PackList(props: any) {
           ),
         }}
         className="ecommerce-order-list"
+        rowKey={(item: any) => item.code}
       />
       </div>
     </Card>
