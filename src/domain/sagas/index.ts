@@ -32,6 +32,8 @@ import { settingOrdersSaga } from "./settings/order-settings.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
 import { discountSaga } from "./promotion/discount/discount.saga";
 import { promotionCodeSaga } from "./promotion/promotion-code/promotion-code.saga";
+import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
+import { moduleSaga } from "./auth/module.saga";
 
 function* rootSaga() {
   yield all([
@@ -68,6 +70,8 @@ function* rootSaga() {
     OrderReturnSaga(),
     discountSaga(),
     promotionCodeSaga(),
+    GoodsReceiptsSaga(),
+    moduleSaga()
   ]);
 }
 

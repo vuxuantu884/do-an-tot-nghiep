@@ -26,7 +26,7 @@ const ReportHandOver: React.FC = () => {
     <Card
       title="Cho vào biên bản bàn giao "
       bordered={false}
-      style={{ marginTop: "24px" }}
+      style={{paddingLeft: "18px", paddingRight:"18px"}}
     >
       <div>
         <Row gutter={24}>

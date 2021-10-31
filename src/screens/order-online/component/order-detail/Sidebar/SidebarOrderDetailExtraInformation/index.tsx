@@ -19,7 +19,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
               {OrderDetail?.customer_note !== ""
                 ? OrderDetail?.customer_note
-                : "Không có ghi chú"}
+                : "-"}
             </span>
           </Col>
         </Row>
@@ -32,7 +32,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
               {OrderDetail?.note !== ""
                 ? OrderDetail?.note
-                : "Không có ghi chú"}
+                : "-"}
             </span>
           </Col>
         </Row>
@@ -61,7 +61,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
                       {item}
                     </Tag>
                   ))
-                : "Không có tags"}
+                : "-"}
             </span>
           </Col>
         </Row>

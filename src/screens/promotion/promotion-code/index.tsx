@@ -3,16 +3,17 @@ import {
   Button,
   Form,
   Input,
-  Select,
+  Tag,
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import actionColumn from "./actions/action.column";
-import CustomFilter from "component/table/custom.filter";
-import ContentContainer from "component/container/content.container";
-import settingGearIcon from "../../../assets/icon/setting-gear-icon.svg";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig from "config/url.config";
 import moment from "moment";
+import actionColumn from "./actions/action.column";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/url.config";
+import CustomFilter from "component/table/custom.filter";
+import CustomSelect from "component/custom/select.custom";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import "./promotion-code.scss";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
@@ -23,9 +24,8 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
 import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
-import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 
 const PromotionCode = () => {
   const promotionStatuses = [
@@ -95,16 +95,9 @@ const PromotionCode = () => {
     },
   ];
 
-  const initQuery: DiscountSearchQuery = {
-    type: "AUTOMATIC",
+  const initQuery: any = {
     request: "",
-    from_created_date: "",
-    to_created_date: "",
-    status: "",
-    applied_shop: "",
-    applied_source: "",
-    customer_category: "",
-    discount_method: ""
+    status: ""
   };
   const dispatch = useDispatch();
   const query = useQuery();
@@ -118,18 +111,16 @@ const PromotionCode = () => {
     },
     items: [],
   })
-  let dataQuery: DiscountSearchQuery = {
+  let dataQuery: any = {
     ...initQuery,
     ...getQueryParams(query)
   }
-  const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+  const [params, setParams] = useState<any>(dataQuery);
 
   const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
     setData(data)
     setTableLoading(false)
   }, [])
-
-  const [showSettingColumn, setShowSettingColumn] = React.useState<boolean>(false);
 
   useEffect(() => {
     dispatch(getListPromotionCode(params, fetchData));
@@ -144,6 +135,7 @@ const PromotionCode = () => {
 
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
+    console.log("newParams", newParams);
     setParams({...newParams})
   }, [params])
 
@@ -153,18 +145,18 @@ const PromotionCode = () => {
   const handleShowDeleteModal = (item: any) => {
     console.log(item);
   };
-  const [columns, setColumn] = React.useState<Array<ICustomTableColumType<any>>>([
+  const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "10",
+      width: "7%",
       render: (value: any, item: any, index: number) =>
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`}
+          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
-          {value.code}
+          {value.id}
         </Link>,
     },
     {
@@ -172,30 +164,30 @@ const PromotionCode = () => {
       visible: true,
       fixed: "left",
       dataIndex: "name",
-      width: "10",
+      width: "20%",
     },
     {
       title: "SL mã",
       visible: true,
       fixed: "left",
       dataIndex: "code_amount",
-      width: "10",
+      width: "10%",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
       dataIndex: "used_amount",
-      width: "10",
+      width: "10%",
     },
     {
       title: "Thời gian",
       visible: true,
       fixed: "left",
       align: 'center',
-      width: "10",
+      width: "20%",
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.start_time && moment(item.start_time).format(DATE_FORMAT.DDMMYYY)} - ${item.end_time && moment(item.end_time).format(DATE_FORMAT.DDMMYYY)}`}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date && moment(item.ends_date).format(DATE_FORMAT.DDMMYYY)}`}</div>,
     },
     {
       title: "Người tạo",
@@ -203,7 +195,7 @@ const PromotionCode = () => {
       dataIndex: "created_by",
       fixed: "left",
       align: 'center',
-      width: "10",
+      width: "10%",
     },
     {
       title: "Trạng thái",
@@ -213,20 +205,60 @@ const PromotionCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === value);
+        const status: any | null = promotionStatuses.find(e => e.code === item.type);
         return (<div
           style={status?.style}
         >
-          {status?.value}
+          {status?.item.type}
         </div>)
       }
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
-  ]);
+  ];
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+
+  function tagRender(props: any) {
+    const { label, closable, onClose } = props;
+    const onPreventMouseDown = (event: any) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    return (
+      <Tag
+        className="primary-bg"
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+      >
+        {label}
+      </Tag>
+    );
+  }
+  const listStatus: Array<BaseBootstrapResponse> = [
+    {
+      value: "APPLYING",
+      name: "Đang áp dụng",
+    },
+    {
+      value: "TEMP_STOP",
+      name: "Tạm ngưng",
+    },
+    {
+      value: "WAIT_FOR_START",
+      name: "Chờ áp dụng",
+    },
+    {
+      value: "ENDED",
+      name: "Kết thúc",
+    },
+    {
+      value: "CANCELLED",
+      name: "Đã huỷ",
+    }
+  ]
 
   return (
     <ContentContainer
@@ -249,7 +281,7 @@ const PromotionCode = () => {
         <>
           <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`}>
             <Button
-              className="ant-btn-outline ant-btn-primary"
+              className="light"
               size="large"
               icon={<PlusOutlined />}
             >
@@ -260,15 +292,34 @@ const PromotionCode = () => {
       }
     >
       <Card>
-        <div className="padding-20 promotion-code-search-filter">
+        <div className="promotion-code__search">
           <CustomFilter menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request">
+              <Form.Item name="request" className="search">
                 <Input
-                  // style={{ marginLeft: 16, width: "100%" }}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />
+              </Form.Item>
+              <Form.Item name="status" className="store">
+                <CustomSelect
+                  showSearch
+                  optionFilterProp="children"
+                  showArrow
+                  placeholder="Chọn trạng thái"
+                  allowClear
+                  tagRender={tagRender}
+                  style={{
+                    width: "100%",
+                  }}
+                  notFoundContent="Không tìm thấy kết quả"
+                >
+                  {listStatus?.map((item) => (
+                    <CustomSelect.Option key={item.value} value={item.value}>
+                      {item.name}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
               </Form.Item>
               {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
               <Form.Item>
@@ -279,18 +330,6 @@ const PromotionCode = () => {
               <Form.Item>
                 <Button>Thêm bộ lọc</Button>
               </Form.Item>
-              <Form.Item>
-                <Button
-                  onClick={() => setShowSettingColumn(true)}
-                  icon={
-                    <img
-                      style={{ marginBottom: 3 }}
-                      src={settingGearIcon}
-                      alt=""
-                    ></img>
-                  }
-                ></Button>
-              </Form.Item>
             </Form>
           </CustomFilter>
 
@@ -298,7 +337,6 @@ const PromotionCode = () => {
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
-            scroll={{ x: 2000 }}
             sticky={{ offsetScroll: 5 }}
             pagination={{
               pageSize: data.metadata.limit,
@@ -314,17 +352,6 @@ const PromotionCode = () => {
           />
         </div>
       </Card>
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => {
-          setShowSettingColumn(false);
-        }}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
     </ContentContainer>
   );
 };

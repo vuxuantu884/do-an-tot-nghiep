@@ -5,6 +5,7 @@ import { RefSelectProps } from "antd/lib/select";
 import { SearchOutlined } from "@ant-design/icons";
 
 import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { findAvatar, findPrice, formatCurrency } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -194,7 +195,7 @@ const UpdateConnectionModal: React.FC<UpdateConnectionModalType> = (
     }, [resultSearchVariant]);
 
     const gotoProductDetail = () => {
-      const link = `https://dev.yody.io/unicorn/admin/products/${productSelected.product_id}/variants/${productSelected.id}`;
+      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`
       window.open(link, "_blank");
     }
 

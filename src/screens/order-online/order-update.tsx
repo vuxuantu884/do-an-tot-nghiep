@@ -777,6 +777,7 @@ export default function Order(props: PropType) {
                 discount_amount: item.discount_amount,
                 position: item.position,
                 gifts: giftResponse,
+                available:item.available
               };
             });
           let newDatingShip = initialForm.dating_ship;
@@ -1747,9 +1748,11 @@ export default function Order(props: PropType) {
                                           <Col span={24}>
                                             <b>
                                               {/* Lấy ra đối tác */}
-                                              {fulfillment.shipment
+                                              {(fulfillment.shipment
                                                 ?.delivery_service_provider_type ===
-                                                "external_service" && (
+                                                "external_service" || fulfillment.shipment
+                                                ?.delivery_service_provider_type ===
+                                                "shopee") && (
                                                 <img
                                                   style={{
                                                     width: "112px",

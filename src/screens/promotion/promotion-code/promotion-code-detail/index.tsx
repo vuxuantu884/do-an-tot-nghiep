@@ -1,477 +1,570 @@
-import { Row, Col, Card, Tabs } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { modalActionType } from "model/modal/modal.model";
-import React from "react";
-import { useDispatch } from "react-redux";
-import { useParams, useHistory } from "react-router-dom";
+import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel } from "model/order/order.model";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
 import {
-  getLoyaltyPoint,
-  getLoyaltyUsage,
-} from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import ActionButton, {
-  MenuAction,
-} from "../../../../component/table/ActionButton";
-import { formatCurrency } from "utils/AppUtils";
-import CustomerInfo from "screens/customer/customer-detail/customer.info";
-import CustomerHistoryInfo from "screens/customer/customer-detail/customer.history";
-import CustomerCareHistory from "screens/customer/customer-detail/customer-care-history";
-import CustomerNoteInfo from "screens/customer/customer-detail/customer-note/customer.note";
-import CustomerShippingAddressInfo from "screens/customer/customer-detail/customer-shipping/customer.shipping";
-import CustomerContactInfo from "screens/customer/customer-detail/customer-contact/customer.contact";
+  productGetDetail,
+  productUpdateAction
+} from "domain/actions/product/products.action";
+import { ProductResponse } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router";
+import { Link } from "react-router-dom";
+import VoucherIcon from "assets/img/voucher.svg";
+import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
+import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
+import CloseIcon from "assets/icon/x-close-red.svg";
+import UserIcon from "assets/icon/user-icon.svg";
+import DiscountIcon from "assets/icon/discount.svg";
+import "../promotion-code.scss";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import ModalAddCode from "../components/ModalAddCode";
+import Dragger from "antd/lib/upload/Dragger";
+import { RiUpload2Line } from "react-icons/ri";
 
-const { TabPane } = Tabs;
+export interface ProductParams {
+  id: string;
+  variantId: string;
+}
 
-const PromotionCodeDetailIndex = () => {
-  const [activeTab, setActiveTab] = React.useState<string>("history");
-  const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
-  const [isShowModalBilling, setIsShowModalBilling] = React.useState(false);
-  const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
-  const [isShowModalNote, setIsShowModalNote] = React.useState(false);
-  const [isShowAddBtn, setIsShowAddBtn] = React.useState(false);
-  const params: any = useParams();
-  const dispatch = useDispatch();
+enum TabName {
+  HISTORY = '#historyTab',
+  INVENTORY = '#inventoryTab'
+}
+
+type detailMapping = {
+  name: string;
+  value: string | null;
+  position: string;
+  key: string;
+  isWebsite?: boolean;
+};
+
+const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
-  const [customer, setCustomer] = React.useState<CustomerResponse>();
-  const [customerPointInfo, setCustomerPoint] = React.useState<any>([]);
-  const [modalAction, setModalAction] =
-    React.useState<modalActionType>("create");
-  const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(
-    null
-  );
-  // const [loyaltyCard, setLoyaltyCard] = React.useState<PageResponse<LoyaltyCardResponse>>();
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
-  const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
-  const [queryParams, setQueryParams] = React.useState<any>({
-    limit: 10,
-    page: 1,
-    customer_ids: null,
-  });
-  const actions: Array<MenuAction> = [
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const {hash} = location;
+
+  const id = "1";
+
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
+  const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
+  const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
+  const [data, setData] = useState<ProductResponse | null>(null);
+  
+  const idNumber = parseInt(id);
+  const onEdit = useCallback(() => {
+    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
+  }, [history, idNumber]);
+
+  const onResult = useCallback((result: ProductResponse | false) => {
+    setLoading(false);
+    if (!result) {
+      setError(true);
+    } else {
+      setData(result);
+    }
+  }, []);
+
+  useEffect(() => {
+    dispatch(productGetDetail(idNumber, onResult));
+    return () => {};
+  }, [dispatch, idNumber, onResult]);
+
+  const promotion = {
+    name: "Tên đợt phát hành",
+    code: "CPM12",
+    typeCode: "Mã giảm giá",
+    description: "",
+    amountCodeRelease: "0",
+    amountUsed: "0",
+    discountInfo: "Giảm 3% tối đa 100.000"
+  };
+
+  const promotionDetail: Array<any> | undefined = React.useMemo(() => {
+    if (promotion) {
+      const details = [
+        {
+          name: "Tên đợt phát hành",
+          value: promotion.name,
+          position: "left",
+          key: "1",
+        },
+        {
+          name: "Mã đợt phát hành",
+          value: promotion.code,
+          position: "left",
+          key: "2",
+        },
+        {
+          name: "Loại mã",
+          value: promotion.typeCode,
+          position: "left",
+          key: "3",
+        },
+        {
+          name: "Mô tả đợt phát hành",
+          value: promotion.description,
+          position: "left",
+          key: "4",
+        },
+        {
+          name: "SL mã phát hành",
+          value: promotion.amountCodeRelease,
+          position: "right",
+          key: "5",
+        },
+        {
+          name: "Số lượng đã sử dụng",
+          value: promotion.amountUsed,
+          position: "right",
+          key: "6",
+        },
+        {
+          name: "Thông tin km",
+          value: promotion.discountInfo,
+          position: "right",
+          key: "7",
+        },
+      ];
+      return details;
+    }
+  }, [promotion]);
+ 
+  const timeApply = [
     {
-      id: 1,
-      name: "Tặng điểm",
+      name: "Từ",
+      value: "25-8-2021  14:30",
+      key: "1",
     },
     {
-      id: 2,
-      name: "Trừ điểm",
+      name: "Đến",
+      value: "",
+      key: "2",
     },
     {
-      id: 3,
-      name: "Tặng tiền tích lũy",
-    },
-    {
-      id: 4,
-      name: "Trừ tiền tích lũy",
-    },
+      name: "Còn",
+      value: "30 ngày 23:56:13",
+      key: "3",
+    }
   ];
-  console.log(loyaltyPoint);
-  const [data, setData] = React.useState<PageResponse<OrderModel>>({
-    metadata: {
-      limit: 10,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
-  const [tableLoading, setTableLoading] = React.useState<boolean>(false);
-  // add and edit contact section;
-  React.useEffect(() => {
-    if (customer) {
-      dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      // dispatch(LoyaltyCardSearch(cardQuery, setLoyaltyCard))
-    } else {
-      setLoyaltyPoint(null);
-    }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch, customer]);
-  React.useEffect(() => {
-    if (history.location.hash) {
-      switch (history.location.hash) {
-        case "#history":
-          setActiveTab("history");
-          setIsShowAddBtn(false);
-          break;
-        case "#caring-history":
-          setActiveTab("caring-history");
-          setIsShowAddBtn(false);
-          break;
-        case "#contacts":
-          setActiveTab("contacts");
-          setIsShowAddBtn(true);
-          setModalAction("create");
-          break;
-        case "#billing":
-          setActiveTab("billing");
-          setIsShowAddBtn(true);
-          setModalAction("create");
-          break;
-        case "#shipping":
-          setActiveTab("shipping");
-          setIsShowAddBtn(true);
-          setModalAction("create");
-          break;
-        case "#notes":
-          setActiveTab("notes");
-          setIsShowAddBtn(true);
-          setModalAction("create");
-          break;
-        case "#updated-logging":
-          setActiveTab("updated-logging");
-          setIsShowAddBtn(false);
-          break;
-      }
-    }
-  }, [history.location.hash]);
 
-  const mappingBtnName: any = {
-    "#notes": "Thêm ghi chú",
-    "#billing": "Thêm địa chỉ",
-    "#shipping": "Thêm địa chỉ",
-    "#contacts": "Thêm liên hệ",
-    "#caring-history": "Thêm mới",
-  };
-
-  React.useEffect(() => {
-    const _detail = [
-      {
-        name: "Tổng chi tiêu",
-        value: formatCurrency(
-          loyaltyPoint?.total_money_spend ? loyaltyPoint?.total_money_spend : ""
-        ),
-      },
-      {
-        name: "Ngày cuối mua online",
-        value: null,
-      },
-      {
-        name: "Ngày cuối mua offline",
-        value: null,
-      },
-      {
-        name: "Tổng đơn hàng",
-        value: loyaltyPoint?.total_order_count,
-      },
-      {
-        name: "Tại cửa hàng",
-        value: null,
-      },
-      {
-        name: "Tại cửa hàng",
-        value: null,
-      },
-    ];
-
-    setCustomerSpendDetail(_detail);
-  }, [loyaltyPoint]);
-
-  const onPageChange = React.useCallback(
-    (page, limit) => {
-      setQueryParams({ ...queryParams, page, limit });
-    },
-    [queryParams, setQueryParams]
-  );
-
-  const setOrderHistoryItems = React.useCallback(
-    (data: PageResponse<OrderModel> | false) => {
-      if (data) {
-        setData(data);
-        setTableLoading(false);
-      }
-    },
-    []
-  );
-  React.useEffect(() => {
-    if (params?.id) {
-      queryParams.customer_ids = [params?.id];
-      dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
-    }
-  }, [params, dispatch, queryParams, setOrderHistoryItems]);
-  // end
-  React.useEffect(() => {
-    const _detail = [
-      { name: "Điểm hiện tại", value: loyaltyPoint?.point || null },
-      {
-        name: "Hạng thẻ",
-        value:
-          loyaltyUsageRules?.find(
-            (item) => item.rank_id === loyaltyPoint?.loyalty_level_id
-          )?.rank_name || null,
-      },
-      {
-        name: "Ngày gắn thẻ",
-        value: null,
-      },
-      {
-        name: "CH gắn thẻ",
-        value: null,
-      },
-    ];
-    setCustomerPoint(_detail);
-  }, [loyaltyPoint, loyaltyUsageRules, customer]);
-
-  React.useEffect(() => {
-    dispatch(CustomerDetail(params.id, setCustomer));
-  }, [dispatch, params, setCustomer]);
-
-  const handleChangeTab = (active: string) => {
-    switch (active) {
-      case "contacts":
-        setIsShowAddBtn(true);
-        break;
-      case "billing":
-        setIsShowAddBtn(true);
-        break;
-      case "shipping":
-        setIsShowAddBtn(true);
-        break;
-      case "notes":
-        setIsShowAddBtn(true);
-        break;
-      case "caring-history":
-        setIsShowAddBtn(false);
-        break;
-      case "updated-logging":
-        setIsShowAddBtn(false);
-        break;
-      case "history":
-        setIsShowAddBtn(false);
-        break;
-    }
-    if (active === "add") {
-      switch (history.location.hash) {
-        case "#contacts":
-          setIsShowModalContacts(true);
-          setModalAction("create");
-          setIsShowAddBtn(true);
-          break;
-        case "#billing":
-          setIsShowModalBilling(true);
-          setModalAction("create");
-          setIsShowAddBtn(true);
-          break;
-        case "#shipping":
-          setIsShowModalShipping(true);
-          setModalAction("create");
-          setIsShowAddBtn(true);
-          break;
-        case "#notes":
-          setIsShowModalNote(true);
-          setModalAction("create");
-          setIsShowAddBtn(true);
-          break;
-        case "#caring-history":
-          setIsShowAddBtn(false);
-          break;
-        case "#updated-logging":
-          setIsShowAddBtn(false);
-          break;
-        case "#history":
-          setIsShowAddBtn(false);
-          break;
-      }
-    } else {
-      history.replace(`${history.location.pathname}#${active}`);
-    }
-  };
-
-  const onMenuClick = React.useCallback(
-    (menuId: number) => {
-      switch (menuId) {
-        case 1:
-          history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments?customer_ids=${customer?.id}&type=add`
-          );
-          break;
-        case 2:
-          history.replace(
-            `${UrlConfig.CUSTOMER}/point-adjustments?customer_ids=${customer?.id}&type=subtract`
-          );
-          break;
-      }
-    },
-    [customer, history]
-  );
   return (
     <ContentContainer
-      title="Thông tin chi tiết"
+      isError={error}
+      isLoading={loading}
+      title="Chi tiết chiết khấu"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
-          path: `/customers`,
+          name: "Khuyến mãi",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
         },
         {
-          name: "Chi tiết khách hàng",
+          name: "Chiết khấu",
         },
       ]}
-      extra={
-        <div className="page-filter">
-          <div className="page-filter-heading">
-            <div className="page-filter-left">
-              <ActionButton
-                // disabled={actionDisable}
-                menu={actions}
-                onMenuClick={onMenuClick}
-              />
-            </div>
-          </div>
-        </div>
-      }
     >
-      <Row gutter={24} className="customer-info-detail">
-        <Col span={18}>
-          <CustomerInfo customer={customer} />
-          <Card
-            style={{ marginTop: 20 }}
-            title={
-              <div className="d-flex">
-                <span className="title-card">THÔNG TIN MUA HÀNG</span>
-              </div>
-            }
-            // extra={[
-            //   <Link key="1" to={``}>
-            //     Chi tiết
-            //   </Link>,
-            // ]}
-          >
-            <Row gutter={30} style={{ padding: "16px" }}>
-              {customerSpendDetail &&
-                customerSpendDetail.map((info: any, index: number) => (
-                  <Col
-                    key={index}
-                    span={8}
-                    style={{
-                      display: "flex",
-                      marginBottom: 10,
-                      color: "#222222",
-                    }}
-                  >
-                    <Col span={11} style={{ padding: "0 0 0 15px" }}>
-                      <span>{info.name}</span>
-                    </Col>
-                    <Col span={13}>
-                      <b>: {info.value ? info.value : "---"}</b>
-                    </Col>
+      {data !== null && (
+        <React.Fragment>
+          <Row gutter={24}>
+            <Col span={24} md={18}>
+              <Card
+                className="card"
+                title={
+                  <div style={{alignItems: "center" }}>
+                    <span className="title-card">THÔNG TIN CÁ NHÂN</span>
+                    <Tag className="status-tag"> Đang áp dụng </Tag>
+                  </div>
+                }
+              >
+                <Row gutter={30}>
+                  <Col span={12}>
+                    {promotionDetail &&
+                      promotionDetail
+                        .filter((detail: detailMapping) => detail.position === "left")
+                        .map((detail: detailMapping, index: number) => (
+                          <Col
+                            key={index}
+                            span={24}
+                            style={{
+                              padding: 0,
+                              display: "flex",
+                              marginBottom: 10,
+                              color: "#222222",
+                            }}
+                          >
+                            <Col
+                              span={12}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0 4px 0 0",
+                              }}
+                            >
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ fontWeight: 600 }}>:</span>
+                            </Col>
+                            <Col span={12} style={{ paddingLeft: 0 }}>
+                              <span
+                                style={{
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {detail.value ? detail.value : "---"}
+                              </span>
+                            </Col>
+                          </Col>
+                        ))}
                   </Col>
-                ))}
-            </Row>
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card
-            className="customer-point-detail"
-            style={{ height: "100%" }}
-            title={
-              <div className="d-flex">
-                <span className="title-card">THÔNG TIN TÍCH ĐIỂM</span>
-              </div>
-            }
-          >
-            <Row gutter={30} style={{ padding: "16px" }}>
-              {customerPointInfo &&
-                customerPointInfo.map((detail: any, index: number) => (
-                  <Col
-                    key={index}
-                    span={24}
-                    style={{
-                      display: "flex",
-                      marginBottom: 10,
-                      color: "#222222",
-                    }}
-                  >
-                    <Col span={12} style={{ padding: "0 0 0 15px" }}>
-                      <span>{detail.name}</span>
-                    </Col>
-                    <Col span={12}>
-                      <b>: {detail.value ? detail.value : "---"}</b>
-                    </Col>
+                  <Col span={12}>
+                    {promotionDetail &&
+                      promotionDetail
+                        .filter((detail: detailMapping) => detail.position === "right")
+                        .map((detail: detailMapping, index: number) => (
+                          <Col
+                            key={index}
+                            span={24}
+                            style={{
+                              display: "flex",
+                              marginBottom: 10,
+                              color: "#222222",
+                            }}
+                          >
+                            <Col
+                              span={12}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0 4px 0 0",
+                              }}
+                            >
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ fontWeight: 600 }}>:</span>
+                            </Col>
+                            <Col span={12} style={{ paddingLeft: 0 }}>
+                              <span
+                                style={{
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {detail.value ? detail.value : "---"}
+                              </span>
+                            </Col>
+                          </Col>
+                        ))}
                   </Col>
-                ))}
-            </Row>
-          </Card>
-        </Col>
-      </Row>
-      <Row className="customer-tabs-detail">
-        <Col span={24}>
-          <Card>
-            <Tabs
-              activeKey={activeTab}
-              onChange={(active) => handleChangeTab(active)}
-              style={{ overflow: "initial" }}
-            >
-              <TabPane tab="Lịch sử mua hàng" key="history">
-                <CustomerHistoryInfo
-                  orderData={data}
-                  onPageChange={onPageChange}
-                  tableLoading={tableLoading}
-                />
-              </TabPane>
-              <TabPane tab="Lịch sử chăm sóc" key="caring-history">
-                <CustomerCareHistory />
-              </TabPane>
-              <TabPane tab="Ghi chú" key="notes">
-                <CustomerNoteInfo
-                  customer={customer}
-                  customerDetailState={activeTab}
-                  setModalAction={setModalAction}
-                  modalAction={modalAction}
-                  setIsShowModalNote={setIsShowModalNote}
-                  isShowModalNote={isShowModalNote}
-                />
-              </TabPane>
-              <TabPane tab="Địa chỉ nhận hàng" key="shipping">
-                <CustomerShippingAddressInfo
-                  isShowModalShipping={isShowModalShipping}
-                  setIsShowModalShipping={setIsShowModalShipping}
-                  customer={customer}
-                  customerDetailState={activeTab}
-                  setModalAction={setModalAction}
-                  modalAction={modalAction}
-                />
-              </TabPane>
-
-              <TabPane tab="Log chỉnh sửa" key="updated-logging"></TabPane>
-              <TabPane tab="Liên hệ" key="contacts">
-                <CustomerContactInfo
-                  setIsShowModalContacts={setIsShowModalContacts}
-                  isShowModalContacts={isShowModalContacts}
-                  customer={customer}
-                  customerDetailState={activeTab}
-                  setModalAction={setModalAction}
-                  modalAction={modalAction}
-                />
-              </TabPane>
-              {isShowAddBtn && (
-                <TabPane
-                  tab={
-                    <span>
-                      <PlusOutlined />
-                      {mappingBtnName[history.location.hash]}
+                </Row>
+                <hr />
+                <Row gutter={30}>
+                  <Col span={24}> 
+                    <img src={CloseIcon} alt="" />
+                    <span style={{marginLeft: 14}}>Không được áp dụng chung với các khuyến mại khác</span>
+                  </Col>
+                  <Col span={24} style={{marginTop: 15}}>
+                    <img src={UserIcon} alt="" />
+                    <span style={{marginLeft: 14}}>Khách hàng không bị giới hạn số lần sử dụng mã</span>
+                  </Col>
+                  <Col span={24} style={{marginTop: 15}}>
+                    <img src={DiscountIcon} alt="" />
+                    <span style={{marginLeft: 14}}>Mỗi mã được sử dụng 1 lần</span>
+                  </Col>
+                </Row>
+                <hr />
+                <Row gutter={30}>
+                  <Col span={24} style={{textAlign: "right"}}>
+                    <Link to={``}>
+                      Xem lịch sử chỉnh sửa
+                    </Link>
+                  </Col>
+                </Row>
+              </Card>
+              <Card
+                className="card"
+                title={
+                  <div style={{ alignItems: "center" }}>
+                    <span className="title-card">Mã giảm giá</span>
+                  </div>
+                }
+              >
+                {true  && 
+                  <Row gutter={30}>
+                    <Col span={24}>
+                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
+                    </Col>
+                  </Row>
+                }
+                {false && <Row gutter={30} style={{gap: 15}}>
+                  <Col span={24} style={{
+                      color: "#E24343",
+                      textAlign: "center",
+                      marginBottom: 20
+                  }}>
+                    <span>Đợt phát hành chưa có mã nào!</span>
+                  </Col>
+                  <Col span="24" style={{
+                    display: "flex",
+                    gap: 15,
+                  }}>
+                    <div className="card-discount-code" onClick={() => setShowAddCodeManual(true)}>
+                      <img style={{ background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)" }} src={VoucherIcon} alt="" />
+                      <p style={{fontWeight: 500}}>Thêm mã thủ công</p>
+                      <p>Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã nhiều lần</p>
+                    </div>
+                    <div className="card-discount-code" onClick={() => setShowAddCodeRandom(true)}>
+                      <img style={{ background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)" }} src={AddListCouponIcon} alt="" />
+                      <p style={{fontWeight: 500}}>Thêm mã ngẫu nhiên</p>
+                      <p>Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho mỗi khách hàng 1 mã</p>
+                    </div>
+                    <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+                      <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
+                      <p style={{fontWeight: 500}}>Nhập file Excel</p>
+                      <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
+                      <Link to="#">Tải file mẫu</Link>
+                    </div>
+                  </Col>
+                </Row>}
+              </Card>
+              <Card
+                className="card"
+                title={
+                  <div style={{ alignItems: "center" }}>
+                    <span className="title-card">Điều kiện mua hàng</span>
+                  </div>
+                }
+              >
+                <span>Áp dụng cho toàn bộ đơn hàng</span>
+              </Card>
+            </Col>
+            <Col span={24} md={6}>
+              <Card className="card">
+                <Row>
+                  <Col span={24} style={{
+                    paddingBottom: 16
+                  }}>
+                    <span 
+                      style={{
+                        fontWeight: 500
+                      }}
+                    >Thời gian áp dụng: 
+                      <span style={{
+                        paddingLeft: 6,
+                        color: "#E24343",
+                      }}>*</span>
                     </span>
-                  }
-                  key="add"
-                />
-              )}
-            </Tabs>
-          </Card>
-        </Col>
-      </Row>
+                  </Col>
+                  {timeApply &&
+                  timeApply
+                    .map((detail: any, index: number) => (
+                      <Col
+                        key={index}
+                        span={24}
+                        style={{
+                          display: "flex",
+                          marginBottom: 10,
+                          color: "#222222",
+                        }}
+                      >
+                        <Col
+                          span={12}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            padding: "0 4px 0 0",
+                          }}
+                        >
+                          <span style={{ color: "#666666" }}>{detail.name}</span>
+                          <span style={{ fontWeight: 600 }}>:</span>
+                        </Col>
+                        <Col span={12} style={{ paddingLeft: 0 }}>
+                          <span
+                            style={{
+                              wordWrap: "break-word",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {detail.value ? detail.value : "---"}
+                          </span>
+                        </Col>
+                      </Col>
+                    ))}
+                </Row>
+              </Card>
+              <Card className="card">
+                <Row>
+                    <Col span={24} style={{
+                      paddingBottom: 16
+                    }}>
+                      <span 
+                        style={{
+                          fontWeight: 500
+                        }}
+                      >Cửa hàng áp dụng: 
+                        <span style={{
+                          paddingLeft: 6,
+                          color: "#E24343",
+                        }}>*</span>
+                      </span>
+                    </Col>
+                      <Col span={24}>
+                        <ul style={{
+                          padding: "0 16px"
+                        }}>
+                          <li> YODY Kiến Xương </li>
+                          <li> YODY Hai Bà Trưng </li>
+                        </ul>
+                      </Col>
+                </Row>
+              </Card>
+              <Card className="card">
+                <Row>
+                    <Col span={24} style={{
+                      paddingBottom: 16
+                    }}>
+                      <span 
+                        style={{
+                          fontWeight: 500
+                        }}
+                      >Kênh bán áp dụng: 
+                        <span style={{
+                          paddingLeft: 6,
+                          color: "#E24343",
+                        }}>*</span>
+                      </span>
+                    </Col>
+                      <Col span={24}>
+                        <ul style={{
+                          padding: "0 16px"
+                        }}>
+                          <li> YODY Kiến Xương </li>
+                          <li> YODY Hai Bà Trưng </li>
+                        </ul>
+                      </Col>
+                </Row>
+              </Card>
+              <Card className="card">
+                <Row>
+                    <Col span={24} style={{
+                      paddingBottom: 16
+                    }}>
+                      <span 
+                        style={{
+                          fontWeight: 500
+                        }}
+                      >Nguồn đơn hàng áp dụng: 
+                        <span style={{
+                          paddingLeft: 6,
+                          color: "#E24343",
+                        }}>*</span>
+                      </span>
+                    </Col>
+                      <Col span={24}>
+                        <ul style={{
+                          padding: "0 16px"
+                        }}>
+                          <li> YODY Kiến Xương </li>
+                          <li> YODY Hai Bà Trưng </li>
+                        </ul>
+                      </Col>
+                </Row>
+              </Card>
+            </Col>
+          </Row>
+        </React.Fragment>
+      )}
+      <BottomBarContainer
+        back="Quay lại sản phẩm"
+        rightComponent={
+          <Space>
+            <Button style={{ color: '#E24343'}}>Xoá</Button>
+            <Button>Sửa</Button>
+            <Button>Nhân bản</Button>
+            <Button type="primary">Kích hoạt</Button>
+          </Space>
+          
+        }
+      />
+      <ModalAddCode
+        isManual={true}
+        visible={showAddCodeManual}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã thủ công"
+        onCancel={() => {
+          setShowAddCodeManual(false);
+        }}
+        onOk={() => {
+          setShowAddCodeManual(false);
+        }}
+      />
+      <ModalAddCode
+        isManual={false}
+        visible={showAddCodeRandom}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã ngẫu nhiên"
+        onCancel={() => {
+          setShowAddCodeRandom(false);
+        }}
+        onOk={() => {
+          setShowAddCodeRandom(false);
+        }}
+      />
+      <Modal
+        onCancel={() => setShowImportFile(false)}
+        width={650}
+        visible={showImportFile}
+        title="Nhập file khuyến mại"
+        footer={[
+          <Button key="back" onClick={() => setShowImportFile(false)}>
+            Huỷ
+          </Button>,
+
+          <Button
+            key="link"
+            type="primary"
+          >
+            Nhập file
+          </Button>,
+        ]}
+      >
+        <Row gutter={12}>
+          <Col span={3}>
+            Chú ý:
+          </Col>
+          <Col span={19}>
+            <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+            <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+            <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
+              không F5 hoặc tắt cửa sổ trình duyệt.</p>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <div className="dragger-wrapper">
+            <Dragger accept=".xlsx">
+              <p className="ant-upload-drag-icon">
+                <RiUpload2Line size={48}/>
+              </p>
+              <p className="ant-upload-hint">
+                Kéo file vào đây hoặc tải lên từ thiết bị
+              </p>
+            </Dragger>
+          </div>
+        </Row>
+      </Modal>
     </ContentContainer>
   );
 };
 
-export default PromotionCodeDetailIndex;
+export default PromotionDetailScreen;
