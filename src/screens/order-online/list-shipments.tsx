@@ -125,14 +125,15 @@ const ListOrderScreen: React.FC = () => {
   });
 
   const status_order = [
-    { name: "Nháp", value: "draft" },
-    { name: "Đóng gói", value: "packed" },
-    { name: "Xuất kho", value: "shipping" },
-    { name: "Đã xác nhận", value: "finalized" },
-    { name: "Hoàn thành", value: "completed" },
-    { name: "Kết thúc", value: "finished" },
-    { name: "Đã huỷ", value: "cancelled" },
-    { name: "Đã hết hạn", value: "expired" },
+    {name: "Chưa giao", value: "unshipped"},
+    {name: "Đã lấy hàng", value: "picked"},
+    {name: "Giao một phần", value: "partial"},
+    {name: "Đã đóng gói", value: "packed"},
+    {name: "Đang giao", value: "shipping"},
+    {name: "Đã giao", value: "shipped"},
+    {name: "Đang trả lại", value: "returning"},
+    {name: "Đã trả lại", value: "returned"},
+    {name: "Đã hủy", value: "cancelled"}
   ];
 
   const shipmentDetailModal = useCallback((record: any) => {
@@ -144,10 +145,6 @@ const ListOrderScreen: React.FC = () => {
   >([
     {
       title: "Mã đơn giao",
-      // dataIndex: "code",
-      // render: (value: string, i: ShipmentModel) => (
-      //   <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
-      // ),
       render: (record: ShipmentModel) => (
         <div>
           <div
@@ -177,15 +174,16 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Người nhận",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && (
+      render: (record: any) =>
+        (
           <div className="customer">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {shipping_address.name}
+              {record.customer}
             </div>
-            <div className="p-b-3">{shipping_address.phone}</div>
-            <div className="p-b-3">{shipping_address.full_address}</div>
+            {record.shipment && record.shipment.shipping_address && (<div>
+              <div className="p-b-3">{record.shipment.shipping_address.phone}</div>
+              <div className="p-b-3">{record.shipment.shipping_address.full_address}</div>
+            </div>)}
           </div>
         ),
       key: "customer",
@@ -301,7 +299,8 @@ const ListOrderScreen: React.FC = () => {
 
     {
       title: "Tổng SL sản phẩm",
-      dataIndex: "total_quantity",
+      dataIndex: "items",
+      render: (items?) => items?.length,
       key: "total_quantity",
       visible: true,
       align: "center",
@@ -323,8 +322,8 @@ const ListOrderScreen: React.FC = () => {
 
     {
       title: "Ngày giao hàng",
-      dataIndex: "shipped_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      dataIndex: "shipment",
+      render: (shipment: any) => <div>{ConvertUtcToLocalDate(shipment.received_date)}</div>,
       key: "shipped_on",
       visible: true,
       align: "center",

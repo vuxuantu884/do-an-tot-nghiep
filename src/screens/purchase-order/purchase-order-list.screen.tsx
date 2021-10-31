@@ -372,6 +372,8 @@ const PurchaseOrderListScreen: React.FC = () => {
       setTableLoading(false);
       if (!!result) {
         setData(result);
+      } else {
+        setError(true);
       }
     },
     []
@@ -380,7 +382,6 @@ const PurchaseOrderListScreen: React.FC = () => {
   const onResultRd = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
-        setError(true);
         return;
       }
       setListRdAccount(data.items);
@@ -391,7 +392,6 @@ const PurchaseOrderListScreen: React.FC = () => {
   const onResultSupplier = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
-        setError(true);
         return;
       }
       setListSupplierAccount(data.items);

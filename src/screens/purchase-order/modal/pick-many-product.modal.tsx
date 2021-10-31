@@ -14,6 +14,7 @@ import { inventoryGetVariantByStoreAction } from "domain/actions/inventory/stock
 
 type PickManyProductModalType = {
   visible: boolean;
+  isTransfer?: boolean;
   onCancel: () => void;
   selected: Array<VariantResponse>;
   onSave: (result: Array<VariantResponse>) => void;
@@ -34,7 +35,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     limit: 10,
     info: "",
     page: 1,
-    store_id: props.storeID,
+    store_ids: props.storeID,
   };
   const dispatch = useDispatch();
   const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
@@ -155,6 +156,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
             rowKey={(item) => item.id.toString()}
             renderItem={(item) => (
               <ProductItem
+                isTransfer={props.isTransfer}
                 checked={
                   selection.findIndex((item1) => item.id === item1.id) !== -1
                 }

@@ -50,7 +50,7 @@ export const orderCreateAction = (
 };
 
 export const orderUpdateAction = (
-  id: string,
+  id: number,
   request: OrderRequest,
   setData: (data: OrderResponse) => void,
   onError: () => void
@@ -431,6 +431,6 @@ export const splitOrderAction = (
   };
 };
 
-export const getSourcesEcommerce=(setData: (data: Array<SourceEcommerceResponse>)=>void)=>{
+export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceResponse>) => void) => {
   return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
 }

@@ -77,18 +77,22 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
               <Steps.Step
                 status={(CreateDate !== '') ? "process" : undefined}
                 title="Xin Hàng"
+                description={CreateDate}
               />
               <Steps.Step
                 status={(CreateDate !== '') ? "process" : undefined}
                 title="Chờ chuyển"
+                description={CreateDate}
               />
               <Steps.Step
                 status={(TransferDate !== '') ? "process" : undefined}
                 title="Đang chuyển"
+                description={TransferDate}
               />
               <Steps.Step
                 status={(PendingDate !== '') ? "process" : undefined}
                 title="Chờ xử lý"
+                description={PendingDate}
               />
               <Steps.Step
                 status="error"

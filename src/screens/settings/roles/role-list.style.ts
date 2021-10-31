@@ -1,4 +1,5 @@
 import Styled from "styled-components";
+
 export const RoleListStyled = Styled.div` .child-expand {
   background-color: #F3F3FF;
   margin: 0 8px 8px 8px;
@@ -12,5 +13,4 @@ export const RoleListStyled = Styled.div` .child-expand {
     }
   }
 }
-
 `;

@@ -92,7 +92,7 @@ export const orderPostApi = (
 };
 
 export const orderPutApi = (
-  id: string,
+  id: number,
   request: OrderRequest
 ): Promise<BaseResponse<OrderResponse>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/${id}`, request);
@@ -245,6 +245,22 @@ export const deleteOrderSourceService = (
   return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
 };
 
+export const deleteMultiOrderSourceService = (
+  sourceIds: number[]
+): Promise<BaseResponse<OrderSourceResponseModel>> => {
+  const source_ids = sourceIds;
+  const token = getToken();
+  return BaseAxios.delete(
+    `${ApiConfig.ORDER}/sources`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: { source_ids },
+    }
+  );
+};
+
 // tracking_log: Lấy ra tracking_log của fulfillment
 export const getTrackingLogFulFillment = (
   fulfillment_code: string
@@ -338,14 +354,14 @@ export const createShippingOrderService = (
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
 
-export const getGoodsReceiptsTypeService=():Promise<BaseResponse<GoodsReceiptsTypeResponse>>=>{
+export const getGoodsReceiptsTypeService = (): Promise<BaseResponse<GoodsReceiptsTypeResponse>> => {
   const link = `${ApiConfig.ORDER}/goods-receipts/types`;
   return BaseAxios.get(link);
 }
 
-export const createGoodsReceiptsService=(params:GoodsReceiptsRequest):Promise<BaseResponse<GoodsReceiptsResponse>>=>{
+export const createGoodsReceiptsService = (params: GoodsReceiptsRequest): Promise<BaseResponse<GoodsReceiptsResponse>> => {
   const link = `${ApiConfig.ORDER}/goods-receipts`;
-  return BaseAxios.post(link,params);
+  return BaseAxios.post(link, params);
 }
 
 export const getGoodsReceiptsSerchService = (
