@@ -84,17 +84,14 @@ const CreateDiscountPage = () => {
     const values = await discountForm.validateFields();
     const body = transformData(values);
     body.disabled = true;
-    try {
-      const createResponse = await createPriceRule(body);
-      if (createResponse.code === 20000000) {
-        showSuccess("Lưu thành công");
-        history.push("/promotion/discount");
-      } else {
-        showError(`${createResponse.code} - ${createResponse.message}`);
-      }
-    } catch (e) {
-      showError(e);
+    const createResponse = await createPriceRule(body);
+    if (createResponse.code === 20000000) {
+      showSuccess("Lưu thành công");
+      history.push("/promotion/discount");
+    } else {
+      showError(`${createResponse.code} - ${createResponse.message}`);
     }
+
   }
 
   const handleSubmitFail = (errorFields: any) => {
