@@ -151,6 +151,7 @@ const ListCode = () => {
 
   const onFilter = useCallback(values => {
     let newParams = { ...params, ...values, page: 1 };
+    console.log("newParams", newParams);
     setParams({ ...newParams })
   }, [params])
 
@@ -259,7 +260,7 @@ const ListCode = () => {
 
   return (
     <ContentContainer
-      title="Danh sách đợt phát hành"
+      title="Mã giảm giá của đợt phát hành CPM9"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -285,7 +286,7 @@ const ListCode = () => {
               Xuất file
             </Button>
             <Button
-              className="ant-btn-outline ant-btn-primary"
+              className="light"
               size="large"
               icon={<PlusOutlined />}
               onClick={() => setShowModalAdd(true)}
@@ -300,7 +301,7 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request">
+              <Form.Item name="request" className="search">
                 <Input
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="Tìm kiếm theo mã, tên chương trình"

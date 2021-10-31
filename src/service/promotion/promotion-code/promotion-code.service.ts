@@ -1,12 +1,17 @@
-import {BaseQuery} from "../../../model/base/base.query";
+import { BaseQuery } from "../../../model/base/base.query";
 import BaseResponse from "../../../base/base.response";
-import {PageResponse} from "../../../model/base/base-metadata.response";
-import {generateQuery} from "../../../utils/AppUtils";
+import { PageResponse } from "../../../model/base/base-metadata.response";
+import { generateQuery } from "../../../utils/AppUtils";
 import BaseAxios from "../../../base/base.axios";
-import {ApiConfig} from "../../../config/api.config";
-import {ListDiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
+import { ApiConfig } from "../../../config/api.config";
+import { ListDiscountResponse } from "../../../model/response/promotion/discount/list-discount.response";
 
 export const searchPromotionCodeList = (query: BaseQuery): Promise<BaseResponse<PageResponse<ListDiscountResponse>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rules?type=AUTOMATIC&page=1&limit=30`);
+};
+
+export const searchListDiscountCode = (query: BaseQuery): Promise<BaseResponse<PageResponse<ListDiscountResponse>>> => {
   let params = generateQuery(query);
   const promise = {
     "code": 20000000,
@@ -20,8 +25,7 @@ export const searchPromotionCodeList = (query: BaseQuery): Promise<BaseResponse<
       "items": [
         {
           "id": 1,
-          "code": "CK01",
-          "name": "Cấp mã Sinh nhật cho VIP R, Vip D",
+          "code": "VNPF120HM",
           "code_amount": "100",
           "used_amount": "100",
           "start_date": "2021-06-20T08:49:31Z",
@@ -31,8 +35,7 @@ export const searchPromotionCodeList = (query: BaseQuery): Promise<BaseResponse<
         },
         {
           "id": 2,
-          "code": "CK02",
-          "name": "Cấp mã Sinh nhật cho VIP R, Vip D",
+          "code": "VNPNHEIVP",
           "code_amount": "100",
           "used_amount": "100",
           "start_date": "2021-06-20T08:49:31Z",

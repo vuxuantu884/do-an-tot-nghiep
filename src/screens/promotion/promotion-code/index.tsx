@@ -4,6 +4,7 @@ import {
   Form,
   Input,
   Tag,
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -23,7 +24,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
 import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
-import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 
@@ -95,15 +95,9 @@ const PromotionCode = () => {
     },
   ];
   
-  const initQuery: DiscountSearchQuery = {
+  const initQuery: any = {
     request: "",
-    from_created_date: "",
-    to_created_date: "",
-    status: "",
-    applied_shop: "",
-    applied_source: "",
-    customer_category: "",
-    discount_method: ""
+    status: ""
   };
   const dispatch = useDispatch();
   const query = useQuery();
@@ -117,11 +111,11 @@ const PromotionCode = () => {
     },
     items: [],
   })
-  let dataQuery: DiscountSearchQuery = {
+  let dataQuery: any = {
     ...initQuery,
     ...getQueryParams(query)
   }
-  const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+  const [params, setParams] = useState<any>(dataQuery);
   
   const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
     setData(data)
@@ -141,6 +135,7 @@ const PromotionCode = () => {
   
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
+    console.log("newParams", newParams);
     setParams({...newParams})
   }, [params])
 
@@ -161,7 +156,7 @@ const PromotionCode = () => {
           to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
-          {value.code}
+          {value.id}
         </Link>,
     },
     {
@@ -192,7 +187,7 @@ const PromotionCode = () => {
       align: 'center',
       width: "20%",
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.start_date && moment(item.start_date).format(DATE_FORMAT.DDMMYYY)} - ${item.end_date && moment(item.end_date).format(DATE_FORMAT.DDMMYYY)}`}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date && moment(item.ends_date).format(DATE_FORMAT.DDMMYYY)}`}</div>,
     },
     {
       title: "Người tạo",
@@ -210,11 +205,11 @@ const PromotionCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === value);
+        const status: any | null = promotionStatuses.find(e => e.code === item.type);
         return (<div
           style={status?.style}
         >
-          {status?.value}
+          {status?.item.type}
         </div>)
       }
     },
@@ -286,7 +281,7 @@ const PromotionCode = () => {
         <>
           <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`}>
             <Button
-              className="ant-btn-outline ant-btn-primary"
+              className="light"
               size="large"
               icon={<PlusOutlined />}
             >
@@ -300,13 +295,13 @@ const PromotionCode = () => {
         <div className="promotion-code__search">
           <CustomFilter menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request">
+              <Form.Item name="request" className="search">
                 <Input
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />
               </Form.Item>
-              <Form.Item>
+              <Form.Item name="status" className="store">
                 <CustomSelect
                   showSearch
                   optionFilterProp="children"

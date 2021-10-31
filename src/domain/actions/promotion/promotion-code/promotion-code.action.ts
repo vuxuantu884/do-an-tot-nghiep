@@ -8,6 +8,10 @@ const getListPromotionCode = (query: BaseQuery, setData: (data: PageResponse<Lis
   return BaseAction(DiscountType.GET_LIST_PROMOTION_CODE, { query, setData });
 }
 
+const getListDiscountCode = (query: BaseQuery, setData: (data: PageResponse<ListPromotionCodeResponse>) => void) => {
+  return BaseAction(DiscountType.GET_LIST_DISCOUNT_CODE, { query, setData });
+}
+
 export {
   getListPromotionCode
 }

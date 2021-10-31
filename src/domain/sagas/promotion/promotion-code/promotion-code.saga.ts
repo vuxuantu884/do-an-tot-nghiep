@@ -33,6 +33,31 @@ function* getPromotionCode(action: YodyAction) {
   }
 }
 
+function* getListDiscountCode(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      searchPromotionCodeList,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log('getListDiscountCode - error: ', error)
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* promotionCodeSaga() {
   yield takeLatest(DiscountType.GET_LIST_PROMOTION_CODE, getPromotionCode);
+  yield takeLatest(DiscountType.GET_LIST_DISCOUNT_CODE, getListDiscountCode);
 }

@@ -1,4 +1,27 @@
 .promotion-code__search, .discount-code__search {
+  .page-filter-right {
+    margin-left: 16px;
+    width: 100%;
+    .ant-space {
+      width: 100%;
+      &-item {
+        width: 100%;
+        .ant-form {
+          display: flex;
+          width: 100%;
+          .search {
+            flex: 1;
+          }
+          .store {
+            width: 171px;
+          }
+        }
+      }
+    }
+  }
+  .ant-form-item:last-child {
+    margin: 0 0px;
+  }
   .page-filter {
     padding-top: 0;
   }
