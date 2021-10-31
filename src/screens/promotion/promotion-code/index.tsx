@@ -94,8 +94,9 @@ const PromotionCode = () => {
       name: "Xoá",
     },
   ];
-  
+
   const initQuery: DiscountSearchQuery = {
+    type: "AUTOMATIC",
     request: "",
     from_created_date: "",
     to_created_date: "",
@@ -107,7 +108,7 @@ const PromotionCode = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
-  
+
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
     metadata: {
@@ -122,25 +123,25 @@ const PromotionCode = () => {
     ...getQueryParams(query)
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
-  
+
   const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
     setData(data)
     setTableLoading(false)
   }, [])
-  
+
   const [showSettingColumn, setShowSettingColumn] = React.useState<boolean>(false);
 
   useEffect(() => {
     dispatch(getListPromotionCode(params, fetchData));
   }, [dispatch, fetchData, params]);
-  
+
   const onPageChange = useCallback(
     (page, limit) => {
       setParams({ ...params, page, limit });
     },
     [params]
   );
-  
+
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
     setParams({...newParams})

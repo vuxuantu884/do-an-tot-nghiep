@@ -6,7 +6,7 @@ import {
 } from "antd";
 import "../discount.scss"
 import CustomInput from "../../../customer/common/customInput";
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import CustomFilter from "../../../../component/table/custom.filter";
 import FixedPriceSelection from "./FixedPriceSelection";
 
@@ -18,23 +18,30 @@ const Option = Select.Option
 const GeneralInfo = (props: any) => {
   const {
     form,
-    customerAdvanceMsg
+    listStore,
+    listSource,
+    // customerAdvanceMsg
   } = props;
 
   const [showTimeAdvance, setShowTimeAdvance] = useState(false)
-  const [showCustomerAdvance, setShowCustomerAdvance] = useState(false)
+  // const [showCustomerAdvance, setShowCustomerAdvance] = useState(false)
   const [allStore, setAllStore] = useState(false)
   const [allChannel, setAllChannel] = useState(false)
   const [allSource, setAllSource] = useState(false)
   const [allCustomer, setAllCustomer] = useState(false)
   const [unlimitedUsage, setUnlimitedUsage] = useState(false)
   const [disabledEndDate, setDisabledEndDate] = useState(false)
+  const [discountMethod, setDiscountMethod] = useState('FIXED_PRICE')
 
   useMemo(() => {
     form.setFieldsValue({
       customer_selection: allCustomer
     })
   }, [allCustomer])
+
+  useEffect(() => {
+    form.resetFields(['entitlements'])
+  }, [discountMethod])
 
   const getDays = () => {
     let days = [];
@@ -45,7 +52,7 @@ const GeneralInfo = (props: any) => {
   }
 
   const renderSelection = () => {
-    return <FixedPriceSelection form={form}/>;
+    return <FixedPriceSelection form={form} discountMethod={discountMethod}/>;
   }
 
   return (
@@ -79,7 +86,8 @@ const GeneralInfo = (props: any) => {
                 form={form}
                 message="Vui lòng nhập mã khuyến mại"
                 placeholder="Nhập mã khuyến mại"
-                maxLength={255}
+                maxLength={20}
+                upperCase={true}
               />
             </Col>
             <Col span={12}>
@@ -122,7 +130,7 @@ const GeneralInfo = (props: any) => {
                     label={<b>Mức độ ưu tiên:</b>}
                     name="priority"
                   >
-                    <Select placeholder="Chọn mức độ ưu tiên">
+                    <Select placeholder="Chọn mức độ ưu tiên" defaultValue={1}>
                       <Option value={"1"}>Số 1 (cao nhất)</Option>
                       <Option value={"2"}>Số 2</Option>
                       <Option value={"3"}>Số 3</Option>
@@ -155,12 +163,9 @@ const GeneralInfo = (props: any) => {
                 name="entitled_method"
                 label={<b>Phương thức chiết khấu</b>}
               >
-                <Select defaultValue={"FIXED_PRICE"}>
-                  <Option value={"ORDER_LEVEL"}>Chiết khấu theo tổng gía trị đơn hàng</Option>
-                  <Option value={"QUANTITY"}>Chiết khấu theo từng sản phẩm</Option>
-                  <Option value={"ADVANCED_QUANTITY"}>Chiết khấu theo số lượng sản phẩm</Option>
-                  <Option value={"FIXED_PRICE"}>Đồng giá</Option>
-                  <Option value={"CATEGORY"}>Chiết khấu theo từng danh mục sản phẩm</Option>
+                <Select defaultValue={"FIXED_PRICE"} onChange={value => setDiscountMethod(value)}>
+                  <Option value="FIXED_PRICE">Đồng giá</Option>
+                  <Option value="QUANTITY">Chiết khấu theo từng sản phẩm</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -170,42 +175,44 @@ const GeneralInfo = (props: any) => {
       </Col>
       <Col span={6}>
         <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
-            <Col span={24}>
+          <Row gutter={6} style={{padding: "0px 16px"}}>
+            <Col span={12}>
               <Form.Item
-                name="prerequisite_duration"
+                name="starts_date"
                 label={<b>Thời gian áp dụng:</b>}
                 rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
               >
-                <DateRangePicker
-                  disabled={[false, disabledEndDate]}
-                  placeholder={["Từ ngày", "Đến ngày"]}
-                  style={{width: "100%"}}
-                />
+                <DatePicker style={{width: "100%"}} placeholder="Từ ngày"/>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="ends_date"
+                label=" "
+              >
+                <DatePicker style={{width: "100%"}} placeholder="Đến ngày"/>
 
               </Form.Item>
-              <Space direction="horizontal">
-                <Switch onChange={value => {
-                  setDisabledEndDate(value);
-                  if (value) {
-                    form.setFieldsValue({
-                      prerequisite_duration: [form.getFieldsValue()['prerequisite_duration']?.[0], null]
-                    })
-                  }
-                }}/>
-                {"Không cần ngày kết thúc"}
-              </Space>
-              <Divider/>
-              <Space direction="horizontal">
-                <Checkbox
-                  defaultChecked={false}
-                  onChange={(value) => setShowTimeAdvance(value.target.checked)}
-                  style={{paddingBottom: "20px"}}
-                >
-                  Hiển thị nâng cao
-                </Checkbox>
-              </Space>
             </Col>
+            <Space direction="horizontal">
+              <Switch onChange={value => {
+                setDisabledEndDate(value);
+                if (value) {
+                  form.resetFields(['prerequisite_duration'])
+                }
+              }}/>
+              {"Không cần ngày kết thúc"}
+            </Space>
+            <Divider/>
+            <Space direction="horizontal">
+              <Checkbox
+                defaultChecked={false}
+                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
+                style={{paddingBottom: "20px"}}
+              >
+                Hiển thị nâng cao
+              </Checkbox>
+            </Space>
           </Row>
           {showTimeAdvance ? <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -255,15 +262,16 @@ const GeneralInfo = (props: any) => {
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
                 <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
-                  <Option value="CH1">Cửa hàng 1</Option>
-                  <Option value="CH2">Cửa hàng 2</Option>
-                  <Option value="CH3">Cửa hàng 3</Option>
+                  {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
-                  setAllStore(value)
+                  form.setFieldsValue({
+                    prerequisite_store_ids: undefined
+                  });
                   form.validateFields(['prerequisite_store_ids'])
+                  setAllStore(value)
                 }}/>
                 {"Áp dụng toàn bộ"}
               </Space>
@@ -286,8 +294,11 @@ const GeneralInfo = (props: any) => {
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
-                  setAllChannel(value)
+                  form.setFieldsValue({
+                    prerequisite_sales_channel_names: undefined
+                  });
                   form.validateFields(['prerequisite_sales_channel_names'])
+                  setAllChannel(value)
                 }}/>
                 {"Áp dụng toàn bộ"}
               </Space>
@@ -303,14 +314,15 @@ const GeneralInfo = (props: any) => {
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
                 <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
-                  <Option value="LAZADA">LAZADA</Option>
-                  <Option value="SHOPEE">SHOPEE</Option>
-                  <Option value="SENDO">SENDO</Option>
+                  {listSource?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
                   form.validateFields(['prerequisite_order_sources_ids'])
+                  form.setFieldsValue({
+                    prerequisite_order_sources_ids: undefined
+                  })
                   setAllSource(value)
                 }}/>
                 {"Áp dụng toàn bộ"}
@@ -318,120 +330,120 @@ const GeneralInfo = (props: any) => {
             </Col>
           </Row>
         </Card>
-        <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
-            <Col span={24}>
-              <Form.Item
-                label={<b>Đối tượng khách hàng áp dụng:</b>}
-                name="customer_selection"
-              >
-                <Space direction="horizontal">
-                  <Switch onChange={value => {
-                    setAllCustomer(value)
-                    if (!value) {
-                      setShowCustomerAdvance(value)
-                    }
-                  }} defaultChecked={false}/>
-                  {"Áp dụng toàn bộ khách hàng"}
-                </Space>
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Checkbox
-                disabled={allCustomer}
-                defaultChecked={false}
-                style={{paddingBottom: "30px"}}
-                onChange={value => setShowCustomerAdvance(value.target.checked)}
-                value={showCustomerAdvance}
-              >
-                Hiển thị tuỳ chọn
-              </Checkbox>
-            </Col>
-            {showCustomerAdvance && !allCustomer ? (
-              <div style={{width: "100%"}}>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_genders"
-                    label={"Giới tính:"}
-                  >
-                    <Select placeholder="Chọn giới tính" mode="multiple">
-                      <Option value="MALE">Nam</Option>
-                      <Option value="FEMALE">Nữ</Option>
-                      <Option value="UNISEX">Unisex</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_customer_birthday"
-                    label={"Ngày sinh:"}
-                  >
-                    <DateRangePicker placeholder={["Từ ngày", "Đến ngày"]} style={{width: "100%"}}/>
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_customer_marriage_day"
-                    label={"Ngày cưới:"}
-                  >
-                    <DateRangePicker placeholder={["Từ ngày", "Đến ngày"]} style={{width: "100%"}}/>
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_customer_group_ids"
-                    label={"Nhóm khách hàng:"}
-                  >
-                    <Select placeholder="Chọn nhóm khách hàng" mode="multiple">
-                      <Option value="CT1">Nhóm KH1</Option>
-                      <Option value="CT2">Nhóm KH2</Option>
-                      <Option value="CT3">Nhóm KH3</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_customer_level_ids"
-                    label={"Hạng khách hàng:"}
-                  >
-                    <Select placeholder="Chọn hạng khách hàng" mode="multiple">
-                      <Option value="VIP1">VIP 1</Option>
-                      <Option value="VIP2">VIP 2</Option>
-                      <Option value="VIP3">VIP 3</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_customer_type_ids"
-                    label={"Loại khách hàng:"}
-                  >
-                    <Select placeholder="Chọn loại khách hàng" mode="multiple">
-                      <Option value="T1">Học sinh</Option>
-                      <Option value="T2">Công sở</Option>
-                      <Option value="T3">Ca sĩ</Option>
-                      <Option value="T3">Diễn viên</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item
-                    name="prerequisite_assigned_user_ids"
-                    label={"Nhân viên phụ trách:"}
-                  >
-                    <Select placeholder="Chọn nhân viên phụ trách" mode="multiple">
-                      <Option value="E1">Nguyễn Văn A</Option>
-                      <Option value="E2">Nguyễn Văn B</Option>
-                      <Option value="E3">Nguyễn Văn C</Option>
-                      <Option value="E4">Nguyễn Văn D</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </div>
-            ) : null}
-            <div style={{color: '#ff4d4f'}}>{customerAdvanceMsg}</div>
-          </Row>
-        </Card>
+        {/*<Card>*/}
+        {/*  <Row gutter={12} style={{padding: "0px 16px"}}>*/}
+        {/*    <Col span={24}>*/}
+        {/*      <Form.Item*/}
+        {/*        label={<b>Đối tượng khách hàng áp dụng:</b>}*/}
+        {/*        name="customer_selection"*/}
+        {/*      >*/}
+        {/*        <Space direction="horizontal">*/}
+        {/*          <Switch onChange={value => {*/}
+        {/*            setAllCustomer(value)*/}
+        {/*            if (!value) {*/}
+        {/*              setShowCustomerAdvance(value)*/}
+        {/*            }*/}
+        {/*          }} defaultChecked={false}/>*/}
+        {/*          {"Áp dụng toàn bộ khách hàng"}*/}
+        {/*        </Space>*/}
+        {/*      </Form.Item>*/}
+        {/*    </Col>*/}
+        {/*    <Col span={24}>*/}
+        {/*      <Checkbox*/}
+        {/*        disabled={allCustomer}*/}
+        {/*        defaultChecked={false}*/}
+        {/*        style={{paddingBottom: "30px"}}*/}
+        {/*        onChange={value => setShowCustomerAdvance(value.target.checked)}*/}
+        {/*        value={showCustomerAdvance}*/}
+        {/*      >*/}
+        {/*        Hiển thị tuỳ chọn*/}
+        {/*      </Checkbox>*/}
+        {/*    </Col>*/}
+        {/*    {showCustomerAdvance && !allCustomer ? (*/}
+        {/*      <div style={{width: "100%"}}>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_genders"*/}
+        {/*            label={"Giới tính:"}*/}
+        {/*          >*/}
+        {/*            <Select placeholder="Chọn giới tính" mode="multiple">*/}
+        {/*              <Option value="MALE">Nam</Option>*/}
+        {/*              <Option value="FEMALE">Nữ</Option>*/}
+        {/*              <Option value="UNISEX">Unisex</Option>*/}
+        {/*            </Select>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_customer_birthday"*/}
+        {/*            label={"Ngày sinh:"}*/}
+        {/*          >*/}
+        {/*            <DateRangePicker placeholder={["Từ ngày", "Đến ngày"]} style={{width: "100%"}}/>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_customer_marriage_day"*/}
+        {/*            label={"Ngày cưới:"}*/}
+        {/*          >*/}
+        {/*            <DateRangePicker placeholder={["Từ ngày", "Đến ngày"]} style={{width: "100%"}}/>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_customer_group_ids"*/}
+        {/*            label={"Nhóm khách hàng:"}*/}
+        {/*          >*/}
+        {/*            <Select placeholder="Chọn nhóm khách hàng" mode="multiple">*/}
+        {/*              <Option value="CT1">Nhóm KH1</Option>*/}
+        {/*              <Option value="CT2">Nhóm KH2</Option>*/}
+        {/*              <Option value="CT3">Nhóm KH3</Option>*/}
+        {/*            </Select>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_customer_level_ids"*/}
+        {/*            label={"Hạng khách hàng:"}*/}
+        {/*          >*/}
+        {/*            <Select placeholder="Chọn hạng khách hàng" mode="multiple">*/}
+        {/*              <Option value="VIP1">VIP 1</Option>*/}
+        {/*              <Option value="VIP2">VIP 2</Option>*/}
+        {/*              <Option value="VIP3">VIP 3</Option>*/}
+        {/*            </Select>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_customer_type_ids"*/}
+        {/*            label={"Loại khách hàng:"}*/}
+        {/*          >*/}
+        {/*            <Select placeholder="Chọn loại khách hàng" mode="multiple">*/}
+        {/*              <Option value="T1">Học sinh</Option>*/}
+        {/*              <Option value="T2">Công sở</Option>*/}
+        {/*              <Option value="T3">Ca sĩ</Option>*/}
+        {/*              <Option value="T3">Diễn viên</Option>*/}
+        {/*            </Select>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*        <Col span={24}>*/}
+        {/*          <Form.Item*/}
+        {/*            name="prerequisite_assigned_user_ids"*/}
+        {/*            label={"Nhân viên phụ trách:"}*/}
+        {/*          >*/}
+        {/*            <Select placeholder="Chọn nhân viên phụ trách" mode="multiple">*/}
+        {/*              <Option value="E1">Nguyễn Văn A</Option>*/}
+        {/*              <Option value="E2">Nguyễn Văn B</Option>*/}
+        {/*              <Option value="E3">Nguyễn Văn C</Option>*/}
+        {/*              <Option value="E4">Nguyễn Văn D</Option>*/}
+        {/*            </Select>*/}
+        {/*          </Form.Item>*/}
+        {/*        </Col>*/}
+        {/*      </div>*/}
+        {/*    ) : null}*/}
+        {/*    <div style={{color: '#ff4d4f'}}>{customerAdvanceMsg}</div>*/}
+        {/*  </Row>*/}
+        {/*</Card>*/}
       </Col>
     </Row>
   )

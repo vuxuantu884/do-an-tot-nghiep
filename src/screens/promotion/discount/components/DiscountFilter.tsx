@@ -51,7 +51,7 @@ const statuses = [
     code: 'CANCELLED',
     value: 'Đã huỷ',
   },
-  
+
 ]
 
 const discount_methods = [
@@ -92,17 +92,17 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     // onMenuClick,
     onFilter,
   } = props;
-  
+
   // useState
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
-  
-  
+
+
   // useCallback
   const onFinish = useCallback((values: DiscountSearchQuery) => {
     onFilter && onFilter(values);
   }, [onFilter])
-  
+
   const onFinishAvd = useCallback(values => {
     setAdvanceFilters(values);
     if (values.created_date) {
@@ -115,30 +115,30 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     }
     onFilter && onFilter(values);
   }, [onFilter])
-  
+
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formAvd.submit();
   }, [formAvd])
-  
+
   const openFilter = useCallback(() => {
     setVisible(true);
   }, [])
-  
+
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, [])
-  
+
   // const onActionClick = useCallback((index) => {
   //   onMenuClick && onMenuClick(index);
   // }, [onMenuClick])
-  
+
   const onClearFilterClick = useCallback(() => {
     formAvd.resetFields();
     formAvd.submit();
     setVisible(false);
   }, [formAvd])
-  
+
   const resetField = useCallback((field) => {
     console.log('resetField: ', field);
     formAvd.setFieldsValue({
@@ -147,17 +147,32 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     })
     formAvd.submit();
   }, [formAvd])
-  
+
   return (
     <StyledComponent>
       <div className="discount-filter">
         <CustomFilter menu={actions}>
           <Form onFinish={onFinish} initialValues={params} layout="inline">
-            <Item name="request" className="search">
+            <Item name="query" className="search">
               <Input
                 prefix={<img src={search} alt=""/>}
                 placeholder="Tìm kiếm theo mã, tên chương trình"
               />
+            </Item>
+            <Item name="statuses" >
+              <Select
+                style={{minWidth: "200px"}}
+                optionFilterProp="children"
+                mode="multiple"
+                placeholder="Chọn trạng thái"
+              >
+                <Option value="">Tất cả trạng thái</Option>
+                {statuses?.map((item) => (
+                  <Option key={item.code} value={item.code}>
+                    {item.value}
+                  </Option>
+                ))}
+              </Select>
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">
@@ -176,150 +191,150 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           listSource={listSource}
           listCustomerCategories={listCustomerCategories}
         />
-        <BaseFilter
-          visible={visible}
-          onClearFilter={onClearFilterClick}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
-          width={500}
-        >
-          <Form
-            onFinish={onFinishAvd}
-            form={formAvd}
-            initialValues={params}
-            layout="vertical"
-          >
-            <Space
-              className="po-filter"
-              direction="vertical"
-              style={{width: "100%"}}
-            >
-              {Object.keys(SearchVariantMapping).map((key) => {
-                let component: any = null;
-                switch (key) {
-                  case SearchVariantField.created_date:
-                    const from = params.from_created_date;
-                    const to = params.to_created_date;
-                    component = <CustomRangePicker value={[from, to]}/>;
-                    break;
-                  case SearchVariantField.status:
-                    component = (
-                      <Select
-                        optionFilterProp="children"
-                        mode="multiple"
-                        placeholder="Chọn 1 hoặc nhiều trạng thái"
-                        onFocus={() => formAvd.setFieldsValue({
-                          ...formAvd.getFieldsValue(true),
-                          status: undefined,
-                        })}
-                      >
-                        <Option value="">Tất cả trạng thái</Option>
-                        {statuses?.map((item) => (
-                          <Option key={item.code} value={item.code}>
-                            {item.value}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                  case SearchVariantField.discount_method:
-                    component = (
-                      <Select
-                        optionFilterProp="children"
-                        mode="multiple"
-                        placeholder="Chọn 1 hoặc nhiều phương thức"
-                        onFocus={() => formAvd.setFieldsValue({
-                          ...formAvd.getFieldsValue(true),
-                          discount_method: undefined,
-                        })}
-                      >
-                        <Option value="">Tất cả phương thức</Option>
-                        {discount_methods?.map((item) => (
-                          <Option key={item.code} value={item.code}>
-                            {item.value}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                  case SearchVariantField.applied_shop:
-                    component = (
-                      <Select
-                        optionFilterProp="children"
-                        mode="multiple"
-                        placeholder="Chọn 1 hoặc nhiều cửa hàng"
-                        onFocus={() => formAvd.setFieldsValue({
-                          ...formAvd.getFieldsValue(true),
-                          applied_shop: undefined,
-                        })}
-                      >
-                        <Option value="">Tất cả cửa hàng</Option>
-                        {listStore?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                  case SearchVariantField.applied_source:
-                    component = (
-                      <Select
-                        optionFilterProp="children"
-                        mode="multiple"
-                        placeholder="Chọn 1 hoặc nhiều kênh bán hàng"
-                        onFocus={() => formAvd.setFieldsValue({
-                          ...formAvd.getFieldsValue(true),
-                          applied_source: undefined,
-                        })}
-                      >
-                        <Option value="">Tất cả kênh bán hàng</Option>
-                        {listSource?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                  case SearchVariantField.customer_category:
-                    component = (
-                      <Select
-                        optionFilterProp="children"
-                        mode="multiple"
-                        placeholder="Chọn 1 hoặc nhiều đối tượng khách hàng"
-                        onFocus={() => formAvd.setFieldsValue({
-                          ...formAvd.getFieldsValue(true),
-                          customer_category: undefined,
-                        })}
-                      >
-                        <Option value="">Tất cả kênh bán hàng</Option>
-                        {listCustomerCategories?.map((item) => (
-                          <Option key={item.id} value={item.id}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                }
-                return (
-                  <Collapse key={key}>
-                    <Collapse.Panel
-                      key="1"
-                      header={
-                        <span>{SearchVariantMapping[key].toUpperCase()}</span>
-                      }
-                    >
-                      <Item name={key}>{component}</Item>
-                    </Collapse.Panel>
-                  </Collapse>
-                );
-              })
-              }
-            </Space>
-          </Form>
-        </BaseFilter>
+        {/*<BaseFilter*/}
+        {/*  visible={visible}*/}
+        {/*  onClearFilter={onClearFilterClick}*/}
+        {/*  onFilter={onFilterClick}*/}
+        {/*  onCancel={onCancelFilter}*/}
+        {/*  width={500}*/}
+        {/*>*/}
+        {/*  <Form*/}
+        {/*    onFinish={onFinishAvd}*/}
+        {/*    form={formAvd}*/}
+        {/*    initialValues={params}*/}
+        {/*    layout="vertical"*/}
+        {/*  >*/}
+        {/*    <Space*/}
+        {/*      className="po-filter"*/}
+        {/*      direction="vertical"*/}
+        {/*      style={{width: "100%"}}*/}
+        {/*    >*/}
+        {/*      {Object.keys(SearchVariantMapping).map((key) => {*/}
+        {/*        let component: any = null;*/}
+        {/*        switch (key) {*/}
+        {/*          case SearchVariantField.created_date:*/}
+        {/*            const from = params.from_created_date;*/}
+        {/*            const to = params.to_created_date;*/}
+        {/*            component = <CustomRangePicker value={[from, to]}/>;*/}
+        {/*            break;*/}
+        {/*          case SearchVariantField.status:*/}
+        {/*            component = (*/}
+        {/*              <Select*/}
+        {/*                optionFilterProp="children"*/}
+        {/*                mode="multiple"*/}
+        {/*                placeholder="Chọn 1 hoặc nhiều trạng thái"*/}
+        {/*                onFocus={() => formAvd.setFieldsValue({*/}
+        {/*                  ...formAvd.getFieldsValue(true),*/}
+        {/*                  status: undefined,*/}
+        {/*                })}*/}
+        {/*              >*/}
+        {/*                <Option value="">Tất cả trạng thái</Option>*/}
+        {/*                {statuses?.map((item) => (*/}
+        {/*                  <Option key={item.code} value={item.code}>*/}
+        {/*                    {item.value}*/}
+        {/*                  </Option>*/}
+        {/*                ))}*/}
+        {/*              </Select>*/}
+        {/*            );*/}
+        {/*            break;*/}
+        {/*          case SearchVariantField.discount_method:*/}
+        {/*            component = (*/}
+        {/*              <Select*/}
+        {/*                optionFilterProp="children"*/}
+        {/*                mode="multiple"*/}
+        {/*                placeholder="Chọn 1 hoặc nhiều phương thức"*/}
+        {/*                onFocus={() => formAvd.setFieldsValue({*/}
+        {/*                  ...formAvd.getFieldsValue(true),*/}
+        {/*                  discount_method: undefined,*/}
+        {/*                })}*/}
+        {/*              >*/}
+        {/*                <Option value="">Tất cả phương thức</Option>*/}
+        {/*                {discount_methods?.map((item) => (*/}
+        {/*                  <Option key={item.code} value={item.code}>*/}
+        {/*                    {item.value}*/}
+        {/*                  </Option>*/}
+        {/*                ))}*/}
+        {/*              </Select>*/}
+        {/*            );*/}
+        {/*            break;*/}
+        {/*          case SearchVariantField.applied_shop:*/}
+        {/*            component = (*/}
+        {/*              <Select*/}
+        {/*                optionFilterProp="children"*/}
+        {/*                mode="multiple"*/}
+        {/*                placeholder="Chọn 1 hoặc nhiều cửa hàng"*/}
+        {/*                onFocus={() => formAvd.setFieldsValue({*/}
+        {/*                  ...formAvd.getFieldsValue(true),*/}
+        {/*                  applied_shop: undefined,*/}
+        {/*                })}*/}
+        {/*              >*/}
+        {/*                <Option value="">Tất cả cửa hàng</Option>*/}
+        {/*                {listStore?.map((item) => (*/}
+        {/*                  <Option key={item.id} value={item.id}>*/}
+        {/*                    {item.name}*/}
+        {/*                  </Option>*/}
+        {/*                ))}*/}
+        {/*              </Select>*/}
+        {/*            );*/}
+        {/*            break;*/}
+        {/*          case SearchVariantField.applied_source:*/}
+        {/*            component = (*/}
+        {/*              <Select*/}
+        {/*                optionFilterProp="children"*/}
+        {/*                mode="multiple"*/}
+        {/*                placeholder="Chọn 1 hoặc nhiều kênh bán hàng"*/}
+        {/*                onFocus={() => formAvd.setFieldsValue({*/}
+        {/*                  ...formAvd.getFieldsValue(true),*/}
+        {/*                  applied_source: undefined,*/}
+        {/*                })}*/}
+        {/*              >*/}
+        {/*                <Option value="">Tất cả kênh bán hàng</Option>*/}
+        {/*                {listSource?.map((item) => (*/}
+        {/*                  <Option key={item.id} value={item.id}>*/}
+        {/*                    {item.name}*/}
+        {/*                  </Option>*/}
+        {/*                ))}*/}
+        {/*              </Select>*/}
+        {/*            );*/}
+        {/*            break;*/}
+        {/*          case SearchVariantField.customer_category:*/}
+        {/*            component = (*/}
+        {/*              <Select*/}
+        {/*                optionFilterProp="children"*/}
+        {/*                mode="multiple"*/}
+        {/*                placeholder="Chọn 1 hoặc nhiều đối tượng khách hàng"*/}
+        {/*                onFocus={() => formAvd.setFieldsValue({*/}
+        {/*                  ...formAvd.getFieldsValue(true),*/}
+        {/*                  customer_category: undefined,*/}
+        {/*                })}*/}
+        {/*              >*/}
+        {/*                <Option value="">Tất cả kênh bán hàng</Option>*/}
+        {/*                {listCustomerCategories?.map((item) => (*/}
+        {/*                  <Option key={item.id} value={item.id}>*/}
+        {/*                    {item.name}*/}
+        {/*                  </Option>*/}
+        {/*                ))}*/}
+        {/*              </Select>*/}
+        {/*            );*/}
+        {/*            break;*/}
+        {/*        }*/}
+        {/*        return (*/}
+        {/*          <Collapse key={key}>*/}
+        {/*            <Collapse.Panel*/}
+        {/*              key="1"*/}
+        {/*              header={*/}
+        {/*                <span>{SearchVariantMapping[key].toUpperCase()}</span>*/}
+        {/*              }*/}
+        {/*            >*/}
+        {/*              <Item name={key}>{component}</Item>*/}
+        {/*            </Collapse.Panel>*/}
+        {/*          </Collapse>*/}
+        {/*        );*/}
+        {/*      })*/}
+        {/*      }*/}
+        {/*    </Space>*/}
+        {/*  </Form>*/}
+        {/*</BaseFilter>*/}
       </div>
     </StyledComponent>
   )
@@ -371,7 +386,7 @@ const FilterList = (({
             const selectedCusCategories = value.map((v: string) => listCustomerCategories.find((c: { id: string; }) => c.id === v)?.name);
             renderTxt = `${SearchVariantMapping[filterKey]} : ${selectedCusCategories}`;
             break;
-          
+
         }
         return (
           <Tag
@@ -382,7 +397,7 @@ const FilterList = (({
           >{`${renderTxt}`}</Tag>
         );
       })}
-      
+
     </Space>
   )
 })

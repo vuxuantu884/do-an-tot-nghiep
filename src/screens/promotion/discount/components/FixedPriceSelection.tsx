@@ -1,5 +1,5 @@
 import {Button, Checkbox, Col, Form, Modal, Row, Space} from "antd";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import "../discount.scss";
 import {RiUpload2Line} from "react-icons/ri";
 import Dragger from "antd/es/upload/Dragger";
@@ -8,8 +8,13 @@ import FixedPriceGroup from "./FixedPriceGroup";
 import importIcon from "../../../../assets/icon/import.svg";
 
 const FixedPriceSelection = (props: any) => {
-  const {form} = props;
+  const {form, discountMethod} = props;
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  const [allProduct, setAllProduct] = useState<boolean>(false);
+
+  useEffect(() => {
+
+  }, [allProduct])
   return (
     <Col span={24}>
       <Form.List
@@ -20,7 +25,9 @@ const FixedPriceSelection = (props: any) => {
             <>
               <Row>
                 <Col span={4}>
-                  <Checkbox >Tất cả sản phẩm</Checkbox>
+                  <Checkbox onChange={(value) => {
+                    setAllProduct(value.target.checked)
+                  }}>Tất cả sản phẩm</Checkbox>
                 </Col>
                 <Col span={20}>
                   <Row justify="end">
@@ -35,6 +42,7 @@ const FixedPriceSelection = (props: any) => {
                       </Form.Item>
                       <Form.Item>
                         <Button
+                          disabled={allProduct}
                           onClick={() => add()}
                           icon={<PlusOutlined/>}
                         >
@@ -56,7 +64,8 @@ const FixedPriceSelection = (props: any) => {
                       form={form}
                       restField={restField}
                       isFirst={key === 0}
-                      allProducts={true}
+                      allProducts={allProduct}
+                      discountMethod={discountMethod}
                     />
                   )
                 })}
