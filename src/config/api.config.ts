@@ -17,6 +17,7 @@ const ApiConfig = {
   LOYALTY: `${v1}/${AppConfig.LOYALTY_SERVICE}`,
   ECOMMERCE: `${v1}/${AppConfig.ECOMMERCE_SERVICE}`,
   LOGISTIC_GATEWAY: `${v1}/${AppConfig.LOGISTIC_GATEWAY_SERVICE}`,
+  PROMOTION: `${v1}/${AppConfig.PROMOTION_SERVICE}`,
 };
 
 export { ApiConfig };
