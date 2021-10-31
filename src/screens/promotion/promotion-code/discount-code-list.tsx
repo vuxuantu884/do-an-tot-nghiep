@@ -4,7 +4,7 @@ import {
   Form,
   Input,
   Tag,
-  Row, 
+  Row,
   Space,
   Modal,
   Col,
@@ -102,6 +102,7 @@ const ListCode = () => {
   ];
 
   const initQuery: DiscountSearchQuery = {
+    type: "MANUAL",
     request: "",
     from_created_date: "",
     to_created_date: "",
