@@ -79,7 +79,7 @@ const CreateDiscountPage = () => {
         showError(`${createResponse.code} - ${createResponse.message}`);
       }
     } catch (e) {
-      showError(e);
+      showError(e.toString());
     }
   }
 
