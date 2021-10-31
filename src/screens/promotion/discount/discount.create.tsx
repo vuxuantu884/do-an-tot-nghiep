@@ -70,17 +70,14 @@ const CreateDiscountPage = () => {
   const handerSubmit = async (values: any) => {
     const body = transformData(values);
     body.disabled = false;
-    try {
-      const createResponse = await createPriceRule(body);
-      if (createResponse.code === 20000000) {
-        showSuccess("Lưu và kích hoạt thành công");
-        history.push("/promotion/discount");
-      } else {
-        showError(`${createResponse.code} - ${createResponse.message}`);
-      }
-    } catch (e) {
-      showError(e.toString());
+    const createResponse = await createPriceRule(body);
+    if (createResponse.code === 20000000) {
+      showSuccess("Lưu và kích hoạt thành công");
+      history.push("/promotion/discount");
+    } else {
+      showError(`${createResponse.code} - ${createResponse.message}`);
     }
+
   }
 
   const save = async () => {
