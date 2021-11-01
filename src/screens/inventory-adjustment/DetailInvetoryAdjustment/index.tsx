@@ -498,7 +498,7 @@ const DetailInvetoryAdjustment: FC = () => {
                             }
                           }}
                           style={{ marginLeft: 8 }}
-                          placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm)"
+                          placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm kiếm)"
                         />
                       </Input.Group>
                       <CustomTable
