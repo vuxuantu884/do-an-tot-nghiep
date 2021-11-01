@@ -18,7 +18,7 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
-import OrderCardShipment from "component/order/OrderShipment";
+import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import {ShipperGetListAction} from "domain/actions/account/account.action";
 import {
@@ -1524,7 +1524,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               onFinish={onFinishUpdateFulFillment}
               layout="vertical"
             >
-              <OrderCardShipment
+              <OrderCreateShipment
                 shipmentMethod={shipmentMethod}
                 orderPrice={OrderDetail?.total_line_amount_after_line_discount}
                 storeDetail={props.storeDetail}

@@ -98,7 +98,7 @@ type PropType = {
  *
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
-function OrderCardShipment(props: PropType) {
+function OrderCreateShipment(props: PropType) {
   const {
     customer,
     storeDetail,
@@ -427,4 +427,4 @@ function OrderCardShipment(props: PropType) {
   );
 }
 
-export default OrderCardShipment;
+export default OrderCreateShipment;

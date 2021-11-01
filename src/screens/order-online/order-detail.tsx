@@ -55,7 +55,7 @@ import UpdateShipmentCard from "./component/update-shipment-card";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 import CardShipment from "./component/order-detail/CardShipment";
-import OrderShipment from "component/order/OrderShipment";
+import OrderCreateShipment from "component/order/OrderCreateShipment";
 const {Panel} = Collapse;
 
 type PropType = {
@@ -580,7 +580,7 @@ const OrderDetail = (props: PropType) => {
     if (true) {
       return (
         <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 253">
-          <OrderShipment
+          <OrderCreateShipment
             shipmentMethod={shipmentMethod}
             orderPrice={OrderDetail?.total_line_amount_after_line_discount}
             storeDetail={storeDetail}

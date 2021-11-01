@@ -1,36 +1,37 @@
-import {Card, Col, Form, FormInstance, Input, Row} from "antd";
+import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import OrderShipment from "component/order/OrderShipment";
 import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
-import {Type} from "config/type.config";
+import OrderCreatePayments from "component/order/OrderCreatePayments";
+import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import {OrderCreateContext} from "contexts/order-online/order-create-context";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {StoreDetailCustomAction} from "domain/actions/core/store.action";
-import {CustomerDetail} from "domain/actions/customer/customer.action";
-import {inventoryGetDetailVariantIdsSaga} from "domain/actions/inventory/inventory.action";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
-  getLoyaltyUsage,
+  getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
   orderCreateAction,
-  OrderDetailAction,
+  OrderDetailAction
 } from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
-  actionListConfigurationShippingServiceAndShippingFee,
+  actionListConfigurationShippingServiceAndShippingFee
 } from "domain/actions/settings/order-settings.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {InventoryResponse} from "model/inventory";
-import {modalActionType} from "model/modal/modal.model";
-import {thirdPLModel} from "model/order/shipment.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
+import { thirdPLModel } from "model/order/shipment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -39,42 +40,41 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
-  ShippingAddress,
+  ShippingAddress
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderConfig,
   OrderResponse,
-  StoreCustomResponse,
+  StoreCustomResponse
 } from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel,
+  ShippingServiceConfigDetailResponseModel
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
-  scrollAndFocusToDomElement,
+  scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
   OrderStatus,
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
-import {useQuery} from "utils/useQuery";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
-import CardPayments from "./component/order-detail/CardPayments";
 import CardProduct from "./component/order-detail/CardProduct";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
@@ -986,24 +986,22 @@ export default function Order() {
   const totalAmountPayment = getAmountPayment(payments);
 
   /**
-   * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
+   * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
-  const totalAmountCustomerNeedToPay = useMemo(() => {
+  const totalAmountOrder = useMemo(() => {
     return (
       orderAmount +
       (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-      discountValue -
-      totalAmountPayment
+      discountValue
     );
-  }, [discountValue, orderAmount, shippingFeeInformedToCustomer, totalAmountPayment]);
+  }, [discountValue, orderAmount, shippingFeeInformedToCustomer]);
 
   /**
-   * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
+   * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
    */
-  const totalAmountOrder =
-    orderAmount +
-    (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-    discountValue;
+  const totalAmountCustomerNeedToPay = useMemo(() => {
+    return totalAmountOrder - totalAmountPayment;
+  }, [totalAmountOrder, totalAmountPayment]);
 
   /**
    * theme context data
@@ -1123,20 +1121,19 @@ export default function Order() {
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
                     />
-                    <CardPayments
+                    <OrderCreatePayments
                       setPaymentMethod={handlePaymentMethod}
                       payments={payments}
                       setPayments={setPayments}
                       paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
                       totalAmountOrder={totalAmountOrder}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       loyaltyRate={loyaltyRate}
                       isDisablePostPayment={isDisablePostPayment}
                     />
 
                     <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 252">
-                      <OrderShipment
+                      <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
                         orderPrice={orderAmount}
                         storeDetail={storeDetail}

@@ -33,7 +33,7 @@ import {StyledComponent} from "./styles";
 
 const {Panel} = Collapse;
 
-type CardPaymentsProps = {
+type PropsType = {
   payments: OrderPaymentRequest[];
   paymentMethod: number;
   totalAmountOrder: number;
@@ -63,7 +63,7 @@ type CardPaymentsProps = {
  *
  * shipmentMethod: phương thức đóng gói giao hàng để hiển thị thông báo
  */
-function CardPayments(props: CardPaymentsProps): JSX.Element {
+function OrderCreatePayments(props: PropsType): JSX.Element {
   const {
     totalAmountOrder,
     levelOrder = 0,
@@ -561,4 +561,4 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
   );
 }
 
-export default CardPayments;
+export default OrderCreatePayments;
