@@ -1,5 +1,5 @@
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {Button, Col, Empty, Form, Input, InputNumber, Row, Select, Space, Table, Tooltip} from "antd";
+import {Button, Col, Form, Input, Row, Select, Space, Table, Tooltip} from "antd";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import {searchVariantsRequestAction} from "../../../../domain/actions/product/products.action";
@@ -8,13 +8,10 @@ import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {VariantResponse} from "../../../../model/product/product.model";
 import ProductItem from "../../../purchase-order/component/product-item";
 import NumberInput from "../../../../component/custom/number-input.custom";
-import CurrencyInput from "../../../loyalty/component/currency-input";
-import {RiDeleteBin7Line, RiInformationLine} from "react-icons/ri";
-import imgDefIcon from "../../../../assets/img/img-def.svg";
+import {RiInformationLine} from "react-icons/ri";
 import {Link} from "react-router-dom";
 import UrlConfig from "../../../../config/url.config";
-import {Products} from "../../../../utils/AppUtils";
-import {AiOutlineClose, AiOutlineDelete} from "react-icons/ai";
+import {AiOutlineClose} from "react-icons/ai";
 import {DeleteOutlined} from "@ant-design/icons";
 
 const Option = Select.Option;
@@ -97,7 +94,7 @@ const FixedPriceGroup = (props: any) => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem data={item} key={item.id.toString()}/>,
         value: item.id,
       });
     });
@@ -135,7 +132,8 @@ const FixedPriceGroup = (props: any) => {
   );
 
   return (
-    <div key={name} style={{border: "1px solid rgb(229, 229, 229)", padding: "20px", marginBottom: "20px", borderRadius: "5px"}}>
+    <div key={name}
+         style={{border: "1px solid rgb(229, 229, 229)", padding: "20px", marginBottom: "20px", borderRadius: "5px"}}>
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
@@ -143,11 +141,11 @@ const FixedPriceGroup = (props: any) => {
             label={<Space>
               <span>SL tối thiểu</span>
               <Tooltip title={"Số lượng tối thiểu cho sản phẩm để được áp dụng khuyến mại"}>
-                <RiInformationLine />
+                <RiInformationLine/>
               </Tooltip>
             </Space>}
           >
-            <NumberInput key={`${key}-min`} min={0} />
+            <NumberInput key={`${key}-min`} min={0}/>
           </Form.Item>
         </Col>
         <Col span={7}>
@@ -157,41 +155,41 @@ const FixedPriceGroup = (props: any) => {
               <span>Giới hạn</span>
               <Tooltip title={"Tổng số lượng sản phẩm áp dụng khuyến mại. Mặc định không điền là không giới hạn." +
               "VD: Chỉ áp dụng cho 100 sản phẩm, hết 100 sản phẩm này thì không có khuyến mại nữa."}>
-                <RiInformationLine />
+                <RiInformationLine/>
               </Tooltip>
             </Space>}
           >
-            <NumberInput key={`${key}-usage`} min={0} />
+            <NumberInput key={`${key}-usage`} min={0}/>
           </Form.Item>
         </Col>
         <Col span={9}>
-            <Input.Group compact>
-              <Form.Item
-                name={[name, "prerequisite_quantity_ranges.value"]}
-                label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
-              >
-                <NumberInput
-                  style={{ textAlign: 'end', borderRadius: '0px', width: "300px" }}
-                  min={0}
-                  maxLength={discountType==='PERCENTAGE' ? 2 : 9}
-                />
-              </Form.Item>
-              <Form.Item
-                name={[name, "prerequisite_quantity_ranges.value_type"]}
-                label=" "
-              >
-                <Select style={{ borderRadius: '0px' }}  onSelect={(value: string) => {
-                  setDiscountType(value)
-                }}>
-                  <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
-                  {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
-                </Select>
-              </Form.Item>
-            </Input.Group>
+          <Input.Group compact>
+            <Form.Item
+              name={[name, "prerequisite_quantity_ranges.value"]}
+              label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
+            >
+              <NumberInput
+                style={{textAlign: 'end', borderRadius: '0px', width: "300px"}}
+                min={0}
+                maxLength={discountType === 'PERCENTAGE' ? 2 : 9}
+              />
+            </Form.Item>
+            <Form.Item
+              name={[name, "prerequisite_quantity_ranges.value_type"]}
+              label=" "
+            >
+              <Select style={{borderRadius: '0px'}} onSelect={(value: string) => {
+                setDiscountType(value)
+              }}>
+                <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
+                {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
+              </Select>
+            </Form.Item>
+          </Input.Group>
         </Col>
       </Row>
       {allProducts ? "" : <div>
-        <Form.Item >
+        <Form.Item>
           <Input.Group className="display-flex">
             <CustomAutoComplete
               key={`${key}-product_search`}
@@ -200,14 +198,14 @@ const FixedPriceGroup = (props: any) => {
               placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
               onSearch={onSearch}
               dropdownMatchSelectWidth={456}
-              style={{ width: "100%" }}
+              style={{width: "100%"}}
               onSelect={onSelectProduct}
               options={renderResult}
               ref={productSearchRef}
             />
             <Button
               onClick={() => setVisibleManyProduct(true)}
-              style={{ width: 132, marginLeft: 10 }}
+              style={{width: 132, marginLeft: 10}}
             >
               Chọn nhiều
             </Button>
@@ -272,7 +270,7 @@ const FixedPriceGroup = (props: any) => {
                   <Button
                     onClick={() => onDeleteItem(index)}
                     className="product-item-delete"
-                    icon={<AiOutlineClose />}
+                    icon={<AiOutlineClose/>}
                   />
                 ),
               }
@@ -285,7 +283,7 @@ const FixedPriceGroup = (props: any) => {
         {isFirst ? "" : <Row gutter={16} style={{paddingTop: "16px"}}>
           <Col span={24}>
             <Button
-              icon={<DeleteOutlined />}
+              icon={<DeleteOutlined/>}
               danger
               onClick={() => remove(name)}
             >
