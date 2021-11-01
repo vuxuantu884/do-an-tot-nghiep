@@ -76,6 +76,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   >([]);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [isConfigExist, setIsConfigExist] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (configFromEcommerce) {
@@ -103,6 +104,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   }, [configDetail, configData]);
   const handleConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
+      setIsLoading(false);
       if (value) {
         setConfigToView(null);
         setConfigDetail(undefined);
@@ -116,6 +118,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
   );
   const handleCreateConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
+      setIsLoading(false);
       if (value) {
         setConfigToView(null);
         setConfigDetail(undefined);
@@ -145,6 +148,8 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           store:
             listStores?.find((item) => item.id === value.store_id)?.name || "",
         };
+
+        setIsLoading(true);
         if (_isExist) {
           dispatch(
             ecommerceConfigUpdateAction(id, request, handleConfigCallback)
@@ -641,6 +646,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
               type="ghost"
               onClick={() => handleDisconnectEcommerce()}
+              disabled={isLoading}
             >
               Xóa gian hàng
             </Button>
@@ -649,7 +655,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           <Button
             type="primary"
             htmlType="submit"
-            disabled={!configDetail}
+            disabled={!configDetail || isLoading}
             icon={<img src={saveIcon} alt="" />}
           >
             {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}

@@ -1,0 +1,1006 @@
+import React, {
+  createRef,
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { StyledWrapper } from "./styles";
+import UrlConfig from "config/url.config";
+import ContentContainer from "component/container/content.container";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Upload,
+  Skeleton
+} from "antd";
+
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import arrowLeft from "assets/icon/arrow-back.svg";
+import imgDefIcon from "assets/img/img-def.svg";
+import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { ColumnsType } from "antd/lib/table/interface";
+import TextArea from "antd/es/input/TextArea";
+import PlusOutline from "assets/icon/plus-outline.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import { useDispatch } from "react-redux";
+import {
+  inventoryGetSenderStoreAction,
+  inventoryGetVariantByStoreAction,
+  inventoryUploadFileAction,
+} from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import {
+  Store,
+} from "model/inventory/transfer";
+import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
+
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantImage, VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import PickManyProductModal from "../../purchase-order/modal/pick-many-product.modal";
+import ProductItem from "../../purchase-order/component/product-item";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { UploadRequestOption } from "rc-upload/lib/interface";
+import { UploadFile } from "antd/es/upload/interface";
+import { findAvatar } from "utils/AppUtils";
+import RowDetail from "screens/products/product/component/RowDetail";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import { useHistory } from "react-router";
+import ModalConfirm from "component/modal/ModalConfirm";
+import { ConvertFullAddress } from "utils/ConvertAddress";
+import CustomSelect from "component/custom/select.custom";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountResponse } from "model/account/account.model";
+import NumberInput from "component/custom/number-input.custom";
+import _, { parseInt } from "lodash";
+import { createInventoryAdjustmentAction } from "domain/actions/inventory/inventory-adjustment.action";
+import { Link } from "react-router-dom";
+import CustomTable from "component/table/CustomTable";
+import CustomDatePicker from "component/custom/date-picker.custom";
+import { INVENTORY_AUDIT_TYPE_CONSTANTS } from "../constants";
+import CustomPagination from "component/table/CustomPagination";
+
+const { Option } = Select;
+
+const VARIANTS_FIELD = "line_items";
+
+const CreateInventoryAdjustment: FC = () => {
+  const [form] = Form.useForm();
+  const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
+    [] as Array<LineItemAdjustment>
+  );
+  const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
+    [] as Array<LineItemAdjustment>
+  );
+  const [keySearch, setKeySearch] = useState<string | any>("");
+  const history = useHistory();
+  const productSearchRef = createRef<CustomAutoComplete>();
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [auditType, setAuditType] = useState<string>("");
+
+  const [formStoreData, setFormStoreData] = useState<Store>();
+
+  const [isVisibleModalWarning, setIsVisibleModalWarning] =
+    useState<boolean>(false);
+
+  const lstAudiTypes = [{
+    key: "total",
+    name: "Toàn bộ"
+  }, {
+    key: "partly",
+    name: "Một phần"
+  }];
+
+  const [dataVariantByStoreId, setVariantByStoreId] = useState<PageResponse<VariantResponse> | null>(null);
+  const [query, setQuery] = useState<VariantSearchQuery>(
+    form.getFieldValue('adjusted_store_id') ? {
+      status: "active",
+      limit: 10,
+      info: "",
+      page: 1,
+      store_id: form.getFieldValue('adjusted_store_id')
+    } : {
+      info: "",
+      page: 1,
+      limit: 10,
+    }
+  );
+
+
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
+
+  const dispatch = useDispatch();
+
+  const onRealQuantityChange = (quantity: number | null, index: number) => {
+    let dataEdit = ((searchVariant && searchVariant.length > 0) || (keySearch !== "")) ? [...searchVariant] : [...dataTable];
+    quantity = (quantity ?? 0);
+    const dataTableClone = _.cloneDeep(dataEdit);
+    dataTableClone[index].real_on_hand = quantity;
+    dataTableClone[index].variant_id = dataTableClone[index].id;
+    dataTableClone[index].variant_name = dataTableClone[index].name;
+    let totalDiff = 0;
+    totalDiff = quantity - dataTableClone[index].on_hand;
+    if (totalDiff === 0) {
+      dataTableClone[index].on_hand_adj = null;
+      dataTableClone[index].on_hand_adj_dis = null;
+    }
+    else if (dataTableClone[index].on_hand < quantity) {
+      dataTableClone[index].on_hand_adj = totalDiff;
+      dataTableClone[index].on_hand_adj_dis = `+${totalDiff}`;
+    } else if (dataTableClone[index].on_hand > quantity) {
+      dataTableClone[index].on_hand_adj = totalDiff;
+      dataTableClone[index].on_hand_adj_dis = `${totalDiff}`;
+    }
+
+    form.setFieldsValue({ [VARIANTS_FIELD]: dataTableClone });
+
+    if (searchVariant && (searchVariant.length > 0 || keySearch !== "")) {
+      setSearchVariant(dataTableClone);
+    } else {
+      setDataTable(dataTableClone);
+    }
+  }
+
+  const onFinish = (data: InventoryAdjustmentDetailItem) => {
+    const storeCurr = stores.find(e => e.id.toString() === data.adjusted_store_id.toString());
+    data.adjusted_store_name = storeCurr ? storeCurr.name : null;
+    const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
+    if (dataLineItems.length === 0) {
+      showError("Vui lòng chọn sản phẩm");
+      return;
+    }
+    data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
+      const variantPrice =
+        item &&
+        item.variant_prices &&
+        item.variant_prices[0] &&
+        item.variant_prices[0].retail_price;
+      return {
+        sku: item.sku,
+        barcode: item.barcode,
+        variant_name: item.name,
+        variant_id: item.id,
+        variant_image: findAvatar(item.variant_images),
+        product_name: item.product.name,
+        product_id: item.product_id,
+        price: variantPrice,
+        weight: item.weight,
+        weight_unit: item.weight_unit,
+        on_hand: item.on_hand ?? 0,
+        real_on_hand: item.real_on_hand,
+        on_hand_adj: item.on_hand_adj
+      };
+    });
+
+    setIsLoading(true);
+    dispatch(createInventoryAdjustmentAction(data, createCallback));
+  };
+
+  const onChangeAuditType = useCallback((auditType: string) => {
+
+    if (!form.getFieldValue("adjusted_store_id")) {
+      showError("Vui lòng chọn kho kiểm");
+      form.setFieldsValue({ audit_type: null })
+      return false;
+    }
+
+    setAuditType(auditType);
+  }, [auditType]);
+
+  const onEnterFilterVariant = useCallback(() => {
+    let dataSearch = [...dataTable.filter((e: LineItemAdjustment) => {
+      return e.on_hand === parseInt(keySearch)
+        || e.variant_name?.includes(keySearch)
+        || e.sku?.includes(keySearch)
+        || e.code?.includes(keySearch)
+        || e.barcode?.includes(keySearch)
+    })];
+
+    setSearchVariant(dataSearch);
+  }, [keySearch, dataTable]);
+
+  // get store
+  useEffect(() => {
+    if (form.getFieldValue('adjusted_store_id')) {
+      dispatch(inventoryGetVariantByStoreAction(query, (res) => {
+        setVariantByStoreId(res);
+      }));
+    }
+    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(
+      inventoryGetSenderStoreAction(
+        { status: "active", simple: true },
+        setStores
+      )
+    );
+
+  }, [dispatch, auditType, setDataAccounts, query]);
+
+  const [resultSearch, setResultSearch] = useState<
+    PageResponse<VariantResponse> | any
+  >();
+
+  const onSearchProduct = (value: string) => {
+    const storeId = form.getFieldValue("adjusted_store_id");
+    if (!storeId) {
+      showError("Vui lòng chọn kho kiểm");
+      return;
+    } else if (value.trim() !== "" && value.length >= 3) {
+      dispatch(
+        inventoryGetVariantByStoreAction(
+          {
+            status: "active",
+            limit: 10,
+            page: 1,
+            store_ids: storeId,
+            info: value.trim(),
+          },
+          setResultSearch
+        )
+      );
+    }
+  };
+
+  const [fileList, setFileList] = useState<Array<UploadFile>>([]);
+
+  const renderResult = useMemo(() => {
+    let options: any[] = [];
+    resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: <ProductItem data={item} key={item.id.toString()} />,
+        value: item.id.toString(),
+      });
+    });
+    return options;
+  }, [resultSearch]);
+
+  const onSelectProduct = (value: string) => {
+    const dataTemp = [...dataTable];
+    const selectedItem = resultSearch?.items?.find(
+      (variant: VariantResponse) => variant.id.toString() === value
+    );
+    if (
+      !dataTemp.some(
+        (variant: VariantResponse) => variant.id === selectedItem.id
+      )
+    ) {
+      setDataTable((prev: any) => prev.concat([selectedItem]));
+      setHasError(false);
+    }
+  };
+
+  const onPickManyProduct = (result: Array<VariantResponse>) => {
+
+    const newResult = result?.map((item) => {
+      return {
+        ...item,
+        variant_id: item.id,
+        variant_name: item.name,
+        real_on_hand: 0,
+        on_hand_adj: 0 - (item.on_hand ?? 0),
+        on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString()
+      };
+    });
+    const dataTemp = [...dataTable, ...newResult];
+
+    const arrayUnique = [
+      ...new Map(dataTemp.map((item) => [item.id, item])).values(),
+    ];
+
+    form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
+
+    setDataTable(arrayUnique);
+    setHasError(false);
+    setVisibleManyProduct(false);
+  };
+
+  const onBeforeUpload = useCallback((file) => {
+    const isLt2M = file.size / 1024 / 1024 < 10;
+    if (!isLt2M) {
+      showWarning("Cần chọn ảnh nhỏ hơn 10mb");
+    }
+    return isLt2M ? true : Upload.LIST_IGNORE;
+  }, []);
+
+  const onCustomRequest = (options: UploadRequestOption<any>) => {
+    const { file } = options;
+    let files: Array<File> = [];
+    if (file instanceof File) {
+      let uuid = file.uid;
+      files.push(file);
+      dispatch(
+        inventoryUploadFileAction(
+          { files: files },
+          (data: false | Array<string>) => {
+            let index = fileList.findIndex((item) => item.uid === uuid);
+            if (!!data) {
+              if (index !== -1) {
+                fileList[index].status = "done";
+                fileList[index].url = data[0];
+                let fileCurrent: Array<string> =
+                  form.getFieldValue("attached_files");
+                if (!fileCurrent) {
+                  fileCurrent = [];
+                }
+                fileCurrent.push(data[0]);
+                let newFileCurrent = [...fileCurrent];
+                form.setFieldsValue({ attached_files: newFileCurrent });
+              }
+            } else {
+              fileList.splice(index, 1);
+              showError("Upload ảnh không thành công");
+            }
+            setFileList([...fileList]);
+          }
+        )
+      );
+    }
+  };
+
+  const onChangeFile = useCallback((info) => {
+    setFileList(info.fileList);
+  }, []);
+
+  const onRemoveFile = (data: UploadFile<any>) => {
+    let index = fileList.findIndex((item) => item.uid === data.uid);
+    if (index !== -1) {
+      fileList.splice(index, 1);
+      let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+      if (!fileCurrent) {
+        fileCurrent = [];
+      } else {
+        fileCurrent.splice(index, 1);
+      }
+      let newFileCurrent = [...fileCurrent];
+      form.setFieldsValue({ attached_files: newFileCurrent });
+    }
+    setFileList([...fileList]);
+  };
+
+  const createCallback = useCallback(
+    (result: InventoryAdjustmentDetailItem) => {
+      if (result) {
+        setIsLoading(false);
+        if (result) {
+          showSuccess("Thêm mới dữ liệu thành công");
+          history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}/${result.id}`);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    },
+    [history]
+  );
+
+  const onChangeFromStore = (storeId: number) => {
+    let variantField = form.getFieldValue(VARIANTS_FIELD);
+
+    const variants_id = variantField?.map((item: VariantResponse) => item.id);
+
+    if (variants_id?.length > 0) {
+      setIsLoadingTable(true);
+      dispatch(
+        inventoryGetDetailVariantIdsSaga(variants_id, storeId, (result) => {
+          if (result) {
+            setIsLoadingTable(false);
+            const newDataTable = dataTable.map((itemOld: VariantResponse) => {
+              let newAvailable;
+              result?.forEach((itemNew) => {
+                if (itemNew.variant_id === itemOld.id) {
+                  newAvailable = itemNew.available;
+                }
+              });
+              return {
+                ...itemOld,
+                available: newAvailable,
+              };
+            });
+            setDataTable(newDataTable);
+
+          } else {
+            setIsLoadingTable(false);
+            setDataTable([]);
+            form.setFieldsValue({ [VARIANTS_FIELD]: [] });
+          }
+        })
+      );
+    }
+  };
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      setQuery({ ...query, page: page, limit: size });
+    },
+    [query]
+  );
+
+  useEffect(() => {
+    if (dataTable.length === 0) {
+      setHasError(true);
+    }
+
+  }, [dataTable, hasError]);
+
+  const columnsAuditTotal: ColumnsType<any> = [
+    {
+      title: "STT",
+      align: "center",
+      width: "50px",
+      render: (value: string, record: VariantResponse, index: number) =>
+        index + 1,
+    },
+    {
+      title: "Ảnh",
+      width: "60px",
+      dataIndex: "variant_images",
+      render: (value: Array<VariantImage>, record: string[]) => {
+        const avatar = findAvatar(value);
+        return (
+          <div className="product-item-image">
+            <img src={!avatar ? imgDefIcon : avatar} alt="" className="" />
+          </div>
+        );
+      },
+    },
+    {
+      title: "Sản phẩm",
+      width: "200px",
+      className: "ant-col-info",
+      dataIndex: "name",
+      render: (value: string, record: VariantResponse, index: number) => {
+        const storeId = form.getFieldValue("adjusted_store_id");
+        return (
+          <div>
+            <div>
+              <div className="product-item-sku">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
+                >
+                  {record.sku}
+                </Link>
+              </div>
+              <div className="product-item-name">
+                <span className="product-item-name-detail">{value}</span>
+              </div>
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      title: "Tồn trong kho",
+      dataIndex: "on_hand",
+      align: "right",
+      width: 120,
+      render: (value) => {
+        return value || 0;
+      },
+    },
+  ];
+
+  const columns: ColumnsType<any> = [
+    {
+      title: "STT",
+      align: "center",
+      width: "50px",
+      render: (value: string, record: VariantResponse, index: number) =>
+        index + 1,
+    },
+    {
+      title: "Ảnh",
+      width: "60px",
+      dataIndex: "variant_images",
+      render: (value: Array<VariantImage>, record: string[]) => {
+        const avatar = findAvatar(value);
+        return (
+          <div className="product-item-image">
+            <img src={!avatar ? imgDefIcon : avatar} alt="" className="" />
+          </div>
+        );
+      },
+    },
+    {
+      title: "Sản phẩm",
+      width: "200px",
+      className: "ant-col-info",
+      dataIndex: "variant_name",
+      render: (value: string, record: VariantResponse, index: number) => {
+
+        const storeId = form.getFieldValue("adjusted_store_id");
+        return (
+          <div>
+            <div>
+              <div className="product-item-sku">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${storeId?.adjusted_store_id}&page=1`}
+                >
+                  {record.sku}
+                </Link>
+              </div>
+              <div className="product-item-name">
+                <span className="product-item-name-detail">{value}</span>
+              </div>
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      title: "Tồn trong kho",
+      dataIndex: "on_hand",
+      align: "right",
+      width: 120,
+      render: (value) => {
+        return value || 0;
+      },
+    },
+    {
+      title: "Tồn thực tế",
+      dataIndex: "real_on_hand",
+      align: "right",
+      width: 120,
+      render: (value, row, index: number) => {
+        return <NumberInput
+          isFloat={false}
+          id={`item-real-${index}`}
+          min={0}
+          value={value ? value : 0}
+          onChange={(quantity) => {
+            onRealQuantityChange(quantity, index);
+          }}
+        />
+      },
+    },
+    {
+      title: "Thừa/Thiếu",
+      align: "center",
+      width: 120,
+      render: (value, item) => {
+        if (!item.on_hand_adj && item.on_hand_adj === 0) {
+          return null
+        }
+        if (item.on_hand_adj && item.on_hand_adj < 0) {
+          return <div style={{ color: 'red' }}>{item.on_hand_adj_dis}</div>;
+        }
+        else {
+          return <div style={{ color: 'green' }}>{item.on_hand_adj_dis}</div>;
+        }
+      }
+    }
+  ];
+
+  return (
+    <StyledWrapper>
+      <ContentContainer
+        title="Thêm mới phiếu kiểm kho"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Kiểm kho",
+            path: `${UrlConfig.INVENTORY_ADJUSTMENT}`,
+          },
+          {
+            name: "Thêm mới",
+          },
+        ]}
+      >
+        <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
+          <Row gutter={24}>
+            <Col span={18}>
+              <Card
+                title="KHO HÀNG"
+              >
+                <Row gutter={24}>
+                  <Col span={16}>
+                    <Form.Item
+                      name="adjusted_store_id"
+                      label={<b>Kho kiểm</b>}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn kho kiểm",
+                        },
+                      ]}
+                      labelCol={{ span: 24, offset: 0 }}
+                    >
+                      <CustomSelect
+                        placeholder="Chọn kho kiểm"
+                        showArrow
+                        optionFilterProp="children"
+                        showSearch
+                        allowClear={true}
+                        onChange={(value: number) => {
+                          stores.forEach((element) => {
+                            if (element.id === value) {
+                              setFormStoreData(element);
+                              onChangeFromStore(element.id);
+                            }
+                          });
+                        }}
+                      >
+                        {Array.isArray(stores) &&
+                          stores.length > 0 &&
+                          stores.map((item, index) => (
+                            <Option
+                              key={"adjusted_store_id" + index}
+                              value={item.id.toString()}
+                            >
+                              {item.name}
+                            </Option>
+                          ))}
+                      </CustomSelect>
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item
+                      name="audit_type"
+                      label={<b>Loại kiểm</b>}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn loại kiểm",
+                        },
+                      ]}
+                      labelCol={{ span: 24, offset: 0 }}
+                    >
+                      <CustomSelect
+                        placeholder="Chọn loại kiểm"
+                        showArrow
+                        optionFilterProp="children"
+                        showSearch
+                        allowClear={true}
+                        onChange={(value: string) => {
+                          onChangeAuditType(value);
+                        }}
+                      >
+                        {Array.isArray(lstAudiTypes) &&
+                          lstAudiTypes.length > 0 &&
+                          lstAudiTypes.map((item, index) => (
+                            <Option
+                              key={item.key}
+                              value={item.key}
+                            >
+                              {item.name}
+                            </Option>
+                          ))}
+                      </CustomSelect>
+                    </Form.Item>
+                  </Col>
+                </Row>
+                {formStoreData && (
+                  <Row>
+                    <Col span={11}>
+                      <>
+                        <RowDetail
+                          title="Địa chỉ"
+                          value={ConvertFullAddress(formStoreData)}
+                        />
+                      </>
+                    </Col>
+                    <Col span={5}>
+                      <>
+                        <RowDetail title="Mã CH" value={formStoreData.code} />
+                        <RowDetail title="SĐT" value={formStoreData.hotline} />
+                      </>
+                    </Col>
+                  </Row>
+                )}
+              </Card>
+
+              <Card
+                title="THÔNG TIN SẢN PHẨM"
+                bordered={false}
+                className={"product-detail"}
+              >
+                {
+                  auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ?
+                    <>
+                      <Input.Group className="display-flex">
+                        <CustomAutoComplete
+                          id="#product_search_variant"
+                          dropdownClassName="product"
+                          placeholder="Thêm sản phẩm vào phiếu kiểm"
+                          onSearch={onSearchProduct}
+                          dropdownMatchSelectWidth={456}
+                          style={{ width: "100%" }}
+                          showAdd={true}
+                          textAdd="Thêm mới sản phẩm"
+                          onSelect={onSelectProduct}
+                          options={renderResult}
+                          ref={productSearchRef}
+                        />
+                        <Button
+                          onClick={() => {
+                            if (!form.getFieldValue("adjusted_store_id")) {
+                              showError("Vui lòng chọn kho kiểm");
+                              return;
+                            }
+                            setVisibleManyProduct(true);
+                          }}
+                          style={{ width: 132, marginLeft: 10 }}
+                          icon={<img src={PlusOutline} alt="" />}
+                        >
+                          &nbsp;&nbsp; Chọn nhiều
+                        </Button>
+                        <Input
+                          name="key_search"
+                          onBlur={() => {
+                            onEnterFilterVariant()
+                          }}
+                          onChange={(e) => {
+                            setKeySearch(e.target.value);
+                            //onEnterFilterVariant()
+                          }}
+                          onKeyPress={event => {
+                            if (event.key === 'Enter') {
+                              event.preventDefault();
+                              onEnterFilterVariant()
+                            }
+                          }}
+                          style={{ marginLeft: 8 }}
+                          placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm kiếm)"
+                          prefix={<SearchOutlined color="#f1f1f1" />}
+                        />
+
+                      </Input.Group>
+                      {/*table*/}
+                      <CustomTable
+                        className="product-table"
+                        rowClassName="product-table-row"
+                        tableLayout="fixed"
+                        scroll={{ y: 300 }}
+                        columns={columns}
+                        pagination={false}
+                        loading={isLoadingTable}
+                        dataSource={(searchVariant && (searchVariant.length > 0 || keySearch !== "")) ? searchVariant : dataTable}
+                        summary={() => {
+                          let data = (searchVariant && (searchVariant.length > 0 || keySearch !== "")) ? [...searchVariant] : [...dataTable];
+
+                          let totalExcess = 0, totalMiss = 0,
+                            totalQuantity = 0, totalReal = 0;
+                          data.forEach((element: LineItemAdjustment) => {
+                            totalQuantity += element.on_hand;
+                            element.real_on_hand = element.real_on_hand ?? 0;
+                            totalReal += element.real_on_hand;
+                            if (element.on_hand_adj > 0) {
+                              totalExcess += element.on_hand_adj;
+                            } if (element.on_hand_adj < 0) {
+                              totalMiss += -element.on_hand_adj;
+                            }
+                          });
+                          return (
+                            <Table.Summary fixed>
+                              <Table.Summary.Row>
+                                <Table.Summary.Cell index={0} colSpan={2}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell align={"left"} index={2}>
+                                  <b>Tổng:</b>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell align={"right"} index={3}>
+                                  {totalQuantity}
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell align={"right"} index={4}>
+                                  {totalReal}
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell align={"center"} index={5}>
+                                  <Space>
+                                    {
+                                      totalExcess === 0 ? null :
+                                        <div style={{ color: '#27AE60' }}>
+                                          +{totalExcess}</div>
+                                    }/
+                                    {
+                                      totalMiss === 0 ? null :
+                                        <div style={{ color: 'red' }}>
+                                          -{totalMiss}</div>
+                                    }
+                                  </Space>
+                                </Table.Summary.Cell>
+                              </Table.Summary.Row>
+                            </Table.Summary>
+                          )
+                        }}
+                      />
+                    </> : null}
+                {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL ?
+                  <> {dataVariantByStoreId ? (
+                    <>
+                      <CustomTable
+                        className="product-table"
+                        rowClassName="product-table-row"
+                        tableLayout="fixed"
+                        scroll={{ y: 300 }}
+                        columns={columnsAuditTotal}
+                        pagination={false}
+                        loading={isLoadingTable}
+                        dataSource={dataVariantByStoreId.items}
+                        summary={() => {
+                          let totalQuantity = 0;
+                          dataVariantByStoreId.items.forEach((element: VariantResponse) => {
+                            totalQuantity += element.on_hand;
+                          });
+                          return (
+                            <Table.Summary fixed>
+                              <Table.Summary.Row>
+                                <Table.Summary.Cell index={0} colSpan={2}>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell align={"left"} index={2}>
+                                  <b>Tổng:</b>
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell align={"right"} index={3}>
+                                  {totalQuantity}
+                                </Table.Summary.Cell>
+                              </Table.Summary.Row>
+                            </Table.Summary>
+                          )
+                        }}
+                      />
+                      <CustomPagination
+                        pagination={{
+                          showSizeChanger: false,
+                          pageSize: dataVariantByStoreId.metadata.limit,
+                          current: dataVariantByStoreId.metadata.page,
+                          total: dataVariantByStoreId.metadata.total,
+                          onChange: onPageChange,
+                        }} />
+                    </>
+                  ) : (
+                    <Skeleton loading={true} active avatar></Skeleton>
+                  )}
+                  </> : null
+                }
+
+              </Card>
+            </Col>
+            <Col span={6}>
+              {/* Thông tin phiếu */}
+              <Card
+                title={"Thông tin phiếu"}
+                bordered={false}
+              >
+                <Form.Item
+                  labelCol={{ span: 24, offset: 0 }}
+                  name="audited_date"
+                  label={<b>Ngày kiểm</b>}
+                  colon={false}
+                >
+                  <CustomDatePicker
+                    style={{ width: "100%" }}
+                    placeholder="Chọn ngày kiểm"
+                    format={"DD/MM/YYYY"}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="audited_by"
+                  label={<b>Người kiểm</b>}
+                  labelCol={{ span: 24, offset: 0 }}
+                  colon={false}
+                >
+                  <Select
+                    mode="multiple" showSearch placeholder="Chọn người kiểm"
+                    notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {accounts.map((item, index) => (
+                      <Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.code.toString()}
+                      >
+                        {`${item.full_name} - ${item.code}`}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Card>
+              <Card
+                title={"GHI CHÚ"}
+                bordered={false}
+                className={"note"}
+              >
+                <Form.Item
+                  name={"note"}
+                  label={<b>Ghi chú nội bộ</b>}
+                  colon={false}
+                  labelCol={{ span: 24, offset: 0 }}
+                >
+                  <TextArea
+                    placeholder=" "
+                    autoSize={{ minRows: 4, maxRows: 6 }}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  labelCol={{ span: 24, offset: 0 }}
+                  label={<b>File đính kèm</b>}
+                  colon={false}
+                >
+                  <Upload
+                    beforeUpload={onBeforeUpload}
+                    multiple={true}
+                    fileList={fileList}
+                    onChange={onChangeFile}
+                    customRequest={onCustomRequest}
+                    onRemove={onRemoveFile}
+                  >
+                    <Button icon={<UploadOutlined />}>Chọn file</Button>
+                  </Upload>
+                </Form.Item>
+                <Form.Item noStyle hidden name="attached_files">
+                  <Input />
+                </Form.Item>
+              </Card>
+            </Col>
+          </Row>
+          <BottomBarContainer
+            leftComponent={
+              <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
+                <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                {"Quay lại danh sách"}
+              </div>
+            }
+            rightComponent={
+              <Space>
+                <Button loading={isLoading} disabled={hasError || isLoading} htmlType={"submit"} type="primary">
+                  Tạo phiếu
+                </Button>
+              </Space>
+            }
+          />
+          {visibleManyProduct && (
+            <PickManyProductModal
+              storeID={form.getFieldValue("adjusted_store_id")}
+              selected={[]}
+              onSave={onPickManyProduct}
+              onCancel={() => setVisibleManyProduct(false)}
+              visible={visibleManyProduct}
+            />
+          )}
+          {
+            isVisibleModalWarning &&
+            <ModalConfirm
+              onCancel={() => {
+                setIsVisibleModalWarning(false);
+              }}
+              onOk={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}`)}
+              okText="Đồng ý"
+              cancelText="Tiếp tục"
+              title={`Bạn có muốn rời khỏi trang?`}
+              subTitle="Thông tin trên trang này sẽ không được lưu."
+              visible={isVisibleModalWarning}
+            />
+          }
+        </Form>
+      </ContentContainer>
+    </StyledWrapper>
+  );
+};
+
+export default CreateInventoryAdjustment;
