@@ -8,7 +8,7 @@ import { ListDiscountResponse } from "../../../model/response/promotion/discount
 
 export const searchPromotionCodeList = (query: BaseQuery): Promise<BaseResponse<PageResponse<ListDiscountResponse>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rules?type=AUTOMATIC&page=1&limit=30`);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rules?type=MANUAL&page=1&limit=30`);
 };
 
 export const searchListDiscountCode = (query: BaseQuery): Promise<BaseResponse<PageResponse<ListDiscountResponse>>> => {

@@ -281,7 +281,7 @@ const PromotionCode = () => {
         <>
           <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`}>
             <Button
-              className="light"
+              className="ant-btn-outline ant-btn-primary"
               size="large"
               icon={<PlusOutlined />}
             >
