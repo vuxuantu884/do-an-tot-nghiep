@@ -292,7 +292,7 @@ function OrderSources() {
     handleNavigateByQueryParams(resultParams);
   };
 
-  const handleFormatFormValues = (formValues: OrderSourceModel) => {
+  const handleFormatFormValues = (formValues: OrderSourceModel):OrderSourceModel => {
     return {
       ...formValues,
       code: formValues.code.toUpperCase(),
