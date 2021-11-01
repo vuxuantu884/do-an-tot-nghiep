@@ -89,7 +89,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     listSource,
     listCustomerCategories,
     // tableLoading,
-    // onMenuClick,
+    onMenuClick,
     onFilter,
   } = props;
 
@@ -129,9 +129,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setVisible(false);
   }, [])
 
-  // const onActionClick = useCallback((index) => {
-  //   onMenuClick && onMenuClick(index);
-  // }, [onMenuClick])
+  const onActionClick = useCallback((index) => {
+    onMenuClick && onMenuClick(index);
+  }, [onMenuClick])
 
   const onClearFilterClick = useCallback(() => {
     formAvd.resetFields();
@@ -151,7 +151,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   return (
     <StyledComponent>
       <div className="discount-filter">
-        <CustomFilter menu={actions}>
+        <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} initialValues={params} layout="inline">
             <Item name="query" className="search">
               <Input
