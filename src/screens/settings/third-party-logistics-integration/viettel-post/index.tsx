@@ -76,7 +76,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleSubmit = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       const formComponentValue = form.getFieldsValue();
       let transport_types = listServices.map((single) => {
         return {
@@ -93,9 +93,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
-        token: "",
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+        token: form.getFieldValue("token"),
+        username: "",
+        password: "",
         transport_types,
       };
       console.log("formValueFormatted", formValueFormatted);
@@ -104,11 +104,10 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       const params: updateConfigReQuestModel = {
         external_service_code,
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+        token: form.getFieldValue("token"), 
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
@@ -121,7 +120,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleCancelConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       setConfirmSubTitle(
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
@@ -158,9 +157,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     const params: deleteDeliveryMappedStoreReQuestModel = {
       partner_shop_id: store?.partner_shop_id,
       store_id: store.store_id,
-      token: "",
-      username: form.getFieldValue("username"),
-      password: form.getFieldValue("password"),
+      token: form.getFieldValue("token"),
+      username: "",
+      password: "",
     };
     if (thirdPartyLogistics?.code && store) {
       dispatch(
@@ -182,11 +181,11 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     partnerShopId: string | undefined
   ) => {
     if (!shopId) {
-      showError("Vui lòng chọn cửa hàng");
+      showError("Vui lòng chọn cửa hàng!");
       return;
     }
     if (!partnerShopId) {
-      showError("Vui lòng điền Shop ID");
+      showError("Vui lòng điền Shop ID!");
       const inputElement = document.getElementsByClassName(
         "inputStoreId"
       )[0] as HTMLInputElement;
@@ -195,7 +194,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
       }
       return;
     }
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       if (shopId && partnerShopId) {
         const shopSelected = listShops.find((single) => {
           return single.id === +shopId;
@@ -205,9 +204,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         }
         const shopName = shopSelected.name;
         const params: createDeliveryMappedStoreReQuestModel = {
-          token: "",
-          username: form.getFieldValue("username"),
-          password: form.getFieldValue("password"),
+          token: form.getFieldValue("token"),
+          username: "",
+          password: "",
           store_id: +shopId,
           store_name: shopName,
           partner_shop_id: +partnerShopId,
@@ -290,34 +289,18 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           <Row gutter={20}>
             <Col span={12}>
               <Form.Item
-                name="username"
-                label="Username"
+                name="token"
+                label="Token API: "
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập username!",
+                    message: "Vui lòng nhập token!",
                   },
                 ]}
               >
                 <Input
                   type="text"
-                  placeholder="Nhập username"
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                label="Password: "
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Password!",
-                  },
-                ]}
-              >
-                <Input
-                  type="password"
-                  placeholder="Nhập Password"
+                  placeholder="Nhập token API"
                   style={{ width: "100%" }}
                 />
               </Form.Item>
@@ -413,7 +396,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                               className="single"
                               onClick={() => {
                                 form
-                                  .validateFields(["username", "password"])
+                                  .validateFields(["token"])
                                   .then(() => {
                                     setConfirmSubTitle(
                                       <React.Fragment>

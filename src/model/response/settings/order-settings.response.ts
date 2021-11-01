@@ -48,7 +48,7 @@ export interface ShippingServiceConfigDetailResponseModel {
       city_id: number;
     }
   ];
-  external_service_transport_types: [
+  transport_types: [
     {
       id: number;
       code: string;
