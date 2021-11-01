@@ -157,9 +157,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     const params: deleteDeliveryMappedStoreReQuestModel = {
       partner_shop_id: store?.partner_shop_id,
       store_id: store.store_id,
-      token: "",
-      username: form.getFieldValue("username"),
-      password: form.getFieldValue("password"),
+      token: form.getFieldValue("token"),
+      username: "",
+      password: "",
     };
     if (thirdPartyLogistics?.code && store) {
       dispatch(
@@ -181,11 +181,11 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     partnerShopId: string | undefined
   ) => {
     if (!shopId) {
-      showError("Vui lòng chọn cửa hàng");
+      showError("Vui lòng chọn cửa hàng!");
       return;
     }
     if (!partnerShopId) {
-      showError("Vui lòng điền Shop ID");
+      showError("Vui lòng điền Shop ID!");
       const inputElement = document.getElementsByClassName(
         "inputStoreId"
       )[0] as HTMLInputElement;
