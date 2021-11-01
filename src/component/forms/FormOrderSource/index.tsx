@@ -124,7 +124,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                   },
                 }),
                 {min: 4, message: "Nhập ít nhất 4 ý tự!"},
-                {max: 4, message: "Nhập nhiều nhất 15 ký tự!"},
+                {max: 15, message: "Nhập nhiều nhất 15 ký tự!"},
               ]}
             >
               <Input
