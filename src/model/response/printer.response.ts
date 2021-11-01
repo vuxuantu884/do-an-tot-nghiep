@@ -56,3 +56,9 @@ export type PrintFormByOrderIdsResponseModel = {
   order_id: number;
   size: string;
 }[];
+
+export interface PrinterResponse {
+  html_content: string;
+  id: number;
+  size: string;
+}

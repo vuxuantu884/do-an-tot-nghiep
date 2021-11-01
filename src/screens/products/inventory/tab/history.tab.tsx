@@ -10,7 +10,7 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { getQueryParams } from "utils/useQuery";
 import HistoryInventoryFilter from "../filter/history.filter";
 import { TabProps } from "./tab.props";
 
@@ -24,7 +24,7 @@ enum DocumentType {
 const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
   const { stores } = props;
   const history = useHistory();
-  const query = useQuery();
+  const query = new URLSearchParams(history.location.hash.substring(2));
   const dispatch = useDispatch();
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
