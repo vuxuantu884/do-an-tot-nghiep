@@ -73,7 +73,6 @@ type UpdateShipmentCardProps = {
   setShippingFeeInformedCustomer: (value: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setShipmentMethod: (value: number) => void;
-  setPaymentType: (value: number) => void;
   setVisibleShipping: (value: boolean) => void;
   setOfficeTime: (value: boolean) => void;
   onReload?: () => void;
@@ -85,7 +84,6 @@ type UpdateShipmentCardProps = {
   officeTime: boolean | undefined;
   shipmentMethod: number;
   isVisibleShipping: boolean | null;
-  paymentType: number | null;
   customerDetail: CustomerResponse | null;
   OrderDetailAllFullfilment: OrderResponse | null;
   orderSettings?: OrderSettingsModel;
@@ -97,11 +95,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 ) => {
   // props destructuring
   const {
-    // paymentType,
     isVisibleShipping,
     shipmentMethod,
     setVisibleShipping,
-    setPaymentType,
     setShipmentMethod,
     onReload,
     disabledActions,

@@ -39,7 +39,7 @@ import {
   getAmountPayment,
   SumCOD,
 } from "utils/AppUtils";
-import {FulFillmentStatus, OrderStatus, PaymentMethodCode} from "utils/Constants";
+import {FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showSuccess} from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -78,7 +78,7 @@ const OrderDetail = (props: PropType) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  const [paymentType, setPaymentType] = useState<number>(3);
+  const [paymentMethod, setPaymentMethod] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
@@ -113,19 +113,17 @@ const OrderDetail = (props: PropType) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-
-  const [hvc, setHvc] = useState<number | null>(null);
-  const [serviceType3PL, setServiceType3PL] = useState<string>();
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusId, setSubStatusId] = useState<number | undefined>(undefined);
 
-  const onPaymentSelect = (paymentType: number) => {
-    if (paymentType === 1) {
+  const onPaymentSelect = (paymentMethod: number) => {
+    if (paymentMethod === 1) {
       setVisibleShipping(true);
     }
-    setPaymentType(paymentType);
+    setPaymentMethod(paymentMethod);
   };
 
   const onUpdateSuccess = useCallback((value: OrderResponse) => {
@@ -308,7 +306,7 @@ const OrderDetail = (props: PropType) => {
 
   const handleCancelOrder = useCallback(
     (id: any) => {
-      dispatch(cancelOrderRequest(id, onSuccessCancel, onError));
+      // dispatch(cancelOrderRequest(id, onSuccessCancel, onError));
       // dispatch(cancelOrderRequest(id));
     },
     [dispatch]
@@ -460,7 +458,7 @@ const OrderDetail = (props: PropType) => {
     setReload(false);
     setVisibleShipping(false);
     setShowPaymentPartialPayment(false);
-    setPaymentType(2);
+    setPaymentMethod(2);
   }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
 
   useLayoutEffect(() => {
@@ -576,6 +574,18 @@ const OrderDetail = (props: PropType) => {
     },
   };
 
+  const onSelectShipment = (value: number) => {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
+    setShipmentMethod(value);
+  };
+
   const renderShipment = () => {
     if (true) {
       return (
@@ -589,7 +599,7 @@ const OrderDetail = (props: PropType) => {
             isCancelValidateDelivery={false}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
             setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
-            onSelectShipment={setShipmentMethod}
+            onSelectShipment={onSelectShipment}
             thirdPL={undefined}
             setThirdPL={() => {}}
             form={form}
@@ -853,7 +863,7 @@ const OrderDetail = (props: PropType) => {
                                       setPayments={onPayments}
                                       setTotalPaid={setTotalPaid}
                                       orderDetail={OrderDetail}
-                                      paymentMethod={paymentType}
+                                      paymentMethod={paymentMethod}
                                       shipmentMethod={shipmentMethod}
                                       order_id={OrderDetail.id}
                                       showPartialPayment={true}
@@ -1124,7 +1134,7 @@ const OrderDetail = (props: PropType) => {
                     <UpdatePaymentCard
                       setSelectedPaymentMethod={onPaymentSelect}
                       setPayments={onPayments}
-                      paymentMethod={paymentType}
+                      paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
                       amount={OrderDetail.total + shippingFeeInformedCustomer}
                       order_id={OrderDetail.id}
@@ -1152,7 +1162,6 @@ const OrderDetail = (props: PropType) => {
                   setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
                   setVisibleUpdatePayment={setVisibleUpdatePayment}
                   setShipmentMethod={setShipmentMethod}
-                  setPaymentType={setPaymentType}
                   setOfficeTime={setOfficeTime}
                   setVisibleShipping={setVisibleShipping}
                   OrderDetail={OrderDetail}
@@ -1162,14 +1171,13 @@ const OrderDetail = (props: PropType) => {
                   totalPaid={
                     OrderDetail?.total_paid
                       ? OrderDetail?.total_paid
-                      : paymentType === 2
+                      : paymentMethod === 2
                       ? totalPaid
                       : 0
                   }
                   officeTime={officeTime}
                   shipmentMethod={shipmentMethod}
                   isVisibleShipping={isVisibleShipping}
-                  paymentType={paymentType}
                   OrderDetailAllFullfilment={OrderDetailAllFullfilment}
                   orderSettings={orderSettings}
                   onReload={() => setReload(true)}
