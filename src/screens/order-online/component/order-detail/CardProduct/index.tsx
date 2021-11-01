@@ -254,7 +254,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       if (event.key !== "Enter") {
           barcode = barcode + event.key;
       } else if (event.key === "Enter") {
-          if (barcode !== "" && event && items && storeId) {
+          if (barcode !== "" && event && items) {
               console.log(barcode);
               dispatch(
                 SearchBarCode(barcode, (data: VariantResponse) => {

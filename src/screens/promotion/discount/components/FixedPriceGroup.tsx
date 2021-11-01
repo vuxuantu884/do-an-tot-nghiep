@@ -1,5 +1,5 @@
-import React, {createRef, useCallback, useMemo, useState} from "react";
-import {Button, Col, Empty, Form, Input, Row, Space, Table, Tooltip} from "antd";
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import {Button, Col, Empty, Form, Input, InputNumber, Row, Select, Space, Table, Tooltip} from "antd";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import {searchVariantsRequestAction} from "../../../../domain/actions/product/products.action";
@@ -17,6 +17,18 @@ import {Products} from "../../../../utils/AppUtils";
 import {AiOutlineClose, AiOutlineDelete} from "react-icons/ai";
 import {DeleteOutlined} from "@ant-design/icons";
 
+const Option = Select.Option;
+const discountTypes = [
+  {
+    value: "FIXED_AMOUNT",
+    name: "đ"
+  },
+  {
+    value: "PERCENTAGE",
+    name: "%"
+  }
+]
+
 const FixedPriceGroup = (props: any) => {
   const {
     key,
@@ -24,16 +36,18 @@ const FixedPriceGroup = (props: any) => {
     fieldKey,
     form,
     remove,
-    discountType,
     isFirst,
-    allProducts
+    allProducts,
+    discountMethod
   } = props;
   const dispatch = useDispatch();
 
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<VariantResponse>>([])
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [discountType, setDiscountType] = useState("FIXED_AMOUNT")
   const productSearchRef = createRef<CustomAutoComplete>();
+
   const onResultSearch = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
       if (!result) {
@@ -66,7 +80,18 @@ const FixedPriceGroup = (props: any) => {
     [dispatch, onResultSearch]
   );
 
+  useEffect(() => {
+    let entitlementFields = form.getFieldValue('entitlements')
+    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)})
+    form.setFieldsValue({entitlements: entitlementFields})
+  }, [selectedProduct])
 
+  useEffect(() => {
+    let entitlementFields = form.getFieldValue('entitlements')
+    entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
+    console.log('discountType: ', discountType)
+    form.setFieldsValue({entitlements: entitlementFields})
+  }, [discountType])
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -94,6 +119,7 @@ const FixedPriceGroup = (props: any) => {
     (items: Array<VariantResponse>) => {
       if (items.length) {
         setSelectedProduct([...selectedProduct, ...items])
+        form.setFieldsValue({[`${name}.entitled_variant_ids`]: selectedProduct.map(p => p.id)})
       }
       setVisibleManyProduct(false);
     },
@@ -103,6 +129,7 @@ const FixedPriceGroup = (props: any) => {
   const onDeleteItem = useCallback(
     (index: number) => {
       selectedProduct.splice(index, 1)
+      setSelectedProduct([...selectedProduct])
     },
     [selectedProduct]
   );
@@ -112,7 +139,7 @@ const FixedPriceGroup = (props: any) => {
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
-            name={[name, "min"]}
+            name={[name, "prerequisite_quantity_ranges.greater_than_or_equal_to"]}
             label={<Space>
               <span>SL tối thiểu</span>
               <Tooltip title={"Số lượng tối thiểu cho sản phẩm để được áp dụng khuyến mại"}>
@@ -125,7 +152,7 @@ const FixedPriceGroup = (props: any) => {
         </Col>
         <Col span={7}>
           <Form.Item
-            name={[name, "usage"]}
+            name={[name, "prerequisite_quantity_ranges.allocation_limit"]}
             label={<Space>
               <span>Giới hạn</span>
               <Tooltip title={"Tổng số lượng sản phẩm áp dụng khuyến mại. Mặc định không điền là không giới hạn." +
@@ -138,19 +165,29 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Form.Item
-            name={[name, "value"]}
-            label="Giá cố định: "
-          >
-            <CurrencyInput
-              key={`${key}-value`}
-              position="after"
-              currency={["đ"]}
-              // value={rule.limit_order_percent}
-              // onChangeCurrencyType={(value) => handleChangePointUseType(value, index)}
-              // onChange={(value) => handleChangePointUse(value, index)}
-            />
-          </Form.Item>
+            <Input.Group compact>
+              <Form.Item
+                name={[name, "prerequisite_quantity_ranges.value"]}
+                label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
+              >
+                <NumberInput
+                  style={{ textAlign: 'end', borderRadius: '0px', width: "300px" }}
+                  min={0}
+                  maxLength={discountType==='PERCENTAGE' ? 2 : 9}
+                />
+              </Form.Item>
+              <Form.Item
+                name={[name, "prerequisite_quantity_ranges.value_type"]}
+                label=" "
+              >
+                <Select style={{ borderRadius: '0px' }}  onSelect={(value: string) => {
+                  setDiscountType(value)
+                }}>
+                  <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
+                  {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
+                </Select>
+              </Form.Item>
+            </Input.Group>
         </Col>
       </Row>
       {allProducts ? "" : <div>
@@ -182,21 +219,6 @@ const FixedPriceGroup = (props: any) => {
             rowKey={(record) => record.id}
             rowClassName="product-table-row"
             columns={[
-              {
-                title: "Ảnh",
-                width: "7%",
-                dataIndex: "variant_images",
-                render: (value) => {
-                  const image = Products.findAvatar(value);
-                  return (<div className="product-item-image">
-                    <img
-                      src={image ? image.url : imgDefIcon}
-                      alt={JSON.stringify(value)}
-                      className=""
-                    />
-                  </div>)
-                },
-              },
               {
                 title: "Sản phẩm",
                 className: "ant-col-info",

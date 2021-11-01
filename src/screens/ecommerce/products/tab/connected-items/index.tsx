@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   Button,
   Form,
@@ -312,12 +313,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     {
       title: "Sản phẩm (Yody)",
       visible: true,
-      render: (l: any, v: any, i: any) => {
-        const link = `${UrlConfig.PRODUCT}/${l.core_product_id}/variants/${l.core_variant_id}`
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductLink>
-            <a href={link} rel="noreferrer" target="_blank">{l.core_variant}</a>
-            <div>{l.core_sku}</div>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+            >
+              {item.core_variant}
+            </Link>
+            <div>{item.core_sku}</div>
           </StyledProductLink>
         );
       },

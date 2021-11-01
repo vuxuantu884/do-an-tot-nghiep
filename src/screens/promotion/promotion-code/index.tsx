@@ -94,14 +94,14 @@ const PromotionCode = () => {
       name: "Xoá",
     },
   ];
-  
+
   const initQuery: any = {
     request: "",
     status: ""
   };
   const dispatch = useDispatch();
   const query = useQuery();
-  
+
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
     metadata: {
@@ -116,23 +116,23 @@ const PromotionCode = () => {
     ...getQueryParams(query)
   }
   const [params, setParams] = useState<any>(dataQuery);
-  
+
   const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
     setData(data)
     setTableLoading(false)
   }, [])
-  
+
   useEffect(() => {
     dispatch(getListPromotionCode(params, fetchData));
   }, [dispatch, fetchData, params]);
-  
+
   const onPageChange = useCallback(
     (page, limit) => {
       setParams({ ...params, page, limit });
     },
     [params]
   );
-  
+
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
     console.log("newParams", newParams);

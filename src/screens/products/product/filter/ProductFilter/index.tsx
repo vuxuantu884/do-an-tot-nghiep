@@ -158,6 +158,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           listStatus={listStatus}
           resetField={resetField}
           listMerchandisers={listMerchandisers}
+          listBrands={listBrands}
         />
         <BaseFilter
           onClearFilter={onClearFilterClick}
@@ -320,6 +321,7 @@ const FilterList = ({
   listCountries,
   listSize,
   listMerchandisers,
+  listBrands,
 }: any) => {
   let filtersKeys = Object.keys(filters);
   let renderTxt: any = null;
@@ -381,6 +383,13 @@ const FilterList = ({
               (item: AccountResponse) => item.code === value
             );
             renderTxt = `${SearchVariantMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
+            break;
+          case SearchVariantField.brand:
+            let index6 = listBrands.findIndex((item: BaseBootstrapResponse) => item.value === value);
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${listBrands[index6].name}`;
+            break;
+          case SearchVariantField.inventory:
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${value.join(" - ")}`;
             break;
         }
         return (

@@ -2,16 +2,17 @@ import React, {useCallback, useEffect, useState} from "react";
 import "./discount.scss";
 import UrlConfig from "../../../config/url.config";
 import ContentContainer from "../../../component/container/content.container";
-import {Button, Card} from "antd";
+import {Button, Card, Col, Dropdown, Menu, Modal, Row} from "antd";
 import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
 import {PageResponse} from "../../../model/base/base-metadata.response";
-import {ListDiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
+import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
 import {Link} from "react-router-dom";
 import {getListDiscount} from "../../../domain/actions/promotion/discount/discount.action";
+import {deletePriceRuleById} from "../../../service/promotion/discount/discount.service"
 import {useDispatch} from "react-redux";
 import moment from "moment";
 import {DATE_FORMAT} from "../../../utils/DateUtils";
-import {PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
 import {MenuAction} from "../../../component/table/ActionButton";
 import {DiscountSearchQuery} from "../../../model/query/discount.query";
 import DiscountFilter from "./components/DiscountFilter";
@@ -22,6 +23,10 @@ import {SourceResponse} from "../../../model/response/order/source.response";
 import {getListSourceRequest} from "../../../domain/actions/product/source.action";
 import {actionFetchListCustomerGroup} from "../../../domain/actions/customer/customer.action";
 import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/response/customer/customer-group.response";
+import {DiscountType} from "../../../domain/types/promotion.type";
+import {showError, showSuccess} from "../../../utils/ToastUtils";
+
+const { confirm } = Modal;
 
 const DiscountPage = () => {
   const discountStatuses = [
@@ -91,6 +96,7 @@ const DiscountPage = () => {
     },
   ];
   const initQuery: DiscountSearchQuery = {
+    type: "AUTOMATIC",
     request: "",
     from_created_date: "",
     to_created_date: "",
@@ -102,9 +108,9 @@ const DiscountPage = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
-  
+
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [discounts, setDiscounts] = useState<PageResponse<ListDiscountResponse>>({
+  const [discounts, setDiscounts] = useState<PageResponse<DiscountResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -120,12 +126,12 @@ const DiscountPage = () => {
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [customerGroups, setCustomerGroups] = useState<Array<CustomerGroupModel>>([]);
-  
-  const fetchData = useCallback((data: PageResponse<ListDiscountResponse>) => {
+
+  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setDiscounts(data)
     setTableLoading(false)
   }, [])
-  
+
   useEffect(() => {
     dispatch(getListDiscount(params, fetchData));
     dispatch(StoreGetListAction(setStore));
@@ -133,8 +139,42 @@ const DiscountPage = () => {
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
-  }, [dispatch, fetchData, params]);
-  
+  }, []);
+
+  useEffect(() => {
+    dispatch(getListDiscount(params, fetchData));
+  }, [dispatch, fetchData, params])
+
+  const deletePriceRuleByIdSuccess = useCallback(() => {
+    console.log('deletePriceRuleByIdSuccess ');
+    dispatch(getListDiscount(params, fetchData));
+    showSuccess('Thao tác thành công')
+  }, [dispatch])
+
+
+  const showConfirmDelete = useCallback((item: DiscountResponse) => {
+    confirm({
+      title: 'Bạn có chắc muốn xoá chương trình?',
+      icon: <DeleteOutlined  />,
+      content: 'Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá.',
+      okText: 'Đồng ý',
+      okType: 'danger',
+      cancelText: 'Huỷ',
+      onOk: async () => {
+        const deleteResponse = await deletePriceRuleById(item.id);
+        if (deleteResponse.code === 20000000) {
+          showSuccess('Thao tác thành công');
+          dispatch(getListDiscount(params, fetchData));
+        } else {
+          showError(`${deleteResponse.code} - ${deleteResponse.message}`)
+        }
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  }, [])
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
@@ -153,7 +193,30 @@ const DiscountPage = () => {
       title: "Tên chương trình",
       visible: true,
       fixed: "left",
-      dataIndex: "name"
+      dataIndex: "title"
+    },
+    {
+      title: "Ưu tiên",
+      visible: true,
+      dataIndex: "priority",
+      align: 'center',
+      render: (value: any) => (
+        <Row justify="center">
+          <Col>
+            <div
+              style={{
+                background: "rgba(42, 42, 134, 0.1)",
+                borderRadius: "5px",
+                color: "#2A2A86",
+                padding: "5px 10px",
+                width: "fit-content"
+              }}
+            >
+              {value}
+            </div>
+          </Col>
+        </Row>)
+
     },
     {
       title: "Thời gian",
@@ -161,7 +224,7 @@ const DiscountPage = () => {
       fixed: "left",
       align: 'center',
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.start_time && moment(item.start_time).format(DATE_FORMAT.DDMMYYY)} - ${item.end_time && moment(item.end_time).format(DATE_FORMAT.DDMMYYY)}`}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : "∞" }`}</div>,
     },
     {
       title: "Người tạo",
@@ -186,21 +249,34 @@ const DiscountPage = () => {
         </div>)
       }
     },
+    {
+      visible: true,
+      fixed: "left",
+      dataIndex: 'status',
+      align: 'center',
+      width: '12%',
+      render: (value: any, item: any, index: number) => <Dropdown.Button overlay={(
+        <Menu>
+          <Menu.Item icon={<EditOutlined />}>Chỉnh sửa</Menu.Item>
+          <Menu.Item style={{color: "#E24343"}} icon={<DeleteOutlined />} onClick={() => showConfirmDelete(item)}>Xoá</Menu.Item>
+        </Menu>
+      )} />
+    },
   ]
-  
+
   const onPageChange = useCallback(
     (page, limit) => {
       setParams({ ...params, page, limit });
     },
     [params]
   );
-  
+
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
     setParams({...newParams})
   }, [params])
-  
-  
+
+
   return (
     <ContentContainer
       title="Chiết khấu"

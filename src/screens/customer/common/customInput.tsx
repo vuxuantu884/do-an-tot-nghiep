@@ -11,13 +11,14 @@ function CustomInput(props: any) {
     maxLength,
     isRequired,
     disabled,
-    type
+    type,
+    upperCase,
   } = props;
 
   const [value, setValue] = useState<string>("");
 
   const handleChange = useCallback((v: any) => {
-    setValue(v);
+    setValue(upperCase ? v.toUpperCase() : v);
   }, []);
 
   const handleBlur = (v: any) => {

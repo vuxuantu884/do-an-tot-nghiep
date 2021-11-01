@@ -1,6 +1,6 @@
 import React, { useState, useMemo, createRef } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
 import {
   Button,
@@ -369,11 +369,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       return options;
     }, [resultSearchVariant]);
 
-    const gotoProductDetail = () => {
-      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`
-      window.open(link, "_blank");
-    };
-
     return (
       <StyledYodyProductColumn>
         {(!productSelected || !productSelected.id) && (
@@ -410,8 +405,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <ul>
               <li>
                 <b>Tên sản phẩm: </b>
-                <span onClick={gotoProductDetail} className="link">
-                  {productSelected.core_variant}
+                <span>
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`}
+                  >
+                    {productSelected.core_variant}
+                  </Link>
                 </span>
               </li>
 

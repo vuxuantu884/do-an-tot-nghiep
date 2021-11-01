@@ -563,8 +563,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   className="customer-detail-text text-body primary"
                   style={{ color: "#5656A2" }}
                   href={`tel:${customer?.phone === undefined
-                      ? "0987654321"
-                      : customer?.phone
+                    ? "0987654321"
+                    : customer?.phone
                     }`}
                 >
                   {" "}

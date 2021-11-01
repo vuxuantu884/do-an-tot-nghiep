@@ -71,7 +71,7 @@ export type StoreStatus = {
   limit?: number;
   page?: number;
   info?: string;
-  store_id?: number;
+  store_ids?: number;
 };
 
 export type FileParam = {

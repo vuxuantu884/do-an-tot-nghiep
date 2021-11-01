@@ -1,3 +1,4 @@
+import { EyeInvisibleOutlined, EyeTwoTone, PlusOutlined } from "@ant-design/icons";
 import {
   Affix,
   Button,
@@ -13,50 +14,44 @@ import {
   Select,
   Space,
   Switch,
-  Table,
+  Table
 } from "antd";
+import deleteIcon from "assets/icon/delete.svg";
+import ContentContainer from "component/container/content.container";
+import CustomDatepicker from "component/custom/date-picker.custom";
+import UrlConfig from "config/url.config";
+import {
+  AccountGetByIdtAction, AccountUpdateAction, DepartmentGetListAction,
+  PositionGetListAction
+} from "domain/actions/account/account.action";
+import { RoleGetListAction } from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction,
+  DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
-import {CityView} from "model/content/district.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {
-  AccountGetByIdtAction,
-  DepartmentGetListAction,
-  PositionGetListAction,
-  AccountUpdateAction,
-} from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   AccountJobReQuest,
   AccountJobResponse,
   AccountRequest,
-  AccountResponse,
-  AccountRolesResponse,
-  AccountStoreResponse,
-  AccountView,
+  AccountResponse, AccountStoreResponse,
+  AccountView
 } from "model/account/account.model";
-import {EyeInvisibleOutlined, EyeTwoTone, PlusOutlined} from "@ant-design/icons";
-import {CountryResponse} from "model/content/country.model";
-import {DistrictResponse} from "model/content/district.model";
-import {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router";
-import {convertDistrict} from "utils/AppUtils";
-import {StoreGetListAction} from "domain/actions/core/store.action";
-import {StoreResponse} from "model/core/store.model";
-import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
-import {RoleGetListAction} from "domain/actions/auth/role.action";
-import deleteIcon from "assets/icon/delete.svg";
+import { DepartmentResponse } from "model/account/department.model";
+import { PositionResponse } from "model/account/position.model";
+import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
+import { CountryResponse } from "model/content/country.model";
+import { CityView, DistrictResponse } from "model/content/district.model";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
-import {DepartmentResponse} from "model/account/department.model";
-import {PositionResponse} from "model/account/position.model";
-import {useParams} from "react-router-dom";
-import UrlConfig from "config/url.config";
-import ContentContainer from "component/container/content.container";
-import CustomDatepicker from "component/custom/date-picker.custom";
-import {PASSWORD_RULES} from "./account.rules";
-import {RuleObject} from "rc-field-form/lib/interface";
+import { RuleObject } from "rc-field-form/lib/interface";
+import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { useParams } from "react-router-dom";
+import { convertDistrict } from "utils/AppUtils";
+import { PASSWORD_RULES } from "./account.rules";
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -85,8 +80,7 @@ const AccountUpdateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
 
-  const listStoreRoot = useRef<Array<AccountStoreResponse>>();
-  const listRolesRoot = useRef<Array<AccountRolesResponse>>();
+  const listStoreRoot = useRef<Array<AccountStoreResponse>>(); 
   const idNumber = useRef<number>(0);
 
   //State
@@ -175,8 +169,7 @@ const AccountUpdateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-      let accStores: Array<AccountStoreResponse> = [];
-      let accRoles: Array<AccountRolesResponse> = [];
+      let accStores: Array<AccountStoreResponse> = []; 
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
       values.account_stores.forEach((el: number) => {
@@ -186,13 +179,7 @@ const AccountUpdateScreen: React.FC = () => {
           id: checkSote?.id,
         });
       });
-      values.roles.forEach((el: number) => {
-        let checkRole = listRolesRoot.current?.find((rr) => rr.role_id === el);
-        accRoles.push({
-          role_id: el,
-          id: checkRole?.id,
-        });
-      });
+     
       listAccountSelected.forEach((el: AccountJobReQuest) => {
         accJobs.push({
           department_id: el.department_id,
@@ -208,7 +195,7 @@ const AccountUpdateScreen: React.FC = () => {
         birthday: values.birthday,
         account_stores: [...accStores],
         mobile: values.mobile,
-        roles: [...accRoles],
+        role_id: values.role_id,
         status: values.status,
         address: values.address,
         country_id: values.country_id,
@@ -227,18 +214,18 @@ const AccountUpdateScreen: React.FC = () => {
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
     listStoreRoot.current = data.account_stores;
-    listRolesRoot.current = data.account_roles;
+    // listRolesRoot.current = data.account_roles;
     data.account_stores?.forEach((item) => {
       if (item.store_id) {
         storeIds.push(item.store_id);
       }
     });
-    let roleIds: Array<number> = [];
-    data.account_roles?.forEach((item) => {
-      if (item.role_id) {
-        roleIds.push(item.role_id);
-      }
-    });
+    // let roleIds: Array<number> = [];
+    // data.account_roles?.forEach((item) => {
+    //   if (item.role_id) {
+    //     roleIds.push(item.role_id);
+    //   }
+    // });
     let jobs: Array<AccountJobReQuest> = [];
     data.account_jobs?.forEach((item, index) => {
       jobs.push({
@@ -262,7 +249,7 @@ const AccountUpdateScreen: React.FC = () => {
       district_id: data.district_id,
       city_id: data.city_id,
       account_stores: storeIds,
-      roles: roleIds,
+      role_id: 0, 
       status: data.status,
       version: data.version,
     };
@@ -598,7 +585,7 @@ const AccountUpdateScreen: React.FC = () => {
                     className="selector"
                     allowClear
                     showArrow
-                    mode="multiple"
+                    
                     optionFilterProp="children"
                     maxTagCount="responsive"
                   >
