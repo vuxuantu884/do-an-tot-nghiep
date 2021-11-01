@@ -12,5 +12,5 @@ export const RegUtil = {
   SUFIX_POINT: /(\d)(?=(\d{3})+(?!\d))/g,
   PHONE: /^[0-9\\+]([0-9]{8,14})$/,
   WEBSITE_URL_2: /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\\.-]+)+[\w\-\\._~:/?#[\]@!\\$&'\\(\\)\\*\\+,;=.]+$/gm,
-  ONLY_STRING: /^[A-Z\b]+$/,
+  ONLY_STRING: /^[a-zA-Z\b]+$/,
 }

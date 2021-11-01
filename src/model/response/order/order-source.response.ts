@@ -10,6 +10,7 @@ export interface OrderSourceModel {
   is_active: boolean;
   id: number;
   is_default: boolean;
+  code: string;
 }
 
 export interface OrderSourceResponseModel {
