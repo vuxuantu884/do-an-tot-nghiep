@@ -42,11 +42,12 @@ function FpageCRM() {
   const [customer, setCustomer] = React.useState<CustomerResponse | null>();
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [userId] = React.useState<string | null>(queryString?.get("userId"));
+  const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
+  const [pageId] = React.useState<string | null>(queryString?.get("pageId"));
   const [fpageCustomerInfo, setFpageCustomerInfo] =
     React.useState<FpageCustomerResponse | null>();
 
   const [customerPhone, setCustomerPhone] = React.useState<string | null>("");
-  const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [customerPhones, setCustomerPhones] = React.useState<Array<string>>([]);
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel> | undefined>(
     []
@@ -197,6 +198,8 @@ function FpageCRM() {
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>} forceRender={!isClearOrderTab}>
           <FpageOrders
+            fbId={userId}
+            pageId={pageId}
             customer={customer}
             setCustomer={setCustomer}
             setActiveTabKey={setActiveTabKey}
