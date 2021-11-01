@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
 import { Col, Input, Row, Space, Table } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -22,11 +22,27 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (props: p
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
+  const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
+    [] as Array<LineItemAdjustment>
+  );
+  const [keySearch, setKeySearch] = useState<string | any>("");
   const dispatch = useDispatch();
 
   const {
     data,
   } = props;
+
+  const onEnterFilterVariant = useCallback(() => {
+    let dataSearch = [...dataTable.filter((e: LineItemAdjustment) => {
+      return e.on_hand === parseInt(keySearch)
+        || e.variant_name?.includes(keySearch)
+        || e.sku?.includes(keySearch)
+        || e.code?.includes(keySearch)
+        || e.barcode?.includes(keySearch)
+    })];
+
+    setSearchVariant(dataSearch);
+  }, [keySearch, dataTable]);
 
   const onChangeReason = (value: string | null, index: number) => {
     const dataTableClone = _.cloneDeep(dataTable);
@@ -159,12 +175,20 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (props: p
         <Col span={16}>
           <Input.Group className="display-flex">
             <Input
+               onBlur={() => {
+                onEnterFilterVariant()
+              }}
+              onChange={(e) => {
+                setKeySearch(e.target.value);
+              }}
               onKeyPress={event => {
                 if (event.key === 'Enter') {
+                  event.preventDefault();
+                  onEnterFilterVariant()
                 }
               }}
               style={{ marginLeft: 8 }}
-              placeholder="Tìm kiếm sản phẩm trong phiếu"
+              placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm)"
             />
           </Input.Group>
         </Col>
@@ -178,7 +202,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (props: p
         scroll={{ y: 300 }}
         pagination={false}
         columns={columns}
-        dataSource={dataTable}
+        dataSource={(searchVariant && (searchVariant.length > 0 || (keySearch !== ""))) ? searchVariant : dataTable}
         summary={() => {
           let totalExcess = 0, totalMiss = 0,
             totalQuantity = 0, totalReal = 0;

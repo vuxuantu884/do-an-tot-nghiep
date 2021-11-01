@@ -691,7 +691,7 @@ const CreateInventoryAdjustment: FC = () => {
                         }
                       }}
                       style={{ marginLeft: 8 }}
-                      placeholder="Tìm kiếm sản phẩm trong phiếu (nhập thông tin enter)"
+                      placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm)"
                       prefix={<SearchOutlined color="#f1f1f1" />}
                     />
 
