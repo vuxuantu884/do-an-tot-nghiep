@@ -371,7 +371,7 @@ const DetailInvetoryAdjustment: FC = () => {
   useEffect(() => {
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
 
-  }, [idNumber, searchVariant, onResult, dispatch]);
+  }, [idNumber, onResult, dispatch]);
   return (
     <StyledWrapper>
       <ContentContainer
@@ -498,7 +498,7 @@ const DetailInvetoryAdjustment: FC = () => {
                             }
                           }}
                           style={{ marginLeft: 8 }}
-                          placeholder="Tìm kiếm sản phẩm trong phiếu (nhập thông tin enter)"
+                          placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm kiếm)"
                         />
                       </Input.Group>
                       <CustomTable
@@ -506,15 +506,7 @@ const DetailInvetoryAdjustment: FC = () => {
                         tableLayout="fixed"
                         style={{ paddingTop: 20 }}
                         scroll={{ y: 300 }}
-                        pagination={false}
-                        // pagination={{
-                        //   pageSize: 30,
-                        //   total: 0,
-                        //   current: 1,
-                        //   showSizeChanger: true,
-                        //   onChange: onPageChange,
-                        //   onShowSizeChange: onPageChange,
-                        // }}
+                        pagination={false} 
                         summary={() => {
                           let data = (searchVariant && (searchVariant.length > 0 || (keySearch !== ""))) ? [...searchVariant] : [...dataTable];
 
