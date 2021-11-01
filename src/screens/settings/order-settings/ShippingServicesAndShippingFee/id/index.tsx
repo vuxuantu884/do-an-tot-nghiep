@@ -37,7 +37,6 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
   useEffect(() => {
     dispatch(
       actionGetConfigurationShippingServiceAndShippingFeeDetail(+id, (response) => {
-        console.log("response", response);
         let valueConvertResponseToInitialFormValue: CreateShippingServiceConfigReQuestFormModel =
           {
             status: response.status,
@@ -54,7 +53,7 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
               };
             }),
             external_service_transport_type_ids:
-              response.external_service_transport_types.map((single) => {
+              response.transport_types.map((single) => {
                 return single.id;
               }),
             // response.external_service_transport_types.map((single) => {
