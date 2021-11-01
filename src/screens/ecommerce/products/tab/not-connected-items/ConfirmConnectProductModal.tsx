@@ -65,6 +65,8 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
       onCancel={onCancel}
       onOk={onOk}
       confirmLoading={isLoading}
+      cancelButtonProps={{ disabled: isLoading }}
+      closable={!isLoading}
       maskClosable={false}
     >
       <CustomTable

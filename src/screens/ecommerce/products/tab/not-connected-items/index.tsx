@@ -170,11 +170,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const [keySearchVariant, setKeySearchVariant] = useState("");
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
     const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
+    const [isSaving, setIsSaving] = useState(false);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
 
 
-    // handle save connect Yody product
+    // handle save single connected Yody product
     const saveConnectYodyProduct = () => {
       const newConnectItemList =
         copyConnectItemList &&
@@ -192,18 +193,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         ecommerce_correspond_to_core: 1,
       };
 
-      setProductSelected(null);
       updateConnectItemList(newConnectItemList);
       const request = {
         variants: [connectProductSelected],
       };
 
-      setIsLoading(true);
+      setIsSaving(true);
       dispatch(
         putConnectEcommerceItem(request, (result) => {
           setIsVisibleConfirmConnectModal(false);
-          setIsLoading(false);
+          setIsSaving(false);
           if (result) {
+            setProductSelected(null);
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
           } else {
@@ -436,11 +437,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <Button
                 type="primary"
                 onClick={handleSaveConnectYodyProduct}
+                loading={isSaving}
               >
                 Lưu
               </Button>
 
               <Button
+                disabled={isSaving}
                 onClick={() => cancelConnectYodyProduct(productSelected.id)}
               >
                 Hủy
@@ -452,7 +455,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         {isVisibleConfirmConnectModal &&
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectModal}
-            isLoading={isLoading}
+            isLoading={isSaving}
             dataSource={diffPriceProduct}
             okConfirmConnectModal={saveConnectYodyProduct}
             cancelConfirmConnectModal={cancelConfirmConnectModal}
