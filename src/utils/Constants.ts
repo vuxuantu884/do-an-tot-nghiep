@@ -102,7 +102,7 @@ export const ErrorGHTK = {
 export const POStatus = {
   //Nháp
   DRAFT: "draft",
-  //Đã xác nhận
+  //Đã xác nhận po
   FINALIZED: "finalized",
   // Đã hoàn thành
   COMPLETED: "completed",
