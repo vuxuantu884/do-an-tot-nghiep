@@ -18,3 +18,14 @@ export const deletePriceRuleById = (id: number): Promise<any> => {
 export const createPriceRule = (body: any) : Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules`, body);
 }
+export const bulkDeletePriceRules = (body: any) : Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules/bulk/delete`, body)
+}
+
+export const bulkEnablePriceRules = (body: any) : Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules/bulk/enable`, body)
+}
+
+export const bulkDisablePriceRules = (body: any) : Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules/bulk/disable`, body)
+}

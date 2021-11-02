@@ -8,7 +8,12 @@ import {PageResponse} from "../../../model/base/base-metadata.response";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
 import {Link} from "react-router-dom";
 import {getListDiscount} from "../../../domain/actions/promotion/discount/discount.action";
-import {deletePriceRuleById} from "../../../service/promotion/discount/discount.service"
+import {
+  bulkDeletePriceRules,
+  bulkDisablePriceRules,
+  bulkEnablePriceRules,
+  deletePriceRuleById
+} from "../../../service/promotion/discount/discount.service"
 import {useDispatch} from "react-redux";
 import moment from "moment";
 import {DATE_FORMAT} from "../../../utils/DateUtils";
@@ -23,10 +28,12 @@ import {SourceResponse} from "../../../model/response/order/source.response";
 import {getListSourceRequest} from "../../../domain/actions/product/source.action";
 import {actionFetchListCustomerGroup} from "../../../domain/actions/customer/customer.action";
 import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/response/customer/customer-group.response";
-import {DiscountType} from "../../../domain/types/promotion.type";
 import {showError, showSuccess} from "../../../utils/ToastUtils";
+import {showLoading} from "../../../domain/actions/loading.action";
+import {productWrapperDeleteAction} from "../../../domain/actions/product/products.action";
+import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 const DiscountPage = () => {
   const discountStatuses = [
@@ -48,16 +55,18 @@ const DiscountPage = () => {
         borderRadius: "100px",
         color: "#FCAF17",
         padding: "5px 10px"
-      }},
+      }
+    },
     {
       code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng' ,
+      value: 'Chờ áp dụng',
       style: {
         background: "rgb(245, 245, 245)",
         borderRadius: "100px",
         color: "rgb(102, 102, 102)",
         padding: "5px 10px"
-      }},
+      }
+    },
     {
       code: 'ENDED',
       value: 'Kết thúc',
@@ -66,7 +75,8 @@ const DiscountPage = () => {
         borderRadius: "100px",
         color: "rgb(39, 174, 96)",
         padding: "5px 10px"
-      }},
+      }
+    },
     {
       code: 'CANCELLED',
       value: 'Đã huỷ',
@@ -75,7 +85,8 @@ const DiscountPage = () => {
         borderRadius: "100px",
         color: "rgb(226, 67, 67)",
         padding: "5px 10px"
-      }},
+      }
+    },
   ]
   const actions: Array<MenuAction> = [
     {
@@ -92,7 +103,7 @@ const DiscountPage = () => {
     },
     {
       id: 4,
-      name: "Huỷ",
+      name: "Xoá",
     },
   ];
   const initQuery: DiscountSearchQuery = {
@@ -126,6 +137,9 @@ const DiscountPage = () => {
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [customerGroups, setCustomerGroups] = useState<Array<CustomerGroupModel>>([]);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [selectedRowId, setSelectedRowId] = useState<number>(-1);
+  const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setDiscounts(data)
@@ -144,36 +158,6 @@ const DiscountPage = () => {
   useEffect(() => {
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params])
-
-  const deletePriceRuleByIdSuccess = useCallback(() => {
-    console.log('deletePriceRuleByIdSuccess ');
-    dispatch(getListDiscount(params, fetchData));
-    showSuccess('Thao tác thành công')
-  }, [dispatch])
-
-
-  const showConfirmDelete = useCallback((item: DiscountResponse) => {
-    confirm({
-      title: 'Bạn có chắc muốn xoá chương trình?',
-      icon: <DeleteOutlined  />,
-      content: 'Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá.',
-      okText: 'Đồng ý',
-      okType: 'danger',
-      cancelText: 'Huỷ',
-      onOk: async () => {
-        const deleteResponse = await deletePriceRuleById(item.id);
-        if (deleteResponse.code === 20000000) {
-          showSuccess('Thao tác thành công');
-          dispatch(getListDiscount(params, fetchData));
-        } else {
-          showError(`${deleteResponse.code} - ${deleteResponse.message}`)
-        }
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
-  }, [])
 
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -224,7 +208,7 @@ const DiscountPage = () => {
       fixed: "left",
       align: 'center',
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : "∞" }`}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : "∞"}`}</div>,
     },
     {
       title: "Người tạo",
@@ -257,16 +241,22 @@ const DiscountPage = () => {
       width: '12%',
       render: (value: any, item: any, index: number) => <Dropdown.Button overlay={(
         <Menu>
-          <Menu.Item icon={<EditOutlined />}>Chỉnh sửa</Menu.Item>
-          <Menu.Item style={{color: "#E24343"}} icon={<DeleteOutlined />} onClick={() => showConfirmDelete(item)}>Xoá</Menu.Item>
+          <Menu.Item icon={<EditOutlined/>}>Chỉnh sửa</Menu.Item>
+          <Menu.Item style={{color: "#E24343"}} icon={<DeleteOutlined/>}
+                     onClick={() => {
+                       setSelectedRowId(item.id);
+                       setConfirmDelete(true)
+                     }}>
+            Xoá
+          </Menu.Item>
         </Menu>
-      )} />
+      )}/>
     },
   ]
 
   const onPageChange = useCallback(
     (page, limit) => {
-      setParams({ ...params, page, limit });
+      setParams({...params, page, limit});
     },
     [params]
   );
@@ -276,6 +266,44 @@ const DiscountPage = () => {
     setParams({...newParams})
   }, [params])
 
+  const onMenuClick = useCallback(
+    async (index: number) => {
+      const body = {ids: selectedRowKey}
+      switch (index) {
+        case 1:
+          const bulkEnableResponse = await bulkEnablePriceRules(body);
+          if (bulkEnableResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
+          }
+          break;
+        case 2:
+          const bulkDisableResponse = await bulkDisablePriceRules(body);
+          if (bulkDisableResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
+          }
+          break;
+        case 3:
+          break;
+        case 4:
+          const bulkDeleteResponse = await bulkDeletePriceRules(body);
+          if (bulkDeleteResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
+          }
+          break;
+
+      }
+    },
+    [selectedRowKey]
+  );
 
   return (
     <ContentContainer
@@ -300,7 +328,7 @@ const DiscountPage = () => {
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"
-              icon={<PlusOutlined />}
+              icon={<PlusOutlined/>}
             >
               Tạo mới khuyến mại
             </Button>
@@ -319,6 +347,7 @@ const DiscountPage = () => {
       >
         <div>
           <DiscountFilter
+            onMenuClick={onMenuClick}
             params={params}
             actions={actions}
             listStore={listStore}
@@ -327,9 +356,14 @@ const DiscountPage = () => {
             onFilter={onFilter}
           />
           <CustomTable
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => {
+              console.log('CustomTable: ', rowKey)
+              setSelectedRowKey(rowKey)
+            }}
             isRowSelection
             isLoading={tableLoading}
-            sticky={{ offsetScroll: 5 }}
+            sticky={{offsetScroll: 5}}
             pagination={{
               pageSize: discounts.metadata.limit,
               total: discounts.metadata.total,
@@ -344,6 +378,23 @@ const DiscountPage = () => {
           />
         </div>
       </Card>
+      <ModalDeleteConfirm
+        onCancel={() => setConfirmDelete(false)}
+        onOk={async () => {
+          const deleteResponse = await deletePriceRuleById(selectedRowId);
+          if (deleteResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+
+          } else {
+            showError(`${deleteResponse.code} - ${deleteResponse.message}`)
+          }
+          setConfirmDelete(false);
+        }}
+        title="Bạn có chắc muốn xoá chương trình?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isConfirmDelete}
+      />
     </ContentContainer>)
 }
 

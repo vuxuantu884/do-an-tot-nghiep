@@ -41,10 +41,10 @@ const CreateDiscountPage = () => {
     body.title = values.title;
     body.priority = values.priority;
     body.description = values.descriptionl
-    body.discount_codes = values.discount_code?.length ? [values.discount_code] : null;
+    body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
     body.entitled_method = values.entitled_method;
     body.usage_limit = values.usage_limit;
-    body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
+    body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
     body.starts_date = values.starts_date.format();
@@ -132,7 +132,8 @@ const CreateDiscountPage = () => {
         layout="vertical"
         initialValues={{
           entitlements: [""],
-          priority: 1
+          priority: 1,
+          entitled_method: "FIXED_PRICE"
         }}
       >
         <Row gutter={24}>
