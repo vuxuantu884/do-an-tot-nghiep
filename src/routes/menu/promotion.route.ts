@@ -6,11 +6,11 @@ const accumulate = React.lazy(() => import ("screens/loyalty/accumulate/index"))
 const loyaltyPage = React.lazy(() => import ("screens/loyalty/index"))
 const loyaltyAccumulateDetail = React.lazy(() => import ("screens/loyalty/accumulate/detail"))
 const discountPage = React.lazy(() => import("screens/promotion/discount"))
-const promotionCodePage = React.lazy(() => import("screens/promotion/promotion-code"))
+const priceRulesPage = React.lazy(() => import("screens/promotion/price-rules"))
 const createDiscountPage = React.lazy(() => import("screens/promotion/discount/discount.create"))
-const createPromotionCodePage = React.lazy(() => import("screens/promotion/promotion-code/promotion-code.create"))
-const promotionCodeDetail = React.lazy(() => import("screens/promotion/promotion-code/promotion-code-detail/index"))
-const discountCodeList = React.lazy(() => import("screens/promotion/promotion-code/discount-code-list"))
+const priceRulesCreatePage = React.lazy(() => import("screens/promotion/price-rules/price-rules.create"))
+const priceRulesDetail = React.lazy(() => import("screens/promotion/price-rules/price-rules-detail/index"))
+const discountCodeList = React.lazy(() => import("screens/promotion/price-rules/discount-code-list"))
 
 const promotion: Array<RouteMenu> = [
   {
@@ -94,39 +94,39 @@ const promotion: Array<RouteMenu> = [
     ],
   },
   {
-    path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+    path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}`,
     exact: true,
     title: "Mã khuyến mãi",
     icon: 'icon-dot',
-    component: promotionCodePage,
+    component: priceRulesPage,
     key: "submenu107",
     isShow: true,
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`,
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/create`,
         exact: true,
         title: "Tạo khuyến mãi",
         icon: "icon-dot",
-        component: createPromotionCodePage,
+        component: priceRulesCreatePage,
         key: "submenu1071",
         isShow: true,
         header: null,
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/:id`,
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/:id`,
         exact: true,
         title: "Chi tiết khuyến mãi",
         icon: 'icon-dot',
-        component: promotionCodeDetail,
+        component: priceRulesDetail,
         key: "submenu1072",
         isShow: true,
         header: null,
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/discount-code`,
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/discount-code`,
         exact: true,
         title: "Mã chiết khấu đợt phát hành",
         icon: 'icon-dot',

@@ -1,3 +1,4 @@
+import { Type } from 'config/type.config';
 import { BaseQuery } from "../../../model/base/base.query";
 import BaseResponse from "../../../base/base.response";
 import { PageResponse } from "../../../model/base/base-metadata.response";
@@ -6,9 +7,12 @@ import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
 import { DiscountResponse } from "../../../model/response/promotion/discount/list-discount.response";
 
-export const searchPromotionCodeList = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {
-  let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rules?type=MANUAL&page=1&limit=30`);
+export const searchPriceRules = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {
+  console.log(query);
+  
+  const type = 'MANUAL';
+  let params = generateQuery({ ...query, type});
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rules?${params}`);
 };
 
 export const searchListDiscountCode = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {

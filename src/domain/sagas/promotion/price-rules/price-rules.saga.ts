@@ -1,3 +1,5 @@
+import { searchListDiscountCode } from './../../../../service/promotion/price-rules/price-rules.service';
+import { searchPriceRules } from './../../../../service/promotion/price-rules/price-rules.service';
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
 import {call, put} from "@redux-saga/core/effects";
@@ -5,15 +7,14 @@ import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {searchPromotionCodeList} from "../../../../service/promotion/promotion-code/promotion-code.service";
 import {takeLatest} from "typed-redux-saga";
 import {DiscountType} from "../../../types/promotion.type";
 
-function* getPromotionCode(action: YodyAction) {
+function* getPriceRules(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
-      searchPromotionCodeList,
+      searchPriceRules,
       query
     );
     switch (response.code) {
@@ -28,7 +29,7 @@ function* getPromotionCode(action: YodyAction) {
         break;
     }
   } catch (error) {
-    console.log('getPromotionCode - error: ', error)
+    console.log('searchPriceRules - error: ', error)
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -37,7 +38,7 @@ function* getListDiscountCode(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
-      searchPromotionCodeList,
+      searchListDiscountCode,
       query
     );
     switch (response.code) {
@@ -57,7 +58,7 @@ function* getListDiscountCode(action: YodyAction) {
   }
 }
 
-export function* promotionCodeSaga() {
-  yield takeLatest(DiscountType.GET_LIST_PROMOTION_CODE, getPromotionCode);
+export function* priceRulesSaga() {
+  yield takeLatest(DiscountType.GET_PRICE_RULES, getPriceRules);
   yield takeLatest(DiscountType.GET_LIST_DISCOUNT_CODE, getListDiscountCode);
 }

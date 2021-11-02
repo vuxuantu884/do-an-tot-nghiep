@@ -4,7 +4,10 @@ import {
   Form,
   Input,
   Tag,
-  Select
+  Row,
+  Space,
+  Modal,
+  Col,
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -14,20 +17,27 @@ import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
 import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import "./promotion-code.scss";
+import exportIcon from "assets/icon/export.svg";
+import VoucherIcon from "assets/img/voucher.svg";
+import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
+import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
+import "./price-rules.scss";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
 import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
+import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import ModalAddCode from "./components/ModalAddCode";
+import Dragger from "antd/lib/upload/Dragger";
+import { RiUpload2Line } from "react-icons/ri";
+import { getPriceRules } from "domain/actions/promotion/promotion-code/promotion-code.action";
 
-const PromotionCode = () => {
+const ListCode = () => {
   const promotionStatuses = [
     {
       code: 'APPLYING',
@@ -47,16 +57,18 @@ const PromotionCode = () => {
         borderRadius: "100px",
         color: "#FCAF17",
         padding: "5px 10px"
-      }},
+      }
+    },
     {
       code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng' ,
+      value: 'Chờ áp dụng',
       style: {
         background: "rgb(245, 245, 245)",
         borderRadius: "100px",
         color: "rgb(102, 102, 102)",
         padding: "5px 10px"
-      }},
+      }
+    },
     {
       code: 'ENDED',
       value: 'Kết thúc',
@@ -65,7 +77,8 @@ const PromotionCode = () => {
         borderRadius: "100px",
         color: "rgb(39, 174, 96)",
         padding: "5px 10px"
-      }},
+      }
+    },
     {
       code: 'CANCELLED',
       value: 'Đã huỷ',
@@ -74,35 +87,39 @@ const PromotionCode = () => {
         borderRadius: "100px",
         color: "rgb(226, 67, 67)",
         padding: "5px 10px"
-      }},
+      }
+    },
   ]
   const actions: Array<MenuAction> = [
     {
       id: 1,
-      name: "Kích hoạt",
+      name: "Đã tặng",
     },
     {
       id: 2,
-      name: "Tạm ngừng",
-    },
-    {
-      id: 3,
-      name: "Xuất Excel",
-    },
-    {
-      id: 4,
       name: "Xoá",
     },
   ];
 
-  const initQuery: any = {
+  const initQuery: DiscountSearchQuery = {
+    type: "MANUAL",
     request: "",
-    status: ""
+    from_created_date: "",
+    to_created_date: "",
+    status: "",
+    applied_shop: "",
+    applied_source: "",
+    customer_category: "",
+    discount_method: ""
   };
   const dispatch = useDispatch();
   const query = useQuery();
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
+  const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
+  const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
+  const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
     metadata: {
       limit: 30,
@@ -111,11 +128,11 @@ const PromotionCode = () => {
     },
     items: [],
   })
-  let dataQuery: any = {
+  let dataQuery: DiscountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query)
   }
-  const [params, setParams] = useState<any>(dataQuery);
+  const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
   const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
     setData(data)
@@ -123,7 +140,7 @@ const PromotionCode = () => {
   }, [])
 
   useEffect(() => {
-    dispatch(getListPromotionCode(params, fetchData));
+    dispatch(getPriceRules(params, fetchData));
   }, [dispatch, fetchData, params]);
 
   const onPageChange = useCallback(
@@ -134,68 +151,41 @@ const PromotionCode = () => {
   );
 
   const onFilter = useCallback(values => {
-    let newParams = {...params, ...values, page: 1};
+    let newParams = { ...params, ...values, page: 1 };
     console.log("newParams", newParams);
-    setParams({...newParams})
+    setParams({ ...newParams })
   }, [params])
 
   const handleUpdate = (item: any) => {
     console.log(item);
   };
-  const handleShowDeleteModal = (item: any) => {
+  const handleDelete = (item: any) => {
+    console.log(item);
+  };
+  const handleStatus = (item: any) => {
     console.log(item);
   };
   const columns: Array<ICustomTableColumType<any>> = [
     {
-      title: "Mã",
+      title: "Mã giảm giá",
       visible: true,
       fixed: "left",
-      width: "7%",
-      render: (value: any, item: any, index: number) =>
-        <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/${item.id}`}
-          style={{color: '#2A2A86', fontWeight: 500}}
-        >
-          {value.id}
-        </Link>,
-    },
-    {
-      title: "Tên đợt phát hành",
-      visible: true,
-      fixed: "left",
-      dataIndex: "name",
-      width: "20%",
-    },
-    {
-      title: "SL mã",
-      visible: true,
-      fixed: "left",
-      dataIndex: "code_amount",
-      width: "10%",
+      width: "30%",
+      dataIndex: "code",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "used_amount",
+      dataIndex: "amount",
       width: "10%",
     },
     {
-      title: "Thời gian",
+      title: "Lượt áp dụng còn lại",
       visible: true,
       fixed: "left",
-      align: 'center',
-      width: "20%",
-      render: (value: any, item: any, index: number) =>
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date && moment(item.ends_date).format(DATE_FORMAT.DDMMYYY)}`}</div>,
-    },
-    {
-      title: "Người tạo",
-      visible: true,
-      dataIndex: "created_by",
-      fixed: "left",
-      align: 'center',
-      width: "10%",
+      dataIndex: "amountUsed",
+      width: "15%",
     },
     {
       title: "Trạng thái",
@@ -205,15 +195,24 @@ const PromotionCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === item.type);
+        const status: any | null = promotionStatuses.find(e => e.code === value);
         return (<div
           style={status?.style}
         >
-          {status?.item.type}
+          {status?.value}
         </div>)
       }
     },
-    actionColumn(handleUpdate, handleShowDeleteModal),
+    {
+      title: "Ngày tạo mã",
+      visible: true,
+      fixed: "left",
+      align: 'center',
+      width: '15%',
+      render: (value: any, item: any, index: number) =>
+        <div>{`${item.create_date ? moment(item.create_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
+    },
+    actionColumn(handleUpdate, handleDelete, handleStatus),
   ];
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -262,46 +261,54 @@ const PromotionCode = () => {
 
   return (
     <ContentContainer
-      title="Danh sách đợt phát hành"
+      title="Mã giảm giá của đợt phát hành CPM9"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
-        },
-        {
-          name: "Đợt phát hành",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+          name: "Mã chiết khấu đơn hàng",
         },
       ]}
       extra={
-        <>
-          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`}>
+        <Row>
+          <Space>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={
+                <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
+              }
+              // onClick={onExport}
+              onClick={() => {}}
+            >
+              Xuất file
+            </Button>
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"
               icon={<PlusOutlined />}
+              onClick={() => setShowModalAdd(true)}
             >
-              Thêm mới đợt phát hành
+              Thêm mới mã giảm giá
             </Button>
-          </Link>
-        </>
+          </Space>
+        </Row>
       }
     >
       <Card>
-        <div className="promotion-code__search">
+        <div className="discount-code__search">
           <CustomFilter menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tìm kiếm theo mã, tên đợt phát hành"
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
               </Form.Item>
-              <Form.Item name="status" className="store">
+              <Form.Item>
                 <CustomSelect
                   showSearch
                   optionFilterProp="children"
@@ -333,7 +340,6 @@ const PromotionCode = () => {
             </Form>
           </CustomFilter>
 
-          {/* <Card style={{ position: "relative" }}> */}
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
@@ -352,8 +358,106 @@ const PromotionCode = () => {
           />
         </div>
       </Card>
+      <Modal
+        className="modal-show-add-discount"
+        onCancel={() => setShowModalAdd(false)}
+        width={600}
+        visible={showModalAdd}
+        title="Thêm mã giảm giá"
+        footer={[]}
+      >
+        <Row gutter={24}>
+          <Col span="24" style={{
+            display: "flex",
+            gap: 15,
+          }}>
+            <div className="card-discount-code" onClick={() => setShowAddCodeManual(true)}>
+              <img style={{ background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)" }} src={VoucherIcon} alt="" />
+              <p style={{fontWeight: 500}}>Thêm mã thủ công</p>
+            </div>
+            <div className="card-discount-code" onClick={() => setShowAddCodeRandom(true)}>
+              <img style={{ background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)" }} src={AddListCouponIcon} alt="" />
+              <p style={{fontWeight: 500}}>Thêm mã ngẫu nhiên</p>
+            </div>
+            <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+              <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
+              <p style={{fontWeight: 500}}>Nhập file Excel</p>
+            </div>
+          </Col>
+        </Row>
+      </Modal>
+      <ModalAddCode
+        isManual={true}
+        visible={showAddCodeManual}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã thủ công"
+        onCancel={() => {
+          setShowAddCodeManual(false);
+        }}
+        onOk={() => {
+          setShowAddCodeManual(false);
+        }}
+      />
+      <ModalAddCode
+        isManual={false}
+        visible={showAddCodeRandom}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã ngẫu nhiên"
+        onCancel={() => {
+          setShowAddCodeRandom(false);
+        }}
+        onOk={() => {
+          setShowAddCodeRandom(false);
+        }}
+      />
+      <Modal
+        onCancel={() => setShowImportFile(false)}
+        width={650}
+        visible={showImportFile}
+        title="Nhập file khuyến mại"
+        footer={[
+          <Button key="back" onClick={() => setShowImportFile(false)}>
+            Huỷ
+          </Button>,
+
+          <Button
+            key="link"
+            type="primary"
+          >
+            Nhập file
+          </Button>,
+        ]}
+      >
+        <Row gutter={12}>
+          <Col span={3}>
+            Chú ý:
+          </Col>
+          <Col span={19}>
+            <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+            <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+            <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
+              không F5 hoặc tắt cửa sổ trình duyệt.</p>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <div className="dragger-wrapper">
+            <Dragger accept=".xlsx">
+              <p className="ant-upload-drag-icon">
+                <RiUpload2Line size={48}/>
+              </p>
+              <p className="ant-upload-hint">
+                Kéo file vào đây hoặc tải lên từ thiết bị
+              </p>
+            </Dragger>
+          </div>
+        </Row>
+      </Modal>
     </ContentContainer>
   );
 };
 
-export default PromotionCode;
+export default ListCode;

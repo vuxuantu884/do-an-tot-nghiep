@@ -1,6 +1,6 @@
 import {Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import React, {useState} from "react";
-import "../promotion-code.scss";
+import "../price-rules.scss";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
