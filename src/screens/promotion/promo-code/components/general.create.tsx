@@ -72,6 +72,7 @@ const GeneralCreate = (props: any) => {
       </Tag>
     );
   }
+
   const listCategory: Array<BaseBootstrapResponse> = [
     {
       value: "Áo phông nam",
@@ -115,6 +116,7 @@ const GeneralCreate = (props: any) => {
       ),
     },
   ];
+
   function onDeleteItemProduct(id: number) {
     // delete row
     const temps = [...dataTableProduct];
@@ -158,6 +160,7 @@ const GeneralCreate = (props: any) => {
       ),
     },
   ];
+
   function onDeleteItemProductCate(id: number) {
     // delete row
     const temps = [...dataTableProductCate];
@@ -210,7 +213,7 @@ const GeneralCreate = (props: any) => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="discount_code"
+                name="code"
                 label="Mã đợt phát hàng:"
                 rules={[
                   {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
