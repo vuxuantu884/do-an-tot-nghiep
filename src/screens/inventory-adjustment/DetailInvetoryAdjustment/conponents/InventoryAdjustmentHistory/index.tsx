@@ -78,6 +78,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: p
           <div>Sản phẩm</div>
         </div>
       },
+      width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: VariantResponse, index: number) => (

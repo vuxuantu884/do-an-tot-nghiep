@@ -20,7 +20,7 @@ import {
   Space,
   Table,
   Upload,
-  Skeleton
+  Empty
 } from "antd";
 
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -51,7 +51,6 @@ import { UploadRequestOption } from "rc-upload/lib/interface";
 import { UploadFile } from "antd/es/upload/interface";
 import { findAvatar } from "utils/AppUtils";
 import RowDetail from "screens/products/product/component/RowDetail";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { ConvertFullAddress } from "utils/ConvertAddress";
@@ -66,6 +65,7 @@ import CustomTable from "component/table/CustomTable";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import { INVENTORY_AUDIT_TYPE_CONSTANTS } from "../constants";
 import CustomPagination from "component/table/CustomPagination";
+import { AiOutlineClose } from "react-icons/ai";
 
 const { Option } = Select;
 
@@ -89,10 +89,12 @@ const CreateInventoryAdjustment: FC = () => {
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [auditType, setAuditType] = useState<string>("");
+  const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
-  const [formStoreData, setFormStoreData] = useState<Store>();
-
+  const [formStoreData, setFormStoreData] = useState<Store | null>();
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
+    useState<boolean>(false);
+  const [isShowModalChangeStore, setIsShowModalChangeStore] =
     useState<boolean>(false);
 
   const lstAudiTypes = [{
@@ -117,7 +119,6 @@ const CreateInventoryAdjustment: FC = () => {
       limit: 10,
     }
   );
-
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -191,7 +192,6 @@ const CreateInventoryAdjustment: FC = () => {
         on_hand_adj: item.on_hand_adj
       };
     });
-
     setIsLoading(true);
     dispatch(createInventoryAdjustmentAction(data, createCallback));
   };
@@ -205,10 +205,11 @@ const CreateInventoryAdjustment: FC = () => {
     }
 
     setAuditType(auditType);
-  }, [auditType]);
+  }, [auditType, form]);
 
-  const onEnterFilterVariant = useCallback(() => {
-    let dataSearch = [...dataTable.filter((e: LineItemAdjustment) => {
+  const onEnterFilterVariant = useCallback((lst: Array<LineItemAdjustment> | null) => {
+    let temps = lst ? lst : dataTable;
+    let dataSearch = [...temps.filter((e: LineItemAdjustment) => {
       return e.on_hand === parseInt(keySearch)
         || e.variant_name?.includes(keySearch)
         || e.sku?.includes(keySearch)
@@ -218,6 +219,28 @@ const CreateInventoryAdjustment: FC = () => {
 
     setSearchVariant(dataSearch);
   }, [keySearch, dataTable]);
+
+  const onDeleteItem = useCallback((variantId: number) => {
+    // delete row
+    const temps = [...dataTable];
+    temps.forEach((row, index, array) => {
+      if (row.id === variantId) {
+        array.splice(index, 1);
+      }
+    });
+
+    setDataTable(temps);
+    onEnterFilterVariant(temps);
+    //delete row in form data
+    let variantField = form.getFieldValue(VARIANTS_FIELD);
+    variantField?.forEach(
+      (row: VariantResponse, index: number, array: VariantResponse[]) => {
+        if (row.id === variantId) {
+          array.splice(index, 1);
+        }
+      }
+    );
+  }, [keySearch, dataTable])
 
   // get store
   useEffect(() => {
@@ -285,6 +308,7 @@ const CreateInventoryAdjustment: FC = () => {
       )
     ) {
       setDataTable((prev: any) => prev.concat([selectedItem]));
+      setSearchVariant((prev: any) => prev.concat([selectedItem]));
       setHasError(false);
     }
   };
@@ -308,8 +332,10 @@ const CreateInventoryAdjustment: FC = () => {
     ];
 
     form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
-
+    setIsLoadingTable(true);
     setDataTable(arrayUnique);
+    setSearchVariant(arrayUnique);
+    setIsLoadingTable(false);
     setHasError(false);
     setVisibleManyProduct(false);
   };
@@ -392,41 +418,6 @@ const CreateInventoryAdjustment: FC = () => {
     [history]
   );
 
-  const onChangeFromStore = (storeId: number) => {
-    let variantField = form.getFieldValue(VARIANTS_FIELD);
-
-    const variants_id = variantField?.map((item: VariantResponse) => item.id);
-
-    if (variants_id?.length > 0) {
-      setIsLoadingTable(true);
-      dispatch(
-        inventoryGetDetailVariantIdsSaga(variants_id, storeId, (result) => {
-          if (result) {
-            setIsLoadingTable(false);
-            const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-              let newAvailable;
-              result?.forEach((itemNew) => {
-                if (itemNew.variant_id === itemOld.id) {
-                  newAvailable = itemNew.available;
-                }
-              });
-              return {
-                ...itemOld,
-                available: newAvailable,
-              };
-            });
-            setDataTable(newDataTable);
-
-          } else {
-            setIsLoadingTable(false);
-            setDataTable([]);
-            form.setFieldsValue({ [VARIANTS_FIELD]: [] });
-          }
-        })
-      );
-    }
-  };
-
   const onPageChange = useCallback(
     (page, size) => {
       setQuery({ ...query, page: page, limit: size });
@@ -435,7 +426,7 @@ const CreateInventoryAdjustment: FC = () => {
   );
 
   useEffect(() => {
-    if (dataTable.length === 0) {
+    if (dataTable?.length === 0) {
       setHasError(true);
     }
 
@@ -588,7 +579,19 @@ const CreateInventoryAdjustment: FC = () => {
           return <div style={{ color: 'green' }}>{item.on_hand_adj_dis}</div>;
         }
       }
-    }
+    },
+    {
+      title: "",
+      fixed: dataTable?.length !== 0 && "right",
+      width: 50,
+      render: (_: string, row) => (
+        <Button
+          onClick={() => onDeleteItem(row.id)}
+          className="product-item-delete"
+          icon={<AiOutlineClose />}
+        />
+      ),
+    },
   ];
 
   return (
@@ -634,13 +637,15 @@ const CreateInventoryAdjustment: FC = () => {
                         optionFilterProp="children"
                         showSearch
                         allowClear={true}
-                        onChange={(value: number) => {
-                          stores.forEach((element) => {
-                            if (element.id === value) {
-                              setFormStoreData(element);
-                              onChangeFromStore(element.id);
-                            }
-                          });
+                        onChange={(value: number, option) => {
+                          if (adjustStoreIdBak && value !== adjustStoreIdBak) {
+                            setIsShowModalChangeStore(true);
+                          } else {
+                            setAdjustStoreIdBak(value);
+                          };
+
+                          const store = stores.find(e => e.id.toString() === value?.toString());
+                          (store && store !== null) ? setFormStoreData(store) : setFormStoreData(null);
                         }}
                       >
                         {Array.isArray(stores) &&
@@ -749,22 +754,23 @@ const CreateInventoryAdjustment: FC = () => {
                         </Button>
                         <Input
                           name="key_search"
-                          onBlur={() => {
-                            onEnterFilterVariant()
-                          }}
+                          value={keySearch}
+                          // onBlur={() => {
+                          //   onEnterFilterVariant()
+                          // }}
                           onChange={(e) => {
                             setKeySearch(e.target.value);
-                            //onEnterFilterVariant()
+                            //e.target.value.length > 2 ? setIsVisibleBtSearch(true) : setIsVisibleBtSearch(false);
                           }}
                           onKeyPress={event => {
                             if (event.key === 'Enter') {
                               event.preventDefault();
-                              onEnterFilterVariant()
+                              onEnterFilterVariant(null)
                             }
                           }}
                           style={{ marginLeft: 8 }}
-                          placeholder="Tìm kiếm sản phẩm trong phiếu (enter để tìm kiếm)"
-                          prefix={<SearchOutlined color="#f1f1f1" />}
+                          placeholder="Tìm kiếm sản phẩm trong phiếu"
+                          addonAfter={<SearchOutlined onClick={() => { onEnterFilterVariant(null) }} style={{ color: "#2A2A86" }} />}
                         />
 
                       </Input.Group>
@@ -828,7 +834,7 @@ const CreateInventoryAdjustment: FC = () => {
                       />
                     </> : null}
                 {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.TOTAL ?
-                  <> {dataVariantByStoreId ? (
+                  <> {dataVariantByStoreId ?
                     <>
                       <CustomTable
                         className="product-table"
@@ -869,10 +875,11 @@ const CreateInventoryAdjustment: FC = () => {
                           onChange: onPageChange,
                         }} />
                     </>
-                  ) : (
-                    <Skeleton loading={true} active avatar></Skeleton>
-                  )}
+                    : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" />}
                   </> : null
+                }
+                {
+                  !auditType ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Trống" /> : null
                 }
 
               </Card>
@@ -886,6 +893,12 @@ const CreateInventoryAdjustment: FC = () => {
                 <Form.Item
                   labelCol={{ span: 24, offset: 0 }}
                   name="audited_date"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày kiểm",
+                    },
+                  ]}
                   label={<b>Ngày kiểm</b>}
                   colon={false}
                 >
@@ -930,6 +943,7 @@ const CreateInventoryAdjustment: FC = () => {
                   label={<b>Ghi chú nội bộ</b>}
                   colon={false}
                   labelCol={{ span: 24, offset: 0 }}
+                  rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
                 >
                   <TextArea
                     placeholder=" "
@@ -995,6 +1009,29 @@ const CreateInventoryAdjustment: FC = () => {
               title={`Bạn có muốn rời khỏi trang?`}
               subTitle="Thông tin trên trang này sẽ không được lưu."
               visible={isVisibleModalWarning}
+            />
+          }
+          {
+            isShowModalChangeStore &&
+            <ModalConfirm
+              onCancel={() => {
+                setIsShowModalChangeStore(false);
+                form.setFieldsValue({ adjusted_store_id: adjustStoreIdBak });
+                const store = stores.find(e => e.id.toString() === adjustStoreIdBak?.toString());
+                (store && store !== null) ? setFormStoreData(store) : setFormStoreData(null);
+              }}
+              onOk={() => {
+                setDataTable([]);
+                setSearchVariant([]);
+                setAdjustStoreIdBak(form.getFieldValue('adjusted_store_id'));
+                setIsShowModalChangeStore(false);
+                setVariantByStoreId(null);
+              }}
+              okText="Đồng ý"
+              cancelText="Hủy bỏ"
+              title={`Bạn có chắc chắn đổi kho kiểm?`}
+              subTitle="Thông tin sản phẩm trong phiếu sẽ không được lưu."
+              visible={isShowModalChangeStore}
             />
           }
         </Form>
