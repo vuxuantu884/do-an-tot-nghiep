@@ -1,23 +1,23 @@
-import { Button, Collapse, Form, Input, Space, Tag } from "antd";
-import CustomSelect from "component/custom/select.custom";
-import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
-import { StoreResponse } from "model/core/store.model";
-import { InventoryQuery } from "model/inventory";
-import React, { useCallback, useEffect, useState } from "react";
+import {FilterOutlined} from "@ant-design/icons";
+import {Button, Collapse, Form, Input, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
-import { FilterOutlined } from "@ant-design/icons";
+import {FilterWrapper} from "component/container/filter.container";
+import CustomSelect from "component/custom/select.custom";
 import BaseFilter from "component/filter/base.filter";
+import NumberInputRange from "component/filter/component/number-input-range";
+import CustomRangepicker from "component/filter/component/range-picker.custom";
+import {MenuAction} from "component/table/ActionButton";
+import ButtonSetting from "component/table/ButtonSetting";
+import {StoreResponse} from "model/core/store.model";
+import {InventoryQuery} from "model/inventory";
 import {
   AvdInventoryFilter,
   InventoryMappingField,
   InventoryQueryField,
 } from "model/inventory/field";
-import CustomRangepicker from "component/filter/component/range-picker.custom";
-import NumberInputRange from "component/filter/component/number-input-range";
-import ButtonSetting from "component/table/ButtonSetting";
 import moment from "moment";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
+import React, {useCallback, useEffect, useState} from "react";
+import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
 
 export interface InventoryFilterProps {
   id: string;
@@ -31,11 +31,11 @@ export interface InventoryFilterProps {
   openColumn: () => void;
 }
 
-const { Item } = Form;
-const { Panel } = Collapse;
+const {Item} = Form;
+const {Panel} = Collapse;
 
 function tagRender(props: any) {
-  const { label, closable, onClose } = props;
+  const {label, closable, onClose} = props;
   const onPreventMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
@@ -52,20 +52,8 @@ function tagRender(props: any) {
   );
 }
 
-const InventoryFilter: React.FC<InventoryFilterProps> = (
-  props: InventoryFilterProps
-) => {
-  const {
-    params,
-    actions,
-    listStore,
-    onMenuClick,
-    // onClearFilter,
-    onFilter,
-    isMulti,
-    openColumn,
-    id,
-  } = props;
+const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterProps) => {
+  const {params, listStore, onFilter, isMulti, openColumn, id} = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [tempAdvanceFilters, setTempAdvanceFilters] = useState<any>({});
@@ -77,12 +65,6 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
 
   const onBaseFinish = useCallback(
     (values: InventoryQuery) => {
@@ -113,8 +95,8 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
   useEffect(() => {
-    formBaseFilter.setFieldsValue({ ...advanceFilters });
-    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
+    formBaseFilter.setFieldsValue({...advanceFilters});
+    formAdvanceFilter.setFieldsValue({...advanceFilters});
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
   const resetField = useCallback(
@@ -133,15 +115,20 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
   );
 
   useEffect(() => {
-    setAdvanceFilters({ ...params });
+    setAdvanceFilters({...params});
   }, [params]);
   return (
     <div className="inventory-filter">
       <Form.Provider
-        onFormFinish={(name, { values, forms }) => {
+        onFormFinish={(name, {values, forms}) => {
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
-          let data = {...baseValues,...advanceValues, store_id: baseValues.store_id, condition: baseValues.condition };
+          let data = {
+            ...baseValues,
+            ...advanceValues,
+            store_id: baseValues.store_id,
+            condition: baseValues.condition,
+          };
           let created_date = data[InventoryQueryField.created_date],
             transaction_date = data[InventoryQueryField.transaction_date],
             total_stock = data[InventoryQueryField.total_stock],
@@ -167,29 +154,21 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
             [from_total_stock, to_total_stock] = total_stock
               ? total_stock
               : [undefined, undefined],
-            [from_on_hand, to_on_hand] = on_hand
-              ? on_hand
-              : [undefined, undefined],
+            [from_on_hand, to_on_hand] = on_hand ? on_hand : [undefined, undefined],
             [from_committed, to_committed] = committed
               ? committed
               : [undefined, undefined],
             [from_available, to_available] = available
               ? available
               : [undefined, undefined],
-            [from_on_hold, to_on_hold] = on_hold
-              ? on_hold
-              : [undefined, undefined],
+            [from_on_hold, to_on_hold] = on_hold ? on_hold : [undefined, undefined],
             [from_defect, to_defect] = defect ? defect : [undefined, undefined],
-            [from_incoming, to_incoming] = incoming
-              ? incoming
-              : [undefined, undefined],
+            [from_incoming, to_incoming] = incoming ? incoming : [undefined, undefined],
             [from_transferring, to_transferring] = transferring
               ? transferring
               : [undefined, undefined],
             [from_on_way, to_on_way] = on_way ? on_way : [undefined, undefined],
-            [from_shipping, to_shipping] = shipping
-              ? shipping
-              : [undefined, undefined],
+            [from_shipping, to_shipping] = shipping ? shipping : [undefined, undefined],
             [from_mac, to_mac] = mac ? mac : [undefined, undefined],
             [from_import_price, to_import_price] = import_price
               ? import_price
@@ -235,24 +214,24 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
             from_retail_price,
             to_retail_price,
           };
-          formBaseFilter.setFieldsValue({ ...data });
+          formBaseFilter.setFieldsValue({...data});
           formAdvanceFilter?.setFieldsValue({
             ...data,
           });
         }}
       >
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form
-            onFinish={onBaseFinish}
-            initialValues={advanceFilters}
-            form={formBaseFilter}
-            name={`baseInventory_${id}`}
-            layout="inline"
-          >
+        <Form
+          onFinish={onBaseFinish}
+          initialValues={advanceFilters}
+          form={formBaseFilter}
+          name={`baseInventory_${id}`}
+          layout="inline"
+        >
+          <FilterWrapper>
             <Item name={InventoryQueryField.condition} className="search">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
               />
             </Item>
@@ -291,8 +270,8 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
             <Item>
               <ButtonSetting onClick={openColumn} />
             </Item>
-          </Form>
-        </CustomFilter>
+          </FilterWrapper>
+        </Form>
         <FilterList filters={advanceFilters} resetField={resetField} />
         <BaseFilter
           onClearFilter={onResetFilter}
@@ -307,11 +286,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
             initialValues={{}}
             form={formAdvanceFilter}
           >
-            <Space
-              className="po-filter"
-              direction="vertical"
-              style={{ width: "100%" }}
-            >
+            <Space className="po-filter" direction="vertical" style={{width: "100%"}}>
               {Object.keys(AvdInventoryFilter).map((field) => {
                 let component: any = null;
                 switch (field) {
@@ -337,11 +312,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
                     <Panel
                       key="1"
                       className={tempAdvanceFilters[field] ? "active" : ""}
-                      header={
-                        <span>
-                          {InventoryMappingField[field]?.toUpperCase()}
-                        </span>
-                      }
+                      header={<span>{InventoryMappingField[field]?.toUpperCase()}</span>}
                     >
                       <Item name={field}>{component}</Item>
                     </Panel>
@@ -356,11 +327,11 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
   );
 };
 
-const FilterList = ({ filters, resetField }: any) => {
+const FilterList = ({filters, resetField}: any) => {
   let filtersKeys = Object.keys(filters);
   let renderTxt: any = null;
   return (
-    <Space wrap={true} style={{ marginBottom: 20 }}>
+    <div>
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return null;
@@ -388,19 +359,19 @@ const FilterList = ({ filters, resetField }: any) => {
           case AvdInventoryFilter.on_way:
           case AvdInventoryFilter.shipping:
             let [from1, to1] = value;
-            let fromS = '';
-            let toS = '';
-            if(from1 === undefined || from1 === null) {
-              fromS = '~'
+            let fromS = "";
+            let toS = "";
+            if (from1 === undefined || from1 === null) {
+              fromS = "~";
             } else {
               fromS = from1;
             }
-            if(to1 === undefined || to1 === null) {
-              toS = '~'
+            if (to1 === undefined || to1 === null) {
+              toS = "~";
             } else {
               toS = to1;
             }
-            renderTxt = `${InventoryMappingField[filterKey]} : ${fromS} - ${toS}`;;
+            renderTxt = `${InventoryMappingField[filterKey]} : ${fromS} - ${toS}`;
             break;
         }
         return (
@@ -409,10 +380,11 @@ const FilterList = ({ filters, resetField }: any) => {
             key={filterKey}
             className="fade"
             closable
+            style={{marginBottom: "20px"}}
           >{`${renderTxt}`}</Tag>
         );
       })}
-    </Space>
+    </div>
   );
 };
 

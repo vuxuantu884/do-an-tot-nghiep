@@ -48,7 +48,7 @@ deploy to uat:
   only:
     - uat
   variables:
-    HOST: uat.app-admin.yody.io
+    HOST: uat.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
     SERVICE_NAME: yody-app-admin

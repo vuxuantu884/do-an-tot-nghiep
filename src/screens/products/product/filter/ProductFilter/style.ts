@@ -30,3 +30,5 @@ export const StyledComponent = styled.div`
     border-radius: 50px;
   }
 `;
+
+

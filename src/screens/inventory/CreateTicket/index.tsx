@@ -198,10 +198,11 @@ const CreateTicket: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
+    
     return options;
   }, [resultSearch]);
 
@@ -319,17 +320,20 @@ const CreateTicket: FC = () => {
     if (result) {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable;
+        let newAvailable, newOnHand;
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.id) {
             newAvailable = itemNew.available;
+            newOnHand = itemNew.on_hand;
           }
         });
-        return {
+        return {  
           ...itemOld,
           available: newAvailable,
+          on_hand: newOnHand,
         };
       });
+      
       setDataTable(newDataTable);
     } else {
       setIsLoadingTable(false);
