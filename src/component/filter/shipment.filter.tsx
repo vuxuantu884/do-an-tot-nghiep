@@ -16,7 +16,7 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import CustomRangeDatePicker from "component/custom/new-date-range-picker";
@@ -225,17 +225,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
-      packed_on_min: params.packed_on_min? moment(params.packed_on_min, "DD-MM-YYYY") : undefined,
-      packed_on_max: params.packed_on_max? moment(params.packed_on_max, "DD-MM-YYYY") : undefined,
-      ship_on_min: params.ship_on_min? moment(params.ship_on_min, "DD-MM-YYYY") : null,
-      ship_on_max: params.ship_on_max? moment(params.ship_on_max, "DD-MM-YYYY") : null,
-      exported_on_min: params.exported_on_min? moment(params.exported_on_min, "DD-MM-YYYY") : null,
-      exported_on_max: params.exported_on_max? moment(params.exported_on_max, "DD-MM-YYYY") : null,
-      cancelled_on_min: params.cancelled_on_min? moment(params.cancelled_on_min, "DD-MM-YYYY") : null,
-      cancelled_on_max: params.cancelled_on_max? moment(params.cancelled_on_max, "DD-MM-YYYY") : null,
-      received_on_min: params.received_on_min? moment(params.received_on_min, "DD-MM-YYYY") : null,
-      received_on_max: params.received_on_max? moment(params.received_on_max, "DD-MM-YYYY") : null,
-
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
@@ -366,7 +355,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.packed_on_min || initialValues.packed_on_max) {
-      let textOrderCreateDate = (initialValues.packed_on_min ? moment(initialValues.packed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.packed_on_max ? moment(initialValues.packed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCreateDate = (initialValues.packed_on_min ? initialValues.packed_on_min : '??') + " ~ " + (initialValues.packed_on_max ? initialValues.packed_on_max : '??')
       list.push({
         key: 'packed',
         name: 'Ngày đóng gói',
@@ -374,7 +363,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? moment(initialValues.ship_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.ship_on_max ? moment(initialValues.ship_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
       list.push({
         key: 'ship',
         name: 'Ngày giao hàng',
@@ -382,7 +371,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
-      let textOrderExportedate = (initialValues.exported_on_min ? moment(initialValues.exported_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.exported_on_max ? moment(initialValues.exported_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderExportedate = (initialValues.exported_on_min ? initialValues.exported_on_min : '??') + " ~ " + (initialValues.exported_on_max ? initialValues.exported_on_max : '??')
       list.push({
         key: 'exported',
         name: 'Ngày xuất kho',
@@ -390,7 +379,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -399,7 +388,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.received_on_min || initialValues.received_on_max) {
-      let textExpectReceiveDate = (initialValues.received_on_min ? moment(initialValues.received_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.received_on_max ? moment(initialValues.received_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
       list.push({
         key: 'received',
         name: 'Ngày hoàn tất đơn',

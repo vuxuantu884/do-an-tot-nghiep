@@ -311,7 +311,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? moment(initialValues.issued_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.issued_on_max ? moment(initialValues.issued_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
@@ -319,7 +319,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
-      let textOrderFinalizedDate = (initialValues.finalized_on_min ? moment(initialValues.finalized_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.finalized_on_max ? moment(initialValues.finalized_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
       list.push({
         key: 'finalized',
         name: 'Ngày duyệt đơn',
@@ -327,7 +327,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
-      let textOrderCompleteDate = (initialValues.completed_on_min ? moment(initialValues.completed_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.completed_on_max ? moment(initialValues.completed_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
       list.push({
         key: 'completed',
         name: 'Ngày hoàn tất đơn',
@@ -335,7 +335,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? moment(initialValues.cancelled_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.cancelled_on_max ? moment(initialValues.cancelled_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -344,7 +344,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
-      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? moment(initialValues.expected_receive_on_min, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.expected_receive_on_max ? moment(initialValues.expected_receive_on_max, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : '??')
+      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? initialValues.expected_receive_on_min : '??') + " ~ " + (initialValues.expected_receive_on_max ? initialValues.expected_receive_on_max : '??')
       list.push({
         key: 'expected',
         name: 'Ngày dự kiến nhận hàng',
