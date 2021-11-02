@@ -1,5 +1,6 @@
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
+import CustomFilter from "component/table/custom.filter";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
@@ -35,7 +36,7 @@ import {
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, Products } from "utils/AppUtils";
@@ -48,6 +49,7 @@ import UploadImageModal, {
   VariantImageModel,
 } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
+import { ActionStyle } from "./style";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -136,12 +138,10 @@ const TabProduct: React.FC = () => {
     items: [],
   });
   const [rowKey, setRowKey] = useState<Array<any>>([]);
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<VariantResponse>>
-  >([
+  const defaultColumn : Array<ICustomTableColumType<VariantResponse>> = [
     {
       width: 80,
-      title: "Ảnh",
+      title: <ActionComponent/>,
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
@@ -163,7 +163,7 @@ const TabProduct: React.FC = () => {
       visible: true,
     },
     {
-      title: "Sản phẩm",
+      title: `${selected.length > 0 ? "" : "Mã sản phẩm"}`,
       dataIndex: "sku",
       width: 300,
       render: (value: string, i: VariantResponse) => (
@@ -232,7 +232,10 @@ const TabProduct: React.FC = () => {
       render: (value, record) =>
         ConvertUtcToLocalDate(record?.product?.created_date),
     },
-  ]);
+  ]
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<VariantResponse>>
+  >(defaultColumn);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -385,6 +388,26 @@ const TabProduct: React.FC = () => {
       })
     );
   }, []);
+
+  function ActionComponent() {
+    let Component = () => <span>Ảnh</span>;
+    if (selected.length > 0) {
+      Component = () => (
+        <ActionStyle>
+        <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+          <Fragment />
+        </CustomFilter>
+        </ActionStyle>
+      );
+    }
+    return <Component />;
+  };
+
+  useLayoutEffect(() => {
+    setColumn(defaultColumn);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry));

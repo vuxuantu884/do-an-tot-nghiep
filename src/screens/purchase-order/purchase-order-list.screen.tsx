@@ -1,4 +1,4 @@
-import { Button, Card, Row, Space, Tag } from "antd";
+import { Button, Card, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import ContentContainer from "component/container/content.container";
@@ -9,6 +9,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
@@ -31,12 +32,12 @@ import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/purchase-order/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
-import { PoPaymentStatus, ProcumentStatus } from "utils/Constants";
+import { PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { getQueryParams, useQuery } from "utils/useQuery"; 
 import "./purchase-order-list.scss";
-
+import { PurchaseOrderListContainer } from "./purchase-order-list.style";
 
 const supplierQuery: AccountSearchQuery = {
   department_ids: [AppConfig.WIN_DEPARTMENT],
@@ -194,8 +195,26 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Trạng thái đơn",
       width: 150,
       dataIndex: "status_name",
-      render: (value: string) => {
-        return <Tag className="tag-custom primary-txt">{value}</Tag>;
+      render: (value: string, record) => {
+        let type = TagStatusType.nomarl;
+        switch (record.status) {
+          case POStatus.FINALIZED:
+          case POStatus.STORED:
+            type = TagStatusType.primary;
+            break;
+          case POStatus.CANCELLED:
+            type = TagStatusType.danger;
+            break;
+          case POStatus.FINISHED:
+          case POStatus.COMPLETED:
+            type = TagStatusType.success;
+            break;
+          case POStatus.DRAFT:
+            type = TagStatusType.nomarl;
+            break;
+        }
+
+        return <TagStatus type={type}>{value}</TagStatus>;
       },
       visible: true,
     },
@@ -308,13 +327,6 @@ const PurchaseOrderListScreen: React.FC = () => {
       },
       visible: true,
     },
-    // {
-    //   title: "Ngày tạo đơn",
-    //   dataIndex: "created_date",
-    //   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    //   visible: true,
-    //   width: 200,
-    // },
     {
       title: "Ngày hoàn tất đơn",
       dataIndex: "completed_date",
@@ -354,7 +366,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       visible: true,
     },
   ];
-  
+
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<PurchaseOrder>>>(defaultColumns);
 
@@ -460,110 +472,112 @@ const PurchaseOrderListScreen: React.FC = () => {
   }, [deleteCallback, dispatch, selected]);
 
   return (
-    <ContentContainer
-      isError={isError}
-      title="Quản lý đơn đặt hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDER}`,
-        },
-      ]}
-      extra={
-        <Row>
-          <Space>
-            <Button
-              className="light"
-              size="large"
-              icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
-              onClick={() => {}}
-            >
-              Nhập file
-            </Button>
-            <Button
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-              // onClick={onExport}
-              onClick={() => {
-                setShowExportModal(true);
+    <PurchaseOrderListContainer>
+      <ContentContainer
+        isError={isError}
+        title="Quản lý đơn đặt hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Đặt hàng",
+            path: `${UrlConfig.PURCHASE_ORDER}`,
+          },
+        ]}
+        extra={
+          <Row>
+            <Space>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
+                onClick={() => {}}
+              >
+                Nhập file
+              </Button>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                // onClick={onExport}
+                onClick={() => {
+                  setShowExportModal(true);
+                }}
+              >
+                Xuất file
+              </Button>
+              <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+            </Space>
+          </Row>
+        }
+      >
+        <Card>
+          <div className="purchase-order-list">
+            <PurchaseOrderFilter
+              openSetting={() => setShowSettingColumn(true)}
+              params={params}
+              onMenuClick={onMenuClick}
+              actions={actions}
+              onFilter={onFilter}
+              listSupplierAccount={listSupplierAccount}
+              listRdAccount={listRdAccount}
+              listStore={listStore}
+            />
+            <CustomTable
+              bordered
+              isRowSelection
+              isLoading={tableLoading}
+              showColumnSetting={true}
+              scroll={{x: 3000}}
+              sticky={{offsetScroll: 10, offsetHeader: 55}}
+              pagination={{
+                pageSize: data.metadata.limit,
+                total: data.metadata.total,
+                current: data.metadata.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
               }}
-            >
-              Xuất file
-            </Button>
-            <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
-          </Space>
-        </Row>
-      }
-    >
-      <Card>
-        <div className="purchase-order-list">
-          <PurchaseOrderFilter
-            openSetting={() => setShowSettingColumn(true)}
-            params={params}
-            onMenuClick={onMenuClick}
-            actions={actions}
-            onFilter={onFilter}
-            listSupplierAccount={listSupplierAccount}
-            listRdAccount={listRdAccount}
-            listStore={listStore}
-          />
-          <CustomTable
-            bordered
-            isRowSelection
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            scroll={{x: 3000}}
-            sticky={{offsetScroll: 10, offsetHeader: 55}}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            onSelectedChange={onSelect}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: PurchaseOrder) => item.id}
-          />
-        </div>
-      </Card>
-      <ExportModal
-        visible={showExportModal}
-        onCancel={() => setShowExportModal(false)}
-        onOk={() => {
-          setShowExportModal(false);
-          onExport();
-        }}
-      />
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
-      <ModalDeleteConfirm
-        onCancel={() => setConfirmDelete(false)}
-        onOk={() => {
-          setConfirmDelete(false);
-          // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-          onDelete();
-        }}
-        title="Bạn chắc chắn xóa đơn đặt hàng ?"
-        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-        visible={isConfirmDelete}
-      />
-    </ContentContainer>
+              onShowColumnSetting={() => setShowSettingColumn(true)}
+              onSelectedChange={onSelect}
+              dataSource={data.items}
+              columns={columnFinal}
+              rowKey={(item: PurchaseOrder) => item.id}
+            />
+          </div>
+        </Card>
+        <ExportModal
+          visible={showExportModal}
+          onCancel={() => setShowExportModal(false)}
+          onOk={() => {
+            setShowExportModal(false);
+            onExport();
+          }}
+        />
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa đơn đặt hàng ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
+        />
+      </ContentContainer>
+    </PurchaseOrderListContainer>
   );
 };
 export default PurchaseOrderListScreen;
