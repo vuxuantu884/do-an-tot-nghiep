@@ -83,7 +83,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
-  const params: ProductEcommerceQuery = useMemo(
+  const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
       limit: 30,
@@ -265,10 +265,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "70px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <img
-            src={l.ecommerce_image_url}
+            src={item.ecommerce_image_url}
             style={{ height: "40px" }}
             alt=""
           ></img>
@@ -279,12 +279,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sku/ itemID (Sàn)",
       visible: true,
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <div>
-            <div>{l.ecommerce_sku}</div>
-            <div style={{ color: "#737373" }}>{l.ecommerce_product_id}</div>
-            <div style={{ color: "#2a2a86" }}>({l.shop})</div>
+            <div>{item.ecommerce_sku}</div>
+            <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
+            <div style={{ color: "#2a2a86" }}>({item.shop})</div>
           </div>
         );
       },
@@ -293,8 +293,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sản phẩm (Sàn)",
       visible: true,
       width: "300px",
-      render: (l: any, v: any, i: any) => {
-        return <div>{l.ecommerce_variant}</div>;
+      render: (item: any, v: any, i: any) => {
+        return <div>{item.ecommerce_variant}</div>;
       },
     },
     {
@@ -302,10 +302,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "100px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <span>
-            {l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}
+            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
           </span>
         );
       },
@@ -332,8 +332,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "100px",
-      render: (l: any, v: any, i: any) => {
-        return <span>{formatCurrency(l.core_price)}</span>;
+      render: (item: any, v: any, i: any) => {
+        return <span>{formatCurrency(item.core_price)}</span>;
       },
     },
     {
@@ -341,8 +341,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "60px",
-      render: (l: any, v: any, i: any) => {
-        return <span>{l.stock}</span>;
+      render: (item: any, v: any, i: any) => {
+        return <span>{item.stock}</span>;
       },
     },
     {
@@ -350,10 +350,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductConnectStatus>
-            {l.connect_status === "connected" && (
+            {item.connect_status === "connected" && (
               <span className="success-status">Thành công</span>
             )}
           </StyledProductConnectStatus>
@@ -383,20 +383,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductConnectStatus>
-            {l.sync_stock_status === "done" && (
-              <Tooltip title={convertDateTimeFormat(l.updated_date)}>
+            {item.sync_stock_status === "done" && (
+              <Tooltip title={convertDateTimeFormat(item.updated_date)}>
                 <span className="success-status">Thành công</span>
               </Tooltip>
             )}
-            {l.sync_stock_status === "error" && (
+            {item.sync_stock_status === "error" && (
               <Tooltip title="error">
                 <span className="error-status">Thất bại</span>
               </Tooltip>
             )}
-            {l.sync_stock_status === "in_progress" && (
+            {item.sync_stock_status === "in_progress" && (
               <span className="warning-status">Đang xử lý</span>
             )}
           </StyledProductConnectStatus>
@@ -530,9 +530,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     onClearConnectionDate();
     setVisibleFilter(false);
 
-    formAdvance.setFieldsValue(params);
+    formAdvance.setFieldsValue(initialFormValues);
     formAdvance.submit();
-  }, [formAdvance, params]);
+  }, [formAdvance, initialFormValues]);
 
   const openFilter = React.useCallback(() => {
     setVisibleFilter(true);
@@ -645,10 +645,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   };
 
   const [connectionStartDate, setConnectionStartDate] = useState(
-    params.connected_date_from || null
+    initialFormValues.connected_date_from || null
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    params.connected_date_to || null
+    initialFormValues.connected_date_to || null
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
@@ -714,7 +714,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
+            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
               <Form.Item name="action" className="action-dropdown">
                 <Dropdown
                   overlay={actionList}
@@ -842,7 +842,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
           <Form
             form={formAdvance}
             onFinish={onSearch}
-            initialValues={params}
+            initialValues={initialFormValues}
             layout="vertical"
           >
             <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
