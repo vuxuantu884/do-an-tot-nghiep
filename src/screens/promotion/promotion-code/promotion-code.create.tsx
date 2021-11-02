@@ -6,17 +6,15 @@ import UrlConfig from "../../../config/url.config";
 import {Button, Card, Col, Form, Row, Select} from "antd";
 import {showError} from "../../../utils/ToastUtils";
 import arrowLeft from "../../../assets/icon/arrow-left.svg";
-import {DiscountCreateModel} from "../../../model/promotion/discount.create.model";
 import GeneralCreate from "./components/general.create";
 
 const CreatePromotionCodePage = () => {
   const [promotionForm] = Form.useForm();
   const history = useHistory();
-  const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
   const [customerAdvanceMsg, setCustomerAdvanceMsg] = React.useState<string | null>(null);
 
   const handerSubmit = (values: any) => {
-    let body: DiscountCreateModel = {...values};
+    let body: any = {...values};
     if (body.customer_selection && body.prerequisite_gender === null) {
       console.log('Vui lòng nhập đối tượng khách hàng')
       setCustomerAdvanceMsg("Vui lòng nhập đối tượng khách hàng")
@@ -29,7 +27,6 @@ const CreatePromotionCodePage = () => {
     const fieldName = errorFields[0].name.join("");
     if (fieldName === "contact_name" || fieldName === "contact_phone") {
       showError("Vui lòng nhập thông tin liên hệ");
-      setCollapseActive(true);
     }
   }
 

@@ -178,13 +178,9 @@ export const deleteDeliveryMappedStoreService = (
   providerCode: string,
   params: deleteDeliveryMappedStoreReQuestModel
 ): Promise<BaseResponse<any>> => {
-  const token = getToken();
   return BaseAxios.delete(
     `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/${providerCode}/mapped-stores/delete`,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       data: params,
     }
   );
@@ -249,13 +245,9 @@ export const deleteMultiOrderSourceService = (
   sourceIds: number[]
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   const source_ids = sourceIds;
-  const token = getToken();
   return BaseAxios.delete(
     `${ApiConfig.ORDER}/sources`,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       data: { source_ids },
     }
   );

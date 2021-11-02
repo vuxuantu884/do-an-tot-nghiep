@@ -287,7 +287,7 @@ const ListCode = () => {
               Xuất file
             </Button>
             <Button
-              className="light"
+              className="ant-btn-outline ant-btn-primary"
               size="large"
               icon={<PlusOutlined />}
               onClick={() => setShowModalAdd(true)}
