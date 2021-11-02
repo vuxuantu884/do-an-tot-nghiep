@@ -21,21 +21,21 @@ import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import "./price-rules.scss";
+import "./promo-code.scss";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
-import { getPriceRules } from "domain/actions/promotion/price-rules/price-rules.action";
+import { getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 
 const ListCode = () => {
   const promotionStatuses = [
@@ -120,7 +120,7 @@ const ListCode = () => {
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
+  const [data, setData] = useState<PageResponse<DiscountResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -134,13 +134,13 @@ const ListCode = () => {
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
-  const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
+  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setData(data)
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
-    dispatch(getPriceRules(params, fetchData));
+    dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params]);
 
   const onPageChange = useCallback(

@@ -18,7 +18,7 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import "../price-rules.scss";
+import "../promo-code.scss";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalAddCode from "../components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
@@ -167,7 +167,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Chiết khấu",
@@ -299,7 +299,7 @@ const PromotionDetailScreen: React.FC = () => {
                 {true  && 
                   <Row gutter={30}>
                     <Col span={24}>
-                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
+                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
                     </Col>
                   </Row>
                 }

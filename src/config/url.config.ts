@@ -33,7 +33,7 @@ const UrlConfig = {
   INVENTORY_ADJUSTMENT: `/inventory-adjustment`, 
   DEPARTMENT: `/departments`,
   DISCOUNT: `/discount`,
-  PRICE_RULES: `/price-rules`
+  PROMO_CODE: `/promo-code`
 };
 
 export const BASE_NAME_ROUTER = "/unicorn/admin";

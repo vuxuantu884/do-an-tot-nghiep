@@ -14,7 +14,7 @@ import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
 import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import "./price-rules.scss";
+import "./promo-code.scss";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -22,10 +22,10 @@ import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { getPriceRules } from "domain/actions/promotion/price-rules/price-rules.action";
+import { getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 
 const PromotionCode = () => {
   const promotionStatuses = [
@@ -96,6 +96,7 @@ const PromotionCode = () => {
   ];
 
   const initQuery: any = {
+    type: "MANUAL",
     request: "",
     status: ""
   };
@@ -103,7 +104,7 @@ const PromotionCode = () => {
   const query = useQuery();
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
+  const [data, setData] = useState<PageResponse<DiscountResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -117,14 +118,14 @@ const PromotionCode = () => {
   }
   const [params, setParams] = useState<any>(dataQuery);
 
-  const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
+  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setData(data)
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
-    dispatch(getPriceRules(params, fetchData));
-  }, [dispatch, fetchData, params]);
+    dispatch(getListDiscount(params, fetchData));
+  }, [dispatch, fetchData, params])
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -153,7 +154,7 @@ const PromotionCode = () => {
       width: "7%",
       render: (value: any, item: any, index: number) =>
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/${item.id}`}
+          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
           {value.id}
@@ -270,16 +271,16 @@ const PromotionCode = () => {
         },
         {
           name: "Khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Đợt phát hành",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/create`}>
+          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"

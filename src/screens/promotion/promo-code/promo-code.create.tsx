@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import "./price-rules.scss";
+import "./promo-code.scss";
 import { useHistory } from "react-router-dom";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
@@ -40,11 +40,11 @@ const CreatePromotionCodePage = () => {
         },
         {
           name: "Khuyến mại",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Tạo khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PRICE_RULES}/create`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         },
       ]}
     >

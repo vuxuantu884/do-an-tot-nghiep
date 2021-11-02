@@ -4,7 +4,7 @@ import {
   DatePicker, Divider, Checkbox,
   TimePicker, Input, Tag, Table, Button
 } from "antd";
-import "../price-rules.scss"
+import "../promo-code.scss"
 import React, {useMemo, useState} from "react";
 import ChooseDiscount from "./choose-discount.create";
 import CustomInput from "component/custom/custom-input";
