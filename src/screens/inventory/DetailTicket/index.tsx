@@ -29,6 +29,7 @@ import {
   receivedInventoryTransferAction,
   getFeesAction,
   cancelShipmentInventoryTransferAction,
+  exportInventoryAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, ShipmentItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -304,7 +305,7 @@ const DetailTicket: FC = () => {
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
       if (result) {
-        showSuccess("Nhập hàng liệu thành công");
+        showSuccess("Nhập hàng thành công");
         setDataTable(result.line_items);
         setData(result);
         history.push(`${UrlConfig.INVENTORY_TRANSFER}/${result.id}`);
@@ -513,10 +514,10 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value, row, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status || data?.shipment.status === 'confirmed') {
           return value ? value : 0;
         }
-        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+        else if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && data.shipment.status === 'transferring') {
           return <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
@@ -861,7 +862,7 @@ const DetailTicket: FC = () => {
                         )}}
                       />
                       {
-                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&  data.shipment.status === 'transferring' && (
                           <div className="inventory-transfer-action">
                             <Button
                               type="default"
@@ -957,6 +958,18 @@ const DetailTicket: FC = () => {
                           >
                             Huỷ giao hàng
                           </Button>
+                          {
+                            data.shipment.status === 'confirmed' && (
+                              <Button
+                                type="primary"
+                                onClick={() => {
+                                  if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, onResult));
+                                }}
+                              >
+                                Xuất kho
+                              </Button>
+                            )
+                          }
                         </div>
                       )
                     }
