@@ -6,7 +6,6 @@ import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
@@ -16,6 +15,7 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { PODeleteAction, PoSearchAction } from "domain/actions/po/po.action";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
@@ -25,7 +25,7 @@ import {
 } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import moment from "moment";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
@@ -35,7 +35,7 @@ import { generateQuery } from "utils/AppUtils";
 import { PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery"; 
+import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
 
@@ -130,25 +130,29 @@ const PurchaseOrderListScreen: React.FC = () => {
         break;
     }
   }, []);
-  const ActionComponent = () => {
-    let Compoment = () => <span>ID đơn hàng</span>;
-    if (selected?.length > 0) {
-      Compoment = () => (
-        <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-          <Fragment />
-        </CustomFilter>
-      );
-    }
-    return <Compoment />;
-  };
+
+  let actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "Xóa",
+    },
+  ];
+
+  const ActionComponent = useChangeHeaderToAction(
+    "ID đơn hàng",
+    selected?.length > 0,
+    onMenuClick,
+    actions
+  );
+
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = [
     {
       title: <ActionComponent />,
       dataIndex: "code",
       render: (value: string, i: PurchaseOrder) => {
         return (
-          <>
-            <Link to={`/purchase-order/detail/${i.id}`} style={{fontWeight: 500}}>
+          <> 
+            <Link to={`${UrlConfig.PURCHASE_ORDER}/${i.id}`} style={{fontWeight: 500}}>
               {value}
             </Link>
             <br />
@@ -385,13 +389,6 @@ const PurchaseOrderListScreen: React.FC = () => {
     },
     [history, params]
   );
-
-  let actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Xóa",
-    },
-  ];
 
   const onFilter = useCallback(
     (values) => {
