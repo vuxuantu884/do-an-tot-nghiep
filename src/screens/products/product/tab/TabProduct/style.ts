@@ -1,5 +1,10 @@
 import styled from "styled-components";
 
-export const StyledComponent = styled.div`
- 
+export const ActionStyle = styled.div`
+  .page-filter {
+    padding: 0;
+  }
+  .action-button {
+    z-index: 1;
+  }
 `;

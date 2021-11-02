@@ -361,12 +361,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 ) => {
   const {
     params,
-    actions,
     listSupplierAccount,
     listRdAccount,
-    listStore,
-    onMenuClick,
-    // onClearFilter,
+    listStore, 
     onFilter,
   } = props;
   const [visible, setVisible] = useState(false);
@@ -433,12 +430,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });

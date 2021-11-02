@@ -115,7 +115,12 @@ const ECOMMERCE_SOURCE = {
   sendo: 20,
   tiki: 100
 }
-const ALL_ECOMMERCE_SOURCE_ID = [ECOMMERCE_SOURCE.shopee, ECOMMERCE_SOURCE.lazada, ECOMMERCE_SOURCE.sendo, ECOMMERCE_SOURCE.tiki];
+const ALL_ECOMMERCE_SOURCE_ID = [
+  ECOMMERCE_SOURCE.shopee,
+  ECOMMERCE_SOURCE.lazada,
+  ECOMMERCE_SOURCE.sendo,
+  ECOMMERCE_SOURCE.tiki
+];
 
 const EcommerceOrderSync: React.FC = () => {
   const query = useQuery();

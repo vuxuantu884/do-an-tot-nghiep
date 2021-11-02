@@ -60,8 +60,7 @@ const ListProductScreen: React.FC = () => {
           <Row>
             <Space>
               <Link to={`${UrlConfig.PRODUCT}/import`}>
-                <Button
-                  type="default"
+                <Button 
                   className="light"
                   size="large"
                   icon={
@@ -71,14 +70,12 @@ const ListProductScreen: React.FC = () => {
                   Nhập file
                 </Button>
               </Link>
-              <Button
-                type="default"
+              <Button 
                 className="light"
                 size="large"
                 icon={
                   <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
                 }
-                // onClick={onExport}
                 onClick={() => {}}
               >
                 Xuất file
