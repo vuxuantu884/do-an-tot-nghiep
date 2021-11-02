@@ -880,7 +880,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                     disabled={tableLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
-                    dropdownRender={() => renderShopList(false)}
+                    dropdownRender={() => renderShopList(true)}
                     onClear={removeSelectedShop}
                   />
                 )}

@@ -29,3 +29,4 @@ yarn-error.log*
 /.vs/VSWorkspaceState.json
 /package-lock.json
 .vscode/settings.json
+.env*
