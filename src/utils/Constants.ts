@@ -175,8 +175,14 @@ export const ProcurementStatus = {
   not_received: "not_received",
   received: "received",
 };
+
 export const ProcurementStatusName = {
   [ProcurementStatus.draft]: "Nháp",
   [ProcurementStatus.not_received]: "Đã duyệt",
   [ProcurementStatus.received]: "Đã nhận",
+};
+
+export const PROMO_TYPE = {
+  MANUAL: "MANUAL",
+  AUTOMATIC: "AUTOMATIC",
 };

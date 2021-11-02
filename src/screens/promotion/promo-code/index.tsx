@@ -3,10 +3,9 @@ import {
   Button,
   Form,
   Input,
-  Tag,
-  Select
+  Tag
 } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
@@ -26,8 +25,36 @@ import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { getListDiscount } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PROMO_TYPE } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules, deletePriceRuleById } from "service/promotion/discount/discount.service";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const PromotionCode = () => {
+  const dispatch = useDispatch();
+  const query = useQuery();
+  let dataQuery: any = {
+    ...{
+      type: PROMO_TYPE.AUTOMATIC,
+      request: "",
+      status: ""
+    },
+    ...getQueryParams(query)
+  }
+  const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [dataSource, setDataSource] = useState<PageResponse<DiscountResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  })
+  const [params, setParams] = useState<any>(dataQuery);
+  const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
+  const [modalInfo, setModalInfo] = React.useState<any>();
+  const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
+
   const promotionStatuses = [
     {
       code: 'APPLYING',
@@ -76,6 +103,7 @@ const PromotionCode = () => {
         padding: "5px 10px"
       }},
   ]
+  
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -95,31 +123,8 @@ const PromotionCode = () => {
     },
   ];
 
-  const initQuery: any = {
-    type: "MANUAL",
-    request: "",
-    status: ""
-  };
-  const dispatch = useDispatch();
-  const query = useQuery();
-
-  const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [data, setData] = useState<PageResponse<DiscountResponse>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  })
-  let dataQuery: any = {
-    ...initQuery,
-    ...getQueryParams(query)
-  }
-  const [params, setParams] = useState<any>(dataQuery);
-
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
-    setData(data)
+    setDataSource(data)
     setTableLoading(false)
   }, [])
 
@@ -143,9 +148,12 @@ const PromotionCode = () => {
   const handleUpdate = (item: any) => {
     console.log(item);
   };
+
   const handleShowDeleteModal = (item: any) => {
-    console.log(item);
+    setModalInfo(item);
+    setIsShowDeleteModal(true);
   };
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
@@ -164,21 +172,21 @@ const PromotionCode = () => {
       title: "Tên đợt phát hành",
       visible: true,
       fixed: "left",
-      dataIndex: "name",
+      dataIndex: "title",
       width: "20%",
     },
     {
       title: "SL mã",
       visible: true,
       fixed: "left",
-      dataIndex: "code_amount",
+      dataIndex: "usage_limit_per_customer",
       width: "10%",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "used_amount",
+      dataIndex: "usage_limit",
       width: "10%",
     },
     {
@@ -216,6 +224,7 @@ const PromotionCode = () => {
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
+
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -238,6 +247,7 @@ const PromotionCode = () => {
       </Tag>
     );
   }
+
   const listStatus: Array<BaseBootstrapResponse> = [
     {
       value: "APPLYING",
@@ -260,6 +270,45 @@ const PromotionCode = () => {
       name: "Đã huỷ",
     }
   ]
+
+  const onMenuClick = useCallback(
+    async (index: number) => {
+      const body = {ids: selectedRowKey}
+      switch (index) {
+        case 1:
+          const bulkEnableResponse = await bulkEnablePriceRules(body);
+          if (bulkEnableResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
+          }
+          break;
+        case 2:
+          const bulkDisableResponse = await bulkDisablePriceRules(body);
+          if (bulkDisableResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
+          }
+          break;
+        case 3:
+          break;
+        case 4:
+          const bulkDeleteResponse = await bulkDeletePriceRules(body);
+          if (bulkDeleteResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
+          }
+          break;
+
+      }
+    },
+    [selectedRowKey]
+  );
 
   return (
     <ContentContainer
@@ -294,7 +343,7 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
@@ -336,23 +385,44 @@ const PromotionCode = () => {
 
           {/* <Card style={{ position: "relative" }}> */}
           <CustomTable
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => {
+              console.log('CustomTable: ', rowKey)
+              setSelectedRowKey(rowKey)
+            }}
             isRowSelection
             isLoading={tableLoading}
-            sticky={{ offsetScroll: 5 }}
+            sticky={{offsetScroll: 5}}
             pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
+              pageSize: dataSource.metadata.limit,
+              total: dataSource.metadata.total,
+              current: dataSource.metadata.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={data.items}
-            columns={columnFinal}
+            dataSource={dataSource.items}
+            columns={columns}
             rowKey={(item: any) => item.id}
           />
         </div>
       </Card>
+      <ModalDeleteConfirm
+        onCancel={() => setIsShowDeleteModal(false)}
+        onOk={async () => {
+          const deleteResponse = await deletePriceRuleById(modalInfo?.id);
+          if (deleteResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${deleteResponse.code} - ${deleteResponse.message}`)
+          }
+          setIsShowDeleteModal(false);
+        }}
+        title="Bạn có chắc muốn xoá không?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isShowDeleteModal}
+      />
     </ContentContainer>
   );
 };

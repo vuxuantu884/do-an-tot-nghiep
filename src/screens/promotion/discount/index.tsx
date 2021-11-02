@@ -32,6 +32,7 @@ import {showError, showSuccess} from "../../../utils/ToastUtils";
 import {showLoading} from "../../../domain/actions/loading.action";
 import {productWrapperDeleteAction} from "../../../domain/actions/product/products.action";
 import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
+import { PROMO_TYPE } from "utils/Constants";
 
 const {confirm} = Modal;
 
@@ -107,7 +108,7 @@ const DiscountPage = () => {
     },
   ];
   const initQuery: DiscountSearchQuery = {
-    type: "AUTOMATIC",
+    type: PROMO_TYPE.AUTOMATIC,
     request: "",
     from_created_date: "",
     to_created_date: "",
