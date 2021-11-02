@@ -1,9 +1,6 @@
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
@@ -16,13 +13,11 @@ import {
   searchVariantsRequestAction,
   variantDeleteManyAction,
   variantUpdateAction,
-  variantUpdateManyAction,
+  variantUpdateManyAction
 } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -32,11 +27,17 @@ import {
   VariantPricesResponse,
   VariantResponse,
   VariantSearchQuery,
-  VariantUpdateRequest,
+  VariantUpdateRequest
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, Products } from "utils/AppUtils";
@@ -45,11 +46,8 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ImageProduct from "../../component/image-product.component";
-import UploadImageModal, {
-  VariantImageModel,
-} from "../../component/upload-image.modal";
+import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
-import { ActionStyle } from "./style";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -101,6 +99,7 @@ const initColorQuery: ColorSearchQuery = {
 };
 
 var variantResponse: VariantResponse | null = null;
+
 const TabProduct: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -121,8 +120,7 @@ const TabProduct: React.FC = () => {
   const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [selected, setSelected] = useState<Array<VariantResponse>>([]);
-  const [listMerchandiser, setMerchandiser] =
-    useState<Array<AccountResponse>>();
+  const [listMerchandiser, setMerchandiser] = useState<Array<AccountResponse>>();
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -138,10 +136,157 @@ const TabProduct: React.FC = () => {
     items: [],
   });
   const [rowKey, setRowKey] = useState<Array<any>>([]);
-  const defaultColumn : Array<ICustomTableColumType<VariantResponse>> = [
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      params.page = page;
+      params.limit = size;
+      setPrams({...params});
+    },
+    [params]
+  );
+  const onFilter = useCallback((values) => {
+    let newPrams = {...values, page: 1};
+    setPrams(newPrams);
+  }, []);
+
+  const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
+    setTableLoading(false);
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
+
+  const onResultUpdateSaleable = useCallback(
+    (success: Array<VariantResponse>, error: Array<VariantResponse>, isException) => {
+      dispatch(hideLoading());
+      if (!isException) {
+        data.items.forEach((item) => {
+          let index = success.findIndex((item1) => item.id === item1.id);
+          if (index !== -1) {
+            item = {...item, ...success[index]};
+          }
+        });
+        setData({...data, items: [...data.items]});
+        dispatch(searchVariantsRequestAction(params, setSearchResult));
+        showSuccess("Cập nhật thông tin thành công");
+        setRowKey([]);
+      }
+    },
+    [data, dispatch, params, setSearchResult]
+  );
+
+  const onActive = useCallback(() => {
+    if (selected.length > 0) {
+      dispatch(showLoading());
+      let request: Array<VariantUpdateRequest> = [];
+      selected.forEach((value) => {
+        let variantRequest: VariantUpdateRequest =
+          Products.convertVariantResponseToRequest(value);
+        variantRequest.saleable = true;
+        request.push(variantRequest);
+      });
+      dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));
+    }
+  }, [dispatch, onResultUpdateSaleable, selected]);
+
+  const onInActive = useCallback(() => {
+    if (selected.length > 0) {
+      dispatch(showLoading());
+      let request: Array<VariantUpdateRequest> = [];
+      selected.forEach((value) => {
+        let variantRequest: VariantUpdateRequest =
+          Products.convertVariantResponseToRequest(value);
+        variantRequest.saleable = false;
+        request.push(variantRequest);
+      });
+      dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));
+    }
+  }, [dispatch, onResultUpdateSaleable, selected]);
+
+  const onResultDelete = useCallback(
+    (isException) => {
+      dispatch(hideLoading());
+      if (!isException) {
+        dispatch(searchVariantsRequestAction(params, setSearchResult));
+        showSuccess("Cập nhật thông tin thành công");
+        setRowKey([]);
+        setSelected([]);
+      }
+    },
+    [dispatch, params, setSearchResult]
+  );
+
+  const onDelete = useCallback(() => {
+    if (selected.length > 0) {
+      dispatch(showLoading());
+      let request: Array<any> = [];
+      selected.forEach((value) => {
+        request.push({product_id: value.product_id, variant_id: value.id});
+      });
+      dispatch(variantDeleteManyAction(request, onResultDelete));
+    }
+  }, [dispatch, onResultDelete, selected]);
+
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ACTIONS_INDEX.PRINT_BAR_CODE:
+          history.push(`${UrlConfig.PRODUCT}/barcode`, {selected: selected});
+          break;
+        case ACTIONS_INDEX.ACTIVE:
+          onActive();
+          break;
+        case ACTIONS_INDEX.INACTIVE:
+          onInActive();
+          break;
+        case ACTIONS_INDEX.DELETE:
+          setConfirmDelete(true);
+          break;
+      }
+    },
+    [history, onActive, onInActive, selected]
+  );
+
+  const onSave = useCallback(
+    (variant_images: Array<VariantImage>) => {
+      setUploadVisible(false);
+      if (variantResponse !== null) {
+        dispatch(showLoading());
+        let variantRequest: VariantUpdateRequest =
+          Products.convertVariantResponseToRequest(variantResponse);
+        variantRequest.variant_images = variant_images;
+        dispatch(
+          variantUpdateAction(variantResponse.id, variantRequest, (result) => {
+            dispatch(hideLoading());
+            setTableLoading(true);
+            dispatch(searchVariantsRequestAction(params, setSearchResult));
+          })
+        );
+      }
+    },
+    [dispatch, params, setSearchResult]
+  );
+
+  const onSelect = useCallback((selectedRow: Array<VariantResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+
+  const ActionComponent = useChangeHeaderToAction(
+    "Ảnh",
+    selected.length > 0,
+    onMenuClick,
+    actions
+  );
+
+  const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
       width: 80,
-      title: <ActionComponent/>,
+      title: <ActionComponent />,
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
@@ -200,9 +345,7 @@ const TabProduct: React.FC = () => {
     },
     {
       title: "Merchandiser",
-      render: (value: VariantResponse) => (
-        <div> {value?.product?.merchandiser}</div>
-      ),
+      render: (value: VariantResponse) => <div> {value?.product?.merchandiser}</div>,
       align: "center",
       visible: true,
     },
@@ -229,183 +372,19 @@ const TabProduct: React.FC = () => {
       dataIndex: "created_date",
       visible: true,
       align: "center",
-      render: (value, record) =>
-        ConvertUtcToLocalDate(record?.product?.created_date),
+      render: (value, record) => ConvertUtcToLocalDate(record?.product?.created_date),
     },
-  ]
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<VariantResponse>>
-  >(defaultColumn);
+  ];
 
-  const onPageChange = useCallback(
-    (page, size) => {
-      params.page = page;
-      params.limit = size;
-      setPrams({ ...params });
-    },
-    [params]
-  );
-  const onFilter = useCallback((values) => {
-    let newPrams = { ...values, page: 1 };
-    setPrams(newPrams);
-  }, []);
-
-  const setSearchResult = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
-
-  const onResultUpdateSaleable = useCallback(
-    (
-      success: Array<VariantResponse>,
-      error: Array<VariantResponse>,
-      isException
-    ) => {
-      dispatch(hideLoading());
-      if (!isException) {
-        data.items.forEach((item) => {
-          let index = success.findIndex((item1) => item.id === item1.id);
-          if (index !== -1) {
-            item = { ...item, ...success[index] };
-          }
-        });
-        setData({ ...data, items: [...data.items] });
-        dispatch(searchVariantsRequestAction(params, setSearchResult));
-        showSuccess("Cập nhật thông tin thành công");
-        setRowKey([])
-      }
-    },
-    [data, dispatch, params, setSearchResult]
-  );
-
-  const onActive = useCallback(() => {
-    if (selected.length > 0) {
-      dispatch(showLoading());
-      let request: Array<VariantUpdateRequest> = [];
-      selected.forEach((value) => {
-        let variantRequest: VariantUpdateRequest =
-          Products.convertVariantResponseToRequest(value);
-        variantRequest.saleable = true;
-        request.push(variantRequest);
-      });
-      dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));
-    }
-  }, [dispatch, onResultUpdateSaleable, selected]);
-
-  const onInActive = useCallback(() => {
-    if (selected.length > 0) {
-      dispatch(showLoading());
-      let request: Array<VariantUpdateRequest> = [];
-      selected.forEach((value) => {
-        let variantRequest: VariantUpdateRequest =
-          Products.convertVariantResponseToRequest(value);
-        variantRequest.saleable = false;
-        request.push(variantRequest);
-      });
-      dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));
-    }
-  }, [dispatch, onResultUpdateSaleable, selected]);
-
-  const onResultDelete = useCallback(
-    (
-      isException
-    ) => {
-      dispatch(hideLoading());
-      if (!isException) {
-        dispatch(searchVariantsRequestAction(params, setSearchResult));
-        showSuccess("Cập nhật thông tin thành công");
-        setRowKey([]);
-        setSelected([]);
-      }
-    },
-    [dispatch, params, setSearchResult]
-  );
-
-  const onDelete = useCallback(() => {
-    if (selected.length > 0) {
-      dispatch(showLoading());
-      let request: Array<any> = [];
-      selected.forEach((value) => {
-        request.push({product_id: value.product_id, variant_id: value.id});
-      });
-      dispatch(variantDeleteManyAction(request, onResultDelete));
-    }
-  }, [dispatch, onResultDelete, selected])
-
-  const onMenuClick = useCallback(
-    (index: number) => {
-      switch (index) {
-        case ACTIONS_INDEX.PRINT_BAR_CODE:
-          history.push(`${UrlConfig.PRODUCT}/barcode`, { selected: selected });
-          break;
-        case ACTIONS_INDEX.ACTIVE:
-          onActive();
-          break;
-        case ACTIONS_INDEX.INACTIVE:
-          onInActive();
-          break;
-        case ACTIONS_INDEX.DELETE:
-          setConfirmDelete(true);
-          break;
-      }
-    },
-    [history, onActive, onInActive, selected]
-  );
-
-  const onSave = useCallback(
-    (variant_images: Array<VariantImage>) => {
-      setUploadVisible(false);
-      if (variantResponse !== null) {
-        dispatch(showLoading());
-        let variantRequest: VariantUpdateRequest =
-          Products.convertVariantResponseToRequest(variantResponse);
-        variantRequest.variant_images = variant_images;
-        dispatch(
-          variantUpdateAction(variantResponse.id, variantRequest, (result) => {
-            dispatch(hideLoading());
-            setTableLoading(true);
-            dispatch(searchVariantsRequestAction(params, setSearchResult));
-          })
-        );
-      }
-    },
-    [dispatch, params, setSearchResult]
-  );
+  const [columns, setColumn] =
+    useState<Array<ICustomTableColumType<VariantResponse>>>(defaultColumn);
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
 
-  const onSelect = useCallback((selectedRow: Array<VariantResponse>) => {
-    setSelected(
-      selectedRow.filter(function (el) {
-        return el !== undefined;
-      })
-    );
-  }, []);
-
-  function ActionComponent() {
-    let Component = () => <span>Ảnh</span>;
-    if (selected.length > 0) {
-      Component = () => (
-        <ActionStyle>
-        <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-          <Fragment />
-        </CustomFilter>
-        </ActionStyle>
-      );
-    }
-    return <Component />;
-  };
-
   useLayoutEffect(() => {
     setColumn(defaultColumn);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
@@ -422,6 +401,7 @@ const TabProduct: React.FC = () => {
     setTableLoading(true);
     dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
+
   return (
     <div>
       <ProductFilter
@@ -444,8 +424,8 @@ const TabProduct: React.FC = () => {
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
-        scroll={{ x: 1300 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+        scroll={{x: 1300}}
+        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
