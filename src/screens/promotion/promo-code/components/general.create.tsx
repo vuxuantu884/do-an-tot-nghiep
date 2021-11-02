@@ -22,7 +22,12 @@ const Option = Select.Option
 
 
 const GeneralCreate = (props: any) => {
-  const { form } = props;
+  const {
+    form,
+    listStore,
+    listSource,
+    // customerAdvanceMsg
+  } = props;
 
   const [showTimeAdvance, setShowTimeAdvance] = useState(false)
   const [allStore, setAllStore] = useState(false)
@@ -354,6 +359,7 @@ const GeneralCreate = (props: any) => {
         </Card>
       </Col>
       <Col span={6}>
+        {/* Thời gian áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -367,30 +373,27 @@ const GeneralCreate = (props: any) => {
                   placeholder={["Từ ngày", "Đến ngày"]}
                   style={{width: "100%"}}
                 />
-
               </Form.Item>
-              <Space direction="horizontal">
-                <Switch onChange={value => {
-                  setDisabledEndDate(value);
-                  if (value) {
-                    form.setFieldsValue({
-                      prerequisite_duration: [form.getFieldsValue()['prerequisite_duration']?.[0], null]
-                    })
-                  }
-                }}/>
-                {"Không cần ngày kết thúc"}
-              </Space>
-              <Divider/>
-              <Space direction="horizontal">
-                <Checkbox
-                  defaultChecked={false}
-                  onChange={(value) => setShowTimeAdvance(value.target.checked)}
-                  style={{paddingBottom: "20px"}}
-                >
-                  Hiển thị nâng cao
-                </Checkbox>
-              </Space>
             </Col>
+            <Space direction="horizontal">
+              <Switch onChange={value => {
+                setDisabledEndDate(value);
+                if (value) {
+                  form.resetFields(['prerequisite_duration'])
+                }
+              }}/>
+              {"Không cần ngày kết thúc"}
+            </Space>
+            <Divider/>
+            <Space direction="horizontal">
+              <Checkbox
+                defaultChecked={false}
+                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
+                style={{paddingBottom: "20px"}}
+              >
+                Hiển thị nâng cao
+              </Checkbox>
+            </Space>
           </Row>
           {showTimeAdvance ? <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -431,6 +434,7 @@ const GeneralCreate = (props: any) => {
             </Col>
           </Row> : null}
         </Card>
+        {/* Cửa hàng áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -440,21 +444,23 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
                 <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
-                  <Option value="CH1">Cửa hàng 1</Option>
-                  <Option value="CH2">Cửa hàng 2</Option>
-                  <Option value="CH3">Cửa hàng 3</Option>
+                  {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
-                  setAllStore(value)
+                  form.setFieldsValue({
+                    prerequisite_store_ids: undefined
+                  });
                   form.validateFields(['prerequisite_store_ids'])
+                  setAllStore(value)
                 }}/>
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
           </Row>
         </Card>
+        {/* Kênh bán hàng áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -479,6 +485,7 @@ const GeneralCreate = (props: any) => {
             </Col>
           </Row>
         </Card>
+        {/* Nguồn đơn hàng áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -488,14 +495,15 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
                 <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
-                  <Option value="LAZADA">LAZADA</Option>
-                  <Option value="SHOPEE">SHOPEE</Option>
-                  <Option value="SENDO">SENDO</Option>
+                  {listSource?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
                   form.validateFields(['prerequisite_order_sources_ids'])
+                  form.setFieldsValue({
+                    prerequisite_order_sources_ids: undefined
+                  })
                   setAllSource(value)
                 }}/>
                 {"Áp dụng toàn bộ"}

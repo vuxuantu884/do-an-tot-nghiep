@@ -1,32 +1,96 @@
 import React, {useEffect, useState} from "react";
-import "./promo-code.scss";
-import { useHistory } from "react-router-dom";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
-import {Button, Card, Col, Form, Row, Select} from "antd";
-import {showError} from "../../../utils/ToastUtils";
 import arrowLeft from "../../../assets/icon/arrow-left.svg";
 import GeneralCreate from "./components/general.create";
+import "./promo-code.scss";
+import { Button, Col, Form, Row } from "antd";
+import { useHistory } from "react-router-dom";
+import { showError, showSuccess } from "../../../utils/ToastUtils";
+import { useDispatch } from "react-redux";
+import { PROMO_TYPE } from "utils/Constants";
+import { createPriceRule } from "service/promotion/discount/discount.service";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { StoreGetListAction } from "../../../domain/actions/core/store.action";
+import { getListSourceRequest } from "../../../domain/actions/product/source.action";
 
 const CreatePromotionCodePage = () => {
-  const [promotionForm] = Form.useForm();
+  const dispatch = useDispatch();
   const history = useHistory();
-  const [customerAdvanceMsg, setCustomerAdvanceMsg] = React.useState<string | null>(null);
+  const [promoCodeForm] = Form.useForm();
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  useEffect(() => {
+    dispatch(StoreGetListAction(setStore));
+    dispatch(getListSourceRequest(setListSource));
 
-  const handerSubmit = (values: any) => {
-    let body: any = {...values};
-    if (body.customer_selection && body.prerequisite_gender === null) {
-      console.log('Vui lòng nhập đối tượng khách hàng')
-      setCustomerAdvanceMsg("Vui lòng nhập đối tượng khách hàng")
+  }, []);
+
+  const transformData = (values: any) => {
+    console.log('transformData: ', values);
+    let body: any = {};
+    body.type = PROMO_TYPE.AUTOMATIC;
+    body.title = values.title;
+    body.priority = values.priority;
+    body.description = values.descriptionl
+    body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
+    body.entitled_method = values.entitled_method;
+    body.usage_limit = values.usage_limit;
+    body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
+    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
+    body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
+    body.starts_date = values.starts_date.format();
+    body.ends_date = values.ends_date?.format();
+    body.entitlements = values.entitlements.map((entitlement: any) => {
+      return {
+        entitled_variant_ids: entitlement.entitled_variant_ids || null,
+        entitled_category_ids: null,
+        prerequisite_quantity_ranges: [
+          {
+            greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
+            less_than_or_equal_to: null,
+            allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
+            value_type: entitlement['prerequisite_quantity_ranges.value_type'],
+            value: entitlement['prerequisite_quantity_ranges.value'],
+          },
+        ],
+        prerequisite_subtotal_ranges: null
+      }
+    })
+    return body;
+  }
+
+  const handerSubmit = async (values: any) => {
+    const body = transformData(values);
+    body.disabled = false;
+    const createResponse = await createPriceRule(body);
+    if (createResponse.code === 20000000) {
+      showSuccess("Lưu và kích hoạt thành công");
+      history.push("/promotion/discount");
+    } else {
+      showError(`${createResponse.code} - ${createResponse.message}`);
     }
-    console.log("handler submit - values: ", values);
-    console.log("handler submit - DiscountCreateModel: ", body);
+
   }
 
   const handleSubmitFail = (errorFields: any) => {
     const fieldName = errorFields[0].name.join("");
     if (fieldName === "contact_name" || fieldName === "contact_phone") {
       showError("Vui lòng nhập thông tin liên hệ");
+    }
+  }
+
+  const save = async () => {
+    const values = await promoCodeForm.validateFields();
+    const body = transformData(values);
+    body.disabled = true;
+    const createResponse = await createPriceRule(body);
+    if (createResponse.code === 20000000) {
+      showSuccess("Lưu thành công");
+      history.push("/promotion/discount");
+    } else {
+      showError(`${createResponse.code} - ${createResponse.message}`);
     }
   }
 
@@ -49,7 +113,7 @@ const CreatePromotionCodePage = () => {
       ]}
     >
       <Form
-        form={promotionForm}
+        form={promoCodeForm}
         name="discount_add"
         onFinish={handerSubmit}
         onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
@@ -58,11 +122,13 @@ const CreatePromotionCodePage = () => {
       >
         <Row gutter={24}>
           <Col span={24}>
-            <GeneralCreate
+          <GeneralCreate
               className="general-info"
-              form={promotionForm}
+              form={promoCodeForm}
               name="general_add"
-              customerAdvanceMsg={customerAdvanceMsg}
+              listStore={listStore}
+              listSource={listSource}
+              // customerAdvanceMsg={customerAdvanceMsg}
             />
           </Col>
         </Row>
@@ -80,7 +146,7 @@ const CreatePromotionCodePage = () => {
               Hủy
             </Button>
             <Button
-              // onClick={() => reload()}
+              onClick={() => save()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem", borderColor: "#2a2a86" }}
               type="ghost"
             >
