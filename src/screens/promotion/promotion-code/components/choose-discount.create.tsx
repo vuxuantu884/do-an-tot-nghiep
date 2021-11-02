@@ -52,7 +52,16 @@ const ChooseDiscount = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={8}>
-        <Form.Item label="Mỗi mã được sử dụng:">
+        <Form.Item 
+          label="Mỗi mã được sử dụng:"
+          name="amountUsed"
+          rules={[
+            {
+              required: true,
+              message: "Mã được sử dụng không được để trống",
+            },
+          ]}
+        >
           <NumberInput
             style={{
               textAlign: "right",
@@ -61,7 +70,6 @@ const ChooseDiscount = (props: any) => {
             }}
             maxLength={999999999999}
             minLength={0}
-            // value={}
           />
         </Form.Item>
         </Col>

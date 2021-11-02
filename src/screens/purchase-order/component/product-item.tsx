@@ -1,8 +1,8 @@
-import { VariantResponse } from "model/product/product.model";
-import imgDefIcon from "assets/img/img-def.svg";
-import { formatCurrency, Products } from "utils/AppUtils";
-import { AppConfig } from "config/app.config";
 import { Checkbox } from "antd";
+import imgDefIcon from "assets/img/img-def.svg";
+import { AppConfig } from "config/app.config";
+import { VariantResponse } from "model/product/product.model";
+import { formatCurrency, Products } from "utils/AppUtils";
 
 type ProductItemProps = {
   data: VariantResponse
@@ -39,7 +39,7 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
               <span className="product-item-price">{price_data && price_data.import_price ?  formatCurrency(price_data.import_price) : 0} <span className="currency">₫</span></span>
             )
           }
-          <span className="product-item-inventory">Số lượng: <span className="value">{data.on_hand ? data.on_hand : 0}</span></span>
+          <span className="product-item-inventory">Số lượng tồn: <span className="value">{data.on_hand ? data.on_hand : 0}</span></span>
         </div>
       </div>
     </div>
