@@ -2,7 +2,6 @@ import { Steps } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
-import { StyledWrapper } from "screens/inventory/DetailTicket/components/InventoryTransferStep/styles";
 import { InventoryAdjustmentDetailItem } from "model/inventoryadjustment";
 import { STATUS_INVENTORY_ADJUSTMENT } from "screens/inventory-adjustment/ListInventoryAdjustment/constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -52,7 +51,6 @@ const InventoryAdjustmentTimeLine: React.FC<StepStatusProps> = (props: StepStatu
   }
 
   return (
-    <StyledWrapper>
       <Steps
         progressDot={progressDot}
         size="small"
@@ -72,7 +70,6 @@ const InventoryAdjustmentTimeLine: React.FC<StepStatusProps> = (props: StepStatu
           description={stradjusted_date}
         />
       </Steps>
-    </StyledWrapper>
   );
 };
 
