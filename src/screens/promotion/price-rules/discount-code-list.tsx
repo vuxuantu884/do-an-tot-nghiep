@@ -35,7 +35,7 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
-import { getPriceRules } from "domain/actions/promotion/promotion-code/promotion-code.action";
+import { getPriceRules } from "domain/actions/promotion/price-rules/price-rules.action";
 
 const ListCode = () => {
   const promotionStatuses = [

@@ -25,7 +25,7 @@ import { MenuAction } from "component/table/ActionButton";
 import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { getPriceRules } from "domain/actions/promotion/promotion-code/promotion-code.action";
+import { getPriceRules } from "domain/actions/promotion/price-rules/price-rules.action";
 
 const PromotionCode = () => {
   const promotionStatuses = [
