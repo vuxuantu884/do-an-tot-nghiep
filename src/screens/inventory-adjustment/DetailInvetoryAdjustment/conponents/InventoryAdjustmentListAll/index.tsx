@@ -74,6 +74,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (props: p
     },
     {
       title: "Sản phẩm",
+      width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem, index: number) => (
