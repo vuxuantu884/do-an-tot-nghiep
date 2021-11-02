@@ -114,7 +114,7 @@ const ListAccountScreen: React.FC = () => {
       dataIndex: "account_roles",
       render: (values: Array<AccountRolesResponse>) => (
         <span>
-          {values.map((item) => {
+          {values?.map((item) => {
             return <Tag color="blue">{item.role_name}</Tag>;
           })}
         </span>

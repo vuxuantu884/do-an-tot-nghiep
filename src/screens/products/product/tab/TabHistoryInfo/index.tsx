@@ -1,5 +1,5 @@
 import CustomTable, {
-  ICustomTableColumType,
+  ICustomTableColumType
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
@@ -7,7 +7,7 @@ import { productGetHistoryAction } from "domain/actions/product/products.action"
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   ProductHistoryQuery,
-  ProductHistoryResponse,
+  ProductHistoryResponse
 } from "model/product/product.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
 const initQuery: ProductHistoryQuery = {};
@@ -135,7 +135,14 @@ const TabHistoryInfo: React.FC = () => {
   return (
     <div>
       <HistoryProductFilter
-        onFinish={(values) => {
+        onFinish={(values: any) => {
+          let { from_action_date, to_action_date } = values;
+          if (from_action_date) {
+            values.from_action_date = getStartOfDay(from_action_date)
+          }
+          if (to_action_date) {
+            values.to_action_date = getEndOfDay(to_action_date)
+          }
           let newParams = { ...params, ...values, page: 1 };
           setParams(newParams);
           let queryParam = generateQuery(newParams);

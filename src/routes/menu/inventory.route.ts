@@ -24,6 +24,12 @@ const PurchaseOrderReturnScreen = React.lazy(
   () => import("screens/purchase-order/purchase-order-return.screen")
 );
 
+//Kiểm kê, DUOCNC 20211021
+
+const ListInventoryAdjustment = React.lazy(() => import("screens/inventory-adjustment/ListInventoryAdjustment"));
+const CreateInventoryAdjustment = React.lazy(() => import("screens/inventory-adjustment/CreateInventoryAdjustment"));
+const DetailInvetoryAdjustment = React.lazy( () => import("screens/inventory-adjustment/DetailInvetoryAdjustment"));
+
 export const inventory: Array<RouteMenu> = [
   {
     path: UrlConfig.PURCHASE_ORDER,
@@ -172,6 +178,40 @@ export const inventory: Array<RouteMenu> = [
         subMenu: [],
       },
       
+    ],
+  },
+  {
+    path: UrlConfig.INVENTORY_ADJUSTMENT,
+    exact: true,
+    title: "Kiểm kho",
+    icon: "icon-dot",
+    component: ListInventoryAdjustment,
+    key: "submenu33",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.INVENTORY_ADJUSTMENT}/create`,
+        exact: true,
+        title: "Kiểm kho",
+        icon: "icon-dot",
+        component: CreateInventoryAdjustment,
+        key: "submenu33",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      }, 
+      {
+        path: `${UrlConfig.INVENTORY_ADJUSTMENT}/:id`,
+        exact: true,
+        title: "Kiểm kho",
+        icon: "icon-dot",
+        component: DetailInvetoryAdjustment,
+        key: "submenu31",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
     ],
   },
 ];

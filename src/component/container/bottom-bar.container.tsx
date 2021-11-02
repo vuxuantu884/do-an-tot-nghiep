@@ -8,7 +8,8 @@ interface BottomBarProps {
   back?: string | false;
   leftComponent?: React.ReactNode;
   rightComponent?: React.ReactNode;
-  height?: number
+  height?: number;
+  backAction?:()=>void;
 }
 
 const BottomBarContainer: React.FC<BottomBarProps> = (
@@ -18,12 +19,21 @@ const BottomBarContainer: React.FC<BottomBarProps> = (
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
-  const { back, leftComponent, rightComponent, height } = props;
+  const { back, leftComponent, rightComponent, height, backAction } = props;
+
+  function handleBack() {
+    if (backAction) {
+      backAction();
+    } else {
+      history.goBack();
+    }
+  }
+
   return (
     <div style={{height: height ? height: 55}} className={classNames("bottom", collapse && "collapse")}>
       <div className="bottom__left">
         {back && (
-          <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
+          <div onClick={handleBack} style={{ cursor: "pointer" }}>
             <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
             {back}
           </div>

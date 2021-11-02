@@ -76,7 +76,7 @@ export interface OrderSearchQuery {
   sort_column: string | null;
   code: string | null;
   store_ids: [];
-  source_ids: [];
+  source_ids: Array<any> | [];
   customer_ids: Array<number>;
   issued_on_min: string | null;
   issued_on_max: string | null;

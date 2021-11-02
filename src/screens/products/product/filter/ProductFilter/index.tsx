@@ -79,11 +79,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   );
   const onFinishAvd = useCallback(
     (values: any) => {
+      console.log('onFinishAvd: ', values);
       setAdvanceFilters(values);
       if (values.created_date) {
+        console.log('11111');
         const [from_created_date, to_created_date] = values.created_date;
         values.from_created_date = values.created_date ? from_created_date : undefined;
         values.to_created_date = values.created_date ? to_created_date : undefined;
+        console.log('onFinishAvd - values: ', values);
       }
       onFilter && onFilter(values);
     },

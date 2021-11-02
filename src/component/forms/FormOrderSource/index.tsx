@@ -123,7 +123,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                     return Promise.reject(new Error("Chỉ nhập kí tự chữ và in hoa!"));
                   },
                 }),
-                {len: 4, message: "Nhập 4 ký tự!"},
+                { len: 4, message: "Nhập 4 ký tự!" },
               ]}
             >
               <Input
