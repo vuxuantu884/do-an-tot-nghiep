@@ -24,23 +24,23 @@ const CreatePromotionCodePage = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
-
   }, []);
 
   const transformData = (values: any) => {
     console.log('transformData: ', values);
     let body: any = {};
-    body.type = PROMO_TYPE.AUTOMATIC;
+    body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
-    body.description = values.description
-    body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
-    body.entitled_method = values.entitled_method;
-    body.usage_limit = values.usage_limit;
+    body.description = values.description;
+    body.discount_codes = values.discount_code?.length ? [{code: "PC" + values.discount_code}] : null;
+    body.usage_limit = values.usage_limit ? values.usage_limit : null;
+    body.usage_limit_per_customer = values.usage_limit_per_customer  ? values.usage_limit_per_customer : null;
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
-    body.starts_date = values.starts_date?.format();
-    body.ends_date = values.ends_date?.format();
+    body.starts_date = values.prerequisite_duration[0]?.format();
+    body.ends_date = values.prerequisite_duration[1]?.format();
+    body.entitled_method = "QUANTITY";
     body.entitlements = values.entitlements.map((entitlement: any) => {
       return {
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
@@ -50,13 +50,15 @@ const CreatePromotionCodePage = () => {
             greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
             less_than_or_equal_to: null,
             allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
-            value_type: entitlement['prerequisite_quantity_ranges.value_type'],
-            value: entitlement['prerequisite_quantity_ranges.value'],
+            value_type: values.value_type,
+            value: values.value,
           },
         ],
         prerequisite_subtotal_ranges: null
       }
-    })
+    });
+    console.log(body);
+    
     return body;
   }
 
@@ -66,7 +68,7 @@ const CreatePromotionCodePage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/discount");
+      history.push("/promotion/promo-code");
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
@@ -87,7 +89,7 @@ const CreatePromotionCodePage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu thành công");
-      history.push("/promotion/discount");
+      history.push("/promotion/promo-code");
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
@@ -117,7 +119,6 @@ const CreatePromotionCodePage = () => {
         onFinish={handerSubmit}
         onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
         layout="vertical"
-        initialValues={{ entitlements: [""] }}
       >
         <Row gutter={24}>
           <Col span={24}>

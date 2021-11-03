@@ -35,7 +35,7 @@ const PromotionCode = () => {
   const query = useQuery();
   let dataQuery: any = {
     ...{
-      type: PROMO_TYPE.AUTOMATIC,
+      type: PROMO_TYPE.MANUAL,
       request: "",
       status: ""
     },

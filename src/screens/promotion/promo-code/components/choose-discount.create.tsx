@@ -7,11 +7,14 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 
 const ChooseDiscount = (props: any) => {
   const {form} = props;
-  const [typeUnit, setTypeUnit] = useState("PERCENT")
+  const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
+  const [isUsageLimit, setIsUsageLimit] = useState(false);
+  const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(false);
 
   return (
     <Col span={24}>
       <Row gutter={30}>
+        {/* Giá trị khuyến mại */}
         <Col span={11}>
           <Form.Item
             required
@@ -25,7 +28,7 @@ const ChooseDiscount = (props: any) => {
                     message: "Giá trị khuyến mại không được để trống",
                   },
                 ]}
-                name="weight"
+                name="value"
                 noStyle
               >
                 <NumberInput
@@ -37,81 +40,103 @@ const ChooseDiscount = (props: any) => {
                   style={{ width: "calc(100% - 70px)" }}
                 />
               </Form.Item>
-              <Form.Item name="weight_unit" noStyle>
+              <Form.Item name="value_type" noStyle>
                 <Select
                   placeholder="Đơn vị"
                   style={{ width: "70px" }}
-                  defaultValue={"PERCENT"}
-                  onChange={(value: string) => setTypeUnit(value)}
+                  defaultValue={"PERCENTAGE"}
+                  value={typeUnit}
+                  onChange={(value: string) => {
+                    setTypeUnit(value);
+                    form.setFieldsValue({value_type: value})
+                  }}
                 >
-                  <Select.Option key='percent' value="PERCENT"> {"%"} </Select.Option>
-                  <Select.Option key='percent' value="VND"> {"đ"} </Select.Option>
+                  <Select.Option key='percent' value="PERCENTAGE"> {"%"} </Select.Option>
+                  <Select.Option key='percent' value="FIXED_AMOUNT"> {"đ"} </Select.Option>
                 </Select>
               </Form.Item>
             </Input.Group>
           </Form.Item>
         </Col>
+        {/* Mỗi mã được sử dụng */}
         <Col span={8}>
-        <Form.Item 
-          label="Mỗi mã được sử dụng:"
-          name="amountUsed"
-          rules={[
-            {
-              required: true,
-              message: "Mã được sử dụng không được để trống",
-            },
-          ]}
-        >
-          <NumberInput
-            style={{
-              textAlign: "right",
-              width: "100%",
-              color: "#222222",
-            }}
-            maxLength={999999999999}
-            minLength={0}
-          />
-        </Form.Item>
+          <Form.Item 
+            label="Mỗi mã được sử dụng:"
+            name="usage_limit"
+            rules={[
+              {
+                required: true,
+                message: "Mã được sử dụng không được để trống",
+              },
+            ]}
+          >
+            <NumberInput
+              style={{
+                textAlign: "right",
+                width: "100%",
+                color: "#222222",
+              }}
+              maxLength={999999999999}
+              minLength={0}
+              disabled={isUsageLimit}
+            />
+          </Form.Item>
         </Col>
         <Col span={5}>
           <Form.Item label=" ">
-            <Checkbox> Không giới hạn </Checkbox>
+            <Checkbox onChange={value => {
+              setIsUsageLimit(value.target.checked);
+              form.setFieldsValue({
+                usage_limit: null
+              });
+            }}> Không giới hạn </Checkbox>
           </Form.Item>
         </Col>
       </Row>
       <Row gutter={30}>
+        {/* Tối đa */}
         <Col span={11}>
-        <Form.Item label="Tối đa:">
+          <Form.Item label="Tối đa:">
           <NumberInput
             style={{
               textAlign: "right",
               width: "15%",
               color: "#222222",
             }}
-            maxLength={999999999999}
+            maxLength={999}
             minLength={0}
+            min={0}
+            max={100}
             disabled={typeUnit !== "PERCENT"}
-            // value={}
           />
           </Form.Item>
         </Col>
+        {/* Mỗi khách được sử dụng tối đa */}
         <Col span={8}>
-        <Form.Item label="Mỗi khách được sử dụng tối đa:">
-          <NumberInput
-            style={{
-              textAlign: "right",
-              width: "100%",
-              color: "#222222",
-            }}
-            minLength={0}
-            // value={}
-          />
-        </Form.Item>
+          <Form.Item 
+            name="usage_limit_per_customer"
+            label="Mỗi khách được sử dụng tối đa:"
+          >
+            <NumberInput
+              style={{
+                textAlign: "right",
+                width: "100%",
+                color: "#222222",
+              }}
+              minLength={0}
+              disabled={isUsageLimitPerCus}
+            />
+          </Form.Item>
         </Col>
         <Col span={5}>
         <Form.Item label=" ">
-            <Checkbox> Không giới hạn </Checkbox>
-          </Form.Item>
+            <Checkbox onChange={value => {
+              setIsUsageLimitPerCus(value.target.checked);
+              form.setFieldsValue({
+                usage_limit_per_customer: null
+              });
+            }}> Không giới hạn </Checkbox>
+        </Form.Item>
         </Col>
       </Row>
       <hr style={{marginTop: "0"}} />
