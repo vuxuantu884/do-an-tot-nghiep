@@ -1080,7 +1080,7 @@ const UpdateTicket: FC = () => {
             onCancel={() => {
               setIsVisibleModalWarning(false);
             }}
-            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}/${id}`)}
+            onOk={() => history.push(`${UrlConfig.INVENTORY_TRANSFER}`)}
             okText="Đồng ý"
             cancelText="Tiếp tục"
             title={`Bạn có muốn rời khỏi trang?`}

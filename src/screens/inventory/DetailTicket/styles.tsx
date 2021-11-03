@@ -106,6 +106,16 @@ export const StyledWrapper = styled.div`
     & .button-draft {
       margin-right: 20px;
     }
+
+    & .export-button {
+      background-color: unset;
+      color: #2a2a86;
+      margin-left: 20px;
+      &:hover{
+        background-color: #2a2a86;
+        color: #fff;
+      }
+    }
   }
   .ant-table-summary>tr>td, .ant-table-summary>tr>th {
     border-bottom: none;

@@ -121,8 +121,14 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     setIsFromReceiveDate(null)
     setIsToReceiveDate(null)
 
+    formSearchRef?.current?.setFieldsValue({
+      condition: "",
+      from_store_id: '',
+      to_store_id: '',
+    })
+
     setVisible(false);
-  }, [onClearFilter]);
+  }, [formSearchRef, onClearFilter]);
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -372,7 +378,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
     return list
   }, [initialValues, accounts]);
-    
+
   return (
   <InventoryFiltersWrapper>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
