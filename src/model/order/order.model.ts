@@ -37,6 +37,7 @@ export interface OrderModel {
   customer_phone_number: string;
   store_full_address: string;
   store: string;
+  store_id: number;
   source: string;
   status: string;
   sub_status: string | null;
@@ -75,7 +76,7 @@ export interface OrderSearchQuery {
   sort_column: string | null;
   code: string | null;
   store_ids: [];
-  source_ids: [];
+  source_ids: Array<any> | [];
   customer_ids: Array<number>;
   issued_on_min: string | null;
   issued_on_max: string | null;
@@ -115,6 +116,6 @@ export interface OrderSearchQuery {
 }
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
-  shop_ids: [];
+  ecommerce_shop_ids: [];
   channel_id: number | undefined;
 }

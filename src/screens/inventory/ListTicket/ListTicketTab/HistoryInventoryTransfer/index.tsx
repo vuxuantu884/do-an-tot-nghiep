@@ -115,6 +115,7 @@ const HistoryInventoryTransferTab: React.FC = () => {
     ...initQuery,
     ...getQueryParams(query),
   };
+  
   const history = useHistory();
   let [params, setPrams] = useState<InventoryTransferLogSearchQuery>(dataQuery);
 

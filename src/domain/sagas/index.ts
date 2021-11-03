@@ -29,7 +29,13 @@ import { productSaga } from "./product/product.saga";
 import { sizeSaga } from "./product/size.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
 import { settingOrdersSaga } from "./settings/order-settings.saga";
+import { inventoryAdjustmentSaga } from "./invetory/inventory-adjustment.saga"; 
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
+import { departmentSaga } from "./account/department.saga";
+import { discountSaga } from "./promotion/discount/discount.saga";
+import { promotionCodeSaga } from "./promotion/promotion-code/promotion-code.saga";
+import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
+import { moduleSaga } from "./auth/module.saga";
 
 function* rootSaga() {
   yield all([
@@ -64,6 +70,12 @@ function* rootSaga() {
     loyaltySaga(),
     ecommerceSaga(),
     OrderReturnSaga(),
+    inventoryAdjustmentSaga(),
+    discountSaga(),
+    promotionCodeSaga(),
+    departmentSaga(),
+    GoodsReceiptsSaga(),
+    moduleSaga()
   ]);
 }
 

@@ -171,9 +171,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
         return (
           checkIfIsInTimePeriod(single.start_date, single.end_date) &&
           single.status === ORDER_SETTINGS_STATUS.active &&
-          single.external_service_transport_types &&
+          single.transport_types &&
           checkIfListServicesContainSingle(
-            single.external_service_transport_types,
+            single.transport_types,
             transportType
           )
         );

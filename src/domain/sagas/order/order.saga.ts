@@ -33,6 +33,7 @@ import {
   getPaymentMethod,
   getReasonsApi,
   getReturnApi,
+  getSourcesEcommerceService,
   orderPostApi,
   orderPutApi,
   putFulfillmentsPackApi,
@@ -45,7 +46,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import { OrderType } from "../../types/order.type";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
-import { SourceResponse } from "./../../../model/response/order/source.response";
+import { SourceEcommerceResponse, SourceResponse } from "./../../../model/response/order/source.response";
 import {
   getDeliverieServices,
   getListOrderApi,
@@ -74,7 +75,7 @@ function* getListOrderSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getListOrderFpageSaga(action: YodyAction) {
@@ -88,7 +89,7 @@ function* getListOrderFpageSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getListOrderCustomerSaga(action: YodyAction) {
@@ -105,7 +106,7 @@ function* getListOrderCustomerSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getShipmentsSaga(action: YodyAction) {
@@ -119,7 +120,7 @@ function* getShipmentsSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getReturnsSaga(action: YodyAction) {
@@ -133,7 +134,7 @@ function* getReturnsSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* orderCreateSaga(action: YodyAction) {
@@ -286,7 +287,7 @@ function* PaymentMethodGetListSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* getDataSource(action: YodyAction) {
@@ -300,7 +301,7 @@ function* getDataSource(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* orderDetailSaga(action: YodyAction) {
@@ -542,7 +543,7 @@ function* getListSubStatusSaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* setSubStatusSaga(action: YodyAction) {
@@ -619,9 +620,9 @@ function* getListReasonSaga(action: YodyAction) {
 
 function* cancelOrderSaga(action: YodyAction) {
   yield put(showLoading());
-  let { id, onSuccess, onError } = action.payload;
+  let { id, reason_id, reason, onSuccess, onError } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(cancelOrderApi, id);
+    let response: BaseResponse<any> = yield call(cancelOrderApi, id, reason_id, reason);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Huỷ đơn hàng thành công!");
@@ -716,7 +717,7 @@ function* getFulfillmentsPackedSaga(action: YodyAction) {
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* confirmDraftOrderSaga(action: YodyAction) {
@@ -817,6 +818,22 @@ function* splitOrderSaga(action: YodyAction) {
   }
 }
 
+function* getSourcesEcommerceSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<SourceEcommerceResponse>> = yield call(
+      getSourcesEcommerceService
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) { }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
@@ -858,4 +875,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_SHIPPING_ORDER, createShippingOrderSaga);
   yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga);
   yield takeLatest(OrderType.SPLIT_ORDER, splitOrderSaga);
+  yield takeLatest(OrderType.SOURCES_ECOMMERCE, getSourcesEcommerceSaga);
 }

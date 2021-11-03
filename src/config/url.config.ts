@@ -29,7 +29,11 @@ const UrlConfig = {
   PROMOTION: "/promotion",
   LOYALTY: `/loyalty-programs`,
   PROCUREMENT: '/procurement',
-  INVENTORY_TRANSFER: `/inventory-transfer`
+  INVENTORY_TRANSFER: `/inventory-transfer`,
+  INVENTORY_ADJUSTMENT: `/inventory-adjustment`, 
+  DEPARTMENT: `/departments`,
+  DISCOUNT: `/discount`,
+  PROMOTION_CODE: `/promotion-code`
 };
 
 export const BASE_NAME_ROUTER = "/unicorn/admin";

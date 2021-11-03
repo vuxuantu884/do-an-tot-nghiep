@@ -88,3 +88,10 @@ export const checkFixedDate = (from: any, to: any) => {
     }
   }
 };
+
+export const getStartOfDay = (date: Date | string | number | Moment) => {
+  return  moment(date).startOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z";
+}
+export const getEndOfDay = (date: Date | string | number | Moment) => {
+  return  moment(date).endOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z";
+}

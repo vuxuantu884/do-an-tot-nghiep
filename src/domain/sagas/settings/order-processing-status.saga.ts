@@ -56,7 +56,7 @@ function* addOrderProcessingStatusSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData();
-        showSuccess("Tạo mới thành công");
+        showSuccess("Tạo mới thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -67,7 +67,7 @@ function* addOrderProcessingStatusSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi tạo mới, vui lòng thử lại sau");
   } finally {
     yield put(hideLoading());
   }

@@ -114,8 +114,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
-          setIsFromCreatedDate(dateString[0])
-          setIsToCreatedDate(dateString[1])
+          setIsFromCreatedDate(moment(dateString[0], 'DD-MM-YYYY'))
+          setIsToCreatedDate(moment(dateString[1], 'DD-MM-YYYY'))
           break;
         default: break
       }
@@ -160,28 +160,28 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     
     switch(value) {
       case 'today':
-        minValue = moment().startOf('day').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').format('DD-MM-YYYY')
+        minValue = moment().startOf('day')
+        maxValue = moment().endOf('day')
         break
       case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        minValue = moment().startOf('day').subtract(1, 'days')
+        maxValue = moment().endOf('day').subtract(1, 'days')
         break
       case 'thisweek':
-        minValue = moment().startOf('week').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').format('DD-MM-YYYY')
+        minValue = moment().startOf('week')
+        maxValue = moment().endOf('week')
         break
       case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        minValue = moment().startOf('week').subtract(1, 'weeks')
+        maxValue = moment().endOf('week').subtract(1, 'weeks')
         break
       case 'thismonth':
-        minValue = moment().startOf('month').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').format('DD-MM-YYYY')
+        minValue = moment().startOf('month')
+        maxValue = moment().endOf('month')
         break
       case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        minValue = moment().startOf('month').subtract(1, 'months')
+        maxValue = moment().endOf('month').subtract(1, 'months')
         break  
       default:
         break
@@ -207,6 +207,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
+      
       switch(tag.key) {
         case 'action':
           onFilter && onFilter({...params, action: []});
@@ -215,16 +216,16 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
           onFilter && onFilter({...params, updated_by: []});
           break;
         case 'created_date':
-          setCreateDateClick('')
-          setIsFromCreatedDate(null)
-          setIsToCreatedDate(null)
-          onFilter && onFilter({...params, form_created_date: null, to_created_date: null});
+          setCreateDateClick('');
+          setIsFromCreatedDate(null);
+          setIsToCreatedDate(null);
+          onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         default: break
       }
     },
     [onFilter, params]
-  );
+  );  
 
   const onFinish = useCallback(
     (values) => {
@@ -251,10 +252,10 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       }
       const valuesForm = {
         ...values,
-        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        to_created_date: isToCreatedDate ? moment(isToCreatedDate, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
+        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
         
-      }
+      }      
       onFilter && onFilter(valuesForm);
     },
     [isFromCreatedDate, isToCreatedDate, onFilter]
@@ -288,7 +289,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
       })
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
-      let textCreatedDate = (initialValues.from_created_date ? initialValues.from_created_date : '??') + " ~ " + (initialValues.to_created_date ? initialValues.to_created_date : '??')
+      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY') : '??') + " ~ " + (initialValues.to_created_date ?  moment(initialValues.to_created_date).format('DD-MM-YYYY') : '??')
       list.push({
         key: 'created_date',
         name: 'Ngày tạo',
@@ -297,7 +298,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     }
 
     return list
-  }, [initialValues, accounts]);
+  }, [initialValues, accounts]);  
     
   return (
     <InventoryFiltersWrapper>

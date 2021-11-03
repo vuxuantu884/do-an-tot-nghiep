@@ -70,6 +70,7 @@ import { Link } from "react-router-dom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { InventoryResponse } from "model/inventory";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import { ConvertFullAddress } from "utils/ConvertAddress";
 
 const { Option } = Select;
 
@@ -219,7 +220,7 @@ const UpdateTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -843,7 +844,7 @@ const UpdateTicket: FC = () => {
                           />
                           <RowDetail
                             title="Địa chỉ"
-                            value={fromStoreData.address}
+                            value={ConvertFullAddress(fromStoreData)}
                           />
                         </>
                       ) : (
@@ -858,7 +859,7 @@ const UpdateTicket: FC = () => {
                           />
                           <RowDetail
                             title="Địa chỉ"
-                            value={initDataForm.from_store_address}
+                            value={ConvertFullAddress(initDataForm.store_transfer)}
                           />
                         </>
                       )}
@@ -909,7 +910,7 @@ const UpdateTicket: FC = () => {
                           <RowDetail title="SĐT" value={toStoreData.hotline} />
                           <RowDetail
                             title="Địa chỉ"
-                            value={toStoreData.address}
+                            value={ConvertFullAddress(toStoreData)}
                           />
                         </>
                       ) : (
@@ -924,7 +925,7 @@ const UpdateTicket: FC = () => {
                           />
                           <RowDetail
                             title="Địa chỉ"
-                            value={initDataForm.to_store_address}
+                            value={ConvertFullAddress(initDataForm.store_receive)}
                           />
                         </>
                       )}
@@ -1049,6 +1050,7 @@ const UpdateTicket: FC = () => {
             />
             {visibleManyProduct && (
               <PickManyProductModal
+                isTransfer
                 storeID={form.getFieldValue("from_store_id")}
                 selected={[]}
                 onSave={onPickManyProduct}

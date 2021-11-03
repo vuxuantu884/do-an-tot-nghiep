@@ -1,27 +1,29 @@
-import { Card } from "antd";
+import {Card} from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
-import { RoleSearchAction } from "domain/actions/auth/role.action";
-import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import {RoleSearchAction} from "domain/actions/auth/role.action";
+import {PermissionsAuthorize} from "model/auth/permission.model";
+import {RoleAuthorize, RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {HiChevronDoubleDown, HiChevronDoubleRight} from "react-icons/hi";
+import {useDispatch} from "react-redux";
+import {Link} from "react-router-dom";
+import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import {RoleListStyled} from "./role-list.style";
+import _ from "lodash";
+const defaultRoleListParams: RoleSearchQuery = {
+  page: 1,
+  limit: 200,
+};
 
 const RoleListScreen = () => {
   const dispatch = useDispatch();
   //state
-  const query = useQuery();
-  const history = useHistory();
-  const [data, setData] = useState<PageResponse<RoleResponse>>({
+  const [data, setData] = useState<PageResponse<RoleAuthorize>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -29,74 +31,46 @@ const RoleListScreen = () => {
     },
     items: [],
   });
-  let dataQuery: RoleSearchQuery = {
-    ...getQueryParams(query),
-  };
-  let [params, setPrams] = useState<RoleSearchQuery>(dataQuery);
+
   const [loading, setLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<RoleResponse>>
-  >([
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<RoleAuthorize>>>([
+    {
+      title: "STT",
+      visible: true,
+      render: (value, item, index: number) =>
+        (data.metadata.page - 1) * data.metadata.limit + index + 1,
+    },
     {
       title: "Tên nhóm quyền",
-      width: 250,
-      dataIndex: "code",
-      render: (value, item) => {
-        return <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>;
+      dataIndex: "name",
+      render: (value, record) => {
+        return <Link to="#">{value}</Link>;
       },
       visible: true,
     },
     {
-      title: "Vai trò",
-      dataIndex: "name",
+      title: "Mô tả",
+      dataIndex: "description",
       visible: true,
     },
     {
-      title: "Ngày cập nhật lần cuối",
+      title: "Người cập nhật lần cuối",
+      dataIndex: "updated_by",
+      align: "center",
+      visible: true,
+    },
+    {
+      title: "Cập nhật lần cuối",
       dataIndex: "updated_date",
       align: "center",
-      width: 250,
       visible: true,
       render: (value: string) => {
         return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
       },
-    },
-    {
-      title: "Người tạo",
-      dataIndex: "created_name",
-      align: "center",
-      width: 250,
-      visible: true,
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      align: "left",
-      width: 130,
-      visible: false,
-      render: (value: string) => {
-        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
-      },
-    },
-    {
-      title: "Người sửa",
-      dataIndex: "updated_name",
-      align: "center",
-      width: 150,
-      visible: false,
     },
   ]);
-  const onPageChange = useCallback(
-    (page, size) => {
-      params.page = page;
-      params.size = size;
-      let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.push(`${UrlConfig.STORE}?${queryParam}`);
-    },
-    [history, params]
-  );
+
   const onSuccess = useCallback((data: PageResponse<RoleResponse>) => {
     setLoading(false);
     setData(data);
@@ -105,10 +79,32 @@ const RoleListScreen = () => {
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  const columnsChild = [
+    {
+      dataIndex: "module_name",
+      visible: true,
+      width: 200,
+      render: (value: string) => <b>{value}</b>,
+    },
+    {
+      dataIndex: "permissions",
+      visible: true,
+      render: (value: Array<PermissionsAuthorize>) => {
+        let formatValue = "";
+        value.forEach((item) => {
+          let name = _.capitalize(item.name);
+          formatValue += name + " / ";
+        });
+        formatValue = formatValue.substring(0, formatValue.length - 2);
+        return <span>{formatValue}</span>;
+      },
+    },
+  ];
+
   useEffect(() => {
     setLoading(true);
-    dispatch(RoleSearchAction(params, onSuccess));
-  }, [dispatch, onSuccess, params]);
+    dispatch(RoleSearchAction(defaultRoleListParams, onSuccess));
+  }, [dispatch, onSuccess]);
   return (
     <ContentContainer
       title="Quản lý nhóm quyền"
@@ -122,38 +118,63 @@ const RoleListScreen = () => {
           path: `${UrlConfig.ROLES}`,
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.ROLES}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.ROLES}/create`} />}
     >
-      <Card>
-        <CustomTable
-          isLoading={loading}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
+      <RoleListStyled>
+        <Card>
+          <CustomTable
+            isLoading={loading}
+            pagination={false}
+            showColumnSetting
+            // scroll={{ x: 1080 }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(data) => data.code}
+            expandable={{
+              expandIcon: (props) => {
+                let icon = <HiChevronDoubleRight size={12} />;
+                if (props.expanded) {
+                  icon = <HiChevronDoubleDown size={12} color="#2A2A86" />;
+                }
+                return (
+                  <div
+                    style={{cursor: "pointer"}}
+                    onClick={(event) => props.onExpand(props.record, event)}
+                  >
+                    {icon}
+                  </div>
+                );
+              },
+              expandedRowRender: (record, index) => {
+                return (
+                  <div className="child-expand" key={index}>
+                    <h4>CHI TIẾT QUYỀN</h4>
+                    <CustomTable
+                      columns={columnsChild}
+                      dataSource={record.modules}
+                      bordered
+                      showHeader={false}
+                      pagination={false}
+                      className="child-expand-table"
+                      size="small"
+                    />
+                  </div>
+                );
+              },
+            }}
+          />
+        </Card>
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
           }}
-          showColumnSetting
-          scroll={{ x: 1080 }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: RoleResponse) => item.id}
+          data={columns}
         />
-      </Card>
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumn(data);
-        }}
-        data={columns}
-      />
+      </RoleListStyled>
     </ContentContainer>
   );
 };

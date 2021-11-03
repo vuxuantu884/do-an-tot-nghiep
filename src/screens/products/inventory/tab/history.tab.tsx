@@ -2,15 +2,16 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
 import { inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import { getQueryParams } from "utils/useQuery";
 import HistoryInventoryFilter from "../filter/history.filter";
 import { TabProps } from "./tab.props";
 
@@ -22,11 +23,11 @@ enum DocumentType {
 }
 
 const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
-  const {stores} = props;
+  const { stores } = props;
   const history = useHistory();
-  const query = useQuery();
+  const query = new URLSearchParams(history.location.hash.substring(2));
   const dispatch = useDispatch();
-  
+
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<HistoryInventoryResponse>>({
     metadata: {
@@ -69,7 +70,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      
+
       history.replace(
         `${UrlConfig.INVENTORY}#3?${queryParam}`
       );
@@ -90,75 +91,108 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         return type;
     }
   };
-
+  const [selected, setSelected] = useState<Array<HistoryInventoryResponse>>([]);
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<HistoryInventoryResponse>>
-  >([
+  >([]);
+  const ActionComponent = useChangeHeaderToAction(
+    "Sản phẩm",
+    selected.length > 0,
+    () => {},
+    []
+  );
+  const defaultColumns: Array<ICustomTableColumType<HistoryInventoryResponse>> = [
     {
       width: 300,
-      title: 'Sản phẩm',
+      title: <ActionComponent />,
       visible: true,
-      dataIndex: 'sku',
-      fixed: 'left',
+      dataIndex: "sku",
+      fixed: "left",
       render: (value, record, index) => (
         <div>
-          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
+          <Link
+            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+          >
+            {value}
+          </Link>
           <div>{record.name}</div>
         </div>
-      )
+      ),
     },
     {
-      title: 'ID chứng từ',
+      title: "Mã chứng từ",
       visible: true,
-      dataIndex: 'code',
-      render: (value, record:HistoryInventoryResponse) => (
-        <div>
-          <Link to={`${getUrlByDocumentType(record.document_type)}/${record.parent_document_id}`}>{value}</Link>          
-        </div>
-      )
+      dataIndex: "code",
+      render: (value, record: HistoryInventoryResponse) => {
+        let id = record.parent_document_id;
+        if (record.document_type === DocumentType.RETURN_ORDER) {
+          id = record.document_id;
+        }
+
+        return (
+          <div>
+            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>
+              {value}
+            </Link>
+          </div>
+        );
+      },
     },
     {
-      title: 'Thao tác',
+      title: "Thao tác",
       visible: true,
-      dataIndex: 'action'
+      dataIndex: "action",
     },
     {
-      align: 'center',
-      title: 'Thời gian',
+      align: "center",
+      title: "Thời gian",
       visible: true,
-      dataIndex: 'created_date',
-      render: (value) => ConvertUtcToLocalDate(value)
+      dataIndex: "created_date",
+      render: (value) => ConvertUtcToLocalDate(value),
     },
     {
-      align: 'right',
-      title: 'SL thay đổi',
+      align: "right",
+      title: "SL thay đổi",
       visible: true,
-      dataIndex: 'quantity',
-      render: (value)=> parseInt(value) >0 ? `+${value}` : value 
+      dataIndex: "quantity",
+      render: (value) => (parseInt(value) > 0 ? `+${value}` : value),
     },
     {
-      align: 'right',
-      title: 'Tồn trong kho',
+      align: "right",
+      title: "Tồn trong kho",
       visible: true,
-      dataIndex: 'on_hand',
+      dataIndex: "on_hand",
     },
     {
-      align: 'center',
-      title: 'Kho hàng',
+      align: "center",
+      title: "Kho hàng",
       visible: true,
-      dataIndex: 'store',
+      dataIndex: "store",
     },
     {
-      align: 'center',
-      title: 'Người sửa',
+      align: "center",
+      title: "Người sửa",
       visible: true,
-      dataIndex: 'updated_name',
+      dataIndex: "updated_name",
     },
-  ]);
+  ];
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  
+  const onSelect = useCallback((selectedRow: Array<HistoryInventoryResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+  
+  useLayoutEffect(() => {
+    setColumn(defaultColumns);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
   useEffect(() => {
     dispatch(inventoryGetHistoryAction(params, onResult));
   }, [dispatch, onResult, params])
@@ -169,7 +203,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         onFilter={onFilter}
         params={params}
         actions={[]}
-        onClearFilter={() => {}}
+        onClearFilter={() => { }}
         listStore={stores}
       />
       <CustomTable
@@ -178,7 +212,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         dataSource={data.items}
         columns={columnFinal}
         scroll={{ x: 1800 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -188,8 +222,9 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
           onShowSizeChange: onPageChange,
         }}
         rowKey={(data) => data.id}
+        onSelectedChange={onSelect}
       />
-       <ModalSettingColumn
+      <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {

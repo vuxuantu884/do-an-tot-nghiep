@@ -1,23 +1,22 @@
-import { Button, Form, Input, Collapse, Tag, Space } from "antd";
-
-import { MenuAction } from "component/table/ActionButton";
-import { useCallback, useLayoutEffect, useState, useEffect } from "react";
-import moment from "moment";
-import BaseFilter from "./base.filter";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
-import CustomFilter from "component/table/custom.filter";
-import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
-import CustomRangepicker from "component/filter/component/range-picker.custom";
+import HashTag from "component/custom/hashtag";
 import CustomSelect from "component/custom/select.custom";
+import CustomRangepicker from "component/filter/component/range-picker.custom";
+import { MenuAction } from "component/table/ActionButton";
+import ButtonSetting from "component/table/ButtonSetting";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
+import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
+import moment from "moment";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
-import { FilterOutlined } from "@ant-design/icons";
-import HashTag from "component/custom/hashtag";
-import CustomSelectOne from "./component/select-one.custom";
+import BaseFilter from "./base.filter";
 import CustomSelectMany from "./component/select-many.custom";
-import ButtonSetting from "component/table/ButtonSetting";
+import CustomSelectOne from "./component/select-one.custom";
+
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -362,12 +361,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 ) => {
   const {
     params,
-    actions,
     listSupplierAccount,
     listRdAccount,
-    listStore,
-    onMenuClick,
-    // onClearFilter,
+    listStore, 
     onFilter,
   } = props;
   const [visible, setVisible] = useState(false);
@@ -434,12 +430,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+
 
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
@@ -510,18 +501,17 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           });
         }}
       >
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form
             form={formBaseFilter}
             name="formBaseFilter"
             onFinish={onBaseFinish}
             initialValues={advanceFilters}
             layout="inline"
-          >
-            <Item name="info">
+          >  <div className="group-filter">
+            <Item name="info" className="search">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 350 }}
+               
                 placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
               />
             </Item>
@@ -576,8 +566,8 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             <Item>
               <ButtonSetting onClick={props.openSetting} />
             </Item>
+            </div>
           </Form>
-        </CustomFilter>
         <FilterList filters={advanceFilters} resetField={resetField} />
         <BaseFilter
           onClearFilter={onResetFilter}

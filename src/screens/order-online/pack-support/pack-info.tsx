@@ -1,4 +1,3 @@
-import { ScanOutlined } from "@ant-design/icons";
 import {
   Button,
   Row,
@@ -39,12 +38,15 @@ import { formatCurrency, haveAccess } from "utils/AppUtils";
 import { showError, showSuccess, } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
+import barcodeIcon from "assets/img/scanbarcode.svg";
 
 type PackInfoProps = {
   setFulfillmentsPackedItems: (items: PageResponse<any>) => void;
   listThirdPartyLogistics: DeliveryServiceResponse[];
   fulfillmentData: PageResponse<any>;
 };
+
+var barcode = "";
 
 const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const {
@@ -77,13 +79,11 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   const btnClearPackElement = document.getElementById("btnClearPack");
   const OrderRequestElement: any = document.getElementById("order_request");
   const ProductRequestElement: any = document.getElementById("product_request");
-  // const QualityRequestElement: any = document.getElementById("quality_request");
 
   //context
   const orderPackContextData = useContext(OrderPackContext);
 
   const listStores= orderPackContextData?.listStores;
-  //const setListStores= orderPackContextData?.setListStores;
 
   const shipName =
     listThirdPartyLogistics.length > 0 && orderResponse.length > 0
@@ -105,8 +105,6 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     return newData;
   }, [listStores, userReducer.account]);
 
-
-
   OrderRequestElement?.addEventListener("focus", (e: any) => {
     OrderRequestElement.select();
   });
@@ -115,26 +113,41 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     ProductRequestElement.select();
   });
 
-  // QualityRequestElement?.addEventListener("focus", (e: any) => {
-  //   if (!formRef.current?.getFieldValue(["quality_request"]))
-  //     formRef.current?.setFieldsValue({ product_request: "" });
-  //   console.log(formRef.current?.getFieldValue(["quality_request"]));
-  // });
-
   const event = useCallback(
     (event: KeyboardEvent) => {
         if (event.target instanceof HTMLBodyElement) {
-          if (event.key === "Enter") {
-            let product= formRef.current?.getFieldValue(["product_request"]);
-            console.log("product",product);
+          if (event.key !== "Enter") {
+            barcode = barcode + event.key;
+          }
+          else{
+            if (event.key === "Enter") 
+            {
+              if (barcode !== "" && event){
+                console.log(barcode);
+                formRef.current?.validateFields(["store_request"]);
+                formRef.current?.validateFields(["order_request"]);
+                let store_request = formRef.current?.getFieldValue(["store_request"]);
+                let order_request = formRef.current?.getFieldValue(["order_request"]);
+                if(store_request && order_request && orderResponse)
+                {
+                  formRef.current?.setFieldsValue({product_request:barcode});
+                  ProductRequestElement.select();
+                  btnFinishPackElement?.click();
+                }
+                barcode="";
+              }
+            }
           }
         }
     },
-    [formRef]
+    [formRef,ProductRequestElement,btnFinishPackElement,orderResponse]
   );
 
   useEffect(() => {
-      window.addEventListener("keydown", event);
+      window.addEventListener("keypress", event);
+      return () => {
+        window.removeEventListener("keypress", event);
+    };
   }, [event]);
 
   const onKeyupOrder = useCallback(
@@ -188,7 +201,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     [btnFinishPackElement]
   );
 
-  const onClickClearPack = () => {
+  const onClickClearPack =  () => {
     setDisableStoreId(false);
     setDisableOrder(false);
 
@@ -199,7 +212,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
     formRef.current?.setFieldsValue({ quality_request: "" });
     formRef.current?.setFieldsValue({ order_request: "" });
     formRef.current?.setFieldsValue({ store_request: "" });
-  };
+  }
   //event
 
   //useEffect
@@ -422,7 +435,7 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
   return (
     <Form layout="vertical" ref={formRef} form={form}>
       <div style={{ padding: "24px 0 0 0" }}>
-        <Row gutter={24}>
+        <Row gutter={24} style={{ marginLeft:"0px", marginRight:"0px"}}>
           <Col md={9}>
             <Form.Item
               label="Cửa hàng"
@@ -482,7 +495,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                 className="select-with-search"
                 
                 placeholder="ID đơn hàng/ Mã đơn giao"
-                addonAfter={<ScanOutlined />}
+                // addonAfter={<ScanOutlined />}
+                addonAfter={<img src={barcodeIcon} alt="" />}
                 onPressEnter={(e: any) => {
                   onKeyupOrder(e.target.value);
                 }}
@@ -522,8 +536,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
                   <Input
                     style={{ width: "50%" }}
                     placeholder="số lượng"
-                    //addonAfter={<img src={ImageScan} alt=""/>}
-                    addonAfter={<ScanOutlined />}
+                    addonAfter={<img src={barcodeIcon} alt="" />}
+                    //addonAfter={<ScanOutlined />}
                     onPressEnter={(e: any) => {
                       onKeyupQuality(e.target.value);
                     }}
@@ -535,12 +549,12 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Col>
         </Row>
       </div>
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div>
         {orderList && orderList.length > 0 && (
           <Row
             align="middle"
             justify="space-between"
-            style={{ height: "40px", borderTop: "1px solid #E5E5E5" }}
+            style={{ height: "40px", borderTop: "1px solid #E5E5E5", marginLeft:"14px", marginRight:"14px" }}
           >
             <Col md={7}>
               <Space>
@@ -595,8 +609,8 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           </Row>
         )}
       </div>
-      <div style={{ padding: "24px 0 0 0" }}>
-        <Row className="sale-product-box" justify="space-between">
+      <div>
+        <Row className="sale-product-box" justify="space-between" style={{ marginLeft:"14px", marginRight:"14px"}}>
           <Table
              locale={{
               emptyText: (
@@ -665,9 +679,9 @@ const PackInfo: React.FC<PackInfoProps> = (props: PackInfoProps) => {
           />
         </Row>
       </div>
-      <div style={{ padding: "24px" }}>
+      <div style={{ padding: "24px 0 0 0" }}>
         {orderList && orderList.length > 0 && (
-          <Row gutter={24}>
+          <Row gutter={24} style={{ marginLeft:"2.5px", marginRight:"2.5px"}}>
             <Col md={12}>
               <Button
                 style={{ padding: "0px 50px" }}

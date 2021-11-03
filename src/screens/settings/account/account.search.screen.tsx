@@ -94,11 +94,19 @@ const ListAccountScreen: React.FC = () => {
       title: "Cửa hàng",
       dataIndex: "account_stores",
       render: (stores: Array<AccountStoreResponse>) => (
-        <span>
-          {stores.map((stores) => {
-            return <Tag color="green">{stores.store}</Tag>;
-          })}
-        </span>
+        <>
+          {stores.length < 3 ? (
+            <span>
+              {stores.map((item) => {
+                return <Tag color="green">{item.store}</Tag>;
+              })}
+            </span>
+          ) : (
+            <span>
+              <Tag color="green">{stores[0].store}</Tag><Tag color="green">+{stores.length-1}...</Tag>
+            </span>
+          )}
+        </>
       ),
     },
     {
@@ -106,7 +114,7 @@ const ListAccountScreen: React.FC = () => {
       dataIndex: "account_roles",
       render: (values: Array<AccountRolesResponse>) => (
         <span>
-          {values.map((item) => {
+          {values?.map((item) => {
             return <Tag color="blue">{item.role_name}</Tag>;
           })}
         </span>
@@ -131,7 +139,7 @@ const ListAccountScreen: React.FC = () => {
             dispatch(
               AccountUpdateAction(
                 row.id,
-                { ...row, status: checked ? "active" : "inactive" },
+                {...row, status: checked ? "active" : "inactive"},
                 () => {}
               )
             );

@@ -31,10 +31,7 @@ import {
   OrderRequest,
   ShipmentRequest,
 } from "model/request/order.request";
-import {
-  BillingAddress,
-  ShippingAddress,
-} from "model/response/customer/customer.response";
+import { BillingAddress, ShippingAddress } from "model/response/customer/customer.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import {
   FulFillmentResponse,
@@ -80,11 +77,11 @@ export default function FpageOrders(props: any) {
     loyaltyPoint,
     loyaltyUsageRules,
     handleCustomerById,
+    fbId,
+    pageId,
   } = props;
 
   const dispatch = useDispatch();
-  const [isSaveDraft, setIsSaveDraft] = useState(false);
-  const [creating, setCreating] = useState(false);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] =
@@ -105,17 +102,13 @@ export default function FpageOrders(props: any) {
 
   const [hvc, setHvc] = useState<number | null>(null);
   const [fee, setFee] = useState<number | null>(null);
-  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
+  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(null);
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
     null
   );
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
-    number | null
-  >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
-    []
-  );
+  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   // const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
@@ -124,9 +117,7 @@ export default function FpageOrders(props: any) {
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
@@ -134,8 +125,7 @@ export default function FpageOrders(props: any) {
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
   const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
-  const [loadingCreateButton, setLoadingCreateButton] =
-    useState<boolean>(false);
+  const [loadingCreateButton, setLoadingCreateButton] = useState<boolean>(false);
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
@@ -194,7 +184,7 @@ export default function FpageOrders(props: any) {
     account_code: userReducer.account?.code,
     assignee_code: userReducer?.account?.code || null,
     customer_id: null,
-    reference_code: "",
+    reference_code: `fb_${fbId}_${pageId}`,
     url: "",
     total_line_amount_after_line_discount: null,
     total: null,
@@ -304,11 +294,9 @@ export default function FpageOrders(props: any) {
           delivery_service_provider_id: hvc,
           delivery_service_provider_type: "external_service",
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer:
-            value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           service: serviceType!,
-          shipping_fee_paid_to_three_pls:
-            hvc === 1 ? fee : MoneyPayThreePls.VALUE,
+          shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
@@ -316,8 +304,7 @@ export default function FpageOrders(props: any) {
           ...objShipment,
           delivery_service_provider_type: "Shipper",
           shipper_code: value.shipper_code,
-          shipping_fee_informed_to_customer:
-            value.shipping_fee_informed_to_customer,
+          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
@@ -330,16 +317,9 @@ export default function FpageOrders(props: any) {
         objShipment.delivery_service_provider_type = "pick_at_store";
         let newCod = orderAmount;
         if (shippingFeeCustomer !== null) {
-          if (
-            orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
+          if (orderAmount + shippingFeeCustomer - getAmountPaymentRequest(payments) > 0) {
             newCod =
-              orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments);
+              orderAmount + shippingFeeCustomer - getAmountPaymentRequest(payments);
           }
         } else {
           if (orderAmount - getAmountPaymentRequest(payments) > 0) {
@@ -380,8 +360,6 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setCreating(false);
-      setIsSaveDraft(false);
       if (value) {
         showSuccess("Đơn được lưu và duyệt thành công");
         setIsClearOrderTab(true);
@@ -399,7 +377,8 @@ export default function FpageOrders(props: any) {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount =
+      getTotalAmountAfferDiscount(items);
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
@@ -436,7 +415,8 @@ export default function FpageOrders(props: any) {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    values.total_line_amount_after_line_discount =
+      total_line_amount_after_line_discount;
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -448,35 +428,32 @@ export default function FpageOrders(props: any) {
         element?.focus();
       } else {
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-          if (typeButton === OrderStatus.DRAFT) {
-            setIsSaveDraft(true);
-          } else {
-            setCreating(true);
-          }
-          if (values.delivery_service_provider_id === null &&
-            typeButton !== OrderStatus.DRAFT) {
+          if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
-            setCreating(false);
           } else {
             setLoadingCreateButton(true);
-            dispatch(orderFpageCreateAction(values, createOrderCallback, setLoadingCreateButton));
+            dispatch(
+              orderFpageCreateAction(values, createOrderCallback, setLoadingCreateButton)
+            );
           }
         } else {
-          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+            !serviceType
+          ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
-            setCreating(false);
           } else {
-            if (typeButton === OrderStatus.DRAFT) {
-              setIsSaveDraft(true);
-            } else {
-              setCreating(true);
-            }
-
             if (checkInventory()) {
               let bolCheckPointfocus = checkPointfocus(values);
               if (bolCheckPointfocus) {
                 setLoadingCreateButton(true);
-                dispatch(orderFpageCreateAction(values, createOrderCallback, setLoadingCreateButton));
+                dispatch(
+                  orderFpageCreateAction(
+                    values,
+                    createOrderCallback,
+                    setLoadingCreateButton
+                  )
+                );
               }
             }
           }
@@ -485,15 +462,12 @@ export default function FpageOrders(props: any) {
     }
   };
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccounts(data.items);
+  }, []);
 
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
@@ -566,14 +540,14 @@ export default function FpageOrders(props: any) {
                     composite: false,
                     product: item.product,
                     is_composite: false,
-                    line_amount_after_line_discount:
-                      item.line_amount_after_line_discount,
+                    line_amount_after_line_discount: item.line_amount_after_line_discount,
                     discount_items: item.discount_items,
                     discount_rate: item.discount_rate,
                     discount_value: item.discount_value,
                     discount_amount: item.discount_amount,
                     position: item.position,
                     gifts: giftResponse,
+                    available: item.available
                   };
                 });
               let newDatingShip = initialForm.dating_ship;
@@ -585,14 +559,10 @@ export default function FpageOrders(props: any) {
                   newDatingShip = moment(
                     response.fulfillments[0]?.shipment?.expected_received_date
                   );
-                  newShipperCode =
-                    response.fulfillments[0]?.shipment?.shipper_code;
+                  newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
-              if (
-                response.fulfillments &&
-                response.fulfillments[0].shipment?.cod
-              ) {
+              if (response.fulfillments && response.fulfillments[0].shipment?.cod) {
                 setPaymentMethod(PaymentMethodOption.COD);
               } else if (response.payments && response.payments?.length > 0) {
                 setPaymentMethod(PaymentMethodOption.PREPAYMENT);
@@ -601,8 +571,7 @@ export default function FpageOrders(props: any) {
               }
               setItems(responseItems);
               setOrderAmount(
-                response.total -
-                  (response.shipping_fee_informed_to_customer || 0)
+                response.total - (response.shipping_fee_informed_to_customer || 0)
               );
               setInitialForm({
                 ...initialForm,
@@ -625,12 +594,10 @@ export default function FpageOrders(props: any) {
               if (
                 response.fulfillments &&
                 response.fulfillments[0] &&
-                response?.fulfillments[0]?.shipment
-                  ?.delivery_service_provider_type
+                response?.fulfillments[0]?.shipment?.delivery_service_provider_type
               ) {
                 switch (
-                  response.fulfillments[0].shipment
-                    ?.delivery_service_provider_type
+                response.fulfillments[0].shipment?.delivery_service_provider_type
                 ) {
                   case ShipmentMethod.SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
@@ -647,9 +614,7 @@ export default function FpageOrders(props: any) {
                 }
                 setShipmentMethod(newShipmentMethod);
                 setFulfillments(response.fulfillments);
-                setShippingFeeCustomer(
-                  response.shipping_fee_informed_to_customer
-                );
+                setShippingFeeCustomer(response.shipping_fee_informed_to_customer);
                 if (response.store_id) {
                   setStoreId(response.store_id);
                 }
@@ -707,16 +672,12 @@ export default function FpageOrders(props: any) {
       let Pointfocus = payments.find((p) => p.code === "point");
       if (!Pointfocus) return true;
       let discount = 0;
-      value.items.forEach(
-        (p: any) => (discount = discount + p.discount_amount)
-      );
+      value.items.forEach((p: any) => (discount = discount + p.discount_amount));
 
       let rank = loyaltyUsageRules.find(
         (x: any) =>
           x.rank_id ===
-          (loyaltyPoint?.loyalty_level_id === null
-            ? 0
-            : loyaltyPoint?.loyalty_level_id)
+          (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
       );
 
       // let curenPoint = !loyaltyPoint
@@ -724,21 +685,13 @@ export default function FpageOrders(props: any) {
       //   : loyaltyPoint.point === null
       //   ? 0
       //   : loyaltyPoint.point;
-      let point = !Pointfocus
-        ? 0
-        : Pointfocus.point === undefined
-        ? 0
-        : Pointfocus.point;
+      let point = !Pointfocus ? 0 : Pointfocus.point === undefined ? 0 : Pointfocus.point;
 
       let totalAmountPayable =
-        orderAmount +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-        discountValue; //tổng tiền phải trả
+        orderAmount + (shippingFeeCustomer ? shippingFeeCustomer : 0) - discountValue; //tổng tiền phải trả
 
       let usageRate =
-        loyaltyRate === null || loyaltyRate === undefined
-          ? 0
-          : loyaltyRate.usage_rate;
+        loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
 
       let enableUsingPoint =
         loyaltyRate === null || loyaltyRate === undefined
@@ -748,13 +701,12 @@ export default function FpageOrders(props: any) {
       let limitOrderPercent = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 100
-        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
+          ? 100
+          : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
       let limitAmount = point * usageRate;
 
-      let amountLimitOrderPercent =
-        (totalAmountPayable * limitOrderPercent) / 100;
+      let amountLimitOrderPercent = (totalAmountPayable * limitOrderPercent) / 100;
 
       if (enableUsingPoint === false) {
         showError("Chương trình tiêu điểm đang tạm dừng hoạt động");
@@ -765,20 +717,13 @@ export default function FpageOrders(props: any) {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
-      if (
-        rank?.block_order_have_discount === true &&
-        (discount > 0 || discountValue)
-      ) {
-        showError(
-          "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu"
-        );
+      if (rank?.block_order_have_discount === true && (discount > 0 || discountValue)) {
+        showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
       }
 
       if (limitAmount > amountLimitOrderPercent) {
-        showError(
-          `Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`
-        );
+        showError(`Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`);
         return false;
       }
 
@@ -801,12 +746,7 @@ export default function FpageOrders(props: any) {
 
   const checkInventory = () => {
     let status = true;
-    if (
-      inventoryResponse &&
-      inventoryResponse.length &&
-      items &&
-      items != null
-    ) {
+    if (inventoryResponse && inventoryResponse.length && items && items != null) {
       let productItem = null;
       let newData: Array<InventoryResponse> = [];
       newData = inventoryResponse.filter((store) => store.store_id === storeId);
@@ -815,7 +755,7 @@ export default function FpageOrders(props: any) {
         if (
           ((value.available ? value.available : 0) <= 0 ||
             (productItem ? productItem?.quantity : 0) >
-              (value.available ? value.available : 0)) &&
+            (value.available ? value.available : 0)) &&
           configOrder?.sellable_inventory !== true
         ) {
           status = false;
@@ -837,11 +777,7 @@ export default function FpageOrders(props: any) {
         let variant_id: Array<number> = [];
         value.forEach((element: any) => variant_id.push(element.variant_id));
         dispatch(
-          inventoryGetDetailVariantIdsSaga(
-            variant_id,
-            null,
-            setInventoryResponse
-          )
+          inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse)
         );
       }
     },
@@ -866,12 +802,6 @@ export default function FpageOrders(props: any) {
     },
     [formRef]
   );
-
-  const saveDraftOrder = () => {
-    typeButton = OrderStatus.DRAFT;
-    formRef.current?.submit();
-  };
-
   return (
     <div className="fpage-order" style={{ marginTop: 56 }}>
       {isLoadForm && (
@@ -880,12 +810,9 @@ export default function FpageOrders(props: any) {
           initialValues={initialForm}
           ref={formRef}
           onFinishFailed={({ errorFields }: any) => {
-            const element: any = document.getElementById(
-              errorFields[0].name.join("")
-            );
+            const element: any = document.getElementById(errorFields[0].name.join(""));
             element?.focus();
-            const y =
-              element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+            const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
             window.scrollTo({ top: y, behavior: "smooth" });
           }}
           onFinish={onFinish}
@@ -991,25 +918,12 @@ export default function FpageOrders(props: any) {
               <Button
                 className="order-button-width"
                 onClick={() => window.location.reload()}
-                disabled={creating || loadingCreateButton}
               >
                 Hủy
               </Button>
 
               <Button
-                className="order-button-width"
-                type="default"
-                ghost
-                onClick={saveDraftOrder}
-                loading={isSaveDraft}
-                disabled={creating || loadingCreateButton}
-              >
-                Lưu nháp
-              </Button>
-
-              <Button
                 loading={loadingCreateButton}
-                disabled={creating}
                 type="primary"
                 className="order-button-width"
                 id="save-and-confirm"

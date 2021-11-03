@@ -1,6 +1,17 @@
 import styled from "styled-components";
+import {dangerColor, successColor} from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
+    .cardExtra {
+      button {
+        &:not(:last-child) {
+          margin-right: 5px;
+        }
+      }
+    }
+  .page-filter {
+    padding-top: 0;
+  }
   .ant-table-tbody {
     td {
       white-space: nowrap;
@@ -24,7 +35,32 @@ export const StyledComponent = styled.div`
   .columnTitle {
     .title {
       display: block;
-      font-size: 1em;
+      word-wrap: break-word;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 300px;
+      overflow: hidden;
+    }
+  }
+  .status {
+    display: inline-block;
+    border-radius: 100px;
+    white-space: nowrap;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 5px;
+    min-width: 110px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.857rem;
+    &.active {
+      background: #f0fcf5;
+      color: ${successColor};
+    }
+    &.inactive {
+      background: rgba(226, 67, 67, 0.1);
+      color: ${dangerColor};
     }
   }
 `;

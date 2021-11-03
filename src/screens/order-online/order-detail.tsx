@@ -12,6 +12,7 @@ import {actionSetIsReceivedOrderReturn} from "domain/actions/order/order-return.
 import {
   cancelOrderRequest,
   confirmDraftOrderAction,
+  getListReasonRequest,
   OrderDetailAction,
   PaymentMethodGetList,
   UpdatePaymentAction,
@@ -56,7 +57,8 @@ import CardReturnReceiveProducts from "./order-return/components/CardReturnRecei
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 import CardShipment from "./component/order-detail/CardShipment";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-const {Panel} = Collapse;
+import CancelOrderModal from "./modal/cancel-order.modal";
+const { Panel } = Collapse;
 
 type PropType = {
   id?: string;
@@ -100,7 +102,8 @@ const OrderDetail = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
+  const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>([]);
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
@@ -147,13 +150,13 @@ const OrderDetail = (props: PropType) => {
             payment_method: returnMoneyMethod.name,
             amount: -Math.abs(
               customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
             ),
             reference: "",
             source: "",
             paid_amount: -Math.abs(
               customerNeedToPayValue -
-                (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+              (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
             ),
             return_amount: 0.0,
             status: "paid",
@@ -298,88 +301,27 @@ const OrderDetail = (props: PropType) => {
 
   const onSuccessCancel = () => {
     setReload(true);
+    setVisibleCancelModal(false)
   };
 
   const onError = () => {
     // setReload(true)
+    setVisibleCancelModal(false)
   };
 
   const handleCancelOrder = useCallback(
-    (id: any) => {
-      // dispatch(cancelOrderRequest(id, onSuccessCancel, onError));
-      // dispatch(cancelOrderRequest(id));
+    (reason_id: number, reason: string) => {
+      reason = reason_id === 1 ? reason : ''
+      dispatch(cancelOrderRequest(OrderId, reason_id, reason, onSuccessCancel, onError));
     },
-    [dispatch]
-  );
-
-  const cancelModal = useCallback(
-    (type) => {
-      // console.log("OrderDetail", OrderDetail);
-      switch (type) {
-        case 1:
-          Modal.confirm({
-            title: `Xác nhận huỷ đơn hàng`,
-            content: (
-              <div>
-                <p>
-                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>? Thao tác này
-                  không thể khôi phục và tác động:
-                </p>
-                <p>- Thay đổi thông số kho các sản phẩm trong đơn hàng</p>
-                <p>
-                  - Huỷ các chứng từ liên quan: vận đơn, phiếu thu thanh toán đơn hàng,
-                  phiếu thu đặt cọc shipper
-                </p>
-                <p>- Cập nhật công nợ khách hàng, công nợ đối tác vận chuyển</p>
-                <p>- Cập nhật lịch sử khuyến mãi, lịch sử tích điểm</p>
-              </div>
-            ),
-            maskClosable: true,
-            width: "600px",
-            onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => {},
-            okText: "Xác nhận",
-            cancelText: "Huỷ",
-          });
-          break;
-        case 2:
-          Modal.confirm({
-            title: `Xác nhận huỷ đơn hàng`,
-            content: (
-              <div>
-                <p>
-                  Bạn chắc chắn muốn huỷ đơn hàng <b>{OrderDetail?.code}</b>?
-                </p>
-              </div>
-            ),
-            maskClosable: true,
-            width: "600px",
-            onOk: () => handleCancelOrder(OrderDetail?.id),
-            onCancel: () => {},
-            okText: "Xác nhận",
-            cancelText: "Huỷ",
-          });
-          break;
-        default:
-          break;
-      }
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 500);
-    },
-    [OrderDetail, handleCancelOrder]
+    [OrderId, dispatch]
   );
 
   const orderActionsClick = useCallback(
     (type) => {
       switch (type) {
         case "cancel":
-          if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]?.export_on) {
-            cancelModal(1);
-          } else {
-            cancelModal(2);
-          }
-
+          setVisibleCancelModal(true);
           break;
         case "update":
           history.push(`${UrlConfig.ORDER}/${id}/update`);
@@ -396,20 +338,23 @@ const OrderDetail = (props: PropType) => {
           break;
       }
     },
-    [OrderDetail?.fulfillments, cancelModal, history, id]
+    [history, id]
   );
 
   /**
    * xác nhận đơn
    */
   const onConfirmOrder = () => {
+    if (!OrderDetail?.id) {
+      return;
+    }
     if (userReducer.account?.full_name && userReducer.account?.user_name) {
       const params = {
         updated_by: userReducer.account.full_name,
         updated_name: userReducer.account.user_name,
       };
       dispatch(
-        confirmDraftOrderAction(OrderId, params, (response) => {
+        confirmDraftOrderAction(OrderDetail.id, params, (response) => {
           console.log("response", response);
           // handleReload();
           setReload(true);
@@ -463,6 +408,7 @@ const OrderDetail = (props: PropType) => {
 
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getListReasonRequest(setReasons));
   }, [dispatch, setDataAccounts]);
 
   useEffect(() => {
@@ -506,8 +452,8 @@ const OrderDetail = (props: PropType) => {
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
-        OrderDetail?.discounts.length > 0 &&
-        OrderDetail?.discounts[0].amount
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0].amount
           ? OrderDetail?.discounts[0].amount
           : 0)
       );
@@ -516,8 +462,8 @@ const OrderDetail = (props: PropType) => {
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
         (OrderDetail?.discounts &&
-        OrderDetail?.discounts.length > 0 &&
-        OrderDetail?.discounts[0].amount
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0].amount
           ? OrderDetail?.discounts[0].amount
           : 0)
       );
@@ -555,22 +501,22 @@ const OrderDetail = (props: PropType) => {
     price: {
       fee: 0,
       totalOrderAmount: 0,
-      setFee: (value: number) => {},
-      setTotalOrderAmount: (value: number) => {},
+      setFee: (value: number) => { },
+      setTotalOrderAmount: (value: number) => { },
     },
     fulfillment: {
       hvc: null,
       fee: 0,
       serviceType: undefined,
       shippingFeeInformedToCustomer: 0,
-      setHvc: (value: number) => {},
-      setFee: (value: number) => {},
-      setServiceType: (value: string | undefined) => {},
-      setShippingFeeInformedToCustomer: (value: number | null) => {},
+      setHvc: (value: number) => { },
+      setFee: (value: number) => { },
+      setServiceType: (value: string | undefined) => { },
+      setShippingFeeInformedToCustomer: (value: number | null) => { },
     },
     payment: {
       payments: [],
-      setPayments: (payments: OrderPaymentRequest[]) => {},
+      setPayments: (payments: OrderPaymentRequest[]) => { },
     },
   };
 
@@ -684,17 +630,17 @@ const OrderDetail = (props: PropType) => {
 
                 {OrderDetail?.order_return_origin?.items &&
                   customerNeedToPayValue -
-                    (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
-                    0 && (
+                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) <
+                  0 && (
                     <CardReturnMoney
                       listPaymentMethods={listPaymentMethods}
                       payments={[]}
                       returnMoneyAmount={Math.abs(
                         customerNeedToPayValue -
-                          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
                       )}
                       isShowPaymentMethod={true}
-                      setIsShowPaymentMethod={() => {}}
+                      setIsShowPaymentMethod={() => { }}
                       handleReturnMoney={handleReturnMoney}
                     />
                   )}
@@ -751,23 +697,23 @@ const OrderDetail = (props: PropType) => {
                             <span className="text-field margin-right-40">
                               {customerNeedToPayValue -
                                 (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) >=
-                              0
+                                0
                                 ? `Còn phải trả:`
                                 : `Hoàn tiền cho khách:`}
                             </span>
                             <b style={{color: "red"}}>
                               {OrderDetail?.fulfillments &&
-                              OrderDetail?.fulfillments.length > 0 &&
-                              OrderDetail?.fulfillments[0].shipment?.cod
+                                OrderDetail?.fulfillments.length > 0 &&
+                                OrderDetail?.fulfillments[0].shipment?.cod
                                 ? 0
                                 : formatCurrency(
-                                    Math.abs(
-                                      customerNeedToPayValue -
-                                        (OrderDetail?.total_paid
-                                          ? OrderDetail?.total_paid
-                                          : 0)
-                                    )
-                                  )}
+                                  Math.abs(
+                                    customerNeedToPayValue -
+                                    (OrderDetail?.total_paid
+                                      ? OrderDetail?.total_paid
+                                      : 0)
+                                  )
+                                )}
                             </b>
                           </Col>
                         </Row>
@@ -782,7 +728,7 @@ const OrderDetail = (props: PropType) => {
                               ghost
                             >
                               {OrderDetail.total === SumCOD(OrderDetail) &&
-                              OrderDetail.total === OrderDetail.total_paid ? (
+                                OrderDetail.total === OrderDetail.total_paid ? (
                                 ""
                               ) : (
                                 <>
@@ -872,8 +818,8 @@ const OrderDetail = (props: PropType) => {
                                         OrderDetail.total_line_amount_after_line_discount -
                                         getAmountPayment(OrderDetail.payments) -
                                         (OrderDetail?.discounts &&
-                                        OrderDetail?.discounts.length > 0 &&
-                                        OrderDetail?.discounts[0].amount
+                                          OrderDetail?.discounts.length > 0 &&
+                                          OrderDetail?.discounts[0].amount
                                           ? OrderDetail?.discounts[0].amount
                                           : 0)
                                       }
@@ -907,7 +853,7 @@ const OrderDetail = (props: PropType) => {
                                             <b>
                                               COD
                                               {OrderDetail.fulfillments[0].status !==
-                                              "shipped" ? (
+                                                "shipped" ? (
                                                 <Tag
                                                   className="orders-tag orders-tag-warning"
                                                   style={{marginLeft: 10}}
@@ -930,26 +876,26 @@ const OrderDetail = (props: PropType) => {
                                             </b>
                                             <span className="amount">
                                               {OrderDetail !== null &&
-                                              OrderDetail?.fulfillments
+                                                OrderDetail?.fulfillments
                                                 ? formatCurrency(
-                                                    OrderDetail.fulfillments[0].shipment
-                                                      ?.cod
-                                                  )
+                                                  OrderDetail.fulfillments[0].shipment
+                                                    ?.cod
+                                                )
                                                 : 0}
                                             </span>
                                           </div>
                                           <div className="orderPaymentItem__right">
                                             {OrderDetail?.fulfillments[0].status ===
                                               "shipped" && (
-                                              <div>
-                                                <span className="date">
-                                                  {ConvertUtcToLocalDate(
-                                                    OrderDetail?.updated_date,
-                                                    "DD/MM/YYYY HH:mm"
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="date">
+                                                    {ConvertUtcToLocalDate(
+                                                      OrderDetail?.updated_date,
+                                                      "DD/MM/YYYY HH:mm"
+                                                    )}
+                                                  </span>
+                                                </div>
+                                              )}
                                           </div>
                                         </div>
                                       </>
@@ -995,17 +941,17 @@ const OrderDetail = (props: PropType) => {
                   OrderDetail.fulfillments.length > 0 &&
                   OrderDetail.fulfillments[0].shipment &&
                   OrderDetail.fulfillments[0].shipment?.cod ===
-                    (OrderDetail?.fulfillments[0].shipment
+                  (OrderDetail?.fulfillments[0].shipment
+                    .shipping_fee_informed_to_customer
+                    ? OrderDetail?.fulfillments[0].shipment
                       .shipping_fee_informed_to_customer
-                      ? OrderDetail?.fulfillments[0].shipment
-                          .shipping_fee_informed_to_customer
-                      : 0) +
-                      OrderDetail?.total_line_amount_after_line_discount -
-                      (OrderDetail?.discounts &&
-                      OrderDetail?.discounts.length > 0 &&
-                      OrderDetail?.discounts[0].amount
-                        ? OrderDetail?.discounts[0].amount
-                        : 0) &&
+                    : 0) +
+                  OrderDetail?.total_line_amount_after_line_discount -
+                  (OrderDetail?.discounts &&
+                    OrderDetail?.discounts.length > 0 &&
+                    OrderDetail?.discounts[0].amount
+                    ? OrderDetail?.discounts[0].amount
+                    : 0) &&
                   checkPaymentStatusToShow(OrderDetail) !== 1 && (
                     <Card
                       title={
@@ -1080,8 +1026,8 @@ const OrderDetail = (props: PropType) => {
                                 >
                                   {OrderDetail.fulfillments
                                     ? formatCurrency(
-                                        OrderDetail.fulfillments[0].shipment?.cod
-                                      )
+                                      OrderDetail.fulfillments[0].shipment?.cod
+                                    )
                                     : 0}
                                 </b>
                               </div>
@@ -1102,25 +1048,25 @@ const OrderDetail = (props: PropType) => {
                       </div>
                       {OrderDetail?.payments !== null
                         ? OrderDetail?.payments.map(
-                            (item, index) =>
-                              OrderDetail.total !== null &&
-                              OrderDetail.total - item.paid_amount !== 0 && (
-                                <div className="padding-24 text-right">
-                                  <Button
-                                    key={index}
-                                    type="primary"
-                                    className="ant-btn-outline fixed-button"
-                                    disabled={
-                                      stepsStatusValue === OrderStatus.CANCELLED ||
-                                      stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                                      disabledBottomActions
-                                    }
-                                  >
-                                    Thanh toán
-                                  </Button>
-                                </div>
-                              )
-                          )
+                          (item, index) =>
+                            OrderDetail.total !== null &&
+                            OrderDetail.total - item.paid_amount !== 0 && (
+                              <div className="padding-24 text-right">
+                                <Button
+                                  key={index}
+                                  type="primary"
+                                  className="ant-btn-outline fixed-button"
+                                  disabled={
+                                    stepsStatusValue === OrderStatus.CANCELLED ||
+                                    stepsStatusValue === FulFillmentStatus.SHIPPED ||
+                                    disabledBottomActions
+                                  }
+                                >
+                                  Thanh toán
+                                </Button>
+                              </div>
+                            )
+                        )
                         : "Chưa thanh toán"}
                     </Card>
                   )}
@@ -1243,6 +1189,13 @@ const OrderDetail = (props: PropType) => {
             />
           </Form>
         </div>
+        <CancelOrderModal
+          visible={visibleCancelModal}
+          orderCode={OrderDetail?.code}
+          onCancel={() => setVisibleCancelModal(false)}
+          onOk={(reasonID: number, reason: string) => handleCancelOrder(reasonID, reason)}
+          reasons={reasons}
+        />
       </ContentContainer>
     </OrderDetailContext.Provider>
   );

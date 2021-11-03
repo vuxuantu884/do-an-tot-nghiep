@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   Button,
   Form,
@@ -13,6 +14,7 @@ import {
   Menu,
   Checkbox,
   DatePicker,
+  Card,
 } from "antd";
 import {
   SearchOutlined,
@@ -25,9 +27,10 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import BaseFilter from "component/filter/base.filter";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
+import UrlConfig from "config/url.config";
 import ConnectedItemActionColumn from "./ConnectedItemActionColumn";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -42,7 +45,6 @@ import {
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -55,7 +57,6 @@ import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } fr
 
 
 type ConnectedItemsProps = {
-  categoryList?: Array<any>;
   variantData: any;
   getProductUpdated: any;
   tableLoading: any;
@@ -64,7 +65,7 @@ type ConnectedItemsProps = {
 const ConnectedItems: React.FC<ConnectedItemsProps> = (
   props: ConnectedItemsProps
 ) => {
-  const { categoryList, variantData, getProductUpdated, tableLoading } = props;
+  const { variantData, getProductUpdated, tableLoading } = props;
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
@@ -82,19 +83,18 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
-  const params: ProductEcommerceQuery = useMemo(
+  const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
       limit: 30,
       ecommerce_id: null,
       shop_ids: [],
-      category_id: null,
       connect_status: "connected",
       update_stock_status: null,
       sku_or_name_core: "",
       sku_or_name_ecommerce: "",
-      create_time_from: null,
-      create_time_to: null,
+      connected_date_from: null,
+      connected_date_to: null,
     }),
     []
   );
@@ -104,13 +104,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     limit: 30,
     ecommerce_id: null,
     shop_ids: [],
-    category_id: null,
     connect_status: "connected",
     update_stock_status: null,
     sku_or_name_core: "",
     sku_or_name_ecommerce: "",
-    create_time_from: null,
-    create_time_to: null,
+    connected_date_from: null,
+    connected_date_to: null,
   });
 
 
@@ -266,10 +265,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "70px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <img
-            src={l.ecommerce_image_url}
+            src={item.ecommerce_image_url}
             style={{ height: "40px" }}
             alt=""
           ></img>
@@ -280,12 +279,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sku/ itemID (Sàn)",
       visible: true,
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <div>
-            <div>{l.ecommerce_sku}</div>
-            <div style={{ color: "#737373" }}>{l.ecommerce_product_id}</div>
-            <div style={{ color: "#2a2a86" }}>({l.shop})</div>
+            <div>{item.ecommerce_sku}</div>
+            <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
+            <div style={{ color: "#2a2a86" }}>({item.shop})</div>
           </div>
         );
       },
@@ -294,8 +293,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       title: "Sản phẩm (Sàn)",
       visible: true,
       width: "300px",
-      render: (l: any, v: any, i: any) => {
-        return <div>{l.ecommerce_variant}</div>;
+      render: (item: any, v: any, i: any) => {
+        return <div>{item.ecommerce_variant}</div>;
       },
     },
     {
@@ -303,10 +302,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "100px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <span>
-            {l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}
+            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
           </span>
         );
       },
@@ -314,12 +313,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     {
       title: "Sản phẩm (Yody)",
       visible: true,
-      render: (l: any, v: any, i: any) => {
-        const link = `https://dev.yody.io/unicorn/admin/products/${l.core_product_id}/variants/${l.core_variant_id}`;
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductLink>
-            <a href={link} rel="noreferrer" target="_blank">{l.core_variant}</a>
-            <div>{l.core_sku}</div>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+            >
+              {item.core_variant}
+            </Link>
+            <div>{item.core_sku}</div>
           </StyledProductLink>
         );
       },
@@ -329,8 +332,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "100px",
-      render: (l: any, v: any, i: any) => {
-        return <span>{formatCurrency(l.core_price)}</span>;
+      render: (item: any, v: any, i: any) => {
+        return <span>{formatCurrency(item.core_price)}</span>;
       },
     },
     {
@@ -338,8 +341,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "60px",
-      render: (l: any, v: any, i: any) => {
-        return <span>{l.stock}</span>;
+      render: (item: any, v: any, i: any) => {
+        return <span>{item.stock}</span>;
       },
     },
     {
@@ -347,10 +350,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductConnectStatus>
-            {l.connect_status === "connected" && (
+            {item.connect_status === "connected" && (
               <span className="success-status">Thành công</span>
             )}
           </StyledProductConnectStatus>
@@ -380,20 +383,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductConnectStatus>
-            {l.sync_stock_status === "done" && (
-              <Tooltip title={convertDateTimeFormat(l.updated_date)}>
+            {item.sync_stock_status === "done" && (
+              <Tooltip title={convertDateTimeFormat(item.updated_date)}>
                 <span className="success-status">Thành công</span>
               </Tooltip>
             )}
-            {l.sync_stock_status === "error" && (
+            {item.sync_stock_status === "error" && (
               <Tooltip title="error">
                 <span className="error-status">Thất bại</span>
               </Tooltip>
             )}
-            {l.sync_stock_status === "in_progress" && (
+            {item.sync_stock_status === "in_progress" && (
               <span className="warning-status">Đang xử lý</span>
             )}
           </StyledProductConnectStatus>
@@ -408,55 +411,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     ),
   ]);
 
-  //handle convert to timestamp
-  const convertStartDateToTimestamp = (dateData: any) => {
-    const startDateValue = dateData?.split("-");
-    const day = startDateValue && startDateValue[0];
-    const month = startDateValue && startDateValue[1];
-    const year = startDateValue && startDateValue[2];
-    
-    const startDate = month + "." + day + "." + year + " 00:00:00";
-    const startDateTimestamp = moment(new Date(startDate)).unix();
-    return startDateTimestamp;
-  }
-  
-  const convertEndDateToTimestamp = (dateData: any) => {
-    const endDateValue = dateData?.split("-");
-    const today = new Date();
-    let time = "23:59:59";
-
-    if ((Number(endDateValue[0]) === Number(today.getDate())) &&
-        (Number(endDateValue[1]) === Number(today.getMonth()) + 1) &&
-        (Number(endDateValue[2]) === Number(today.getFullYear()))
-      ) {
-      time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    }
-
-    const day = endDateValue && endDateValue[0];
-    const month = endDateValue && endDateValue[1];
-    const year = endDateValue && endDateValue[2];
-
-    const endDate = month + "." + day + "." + year + " " + time;
-    const endDateTimestamp = moment(new Date(endDate)).unix();
-    return endDateTimestamp;
-  }
-  //end handle convert to timestamp
-
   const onSearch = (value: ProductEcommerceQuery) => {
     if (value) {
       value.shop_ids = shopIdSelected;
-      value.create_time_from = connectionStartDate ? convertStartDateToTimestamp(connectionStartDate) : null;      
-      value.create_time_to = connectionEndDate ? convertEndDateToTimestamp(connectionEndDate) : null;
+      value.connected_date_from = connectionStartDate;
+      value.connected_date_to = connectionEndDate;
 
       query.ecommerce_id = value.ecommerce_id;
       query.shop_ids = value.shop_ids;
-      query.category_id = value.category_id;
       query.connect_status = "connected";
       query.update_stock_status = value.update_stock_status;
       query.sku_or_name_ecommerce = value.sku_or_name_ecommerce;
       query.sku_or_name_core = value.sku_or_name_core;
-      query.create_time_from = value.create_time_from;
-      query.create_time_to = value.create_time_to;
+      query.connected_date_from = value.connected_date_from;
+      query.connected_date_to = value.connected_date_to;
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
@@ -551,11 +519,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
     formAdvance.submit();
   }, [formAdvance]);
 
-  const onClearFilterAdvanceClick = React.useCallback(() => {
-    formAdvance.setFieldsValue(params);
+  const onClearConnectionDate = () => {
+    setDateButtonSelected("");
+    setConnectionStartDate(null);
+    setConnectionEndDate(null);
+  };
+
+  const onClearBaseFilter = React.useCallback(() => {
+    removeEcommerce();
+    onClearConnectionDate();
     setVisibleFilter(false);
+
+    formAdvance.setFieldsValue(initialFormValues);
     formAdvance.submit();
-  }, [formAdvance, params]);
+  }, [formAdvance, initialFormValues]);
 
   const openFilter = React.useCallback(() => {
     setVisibleFilter(true);
@@ -668,10 +645,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   };
 
   const [connectionStartDate, setConnectionStartDate] = useState(
-    params.create_time_from || null
+    initialFormValues.connected_date_from || null
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    params.create_time_to || null
+    initialFormValues.connected_date_to || null
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
@@ -683,46 +660,28 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
       switch (value) {
         case "today":
-          startDateValue = moment().startOf("day").format("DD-MM-YYYY");
-          endDateValue = moment().endOf("day").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment());
+          endDateValue = ConvertDateToUtc(moment());
           break;
         case "yesterday":
-          startDateValue = moment()
-            .startOf("day")
-            .subtract(1, "days")
-            .format("DD-MM-YYYY");
-          endDateValue = moment()
-            .endOf("day")
-            .subtract(1, "days")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
+          endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = moment().startOf("week").format("DD-MM-YYYY");
-          endDateValue = moment().endOf("week").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("week"));
+          endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
-          startDateValue = moment()
-            .startOf("week")
-            .subtract(1, "weeks")
-            .format("DD-MM-YYYY");
-          endDateValue = moment()
-            .endOf("week")
-            .subtract(1, "weeks")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks"));
+          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          startDateValue = moment().startOf("month").format("DD-MM-YYYY");
-          endDateValue = moment().endOf("month").format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("month"));
+          endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
-          startDateValue = moment()
-            .startOf("month")
-            .subtract(1, "months")
-            .format("DD-MM-YYYY");
-          endDateValue = moment()
-            .endOf("month")
-            .subtract(1, "months")
-            .format("DD-MM-YYYY");
+          startDateValue = ConvertDateToUtc(moment().startOf("month").subtract(1, "months"));
+          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
           break;
@@ -743,154 +702,147 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const onChangeRangeDate = useCallback((dates, dateString) => {
     setDateButtonSelected("");
-    setConnectionStartDate(dateString[0]);
-    setConnectionEndDate(dateString[1]);
+    const startDateUtc = dates[0].utc().format();
+    const endDateUtc = dates[1].utc().format();
+    setConnectionStartDate(startDateUtc);
+    setConnectionEndDate(endDateUtc);
   }, []);
   //end handle select connection date
 
   return (
     <StyledComponent>
-      <StyledProductFilter>
-        <div className="filter">
-          <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
-            <Form.Item name="action" className="action-dropdown">
-              <Dropdown
-                overlay={actionList}
-                trigger={["click"]}
-                disabled={tableLoading}
-              >
-                <Button className="action-button">
-                  <div style={{ marginRight: 10 }}>Thao tác</div>
-                  <DownOutlined />
-                </Button>
-              </Dropdown>
-            </Form.Item>
+      <Card>
+        <StyledProductFilter>
+          <div className="filter">
+            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
+              <Form.Item name="action" className="action-dropdown">
+                <Dropdown
+                  overlay={actionList}
+                  trigger={["click"]}
+                  disabled={tableLoading}
+                >
+                  <Button className="action-button">
+                    <div style={{ marginRight: 10 }}>Thao tác</div>
+                    <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </Form.Item>
 
-            <Form.Item name="ecommerce_id" className="select-channel-dropdown">
-              <Select
-                showSearch
-                disabled={tableLoading}
-                placeholder="Chọn sàn"
-                allowClear
-                onSelect={(value) => handleSelectEcommerce(value)}
-                onClear={removeEcommerce}
-              >
-                {ECOMMERCE_LIST &&
-                  ECOMMERCE_LIST.map((item: any) => (
-                    <Option key={item.ecommerce_id} value={item.ecommerce_id}>
-                      <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
-                        <span>{item.title}</span>
-                      </div>
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item className="select-store-dropdown">
-              {isEcommerceSelected && (
+              <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
-                  disabled={tableLoading || !isEcommerceSelected}
-                  placeholder={getPlaceholderSelectShop()}
-                  allowClear={shopIdSelected && shopIdSelected.length > 0}
-                  dropdownRender={() => renderShopList(false)}
-                  onClear={removeSelectedShop}
-                />
-              )}
+                  disabled={tableLoading}
+                  placeholder="Chọn sàn"
+                  allowClear
+                  onSelect={(value) => handleSelectEcommerce(value)}
+                  onClear={removeEcommerce}
+                >
+                  {ECOMMERCE_LIST &&
+                    ECOMMERCE_LIST.map((item: any) => (
+                      <Option key={item.ecommerce_id} value={item.ecommerce_id}>
+                        <div>
+                          <img
+                            src={item.icon}
+                            alt={item.id}
+                            style={{ marginRight: "10px" }}
+                          />
+                          <span>{item.title}</span>
+                        </div>
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
 
-              {!isEcommerceSelected && (
-                <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+              <Form.Item className="select-store-dropdown">
+                {isEcommerceSelected && (
                   <Select
                     showSearch
-                    disabled={true}
+                    disabled={tableLoading || !isEcommerceSelected}
                     placeholder={getPlaceholderSelectShop()}
                     allowClear={shopIdSelected && shopIdSelected.length > 0}
                     dropdownRender={() => renderShopList(false)}
                     onClear={removeSelectedShop}
                   />
-                </Tooltip>
-              )}
-            </Form.Item>
+                )}
 
-            <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
-              <Input
-                disabled={tableLoading}
-                prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, tên sản phẩm sàn"
-              />
-            </Form.Item>
+                {!isEcommerceSelected && (
+                  <Tooltip title="Yêu cầu chọn sàn" color={"blue"}>
+                    <Select
+                      showSearch
+                      disabled={true}
+                      placeholder={getPlaceholderSelectShop()}
+                      allowClear={shopIdSelected && shopIdSelected.length > 0}
+                      dropdownRender={() => renderShopList(false)}
+                      onClear={removeSelectedShop}
+                    />
+                  </Tooltip>
+                )}
+              </Form.Item>
 
-            <Form.Item name="sku_or_name_core" className="yody-search">
-              <Input
-                disabled={tableLoading}
-                prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                placeholder="SKU, Sản phẩm Yody"
-              />
-            </Form.Item>
+              <Form.Item name="sku_or_name_ecommerce" className="shoppe-search">
+                <Input
+                  disabled={tableLoading}
+                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  placeholder="SKU, tên sản phẩm sàn"
+                />
+              </Form.Item>
 
-            <Form.Item className="filter-item">
-              <Button type="primary" htmlType="submit" disabled={tableLoading}>
-                Lọc
-              </Button>
-            </Form.Item>
+              <Form.Item name="sku_or_name_core" className="yody-search">
+                <Input
+                  disabled={tableLoading}
+                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  placeholder="SKU, Sản phẩm Yody"
+                />
+              </Form.Item>
 
-            <Form.Item>
-              <Button onClick={openFilter} disabled={tableLoading}>
-                <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
-                <span>Thêm bộ lọc</span>
-              </Button>
-            </Form.Item>
-          </Form>
-        </div>
-      </StyledProductFilter>
+              <Form.Item className="filter-item">
+                <Button type="primary" htmlType="submit" disabled={tableLoading}>
+                  Lọc
+                </Button>
+              </Form.Item>
 
-      <CustomTable
-        isRowSelection
-        isLoading={tableLoading}
-        onSelectedChange={onSelectTable}
-        columns={columns}
-        dataSource={variantData.items}
-        scroll={{ x: 1500 }}
-        pagination={{
-          pageSize: variantData.metadata && variantData.metadata.limit,
-          total: variantData.metadata && variantData.metadata.total,
-          current: variantData.metadata && variantData.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        rowKey={(data) => data.id}
-      />
+              <Form.Item>
+                <Button onClick={openFilter} disabled={tableLoading}>
+                  <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
+                  <span>Thêm bộ lọc</span>
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
+        </StyledProductFilter>
+
+        <CustomTable
+          isRowSelection
+          isLoading={tableLoading}
+          onSelectedChange={onSelectTable}
+          columns={columns}
+          dataSource={variantData.items}
+          scroll={{ x: 1500 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          pagination={{
+            pageSize: variantData.metadata && variantData.metadata.limit,
+            total: variantData.metadata && variantData.metadata.total,
+            current: variantData.metadata && variantData.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          rowKey={(data) => data.id}
+        />
+      </Card>
 
       <BaseFilter
-        onClearFilter={onClearFilterAdvanceClick}
+        onClearFilter={onClearBaseFilter}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
         width={400}
-        footerStyle={{
-          display: "flex",
-          flexDirection: "row-reverse",
-          justifyContent: "space-between",
-        }}
-        confirmButtonTitle="Áp dụng bộ lọc"
-        deleteButtonTitle={
-          <div>
-            <img src={deleteIcon} style={{ marginRight: 10 }} alt="" />
-            <span style={{ color: "red" }}>Xóa bộ lọc</span>
-          </div>
-        }
       >
         <StyledBaseFilter>
           <Form
             form={formAdvance}
             onFinish={onSearch}
-            initialValues={params}
+            initialValues={initialFormValues}
             layout="vertical"
           >
             <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
@@ -944,16 +896,6 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                   />
                 </Tooltip>
               )}
-            </Form.Item>
-
-            <Form.Item name="category_id" label={<b>DANH MỤC</b>}>
-              <Select showSearch placeholder="Chọn danh mục" allowClear>
-                {categoryList?.map((item: any) => (
-                  <Option key={item.category_id} value={item.category_id}>
-                    {item.display_category_name}
-                  </Option>
-                ))}
-              </Select>
             </Form.Item>
 
             <Form.Item
@@ -1044,10 +986,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
                   style={{ width: "100%" }}
                   value={[
                     connectionStartDate
-                      ? moment(connectionStartDate, "DD-MM-YYYY")
+                      ? moment(new Date(connectionStartDate), "DD-MM-YYYY")
                       : null,
                     connectionEndDate
-                      ? moment(connectionEndDate, "DD-MM-YYYY")
+                      ? moment(new Date(connectionEndDate), "DD-MM-YYYY")
                       : null,
                   ]}
                   onChange={(date, dateString) =>

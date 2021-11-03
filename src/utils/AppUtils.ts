@@ -36,6 +36,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { ErrorGHTK } from "./Constants";
 import { UploadFile } from "antd/lib/upload/interface";
 import { LineItem } from "model/inventory/transfer";
+import { DepartmentResponse, DepartmentView } from "model/account/department.model";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -157,6 +158,16 @@ export const convertCategory = (data: Array<CategoryResponse>) => {
   return arr;
 };
 
+export const convertDepartment = (data: Array<DepartmentResponse>) => {
+  let arr: Array<DepartmentView> = [];
+  data.forEach((item) => {
+    let level = 0;
+    let temp = getArrDepartment(item, level, null);
+    arr = [...arr, ...temp];
+  });
+  return arr;
+};
+
 export const getArrCategory = (
   i: CategoryResponse,
   level: number,
@@ -189,6 +200,46 @@ export const getArrCategory = (
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
       let c = getArrCategory(i1, level + 1, i);
+      arr = [...arr, ...c];
+    });
+  }
+  return arr;
+};
+
+export const getArrDepartment = (
+  i: DepartmentResponse,
+  level: number,
+  parent: DepartmentResponse | null
+) => {
+  let arr: Array<DepartmentView> = [];
+  let parentTemp = null;
+  if (parent !== null) {
+    parentTemp = {
+      id: parent.id,
+      name: parent.name,
+    };
+  }
+  arr.push({
+    id: i.id,
+    created_by: i.created_by,
+    created_date: i.created_date,
+    created_name: i.created_name,
+    updated_by: i.updated_by,
+    updated_name: i.updated_name,
+    updated_date: i.updated_date,
+    version: i.version,
+    code: i.code,
+    address: i.address,
+    manager: i.manager,
+    manager_code: i.manager_code,
+    mobile: i.mobile,
+    level: level,
+    parent: parentTemp,
+    name: i.name,
+  });
+  if (i.children.length > 0) {
+    i.children.forEach((i1) => {
+      let c = getArrDepartment(i1, level + 1, i);
       arr = [...arr, ...c];
     });
   }

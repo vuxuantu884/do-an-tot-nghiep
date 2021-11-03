@@ -145,18 +145,25 @@ const CreateTicket: FC = () => {
 
   // validate
   const validateStore = (rule: any, value: any, callback: any): void => {
-    
     if (value) {
       const from_store_id = form.getFieldValue("from_store_id");
       const to_store_id = form.getFieldValue("to_store_id");
 
       if (from_store_id === to_store_id) {
-        callback(`Kho gửi không được trùng với kho nhận`);
+        callback(`Kho gửi và kho nhận không được trùng nhau`);
       } else {
+        form.setFields([
+          {
+            name: "to_store_id",
+            errors: []
+          },
+          {
+            name: "from_store_id",
+            errors: []
+          }
+        ])
         callback();
       }
-    } else {
-      callback();
     }
   };
 
@@ -176,7 +183,7 @@ const CreateTicket: FC = () => {
             status: "active",
             limit: 10,
             page: 1,
-            store_id: storeId,
+            store_ids: storeId,
             info: value.trim(),
           },
           setResultSearch
@@ -191,10 +198,11 @@ const CreateTicket: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
+    
     return options;
   }, [resultSearch]);
 
@@ -208,7 +216,7 @@ const CreateTicket: FC = () => {
         (variant: VariantResponse) => variant.id === selectedItem.id
       )
     ) {
-      setDataTable((prev: any) => prev.concat([selectedItem]));
+      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 0}]));
     }
   };
 
@@ -312,17 +320,20 @@ const CreateTicket: FC = () => {
     if (result) {
       setIsLoadingTable(false);
       const newDataTable = dataTable.map((itemOld: VariantResponse) => {
-        let newAvailable;
+        let newAvailable, newOnHand;
         result?.forEach((itemNew: InventoryResponse) => {
           if (itemNew.variant_id === itemOld.id) {
             newAvailable = itemNew.available;
+            newOnHand = itemNew.on_hand;
           }
         });
-        return {
+        return {  
           ...itemOld,
           available: newAvailable,
+          on_hand: newOnHand,
         };
       });
+      
       setDataTable(newDataTable);
     } else {
       setIsLoadingTable(false);
@@ -368,6 +379,7 @@ const CreateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "unset";
       }
     });
+    
 
     if (countError > 0) {
       showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
@@ -860,6 +872,7 @@ const CreateTicket: FC = () => {
             <PickManyProductModal
               storeID={form.getFieldValue("from_store_id")}
               selected={[]}
+              isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
               visible={visibleManyProduct}
