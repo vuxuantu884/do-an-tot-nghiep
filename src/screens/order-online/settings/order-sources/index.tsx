@@ -66,7 +66,7 @@ function OrderSources(props: PropsType) {
   };
   const DEFAULT_PAGINATION = {
     page: 1,
-    limit: 5,
+    limit: 30,
   };
   const initFilterParams: formValuesType = {
     name: "",
@@ -217,8 +217,6 @@ function OrderSources(props: PropsType) {
           source_ids.push(single.id);
         }
       });
-      console.log("channel_ids", channel_ids);
-      console.log("source_ids", source_ids);
       deleteMultiOrderSourceService(source_ids, channel_ids)
         .then((response: BaseResponse<any>) => {
           switch (response.code) {
