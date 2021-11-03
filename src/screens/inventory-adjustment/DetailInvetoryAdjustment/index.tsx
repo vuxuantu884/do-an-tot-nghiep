@@ -85,7 +85,6 @@ const DetailInvetoryAdjustment: FC = () => {
     content: () => printElementRef.current,
   });
 
-
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -302,7 +301,6 @@ const DetailInvetoryAdjustment: FC = () => {
       
       let params = {
         ids: data.id,
-        type: 'inventory_transfer_bill',
       };
       const queryParam = generateQuery(params);
       dispatch(InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback));
