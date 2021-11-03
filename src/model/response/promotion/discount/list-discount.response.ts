@@ -2,6 +2,7 @@ import { BaseObject } from "model/base/base.response";
 
 export interface DiscountResponse extends BaseObject {
   disabled: boolean;
+  description: string;
   ends_date: string;
   entitled_method: string;
   id: number;
@@ -14,7 +15,6 @@ export interface DiscountResponse extends BaseObject {
   usage_limit: number;
   usage_limit_per_customer: number;
   code: string;
-
   created_by: string;
   status: string;
 }

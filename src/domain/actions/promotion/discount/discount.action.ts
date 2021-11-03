@@ -7,3 +7,7 @@ import {DiscountResponse} from "../../../../model/response/promotion/discount/li
 export const getListDiscount = (query: BaseQuery, setData: (data: PageResponse<DiscountResponse>) => void) => {
   return BaseAction(DiscountType.GET_LIST_DISCOUNTS, { query, setData });
 }
+
+export const promoGetDetail = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.GET_PROMO_CODE_DETAIL, {id, onResult});
+}

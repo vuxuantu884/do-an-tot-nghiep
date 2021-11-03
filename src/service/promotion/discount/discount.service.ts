@@ -13,6 +13,10 @@ export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageR
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/?${params}`);
 };
 
+export const getPriceRuleById = (id: number) : Promise<DiscountResponse> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
+}
+
 export const deletePriceRuleById = (id: number): Promise<any> => {
   return BaseAxios.delete(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
 }

@@ -321,6 +321,7 @@ const GeneralCreate = (props: any) => {
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
+                  defaultValue="SALE_CODE"
                 >
                   <Option value={"SALE_CODE"}>Mã giảm giá</Option>
                   {/* <Option value={"GIFT_CODE"}>Mã quà tặng</Option> */}

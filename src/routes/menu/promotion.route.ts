@@ -9,7 +9,7 @@ const discountPage = React.lazy(() => import("screens/promotion/discount"))
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"))
 const createDiscountPage = React.lazy(() => import("screens/promotion/discount/discount.create"))
 const createPromoCodePage = React.lazy(() => import("screens/promotion/promo-code/promo-code.create"))
-const promoCodeDetail = React.lazy(() => import("screens/promotion/promo-code/promo-code-detail/index"))
+const promoCodeDetail = React.lazy(() => import("screens/promotion/promo-code/promo-code.detail"))
 const discountCodeList = React.lazy(() => import("screens/promotion/promo-code/discount-code-list"))
 
 const promotion: Array<RouteMenu> = [
