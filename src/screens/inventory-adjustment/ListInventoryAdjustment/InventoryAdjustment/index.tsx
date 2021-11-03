@@ -107,7 +107,6 @@ const InventoryAdjustment: React.FC = () => {
         );
       });
       let textResponseFormatted = textResponse.join(pageBreak);
-      //xóa thẻ p thừa
       let result = textResponseFormatted.replaceAll("<p></p>", "");
       setPrintContent(result);
       handlePrint && handlePrint();
@@ -319,14 +318,9 @@ const InventoryAdjustment: React.FC = () => {
   );
 
   const printTicketAction = useCallback((index: number) => {
-    let printType = "";
-    if (index === ACTIONS_INDEX.PRINT) {
-      printType = "inventory_transfer_bill";
-    }
 
     let params = {
-      ids: selectedRowKeys.toString(),
-      "type": printType,
+      ids: selectedRowKeys,
     };
 
     const queryParam = generateQuery(params);
