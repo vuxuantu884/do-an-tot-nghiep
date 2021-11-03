@@ -147,7 +147,7 @@ const InventoryTransferTab: React.FC = () => {
     ...getQueryParams(query),
   };
   const [formNote] = Form.useForm();
-  let [params, setPrams] = useState<InventoryTransferSearchQuery>(dataQuery);
+  let [params, setParams] = useState<InventoryTransferSearchQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<Array<InventoryTransferDetailItem>>>({
     metadata: {
       limit: 30,
@@ -334,7 +334,7 @@ const InventoryTransferTab: React.FC = () => {
     (page, size) => {
       params.page = page;
       params.limit = size;
-      setPrams({ ...params });
+      setParams({ ...params });
     },
     [params]
   );
@@ -367,9 +367,9 @@ const InventoryTransferTab: React.FC = () => {
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
-      setPrams(newPrams);
-      let queryParam = generateQuery(newPrams);
+      let newParams = { ...params, ...values, page: 1 };
+      setParams(newParams);
+      let queryParam = generateQuery(newParams);
       history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
     },
     [history, params]
@@ -414,13 +414,13 @@ const InventoryTransferTab: React.FC = () => {
 
   const onClearFilter = useCallback(
     () => {
-      setPrams(initQuery);
+      setParams(initQuery);
       let queryParam = generateQuery(initQuery);
       history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
     },
     [history]
   );
-
+  
   const onSelectedChange = useCallback((selectedRow) => {
     
     const selectedRowKeys = selectedRow.map((row: any) => row.id);
