@@ -30,8 +30,6 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           fulfillments[0].status !== FulFillmentStatus.RETURNED) {
             result = fulfillments[0].packed_on ? moment(fulfillments[0].packed_on).format(formatDate) : undefined;
           }
-      } else {
-        result = fulfillments[0].packed_on ? moment(fulfillments[0].packed_on).format(formatDate) : undefined;
       }
     }
     return result;
@@ -46,8 +44,6 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           fulfillments[0].status !== FulFillmentStatus.RETURNED) {
             result = fulfillments[0].export_on ? moment(fulfillments[0].export_on).format(formatDate) : undefined;
           }
-      } else {
-        result = fulfillments[0].export_on ? moment(fulfillments[0].export_on).format(formatDate) : undefined;
       }
     }
     return result;
@@ -133,7 +129,8 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             props.orderDetail &&
             fulfillments &&
             fulfillments.length > 0 &&
-            fulfillments[0].packed_on
+            fulfillments[0].packed_on &&
+            fulfillments[0].status !== "returned"
           ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
