@@ -20,7 +20,8 @@ import {
 import {
   configOrderSaga,
   orderCreateAction,
-  OrderDetailAction
+  OrderDetailAction,
+  PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
@@ -51,6 +52,7 @@ import {
   OrderResponse,
   StoreCustomResponse
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel
@@ -66,6 +68,7 @@ import {
 } from "utils/AppUtils";
 import {
   OrderStatus,
+  PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
@@ -134,6 +137,10 @@ export default function Order() {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [listOrderConfigs, setListOrderConfigs] =
     useState<OrderConfigResponseModel | null>(null);
+
+    const [listPaymentMethod, setListPaymentMethod] = useState<
+    Array<PaymentMethodResponse>
+  >([]);
 
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
@@ -587,6 +594,15 @@ export default function Order() {
       window.removeEventListener("scroll", scroll);
     };
   }, [scroll]);
+
+  useEffect(() => {
+    dispatch(
+      PaymentMethodGetList((response) => {
+        let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
+        setListPaymentMethod(result);
+      })
+    );
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -1133,16 +1149,19 @@ export default function Order() {
                       setInventoryResponse={setInventoryResponse}
                       setStoreForm={setStoreForm}
                     />
-                    <OrderCreatePayments
-                      setPaymentMethod={handlePaymentMethod}
-                      payments={payments}
-                      setPayments={setPayments}
-                      paymentMethod={paymentMethod}
-                      shipmentMethod={shipmentMethod}
-                      totalAmountOrder={totalAmountOrder}
-                      loyaltyRate={loyaltyRate}
-                      isDisablePostPayment={isDisablePostPayment}
-                    />
+                    <Card title="THANH TOÁN 31">
+                      <OrderCreatePayments
+                        setPaymentMethod={handlePaymentMethod}
+                        payments={payments}
+                        setPayments={setPayments}
+                        paymentMethod={paymentMethod}
+                        shipmentMethod={shipmentMethod}
+                        totalAmountOrder={totalAmountOrder}
+                        loyaltyRate={loyaltyRate}
+                        isDisablePostPayment={isDisablePostPayment}
+                        listPaymentMethod={listPaymentMethod}
+                      />
+                    </Card>
 
                     <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 252">
                       <OrderCreateShipment

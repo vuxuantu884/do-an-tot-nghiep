@@ -806,6 +806,7 @@ const OrderDetail = (props: PropType) => {
                                     <UpdatePaymentCard
                                       setSelectedPaymentMethod={onPaymentSelect}
                                       setVisibleUpdatePayment={setVisibleUpdatePayment}
+                                      setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                                       setPayments={onPayments}
                                       setTotalPaid={setTotalPaid}
                                       orderDetail={OrderDetail}
@@ -831,6 +832,8 @@ const OrderDetail = (props: PropType) => {
                                         setReload(true);
                                       }}
                                       disabledActions={disabledActions}
+                                      isDisablePostPayment={isDisablePostPayment}
+                                      listPaymentMethods={listPaymentMethods}
                                     />
                                   )}
                                 </Panel>
@@ -928,7 +931,7 @@ const OrderDetail = (props: PropType) => {
                                   disabledBottomActions
                                 }
                               >
-                                Thanh toán
+                                Thanh toán 2
                               </Button>
                             </div>
                           ))}
@@ -1097,6 +1100,7 @@ const OrderDetail = (props: PropType) => {
                         setReload(true);
                       }}
                       disabledActions={disabledActions}
+                      listPaymentMethods={listPaymentMethods}
                     />
                   )}
 
