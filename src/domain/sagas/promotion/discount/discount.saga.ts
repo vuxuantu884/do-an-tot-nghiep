@@ -9,6 +9,7 @@ import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {searchDiscountList, deletePriceRuleById, getPriceRuleById} from "../../../../service/promotion/discount/discount.service";
 import {takeLatest} from "typed-redux-saga";
 import {DiscountType} from "../../../types/promotion.type";
+import { all } from "redux-saga/effects";
 
 function* getDiscounts(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -84,7 +85,9 @@ function* getPromoCodeDetail(action: YodyAction) {
 }
 
 export function* discountSaga() {
-  yield takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail);
-  yield takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts);
-  yield takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct);
+  yield all([
+    takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
+    takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
+    takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct)
+  ])
 }
