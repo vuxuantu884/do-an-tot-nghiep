@@ -149,6 +149,7 @@ const CreatePromotionCodePage = () => {
               onClick={() => save()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem", borderColor: "#2a2a86" }}
               type="ghost"
+              htmlType="submit"
             >
               Lưu
             </Button>

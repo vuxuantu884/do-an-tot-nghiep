@@ -32,12 +32,19 @@ const ChooseDiscount = (props: any) => {
                 noStyle
               >
                 <NumberInput
+                  onBlur={() => {
+                    form.submit();
+                  }}
+                  isFloat={typeUnit === 'PERCENTAGE'}
+                  className="product-item-discount-input"
+                  style={{ width: "65%", textAlign: "right" }}
+                  placeholder="Nhập giá trị khuyến mãi"
                   format={(a) => formatCurrency(a)}
                   replace={(a) => replaceFormatString(a)}
-                  maxLength={6}
-                  isFloat
-                  placeholder=" "
-                  style={{ width: "calc(100% - 70px)" }}
+                  min={0}
+                  default={0}
+                  maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : 3}
+                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 100}
                 />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
@@ -65,9 +72,9 @@ const ChooseDiscount = (props: any) => {
             name="usage_limit"
             rules={[
               {
-                required: true,
+                required: !isUsageLimit,
                 message: "Mã được sử dụng không được để trống",
-              },
+              }
             ]}
           >
             <NumberInput
@@ -76,7 +83,7 @@ const ChooseDiscount = (props: any) => {
                 width: "100%",
                 color: "#222222",
               }}
-              maxLength={999999999999}
+              maxLength={999999999999999}
               minLength={0}
               disabled={isUsageLimit}
             />

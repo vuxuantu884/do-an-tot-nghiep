@@ -31,6 +31,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules, deletePriceRuleById } from "service/promotion/discount/discount.service";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
+const { Item } = Form;
+
 const PromotionCode = () => {
   const dispatch = useDispatch();
   const query = useQuery();
@@ -353,21 +355,20 @@ const PromotionCode = () => {
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />
               </Form.Item>
-              <Form.Item name="status" className="store">
+              <Form.Item name="status" className="status">
                 <CustomSelect
-                  showSearch
-                  optionFilterProp="children"
+                  style={{ width: "100%", borderRadius: "6px" }}
                   showArrow
-                  placeholder="Chọn trạng thái"
-                  allowClear
-                  tagRender={tagRender}
-                  style={{
-                    width: "100%",
-                  }}
+                  showSearch
+                  placeholder="Nguồn đơn hàng"
                   notFoundContent="Không tìm thấy kết quả"
                 >
-                  {listStatus?.map((item) => (
-                    <CustomSelect.Option key={item.value} value={item.value}>
+                  {listStatus.map((item, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={(index + 1).toString()}
+                      value={item.value}
+                    >
                       {item.name}
                     </CustomSelect.Option>
                   ))}

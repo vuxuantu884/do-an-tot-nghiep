@@ -9,7 +9,7 @@ import {
   Modal,
   Col,
 } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
@@ -24,7 +24,7 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
 import "./promo-code.scss";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -35,9 +35,8 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { getListDiscount } from "domain/actions/promotion/discount/discount.action";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 
 const ListCode = () => {
   const promotionStatuses = [
@@ -123,7 +122,7 @@ const ListCode = () => {
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<PageResponse<DiscountResponse>>({
+  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
       limit: 30,
       page: 1,
