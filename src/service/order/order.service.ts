@@ -16,18 +16,19 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
-  VTPFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import { GoodsReceiptsRequest } from "model/request/pack.request";
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
-  updateConfigReQuestModel,
+  updateConfigReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
+  ChannelModel,
   OrderSourceCompanyModel,
   OrderSourceModel,
-  OrderSourceResponseModel,
+  OrderSourceResponseModel
 } from "model/response/order/order-source.response";
 import {
   DeliveryMappedStoreType,
@@ -38,14 +39,13 @@ import {
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+  VTPFeeResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse, SourceResponse } from "model/response/order/source.response";
 import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
-import { getToken } from "utils/LocalStorageUtils";
 
 export const getListOrderApi = (
   query: OrderSearchQuery
@@ -294,6 +294,13 @@ export const setSubStatusService = (
 
 export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
+};
+
+export const createChannelService = (params: ChannelModel): Promise<BaseResponse<Array<ChannelResponse>>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/channels`, params);
+};
+export const deleteChannelService = (channelId: number): Promise<BaseResponse<any>> => {
+  return BaseAxios.delete(`${ApiConfig.ORDER}/channels/${channelId}`);
 };
 
 export const getReasonsApi = (): Promise<BaseResponse<Array<any>>> => {

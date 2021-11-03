@@ -1,5 +1,5 @@
-import { BaseMetadata } from "model/base/base-metadata.response";
-import { BaseObject } from "model/base/base.response";
+import {BaseMetadata} from "model/base/base-metadata.response";
+import {BaseObject} from "model/base/base.response";
 
 export interface OrderSourceModel {
   company?: string;
@@ -13,18 +13,18 @@ export interface OrderSourceModel {
   code: string;
 }
 
+export interface ChannelModel {
+  code: string;
+  name: string;
+  type: string;
+}
+
 export interface OrderSourceResponseModel {
   items: OrderSourceModel[];
   metadata: BaseMetadata;
 }
 
 export interface OrderSourceCompanyModel extends BaseObject {
-  //   company_id: number;
-  //   id: number;
-  //   company: string;
-  //   name: string;
-  //   channel_id?: string;
-
   code: string;
   country?: string;
   country_id?: number;

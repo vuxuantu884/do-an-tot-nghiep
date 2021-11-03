@@ -116,7 +116,7 @@ const CustomModal = (props: CustomModalType) => {
       cancelText="Thoát"
       title={
         isCreateModal
-          ? `Thêm mới ${modalTypeText}`
+          ? `Thêm ${modalTypeText}`
           : `Cập nhật ${modalTypeText}`
       }
       footer={renderModalFooter()}
