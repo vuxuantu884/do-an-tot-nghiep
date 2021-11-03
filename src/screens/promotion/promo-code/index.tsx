@@ -12,6 +12,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
 import CustomSelect from "component/custom/select.custom";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import "./promo-code.scss";
 import { PlusOutlined } from "@ant-design/icons";
@@ -23,12 +24,12 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import { deletePriceRulesById, getListDiscount } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules, deletePriceRuleById } from "service/promotion/discount/discount.service";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -225,11 +226,6 @@ const PromotionCode = () => {
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
 
-  const columnFinal = React.useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
-
   function tagRender(props: any) {
     const { label, closable, onClose } = props;
     const onPreventMouseDown = (event: any) => {
@@ -309,6 +305,12 @@ const PromotionCode = () => {
     },
     [selectedRowKey]
   );
+
+  const onDeleteSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Xóa thành công");
+    dispatch(getListDiscount(params, fetchData));
+  }, [dispatch, fetchData, params]);
 
   return (
     <ContentContainer
@@ -409,15 +411,10 @@ const PromotionCode = () => {
       </Card>
       <ModalDeleteConfirm
         onCancel={() => setIsShowDeleteModal(false)}
-        onOk={async () => {
-          const deleteResponse = await deletePriceRuleById(modalInfo?.id);
-          if (deleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${deleteResponse.code} - ${deleteResponse.message}`)
-          }
+        onOk={() => {
           setIsShowDeleteModal(false);
+          dispatch(showLoading());
+          dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
         }}
         title="Bạn có chắc muốn xoá không?"
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."

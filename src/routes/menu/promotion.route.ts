@@ -126,7 +126,7 @@ const promotion: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/discount-code`,
+        path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/:id`,
         exact: true,
         title: "Mã chiết khấu đợt phát hành",
         icon: 'icon-dot',

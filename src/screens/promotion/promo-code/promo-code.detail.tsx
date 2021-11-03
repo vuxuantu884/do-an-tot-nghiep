@@ -20,6 +20,13 @@ import { promoGetDetail } from "domain/actions/promotion/discount/discount.actio
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 
 export interface ProductParams {
   id: string;
@@ -42,10 +49,9 @@ type detailMapping = {
 const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const location = useLocation();
-  const {hash} = location;
 
   const { id } = useParams() as any;
+  const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -54,8 +60,22 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<DiscountResponse | null>(null);
-  
-  const idNumber = parseInt(id);
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
+
+  useEffect(() => {
+    dispatch(StoreGetListAction(setStore));
+    dispatch(getListSourceRequest(setListSource));
+  }, []);
+
+  const fetchData = useCallback((data: any) => {
+    setCheckPromoCode(data.length > 0);
+  }, [])
+
+  useEffect(() => {
+    dispatch(getListPromoCode(idNumber, fetchData));
+  }, [dispatch, fetchData, idNumber]);
 
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/edit`);
@@ -284,14 +304,16 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {true  && 
+                {checkPromoCode  && 
                   <Row gutter={30}>
                     <Col span={24}>
-                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
+                      <Link 
+                        to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
+                      >Xem danh sách mã giảm giá của đợt phát hành</Link>
                     </Col>
                   </Row>
                 }
-                {false && <Row gutter={30} style={{gap: 15}}>
+                {!checkPromoCode && <Row gutter={30} style={{gap: 15}}>
                   <Col span={24} style={{
                       color: "#E24343",
                       textAlign: "center",

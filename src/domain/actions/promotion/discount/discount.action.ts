@@ -11,3 +11,7 @@ export const getListDiscount = (query: BaseQuery, setData: (data: PageResponse<D
 export const promoGetDetail = (id: number, onResult: (result: DiscountResponse|false) => void) => {
   return BaseAction(DiscountType.GET_PROMO_CODE_DETAIL, {id, onResult});
 }
+
+export const deletePriceRulesById = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.DELETE_PRICE_RULE_BY_ID, {id, onResult});
+}

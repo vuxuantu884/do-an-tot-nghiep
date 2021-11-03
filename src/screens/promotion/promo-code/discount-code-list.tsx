@@ -21,7 +21,10 @@ import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
+import ModalAddCode from "./components/ModalAddCode";
+import Dragger from "antd/lib/upload/Dragger";
 import "./promo-code.scss";
+import { useLocation, useParams } from "react-router";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -31,11 +34,10 @@ import { MenuAction } from "component/table/ActionButton";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import ModalAddCode from "./components/ModalAddCode";
-import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
 import { getListDiscount } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 
 const ListCode = () => {
   const promotionStatuses = [
@@ -100,7 +102,6 @@ const ListCode = () => {
       name: "Xoá",
     },
   ];
-
   const initQuery: DiscountSearchQuery = {
     type: "MANUAL",
     request: "",
@@ -114,7 +115,9 @@ const ListCode = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
-
+  const {id} = useParams() as any; 
+  const priceRuleId = id;
+  
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
@@ -128,20 +131,21 @@ const ListCode = () => {
     },
     items: [],
   })
+ 
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query)
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
-  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
-    setData(data)
+  const fetchData = useCallback((data: any) => {
+    setData(data);
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
-    dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params]);
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch, fetchData, priceRuleId]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -177,7 +181,7 @@ const ListCode = () => {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "amount",
+      dataIndex: "usage_count",
       width: "10%",
     },
     {

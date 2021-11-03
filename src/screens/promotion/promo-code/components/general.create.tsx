@@ -7,9 +7,10 @@ import {
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import ChooseDiscount from "./choose-discount.create";
 import CustomInput from "component/custom/custom-input";
-import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import ProductItem from "screens/purchase-order/component/product-item";
+import UrlConfig from "config/url.config";
 import "../promo-code.scss"
 import { useDispatch } from "react-redux";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
@@ -18,9 +19,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import ProductItem from "screens/purchase-order/component/product-item";
 import { Link } from "react-router-dom";
-import UrlConfig from "config/url.config";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
