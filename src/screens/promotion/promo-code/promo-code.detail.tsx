@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { Link } from "react-router-dom";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
@@ -25,8 +25,6 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 
 export interface ProductParams {
   id: string;
@@ -60,14 +58,27 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<DiscountResponse | null>(null);
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
+  const [store, setStore] = useState<Array<StoreResponse>>();
+  const [source, setSource] = useState<Array<SourceResponse>>();
+
 
   useEffect(() => {
-    dispatch(StoreGetListAction(setStore));
+    dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
   }, []);
+ 
+  useEffect(() => {
+    const stores =  listStore?.filter(item => item.id === data?.prerequisite_store_ids[0])
+    setStore(stores);
+  }, [listStore]);
+
+  useEffect(() => {
+    const source = listSource?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
+    setSource(source);
+  }, [listSource]);
 
   const fetchData = useCallback((data: any) => {
     setCheckPromoCode(data.length > 0);
@@ -106,13 +117,13 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mã đợt phát hành",
-          value: data.code,
+          value: data.discount_codes[0]?.code ? data.discount_codes[0]?.code : "",
           position: "left",
           key: "2",
         },
         {
           name: "Loại mã",
-          value: data.type,
+          value: "Mã giảm giá",
           position: "left",
           key: "3",
         },
@@ -431,8 +442,11 @@ const PromotionDetailScreen: React.FC = () => {
                         <ul style={{
                           padding: "0 16px"
                         }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
+                          {
+                            store && store.map((item: any, index: number) => (
+                              <li>{item.name}</li>
+                            ))
+                          }
                         </ul>
                       </Col>
                 </Row>
@@ -485,8 +499,11 @@ const PromotionDetailScreen: React.FC = () => {
                         <ul style={{
                           padding: "0 16px"
                         }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
+                          {
+                            source && source.map((item: any, index: number) => (
+                              <li>{item.name}</li>
+                            ))
+                          }
                         </ul>
                       </Col>
                 </Row>
