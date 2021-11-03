@@ -1,5 +1,7 @@
-import { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
+import exportIcon from "assets/icon/export.svg";
+import importIcon from "assets/icon/import.svg";
 import UrlConfig from "config/url.config";
 import { Button, Card, Col, Row, Space, Table, Tag, Input, Tabs } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -31,9 +33,16 @@ import { INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, STATUS_INVENTORY_ADJUSTMENT } fr
 import { PageResponse } from "model/base/base-metadata.response";
 import InventoryAdjustmentHistory from "./conponents/InventoryAdjustmentHistory";
 import InventoryAdjustmentListAll from "./conponents/InventoryAdjustmentListAll";
-import { adjustInventoryAction, getDetailInventoryAdjustmentAction, updateItemOnlineInventoryAction, updateOnlineInventoryAction } from "domain/actions/inventory/inventory-adjustment.action";
+import { adjustInventoryAction, getDetailInventoryAdjustmentAction, InventoryAdjustmentGetPrintContentAction, updateItemOnlineInventoryAction, updateOnlineInventoryAction } from "domain/actions/inventory/inventory-adjustment.action";
 import CustomTable from "component/table/CustomTable";
 import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "../constants";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/http-status.config";
+import InventoryTransferExportModal from "./conponents/ExportModal";
+import { useReactToPrint } from "react-to-print";
+import { generateQuery } from "utils/AppUtils";
+import purify from "dompurify";
+
 const { TabPane } = Tabs;
 
 
@@ -70,6 +79,78 @@ const DetailInvetoryAdjustment: FC = () => {
   const [hasError, setHasError] = useState<boolean>(false);
   const [editRealOnHand, setEditRealOnHand] = useState<boolean>(false);
 
+  const [printContent, setPrintContent] = useState("");
+  const printElementRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+
+  const onExport = useCallback(
+    () => {
+      exportFile({
+        conditions: data?.id.toString(),
+        type: "EXPORT_INVENTORY_ADJUSTMENT",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(2);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(4);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [data?.id, listExportFile]
+  );
+
+  const checkExportFile = useCallback(() => {
+
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (exportProgress < 95) {
+            setExportProgress(exportProgress + 3);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            
+            setStatusExport(3);
+            setExportProgress(100);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            var downLoad = document.createElement('a');
+            downLoad.href = response.data.url;
+            downLoad.download = 'download';
+
+            downLoad.click();
+
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [exportProgress, listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
+  
   const onRealQuantityChange = (quantity: number | any, index: number) => {
     let dataEdit = (searchVariant && (searchVariant.length > 0 || (keySearch !== ""))) ? [...searchVariant] : [...dataTable];
 
@@ -193,6 +274,38 @@ const DetailInvetoryAdjustment: FC = () => {
     setHasError(false);
     setVisibleManyProduct(false);
   };
+
+  const pageBreak = "<div class='pageBreak'></div>";
+  const printContentCallback = useCallback(
+    (printContent) => {
+      
+      const textResponse = printContent.map((single: any) => {
+      return (
+        "<div class='singleOrderPrint'>" +
+        single.html_content +
+        "</div>"
+        );
+      });
+      let textResponseFormatted = textResponse.join(pageBreak);
+      //xóa thẻ p thừa
+      let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
+    },
+    [handlePrint]
+  );
+
+  
+  const onPrintAction = () => {
+    if (data) {
+      
+      let params = {
+        ids: data.id,
+      };
+      const queryParam = generateQuery(params);
+      dispatch(InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback));
+    }
+  }
 
   const columns: ColumnsType<any> = [
     {
@@ -629,6 +742,16 @@ const DetailInvetoryAdjustment: FC = () => {
                 </Card>
               </Col>
             </Row>
+            
+            <div style={{ display: "none" }}>
+              <div className="printContent" ref={printElementRef}>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: purify.sanitize(printContent),
+                  }}
+                ></div>
+              </div>
+            </div>
             <BottomBarContainer
               leftComponent={
                 <div onClick={() => history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}`)} style={{ cursor: "pointer" }}>
@@ -638,25 +761,51 @@ const DetailInvetoryAdjustment: FC = () => {
               }
               rightComponent={
                 <Space>
-                  <Button
-                    type="default"
-                    onClick={() => {
-                      history.push(
-                        `${UrlConfig.INVENTORY_ADJUSTMENT}/${data?.id}`
-                      );
-                    }}
-                  >
-                    <Space><PrinterOutlined /> In phiếu</Space>
-                  </Button>
                   {
-                    data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ?
+                    data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
                       <Button
-                        type="primary"
-                        onClick={onUpdateOnlineInventory}
-                        loading={isLoading} disabled={hasError || isLoading}
+                        type="default"
+                        onClick={() => {
+                          onPrintAction()
+                        }}
                       >
-                        Hoàn thành
-                      </Button> : null
+                        <Space><PrinterOutlined /> In phiếu</Space>
+                      </Button>
+                    )
+                  }
+                  {
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ?(
+                      <>
+                        <Button
+                          type="primary"
+                          onClick={onUpdateOnlineInventory}
+                          loading={isLoading} disabled={hasError || isLoading}
+                        >
+                          Hoàn thành
+                        </Button>
+                        
+                        <Button
+                        type="default"
+                        className="light"
+                        size="large"
+                        icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                        onClick={() => {}}
+                      >
+                        Nhập file
+                      </Button>
+                      <Button
+                        type="default"
+                        className="light"
+                        size="large"
+                        icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                        onClick={() => {
+                          setShowExportModal(true);
+                          onExport();
+                        }}
+                      >
+                        Xuất file
+                      </Button>
+                    </>) : null
                   }
                   {
                     data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ?
@@ -672,6 +821,19 @@ const DetailInvetoryAdjustment: FC = () => {
                 </Space>
               }
             />
+            {showExportModal && (
+              <InventoryTransferExportModal
+                visible={showExportModal}
+                onCancel={() => {
+                  setShowExportModal(false);
+                  setExportProgress(0);
+                  setStatusExport(1);
+                }}
+                onOk={() => onExport()}
+                exportProgress={exportProgress}
+                statusExport={statusExport}
+              />
+            )}
             {visibleManyProduct && (
               <PickManyProductModal
                 storeID={data?.adjusted_store_id}

@@ -331,7 +331,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
   return (
     <InventoryAdjustmentFiltersWrapper>
       <div className="order-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
             <Item
               name="adjusted_store_id"
@@ -383,8 +382,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
               <ButtonSetting onClick={onShowColumnSetting} />
             </Item>
           </Form>
-        </CustomFilter>
-
         <BaseFilter
           onClearFilter={onClearFilterClick}
           onFilter={onFilterClick}

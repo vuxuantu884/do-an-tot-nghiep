@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const InventoryAdjustmentFiltersWrapper = styled.div`
   .ant-form-inline .ant-form-item {
-    margin-right: 0px;
+    margin-right: 16px;
   }
 
   .page-filter-left {
@@ -16,32 +16,7 @@ export const InventoryAdjustmentFiltersWrapper = styled.div`
 
   .ant-form-item-control-input-content {
     display: flex;
-  }
-
-  .page-filter {
-    &-right {
-      width: 100%;
-      .ant-space {
-        width: 100%;
-        &-item {
-          width: 100%;
-          .ant-form {
-            display: flex;
-            width: 100%;
-            &-item {
-              margin-left: 16px;  
-            }
-            .search {
-              flex: 3;
-            }
-            .store {
-              flex: 1
-            }
-          }
-        }
-      }
-    }
-
+  }  
     .select-item {
       width: 10%;
       min-width: 150px;
@@ -71,8 +46,13 @@ export const InventoryAdjustmentFiltersWrapper = styled.div`
       }
     }
   }
+  .page-filter {
+    padding: 0 !important;
+  }
+  
   .order-filter {
-    .page-filter {
+    padding: 20px 0 20px 0; 
+    .page-filter { 
       .page-filter-heading {
         width: 100%;
         display: inline-flex;
@@ -135,7 +115,7 @@ export const InventoryAdjustmentFiltersWrapper = styled.div`
   .header-filter{
     font-weight: 500;
     color: #222222;
-  }
+  }  
 `;
 
 export const BaseFilterWrapper = styled.div`

@@ -4,6 +4,7 @@ import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
+import FormOrderSourceChannel from "component/forms/FormOrderSourceChannel";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {MenuAction} from "component/table/ActionButton";
@@ -21,26 +22,44 @@ import {
 import {DepartmentResponse} from "model/account/department.model";
 import {modalActionType} from "model/modal/modal.model";
 import {
+  ChannelModel,
+  ChannelTypeModel,
   OrderSourceModel,
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {ChannelResponse} from "model/response/product/channel.response";
+import queryString from "query-string";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useHistory, useLocation} from "react-router-dom";
+import {withRouter} from "react-router";
+import {useHistory} from "react-router-dom";
 import {getDepartmentAllApi} from "service/accounts/account.service";
-import {deleteMultiOrderSourceService, getChannelApi} from "service/order/order.service";
+import {
+  createChannelService,
+  deleteChannelService,
+  deleteMultiOrderSourceService,
+  editChannelService,
+  getChannelApi,
+  getChannelTypeApi,
+} from "service/order/order.service";
 import {generateQuery} from "utils/AppUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import {StyledComponent} from "./styles";
 
-type formValueType = {
+type formValuesType = {
   name: string | undefined;
   department_id: number | undefined;
+  channel_id: number | undefined;
 };
 
-function OrderSources() {
+type PropsType = {
+  location: any;
+};
+
+function OrderSources(props: PropsType) {
+  const {location} = props;
+  const queryParamsParsed: any = queryString.parse(location.search);
   const ACTIONS_INDEX = {
     EXPORT: 1,
     DELETE: 2,
@@ -49,29 +68,29 @@ function OrderSources() {
     page: 1,
     limit: 30,
   };
-  const initFilterParams: formValueType = {
+  const initFilterParams: formValuesType = {
     name: "",
     department_id: undefined,
+    channel_id: undefined,
   };
   const [tableLoading, setTableLoading] = useState(false);
-  const [isShowModal, setIsShowModal] = useState(false);
+  const [isShowModalOrderSource, setIsShowModalOrderSource] = useState(false);
+  const [isShowModalChannel, setIsShowModalChannel] = useState(false);
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const dispatch = useDispatch();
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>([]);
-  const useQuery = () => {
-    return new URLSearchParams(useLocation().search);
-  };
-  const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
     useState<OrderSourceModel | null>(null);
+  const [modalSingleChannel, setModalSingleChannel] = useState<ChannelModel | null>(null);
 
   const [form] = Form.useForm();
 
-  const [rowKey, setRowKey] = useState<Array<any>>([]);
+  const [rowSelectedObject, setRowSelectedObject] = useState<Array<OrderSourceModel>>([]);
   const [listDepartments, setListDepartments] = useState<DepartmentResponse[]>([]);
   const [listChannels, setListChannels] = useState<ChannelResponse[]>([]);
+  const [listChannelTypes, setListChannelTypes] = useState<ChannelTypeModel[]>([]);
 
   const columns: ICustomTableColumType<any>[] = [
     {
@@ -80,7 +99,7 @@ function OrderSources() {
       visible: true,
       className: "columnTitle",
       width: "15%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -96,7 +115,7 @@ function OrderSources() {
       visible: true,
       className: "columnTitle",
       width: "20%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           const selectedChannel = listChannels.find((single) => {
             return single.id === value;
@@ -117,7 +136,7 @@ function OrderSources() {
       visible: true,
       className: "columnTitle",
       width: "20%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -133,7 +152,7 @@ function OrderSources() {
       visible: true,
       className: "columnTitle",
       width: "15%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -149,8 +168,8 @@ function OrderSources() {
       visible: true,
       width: "15%",
       align: "center",
-      render: (value, row, index) => {
-        if (value) {
+      render: (value, record: OrderSourceModel, index) => {
+        if (value || record.is_channel) {
           return <span className="status active">Đang áp dụng</span>;
         }
         return <span className="status inactive">Ngưng áp dụng</span>;
@@ -173,58 +192,52 @@ function OrderSources() {
 
   const history = useHistory();
 
-  let [queryParams, setQueryParams] = useState({
-    page: +(query.get("page") || DEFAULT_PAGINATION.page),
-    limit: +(query.get("limit") || DEFAULT_PAGINATION.limit),
-    sort_type: "desc",
-    sort_column: "updated_date",
-    name: query.get("name"),
-    department_id: query.get("department_id"),
-  });
+  let [queryParams, setQueryParams] = useState<any>(null);
 
   const onPageChange = useCallback(
     (page, size) => {
       queryParams.page = page;
       queryParams.limit = size;
       let queryParam = generateQuery(queryParams);
-      setQueryParams({...queryParams});
       history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
       window.scrollTo(0, 0);
     },
     [history, queryParams]
   );
 
-  const handleDelete = () => {
+  const handleDeleteMultiOrderSource = () => {
     showLoading();
-    deleteMultiOrderSourceService(rowKey)
-      .then((response: BaseResponse<any>) => {
-        switch (response.code) {
-          case HttpStatus.SUCCESS:
-            setTableLoading(true);
-            dispatch(
-              actionFetchListOrderSources(
-                queryParams,
-                (data: OrderSourceResponseModel) => {
-                  setListOrderSources(data.items);
-                  setTotal(data.metadata.total);
-                  showSuccess("Xóa thành công!");
-                }
-              )
-            );
-            setTableLoading(false);
-            break;
-          default:
-            response.errors.forEach((e) => showError(e));
-            break;
+    if (rowSelectedObject.length > 0) {
+      let channel_ids: number[] = [];
+      let source_ids: number[] = [];
+      rowSelectedObject.forEach((single) => {
+        if (single.is_channel) {
+          channel_ids.push(single.id);
+        } else {
+          source_ids.push(single.id);
         }
-      })
-      .catch((error) => {
-        showError("Xóa thất bại!");
-      })
-      .finally(() => {
-        setIsShowConfirmDelete(false);
-        hideLoading();
       });
+      deleteMultiOrderSourceService(source_ids, channel_ids)
+        .then((response: BaseResponse<any>) => {
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              setTableLoading(true);
+              gotoFirstPage();
+              setTableLoading(false);
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
+        })
+        .catch((error) => {
+          showError("Xóa thất bại!");
+        })
+        .finally(() => {
+          setIsShowConfirmDelete(false);
+          hideLoading();
+        });
+    }
   };
 
   const onMenuClick = useCallback(
@@ -249,13 +262,11 @@ function OrderSources() {
   ];
 
   const handleNavigateByQueryParams = (queryParams: any) => {
-    setQueryParams({...queryParams});
     history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
     window.scrollTo(0, 0);
   };
 
   const onFilterFormFinish = (values: any) => {
-    console.log("values", values);
     const resultParams = {
       ...queryParams,
       ...values,
@@ -265,45 +276,80 @@ function OrderSources() {
 
   const renderCardExtraHtml = () => {
     return (
-      <Button
-        type="primary"
-        className="ant-btn-primary"
-        size="large"
-        onClick={() => {
-          setModalAction("create");
-          setIsShowModal(true);
-        }}
-        icon={<PlusOutlined />}
-      >
-        Thêm nguồn đơn hàng
-      </Button>
+      <div className="cardExtra">
+        <Button
+          type="primary"
+          ghost
+          size="large"
+          onClick={() => {
+            setModalAction("create");
+            setIsShowModalChannel(true);
+          }}
+          icon={<PlusOutlined />}
+        >
+          Thêm kênh bán hàng
+        </Button>
+        <Button
+          type="primary"
+          className="ant-btn-primary"
+          size="large"
+          onClick={() => {
+            setModalAction("create");
+            setIsShowModalOrderSource(true);
+          }}
+          icon={<PlusOutlined />}
+        >
+          Thêm nguồn đơn hàng
+        </Button>
+      </div>
     );
   };
 
   const renderConfirmDeleteSubtitle = () => {
-    return <React.Fragment>Bạn có chắc chắn muốn xóa ?</React.Fragment>;
+    return <React.Fragment>Bạn có chắc chắn muốn xóa danh sách đã chọn ?</React.Fragment>;
   };
+
+  const fetchData = useCallback(() => {
+    dispatch(
+      actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
+        setListOrderSources(data.items);
+        setTotal(data.metadata.total);
+        showSuccess("Cập nhật danh sách nguồn đơn hàng thành công!");
+      })
+    );
+    setTableLoading(false);
+  }, [dispatch, queryParams]);
 
   const gotoFirstPage = () => {
     const resultParams = {
       ...queryParams,
       page: 1,
     };
+    fetchData();
     handleNavigateByQueryParams(resultParams);
   };
 
-  const handleFormatFormValues = (formValues: OrderSourceModel):OrderSourceModel => {
+  const handleFormOrderSourceFormatFormValues = (
+    formValues: OrderSourceModel
+  ): OrderSourceModel => {
     return {
       ...formValues,
       code: formValues.code.toUpperCase(),
     };
   };
 
-  const handleForm = {
+  const handleFormChannelFormatFormValues = (formValues: ChannelModel): ChannelModel => {
+    return {
+      ...formValues,
+      code: formValues.code.toUpperCase(),
+    };
+  };
+
+  const handleFormOrderSource = {
     create: (formValues: OrderSourceModel) => {
       dispatch(
-        actionAddOrderSource(handleFormatFormValues(formValues), () => {
-          setIsShowModal(false);
+        actionAddOrderSource(handleFormOrderSourceFormatFormValues(formValues), () => {
+          setIsShowModalOrderSource(false);
           gotoFirstPage();
         })
       );
@@ -313,7 +359,7 @@ function OrderSources() {
         dispatch(
           actionEditOrderSource(
             modalSingleOrderSource.id,
-            handleFormatFormValues(formValues),
+            handleFormOrderSourceFormatFormValues(formValues),
             () => {
               dispatch(
                 actionFetchListOrderSources(
@@ -326,14 +372,14 @@ function OrderSources() {
             }
           )
         );
-        setIsShowModal(false);
+        setIsShowModalOrderSource(false);
       }
     },
     delete: () => {
       if (modalSingleOrderSource) {
         dispatch(
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
-            setIsShowModal(false);
+            setIsShowModalOrderSource(false);
             gotoFirstPage();
           })
         );
@@ -341,26 +387,124 @@ function OrderSources() {
     },
   };
 
-  useEffect(() => {
-    setTableLoading(true);
-    dispatch(
-      actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
-        setListOrderSources(data.items);
-        setTotal(data.metadata.total);
-      })
-    );
-    setTableLoading(false);
-  }, [dispatch, queryParams]);
+  const handleFormChannel = {
+    create: (formValues: ChannelModel) => {
+      showLoading();
+      createChannelService(handleFormChannelFormatFormValues(formValues))
+        .then((response) => {
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              showSuccess("Tạo mới kênh bán hàng thành công!");
+              setTableLoading(true);
+              gotoFirstPage();
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
+        })
+        .catch((error) => {
+          console.log('error', error)
+        })
+        .finally(() => {
+          hideLoading();
+          setIsShowModalChannel(false);
+        });
+    },
+    edit: (formValues: ChannelModel) => {
+      if (modalSingleChannel) {
+        showLoading();
+        editChannelService(modalSingleChannel.id, formValues)
+          .then((response) => {
+            switch (response.code) {
+              case HttpStatus.SUCCESS:
+                showSuccess("Cập nhật kênh bán hàng thành công!");
+                fetchData();
+                break;
+              default:
+                response.errors.forEach((e) => showError(e));
+                break;
+            }
+          })
+          .catch((error) => {
+            console.log('error', error)
+          })
+          .finally(() => {
+            hideLoading();
+            setIsShowModalChannel(false);
+          });
+      }
+    },
+    delete: () => {
+      if (modalSingleChannel) {
+        showLoading();
+        deleteChannelService(modalSingleChannel.id)
+          .then((response) => {
+            switch (response.code) {
+              case HttpStatus.SUCCESS:
+                showSuccess("Xóa kênh bán hàng thành công!");
+                gotoFirstPage();
+                break;
+              default:
+                response.errors.forEach((e) => showError(e));
+                break;
+            }
+          })
+          .catch((error) => {
+            console.log('error', error)
+          })
+          .finally(() => {
+            hideLoading();
+            setIsShowModalChannel(false);
+          });
+      }
+    },
+  };
 
   useEffect(() => {
     if (queryParams) {
-      const valuesFromParams: formValueType = {
-        name: queryParams.name || undefined,
-        department_id: queryParams.department_id ? +queryParams.department_id : undefined,
-      };
-      form.setFieldsValue(valuesFromParams);
+      setTableLoading(true);
+      fetchData();
     }
-  }, [form, queryParams]);
+  }, [dispatch, fetchData, queryParams]);
+
+  useEffect(() => {
+    const valuesFromParams: formValuesType = {
+      name: queryParamsParsed.name || undefined,
+      department_id: queryParamsParsed.department_id
+        ? +queryParamsParsed.department_id
+        : undefined,
+      channel_id: queryParamsParsed.channel_id
+        ? +queryParamsParsed.channel_id
+        : undefined,
+    };
+    form.setFieldsValue(valuesFromParams);
+  }, [
+    form,
+    queryParamsParsed.channel_id,
+    queryParamsParsed.department_id,
+    queryParamsParsed.name,
+  ]);
+
+  useEffect(() => {
+    setQueryParams({
+      page: +(queryParamsParsed.page || DEFAULT_PAGINATION.page),
+      limit: +(queryParamsParsed.limit || DEFAULT_PAGINATION.limit),
+      sort_type: "desc",
+      sort_column: "updated_date",
+      name: queryParamsParsed.name,
+      department_id: queryParamsParsed.department_id,
+      channel_id: queryParamsParsed.channel_id,
+    });
+  }, [
+    DEFAULT_PAGINATION.limit,
+    DEFAULT_PAGINATION.page,
+    queryParamsParsed.channel_id,
+    queryParamsParsed.department_id,
+    queryParamsParsed.limit,
+    queryParamsParsed.name,
+    queryParamsParsed.page,
+  ]);
 
   useEffect(() => {
     getDepartmentAllApi()
@@ -400,6 +544,25 @@ function OrderSources() {
       });
   }, []);
 
+  useEffect(() => {
+    getChannelTypeApi()
+      .then((response: BaseResponse<ChannelTypeModel[]>) => {
+        switch (response.code) {
+          case HttpStatus.SUCCESS:
+            if (response.data) {
+              setListChannelTypes(response.data);
+            }
+            break;
+          default:
+            response.errors.forEach((e) => showError(e));
+            break;
+        }
+      })
+      .catch((error) => {
+        showError("Có lỗi khi lấy loại kênh bán hàng!");
+      });
+  }, []);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -427,13 +590,35 @@ function OrderSources() {
               layout="inline"
               form={form}
             >
-              <Form.Item name="name" style={{width: 450, maxWidth: "100%"}}>
+              <Form.Item name="name" style={{width: 430, maxWidth: "100%"}}>
                 <Input
                   prefix={<img src={search} alt="" />}
                   placeholder="Tên kênh/nguồn"
                 />
               </Form.Item>
-              <Form.Item name="department_id" style={{width: 225, maxWidth: "100%"}}>
+              <Form.Item name="channel_id" style={{width: 180, maxWidth: "100%"}}>
+                <Select
+                  showSearch
+                  allowClear
+                  style={{width: "100%"}}
+                  placeholder="Kênh bán hàng"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  notFoundContent="Không tìm thấy Kênh bán hàng!"
+                >
+                  {listChannels &&
+                    listChannels.map((single) => {
+                      return (
+                        <Select.Option value={single.id} key={single.id}>
+                          {single.name}
+                        </Select.Option>
+                      );
+                    })}
+                </Select>
+              </Form.Item>
+              <Form.Item name="department_id" style={{width: 180, maxWidth: "100%"}}>
                 <Select
                   showSearch
                   allowClear
@@ -464,14 +649,15 @@ function OrderSources() {
           </CustomFilter>
           <CustomTable
             isLoading={tableLoading}
-            selectedRowKey={rowKey}
-            onChangeRowKey={(rowKey) => setRowKey(rowKey)}
             isRowSelection
+            onSelectedChange={(selectedRow) => {
+              setRowSelectedObject(selectedRow);
+            }}
             showColumnSetting={false}
             pagination={{
-              pageSize: queryParams.limit,
+              pageSize: queryParams?.limit ? queryParams.limit : DEFAULT_PAGINATION.limit,
               total: total,
-              current: queryParams.page,
+              current: queryParams?.page ? queryParams.page : DEFAULT_PAGINATION.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
@@ -483,8 +669,18 @@ function OrderSources() {
               return {
                 onClick: () => {
                   setModalAction("edit");
-                  setModalSingleOrderSource(record);
-                  setIsShowModal(true);
+                  if (record.is_channel) {
+                    setModalSingleChannel({
+                      id: record.id,
+                      channel_type_id: record.channel_type?.id || undefined,
+                      code: record.code,
+                      name: record.name,
+                    });
+                    setIsShowModalChannel(true);
+                  } else {
+                    setModalSingleOrderSource(record);
+                    setIsShowModalOrderSource(true);
+                  }
                 },
               };
             }}
@@ -492,17 +688,21 @@ function OrderSources() {
         </Card>
         <ModalDeleteConfirm
           visible={isShowConfirmDelete}
-          onOk={() => handleDelete()}
+          onOk={() => handleDeleteMultiOrderSource()}
           onCancel={() => setIsShowConfirmDelete(false)}
           title="Xác nhận"
           subTitle={renderConfirmDeleteSubtitle()}
         />
         <CustomModal
-          visible={isShowModal}
-          onCreate={(formValue: OrderSourceModel) => handleForm.create(formValue)}
-          onEdit={(formValue: OrderSourceModel) => handleForm.edit(formValue)}
-          onDelete={() => handleForm.delete()}
-          onCancel={() => setIsShowModal(false)}
+          visible={isShowModalOrderSource}
+          onCreate={(formValues: OrderSourceModel) =>
+            handleFormOrderSource.create(formValues)
+          }
+          onEdit={(formValues: OrderSourceModel) =>
+            handleFormOrderSource.edit(formValues)
+          }
+          onDelete={() => handleFormOrderSource.delete()}
+          onCancel={() => setIsShowModalOrderSource(false)}
           modalAction={modalAction}
           componentForm={FormOrderSource}
           formItem={modalSingleOrderSource}
@@ -510,9 +710,22 @@ function OrderSources() {
           modalTypeText="Nguồn đơn hàng"
           moreFormArguments={{listChannels, listDepartments}}
         />
+        <CustomModal
+          visible={isShowModalChannel}
+          onCreate={(formValues: ChannelModel) => handleFormChannel.create(formValues)}
+          onEdit={(formValues: ChannelModel) => handleFormChannel.edit(formValues)}
+          onDelete={() => handleFormChannel.delete()}
+          onCancel={() => setIsShowModalChannel(false)}
+          modalAction={modalAction}
+          componentForm={FormOrderSourceChannel}
+          formItem={modalSingleChannel}
+          deletedItemTitle={modalSingleChannel?.name}
+          modalTypeText="Kênh bán hàng"
+          moreFormArguments={{listChannels, listDepartments, listChannelTypes}}
+        />
       </ContentContainer>
     </StyledComponent>
   );
 }
 
-export default OrderSources;
+export default withRouter(OrderSources);
