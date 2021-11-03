@@ -249,11 +249,13 @@ export const deleteOrderSourceService = (
 };
 
 export const deleteMultiOrderSourceService = (
-  sourceIds: number[]
+  sourceIds: number[],
+  channelIds: number[]
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   const source_ids = sourceIds;
+  const channel_ids = channelIds;
   return BaseAxios.delete(`${ApiConfig.ORDER}/sources`, {
-    data: {source_ids},
+    data: {source_ids, channel_ids},
   });
 };
 

@@ -66,7 +66,7 @@ function OrderSources(props: PropsType) {
   };
   const DEFAULT_PAGINATION = {
     page: 1,
-    limit: 30,
+    limit: 5,
   };
   const initFilterParams: formValuesType = {
     name: "",
@@ -83,12 +83,11 @@ function OrderSources(props: PropsType) {
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
     useState<OrderSourceModel | null>(null);
-    const [modalSingleChannel, setModalSingleChannel] =
-    useState<ChannelModel | null>(null);
+  const [modalSingleChannel, setModalSingleChannel] = useState<ChannelModel | null>(null);
 
   const [form] = Form.useForm();
 
-  const [rowKey, setRowKey] = useState<Array<any>>([]);
+  const [rowSelectedObject, setRowSelectedObject] = useState<Array<OrderSourceModel>>([]);
   const [listDepartments, setListDepartments] = useState<DepartmentResponse[]>([]);
   const [listChannels, setListChannels] = useState<ChannelResponse[]>([]);
   const [listChannelTypes, setListChannelTypes] = useState<ChannelTypeModel[]>([]);
@@ -169,7 +168,7 @@ function OrderSources(props: PropsType) {
       visible: true,
       width: "15%",
       align: "center",
-      render: (value, record:OrderSourceModel, index) => {
+      render: (value, record: OrderSourceModel, index) => {
         if (value || record.is_channel) {
           return <span className="status active">Đang áp dụng</span>;
         }
@@ -208,35 +207,39 @@ function OrderSources(props: PropsType) {
 
   const handleDeleteMultiOrderSource = () => {
     showLoading();
-    deleteMultiOrderSourceService(rowKey)
-      .then((response: BaseResponse<any>) => {
-        switch (response.code) {
-          case HttpStatus.SUCCESS:
-            setTableLoading(true);
-            dispatch(
-              actionFetchListOrderSources(
-                queryParams,
-                (data: OrderSourceResponseModel) => {
-                  setListOrderSources(data.items);
-                  setTotal(data.metadata.total);
-                  showSuccess("Xóa thành công!");
-                }
-              )
-            );
-            setTableLoading(false);
-            break;
-          default:
-            response.errors.forEach((e) => showError(e));
-            break;
+    if (rowSelectedObject.length > 0) {
+      let channel_ids: number[] = [];
+      let source_ids: number[] = [];
+      rowSelectedObject.forEach((single) => {
+        if (single.is_channel) {
+          channel_ids.push(single.id);
+        } else {
+          source_ids.push(single.id);
         }
-      })
-      .catch((error) => {
-        showError("Xóa thất bại!");
-      })
-      .finally(() => {
-        setIsShowConfirmDelete(false);
-        hideLoading();
       });
+      console.log("channel_ids", channel_ids);
+      console.log("source_ids", source_ids);
+      deleteMultiOrderSourceService(source_ids, channel_ids)
+        .then((response: BaseResponse<any>) => {
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              setTableLoading(true);
+              gotoFirstPage();
+              setTableLoading(false);
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
+        })
+        .catch((error) => {
+          showError("Xóa thất bại!");
+        })
+        .finally(() => {
+          setIsShowConfirmDelete(false);
+          hideLoading();
+        });
+    }
   };
 
   const onMenuClick = useCallback(
@@ -266,7 +269,6 @@ function OrderSources(props: PropsType) {
   };
 
   const onFilterFormFinish = (values: any) => {
-    console.log("values", values);
     const resultParams = {
       ...queryParams,
       ...values,
@@ -309,19 +311,16 @@ function OrderSources(props: PropsType) {
     return <React.Fragment>Bạn có chắc chắn muốn xóa danh sách đã chọn ?</React.Fragment>;
   };
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     dispatch(
-      actionFetchListOrderSources(
-        queryParams,
-        (data: OrderSourceResponseModel) => {
-          setListOrderSources(data.items);
-          setTotal(data.metadata.total);
-          showSuccess("Cập nhật danh sách nguồn đơn hàng thành công!");
-        }
-      )
+      actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
+        setListOrderSources(data.items);
+        setTotal(data.metadata.total);
+        showSuccess("Cập nhật danh sách nguồn đơn hàng thành công!");
+      })
     );
     setTableLoading(false);
-  };
+  }, [dispatch, queryParams]);
 
   const gotoFirstPage = () => {
     const resultParams = {
@@ -406,46 +405,60 @@ function OrderSources(props: PropsType) {
               break;
           }
         })
+        .catch((error) => {
+          console.log('error', error)
+        })
         .finally(() => {
           hideLoading();
-          setIsShowModalChannel(false)
+          setIsShowModalChannel(false);
         });
     },
     edit: (formValues: ChannelModel) => {
       if (modalSingleChannel) {
         showLoading();
-        editChannelService(modalSingleChannel.id, formValues).then((response) => {
-          switch (response.code) {
-            case HttpStatus.SUCCESS:
-              showSuccess("Cập nhật kênh bán hàng thành công!");
-              break;
-            default:
-              response.errors.forEach((e) => showError(e));
-              break;
-          }
-        }).finally(() => {
-          hideLoading();
-          setIsShowModalChannel(false)
-        });
+        editChannelService(modalSingleChannel.id, formValues)
+          .then((response) => {
+            switch (response.code) {
+              case HttpStatus.SUCCESS:
+                showSuccess("Cập nhật kênh bán hàng thành công!");
+                fetchData();
+                break;
+              default:
+                response.errors.forEach((e) => showError(e));
+                break;
+            }
+          })
+          .catch((error) => {
+            console.log('error', error)
+          })
+          .finally(() => {
+            hideLoading();
+            setIsShowModalChannel(false);
+          });
       }
     },
     delete: () => {
       if (modalSingleChannel) {
         showLoading();
-       deleteChannelService(modalSingleChannel.id).then((response) => {
-          switch (response.code) {
-            case HttpStatus.SUCCESS:
-              showSuccess("Xóa kênh bán hàng thành công!");
-              gotoFirstPage();
-              break;
-            default:
-              response.errors.forEach((e) => showError(e));
-              break;
-          }
-        }).finally(() => {
-          hideLoading();
-          setIsShowModalChannel(false)
-        });
+        deleteChannelService(modalSingleChannel.id)
+          .then((response) => {
+            switch (response.code) {
+              case HttpStatus.SUCCESS:
+                showSuccess("Xóa kênh bán hàng thành công!");
+                gotoFirstPage();
+                break;
+              default:
+                response.errors.forEach((e) => showError(e));
+                break;
+            }
+          })
+          .catch((error) => {
+            console.log('error', error)
+          })
+          .finally(() => {
+            hideLoading();
+            setIsShowModalChannel(false);
+          });
       }
     },
   };
@@ -453,15 +466,9 @@ function OrderSources(props: PropsType) {
   useEffect(() => {
     if (queryParams) {
       setTableLoading(true);
-      dispatch(
-        actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
-          setListOrderSources(data.items);
-          setTotal(data.metadata.total);
-        })
-      );
-      setTableLoading(false);
+      fetchData();
     }
-  }, [dispatch, queryParams]);
+  }, [dispatch, fetchData, queryParams]);
 
   useEffect(() => {
     const valuesFromParams: formValuesType = {
@@ -644,9 +651,10 @@ function OrderSources(props: PropsType) {
           </CustomFilter>
           <CustomTable
             isLoading={tableLoading}
-            selectedRowKey={rowKey}
-            onChangeRowKey={(rowKey) => setRowKey(rowKey)}
             isRowSelection
+            onSelectedChange={(selectedRow) => {
+              setRowSelectedObject(selectedRow);
+            }}
             showColumnSetting={false}
             pagination={{
               pageSize: queryParams?.limit ? queryParams.limit : DEFAULT_PAGINATION.limit,
@@ -663,16 +671,15 @@ function OrderSources(props: PropsType) {
               return {
                 onClick: () => {
                   setModalAction("edit");
-                  if(record.is_channel) {
+                  if (record.is_channel) {
                     setModalSingleChannel({
                       id: record.id,
                       channel_type_id: record.channel_type?.id || undefined,
                       code: record.code,
                       name: record.name,
-                    })
+                    });
                     setIsShowModalChannel(true);
-                    
-                  }else {
+                  } else {
                     setModalSingleOrderSource(record);
                     setIsShowModalOrderSource(true);
                   }
