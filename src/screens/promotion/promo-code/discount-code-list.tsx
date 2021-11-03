@@ -9,7 +9,7 @@ import {
   Modal,
   Col,
 } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
@@ -21,21 +21,22 @@ import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import "./promotion-code.scss";
+import ModalAddCode from "./components/ModalAddCode";
+import Dragger from "antd/lib/upload/Dragger";
+import "./promo-code.scss";
+import { useParams } from "react-router";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
-import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import ModalAddCode from "./components/ModalAddCode";
-import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 
 const ListCode = () => {
   const promotionStatuses = [
@@ -100,7 +101,6 @@ const ListCode = () => {
       name: "Xoá",
     },
   ];
-
   const initQuery: DiscountSearchQuery = {
     type: "MANUAL",
     request: "",
@@ -114,13 +114,15 @@ const ListCode = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
-
+  const {id} = useParams() as any; 
+  const priceRuleId = id;
+  
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
+  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -128,20 +130,21 @@ const ListCode = () => {
     },
     items: [],
   })
+ 
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query)
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
-  const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
-    setData(data)
+  const fetchData = useCallback((data: any) => {
+    setData(data);
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
-    dispatch(getListPromotionCode(params, fetchData));
-  }, [dispatch, fetchData, params]);
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch, fetchData, priceRuleId]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -177,7 +180,7 @@ const ListCode = () => {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "amount",
+      dataIndex: "usage_count",
       width: "10%",
     },
     {

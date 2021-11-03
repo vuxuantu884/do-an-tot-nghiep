@@ -6,26 +6,33 @@ import BaseAxios from "../../../base/base.axios";
 import {ApiConfig} from "../../../config/api.config";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
 
+const END_POINT = "/price-rules";
+
 export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rules?${params}`);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/?${params}`);
 };
 
+export const getPriceRuleById = (id: number) : Promise<DiscountResponse> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
+}
+
 export const deletePriceRuleById = (id: number): Promise<any> => {
-  return BaseAxios.delete(`${ApiConfig.PROMOTION}/price-rules/${id}`);
+  return BaseAxios.delete(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
 }
 
 export const createPriceRule = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules`, body);
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}`, body);
 }
+
 export const bulkDeletePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules/bulk/delete`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/delete`, body)
 }
 
 export const bulkEnablePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules/bulk/enable`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/enable`, body)
 }
 
 export const bulkDisablePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}/price-rules/bulk/disable`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/disable`, body)
 }

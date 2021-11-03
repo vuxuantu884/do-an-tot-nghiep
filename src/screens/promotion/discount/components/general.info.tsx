@@ -2,12 +2,11 @@ import {
   Card, Col, Row, InputNumber,
   Form, Switch, Space, Select,
   DatePicker, Divider, Checkbox,
-  TimePicker, Button
+  TimePicker
 } from "antd";
 import "../discount.scss"
 import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
-import CustomFilter from "../../../../component/table/custom.filter";
 import FixedPriceSelection from "./FixedPriceSelection";
 
 const DateRangePicker = DatePicker.RangePicker;

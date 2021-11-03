@@ -1,4 +1,5 @@
-import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
+import { PromoCodeResponse } from '../../../../model/response/promotion/promo-code/list-promo-code.response';
+import { deletePromoCodeById, getAllPromoCodeList, getPromoCodeById } from '../../../../service/promotion/promo-code/promo-code.service';
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
 import {call, put} from "@redux-saga/core/effects";
@@ -6,17 +7,16 @@ import {HttpStatus} from "../../../../config/http-status.config";
 import {unauthorizedAction} from "../../../actions/auth/auth.action";
 import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {searchDiscountList, deletePriceRuleById, getPriceRuleById} from "../../../../service/promotion/discount/discount.service";
 import {takeLatest} from "typed-redux-saga";
-import {DiscountType} from "../../../types/promotion.type";
+import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 
-function* getDiscounts(action: YodyAction) {
-  const { query, setData } = action.payload;
+function* getPromoCode(action: YodyAction) {
+  const { priceRuleId, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<DiscountResponse>> = yield call(
-      searchDiscountList,
-      query
+    const response: BaseResponse<PageResponse<PromoCodeResponse>> = yield call(
+      getAllPromoCodeList,
+      priceRuleId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -34,35 +34,12 @@ function* getDiscounts(action: YodyAction) {
   }
 }
 
-function* deletePriceRuleByIdAct(action: YodyAction) {
-  console.log('deletePriceRuleByIdAct - action : ', action);
-  const { id, onDeleteSuccess } = action.payload;
+function* getPromoCodeByIdAct(action: YodyAction) {
+  const { priceRuleId, id, onResult } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
-      deletePriceRuleById,
-      id
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onDeleteSuccess()
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
-function* getPromoCodeDetail(action: YodyAction) {
-  const { id, onResult } = action.payload;
-  try {
-    let response: BaseResponse<DiscountResponse> = yield call(
-      getPriceRuleById,
+    let response: BaseResponse<PromoCodeResponse> = yield call(
+      getPromoCodeById,
+      priceRuleId,
       id
     );
     switch (response.code) {
@@ -84,10 +61,35 @@ function* getPromoCodeDetail(action: YodyAction) {
   }
 }
 
-export function* discountSaga() {
+function* deletePromoCodeByIdAct(action: YodyAction) {
+  console.log('deletePriceRuleByIdAct - action : ', action);
+  const { priceRuleId, id, onDeleteSuccess } = action.payload;
+  try {
+    const response: BaseResponse<PromoCodeResponse> = yield call(
+      deletePromoCodeById,
+      priceRuleId,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onDeleteSuccess()
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+export function* promoCodeSaga() {
   yield all([
-    takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
-    takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
-    takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct)
+    takeLatest(PromoCodeType.GET_LIST_PROMO_CODE, getPromoCode),
+    takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),
+    takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct)
   ])
 }
