@@ -122,9 +122,9 @@ function SidebarOrderDetailInformation(props: PropType) {
             <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
               <Link
                 target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`}
+                to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.coordinator_code}`}
               >
-                {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
+                {OrderDetail?.coordinator_code} - {OrderDetail?.coordinator}
               </Link>
             </span>
           </Col>
