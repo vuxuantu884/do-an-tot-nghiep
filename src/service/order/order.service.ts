@@ -1,10 +1,10 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import { ApiConfig } from "config/api.config";
-import { BaseQuery } from "model/base/base.query";
-import { OrderModel, OrderSearchQuery } from "model/order/order.model";
-import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
-import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
+import {ApiConfig} from "config/api.config";
+import {BaseQuery} from "model/base/base.query";
+import {OrderModel, OrderSearchQuery} from "model/order/order.model";
+import {ReturnModel, ReturnSearchQuery} from "model/order/return.model";
+import {ShipmentModel, ShipmentSearchQuery} from "model/order/shipment.model";
 import {
   ConfirmDraftOrderRequest,
   CreateShippingOrderRequest,
@@ -16,19 +16,20 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
-  VTPFeeRequest
+  VTPFeeRequest,
 } from "model/request/order.request";
-import { GoodsReceiptsRequest } from "model/request/pack.request";
+import {GoodsReceiptsRequest} from "model/request/pack.request";
 import {
   createDeliveryMappedStoreReQuestModel,
   deleteDeliveryMappedStoreReQuestModel,
-  updateConfigReQuestModel
+  updateConfigReQuestModel,
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   ChannelModel,
+  ChannelTypeModel,
   OrderSourceCompanyModel,
   OrderSourceModel,
-  OrderSourceResponseModel
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
   DeliveryMappedStoreType,
@@ -39,13 +40,19 @@ import {
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse
+  VTPFeeResponse,
 } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { SourceEcommerceResponse, SourceResponse } from "model/response/order/source.response";
-import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
-import { ChannelResponse } from "model/response/product/channel.response";
-import { generateQuery } from "utils/AppUtils";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import {
+  SourceEcommerceResponse,
+  SourceResponse,
+} from "model/response/order/source.response";
+import {
+  GoodsReceiptsResponse,
+  GoodsReceiptsTypeResponse,
+} from "model/response/pack/pack.response";
+import {ChannelResponse} from "model/response/product/channel.response";
+import {generateQuery} from "utils/AppUtils";
 
 export const getListOrderApi = (
   query: OrderSearchQuery
@@ -245,12 +252,9 @@ export const deleteMultiOrderSourceService = (
   sourceIds: number[]
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   const source_ids = sourceIds;
-  return BaseAxios.delete(
-    `${ApiConfig.ORDER}/sources`,
-    {
-      data: { source_ids },
-    }
-  );
+  return BaseAxios.delete(`${ApiConfig.ORDER}/sources`, {
+    data: {source_ids},
+  });
 };
 
 // tracking_log: Lấy ra tracking_log của fulfillment
@@ -296,9 +300,23 @@ export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> =
   return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
 };
 
-export const createChannelService = (params: ChannelModel): Promise<BaseResponse<Array<ChannelResponse>>> => {
+export const getChannelTypeApi = (): Promise<BaseResponse<Array<ChannelTypeModel>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/channels/types`);
+};
+
+export const createChannelService = (
+  params: ChannelModel
+): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/channels`, params);
 };
+
+export const editChannelService = (
+  channelId: number,
+  params: ChannelModel
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/channels/${channelId}`, params);
+};
+
 export const deleteChannelService = (channelId: number): Promise<BaseResponse<any>> => {
   return BaseAxios.delete(`${ApiConfig.ORDER}/channels/${channelId}`);
 };
@@ -307,10 +325,14 @@ export const getReasonsApi = (): Promise<BaseResponse<Array<any>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/reasons`);
 };
 
-export const cancelOrderApi = (order_id: number, reason_id: number, reason?: string): Promise<BaseResponse<any>> => {
+export const cancelOrderApi = (
+  order_id: number,
+  reason_id: number,
+  reason?: string
+): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/cancel`, {
     reason_id,
-    reason
+    reason,
   });
 };
 
@@ -353,19 +375,21 @@ export const createShippingOrderService = (
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
 
-export const getGoodsReceiptsTypeService = (): Promise<BaseResponse<GoodsReceiptsTypeResponse>> => {
+export const getGoodsReceiptsTypeService = (): Promise<
+  BaseResponse<GoodsReceiptsTypeResponse>
+> => {
   const link = `${ApiConfig.ORDER}/goods-receipts/types`;
   return BaseAxios.get(link);
-}
+};
 
-export const createGoodsReceiptsService = (params: GoodsReceiptsRequest): Promise<BaseResponse<GoodsReceiptsResponse>> => {
+export const createGoodsReceiptsService = (
+  params: GoodsReceiptsRequest
+): Promise<BaseResponse<GoodsReceiptsResponse>> => {
   const link = `${ApiConfig.ORDER}/goods-receipts`;
   return BaseAxios.post(link, params);
-}
+};
 
-export const getGoodsReceiptsSerchService = (
-  query: any
-): Promise<BaseResponse<any>> => {
+export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipts/search?${queryString}`);
 };
@@ -376,10 +400,12 @@ export const splitOrderService = (
   params: SplitOrderRequest
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/orders/split`, params);
-}
+};
 /**
  * biên bản sàn
  */
-export const getSourcesEcommerceService = (): Promise<BaseResponse<Array<SourceEcommerceResponse>>> => {
+export const getSourcesEcommerceService = (): Promise<
+  BaseResponse<Array<SourceEcommerceResponse>>
+> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/ecommerce`);
 };

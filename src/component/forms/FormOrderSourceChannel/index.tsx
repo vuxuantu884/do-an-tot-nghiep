@@ -1,26 +1,32 @@
-import { Form, Input } from "antd";
+import { Form, Input, Select } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { ChannelModel } from "model/response/order/order-source.response";
 import { useEffect } from "react";
 import * as CONSTANTS from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { StyledComponent } from "./styles";
 
+type FormValuesType = {
+  code: string;
+  name: string|undefined;
+  channel_type_id: number|undefined;
+};
+
 function FormOrderSourceChannel(props: CustomModalFormModel) {
 
-  const {modalAction, formItem, form, visible} = props;
+  const {modalAction, formItem, form, visible, moreFormArguments} = props;
+  const {listChannelTypes} = moreFormArguments;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
-  const initialFormValues: ChannelModel =
+  const initialFormValues: FormValuesType =
     !isCreateForm && formItem
       ? {
           name: formItem.name,
           code: formItem.code,
-          type: formItem.type,
+          channel_type_id: formItem.channel_type_id,
         }
       : {
           name: "",
           code: "",
-          type: "",
+          channel_type_id: undefined,
         };
 
   useEffect(() => {
@@ -68,17 +74,32 @@ function FormOrderSourceChannel(props: CustomModalFormModel) {
           />
         </Form.Item>
         <Form.Item
-          name="type"
+          name="channel_type_id"
           label="Loại kênh"
           rules={[
-            {required: true, message: "Vui lòng điền loại kênh!"},
+            {required: true, message: "Vui lòng chọn loại kênh!"},
           ]}
         >
-          <Input
-            type="text"
-            placeholder="Nhập loại kênh"
-            style={{width: "100%", textTransform: "uppercase"}}
-          />
+          <Select
+            showSearch
+            allowClear
+            style={{width: "100%"}}
+            placeholder="Chọn loại kênh"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            notFoundContent="Không tìm thấy loại kênh"
+          >
+            {listChannelTypes &&
+              listChannelTypes.map((single: any) => {
+                return (
+                  <Select.Option value={single.id} key={single.id}>
+                    {single.name}
+                  </Select.Option>
+                );
+              })}
+          </Select>
         </Form.Item>
       </Form>
     </StyledComponent>

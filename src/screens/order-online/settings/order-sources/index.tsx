@@ -23,6 +23,7 @@ import {DepartmentResponse} from "model/account/department.model";
 import {modalActionType} from "model/modal/modal.model";
 import {
   ChannelModel,
+  ChannelTypeModel,
   OrderSourceModel,
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
@@ -35,8 +36,11 @@ import {useHistory} from "react-router-dom";
 import {getDepartmentAllApi} from "service/accounts/account.service";
 import {
   createChannelService,
+  deleteChannelService,
   deleteMultiOrderSourceService,
+  editChannelService,
   getChannelApi,
+  getChannelTypeApi,
 } from "service/order/order.service";
 import {generateQuery} from "utils/AppUtils";
 import {showError, showSuccess} from "utils/ToastUtils";
@@ -79,12 +83,15 @@ function OrderSources(props: PropsType) {
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
     useState<OrderSourceModel | null>(null);
+    const [modalSingleChannel, setModalSingleChannel] =
+    useState<ChannelModel | null>(null);
 
   const [form] = Form.useForm();
 
   const [rowKey, setRowKey] = useState<Array<any>>([]);
   const [listDepartments, setListDepartments] = useState<DepartmentResponse[]>([]);
   const [listChannels, setListChannels] = useState<ChannelResponse[]>([]);
+  const [listChannelTypes, setListChannelTypes] = useState<ChannelTypeModel[]>([]);
 
   const columns: ICustomTableColumType<any>[] = [
     {
@@ -93,7 +100,7 @@ function OrderSources(props: PropsType) {
       visible: true,
       className: "columnTitle",
       width: "15%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -109,7 +116,7 @@ function OrderSources(props: PropsType) {
       visible: true,
       className: "columnTitle",
       width: "20%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           const selectedChannel = listChannels.find((single) => {
             return single.id === value;
@@ -130,7 +137,7 @@ function OrderSources(props: PropsType) {
       visible: true,
       className: "columnTitle",
       width: "20%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -146,7 +153,7 @@ function OrderSources(props: PropsType) {
       visible: true,
       className: "columnTitle",
       width: "15%",
-      render: (value, row, index) => {
+      render: (value, record, index) => {
         if (value) {
           return (
             <span title={value} className="title">
@@ -162,8 +169,8 @@ function OrderSources(props: PropsType) {
       visible: true,
       width: "15%",
       align: "center",
-      render: (value, row, index) => {
-        if (value) {
+      render: (value, record:OrderSourceModel, index) => {
+        if (value || record.is_channel) {
           return <span className="status active">Đang áp dụng</span>;
         }
         return <span className="status inactive">Ngưng áp dụng</span>;
@@ -199,7 +206,7 @@ function OrderSources(props: PropsType) {
     [history, queryParams]
   );
 
-  const handleDelete = () => {
+  const handleDeleteMultiOrderSource = () => {
     showLoading();
     deleteMultiOrderSourceService(rowKey)
       .then((response: BaseResponse<any>) => {
@@ -299,7 +306,21 @@ function OrderSources(props: PropsType) {
   };
 
   const renderConfirmDeleteSubtitle = () => {
-    return <React.Fragment>Bạn có chắc chắn muốn xóa ?</React.Fragment>;
+    return <React.Fragment>Bạn có chắc chắn muốn xóa danh sách đã chọn ?</React.Fragment>;
+  };
+
+  const fetchData = () => {
+    dispatch(
+      actionFetchListOrderSources(
+        queryParams,
+        (data: OrderSourceResponseModel) => {
+          setListOrderSources(data.items);
+          setTotal(data.metadata.total);
+          showSuccess("Cập nhật danh sách nguồn đơn hàng thành công!");
+        }
+      )
+    );
+    setTableLoading(false);
   };
 
   const gotoFirstPage = () => {
@@ -307,6 +328,7 @@ function OrderSources(props: PropsType) {
       ...queryParams,
       page: 1,
     };
+    fetchData();
     handleNavigateByQueryParams(resultParams);
   };
 
@@ -370,51 +392,60 @@ function OrderSources(props: PropsType) {
 
   const handleFormChannel = {
     create: (formValues: ChannelModel) => {
-      console.log("formValues", formValues);
       showLoading();
       createChannelService(handleFormChannelFormatFormValues(formValues))
         .then((response) => {
-          console.log("response", response);
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              showSuccess("Tạo mới kênh bán hàng thành công!");
+              setTableLoading(true);
+              gotoFirstPage();
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
         })
         .finally(() => {
           hideLoading();
+          setIsShowModalChannel(false)
         });
-      // dispatch(
-      //   actionAddOrderSource(handleFormOrderSourceFormatFormValues(formValues), () => {
-      //     setIsShowModalOrderSource(false);
-      //     gotoFirstPage();
-      //   })
-      // );
     },
     edit: (formValues: ChannelModel) => {
-      if (modalSingleOrderSource) {
-        // dispatch(
-        //   actionEditOrderSource(
-        //     modalSingleOrderSource.id,
-        //     handleFormOrderSourceFormatFormValues(formValues),
-        //     () => {
-        //       dispatch(
-        //         actionFetchListOrderSources(
-        //           queryParams,
-        //           (data: OrderSourceResponseModel) => {
-        //             setListOrderSources(data.items);
-        //           }
-        //         )
-        //       );
-        //     }
-        //   )
-        // );
-        // setIsShowModalOrderSource(false);
+      if (modalSingleChannel) {
+        showLoading();
+        editChannelService(modalSingleChannel.id, formValues).then((response) => {
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              showSuccess("Cập nhật kênh bán hàng thành công!");
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
+        }).finally(() => {
+          hideLoading();
+          setIsShowModalChannel(false)
+        });
       }
     },
     delete: () => {
-      if (modalSingleOrderSource) {
-        dispatch(
-          actionDeleteOrderSource(modalSingleOrderSource.id, () => {
-            setIsShowModalOrderSource(false);
-            gotoFirstPage();
-          })
-        );
+      if (modalSingleChannel) {
+        showLoading();
+       deleteChannelService(modalSingleChannel.id).then((response) => {
+          switch (response.code) {
+            case HttpStatus.SUCCESS:
+              showSuccess("Xóa kênh bán hàng thành công!");
+              gotoFirstPage();
+              break;
+            default:
+              response.errors.forEach((e) => showError(e));
+              break;
+          }
+        }).finally(() => {
+          hideLoading();
+          setIsShowModalChannel(false)
+        });
       }
     },
   };
@@ -505,6 +536,25 @@ function OrderSources(props: PropsType) {
       })
       .catch((error) => {
         showError("Có lỗi khi lấy danh sách kênh bán hàng!");
+      });
+  }, []);
+
+  useEffect(() => {
+    getChannelTypeApi()
+      .then((response: BaseResponse<ChannelTypeModel[]>) => {
+        switch (response.code) {
+          case HttpStatus.SUCCESS:
+            if (response.data) {
+              setListChannelTypes(response.data);
+            }
+            break;
+          default:
+            response.errors.forEach((e) => showError(e));
+            break;
+        }
+      })
+      .catch((error) => {
+        showError("Có lỗi khi lấy loại kênh bán hàng!");
       });
   }, []);
 
@@ -613,8 +663,19 @@ function OrderSources(props: PropsType) {
               return {
                 onClick: () => {
                   setModalAction("edit");
-                  setModalSingleOrderSource(record);
-                  setIsShowModalOrderSource(true);
+                  if(record.is_channel) {
+                    setModalSingleChannel({
+                      id: record.id,
+                      channel_type_id: record.channel_type?.id || undefined,
+                      code: record.code,
+                      name: record.name,
+                    })
+                    setIsShowModalChannel(true);
+                    
+                  }else {
+                    setModalSingleOrderSource(record);
+                    setIsShowModalOrderSource(true);
+                  }
                 },
               };
             }}
@@ -622,7 +683,7 @@ function OrderSources(props: PropsType) {
         </Card>
         <ModalDeleteConfirm
           visible={isShowConfirmDelete}
-          onOk={() => handleDelete()}
+          onOk={() => handleDeleteMultiOrderSource()}
           onCancel={() => setIsShowConfirmDelete(false)}
           title="Xác nhận"
           subTitle={renderConfirmDeleteSubtitle()}
@@ -652,10 +713,10 @@ function OrderSources(props: PropsType) {
           onCancel={() => setIsShowModalChannel(false)}
           modalAction={modalAction}
           componentForm={FormOrderSourceChannel}
-          formItem={modalSingleOrderSource}
-          deletedItemTitle={modalSingleOrderSource?.name}
+          formItem={modalSingleChannel}
+          deletedItemTitle={modalSingleChannel?.name}
           modalTypeText="Kênh bán hàng"
-          moreFormArguments={{listChannels, listDepartments}}
+          moreFormArguments={{listChannels, listDepartments, listChannelTypes}}
         />
       </ContentContainer>
     </StyledComponent>

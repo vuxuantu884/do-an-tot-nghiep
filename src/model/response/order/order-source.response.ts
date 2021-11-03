@@ -7,18 +7,31 @@ export interface OrderSourceModel {
   company_id?: number;
   department?: string;
   department_id?: string;
+  type: string;
   is_active: boolean;
   id: number;
+  channel_id: number;
   is_default: boolean;
   code: string;
+  is_channel: boolean;
+  channel_type: {
+    id: number;
+    code: string;
+    name: string;
+  } | null;
 }
 
 export interface ChannelModel {
+  id: number;
   code: string;
-  name: string;
-  type: string;
+  name: string|undefined;
+  channel_type_id: number|undefined;
 }
 
+export interface ChannelTypeModel {
+  code: string;
+  name: string;
+}
 export interface OrderSourceResponseModel {
   items: OrderSourceModel[];
   metadata: BaseMetadata;
