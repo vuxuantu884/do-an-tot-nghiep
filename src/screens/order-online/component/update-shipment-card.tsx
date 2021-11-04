@@ -82,6 +82,7 @@ import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
 import { delivery_service } from "../common/delivery-service";
+import { dangerColor } from "utils/global-styles/variables";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -299,7 +300,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setReload(true);
     showSuccess("Xuất kho thành công");
     setIsvibleShippingConfirm(false);
-    onReload && onReload();
+    // onReload && onReload();
+    window.location.reload();
   };
 
   const onShipedSuccess = (value: OrderResponse) => {
@@ -829,6 +831,33 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onOkShippingConfirm();
     setReload(true)
   };
+
+  const renderPushingStatusWhenFailed = () => {
+    if(!OrderDetail) {
+      return;
+    }
+    if(OrderDetail.fulfillments) {
+      let failedFulfillment = OrderDetail.fulfillments.find((singleFulfillment) => {
+        return singleFulfillment.shipment?.pushing_status === "failed"
+      })
+      if(failedFulfillment && failedFulfillment?.shipment?.pushing_note) {
+        return (
+          <Col md={12}>
+            <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">Trạng thái:</p>
+                </Col>
+                <Col span={14}>
+                  <b className="text-field" style={{color: dangerColor}}>
+                    {failedFulfillment?.shipment.pushing_note}
+                  </b>
+                </Col>
+              </Row>
+          </Col>
+        )
+      }
+    }
+  };
   useEffect(() => {
     if (!props.storeDetail) {
       setAddressError("Thiếu thông tin địa chỉ cửa hàng");
@@ -1212,7 +1241,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             </Col>
                           </Row>
                         </Col>
-
+                        {renderPushingStatusWhenFailed()}
                         {CheckShipmentType(props.OrderDetail!) === "external_service" && (
                           <Col md={12}>
                             <Row gutter={30}>
@@ -1235,6 +1264,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         )}
                       </Row>
                     )}
+                   
                     <Row className="orders-shipment-item">
                       <Collapse ghost>
                         <Panel

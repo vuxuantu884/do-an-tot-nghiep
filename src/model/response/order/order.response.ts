@@ -247,6 +247,7 @@ export interface ShipmentResponse extends BaseObject {
   tracking_code: string | null;
   tracking_url: string | null;
   pushing_status: string | null;
+  pushing_note: string | null;
   received_date: string | null;
   sender_address_id: number | null;
   sender_address?: StoreResponse;
