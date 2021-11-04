@@ -121,8 +121,14 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     setIsFromReceiveDate(null)
     setIsToReceiveDate(null)
 
+    formSearchRef?.current?.setFieldsValue({
+      condition: "",
+      from_store_id: '',
+      to_store_id: '',
+    })
+
     setVisible(false);
-  }, [onClearFilter]);
+  }, [formSearchRef, onClearFilter]);
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -148,28 +154,28 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     
     switch(value) {
       case 'today':
-        minValue = moment().startOf('day').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').format('DD-MM-YYYY')
+        minValue = moment().startOf('day')
+        maxValue = moment().endOf('day')
         break
       case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        minValue = moment().startOf('day').subtract(1, 'days')
+        maxValue = moment().endOf('day').subtract(1, 'days')
         break
       case 'thisweek':
-        minValue = moment().startOf('week').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').format('DD-MM-YYYY')
+        minValue = moment().startOf('week')
+        maxValue = moment().endOf('week')
         break
       case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        minValue = moment().startOf('week').subtract(1, 'weeks')
+        maxValue = moment().endOf('week').subtract(1, 'weeks')
         break
       case 'thismonth':
-        minValue = moment().startOf('month').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').format('DD-MM-YYYY')
+        minValue = moment().startOf('month')
+        maxValue = moment().endOf('month')
         break
       case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        minValue = moment().startOf('month').subtract(1, 'months')
+        maxValue = moment().endOf('month').subtract(1, 'months')
         break  
       default:
         break
@@ -372,7 +378,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
     return list
   }, [initialValues, accounts]);
-    
+
   return (
   <InventoryFiltersWrapper>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>

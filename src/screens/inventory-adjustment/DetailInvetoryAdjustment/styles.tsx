@@ -166,4 +166,7 @@ export const StyledWrapper = styled.div`
   .pt8 {
     padding-top: 8px;
   }
+  .audit_by{
+    font-weight: 500;
+  }
 `;

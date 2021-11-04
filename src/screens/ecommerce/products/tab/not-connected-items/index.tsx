@@ -93,7 +93,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     variants: null
   });
 
-  const params: ProductEcommerceQuery = useMemo(
+  const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
       limit: 30,
@@ -437,7 +437,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <Button
                 type="primary"
                 onClick={handleSaveConnectYodyProduct}
-                loading={isSaving}
+                loading={!isVisibleConfirmConnectModal && isSaving}
               >
                 Lưu
               </Button>
@@ -471,10 +471,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "70px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <img
-            src={l.ecommerce_image_url}
+            src={item.ecommerce_image_url}
             style={{ height: "40px" }}
             alt=""
           ></img>
@@ -485,12 +485,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Sku/ itemID (Sàn)",
       visible: true,
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <div>
-            <div>{l.ecommerce_sku}</div>
-            <div style={{ color: "#737373" }}>{l.ecommerce_product_id}</div>
-            <div style={{ color: "#2a2a86" }}>({l.shop})</div>
+            <div>{item.ecommerce_sku}</div>
+            <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
+            <div style={{ color: "#2a2a86" }}>({item.shop})</div>
           </div>
         );
       },
@@ -499,8 +499,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Sản phẩm (Sàn)",
       visible: true,
       width: "250px",
-      render: (l: any, v: any, i: any) => {
-        return <div>{l.ecommerce_variant}</div>;
+      render: (item: any, v: any, i: any) => {
+        return <div>{item.ecommerce_variant}</div>;
       },
     },
     {
@@ -508,10 +508,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "90px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <span>
-            {l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}
+            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
           </span>
         );
       },
@@ -527,10 +527,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductConnectStatus>
-            {l.connect_status === "waiting" && (
+            {item.connect_status === "waiting" && (
               <span className="not-connect-status">Chưa ghép nối</span>
             )}
           </StyledProductConnectStatus>
@@ -657,9 +657,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     removeEcommerce();
     setVisibleFilter(false);
 
-    formAdvance.setFieldsValue(params);
+    formAdvance.setFieldsValue(initialFormValues);
     formAdvance.submit();
-  }, [formAdvance, params]);
+  }, [formAdvance, initialFormValues]);
 
   const openFilter = React.useCallback(() => {
     setVisibleFilter(true);
@@ -847,7 +847,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
+            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
@@ -933,7 +933,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               form={formAdvance}
               onFinish={onSearch}
               //ref={formRef}
-              initialValues={params}
+              initialValues={initialFormValues}
               layout="vertical"
             >
               <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>

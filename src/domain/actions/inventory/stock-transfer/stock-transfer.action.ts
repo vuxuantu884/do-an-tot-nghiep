@@ -159,6 +159,9 @@ const adjustmentInventoryAction = (id:Number, onResult: (data: InventoryTransfer
   return BaseAction(InventoryType.ADJUSTMENT_INVENTORY, {id, onResult})
 }
 
+const exportInventoryAction = (transferId: number, shipmentId: number, onResult: (data: InventoryTransferDetailItem) => void) => {
+  return BaseAction(InventoryType.EXPORT_INVENTORY, {transferId, shipmentId, onResult})
+}
 export {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
@@ -177,4 +180,5 @@ export {
   adjustmentInventoryAction,
   getCopyDetailInventoryTransferAction,
   cancelShipmentInventoryTransferAction,
+  exportInventoryAction,
 };

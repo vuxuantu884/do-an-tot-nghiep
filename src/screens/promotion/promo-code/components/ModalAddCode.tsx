@@ -19,8 +19,6 @@ const ModalAddCode: React.FC<ModalProps> = (
 ) => {
   const { isManual, title, visible, okText,cancelText, onCancel, onOk } = props;
 
-  console.log(isManual);
-  
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);

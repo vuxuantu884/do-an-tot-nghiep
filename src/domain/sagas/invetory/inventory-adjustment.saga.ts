@@ -181,18 +181,6 @@ function* printAdjustInventorySaga(action: YodyAction) {
       queryPrint
     );
     onResult(response);
-    // switch (response.code) {
-    //   case HttpStatus.SUCCESS:
-    //     onResult(response);
-    //     break;
-    //   case HttpStatus.UNAUTHORIZED:
-    //     yield put(unauthorizedAction());
-    //     break;
-    //   default:
-    //     response.errors.forEach((e) => showError(e));
-    //     onResult(false);
-    //     break;
-    // }
   } catch (error) {
     onResult(false);
     showError("Có lỗi vui lòng thử lại sau");

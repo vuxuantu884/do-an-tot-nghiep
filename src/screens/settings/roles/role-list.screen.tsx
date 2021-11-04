@@ -50,13 +50,9 @@ const RoleListScreen = () => {
       visible: true,
     },
     {
-      title: "Cập nhật lần cuối",
-      dataIndex: "updated_date",
-      align: "center",
+      title: "Mô tả",
+      dataIndex: "description",
       visible: true,
-      render: (value: string) => {
-        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
-      },
     },
     {
       title: "Người cập nhật lần cuối",
@@ -65,9 +61,13 @@ const RoleListScreen = () => {
       visible: true,
     },
     {
-      title: "Mô tả",
-      dataIndex: "description",
+      title: "Cập nhật lần cuối",
+      dataIndex: "updated_date",
+      align: "center",
       visible: true,
+      render: (value: string) => {
+        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
+      },
     },
   ]);
 
@@ -92,7 +92,7 @@ const RoleListScreen = () => {
       render: (value: Array<PermissionsAuthorize>) => {
         let formatValue = "";
         value.forEach((item) => {
-          let name =_.capitalize(item.name);
+          let name = _.capitalize(item.name);
           formatValue += name + " / ";
         });
         formatValue = formatValue.substring(0, formatValue.length - 2);

@@ -10,4 +10,10 @@ export const StyledComponent = styled.div`
       justify-content: space-between;
     }
   }
+  .ant-form-item:last-child {
+    margin-bottom: 0;
+  }
+  .ant-row {
+    margin-bottom: 20px;
+  }
 `;

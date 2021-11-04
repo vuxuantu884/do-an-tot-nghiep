@@ -13,6 +13,7 @@ import {useDispatch} from "react-redux";
 import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
+import { PROMO_TYPE } from "utils/Constants";
 
 
 const CreateDiscountPage = () => {
@@ -37,7 +38,7 @@ const CreateDiscountPage = () => {
     //   setCustomerAdvanceMsg("Vui lòng nhập đối tượng khách hàng")
     // }
     // body.discount_codes.push(values.discount_codes)
-    body.type = "AUTOMATIC";
+    body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;
     body.priority = values.priority;
     body.description = values.descriptionl
@@ -73,11 +74,10 @@ const CreateDiscountPage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/discount");
+      history.push("/promotion/promo-code");
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
-
   }
 
   const save = async () => {
@@ -87,7 +87,7 @@ const CreateDiscountPage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu thành công");
-      history.push("/promotion/discount");
+      history.push("/promotion/promo-code");
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }

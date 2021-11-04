@@ -239,9 +239,9 @@ const FixedPriceGroup = (props: any) => {
                           </Link>
                         </div>
                         <div className="product-item-name">
-                                  <span className="product-item-name-detail">
-                                    {item.name}
-                                  </span>
+                          <span className="product-item-name-detail">
+                            {item.name}
+                          </span>
                         </div>
                       </div>
                     </div>

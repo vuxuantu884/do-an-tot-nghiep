@@ -4,43 +4,62 @@ import {
   DatePicker, Divider, Checkbox,
   TimePicker, Input, Tag, Table, Button
 } from "antd";
-import "../promotion-code.scss"
-import React, {useMemo, useState} from "react";
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import ChooseDiscount from "./choose-discount.create";
 import CustomInput from "component/custom/custom-input";
-import { SearchOutlined } from "@ant-design/icons";
-import CustomSelect from "component/custom/select.custom";
+import NumberInput from "component/custom/number-input.custom";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import ProductItem from "screens/purchase-order/component/product-item";
+import UrlConfig from "config/url.config";
+import "../promo-code.scss"
+import { useDispatch } from "react-redux";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { ColumnsType } from "antd/es/table/interface";
 import { AiOutlineClose } from "react-icons/ai";
-import NumberInput from "component/custom/number-input.custom";
-import { letterSpacing } from "html2canvas/dist/types/css/property-descriptors/letter-spacing";
+import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { VariantResponse } from "model/product/product.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { Link } from "react-router-dom";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
 
-
 const GeneralCreate = (props: any) => {
-  const { form } = props;
+  const {
+    form,
+    listStore,
+    listSource,
+    // customerAdvanceMsg
+  } = props;
 
-  const [showTimeAdvance, setShowTimeAdvance] = useState(false)
-  const [allStore, setAllStore] = useState(false)
-  const [allChannel, setAllChannel] = useState(false)
-  const [allSource, setAllSource] = useState(false)
-  const [allCustomer, setAllCustomer] = useState(false)
-  const [disabledEndDate, setDisabledEndDate] = useState(false)
-  const [type, setType] = useState("")
-  const [product, setProduct] = useState<string>("")
+  const dispatch = useDispatch();
+
+  const [showTimeAdvance, setShowTimeAdvance] = useState(false);
+  const [allStore, setAllStore] = useState(false);
+  const [allChannel, setAllChannel] = useState(false);
+  const [allSource, setAllSource] = useState(false);
+  const [disabledEndDate, setDisabledEndDate] = useState(false);
+  const [type, setType] = useState("SALE_CODE");
+  const [product, setProduct] = useState<string>("PRODUCT");
   const [dataTableProduct, setDataTableProduct] = useState<Array<any> | any>([] as Array<any>);
   const [dataTableProductCate, setDataTableProductCate] = useState<Array<any> | any>([] as Array<any>);
-  const [code, setCode] = useState('')
+  const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
+  const productSearchRef = createRef<CustomAutoComplete>();
+  const [isProduct, setIsProduct] = useState<boolean>(false);
+  const [prerequisiteSubtotal, setPrerequisiteSubtotal] = useState<any>();
 
-  useMemo(() => {
-    form.setFieldsValue({
-      customer_selection: allCustomer
-    })
-  }, [allCustomer])
+  const renderResult = useMemo(() => {
+    let options: any[] = [];
+    data.forEach((item: VariantResponse, index: number) => {
+      options.push({
+        label: <ProductItem data={item} key={item.id.toString()}/>,
+        value: item.id,
+      });
+    });
+    return options;
+  }, [data]);
 
   const getDays = () => {
     let days = [];
@@ -67,6 +86,7 @@ const GeneralCreate = (props: any) => {
       </Tag>
     );
   }
+
   const listCategory: Array<BaseBootstrapResponse> = [
     {
       value: "Áo phông nam",
@@ -78,38 +98,6 @@ const GeneralCreate = (props: any) => {
     }
   ]
 
-  const columnsProduct: ColumnsType<any> = [
-    {
-      title: "Sản phẩm",
-      dataIndex: "on_hand",
-      align: "center",
-      width: 100,
-      render: (value) => {
-        return value || 0;
-      },
-    },
-    {
-      title: "Số lượng tối thiểu",
-      dataIndex: "available",
-      align: "center",
-      width: 100,
-      render: (value) => {
-        return value || 0;
-      },
-    },
-    {
-      title: "",
-      fixed: dataTableProduct.length !== 0 && "right",
-      width: 50,
-      render: (_: string, row) => (
-        <Button
-          onClick={() => onDeleteItemProduct(row.id)}
-          className="product-item-delete"
-          icon={<AiOutlineClose />}
-        />
-      ),
-    },
-  ];
   function onDeleteItemProduct(id: number) {
     // delete row
     const temps = [...dataTableProduct];
@@ -153,6 +141,7 @@ const GeneralCreate = (props: any) => {
       ),
     },
   ];
+
   function onDeleteItemProductCate(id: number) {
     // delete row
     const temps = [...dataTableProductCate];
@@ -163,6 +152,57 @@ const GeneralCreate = (props: any) => {
     });
     setDataTableProductCate(temps);
   }
+
+  const onResultSearch = useCallback(
+    (result: PageResponse<VariantResponse> | false) => {
+      if (!result) {
+        setData([]);
+      } else {
+        setData(result.items);
+      }
+    },
+    []
+  );
+
+  const onSearch = useCallback(
+    (value: string) => {
+      if (value.trim() !== "" && value.length >= 3) {
+        dispatch(
+          searchVariantsRequestAction(
+            {
+              status: "active",
+              limit: 200,
+              page: 1,
+              info: value.trim(),
+            },
+            onResultSearch
+          )
+        );
+      } else {
+        setData([]);
+      }
+    },
+    [dispatch, onResultSearch]
+  );
+
+  const onSelectProduct = useCallback(
+    (value) => {
+      const selectedItem = data.find(e => e.id === Number(value));
+      if (selectedItem) {
+        setSelectedProduct([...selectedProduct, selectedItem])
+      }
+      setData([]);
+    },
+    [data, selectedProduct]
+  )
+
+  const onDeleteItem = useCallback(
+    (index: number) => {
+      selectedProduct.splice(index, 1)
+      setSelectedProduct([...selectedProduct])
+    },
+    [selectedProduct]
+  );
 
   function nonAccentVietnamese(str: string) {
     str = str.toLowerCase();
@@ -177,10 +217,48 @@ const GeneralCreate = (props: any) => {
     str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
     return str.toUpperCase().replaceAll(/\s/g,'');
-}
+  }
+
+  useEffect(() => {
+    let entitlements:any[] = [];
+    selectedProduct && selectedProduct.forEach((item) => {
+      entitlements.push({
+        entitled_variant_ids: [item.id],
+        entitled_category_ids: null,
+        prerequisite_quantity_ranges: [{
+          greater_than_or_equal_to: 0,
+          less_than_or_equal_to: 0,
+          allocation_limit: 0,
+          value_type: "",
+          value: 0
+        }],
+        prerequisite_subtotal_ranges: null
+      })
+    });
+    form.setFieldsValue({entitlements: entitlements})
+  }, [selectedProduct])
+
+  useEffect(() => {
+    if (isProduct) {
+      let entitlements = [{
+        entitled_variant_ids: null,
+        entitled_category_ids: null,
+        prerequisite_quantity_ranges: [{
+          greater_than_or_equal_to: 0,
+          less_than_or_equal_to: 0,
+          allocation_limit: 0,
+          value_type: "",
+          value: 0
+        }],
+        prerequisite_subtotal_ranges: null
+      }];
+      form.setFieldsValue({entitlements: entitlements})
+    }
+  }, [isProduct])
 
   return (
     <Row gutter={24} className="general-info">
+      {/* right side */}
       <Col span={18}>
         <Card
           title={
@@ -192,6 +270,7 @@ const GeneralCreate = (props: any) => {
           }
         >
           <Row gutter={30}>
+            {/* Tên đợt phát hàng */}
             <Col span={12}>
               <CustomInput
                 name="title"
@@ -203,6 +282,7 @@ const GeneralCreate = (props: any) => {
                 maxLength={255}
               />
             </Col>
+            {/* Mã đợt phát hàng */}
             <Col span={12}>
               <Form.Item
                 name="discount_code"
@@ -215,6 +295,7 @@ const GeneralCreate = (props: any) => {
                 <Input maxLength={20} prefix="PC"/>
               </Form.Item>
             </Col>
+            {/* Mô tả */}
             <Col span={24}>
               <CustomInput
                 type="textarea"
@@ -229,6 +310,7 @@ const GeneralCreate = (props: any) => {
         </Card>
         <Card>
           <Row gutter={30}>
+            {/* Loại khuyến mãi */}
             <Col span={24}>
               <Form.Item
                 name="sale_type"
@@ -238,9 +320,10 @@ const GeneralCreate = (props: any) => {
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
+                  defaultValue="SALE_CODE"
                 >
                   <Option value={"SALE_CODE"}>Mã giảm giá</Option>
-                  <Option value={"GIFT_CODE"}>Mã quà tặng</Option>
+                  {/* <Option value={"GIFT_CODE"}>Mã quà tặng</Option> */}
                 </Select>
               </Form.Item>
             </Col>
@@ -258,7 +341,7 @@ const GeneralCreate = (props: any) => {
         >
           <Row gutter={30}>
             <Col span={12}>
-              <Form.Item name="mobile" label="Đơn hàng có giá trị từ:">
+              <Form.Item label="Đơn hàng có giá trị từ:">
                 <NumberInput
                   style={{
                     textAlign: "right",
@@ -266,94 +349,140 @@ const GeneralCreate = (props: any) => {
                     color: "#222222",
                   }}
                   minLength={0}
-                  // value={}
+                  value={prerequisiteSubtotal}
+                  onChange={(value: any) => setPrerequisiteSubtotal(value)}
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="product"
                 label={<b>Áp dụng cho:</b>}
               >
-                <Select defaultValue="" onChange={(value) => setProduct(value)}>
-                <Option value={"CHOOSE_OPTION"}>Chọn điều kiện</Option>
+                <Select defaultValue="PRODUCT" onChange={(value) => setProduct(value)}>
+                {/* <Option value={"CHOOSE_OPTION"}>Chọn điều kiện</Option> */}
                   <Option value={"PRODUCT"}>Sản phẩm</Option>
-                  <Option value={"CATEGORY_PRODUCT"}>Danh mục sản phẩm</Option>
+                  {/* <Option value={"CATEGORY_PRODUCT"}>Danh mục sản phẩm</Option> */}
                 </Select>
               </Form.Item>
             </Col>
             {product === "PRODUCT" && 
               <>
                 <Col span={18}>
-                  <Form.Item name="request">
-                    <Input
-                      style={{ width: "100%" }}
-                      prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                      placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+                  <Input.Group className="display-flex">
+                    <CustomAutoComplete
+                      key={`product_search`}
+                      id="#product_search"
+                      dropdownClassName="product"
+                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
+                      onSearch={onSearch}
+                      dropdownMatchSelectWidth={456}
+                      style={{width: "100%"}}
+                      onSelect={onSelectProduct}
+                      options={renderResult}
+                      ref={productSearchRef}
+                      disabled={isProduct}
                     />
-                  </Form.Item>
+                  </Input.Group>
                 </Col>
                 <Col span={6}>
                   <Form.Item>
-                    <Checkbox> Tất cả sản phẩm </Checkbox>
+                    <Checkbox onChange={(value) => {
+                      setIsProduct(value.target.checked);
+                      setSelectedProduct([]);
+                    }}> Tất cả sản phẩm </Checkbox>
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Table
-                    className="inventory-table"
-                    rowClassName="product-table-row"
-                    tableLayout="fixed"
-                    scroll={{ y: 300 }}
-                    pagination={false}
-                    columns={columnsProduct}
-                    loading={false}
-                    dataSource={[]}
-                  />
-                </Col>
-              </>
-            }
-            {product === "CATEGORY_PRODUCT" && 
-              <>
-                <Col span={24}>
-                  <Form.Item>
-                  <CustomSelect
-                    showSearch
-                    optionFilterProp="children"
-                    showArrow
-                    placeholder="Chọn danh mục"
-                    allowClear
-                    tagRender={tagRender}
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    {listCategory?.map((item) => (
-                      <CustomSelect.Option key={item.value} value={item.value}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
+                  <Form.Item name="entitlements">
+                    <Table
+                      className="product-table"
+                      rowKey={(record) => record.id}
+                      rowClassName="product-table-row"
+                      columns={[
+                        {
+                          title: "Sản phẩm",
+                          className: "ant-col-info",
+                          dataIndex: "variant",
+                          align: 'left',
+                          render: (
+                            value: string,
+                            item,
+                            index: number
+                          ) => {
+                            return (
+                              <div>
+                                <div>
+                                  <div className="product-item-sku">
+                                    <Link
+                                      target="_blank"
+                                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`}
+                                    >
+                                      {item.sku}
+                                    </Link>
+                                  </div>
+                                  <div className="product-item-name">
+                                    <span className="product-item-name-detail">
+                                      {item.name}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          },
+                        },
+                        {
+                          title: "Số lượng tối thiểu",
+                          className: "ant-col-info",
+                          align: 'center',
+                          width: '15%',
+                          render: (
+                            value: string,
+                            item,
+                            index: number
+                          ) => {
+                            return (
+                              <div>
+                                <Form.Item label=" ">
+                                  <NumberInput onChange={(value) => {
+                                    if(selectedProduct) {
+                                      let entitlementFields = form.getFieldValue('entitlements');
+                                      let entitlement = entitlementFields.find((ele: any) => ele.entitled_variant_ids.includes(item.id));
+                                      entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to = value;
+                                      form.setFieldsValue({entitlements: entitlementFields})
+                                    }
+                                  }}/>
+                                </Form.Item>
+                              </div>
+                            );
+                          },
+                        },
+                        {
+                          className: "ant-col-info",
+                          align: 'left',
+                          width: "20%",
+                          render: (value: string, item, index: number) => (
+                            <Button
+                              onClick={() => onDeleteItem(index)}
+                              className="product-item-delete"
+                              icon={<AiOutlineClose/>}
+                            />
+                          ),
+                        }
+                      ]}
+                      dataSource={selectedProduct}
+                      tableLayout="fixed"
+                      pagination={false}
+                    />
                   </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Table
-                    className="inventory-table"
-                    rowClassName="product-table-row"
-                    tableLayout="fixed"
-                    scroll={{ y: 300 }}
-                    pagination={false}
-                    columns={columnsProductCategory}
-                    loading={false}
-                    dataSource={[]}
-                  />
                 </Col>
               </>
             }
           </Row>
         </Card>
       </Col>
+      {/* left side */}
       <Col span={6}>
+        {/* Thời gian áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -367,30 +496,27 @@ const GeneralCreate = (props: any) => {
                   placeholder={["Từ ngày", "Đến ngày"]}
                   style={{width: "100%"}}
                 />
-
               </Form.Item>
-              <Space direction="horizontal">
-                <Switch onChange={value => {
-                  setDisabledEndDate(value);
-                  if (value) {
-                    form.setFieldsValue({
-                      prerequisite_duration: [form.getFieldsValue()['prerequisite_duration']?.[0], null]
-                    })
-                  }
-                }}/>
-                {"Không cần ngày kết thúc"}
-              </Space>
-              <Divider/>
-              <Space direction="horizontal">
-                <Checkbox
-                  defaultChecked={false}
-                  onChange={(value) => setShowTimeAdvance(value.target.checked)}
-                  style={{paddingBottom: "20px"}}
-                >
-                  Hiển thị nâng cao
-                </Checkbox>
-              </Space>
             </Col>
+            <Space direction="horizontal">
+              <Switch onChange={value => {
+                setDisabledEndDate(value);
+                if (value) {
+                  form.resetFields(['prerequisite_duration'])
+                }
+              }}/>
+              {"Không cần ngày kết thúc"}
+            </Space>
+            <Divider/>
+            <Space direction="horizontal">
+              <Checkbox
+                defaultChecked={false}
+                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
+                style={{paddingBottom: "20px"}}
+              >
+                Hiển thị nâng cao
+              </Checkbox>
+            </Space>
           </Row>
           {showTimeAdvance ? <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -431,6 +557,7 @@ const GeneralCreate = (props: any) => {
             </Col>
           </Row> : null}
         </Card>
+        {/* Cửa hàng áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -440,21 +567,23 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
                 <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
-                  <Option value="CH1">Cửa hàng 1</Option>
-                  <Option value="CH2">Cửa hàng 2</Option>
-                  <Option value="CH3">Cửa hàng 3</Option>
+                  {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
-                  setAllStore(value)
+                  form.setFieldsValue({
+                    prerequisite_store_ids: undefined
+                  });
                   form.validateFields(['prerequisite_store_ids'])
+                  setAllStore(value)
                 }}/>
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
           </Row>
         </Card>
+        {/* Kênh bán hàng áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -479,6 +608,7 @@ const GeneralCreate = (props: any) => {
             </Col>
           </Row>
         </Card>
+        {/* Nguồn đơn hàng áp dụng: */}
         <Card>
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
@@ -488,14 +618,15 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
                 <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
-                  <Option value="LAZADA">LAZADA</Option>
-                  <Option value="SHOPEE">SHOPEE</Option>
-                  <Option value="SENDO">SENDO</Option>
+                  {listSource?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
                   form.validateFields(['prerequisite_order_sources_ids'])
+                  form.setFieldsValue({
+                    prerequisite_order_sources_ids: undefined
+                  })
                   setAllSource(value)
                 }}/>
                 {"Áp dụng toàn bộ"}

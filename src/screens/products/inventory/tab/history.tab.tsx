@@ -2,9 +2,10 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
 import { inventoryGetHistoryAction } from "domain/actions/inventory/inventory.action";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -90,82 +91,108 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
         return type;
     }
   };
-
+  const [selected, setSelected] = useState<Array<HistoryInventoryResponse>>([]);
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<HistoryInventoryResponse>>
-  >([
+  >([]);
+  const ActionComponent = useChangeHeaderToAction(
+    "Sản phẩm",
+    selected.length > 0,
+    () => {},
+    []
+  );
+  const defaultColumns: Array<ICustomTableColumType<HistoryInventoryResponse>> = [
     {
       width: 300,
-      title: 'Sản phẩm',
+      title: <ActionComponent />,
       visible: true,
-      dataIndex: 'sku',
-      fixed: 'left',
+      dataIndex: "sku",
+      fixed: "left",
       render: (value, record, index) => (
         <div>
-          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
+          <Link
+            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+          >
+            {value}
+          </Link>
           <div>{record.name}</div>
         </div>
-      )
+      ),
     },
     {
-      title: 'Mã chứng từ',
+      title: "Mã chứng từ",
       visible: true,
-      dataIndex: 'code',
+      dataIndex: "code",
       render: (value, record: HistoryInventoryResponse) => {
-        let id = record.parent_document_id
+        let id = record.parent_document_id;
         if (record.document_type === DocumentType.RETURN_ORDER) {
           id = record.document_id;
         }
 
         return (
           <div>
-            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>{value}</Link>
+            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>
+              {value}
+            </Link>
           </div>
-        )
-      }
+        );
+      },
     },
     {
-      title: 'Thao tác',
+      title: "Thao tác",
       visible: true,
-      dataIndex: 'action'
+      dataIndex: "action",
     },
     {
-      align: 'center',
-      title: 'Thời gian',
+      align: "center",
+      title: "Thời gian",
       visible: true,
-      dataIndex: 'created_date',
-      render: (value) => ConvertUtcToLocalDate(value)
+      dataIndex: "created_date",
+      render: (value) => ConvertUtcToLocalDate(value),
     },
     {
-      align: 'right',
-      title: 'SL thay đổi',
+      align: "right",
+      title: "SL thay đổi",
       visible: true,
-      dataIndex: 'quantity',
-      render: (value) => parseInt(value) > 0 ? `+${value}` : value
+      dataIndex: "quantity",
+      render: (value) => (parseInt(value) > 0 ? `+${value}` : value),
     },
     {
-      align: 'right',
-      title: 'Tồn trong kho',
+      align: "right",
+      title: "Tồn trong kho",
       visible: true,
-      dataIndex: 'on_hand',
+      dataIndex: "on_hand",
     },
     {
-      align: 'center',
-      title: 'Kho hàng',
+      align: "center",
+      title: "Kho hàng",
       visible: true,
-      dataIndex: 'store',
+      dataIndex: "store",
     },
     {
-      align: 'center',
-      title: 'Người sửa',
+      align: "center",
+      title: "Người sửa",
       visible: true,
-      dataIndex: 'updated_name',
+      dataIndex: "updated_name",
     },
-  ]);
+  ];
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  
+  const onSelect = useCallback((selectedRow: Array<HistoryInventoryResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+  
+  useLayoutEffect(() => {
+    setColumn(defaultColumns);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected])
   useEffect(() => {
     dispatch(inventoryGetHistoryAction(params, onResult));
   }, [dispatch, onResult, params])
@@ -195,6 +222,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
           onShowSizeChange: onPageChange,
         }}
         rowKey={(data) => data.id}
+        onSelectedChange={onSelect}
       />
       <ModalSettingColumn
         visible={showSettingColumn}
