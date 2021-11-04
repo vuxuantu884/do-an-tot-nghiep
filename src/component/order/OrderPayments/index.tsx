@@ -28,7 +28,7 @@ type PropType = {
  *
  * setPayments: xử lý khi điền payment
  *
- * loyaltyRate: điểm loyalty
+ * loyaltyRate:  loyalty
  *
  * totalAmountOrder: tiền đơn hàng
  *
@@ -51,8 +51,7 @@ function OrderPayments(props: PropType): JSX.Element {
   console.log("props222", props);
 
   const usageRate = useMemo(() => {
-    let usageRate =
-      loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
+    let usageRate = loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
     return usageRate;
   }, [loyaltyRate]);
 
@@ -126,18 +125,6 @@ function OrderPayments(props: PropType): JSX.Element {
       payments[index].paid_amount = amount;
     }
     setPayments([...payments]);
-  };
-
-  const calculateMax = (totalAmount: number, index: number) => {
-    let total = totalAmount;
-    for (let i = 0; i < index; i++) {
-      if (payments[i].code === PaymentMethodCode.POINT) {
-        total = total - payments[i].point! * 1000;
-      } else {
-        total = total - payments[i].amount;
-      }
-    }
-    return total;
   };
 
   const handleTransferReference = (index: number, value: string) => {
@@ -267,9 +254,7 @@ function OrderPayments(props: PropType): JSX.Element {
                         formatter={(value) => formatSuffixPoint(value ? value : "0")}
                         parser={(value) => replaceFormat(value ? value : "0")}
                         min={0}
-                        max={
-                          calculateMax(totalAmountCustomerNeedToPay, index) / usageRate
-                        }
+                        max={totalAmountOrder / usageRate}
                         onChange={(value) => {
                           handleInputPoint(index, value);
                         }}
