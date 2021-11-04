@@ -72,7 +72,7 @@ const GeneralInfo = (props: any) => {
                 name="title"
                 label={<b>Tên khuyến mại: </b>}
                 form={form}
-                message="Vui lòng nhập tên khuyến mại"
+                message="Cần nhập tên khuyến mại"
                 placeholder="Nhập tên khuyến mại"
                 isRequired={true}
                 maxLength={255}
@@ -83,10 +83,15 @@ const GeneralInfo = (props: any) => {
                 name="discount_code"
                 label={<b>Mã khuyến mại: </b>}
                 form={form}
-                message="Vui lòng nhập mã khuyến mại"
                 placeholder="Nhập mã khuyến mại"
                 maxLength={20}
                 upperCase={true}
+                restFormItem={{
+                  rules: [
+                    { required: true, message: 'Vui lòng nhập mã khuyến mại' },
+                    { pattern: /^DI([0-9])+$/, message: 'Mã khuyến mại sai định dạng' }
+                  ]
+                }}
               />
             </Col>
             <Col span={12}>
@@ -151,6 +156,7 @@ const GeneralInfo = (props: any) => {
                 label={<b>Mô tả: </b>}
                 form={form}
                 placeholder="Nhập mô tả cho khuyến mại"
+                maxLength={500}
               />
             </Col>
           </Row>
@@ -175,22 +181,25 @@ const GeneralInfo = (props: any) => {
       <Col span={6}>
         <Card>
           <Row gutter={6} style={{padding: "0px 16px"}}>
+            <Col span={24}>
+              <div className="ant-col ant-form-item-label" style={{width: '100%'}}>
+                <label htmlFor="discount_add_starts_date" className="ant-form-item-required">
+                  <b>Thời gian áp dụng:</b>
+                </label>
+              </div>
+            </Col>
+
             <Col span={12}>
               <Form.Item
                 name="starts_date"
-                label={<b>Thời gian áp dụng:</b>}
                 rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
               >
                 <DatePicker style={{width: "100%"}} placeholder="Từ ngày"/>
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="ends_date"
-                label=" "
-              >
+              <Form.Item name="ends_date">
                 <DatePicker style={{width: "100%"}} placeholder="Đến ngày"/>
-
               </Form.Item>
             </Col>
             <Space direction="horizontal">
@@ -285,7 +294,12 @@ const GeneralInfo = (props: any) => {
                 label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
-                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple">
+                <Select
+                  disabled={allChannel}
+                  placeholder="Chọn kênh bán hàng"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
                   <Option value="ADMIN">ADMIN</Option>
                   <Option value="POS">POS</Option>
                   <Option value="WEB">WEB</Option>

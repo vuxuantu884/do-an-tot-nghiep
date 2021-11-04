@@ -12,7 +12,7 @@ import {RiInformationLine} from "react-icons/ri";
 import {Link} from "react-router-dom";
 import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
-import {DeleteOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 
 const Option = Select.Option;
 const discountTypes = [
@@ -163,13 +163,14 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Input.Group compact>
+          <Input.Group compact style={{display: 'flex'}}>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
+              style={{flex: '1 1 auto'}}
             >
               <NumberInput
-                style={{textAlign: 'end', borderRadius: '0px', width: "300px"}}
+                style={{textAlign: 'end', borderRadius: '0px'}}
                 min={0}
                 maxLength={discountType === 'PERCENTAGE' ? 2 : 9}
               />
@@ -204,6 +205,7 @@ const FixedPriceGroup = (props: any) => {
               ref={productSearchRef}
             />
             <Button
+              icon={<PlusOutlined/>}
               onClick={() => setVisibleManyProduct(true)}
               style={{width: 132, marginLeft: 10}}
             >

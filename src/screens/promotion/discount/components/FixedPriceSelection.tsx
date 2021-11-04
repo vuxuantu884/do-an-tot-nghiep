@@ -21,6 +21,12 @@ const FixedPriceSelection = (props: any) => {
         name="entitlements"
       >
         {(fields, {add, remove}, {errors}) => {
+          // if (Array.isArray(fields) && fields.length >= 2) {
+          //   const last = fields[fields.length - 1]
+          //   fields.pop();
+          //   fields.unshift(last);
+          // }
+
           return (
             <>
               <Row>
@@ -53,8 +59,9 @@ const FixedPriceSelection = (props: any) => {
                   </Row>
                 </Col>
               </Row>
+
               {
-                fields.map(({key, name, fieldKey, ...restField}) => {
+                fields.reverse().map(({key, name, fieldKey, ...restField}) => {
                   return(
                     <FixedPriceGroup
                       key={key}
