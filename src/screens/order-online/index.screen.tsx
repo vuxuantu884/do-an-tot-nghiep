@@ -12,7 +12,7 @@ import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -40,7 +40,7 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { delivery_service } from "./common/delivery-service";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
@@ -131,6 +131,18 @@ const ListOrderScreen: React.FC = () => {
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
+
+  let deliveryServices: any[] = []
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        deliveryServices = response
+        // setDeliveryServices(response);
+      })
+    );
+  }, [dispatch]);
+
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -290,7 +302,7 @@ const ListOrderScreen: React.FC = () => {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
               case "external_service":
                 const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
-                const service = delivery_service.find((service) => service.id === service_id);
+                const service = deliveryServices.find((service) => service.id === service_id);
                 return (
                   service && (
                     <img
@@ -885,7 +897,7 @@ const ListOrderScreen: React.FC = () => {
             listSource={listSource}
             listStore={listStore}
             accounts={accounts}
-            deliveryService={delivery_service}
+            deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}

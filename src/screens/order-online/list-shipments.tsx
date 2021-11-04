@@ -23,6 +23,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {
+  DeliveryServicesGetList,
   getListReasonRequest,
   getShipmentsAction,
 } from "domain/actions/order/order.action";
@@ -34,7 +35,6 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import { delivery_service } from "./common/delivery-service";
 import ShipmentDetailsModal from "./modal/shipment-details.modal";
 import { StyledComponent } from "./list-shipments.styles";
 import { exportFile, getFile } from "service/other/export.service";
@@ -42,6 +42,7 @@ import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 
 const actions: Array<MenuAction> = [
   {
@@ -117,7 +118,16 @@ const ListOrderScreen: React.FC = () => {
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
     []
   );
-
+  let deliveryServices: any[] = []
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        deliveryServices = response
+        // setDeliveryServices(response);
+      })
+    );
+  }, [dispatch]);
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,
@@ -253,7 +263,11 @@ const ListOrderScreen: React.FC = () => {
         switch (record.shipment?.delivery_service_provider_type) {
           case "external_service":
             const service_id = record.shipment.delivery_service_provider_id;
-            const service = delivery_service.find((service) => service.id === service_id);
+            console.log('deliveryServices', deliveryServices);
+            
+            const service = deliveryServices.find((service) => service.id === service_id);
+            console.log('service', service);
+            
             return (
               service && (
                 <img
@@ -617,7 +631,7 @@ const ListOrderScreen: React.FC = () => {
             listStore={listStore}
             accounts={accounts}
             reasons={reasons}
-            deliveryService={delivery_service}
+            deliveryService={deliveryServices}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
           />
