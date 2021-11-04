@@ -2,5 +2,6 @@ export interface BaseQuery {
   page?: number,
   limit?: number,
   sort_column?: string, 
-  sort_type?: string
+  sort_type?: string,
+  customer_id?: number | null,
 }
