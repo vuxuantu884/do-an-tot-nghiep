@@ -55,7 +55,7 @@ const InventoryAdjustmentTimeLine: React.FC<StepStatusProps> = (props: StepStatu
         progressDot={progressDot}
         size="small"
         current={currentStep}
-        className="time-line"
+        className="create-bill-step"
       >
         <Steps.Step
           title="Kế hoạch"
@@ -68,7 +68,7 @@ const InventoryAdjustmentTimeLine: React.FC<StepStatusProps> = (props: StepStatu
         <Steps.Step
           title="Đã cân tồn"
           description={stradjusted_date}
-        />
+        /> 
       </Steps>
   );
 };

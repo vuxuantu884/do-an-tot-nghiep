@@ -5,8 +5,7 @@ import { useDispatch } from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
 import { InventoryAdjustmentDetailItem, InventoryAdjustmentSearchQuery } from "model/inventoryadjustment";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { PageResponse } from "model/base/base-metadata.response";
-import { VariantResponse } from "model/product/product.model";
+import { PageResponse } from "model/base/base-metadata.response"; 
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Tag, Space, Card } from "antd";
@@ -55,11 +54,7 @@ const actions: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.PRINT,
     name: "In phiếu",
-  }, 
-  {
-    id: ACTIONS_INDEX.ADJUSTMENT,
-    name: "Cân tồn kho",
-  },
+  },  
 ];
 
 const InventoryAdjustment: React.FC = () => {
@@ -68,7 +63,7 @@ const InventoryAdjustment: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
-  const [tableLoading, setTableLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [selected, setSelected] = useState<Array<InventoryAdjustmentDetailItem>>([]);
@@ -126,7 +121,7 @@ const InventoryAdjustment: React.FC = () => {
     return <Compoment />;
   };
 
-  const defaultColumns : Array<ICustomTableColumType<InventoryAdjustmentDetailItem>> =[
+  const defaultColumns : Array<ICustomTableColumType<InventoryAdjustmentDetailItem>> = [
     {
       title: <ActionComponent />,
       dataIndex: "code",
@@ -290,8 +285,8 @@ const InventoryAdjustment: React.FC = () => {
     (result: PageResponse<Array<InventoryAdjustmentDetailItem>> | false) => {
       setTableLoading(true);
       if (!!result) {
-        setTableLoading(false);
         setData(result);
+        setTableLoading(false);
       }
     },
     []

@@ -16,6 +16,7 @@ import {
 } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
+  DeliveryServicesGetList,
   orderCreateAction,
   OrderDetailAction,
 } from "domain/actions/order/order.action";
@@ -43,6 +44,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  DeliveryServiceResponse,
   FulFillmentResponse,
   OrderConfig,
   OrderResponse,
@@ -98,6 +100,7 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -578,6 +581,11 @@ export default function Order() {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
   }, [dispatch, setDataAccounts]);
 
   //windows offset
@@ -1138,6 +1146,7 @@ export default function Order() {
                       setHvcName={setHvcName}
                       setHvcCode={setHvcCode}
                       setFee={setFee}
+                      deliveryServices={deliveryServices}
                       payments={payments}
                       onPayments={onPayments}
                       fulfillments={fulfillments}

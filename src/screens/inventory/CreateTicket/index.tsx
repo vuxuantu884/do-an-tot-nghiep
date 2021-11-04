@@ -779,6 +779,9 @@ const CreateTicket: FC = () => {
                       textAdd="Thêm mới sản phẩm"
                       onSelect={onSelectProduct}
                       options={renderResult}
+                      onClickAddNew={() => {
+                        window.open(`${UrlConfig.PRODUCT}/create`, "_blank");
+                      }}
                       ref={productSearchRef}
                     />
                     <Button

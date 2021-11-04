@@ -9,7 +9,6 @@ import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
 import FixedPriceSelection from "./FixedPriceSelection";
 
-const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
 
@@ -22,25 +21,25 @@ const GeneralInfo = (props: any) => {
     // customerAdvanceMsg
   } = props;
 
-  const [showTimeAdvance, setShowTimeAdvance] = useState(false)
+  const [showTimeAdvance] = useState(false)
   // const [showCustomerAdvance, setShowCustomerAdvance] = useState(false)
   const [allStore, setAllStore] = useState(false)
   const [allChannel, setAllChannel] = useState(false)
   const [allSource, setAllSource] = useState(false)
-  const [allCustomer, setAllCustomer] = useState(false)
+  const [allCustomer] = useState(false)
   const [unlimitedUsage, setUnlimitedUsage] = useState(false)
-  const [disabledEndDate, setDisabledEndDate] = useState(false)
+  // const [disabledEndDate, setDisabledEndDate] = useState(false)
   const [discountMethod, setDiscountMethod] = useState('FIXED_PRICE')
 
   useMemo(() => {
     form.setFieldsValue({
       customer_selection: allCustomer
     })
-  }, [allCustomer])
+  }, [allCustomer, form])
 
   useEffect(() => {
     form.resetFields(['entitlements'])
-  }, [discountMethod])
+  }, [discountMethod, form])
 
   const getDays = () => {
     let days = [];
@@ -204,7 +203,6 @@ const GeneralInfo = (props: any) => {
             </Col>
             <Space direction="horizontal">
               <Switch onChange={value => {
-                setDisabledEndDate(value);
                 if (value) {
                   form.resetFields(['prerequisite_duration'])
                 }

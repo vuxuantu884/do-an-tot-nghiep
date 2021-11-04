@@ -15,6 +15,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  DeliveryServiceResponse,
   // DeliveryServiceResponse,
   FulFillmentResponse,
   OrderResponse,
@@ -60,6 +61,7 @@ type CardShipmentProps = {
   discountValue: number | null;
   officeTime: boolean | undefined;
   setFee: (value: number) => void;
+  deliveryServices: DeliveryServiceResponse[];
   OrderDetail?: OrderResponse | null;
   payments?: OrderPaymentRequest[];
   onPayments: (value: Array<OrderPaymentRequest>) => void;
@@ -81,6 +83,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
     setServiceType,
     setServiceName,
     setFee,
+    deliveryServices,
     customerInfo,
     amount,
     totalPaid,
@@ -384,7 +387,7 @@ const CardShipment: React.FC<CardShipmentProps> = (props: CardShipmentProps) => 
                 totalPaid={totalPaid}
                 serviceType={serviceType}
                 changeServiceType={changeServiceType}
-                // deliveryServices={deliveryServices}
+                deliveryServices={deliveryServices}
                 discountValue={discountValue}
                 infoFees={infoFees}
                 setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
