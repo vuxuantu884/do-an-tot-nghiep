@@ -1325,7 +1325,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Panel>
                       </Collapse>
                     </Row>
-                    {CheckShipmentType(props.OrderDetail!) === "external_service" &&
+                    {(CheckShipmentType(props.OrderDetail!) === "external_service" ||
+                      CheckShipmentType(props.OrderDetail!) === "shopee") &&
                       fulfillment.status !== FulFillmentStatus.CANCELLED &&
                       fulfillment.status !== FulFillmentStatus.RETURNING &&
                       fulfillment.status !== FulFillmentStatus.RETURNED && (
