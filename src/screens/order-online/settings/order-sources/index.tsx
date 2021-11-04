@@ -1,5 +1,5 @@
-import {PlusOutlined} from "@ant-design/icons";
-import {Button, Card, Form, Input, Select} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Input, Select, TreeSelect } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
@@ -7,45 +7,45 @@ import FormOrderSource from "component/forms/FormOrderSource";
 import FormOrderSourceChannel from "component/forms/FormOrderSourceChannel";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {HttpStatus} from "config/http-status.config";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   actionAddOrderSource,
   actionDeleteOrderSource,
   actionEditOrderSource,
-  actionFetchListOrderSources,
+  actionFetchListOrderSources
 } from "domain/actions/settings/order-sources.action";
-import {DepartmentResponse} from "model/account/department.model";
-import {modalActionType} from "model/modal/modal.model";
+import { DepartmentResponse } from "model/account/department.model";
+import { modalActionType } from "model/modal/modal.model";
 import {
   ChannelModel,
   ChannelTypeModel,
   OrderSourceModel,
-  OrderSourceResponseModel,
+  OrderSourceResponseModel
 } from "model/response/order/order-source.response";
-import {ChannelResponse} from "model/response/product/channel.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import queryString from "query-string";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {withRouter} from "react-router";
-import {useHistory} from "react-router-dom";
-import {getDepartmentAllApi} from "service/accounts/account.service";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { withRouter } from "react-router";
+import { useHistory } from "react-router-dom";
+import { getDepartmentAllApi } from "service/accounts/account.service";
 import {
   createChannelService,
   deleteChannelService,
   deleteMultiOrderSourceService,
   editChannelService,
   getChannelApi,
-  getChannelTypeApi,
+  getChannelTypeApi
 } from "service/order/order.service";
-import {generateQuery} from "utils/AppUtils";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { generateQuery } from "utils/AppUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type formValuesType = {
   name: string | undefined;
@@ -91,6 +91,38 @@ function OrderSources(props: PropsType) {
   const [listDepartments, setListDepartments] = useState<DepartmentResponse[]>([]);
   const [listChannels, setListChannels] = useState<ChannelResponse[]>([]);
   const [listChannelTypes, setListChannelTypes] = useState<ChannelTypeModel[]>([]);
+
+  /**
+  * thay tên của children thành tên con + tên cha
+  */
+  function renameChildrenInArrayDepartment(array: DepartmentResponse[]) {
+    return array.map(({children, parent_id, name, ...rest}) => {
+      if (Array.isArray(children) && children.length > 0) {
+        children = renameChildrenInArrayDepartment(children);
+      }
+      // check parent_id > 0 thì là có children -> thay tên
+       if (parent_id > 0) {
+        return {
+          children,
+          parent_id,
+          name: `${rest.parent} - ${name} `,
+          ...rest,
+        };
+      } else {
+        return {
+          children,
+          parent_id,
+          name,
+          ...rest,
+        };
+      }
+    });
+  }
+
+  let listDepartmentFormatted = renameChildrenInArrayDepartment(listDepartments);
+
+  // console.log('listDepartments', listDepartments);
+  // console.log('listDepartmentFormatted', listDepartmentFormatted);
 
   const columns: ICustomTableColumType<any>[] = [
     {
@@ -403,7 +435,7 @@ function OrderSources(props: PropsType) {
           }
         })
         .catch((error) => {
-          console.log('error', error)
+          console.log("error", error);
         })
         .finally(() => {
           hideLoading();
@@ -426,7 +458,7 @@ function OrderSources(props: PropsType) {
             }
           })
           .catch((error) => {
-            console.log('error', error)
+            console.log("error", error);
           })
           .finally(() => {
             hideLoading();
@@ -450,7 +482,7 @@ function OrderSources(props: PropsType) {
             }
           })
           .catch((error) => {
-            console.log('error', error)
+            console.log("error", error);
           })
           .finally(() => {
             hideLoading();
@@ -589,13 +621,13 @@ function OrderSources(props: PropsType) {
               layout="inline"
               form={form}
             >
-              <Form.Item name="name" style={{width: 430, maxWidth: "100%"}}>
+              <Form.Item name="name" style={{width: "40%", maxWidth: "100%"}}>
                 <Input
                   prefix={<img src={search} alt="" />}
                   placeholder="Tên kênh/nguồn"
                 />
               </Form.Item>
-              <Form.Item name="channel_id" style={{width: 180, maxWidth: "100%"}}>
+              <Form.Item name="channel_id" style={{width: "20%", maxWidth: "100%"}}>
                 <Select
                   showSearch
                   allowClear
@@ -617,8 +649,8 @@ function OrderSources(props: PropsType) {
                     })}
                 </Select>
               </Form.Item>
-              <Form.Item name="department_id" style={{width: 180, maxWidth: "100%"}}>
-                <Select
+              <Form.Item name="department_id" style={{width: "20%", maxWidth: "100%"}}>
+                {/* <Select
                   showSearch
                   allowClear
                   style={{width: "100%"}}
@@ -637,7 +669,18 @@ function OrderSources(props: PropsType) {
                         </Select.Option>
                       );
                     })}
-                </Select>
+                </Select> */}
+                <TreeSelect
+                  placeholder="Chọn phòng ban/Bộ phận"
+                  treeDefaultExpandAll
+                  className="selector"
+                  allowClear
+                  showSearch
+                >
+                  {listDepartmentFormatted.map((item, index) => (
+                    <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                  ))}
+                </TreeSelect>
               </Form.Item>
               <Form.Item style={{marginRight: 0}}>
                 <Button type="primary" htmlType="submit">
@@ -726,5 +769,19 @@ function OrderSources(props: PropsType) {
     </StyledComponent>
   );
 }
+
+const TreeDepartment = (item: DepartmentResponse) => {
+  return (
+    <TreeSelect.TreeNode value={item.id} title={item.name}>
+      {item.children.length > 0 && (
+        <React.Fragment>
+          {item.children.map((item, index) => (
+            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+          ))}
+        </React.Fragment>
+      )}
+    </TreeSelect.TreeNode>
+  );
+};
 
 export default withRouter(OrderSources);
