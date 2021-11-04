@@ -1,3 +1,4 @@
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { Card, Switch, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
@@ -31,12 +32,14 @@ import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 const actions: Array<MenuAction> = [
   {
-    id: 1,
-    name: "Xóa",
+    id:1,
+    name: "Export",
+    icon:<ExportOutlined />
   },
   {
     id: 2,
-    name: "Export",
+    name: "Xóa",
+    icon:<DeleteOutlined />
   },
 ];
 
