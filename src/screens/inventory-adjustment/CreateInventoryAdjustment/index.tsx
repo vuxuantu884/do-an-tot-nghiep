@@ -3,7 +3,6 @@ import {StyledWrapper} from "./styles";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {Button, Card, Col, Form, Input, Row, Select, Space, Upload, Empty} from "antd";
-
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -25,18 +24,13 @@ import {
 } from "model/inventoryadjustment";
 
 import {PageResponse} from "model/base/base-metadata.response";
-import {
-  VariantImage,
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import {VariantImage, VariantResponse} from "model/product/product.model";
 import PickManyProductModal from "../../purchase-order/modal/pick-many-product.modal";
 import ProductItem from "../../purchase-order/component/product-item";
 import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import {UploadRequestOption} from "rc-upload/lib/interface";
 import {UploadFile} from "antd/es/upload/interface";
 import {findAvatar} from "utils/AppUtils";
-import RowDetail from "screens/products/product/component/RowDetail";
 import {useHistory} from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
 import {ConvertFullAddress} from "utils/ConvertAddress";
@@ -53,8 +47,6 @@ import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "../constants";
 import CustomPagination from "component/table/CustomPagination";
 import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
-import {type} from "os";
-import {color} from "html2canvas/dist/types/css/types/color";
 
 const {Option} = Select;
 
@@ -79,7 +71,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
-  const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
+  const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment>>(
     [] as Array<LineItemAdjustment>
   );
   const [keySearch, setKeySearch] = useState<string>("");
@@ -134,45 +126,13 @@ const CreateInventoryAdjustment: FC = () => {
 
   const dispatch = useDispatch();
 
-  const onRealQuantityChange = (quantity: number | null, index: number) => {
-    let dataEdit =
-      (searchVariant && searchVariant.length > 0) || keySearch !== ""
-        ? [...searchVariant]
-        : [...dataTable];
-    quantity = quantity ?? 0;
-    const dataTableClone = _.cloneDeep(dataEdit);
-    dataTableClone[index].real_on_hand = quantity;
-    dataTableClone[index].variant_id = dataTableClone[index].id;
-    dataTableClone[index].variant_name = dataTableClone[index].name;
-    let totalDiff = 0;
-    totalDiff = quantity - dataTableClone[index].on_hand;
-    if (totalDiff === 0) {
-      dataTableClone[index].on_hand_adj = null;
-      dataTableClone[index].on_hand_adj_dis = null;
-    } else if (dataTableClone[index].on_hand < quantity) {
-      dataTableClone[index].on_hand_adj = totalDiff;
-      dataTableClone[index].on_hand_adj_dis = `+${totalDiff}`;
-    } else if (dataTableClone[index].on_hand > quantity) {
-      dataTableClone[index].on_hand_adj = totalDiff;
-      dataTableClone[index].on_hand_adj_dis = `${totalDiff}`;
-    }
-
-    form.setFieldsValue({[VARIANTS_FIELD]: dataTableClone});
-
-    if (searchVariant && (searchVariant.length > 0 || keySearch !== "")) {
-      setSearchVariant(dataTableClone);
-    } else {
-      setDataTable(dataTableClone);
-    }
-    drawColumns(dataTableClone);
-  };
-
   const onFinish = (data: InventoryAdjustmentDetailItem) => {
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
+
     if (dataLineItems.length === 0) {
       showError("Vui lòng chọn sản phẩm");
       return;
@@ -199,6 +159,7 @@ const CreateInventoryAdjustment: FC = () => {
         on_hand_adj: item.on_hand_adj,
       };
     });
+
     setIsLoading(true);
     dispatch(createInventoryAdjustmentAction(data, createCallback));
   };
@@ -213,54 +174,7 @@ const CreateInventoryAdjustment: FC = () => {
 
       setAuditType(auditType);
     },
-    [auditType, form]
-  );
-
-  const onEnterFilterVariant = useCallback(
-    (lst: Array<LineItemAdjustment> | null) => {
-      let temps = lst ? lst : dataTable;
-      let key = keySearch.toLocaleLowerCase();
-      let dataSearch = [
-        ...temps.filter((e: LineItemAdjustment) => {
-          return (
-            e.on_hand === parseInt(key) ||
-            e.variant_name?.toLocaleLowerCase().includes(key) ||
-            e.sku?.toLocaleLowerCase().includes(key) ||
-            e.code?.toLocaleLowerCase().includes(key) ||
-            e.barcode?.toLocaleLowerCase().includes(key)
-          );
-        }),
-      ];
-
-      setSearchVariant(dataSearch);
-    },
-    [keySearch, dataTable]
-  );
-
-  const onDeleteItem = useCallback(
-    (variantId: number) => {
-      // delete row
-      const temps = [...dataTable];
-      temps.forEach((row, index, array) => {
-        if (row.id === variantId) {
-          array.splice(index, 1);
-        }
-      });
-
-      setDataTable(temps);
-      onEnterFilterVariant(temps);
-      drawColumns(temps);
-      //delete row in form data
-      let variantField = form.getFieldValue(VARIANTS_FIELD);
-      variantField?.forEach(
-        (row: VariantResponse, index: number, array: VariantResponse[]) => {
-          if (row.id === variantId) {
-            array.splice(index, 1);
-          }
-        }
-      );
-    },
-    [keySearch, dataTable, searchVariant]
+    [form]
   );
 
   // get store
@@ -274,7 +188,7 @@ const CreateInventoryAdjustment: FC = () => {
     }
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
-  }, [dispatch, auditType, setDataAccounts, query]);
+  }, [dispatch, auditType, setDataAccounts, query, form]);
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
@@ -318,8 +232,10 @@ const CreateInventoryAdjustment: FC = () => {
       (variant: VariantResponse) => variant.id.toString() === value
     );
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      setDataTable((prev: any) => prev.concat([selectedItem]));
-      setSearchVariant((prev: any) => prev.concat([selectedItem]));
+      setDataTable((prev: Array<InventoryAdjustmentDetailItem>) =>
+        prev.concat([selectedItem])
+      );
+      setSearchVariant((prev: Array<LineItemAdjustment>) => prev.concat([selectedItem]));
       setHasError(false);
     }
   };
@@ -510,7 +426,7 @@ const CreateInventoryAdjustment: FC = () => {
       dataIndex: "real_on_hand",
       align: "center",
       width: 120,
-      render: (value, row, index: number) => {
+      render: (value, row: LineItemAdjustment, index: number) => {
         return (
           <NumberInput
             isFloat={false}
@@ -518,7 +434,7 @@ const CreateInventoryAdjustment: FC = () => {
             min={0}
             value={value ? value : 0}
             onChange={(quantity) => {
-              onRealQuantityChange(quantity, index);
+              onRealQuantityChange(quantity, row, index);
             }}
           />
         );
@@ -576,40 +492,124 @@ const CreateInventoryAdjustment: FC = () => {
         />
       ),
     },
-  ];
+  ]; 
 
-  const [columns, setColumn] =
-    useState<Array<ICustomTableColumType<any>>>(defaultColumns);
+  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
 
-  const drawColumns = useCallback(
-    (data: Array<LineItemAdjustment> | any) => {
-      let totalExcess = 0,
-        totalMiss = 0,
-        totalQuantity = 0,
-        totalReal = 0;
-      data.forEach((element: LineItemAdjustment) => {
-        totalQuantity += element.on_hand;
-        totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-        if (element.on_hand_adj > 0) {
-          totalExcess += element.on_hand_adj;
-        }
-        if (element.on_hand_adj < 0) {
-          totalMiss += -element.on_hand_adj;
-        }
-      });
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
 
-      setObjSummaryTable({
-        TotalOnHand: totalQuantity,
-        TotalExcess: totalExcess,
-        TotalMiss: totalMiss,
-        TotalRealOnHand: totalReal,
-      });
+  const onEnterFilterVariant = useCallback(
+    (lst: Array<LineItemAdjustment> | null) => {
+      let temps = lst ? [...lst] : [...dataTable];
+      let key = keySearch.toLocaleLowerCase();
+      let dataSearch = [
+        ...temps.filter((e: LineItemAdjustment) => {
+          return (
+            e.on_hand === parseInt(key) ||
+            e.variant_name?.toLocaleLowerCase().includes(key) ||
+            e.sku?.toLocaleLowerCase().includes(key) ||
+            e.code?.toLocaleLowerCase().includes(key) ||
+            e.barcode?.toLocaleLowerCase().includes(key)
+          );
+        }),
+      ];
+
+      setSearchVariant(dataSearch);
+      drawColumns(dataSearch);
     },
-    [dataTable]
+    [keySearch, dataTable, drawColumns]
   );
 
-  useEffect(() => {
-    setColumn(defaultColumns);
+  const onDeleteItem = useCallback(
+    (variantId: number) => {
+      // delete row
+      const temps = [...dataTable];
+      temps.forEach((row, index, array) => {
+        if (row.id === variantId) {
+          array.splice(index, 1);
+        }
+      });
+
+      setDataTable(temps);
+      onEnterFilterVariant(temps);
+      drawColumns(temps);
+      //delete row in form data
+      let variantField = form.getFieldValue(VARIANTS_FIELD);
+      variantField?.forEach(
+        (row: VariantResponse, index: number, array: VariantResponse[]) => {
+          if (row.id === variantId) {
+            array.splice(index, 1);
+          }
+        }
+      );
+    },
+    [dataTable, onEnterFilterVariant, drawColumns, form]
+  );
+
+  const onRealQuantityChange = useCallback(
+    (quantity: number | null, row: LineItemAdjustment, index: number) => {
+
+      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
+
+      dataTableClone.forEach((item) => {
+        quantity = quantity ?? 0;
+
+        if (item.id === row.id) {
+          item.real_on_hand = quantity;
+          item.variant_id = item.id;
+          item.variant_name = item.name;
+          let totalDiff = 0;
+          totalDiff = quantity - item.on_hand;
+          if (totalDiff === 0) {
+            item.on_hand_adj = null;
+            item.on_hand_adj_dis = null;
+          } else if (item.on_hand < quantity) {
+            item.on_hand_adj = totalDiff;
+            item.on_hand_adj_dis = `+${totalDiff}`;
+          } else if (item.on_hand > quantity) {
+            item.on_hand_adj = totalDiff;
+            item.on_hand_adj_dis = `${totalDiff}`;
+          }
+        }
+      });
+
+      //for tìm sp sửa tồn thực tế
+      form.setFieldsValue({[VARIANTS_FIELD]: dataTableClone});
+      setDataTable(dataTableClone);
+      setSearchVariant(dataTableClone);
+
+      let dataEdit =
+        (searchVariant && searchVariant.length > 0) || keySearch !== ""
+          ? [...dataTableClone]
+          : null;
+
+      onEnterFilterVariant(dataEdit);
+    },
+    [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
+  );
+
+  useEffect(() => { 
     if (dataTable?.length === 0) {
       setHasError(true);
     }
@@ -874,7 +874,7 @@ const CreateInventoryAdjustment: FC = () => {
                       rowClassName="product-table-row"
                       tableLayout="fixed"
                       scroll={{y: 300}}
-                      columns={columns}
+                      columns={defaultColumns}
                       pagination={false}
                       loading={isLoadingTable}
                       dataSource={

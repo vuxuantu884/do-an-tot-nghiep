@@ -1,33 +1,37 @@
-import { useCallback, useEffect, useState } from "react";
-import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
-import { Col, Input, Row, Space, Table } from "antd";
+import {useCallback, useEffect, useState} from "react";
+import {
+  InventoryAdjustmentDetailItem,
+  LineItemAdjustment,
+} from "model/inventoryadjustment";
+import {Col, Input, Row, Space, Table} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
-import { ColumnsType } from "antd/es/table/interface";
-import { VariantResponse } from "model/product/product.model";
-import { useDispatch } from "react-redux";
+import {VariantResponse} from "model/product/product.model";
+import {useDispatch} from "react-redux";
 import _ from "lodash";
-import { updateItemOnlineInventoryAction } from "domain/actions/inventory/inventory-adjustment.action";
-import { showSuccess } from "utils/ToastUtils";
-import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
-import { SearchOutlined } from "@ant-design/icons";
-import { ICustomTableColumType } from "component/table/CustomTable";
-const { TextArea } = Input;
+import {updateItemOnlineInventoryAction} from "domain/actions/inventory/inventory-adjustment.action";
+import {showSuccess} from "utils/ToastUtils";
+import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
+import {SearchOutlined} from "@ant-design/icons";
+import {ICustomTableColumType} from "component/table/CustomTable";
+const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
-  data: InventoryAdjustmentDetailItem; 
+  data: InventoryAdjustmentDetailItem;
 };
 
-export interface Summary{
-  TotalExcess: number | 0,
-  TotalMiss: number | 0,
-  TotalOnHand: number | 0,
-  TotalRealOnHand: number | 0
+export interface Summary {
+  TotalExcess: number | 0;
+  TotalMiss: number | 0;
+  TotalOnHand: number | 0;
+  TotalRealOnHand: number | 0;
 }
 
-const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: propsInventoryAdjustment) => {
-  const [editReason, setEditReason] = useState<boolean | any>(false)
+const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
+  props: propsInventoryAdjustment
+) => {
+  const [editReason, setEditReason] = useState<boolean | any>(false);
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
@@ -38,36 +42,41 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: p
     TotalExcess: 0,
     TotalMiss: 0,
     TotalOnHand: 0,
-    TotalRealOnHand: 0
+    TotalRealOnHand: 0,
   });
 
   const [keySearch, setKeySearch] = useState<string | any>("");
 
   const dispatch = useDispatch();
-  const {
-    data,
-  } = props;
+  const {data} = props;
 
-  const onEnterFilterVariant = useCallback((lst: Array<LineItemAdjustment> | null) => {
-    let temps = lst ? lst : dataTable;
-    let key = keySearch.toLocaleLowerCase();
-    let dataSearch = [...temps.filter((e: LineItemAdjustment) => {
-      return e.on_hand === parseInt(key)
-        || e.variant_name?.toLocaleLowerCase().includes(key)
-        || e.sku?.toLocaleLowerCase().includes(key)
-        || e.code?.toLocaleLowerCase().includes(key)
-        || e.barcode?.toLocaleLowerCase().includes(key)
-    })];
+  const onEnterFilterVariant = useCallback(
+    (lst: Array<LineItemAdjustment> | null) => {
+      let temps = lst ? lst : dataTable;
+      let key = keySearch.toLocaleLowerCase();
+      let dataSearch = [
+        ...temps.filter((e: LineItemAdjustment) => {
+          return (
+            e.on_hand === parseInt(key) ||
+            e.variant_name?.toLocaleLowerCase().includes(key) ||
+            e.sku?.toLocaleLowerCase().includes(key) ||
+            e.code?.toLocaleLowerCase().includes(key) ||
+            e.barcode?.toLocaleLowerCase().includes(key)
+          );
+        }),
+      ];
 
-    setSearchVariant(dataSearch);
-  }, [keySearch, dataTable]); 
+      setSearchVariant(dataSearch);
+    },
+    [keySearch, dataTable]
+  );
 
   const onChangeReason = (value: string | null, index: number) => {
     let dataEdit =
-    (searchVariant && searchVariant.length > 0) || keySearch !== ""
-      ? [...searchVariant]
-      : [...dataTable];
-      
+      (searchVariant && searchVariant.length > 0) || keySearch !== ""
+        ? [...searchVariant]
+        : [...dataTable];
+
     const dataTableClone = _.cloneDeep(dataEdit);
     dataTableClone[index].note = value;
     setEditReason(true);
@@ -77,38 +86,42 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: p
     } else {
       setDataTable(dataTableClone);
     }
+  };
 
-  }
+  const drawColumns = useCallback(
+    (data: Array<LineItemAdjustment> | any) => {
+      let totalExcess = 0,
+        totalMiss = 0,
+        totalQuantity = 0,
+        totalReal = 0;
+      data.forEach((element: LineItemAdjustment) => {
+        totalQuantity += element.on_hand;
+        totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
+        let on_hand_adj = element.on_hand_adj ?? 0;
+        if (on_hand_adj > 0) {
+          totalExcess += on_hand_adj;
+        }
+        if (on_hand_adj < 0) {
+          totalMiss += -on_hand_adj;
+        }
+      });
 
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any)=>{
-    let totalExcess = 0, totalMiss = 0,
-      totalQuantity = 0, totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-      if (element.on_hand_adj > 0) {
-        totalExcess += element.on_hand_adj;
-      } if (element.on_hand_adj < 0) {
-        totalMiss += -element.on_hand_adj;
-      }
-    }); 
-
-
-  setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss, 
-      TotalRealOnHand: totalReal,
-  });
-},[dataTable]);
+      setObjSummaryTable({
+        TotalOnHand: totalQuantity,
+        TotalExcess: totalExcess,
+        TotalMiss: totalMiss,
+        TotalRealOnHand: totalReal,
+      });
+    },
+    []
+  );
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
       align: "center",
       width: "70px",
-      render: (value: string, record: VariantResponse, index: number) =>
-        index + 1,
+      render: (value: string, record: VariantResponse, index: number) => index + 1,
     },
     {
       title: "Ảnh",
@@ -146,63 +159,74 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: p
       ),
     },
     {
-      title: ()=>{
-        return <>
-         <div>Tồn trong kho</div>
-         <div>{objSummaryTable.TotalOnHand}</div>
-        </>
-     },
+      title: () => {
+        return (
+          <>
+            <div>Tồn trong kho</div>
+            <div>{objSummaryTable.TotalOnHand}</div>
+          </>
+        );
+      },
       width: 120,
-      align: "right",
+      align: "center",
       dataIndex: "on_hand",
       render: (value) => {
         return value || 0;
       },
     },
     {
-      title: ()=>{
-        return <>
-         <div>Tồn thực tế</div>
-         <div>{objSummaryTable.TotalRealOnHand}</div>
-        </>
-     },
+      title: () => {
+        return (
+          <>
+            <div>Tồn thực tế</div>
+            <div>{objSummaryTable.TotalRealOnHand}</div>
+          </>
+        );
+      },
       dataIndex: "real_on_hand",
-      align: "right",
+      align: "center",
       width: 110,
       render: (value) => {
         return value || 0;
       },
     },
     {
-      title: ()=>{
-        return <>
-         <div>Thừa/Thiếu</div>
-         <Row align="middle" justify="center">{
-                objSummaryTable.TotalExcess === 0 ? "" :
-                  <div style={{ color: '#27AE60' }}>
-                    +{objSummaryTable.TotalExcess}</div>
-              }
-              {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? <Space>/</Space> : ""}
-              {
-                objSummaryTable.TotalMiss === 0 ? "" :
-                  <div style={{ color: 'red' }}>
-                    -{objSummaryTable.TotalMiss}</div>
-           }</Row>
-        </>
+      title: () => {
+        return (
+          <>
+            <div>Thừa/Thiếu</div>
+            <Row align="middle" justify="center">
+              {objSummaryTable.TotalExcess === 0 ? (
+                ""
+              ) : (
+                <div style={{color: "#27AE60"}}>+{objSummaryTable.TotalExcess}</div>
+              )}
+              {objSummaryTable.TotalExcess && objSummaryTable.TotalMiss ? (
+                <Space>/</Space>
+              ) : (
+                ""
+              )}
+              {objSummaryTable.TotalMiss === 0 ? (
+                ""
+              ) : (
+                <div style={{color: "red"}}>-{objSummaryTable.TotalMiss}</div>
+              )}
+            </Row>
+          </>
+        );
       },
       align: "center",
       width: 200,
       render: (value, item, index: number) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
-          return null
+          return null;
         }
         if (item.on_hand_adj && item.on_hand_adj < 0) {
-          return <div style={{ color: 'red' }}>{item.on_hand_adj}</div>;
+          return <div style={{color: "red"}}>{item.on_hand_adj}</div>;
+        } else {
+          return <div style={{color: "green"}}>+{item.on_hand_adj}</div>;
         }
-        else {
-          return <div style={{ color: 'green' }}>+{item.on_hand_adj}</div>;
-        }
-      }
+      },
     },
     {
       title: "Lý do",
@@ -211,71 +235,85 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: p
       width: 200,
       render: (value: string, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED) {
-          return <TextArea
-            placeholder="Lý do lệch tồn"
-            id={`item-reason-${index}`}
-            value={value ? value : ""}
-            onChange={(e) => {
-              onChangeReason(e.target.value, index);
-            }}
-            onKeyPress={event => {
-              if (event.key === 'Enter') {
-                // event.preventDefault();
-                dispatch(updateItemOnlineInventoryAction(data?.id, dataTable[index], (result) => {
-                  showSuccess("Nhập lý do thành công.");
-                }));
-              }
-            }}
-            onBlur={(e) => {
-              if (editReason) {
-                dispatch(updateItemOnlineInventoryAction(data?.id, dataTable[index], (result) => {
-                  showSuccess("Nhập lý do thành công.");
-                }));
-                setEditReason(false);
-              }
-            }}
-          />
+          return (
+            <TextArea
+              placeholder="Lý do lệch tồn"
+              id={`item-reason-${index}`}
+              value={value ? value : ""}
+              onChange={(e) => {
+                onChangeReason(e.target.value, index);
+              }}
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  // event.preventDefault();
+                  dispatch(
+                    updateItemOnlineInventoryAction(
+                      data?.id,
+                      dataTable[index],
+                      (result) => {
+                        showSuccess("Nhập lý do thành công.");
+                      }
+                    )
+                  );
+                }
+              }}
+              onBlur={(e) => {
+                if (editReason) {
+                  dispatch(
+                    updateItemOnlineInventoryAction(
+                      data?.id,
+                      dataTable[index],
+                      (result) => {
+                        showSuccess("Nhập lý do thành công.");
+                      }
+                    )
+                  );
+                  setEditReason(false);
+                }
+              }}
+            />
+          );
         }
         return value || "";
       },
     },
-  ];
-
-  const [columns, setColumn] =
-  useState<Array<ICustomTableColumType<any>>>(defaultColumns);
+  ]; 
 
   useEffect(() => {
-    setColumn(defaultColumns);
-  }, [objSummaryTable,data]);
-
-  useEffect(() => {
-    let dataDis = data.line_items?.filter(e => e.on_hand_adj !== 0) || [];
+    let dataDis = data.line_items?.filter((e) => e.on_hand_adj !== 0) || [];
     setDataTable(dataDis);
     setSearchVariant(dataDis);
     drawColumns(dataDis);
-  }, [data]);
+  }, [data, drawColumns]);
 
   return (
     <>
       {/* Tìm kiếm */}
-      <Row style={{ marginTop: 8, paddingLeft: 0 }}>
+      <Row style={{marginTop: 8, paddingLeft: 0}}>
         <Col span={24}>
           <Input.Group className="display-flex">
-            <Input 
+            <Input
               value={keySearch}
               onChange={(e) => {
                 setKeySearch(e.target.value);
               }}
-              onKeyPress={event => {
-                if (event.key === 'Enter') {
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
                   event.preventDefault();
-                  onEnterFilterVariant(null)
+                  onEnterFilterVariant(null);
                 }
               }}
-              style={{ marginLeft: 8 }}
+              style={{marginLeft: 8}}
               placeholder="Tìm kiếm sản phẩm trong phiếu"
-              addonAfter={<SearchOutlined onClick={() => { onEnterFilterVariant(null) }} style={{ color: "#2A2A86" }} />}
-             />
+              addonAfter={
+                <SearchOutlined
+                  onClick={() => {
+                    onEnterFilterVariant(null);
+                  }}
+                  style={{color: "#2A2A86"}}
+                />
+              }
+            />
           </Input.Group>
         </Col>
       </Row>
@@ -284,11 +322,16 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (props: p
       <Table
         rowClassName="product-table-row"
         tableLayout="fixed"
-        style={{ paddingTop: 16 }}
-        scroll={{ y: 300 }}
+        style={{paddingTop: 16}}
+        scroll={{y: 300}}
         pagination={false}
-        columns={columns}
-        dataSource={(searchVariant && (searchVariant.length > 0 || (keySearch !== ""))) ? searchVariant : dataTable}  />
+        columns={defaultColumns}
+        dataSource={
+          searchVariant && (searchVariant.length > 0 || keySearch !== "")
+            ? searchVariant
+            : dataTable
+        }
+      />
     </>
   );
 };

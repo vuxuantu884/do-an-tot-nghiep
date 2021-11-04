@@ -47,9 +47,7 @@ const { Option } = Select;
 const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (props: InventoryAdjustmentFilterProps) => {
   const {
     params,
-    actions,
     isLoading,
-    onMenuClick,
     onClearFilter,
     onFilter,
     onShowColumnSetting,
@@ -113,13 +111,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
   }, []);
   const onCancelFilter = useCallback(() => {
     setVisible(false);
-  }, []);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+  }, []); 
 
   const [createDateClick, setCreateDateClick] = useState('');
   const [transferDateClick, setTransferDateClick] = useState(''); 

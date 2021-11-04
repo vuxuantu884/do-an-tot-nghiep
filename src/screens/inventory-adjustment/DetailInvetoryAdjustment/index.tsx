@@ -3,12 +3,11 @@ import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import UrlConfig from "config/url.config";
-import {Button, Card, Col, Row, Space, Table, Tag, Input, Tabs} from "antd";
+import {Button, Card, Col, Row, Space, Tag, Input, Tabs} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import {PaperClipOutlined, PrinterOutlined, SearchOutlined} from "@ant-design/icons";
-import {ColumnsType} from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import {useHistory, useParams} from "react-router";
@@ -53,6 +52,8 @@ import {AccountResponse} from "model/account/account.model";
 import {AccountSearchAction} from "domain/actions/account/account.action";
 import {StyledComponent} from "screens/products/product/component/RowDetail/style";
 import ModalConfirm from "component/modal/ModalConfirm";
+import {StoreResponse} from "model/core/store.model";
+import {ConvertFullAddress} from "utils/ConvertAddress";
 
 const {TabPane} = Tabs;
 
@@ -109,6 +110,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [formStoreData, setFormStoreData] = useState<StoreResponse | null>();
 
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
@@ -179,36 +181,6 @@ const DetailInvetoryAdjustment: FC = () => {
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
-
-  const onRealQuantityChange = (quantity: number | any, index: number) => {
-    let dataEdit =
-      searchVariant && (searchVariant.length > 0 || keySearch !== "")
-        ? [...searchVariant]
-        : [...dataTable];
-
-    quantity = quantity ?? 0;
-    const dataTableClone = _.cloneDeep(dataEdit);
-    dataTableClone[index].real_on_hand = quantity;
-    let totalDiff = 0;
-    totalDiff = quantity - dataTableClone[index].on_hand;
-    if (totalDiff === 0) {
-      dataTableClone[index].on_hand_adj = null;
-      dataTableClone[index].on_hand_adj_dis = null;
-    } else if (dataTableClone[index].on_hand < quantity) {
-      dataTableClone[index].on_hand_adj = totalDiff;
-      dataTableClone[index].on_hand_adj_dis = `+${totalDiff}`;
-    } else if (dataTableClone[index].on_hand > quantity) {
-      dataTableClone[index].on_hand_adj = totalDiff;
-      dataTableClone[index].on_hand_adj_dis = `${totalDiff}`;
-    }
-    setEditRealOnHand(true);
-    if (searchVariant && (searchVariant.length > 0 || keySearch !== "")) {
-      setSearchVariant(dataTableClone);
-    } else {
-      setDataTable(dataTableClone);
-    }
-    drawColumns(dataTableClone);
-  };
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
@@ -325,32 +297,30 @@ const DetailInvetoryAdjustment: FC = () => {
     }
   };
 
-  const drawColumns = useCallback(
-    (data: Array<LineItemAdjustment> | any) => {
-      let totalExcess = 0,
-        totalMiss = 0,
-        totalQuantity = 0,
-        totalReal = 0;
-      data.forEach((element: LineItemAdjustment) => {
-        totalQuantity += element.on_hand;
-        totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-        if (element.on_hand_adj > 0) {
-          totalExcess += element.on_hand_adj;
-        }
-        if (element.on_hand_adj < 0) {
-          totalMiss += -element.on_hand_adj;
-        }
-      });
+  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
 
-      setObjSummaryTable({
-        TotalOnHand: totalQuantity,
-        TotalExcess: totalExcess,
-        TotalMiss: totalMiss,
-        TotalRealOnHand: totalReal,
-      });
-    },
-    [dataTable]
-  );
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -431,8 +401,10 @@ const DetailInvetoryAdjustment: FC = () => {
               value={value ? value : 0}
               onChange={(event) => {
                 let value =
-                  event.target.value && event.target.value !== "" ? event.target.value : 0;
-                onRealQuantityChange(value, index);
+                  event.target.value && event.target.value !== ""
+                    ? event.target.value
+                    : 0;
+                onRealQuantityChange(value, row, index);
               }}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
@@ -504,30 +476,34 @@ const DetailInvetoryAdjustment: FC = () => {
     },
   ];
 
-  const onResult = useCallback((result) => {
-    setLoading(false);
-    if (!result) {
-      setError(true);
-      return;
-    } else {
-      setData(result);
-      setDataTable(result.line_items);
-      // setSearchVariant(result.line_items);
-      drawColumns(result.line_items);
-      setHasError(false);
-      let dataDis =
-        result?.line_items?.filter((e: LineItemAdjustment) => {
-          return e.on_hand_adj !== 0;
-        }) || [];
+  const onResult = useCallback(
+    (result) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+        return;
+      } else {
+        let data: InventoryAdjustmentDetailItem = result;
+        setData(data);
+        setDataTable(data?.line_items);
+        drawColumns(data?.line_items);
+        setHasError(false);
+        let dataDis =
+          data?.line_items?.filter((e: LineItemAdjustment) => {
+            return e.on_hand_adj !== 0;
+          }) || [];
 
-      let total = result?.line_items.length || 0;
+        let total = data?.line_items.length || 0;
 
-      setObjSummary({
-        partly: dataDis.length,
-        total: total,
-      });
-    }
-  }, []);
+        setObjSummary({
+          partly: dataDis.length,
+          total: total,
+        });
+        setFormStoreData(data?.store);
+      }
+    },
+    [drawColumns]
+  );
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -537,6 +513,7 @@ const DetailInvetoryAdjustment: FC = () => {
         if (result) {
           window.location.reload();
           showSuccess("Hoàn thành kiểm kho thành công.");
+          setIsShowConfirmAdited(false);
         }
       })
     );
@@ -550,6 +527,7 @@ const DetailInvetoryAdjustment: FC = () => {
         if (result) {
           window.location.reload();
           showSuccess("Cân tồn kho thành công.");
+          seIsShowConfirmAdj(false);
         }
       })
     );
@@ -574,7 +552,7 @@ const DetailInvetoryAdjustment: FC = () => {
       setSearchVariant(dataSearch);
       drawColumns(dataSearch);
     },
-    [keySearch, dataTable]
+    [keySearch, dataTable, drawColumns]
   );
 
   type accountAudit = {
@@ -589,17 +567,50 @@ const DetailInvetoryAdjustment: FC = () => {
     return <div>{`${account?.code} - ${account?.full_name}`}</div>;
   };
 
-  const [columns, setColumn] =
-    useState<Array<ICustomTableColumType<any>>>(defaultColumns);
+  const onRealQuantityChange = useCallback(
+    (quantity: number | any, row: LineItemAdjustment, index: number) => {
+      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
 
-  useEffect(() => {
-    setColumn(defaultColumns);
-  }, [objSummaryTable, data]);
+      dataTableClone.forEach((item) => {
+        quantity = quantity ?? 0;
+
+        if (item.id === row.id) {
+          item.real_on_hand = quantity;
+          let totalDiff = 0;
+          totalDiff = quantity - item.on_hand;
+          if (totalDiff === 0) {
+            item.on_hand_adj = null;
+            item.on_hand_adj_dis = null;
+          } else if (item.on_hand < quantity) {
+            item.on_hand_adj = totalDiff;
+            item.on_hand_adj_dis = `+${totalDiff}`;
+          } else if (item.on_hand > quantity) {
+            item.on_hand_adj = totalDiff;
+            item.on_hand_adj_dis = `${totalDiff}`;
+          }
+        }
+      });
+
+      setEditRealOnHand(true);
+      //for tìm sp sửa tồn thực tế
+      setDataTable(dataTableClone);
+      setSearchVariant(dataTableClone);
+
+      let dataEdit =
+        (searchVariant && searchVariant.length > 0) || keySearch !== ""
+          ? [...dataTableClone]
+          : null;
+
+      onEnterFilterVariant(dataEdit);
+    },
+    [dataTable, keySearch, searchVariant, onEnterFilterVariant]
+  );
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
   }, [idNumber, onResult, dispatch, setDataAccounts]);
+
   return (
     <StyledWrapper>
       <ContentContainer
@@ -630,25 +641,35 @@ const DetailInvetoryAdjustment: FC = () => {
           <>
             <Row gutter={24}>
               <Col span={18}>
-                <Card title="KHO HÀNG" bordered={false}>
-                  <Row gutter={24} className="pt8">
-                    <Col span={16}>
-                      <RowDetail title="Kho kiểm" value={data.adjusted_store_name} />
-                      <RowDetail title="Địa chỉ" value={data.store.address} />
-                    </Col>
-                    <Col span={8}>
-                      <RowDetail
-                        title="Loại kiểm"
-                        value={
-                          INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
-                            (e) => e.value === data.audit_type
-                          )?.name ?? ""
-                        }
-                      />
-                      <RowDetail title="Mã CH" value={data.store.code} />
-                      <RowDetail title="SĐT" value={data.store.hotline} />
-                    </Col>
-                  </Row>
+                <Card
+                  title="KHO HÀNG"
+                  bordered={false}
+                  extra={
+                    <Space size={20}>
+                      <span>
+                        <b>Loại kiểm:</b>
+                      </span>
+                      <span>
+                        {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
+                          (e) => e.value === data.audit_type
+                        )?.name ?? ""}
+                      </span>
+                    </Space>
+                  }
+                >
+                  {formStoreData && (
+                    <Row className="pd16">
+                      <Col span={31}>
+                        <>
+                          <span>
+                            <b>{formStoreData?.name}:</b>
+                          </span>{" "}
+                          {formStoreData?.code} - {formStoreData?.hotline} -{" "}
+                          {ConvertFullAddress(formStoreData)}
+                        </>
+                      </Col>
+                    </Row>
+                  )}
                 </Card>
                 {
                   //case trạng thái
@@ -725,7 +746,7 @@ const DetailInvetoryAdjustment: FC = () => {
                         style={{paddingTop: 20}}
                         scroll={{y: 300}}
                         pagination={false}
-                        columns={columns}
+                        columns={defaultColumns}
                         dataSource={
                           searchVariant && (searchVariant.length > 0 || keySearch !== "")
                             ? searchVariant
