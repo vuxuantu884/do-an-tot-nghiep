@@ -314,7 +314,6 @@ function OrderSources(props: PropsType) {
       actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
         setListOrderSources(data.items);
         setTotal(data.metadata.total);
-        showSuccess("Cập nhật danh sách nguồn đơn hàng thành công!");
       })
     );
     setTableLoading(false);
