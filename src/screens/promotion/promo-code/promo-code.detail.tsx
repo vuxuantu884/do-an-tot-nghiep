@@ -174,6 +174,10 @@ const PromotionDetailScreen: React.FC = () => {
     }
   ];
 
+  function savePromoCode(value: any) {
+    console.log(value);
+  }
+
   return (
     <ContentContainer
       isError={error}
@@ -552,8 +556,11 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeRandom(false);
         }}
-        onOk={() => {
+        onOk={(value: any) => {
+          console.log(value);
+          
           setShowAddCodeRandom(false);
+          savePromoCode(value);
         }}
       />
       <Modal

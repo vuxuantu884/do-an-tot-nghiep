@@ -40,7 +40,7 @@ const PromotionCode = () => {
     ...{
       type: PROMO_TYPE.MANUAL,
       request: "",
-      status: ""
+      state: ""
     },
     ...getQueryParams(query)
   }
@@ -213,7 +213,7 @@ const PromotionCode = () => {
       title: "Trạng thái",
       visible: true,
       fixed: "left",
-      dataIndex: 'status',
+      dataIndex: 'state',
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
@@ -355,7 +355,7 @@ const PromotionCode = () => {
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />
               </Form.Item>
-              <Form.Item name="status" className="status">
+              <Form.Item name="state" className="status">
                 <CustomSelect
                   style={{ width: "100%", borderRadius: "6px" }}
                   showArrow
