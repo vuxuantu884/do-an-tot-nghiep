@@ -439,15 +439,17 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          {
-                            store && store.map((item: any, index: number) => (
-                              <li>{item.name}</li>
-                            ))
-                          }
-                        </ul>
+                        {
+                          data?.prerequisite_store_ids.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {
+                              store && store.map((item: any, index: number) => (
+                                <li>{item.name}</li>
+                              ))
+                            }
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
@@ -469,12 +471,14 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            <li> YODY Kiến Xương </li>
+                            <li> YODY Hai Bà Trưng </li>
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
@@ -496,15 +500,17 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          {
-                            source && source.map((item: any, index: number) => (
-                              <li>{item.name}</li>
-                            ))
-                          }
-                        </ul>
+                        {
+                          data?.prerequisite_order_source_ids.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {
+                              source && source.map((item: any, index: number) => (
+                                <li>{item.name}</li>
+                              ))
+                            }
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
