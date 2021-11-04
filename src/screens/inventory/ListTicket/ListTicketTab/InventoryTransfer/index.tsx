@@ -19,7 +19,7 @@ import { InventoryTransferTabWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER } from "../../constants";
 
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { FormOutlined, PaperClipOutlined } from "@ant-design/icons";
+import { BarsOutlined, CopyOutlined, ExportOutlined, FormOutlined, ImportOutlined, PaperClipOutlined, PrinterOutlined, StopOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 
@@ -73,30 +73,37 @@ const actions: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.ADD_FORM_EXCEL,
     name: "Thêm mới từ Excel",
+    icon:<ImportOutlined />
   },
   {
     id: ACTIONS_INDEX.WATCH_MANY_TICKET,
     name: "Xem nhiều phiếu",
+    icon:<BarsOutlined />
   },
   {
     id: ACTIONS_INDEX.DELETE_TICKET,
     name: "Hủy phiếu",
+    icon:<StopOutlined />
   },
   {
     id: ACTIONS_INDEX.PRINT,
     name: "In vận đơn",
+    icon:<PrinterOutlined />
   },
   {
     id: ACTIONS_INDEX.PRINT_TICKET,
     name: "In phiếu",
+    icon:<PrinterOutlined />
   },
   {
     id: ACTIONS_INDEX.EXPORT_EXCEL,
     name: "Xuất Excel",
+    icon:<ExportOutlined />
   },
   {
     id: ACTIONS_INDEX.MAKE_COPY,
     name: "Tạo bản sao",
+    icon:<CopyOutlined />
   },
 ];
 

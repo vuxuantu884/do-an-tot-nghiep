@@ -1,3 +1,4 @@
+import { PrinterOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tag } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
@@ -49,10 +50,12 @@ const actions: Array<MenuAction> = [
   {
     id: 4,
     name: "In phiếu giao hàng",
+    icon:<PrinterOutlined />
   },
   {
     id: 5,
     name: "In phiếu xuất kho",
+    icon:<PrinterOutlined />
   },
 ];
 

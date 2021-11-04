@@ -1,4 +1,4 @@
-import {PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, ExportOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Card, Form, Input, Select} from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
@@ -254,10 +254,12 @@ function OrderSources(props: PropsType) {
     {
       id: ACTIONS_INDEX.EXPORT,
       name: "Export",
+      icon:<ExportOutlined />
     },
     {
       id: ACTIONS_INDEX.DELETE,
       name: "Xóa",
+      icon:<DeleteOutlined />
     },
   ];
 

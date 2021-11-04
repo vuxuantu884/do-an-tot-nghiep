@@ -1,4 +1,4 @@
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined, ExportOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Menu } from "antd";
 import { ButtonType } from "antd/lib/button/button.d";
 
@@ -12,6 +12,7 @@ type ActionProps = {
 export interface MenuAction {
   id: number;
   name: string;
+  icon?:any;
 }
 
 const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
@@ -26,6 +27,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
               <Menu.Item
                 key={item.id}
                 onClick={() => props.onMenuClick && props.onMenuClick(item.id)}
+                icon={item.icon}
               >
                 {item.name}
               </Menu.Item>
