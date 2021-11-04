@@ -3,7 +3,7 @@ import {
   Button,
   Form,
   Input,
-  Tag
+  // Tag
 } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
@@ -28,10 +28,9 @@ import { deletePriceRulesById, getListDiscount } from "domain/actions/promotion/
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules, deletePriceRuleById } from "service/promotion/discount/discount.service";
+import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "service/promotion/discount/discount.service";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
-const { Item } = Form;
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -228,23 +227,23 @@ const PromotionCode = () => {
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
 
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
+  // function tagRender(props: any) {
+  //   const { label, closable, onClose } = props;
+  //   const onPreventMouseDown = (event: any) => {
+  //     event.preventDefault();
+  //     event.stopPropagation();
+  //   };
+  //   return (
+  //     <Tag
+  //       className="primary-bg"
+  //       onMouseDown={onPreventMouseDown}
+  //       closable={closable}
+  //       onClose={onClose}
+  //     >
+  //       {label}
+  //     </Tag>
+  //   );
+  // }
 
   const listStatus: Array<BaseBootstrapResponse> = [
     {
@@ -305,7 +304,7 @@ const PromotionCode = () => {
 
       }
     },
-    [selectedRowKey]
+    [dispatch, fetchData, params, selectedRowKey]
   );
 
   const onDeleteSuccess = useCallback(() => {

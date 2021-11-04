@@ -2,7 +2,7 @@ import {
   Card, Col, Row,
   Form, Switch, Space, Select,
   DatePicker, Divider, Checkbox,
-  TimePicker, Input, Tag, Table, Button
+  TimePicker, Input, Table, Button
 } from "antd";
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import ChooseDiscount from "./choose-discount.create";
@@ -13,8 +13,6 @@ import ProductItem from "screens/purchase-order/component/product-item";
 import UrlConfig from "config/url.config";
 import "../promo-code.scss"
 import { useDispatch } from "react-redux";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { ColumnsType } from "antd/es/table/interface";
 import { AiOutlineClose } from "react-icons/ai";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { VariantResponse } from "model/product/product.model";
@@ -35,15 +33,15 @@ const GeneralCreate = (props: any) => {
 
   const dispatch = useDispatch();
 
-  const [showTimeAdvance, setShowTimeAdvance] = useState(false);
+  const [showTimeAdvance] = useState(false);
   const [allStore, setAllStore] = useState(false);
   const [allChannel, setAllChannel] = useState(false);
   const [allSource, setAllSource] = useState(false);
   const [disabledEndDate, setDisabledEndDate] = useState(false);
   const [type, setType] = useState("SALE_CODE");
   const [product, setProduct] = useState<string>("PRODUCT");
-  const [dataTableProduct, setDataTableProduct] = useState<Array<any> | any>([] as Array<any>);
-  const [dataTableProductCate, setDataTableProductCate] = useState<Array<any> | any>([] as Array<any>);
+  // const [dataTableProduct, setDataTableProduct] = useState<Array<any> | any>([] as Array<any>);
+  // const [dataTableProductCate, setDataTableProductCate] = useState<Array<any> | any>([] as Array<any>);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -69,89 +67,71 @@ const GeneralCreate = (props: any) => {
     return days;
   }
 
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
+  // const listCategory: Array<BaseBootstrapResponse> = [
+  //   {
+  //     value: "Áo phông nam",
+  //     name: "Áo phông nam",
+  //   },
+  //   {
+  //     value: "Chân váy nữ",
+  //     name: "Chân váy nữ",
+  //   }
+  // ]
 
-  const listCategory: Array<BaseBootstrapResponse> = [
-    {
-      value: "Áo phông nam",
-      name: "Áo phông nam",
-    },
-    {
-      value: "Chân váy nữ",
-      name: "Chân váy nữ",
-    }
-  ]
+  // function onDeleteItemProduct(id: number) {
+  //   // delete row
+  //   const temps = [...dataTableProduct];
+  //   temps.forEach((row, index, array) => {
+  //     if (row.id === id) {
+  //       array.splice(index, 1);
+  //     }
+  //   });
+  //   setDataTableProduct(temps);
+  // }
 
-  function onDeleteItemProduct(id: number) {
-    // delete row
-    const temps = [...dataTableProduct];
-    temps.forEach((row, index, array) => {
-      if (row.id === id) {
-        array.splice(index, 1);
-      }
-    });
-    setDataTableProduct(temps);
-  }
+  // const columnsProductCategory: ColumnsType<any> = [
+  //   {
+  //     title: "Danh mục",
+  //     dataIndex: "on_hand",
+  //     align: "center",
+  //     width: 100,
+  //     render: (value) => {
+  //       return value || "";
+  //     },
+  //   },
+  //   {
+  //     title: "Số lượng tối thiểu",
+  //     dataIndex: "available",
+  //     align: "center",
+  //     width: 100,
+  //     render: (value) => {
+  //       return value || 0;
+  //     },
+  //   },
+  //   {
+  //     title: "",
+  //     fixed: dataTableProduct.length !== 0 && "right",
+  //     width: 50,
+  //     render: (_: string, row) => (
+  //       <Button
+  //         onClick={() => onDeleteItemProductCate(row.id)}
+  //         className="product-item-delete"
+  //         icon={<AiOutlineClose />}
+  //       />
+  //     ),
+  //   },
+  // ];
 
-  const columnsProductCategory: ColumnsType<any> = [
-    {
-      title: "Danh mục",
-      dataIndex: "on_hand",
-      align: "center",
-      width: 100,
-      render: (value) => {
-        return value || "";
-      },
-    },
-    {
-      title: "Số lượng tối thiểu",
-      dataIndex: "available",
-      align: "center",
-      width: 100,
-      render: (value) => {
-        return value || 0;
-      },
-    },
-    {
-      title: "",
-      fixed: dataTableProduct.length !== 0 && "right",
-      width: 50,
-      render: (_: string, row) => (
-        <Button
-          onClick={() => onDeleteItemProductCate(row.id)}
-          className="product-item-delete"
-          icon={<AiOutlineClose />}
-        />
-      ),
-    },
-  ];
-
-  function onDeleteItemProductCate(id: number) {
-    // delete row
-    const temps = [...dataTableProductCate];
-    temps.forEach((row, index, array) => {
-      if (row.id === id) {
-        array.splice(index, 1);
-      }
-    });
-    setDataTableProductCate(temps);
-  }
+  // function onDeleteItemProductCate(id: number) {
+  //   // delete row
+  //   const temps = [...dataTableProductCate];
+  //   temps.forEach((row, index, array) => {
+  //     if (row.id === id) {
+  //       array.splice(index, 1);
+  //     }
+  //   });
+  //   setDataTableProductCate(temps);
+  // }
 
   const onResultSearch = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -236,7 +216,7 @@ const GeneralCreate = (props: any) => {
       })
     });
     form.setFieldsValue({entitlements: entitlements})
-  }, [selectedProduct])
+  }, [form, selectedProduct])
 
   useEffect(() => {
     if (isProduct) {
@@ -254,7 +234,7 @@ const GeneralCreate = (props: any) => {
       }];
       form.setFieldsValue({entitlements: entitlements})
     }
-  }, [isProduct])
+  }, [form, isProduct])
 
   return (
     <Row gutter={24} className="general-info">

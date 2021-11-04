@@ -9,7 +9,7 @@ import {
   Modal,
   Col,
 } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
@@ -37,60 +37,63 @@ import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
 import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
+import { Link } from "react-router-dom";
+
+const promotionStatuses = [
+  {
+    code: 'APPLYING',
+    value: 'Đang áp dụng',
+    style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'TEMP_STOP',
+    value: 'Tạm ngưng',
+    style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "#FCAF17",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'WAIT_FOR_START',
+    value: 'Chờ áp dụng',
+    style: {
+      background: "rgb(245, 245, 245)",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'ENDED',
+    value: 'Kết thúc',
+    style: {
+      background: "rgba(39, 174, 96, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(39, 174, 96)",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'CANCELLED',
+    value: 'Đã huỷ',
+    style: {
+      background: "rgba(226, 67, 67, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(226, 67, 67)",
+      padding: "5px 10px"
+    }
+  },
+]
 
 const ListCode = () => {
-  const promotionStatuses = [
-    {
-      code: 'APPLYING',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'TEMP_STOP',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng',
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }
-    },
-  ]
+ 
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -168,7 +171,7 @@ const ListCode = () => {
   const handleStatus = (item: any) => {
     console.log(item);
   };
-  const columns: Array<ICustomTableColumType<any>> = [
+  const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
     {
       title: "Mã giảm giá",
       visible: true,
@@ -216,7 +219,7 @@ const ListCode = () => {
         <div>{`${item.create_date ? moment(item.create_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
     },
     actionColumn(handleUpdate, handleDelete, handleStatus),
-  ];
+  ], []);
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -440,7 +443,7 @@ const ListCode = () => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

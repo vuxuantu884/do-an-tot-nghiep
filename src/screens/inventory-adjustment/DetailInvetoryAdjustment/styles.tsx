@@ -163,7 +163,10 @@ export const StyledWrapper = styled.div`
     padding: 16px 0;
   }
 
-  .pt8 {
-    padding-top: 8px;
+  .pd16 {
+    padding: 16px 0 16px 0;
+  }
+  .audit_by{
+    font-weight: 500;
   }
 `;

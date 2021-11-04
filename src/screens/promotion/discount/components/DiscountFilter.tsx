@@ -4,18 +4,15 @@ import {SourceResponse} from "../../../../model/response/order/source.response";
 import search from "assets/img/search.svg";
 import {
   CustomerGroupModel,
-  CustomerGroupResponseModel
 } from "../../../../model/response/customer/customer-group.response";
 import {DiscountSearchQuery} from "../../../../model/query/discount.query";
 import {MenuAction} from "../../../../component/table/ActionButton";
-import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
+import {Button, Form, Input, Select, Space, Tag} from "antd";
 import React, {useCallback, useState} from "react";
 import {StyledComponent} from "./style";
 import CustomFilter from "../../../../component/table/custom.filter";
 import {checkFixedDate, DATE_FORMAT} from "../../../../utils/DateUtils";
-import BaseFilter from "../../../../component/filter/base.filter";
 import {SearchVariantField, SearchVariantMapping} from "../../../../model/promotion/promotion-mapping";
-import CustomRangePicker from "../../../../component/filter/component/range-picker.custom";
 import { FilterOutlined } from "@ant-design/icons"
 
 type DiscountFilterProps = {
@@ -94,8 +91,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   } = props;
 
   // useState
-  const [visible, setVisible] = useState(false);
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  // const [visible, setVisible] = useState(false);
+  let [advanceFilters,] = useState<any>({});
 
 
   // useCallback
@@ -103,41 +100,14 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     onFilter && onFilter(values);
   }, [onFilter])
 
-  const onFinishAvd = useCallback(values => {
-    setAdvanceFilters(values);
-    if (values.created_date) {
-      const [from_created_date, to_created_date] = values.created_date;
-      values.from_created_date = values.created_date ? from_created_date : undefined;
-      values.to_created_date = values.created_date ? to_created_date : undefined;
-    } else {
-      values.to_created_date = '';
-      values.from_created_date = '';
-    }
-    onFilter && onFilter(values);
-  }, [onFilter])
-
-  const onFilterClick = useCallback(() => {
-    setVisible(false);
-    formAvd.submit();
-  }, [formAvd])
-
   const openFilter = useCallback(() => {
-    setVisible(true);
-  }, [])
-
-  const onCancelFilter = useCallback(() => {
-    setVisible(false);
+    // setVisible(true);
   }, [])
 
   const onActionClick = useCallback((index) => {
     onMenuClick && onMenuClick(index);
   }, [onMenuClick])
 
-  const onClearFilterClick = useCallback(() => {
-    formAvd.resetFields();
-    formAvd.submit();
-    setVisible(false);
-  }, [formAvd])
 
   const resetField = useCallback((field) => {
     console.log('resetField: ', field);

@@ -20,20 +20,15 @@ import { promoGetDetail } from "domain/actions/promotion/discount/discount.actio
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { StoreResponse } from "model/core/store.model";
-import { SourceResponse } from "model/response/order/source.response";
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
-import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
 
 export interface ProductParams {
   id: string;
   variantId: string;
-}
-
-enum TabName {
-  HISTORY = '#historyTab',
-  INVENTORY = '#inventoryTab'
 }
 
 type detailMapping = {
@@ -588,7 +583,7 @@ const PromotionDetailScreen: React.FC = () => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

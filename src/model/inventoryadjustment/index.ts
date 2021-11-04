@@ -62,8 +62,8 @@ export interface LineItemAdjustment {
   barcode: string;
   on_hand: number,
   real_on_hand: number,
-  on_hand_adj: number,
-  on_hand_adj_dis: string,
+  on_hand_adj: number | null,
+  on_hand_adj_dis: string | null,
   
 }
 

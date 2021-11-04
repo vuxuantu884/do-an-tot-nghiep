@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import "./discount.scss";
 import UrlConfig from "../../../config/url.config";
 import ContentContainer from "../../../component/container/content.container";
-import {Button, Card, Col, Dropdown, Menu, Modal, Row} from "antd";
+import {Button, Card, Col, Dropdown, Menu, Row} from "antd";
 import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
 import {PageResponse} from "../../../model/base/base-metadata.response";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
@@ -29,12 +29,9 @@ import {getListSourceRequest} from "../../../domain/actions/product/source.actio
 import {actionFetchListCustomerGroup} from "../../../domain/actions/customer/customer.action";
 import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/response/customer/customer-group.response";
 import {showError, showSuccess} from "../../../utils/ToastUtils";
-import {showLoading} from "../../../domain/actions/loading.action";
-import {productWrapperDeleteAction} from "../../../domain/actions/product/products.action";
 import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
 import { PROMO_TYPE } from "utils/Constants";
 
-const {confirm} = Modal;
 
 const DiscountPage = () => {
   const discountStatuses = [
@@ -154,7 +151,7 @@ const DiscountPage = () => {
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
-  }, []);
+  }, [dispatch, fetchData, params]);
 
   useEffect(() => {
     dispatch(getListDiscount(params, fetchData));
@@ -303,7 +300,7 @@ const DiscountPage = () => {
 
       }
     },
-    [selectedRowKey]
+    [dispatch, fetchData, params, selectedRowKey]
   );
 
   return (

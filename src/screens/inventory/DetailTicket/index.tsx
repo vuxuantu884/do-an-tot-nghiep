@@ -961,6 +961,7 @@ const DetailTicket: FC = () => {
                           {
                             data.shipment.status === 'confirmed' && (
                               <Button
+                                className="export-button"
                                 type="primary"
                                 onClick={() => {
                                   if(data) dispatch(exportInventoryAction(data?.id, data?.shipment.id, onResult));
@@ -1007,9 +1008,9 @@ const DetailTicket: FC = () => {
                     <RowDetail
                       title="Ngày nhận"
                       value={
-                        data.receive_date
+                        data.pending_date
                           ? ConvertUtcToLocalDate(
-                              data.receive_date,
+                              data.pending_date,
                               "DD/MM/YYYY"
                             )
                           : " ---"

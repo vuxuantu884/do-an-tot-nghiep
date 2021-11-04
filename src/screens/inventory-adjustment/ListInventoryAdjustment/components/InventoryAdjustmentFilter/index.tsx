@@ -17,17 +17,16 @@ import { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
-import CustomFilter from "component/table/custom.filter";
 import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter"; 
-import { BaseFilterWrapper, InventoryAdjustmentFiltersWrapper } from "./styles"; 
 import ButtonSetting from "component/table/ButtonSetting";
 import { STATUS_INVENTORY_ADJUSTMENT_ARRAY } from "../../constants";
 import { InventoryAdjustmentSearchQuery } from "model/inventoryadjustment";
 import { StoreResponse } from "model/core/store.model";
+import "./styles.scss";
 
 const { Panel } = Collapse;
 type InventoryAdjustmentFilterProps = {
@@ -48,9 +47,7 @@ const { Option } = Select;
 const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (props: InventoryAdjustmentFilterProps) => {
   const {
     params,
-    actions,
     isLoading,
-    onMenuClick,
     onClearFilter,
     onFilter,
     onShowColumnSetting,
@@ -85,13 +82,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
           setCreateDateClick('')
           setIsFromCreatedDate(dateString[0])
           setIsToCreatedDate(dateString[1])
-          break;
-        case 'transfer_date':
-          setTransferDateClick('')
-          setIsFromInventoryAdjustmentDate(dateString[0])
-          setIsToInventoryAdjustmentDate(dateString[1])
           break; 
-        default: break
       }
     },
     []
@@ -120,13 +111,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
   }, []);
   const onCancelFilter = useCallback(() => {
     setVisible(false);
-  }, []);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+  }, []); 
 
   const [createDateClick, setCreateDateClick] = useState('');
   const [transferDateClick, setTransferDateClick] = useState(''); 
@@ -177,7 +162,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
             setIsToCreatedDate(moment(maxValue, 'DD-MM-YYYY'))
           }
           break
-        case 'inventoryadjustment_date':
+        case 'audited_date':
           if (transferDateClick === value) {
             setTransferDateClick('')
             setIsFromInventoryAdjustmentDate(null)
@@ -218,7 +203,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
           setIsToCreatedDate(null)
           onFilter && onFilter({ ...params, form_created_date: null, to_created_date: null });
           break;
-        case 'transfer_date':
+        case 'audited_date':
           setTransferDateClick('')
           setIsFromInventoryAdjustmentDate(null)
           setIsToInventoryAdjustmentDate(null)
@@ -319,7 +304,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
     if (initialValues.from_inventoryadjustment_date || initialValues.to_inventoryadjustment_date) {
       let textInventoryAdjustmentDate = (initialValues.from_inventoryadjustment_date ? initialValues.from_inventoryadjustment_date : '??') + " ~ " + (initialValues.to_inventoryadjustment_date ? initialValues.to_inventoryadjustment_date : '??')
       list.push({
-        key: 'transfer_date',
+        key: 'audited_date',
         name: 'Ngày kiểm',
         value: textInventoryAdjustmentDate
       })
@@ -329,7 +314,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
   }, [initialValues, accounts]);
 
   return (
-    <InventoryAdjustmentFiltersWrapper>
+    <>
       <div className="order-filter">
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
             <Item
@@ -382,6 +367,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
               <ButtonSetting onClick={onShowColumnSetting} />
             </Item>
           </Form>
+
         <BaseFilter
           onClearFilter={onClearFilterClick}
           onFilter={onFilterClick}
@@ -396,7 +382,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
             initialValues={params}
             layout="vertical"
           >
-            <BaseFilterWrapper>
+            <>
               <Row gutter={12} style={{ marginTop: '10px' }}>
                 <Col span={24}>
                   <Collapse defaultActiveKey={initialValues.status.length ? ["1"] : []}>
@@ -521,14 +507,14 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
                   <Collapse defaultActiveKey={initialValues.from_inventoryadjustment_date && initialValues.to_inventoryadjustment_date ? ["1"] : []}>
                     <Panel header="Ngày kiểm" key="1" className="header-filter">
                       <div className="date-option">
-                        <Button onClick={() => clickOptionDate('inventoryadjustment_date', 'yesterday')} className={transferDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                        <Button onClick={() => clickOptionDate('inventoryadjustment_date', 'today')} className={transferDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                        <Button onClick={() => clickOptionDate('inventoryadjustment_date', 'thisweek')} className={transferDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                        <Button onClick={() => clickOptionDate('audited_date', 'yesterday')} className={transferDateClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                        <Button onClick={() => clickOptionDate('audited_date', 'today')} className={transferDateClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                        <Button onClick={() => clickOptionDate('audited_date', 'thisweek')} className={transferDateClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                       </div>
                       <div className="date-option">
-                        <Button onClick={() => clickOptionDate('inventoryadjustment_date', 'lastweek')} className={transferDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                        <Button onClick={() => clickOptionDate('inventoryadjustment_date', 'thismonth')} className={transferDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                        <Button onClick={() => clickOptionDate('inventoryadjustment_date', 'lastmonth')} className={transferDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                        <Button onClick={() => clickOptionDate('inventoryaudited_dateadjustment_date', 'lastweek')} className={transferDateClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                        <Button onClick={() => clickOptionDate('audited_date', 'thismonth')} className={transferDateClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                        <Button onClick={() => clickOptionDate('audited_date', 'lastmonth')} className={transferDateClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                       </div>
                       <p><SettingOutlined style={{ marginRight: "10px" }} />Tuỳ chọn khoảng thời gian:</p>
                       <DatePicker.RangePicker
@@ -538,13 +524,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
                           isFromInventoryAdjustmentDate ? moment(isFromInventoryAdjustmentDate, "DD-MM-YYYY") : null,
                           isToInventoryAdjustmentDate ? moment(isToInventoryAdjustmentDate, "DD-MM-YYYY") : null
                         ]}
-                        onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'transfer_date')}
+                        onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'audited_date')}
                       />
                     </Panel>
                   </Collapse>
                 </Col>
               </Row>
-            </BaseFilterWrapper>
+            </>
           </Form>}
         </BaseFilter>
       </div>
@@ -555,7 +541,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (pr
           )
         })}
       </div>
-    </InventoryAdjustmentFiltersWrapper>
+    </>
   );
 };
 

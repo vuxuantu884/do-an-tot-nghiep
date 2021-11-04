@@ -17,7 +17,6 @@ export const BG_COLOR_TAG = {
 }
 
 export const InventoryAdjustmentWrapper = styled.div`
-  padding: 0px 0 20px 0;
   .page-filter{
     padding: 0;
   }
