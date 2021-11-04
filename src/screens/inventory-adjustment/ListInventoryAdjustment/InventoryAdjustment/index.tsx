@@ -55,11 +55,7 @@ const actions: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.PRINT,
     name: "In phiếu",
-  }, 
-  {
-    id: ACTIONS_INDEX.ADJUSTMENT,
-    name: "Cân tồn kho",
-  },
+  },  
 ];
 
 const InventoryAdjustment: React.FC = () => {
