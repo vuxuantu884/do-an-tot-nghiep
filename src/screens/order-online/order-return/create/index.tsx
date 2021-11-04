@@ -886,7 +886,7 @@ const ScreenReturnCreate = (props: PropType) => {
                   <CardReturnMoneyPageCreate
                     listPaymentMethods={listPaymentMethods}
                     payments={payments}
-                    handlePayments={setPayments}
+                    setPayments={setPayments}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
                     isStepExchange={isStepExchange}
