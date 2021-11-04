@@ -19,7 +19,7 @@ function CustomInput(props: any) {
 
   const handleChange = useCallback((v: any) => {
     setValue(upperCase ? v.toUpperCase() : v);
-  }, []);
+  }, [upperCase]);
 
   const handleBlur = (v: any) => {
     setValue(v.trim());
