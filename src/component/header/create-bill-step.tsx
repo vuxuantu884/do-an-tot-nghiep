@@ -2,8 +2,9 @@ import { CheckOutlined } from "@ant-design/icons";
 import { Steps } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
-import { useCallback, useEffect, useState } from "react";
-import { FulFillmentStatus } from "utils/Constants";
+import { useEffect, useMemo, useState } from "react";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+// import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";
 
 type StepStatusProps = {
@@ -15,7 +16,40 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const {orderDetail} = props;
   const formatDate = "DD/MM/YY - HH:mm";
   const [currentStep, setCurrentStep] = useState(0);
-  const point = useCallback(() => {
+  
+  const fulfillments = useMemo(() => {
+    return orderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
+  }, [orderDetail?.fulfillments])
+
+  const renderStepPackedDescription = () => {
+    let result = undefined;
+    if (fulfillments && fulfillments?.length > 0) {
+      if (orderDetail?.status !== OrderStatus.CANCELLED) {
+        if (fulfillments[0].status !== FulFillmentStatus.CANCELLED &&
+          fulfillments[0].status !== FulFillmentStatus.RETURNING &&
+          fulfillments[0].status !== FulFillmentStatus.RETURNED) {
+            result = fulfillments[0].packed_on ? moment(fulfillments[0].packed_on).format(formatDate) : undefined;
+          }
+      }
+    }
+    return result;
+  };
+
+  const renderStepShippingDescription = () => {
+    let result = undefined;
+    if (fulfillments && fulfillments?.length > 0) {
+      if (orderDetail?.status !== OrderStatus.CANCELLED) {
+        if (fulfillments[0].status !== FulFillmentStatus.CANCELLED &&
+          fulfillments[0].status !== FulFillmentStatus.RETURNING &&
+          fulfillments[0].status !== FulFillmentStatus.RETURNED) {
+            result = fulfillments[0].export_on ? moment(fulfillments[0].export_on).format(formatDate) : undefined;
+          }
+      }
+    }
+    return result;
+  };
+
+  useEffect(() => {
     switch (props.status) {
       case "draff":
         setCurrentStep(0);
@@ -45,36 +79,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       case "cancelled":
         setCurrentStep(4);
         break;
-      default:
-        return 0;
+      default: break;
     }
   }, [orderDetail, props.status]);
-
-  const renderStepPackedDescription = () => {
-    let result = null;
-    if (orderDetail?.fulfillments && orderDetail.fulfillments?.length > 0) {
-      let listFulfillmentNotReturn = orderDetail.fulfillments.filter((single) => {
-        return single.status !== FulFillmentStatus.RETURNED;
-      });
-      result = moment(listFulfillmentNotReturn[0].packed_on).format(formatDate);
-    }
-    return result;
-  };
-
-  const renderStepShippingDescription = () => {
-    let result = null;
-    if (orderDetail?.fulfillments && orderDetail.fulfillments?.length > 0) {
-      let listFulfillmentNotReturn = orderDetail.fulfillments.filter((single) => {
-        return single.status !== FulFillmentStatus.RETURNED;
-      });
-      result = moment(listFulfillmentNotReturn[0].export_on).format(formatDate);
-    }
-    return result;
-  };
-
-  useEffect(() => {
-    point();
-  }, [point, props.status]);
 
   const progressDot = (dot: any, {status, index}: any) => (
     <div className="ant-steps-icon-dot">
@@ -99,16 +106,16 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         title="Xác nhận"
         description={
           props.orderDetail &&
-          props.orderDetail?.fulfillments &&
-          props.orderDetail?.fulfillments.length > 0 &&
-          props.orderDetail?.fulfillments[0].created_date &&
-          moment(props.orderDetail?.fulfillments[0].created_date).format(formatDate)
+          fulfillments &&
+          fulfillments.length > 0 &&
+          fulfillments[0].created_date &&
+          moment(fulfillments[0].created_date).format(formatDate)
         }
         className={
           !(
             props.orderDetail &&
-            props.orderDetail?.fulfillments &&
-            props.orderDetail?.fulfillments.length > 0
+            fulfillments &&
+            fulfillments.length > 0
           )
             ? "inactive"
             : ""
@@ -120,10 +127,11 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         className={
           !(
             props.orderDetail &&
-            props.orderDetail?.fulfillments &&
-            props.orderDetail?.fulfillments.length > 0 &&
-            props.orderDetail?.fulfillments[0].packed_on
-          ) && props.status === "cancelled"
+            fulfillments &&
+            fulfillments.length > 0 &&
+            fulfillments[0].packed_on &&
+            fulfillments[0].status !== "returned"
+          ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
         }
@@ -134,27 +142,27 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         className={
           !(
             props.orderDetail &&
-            props.orderDetail?.fulfillments &&
-            props.orderDetail?.fulfillments.length > 0 &&
-            props.orderDetail?.fulfillments[0].export_on
-          ) && props.status === "cancelled"
+            fulfillments &&
+            fulfillments.length > 0 &&
+            fulfillments[0].export_on
+          ) && orderDetail?.status === "cancelled"
             ? "inactive"
             : ""
         }
       />
       <Steps.Step
-        title={!(props.status === "cancelled") ? "Hoàn thành" : "Huỷ đơn"}
+        title={!(orderDetail?.status === "cancelled") ? "Hoàn thành" : "Huỷ đơn"}
         description={
           props.orderDetail &&
-          ((props.orderDetail?.fulfillments &&
-            props.orderDetail?.fulfillments.length > 0 &&
-            props.orderDetail?.fulfillments[0].shipped_on &&
-            moment(props.orderDetail?.fulfillments[0].shipped_on).format(formatDate)) ||
-            (props.status === "cancelled" &&
+          ((fulfillments &&
+            fulfillments.length > 0 &&
+            fulfillments[0].shipped_on &&
+            moment(fulfillments[0].shipped_on).format(formatDate)) ||
+            (orderDetail?.status === "cancelled" &&
               props.orderDetail?.cancelled_on &&
               moment(props.orderDetail?.cancelled_on).format(formatDate)))
         }
-        className={props.status === "cancelled" ? "cancelled" : ""}
+        className={orderDetail?.status === "cancelled" ? "cancelled" : ""}
       />
     </Steps>
   );

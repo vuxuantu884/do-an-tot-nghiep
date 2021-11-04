@@ -41,15 +41,18 @@ import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 2,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 

@@ -2,15 +2,9 @@ import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import {
-  productGetDetail,
-  productUpdateAction
-} from "domain/actions/product/products.action";
-import { ProductResponse } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory, useParams } from 'react-router';
 import { Link } from "react-router-dom";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
@@ -18,20 +12,20 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import "../promotion-code.scss";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import ModalAddCode from "../components/ModalAddCode";
+import "./promo-code.scss";
+import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
+import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import moment from "moment";
+import { DATE_FORMAT } from "utils/DateUtils";
+
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 
 export interface ProductParams {
   id: string;
   variantId: string;
-}
-
-enum TabName {
-  HISTORY = '#historyTab',
-  INVENTORY = '#inventoryTab'
 }
 
 type detailMapping = {
@@ -45,10 +39,9 @@ type detailMapping = {
 const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const location = useLocation();
-  const {hash} = location;
 
-  const id = "1";
+  const { id } = useParams() as any;
+  const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -56,14 +49,29 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<ProductResponse | null>(null);
-  
-  const idNumber = parseInt(id);
+  const [data, setData] = useState<DiscountResponse | null>(null);
+  // const [listStore, setStore] = useState<Array<StoreResponse>>();
+  // const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
+
+  // useEffect(() => {
+  //   dispatch(StoreGetListAction(setStore));
+  //   dispatch(getListSourceRequest(setListSource));
+  // }, [dispatch]);
+
+  const fetchData = useCallback((data: any) => {
+    setCheckPromoCode(data.length > 0);
+  }, [])
+
+  useEffect(() => {
+    dispatch(getListPromoCode(idNumber, fetchData));
+  }, [dispatch, fetchData, idNumber]);
+
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
+    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/edit`);
   }, [history, idNumber]);
 
-  const onResult = useCallback((result: ProductResponse | false) => {
+  const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
       setError(true);
@@ -73,84 +81,74 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(productGetDetail(idNumber, onResult));
+    dispatch(promoGetDetail(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
 
-  const promotion = {
-    name: "Tên đợt phát hành",
-    code: "CPM12",
-    typeCode: "Mã giảm giá",
-    description: "",
-    amountCodeRelease: "0",
-    amountUsed: "0",
-    discountInfo: "Giảm 3% tối đa 100.000"
-  };
-
   const promotionDetail: Array<any> | undefined = React.useMemo(() => {
-    if (promotion) {
+    if (data) {
       const details = [
         {
           name: "Tên đợt phát hành",
-          value: promotion.name,
+          value: data.title,
           position: "left",
           key: "1",
         },
         {
           name: "Mã đợt phát hành",
-          value: promotion.code,
+          value: data.code,
           position: "left",
           key: "2",
         },
         {
           name: "Loại mã",
-          value: promotion.typeCode,
+          value: data.type,
           position: "left",
           key: "3",
         },
         {
           name: "Mô tả đợt phát hành",
-          value: promotion.description,
+          value: data.description,
           position: "left",
           key: "4",
         },
         {
           name: "SL mã phát hành",
-          value: promotion.amountCodeRelease,
+          value: data.usage_limit,
           position: "right",
           key: "5",
         },
         {
           name: "Số lượng đã sử dụng",
-          value: promotion.amountUsed,
+          value: data.usage_limit_per_customer,
           position: "right",
           key: "6",
         },
         {
           name: "Thông tin km",
-          value: promotion.discountInfo,
+          value: "", // TODO
           position: "right",
           key: "7",
         },
       ];
       return details;
     }
-  }, [promotion]);
+  }, [data]);
  
   const timeApply = [
     {
       name: "Từ",
-      value: "25-8-2021  14:30",
+      value: data?.starts_date && moment(data.starts_date).format(DATE_FORMAT.DDMMYY_HHmm),
       key: "1",
     },
     {
       name: "Đến",
-      value: "",
+      value: data?.ends_date && moment(data.ends_date).format(DATE_FORMAT.DDMMYY_HHmm),
       key: "2",
     },
     {
       name: "Còn",
-      value: "30 ngày 23:56:13",
+      value:  moment(data?.starts_date).isAfter(data?.ends_date),
       key: "3",
     }
   ];
@@ -159,7 +157,7 @@ const PromotionDetailScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={loading}
-      title="Chi tiết chiết khấu"
+      title={data ? data.title : "Chi tiết đợt khuyến mãi"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -167,7 +165,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Chiết khấu",
@@ -296,14 +294,16 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {true  && 
+                {checkPromoCode  && 
                   <Row gutter={30}>
                     <Col span={24}>
-                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
+                      <Link 
+                        to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
+                      >Xem danh sách mã giảm giá của đợt phát hành</Link>
                     </Col>
                   </Row>
                 }
-                {false && <Row gutter={30} style={{gap: 15}}>
+                {!checkPromoCode && <Row gutter={30} style={{gap: 15}}>
                   <Col span={24} style={{
                       color: "#E24343",
                       textAlign: "center",
@@ -346,6 +346,7 @@ const PromotionDetailScreen: React.FC = () => {
               </Card>
             </Col>
             <Col span={24} md={6}>
+              {/* Thời gian áp dụng */}
               <Card className="card">
                 <Row>
                   <Col span={24} style={{
@@ -399,6 +400,7 @@ const PromotionDetailScreen: React.FC = () => {
                     ))}
                 </Row>
               </Card>
+              {/* Cửa hàng áp dụng */}
               <Card className="card">
                 <Row>
                     <Col span={24} style={{
@@ -425,6 +427,7 @@ const PromotionDetailScreen: React.FC = () => {
                       </Col>
                 </Row>
               </Card>
+              {/* Kênh bán áp dụng */}
               <Card className="card">
                 <Row>
                     <Col span={24} style={{
@@ -451,6 +454,7 @@ const PromotionDetailScreen: React.FC = () => {
                       </Col>
                 </Row>
               </Card>
+              {/* Nguồn đơn hàng áp dụng */}
               <Card className="card">
                 <Row>
                     <Col span={24} style={{
@@ -486,7 +490,7 @@ const PromotionDetailScreen: React.FC = () => {
         rightComponent={
           <Space>
             <Button style={{ color: '#E24343'}}>Xoá</Button>
-            <Button>Sửa</Button>
+            <Button onClick={onEdit}>Sửa</Button>
             <Button>Nhân bản</Button>
             <Button type="primary">Kích hoạt</Button>
           </Space>
@@ -544,7 +548,7 @@ const PromotionDetailScreen: React.FC = () => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

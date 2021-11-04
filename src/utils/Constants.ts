@@ -102,7 +102,7 @@ export const ErrorGHTK = {
 export const POStatus = {
   //Nháp
   DRAFT: "draft",
-  //Đã xác nhận
+  //Đã xác nhận po
   FINALIZED: "finalized",
   // Đã hoàn thành
   COMPLETED: "completed",
@@ -175,8 +175,14 @@ export const ProcurementStatus = {
   not_received: "not_received",
   received: "received",
 };
+
 export const ProcurementStatusName = {
   [ProcurementStatus.draft]: "Nháp",
   [ProcurementStatus.not_received]: "Đã duyệt",
   [ProcurementStatus.received]: "Đã nhận",
+};
+
+export const PROMO_TYPE = {
+  MANUAL: "MANUAL",
+  AUTOMATIC: "AUTOMATIC",
 };

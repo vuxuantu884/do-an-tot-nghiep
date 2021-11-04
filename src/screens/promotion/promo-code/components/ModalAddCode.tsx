@@ -1,6 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Col, Modal, Row, Form, Space, Input, Button } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Col, Modal, Row, Form, Input, Button } from "antd";
+import { useCallback } from "react";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
 
@@ -19,8 +19,6 @@ const ModalAddCode: React.FC<ModalProps> = (
 ) => {
   const { isManual, title, visible, okText,cancelText, onCancel, onOk } = props;
 
-  console.log(isManual);
-  
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);

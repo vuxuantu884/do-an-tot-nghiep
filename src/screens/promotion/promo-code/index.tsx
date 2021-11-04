@@ -3,18 +3,18 @@ import {
   Button,
   Form,
   Input,
-  Tag,
-  Select
+  // Tag
 } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
 import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
 import CustomSelect from "component/custom/select.custom";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import "./promotion-code.scss";
+import "./promo-code.scss";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -22,12 +22,41 @@ import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
-import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import { deletePriceRulesById, getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { PROMO_TYPE } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "service/promotion/discount/discount.service";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+
 
 const PromotionCode = () => {
+  const dispatch = useDispatch();
+  const query = useQuery();
+  let dataQuery: any = {
+    ...{
+      type: PROMO_TYPE.MANUAL,
+      request: "",
+      status: ""
+    },
+    ...getQueryParams(query)
+  }
+  const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [dataSource, setDataSource] = useState<PageResponse<DiscountResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  })
+  const [params, setParams] = useState<any>(dataQuery);
+  const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
+  const [modalInfo, setModalInfo] = React.useState<any>();
+  const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
+
   const promotionStatuses = [
     {
       code: 'APPLYING',
@@ -76,6 +105,7 @@ const PromotionCode = () => {
         padding: "5px 10px"
       }},
   ]
+  
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -95,36 +125,14 @@ const PromotionCode = () => {
     },
   ];
 
-  const initQuery: any = {
-    request: "",
-    status: ""
-  };
-  const dispatch = useDispatch();
-  const query = useQuery();
-
-  const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  })
-  let dataQuery: any = {
-    ...initQuery,
-    ...getQueryParams(query)
-  }
-  const [params, setParams] = useState<any>(dataQuery);
-
-  const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
-    setData(data)
+  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
+    setDataSource(data)
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
-    dispatch(getListPromotionCode(params, fetchData));
-  }, [dispatch, fetchData, params]);
+    dispatch(getListDiscount(params, fetchData));
+  }, [dispatch, fetchData, params])
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -142,9 +150,12 @@ const PromotionCode = () => {
   const handleUpdate = (item: any) => {
     console.log(item);
   };
+
   const handleShowDeleteModal = (item: any) => {
-    console.log(item);
+    setModalInfo(item);
+    setIsShowDeleteModal(true);
   };
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
@@ -153,7 +164,7 @@ const PromotionCode = () => {
       width: "7%",
       render: (value: any, item: any, index: number) =>
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/${item.id}`}
+          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
           {value.id}
@@ -163,21 +174,21 @@ const PromotionCode = () => {
       title: "Tên đợt phát hành",
       visible: true,
       fixed: "left",
-      dataIndex: "name",
+      dataIndex: "title",
       width: "20%",
     },
     {
       title: "SL mã",
       visible: true,
       fixed: "left",
-      dataIndex: "code_amount",
+      dataIndex: "usage_limit_per_customer",
       width: "10%",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "used_amount",
+      dataIndex: "usage_limit",
       width: "10%",
     },
     {
@@ -215,28 +226,25 @@ const PromotionCode = () => {
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
-  const columnFinal = React.useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
 
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
+  // function tagRender(props: any) {
+  //   const { label, closable, onClose } = props;
+  //   const onPreventMouseDown = (event: any) => {
+  //     event.preventDefault();
+  //     event.stopPropagation();
+  //   };
+  //   return (
+  //     <Tag
+  //       className="primary-bg"
+  //       onMouseDown={onPreventMouseDown}
+  //       closable={closable}
+  //       onClose={onClose}
+  //     >
+  //       {label}
+  //     </Tag>
+  //   );
+  // }
+
   const listStatus: Array<BaseBootstrapResponse> = [
     {
       value: "APPLYING",
@@ -260,6 +268,51 @@ const PromotionCode = () => {
     }
   ]
 
+  const onMenuClick = useCallback(
+    async (index: number) => {
+      const body = {ids: selectedRowKey}
+      switch (index) {
+        case 1:
+          const bulkEnableResponse = await bulkEnablePriceRules(body);
+          if (bulkEnableResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
+          }
+          break;
+        case 2:
+          const bulkDisableResponse = await bulkDisablePriceRules(body);
+          if (bulkDisableResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
+          }
+          break;
+        case 3:
+          break;
+        case 4:
+          const bulkDeleteResponse = await bulkDeletePriceRules(body);
+          if (bulkDeleteResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListDiscount(params, fetchData));
+          } else {
+            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
+          }
+          break;
+
+      }
+    },
+    [dispatch, fetchData, params, selectedRowKey]
+  );
+
+  const onDeleteSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Xóa thành công");
+    dispatch(getListDiscount(params, fetchData));
+  }, [dispatch, fetchData, params]);
+
   return (
     <ContentContainer
       title="Danh sách đợt phát hành"
@@ -270,16 +323,16 @@ const PromotionCode = () => {
         },
         {
           name: "Khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Đợt phát hành",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/create`}>
+          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"
@@ -293,7 +346,7 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
@@ -301,21 +354,20 @@ const PromotionCode = () => {
                   placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 />
               </Form.Item>
-              <Form.Item name="status" className="store">
+              <Form.Item name="status" className="status">
                 <CustomSelect
-                  showSearch
-                  optionFilterProp="children"
+                  style={{ width: "100%", borderRadius: "6px" }}
                   showArrow
-                  placeholder="Chọn trạng thái"
-                  allowClear
-                  tagRender={tagRender}
-                  style={{
-                    width: "100%",
-                  }}
+                  showSearch
+                  placeholder="Nguồn đơn hàng"
                   notFoundContent="Không tìm thấy kết quả"
                 >
-                  {listStatus?.map((item) => (
-                    <CustomSelect.Option key={item.value} value={item.value}>
+                  {listStatus.map((item, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={(index + 1).toString()}
+                      value={item.value}
+                    >
                       {item.name}
                     </CustomSelect.Option>
                   ))}
@@ -335,23 +387,39 @@ const PromotionCode = () => {
 
           {/* <Card style={{ position: "relative" }}> */}
           <CustomTable
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => {
+              console.log('CustomTable: ', rowKey)
+              setSelectedRowKey(rowKey)
+            }}
             isRowSelection
             isLoading={tableLoading}
-            sticky={{ offsetScroll: 5 }}
+            sticky={{offsetScroll: 5}}
             pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
+              pageSize: dataSource.metadata.limit,
+              total: dataSource.metadata.total,
+              current: dataSource.metadata.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={data.items}
-            columns={columnFinal}
+            dataSource={dataSource.items}
+            columns={columns}
             rowKey={(item: any) => item.id}
           />
         </div>
       </Card>
+      <ModalDeleteConfirm
+        onCancel={() => setIsShowDeleteModal(false)}
+        onOk={() => {
+          setIsShowDeleteModal(false);
+          dispatch(showLoading());
+          dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
+        }}
+        title="Bạn có chắc muốn xoá không?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isShowDeleteModal}
+      />
     </ContentContainer>
   );
 };

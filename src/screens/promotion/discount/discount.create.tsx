@@ -13,13 +13,14 @@ import {useDispatch} from "react-redux";
 import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
+import { PROMO_TYPE } from "utils/Constants";
 
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();
   const [discountForm] = Form.useForm();
   const history = useHistory();
-  const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
+  // const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   // const [customerAdvanceMsg, setCustomerAdvanceMsg] = React.useState<string | null>(null);
@@ -27,7 +28,7 @@ const CreateDiscountPage = () => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
 
-  }, []);
+  }, [dispatch]);
 
   const transformData = (values: any) => {
     console.log('transformData: ', values);
@@ -37,7 +38,7 @@ const CreateDiscountPage = () => {
     //   setCustomerAdvanceMsg("Vui lòng nhập đối tượng khách hàng")
     // }
     // body.discount_codes.push(values.discount_codes)
-    body.type = "AUTOMATIC";
+    body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;
     body.priority = values.priority;
     body.description = values.descriptionl
@@ -73,11 +74,10 @@ const CreateDiscountPage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/discount");
+      history.push("/promotion/promo-code");
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
-
   }
 
   const save = async () => {
@@ -87,7 +87,7 @@ const CreateDiscountPage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu thành công");
-      history.push("/promotion/discount");
+      history.push("/promotion/promo-code");
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
@@ -98,7 +98,7 @@ const CreateDiscountPage = () => {
     const fieldName = errorFields[0].name.join("");
     if (fieldName === "contact_name" || fieldName === "contact_phone") {
       showError("Vui lòng nhập thông tin liên hệ");
-      setCollapseActive(true);
+      // setCollapseActive(true);
     }
   }
 

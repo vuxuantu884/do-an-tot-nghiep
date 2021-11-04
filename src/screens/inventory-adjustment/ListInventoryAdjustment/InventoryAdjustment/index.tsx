@@ -1,6 +1,6 @@
 import { MenuAction } from "component/table/ActionButton";
 import { InventoryAdjustmentGetPrintContentAction, inventoryGetSenderStoreAction } from "domain/actions/inventory/inventory-adjustment.action";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
 import { InventoryAdjustmentDetailItem, InventoryAdjustmentSearchQuery } from "model/inventoryadjustment";
@@ -9,10 +9,10 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Tag, Space } from "antd";
+import { Tag, Space, Card } from "antd";
 import { InventoryAdjustmentWrapper } from "./styles";
 import { INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, STATUS_INVENTORY_ADJUSTMENT } from "../constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { generateQuery } from "utils/AppUtils";
@@ -23,6 +23,8 @@ import { getListInventoryAdjustmentAction } from "domain/actions/inventory/inven
 import { StoreResponse } from "model/core/store.model";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
+import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
+import CustomFilter from "component/table/custom.filter";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -53,11 +55,7 @@ const actions: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.PRINT,
     name: "In phiếu",
-  }, 
-  {
-    id: ACTIONS_INDEX.ADJUSTMENT,
-    name: "Cân tồn kho",
-  },
+  },  
 ];
 
 const InventoryAdjustment: React.FC = () => {
@@ -67,8 +65,9 @@ const InventoryAdjustment: React.FC = () => {
   const query = useQuery();
   const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
   const [tableLoading, setTableLoading] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [selected, setSelected] = useState<Array<InventoryAdjustmentDetailItem>>([]);
 
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -104,117 +103,52 @@ const InventoryAdjustment: React.FC = () => {
         );
       });
       let textResponseFormatted = textResponse.join(pageBreak);
-      //xóa thẻ p thừa
       let result = textResponseFormatted.replaceAll("<p></p>", "");
       setPrintContent(result);
       handlePrint && handlePrint();
     },
     [handlePrint]
   );
+  
+  const ActionComponent = () => {
+    let Compoment = () => <span>Mã phiếu</span>;
+    if (selected?.length > 0) {
+      Compoment = () => (
+        <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+          <Fragment />
+        </CustomFilter>
+      );
+    }
+    return <Compoment />;
+  };
 
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryAdjustmentDetailItem>>>([
+  const defaultColumns : Array<ICustomTableColumType<InventoryAdjustmentDetailItem>> =[
     {
-      title: "Mã phiếu/Ngày tạo",
+      title: <ActionComponent />,
       dataIndex: "code",
       visible: true,
-      align: "center",
-      fixed: "left",
-      width: "150px",
-      render: (value: string, row: InventoryAdjustmentDetailItem) => (
-        <Link to={`${UrlConfig.INVENTORY_ADJUSTMENT}/${row.id}`}>{value}</Link>
+      align: "left",
+      fixed: "left", 
+      render: (value: string, row: InventoryAdjustmentDetailItem) => ( 
+        <>
+        <Link to={`${UrlConfig.INVENTORY_ADJUSTMENT}/${row.id}`} style={{fontWeight: 500}}>{value}</Link>
+        <br />
+        <span style={{fontSize: "12px"}}>
+          Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+        </span>
+      </>
       ),
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      visible: true,
-      width: "100px",
-      align: "center",
-      render: (item: string) => {
-        let textTag = '';
-        let classTag = '';
-        switch (item) {
-          case STATUS_INVENTORY_ADJUSTMENT.DRAFT.status:
-            textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
-            classTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.status;
-            break;
-          case STATUS_INVENTORY_ADJUSTMENT.AUDITED.status:
-            textTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.name;
-            classTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.status;
-            break;
-          case STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status:
-            textTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.name;
-            classTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status;
-            break;
-          default:
-            textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
-            classTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.status;
-            break;
-        }
-        return (
-          <Tag className={classTag}>{textTag}</Tag>
-        )
-      }
-    },
-    {
-      title: "Loại kho kiểm",
-      dataIndex: "audit_type",
-      render: (item: string) => {
-        let text = 'Một phần';
-        const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(e => e.value === item);
-        if (auditType && item === auditType?.value) {
-          text = auditType.name;
-        }
-
-        return (
-          <Space>{text}</Space>
-        )
-      },
-      visible: true,
-      width: "120px",
-    },
-    {
-      title: "Kho kiểm",
-      width: "120px",
-      dataIndex: "adjusted_store_name",
-      visible: true,
-    },
-    {
-      title: "Ngày tạo",
-      width: '100px',
-      dataIndex: "created_date",
-      visible: true,
-      align: "left",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
-    {
-      title: "Ngày kiểm",
-      width: '100px',
-      dataIndex: "audited_date",
-      visible: true,
-      align: "left",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
-    {
-      title: "Cân tồn kho",
-      visible: true,
-      render: (item: InventoryAdjustmentDetailItem) => {
-        return <div>
-          <div>{item.adjusted_by}</div>
-          <div>{ConvertUtcToLocalDate(item.adjusted_date)}</div>
-        </div>;
-      },
-    },
-    {
       title: "Số SP",
-      width: '80',
+      width: 80,
       dataIndex: "total_variant",
       visible: true,
       align: "right",
     },
     {
       title: "Tổng SL",
-      width: '80',
+      width: 90,
       dataIndex: "total_real_on_hand",
       visible: true,
       align: "right",
@@ -224,7 +158,7 @@ const InventoryAdjustment: React.FC = () => {
     },
     {
       title: "Thừa/Thiếu",
-      width: '120',
+      width: 140,
       align: "center",
       visible: true,
       render: (item: InventoryAdjustmentDetailItem) => {
@@ -243,7 +177,96 @@ const InventoryAdjustment: React.FC = () => {
         </Space>
       },
     },
-  ]);
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      visible: true,
+      width: 100,
+      align: "center",
+      render: (item: string) => {
+        let textTag = '';
+        let classTag = '';
+        switch (item) {
+          case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT:
+            textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
+            classTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.status;
+            break;
+          case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED:
+            textTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.name;
+            classTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.status;
+            break;
+          case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED:
+            textTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.name;
+            classTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status;
+            break;
+          default:
+            textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
+            classTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.status;
+            break;
+        }
+        return (
+          <Tag className={classTag}>{textTag}</Tag>
+        )
+      }
+    }, 
+    {
+      title: "Kho kiểm",
+      width: 120,
+      dataIndex: "adjusted_store_name",
+      visible: true,
+    },
+    {
+      title: "Loại kho kiểm",
+      dataIndex: "audit_type",
+      render: (item: string) => {
+        let text = 'Một phần';
+        const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(e => e.value === item);
+        if (auditType && item === auditType?.value) {
+          text = auditType.name;
+        }
+
+        return (
+          <Space>{text}</Space>
+        )
+      },
+      visible: true,
+      width: 120,
+    },
+    {
+      title: "Ngày tạo",
+      width: 100,
+      dataIndex: "created_date",
+      visible: true,
+      align: "left",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+    },
+    {
+      title: "Ngày kiểm",
+      width: 100,
+      dataIndex: "audited_date",
+      visible: true,
+      align: "left",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+    },
+    {
+      title: "Cân tồn kho",
+      visible: true,
+      render: (item: InventoryAdjustmentDetailItem) => {
+        return <div>
+          <div>{item.adjusted_by}</div>
+          <div>{ConvertUtcToLocalDate(item.adjusted_date)}</div>
+        </div>;
+      },
+    }, 
+  ];
+
+  const [columns, setColumn] =
+    useState<Array<ICustomTableColumType<InventoryAdjustmentDetailItem>>>(defaultColumns);
+
+  useEffect(() => {
+    setColumn(defaultColumns);
+  }, [selected]);
+
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -291,14 +314,9 @@ const InventoryAdjustment: React.FC = () => {
   );
 
   const printTicketAction = useCallback((index: number) => {
-    let printType = "";
-    if (index === ACTIONS_INDEX.PRINT) {
-      printType = "inventory_transfer_bill";
-    }
 
     let params = {
       ids: selectedRowKeys,
-      "type": printType,
     };
 
     const queryParam = generateQuery(params);
@@ -331,12 +349,17 @@ const InventoryAdjustment: React.FC = () => {
     [history]
   );
 
-  const onSelectedChange = useCallback((selectedRow) => {
-
-    const selectedRowKeys = selectedRow.map((row: any) => row.id);
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>) => {
+    const selectedRowKeys = selectedRow.map((row => row.id));
     setSelectedRowKeys(selectedRowKeys);
 
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
   }, []);
+ 
 
   //get store
   useEffect(() => {
@@ -350,13 +373,14 @@ const InventoryAdjustment: React.FC = () => {
   }, [dispatch, setDataAccounts]);
 
   //get list
-  useEffect(() => {
-    //  dispatch(getListInventoryTransferAction(params, setSearchResult)); 
+  useEffect(() => { 
+
     dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
   }, [history, dispatch, params, setSearchResult]);
 
   return (
     <InventoryAdjustmentWrapper>
+      <Card>
       <InventoryAdjustmentFilters
         onShowColumnSetting={() => setShowSettingColumn(true)}
         accounts={accounts}
@@ -367,6 +391,7 @@ const InventoryAdjustment: React.FC = () => {
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}
       />
+     
       <CustomTable
         isRowSelection
         isLoading={tableLoading}
@@ -384,7 +409,7 @@ const InventoryAdjustment: React.FC = () => {
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}
-        rowKey={(item: VariantResponse) => item.id}
+        rowKey={(item: InventoryAdjustmentDetailItem) => item.id}
       />
       <ModalSettingColumn
         visible={showSettingColumn}
@@ -404,6 +429,7 @@ const InventoryAdjustment: React.FC = () => {
           ></div>
         </div>
       </div>
+      </Card>
     </InventoryAdjustmentWrapper>
   )
 }

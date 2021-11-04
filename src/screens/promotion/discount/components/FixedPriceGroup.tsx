@@ -15,22 +15,11 @@ import {AiOutlineClose} from "react-icons/ai";
 import {DeleteOutlined} from "@ant-design/icons";
 
 const Option = Select.Option;
-const discountTypes = [
-  {
-    value: "FIXED_AMOUNT",
-    name: "đ"
-  },
-  {
-    value: "PERCENTAGE",
-    name: "%"
-  }
-]
 
 const FixedPriceGroup = (props: any) => {
   const {
     key,
     name,
-    fieldKey,
     form,
     remove,
     isFirst,
@@ -81,14 +70,14 @@ const FixedPriceGroup = (props: any) => {
     let entitlementFields = form.getFieldValue('entitlements')
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)})
     form.setFieldsValue({entitlements: entitlementFields})
-  }, [selectedProduct])
+  }, [form, name, selectedProduct])
 
   useEffect(() => {
     let entitlementFields = form.getFieldValue('entitlements')
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
     console.log('discountType: ', discountType)
     form.setFieldsValue({entitlements: entitlementFields})
-  }, [discountType])
+  }, [discountType, form, name])
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -120,7 +109,7 @@ const FixedPriceGroup = (props: any) => {
       }
       setVisibleManyProduct(false);
     },
-    [selectedProduct]
+    [form, name, selectedProduct]
   );
 
   const onDeleteItem = useCallback(
@@ -239,9 +228,9 @@ const FixedPriceGroup = (props: any) => {
                           </Link>
                         </div>
                         <div className="product-item-name">
-                                  <span className="product-item-name-detail">
-                                    {item.name}
-                                  </span>
+                          <span className="product-item-name-detail">
+                            {item.name}
+                          </span>
                         </div>
                       </div>
                     </div>

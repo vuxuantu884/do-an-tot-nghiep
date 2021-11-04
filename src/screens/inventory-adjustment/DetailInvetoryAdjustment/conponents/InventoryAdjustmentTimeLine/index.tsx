@@ -2,10 +2,10 @@ import { Steps } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
-import { StyledWrapper } from "screens/inventory/DetailTicket/components/InventoryTransferStep/styles";
 import { InventoryAdjustmentDetailItem } from "model/inventoryadjustment";
 import { STATUS_INVENTORY_ADJUSTMENT } from "screens/inventory-adjustment/ListInventoryAdjustment/constants";
-import {  DATE_FORMAT } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
 
 type StepStatusProps = {
   status?: string | null | undefined;
@@ -40,32 +40,36 @@ const InventoryAdjustmentTimeLine: React.FC<StepStatusProps> = (props: StepStatu
     </div>
   );
 
-  const createDate = inventoryAdjustmentDetail?.created_date ? moment(inventoryAdjustmentDetail.created_date).format(formatDate) : '';
-  const audited_date = inventoryAdjustmentDetail?.audited_date ? moment(inventoryAdjustmentDetail.audited_date).format(formatDate) : '';
-  const adjusted_date = inventoryAdjustmentDetail?.adjusted_date ? moment(inventoryAdjustmentDetail.adjusted_date).format(formatDate) : '';
+  const strreateDate = inventoryAdjustmentDetail?.created_date ? moment(inventoryAdjustmentDetail.created_date).format(formatDate) : '';
+  const stradjusted_date = inventoryAdjustmentDetail?.adjusted_date ? moment(inventoryAdjustmentDetail.adjusted_date).format(formatDate) : '';
+  let straudited_date ="";
+  if (inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
+    straudited_date  = `(${ConvertUtcToLocalDate(inventoryAdjustmentDetail.audited_date,DATE_FORMAT.DDMMYYY)})`;
+  }else if(inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED
+    || inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED){
+    straudited_date  = `${ConvertUtcToLocalDate(inventoryAdjustmentDetail.audited_date,DATE_FORMAT.DDMMYY_HHmm)}`;
+  }
 
   return (
-    <StyledWrapper>
       <Steps
         progressDot={progressDot}
         size="small"
         current={currentStep}
-        className="inventory-transfer-step"
+        className="create-bill-step"
       >
         <Steps.Step
           title="Kế hoạch"
-          description={createDate}
+          description={strreateDate}
         />
         <Steps.Step
           title="Kiểm kho"
-          description={audited_date}
+          description={straudited_date}
         />
         <Steps.Step
           title="Đã cân tồn"
-          description={adjusted_date}
-        />
+          description={stradjusted_date}
+        /> 
       </Steps>
-    </StyledWrapper>
   );
 };
 

@@ -21,75 +21,79 @@ import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import "./promotion-code.scss";
+import ModalAddCode from "./components/ModalAddCode";
+import Dragger from "antd/lib/upload/Dragger";
+import "./promo-code.scss";
+import { useParams } from "react-router";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { getListPromotionCode } from "domain/actions/promotion/promotion-code/promotion-code.action";
-import { ListPromotionCodeResponse } from "model/response/promotion/promotion-code/list-discount.response";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import ModalAddCode from "./components/ModalAddCode";
-import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
+import { Link } from "react-router-dom";
+
+const promotionStatuses = [
+  {
+    code: 'APPLYING',
+    value: 'Đang áp dụng',
+    style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'TEMP_STOP',
+    value: 'Tạm ngưng',
+    style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "#FCAF17",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'WAIT_FOR_START',
+    value: 'Chờ áp dụng',
+    style: {
+      background: "rgb(245, 245, 245)",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'ENDED',
+    value: 'Kết thúc',
+    style: {
+      background: "rgba(39, 174, 96, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(39, 174, 96)",
+      padding: "5px 10px"
+    }
+  },
+  {
+    code: 'CANCELLED',
+    value: 'Đã huỷ',
+    style: {
+      background: "rgba(226, 67, 67, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(226, 67, 67)",
+      padding: "5px 10px"
+    }
+  },
+]
 
 const ListCode = () => {
-  const promotionStatuses = [
-    {
-      code: 'APPLYING',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'TEMP_STOP',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng',
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }
-    },
-  ]
+ 
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -100,7 +104,6 @@ const ListCode = () => {
       name: "Xoá",
     },
   ];
-
   const initQuery: DiscountSearchQuery = {
     type: "MANUAL",
     request: "",
@@ -114,13 +117,15 @@ const ListCode = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
-
+  const {id} = useParams() as any; 
+  const priceRuleId = id;
+  
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<PageResponse<ListPromotionCodeResponse>>({
+  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -128,20 +133,21 @@ const ListCode = () => {
     },
     items: [],
   })
+ 
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query)
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
-  const fetchData = useCallback((data: PageResponse<ListPromotionCodeResponse>) => {
-    setData(data)
+  const fetchData = useCallback((data: any) => {
+    setData(data);
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
-    dispatch(getListPromotionCode(params, fetchData));
-  }, [dispatch, fetchData, params]);
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch, fetchData, priceRuleId]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -165,7 +171,7 @@ const ListCode = () => {
   const handleStatus = (item: any) => {
     console.log(item);
   };
-  const columns: Array<ICustomTableColumType<any>> = [
+  const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
     {
       title: "Mã giảm giá",
       visible: true,
@@ -177,7 +183,7 @@ const ListCode = () => {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "amount",
+      dataIndex: "usage_count",
       width: "10%",
     },
     {
@@ -213,7 +219,7 @@ const ListCode = () => {
         <div>{`${item.create_date ? moment(item.create_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
     },
     actionColumn(handleUpdate, handleDelete, handleStatus),
-  ];
+  ], []);
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -437,7 +443,7 @@ const ListCode = () => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

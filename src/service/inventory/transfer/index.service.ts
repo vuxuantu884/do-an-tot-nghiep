@@ -89,7 +89,6 @@ const TransferService = {
     files,
     folder = "stock-transfer",
   }: FileParam): Promise<BaseResponse<string[]>> => {
-    // console.log('files',files)
     let url = `${ApiConfig.CORE}/upload/file`;
     const formData = new FormData();
     formData.append("folder", folder);
@@ -143,6 +142,13 @@ const TransferService = {
       transferId: number, shipmentId: number
     ): Promise<BaseResponse<string>> => {
       return BaseAxios.delete(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment/${shipmentId}`);
+    },
+
+    //export shipment 
+    exportShipmentInventoryTransfer: (
+      transferId: number, shipmentId: number
+    ): Promise<BaseResponse<string>> => {
+      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment/${shipmentId}`);
     }
 };
 
@@ -156,6 +162,7 @@ export const {
   createInventoryTransferShipment,
   receivedInventoryTransfer,
   cancelShipmentInventoryTransfer,
+  exportShipmentInventoryTransfer,
   adjustmentInventory
 } =
   TransferService;
