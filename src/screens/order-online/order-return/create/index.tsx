@@ -1,6 +1,7 @@
-import { Col, Form, Row } from "antd";
+import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
+import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -9,12 +10,13 @@ import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty
 import {
   actionCreateOrderExchange,
   actionCreateOrderReturn,
-  actionGetOrderReturnReasons,
+  actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import {
   OrderDetailAction,
-  PaymentMethodGetList,
+  PaymentMethodGetList
 } from "domain/actions/order/order.action";
+import { thirdPLModel } from "model/order/shipment.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -26,7 +28,7 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ReturnRequest,
-  ShipmentRequest,
+  ShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -36,23 +38,20 @@ import {
   OrderResponse,
   OrderReturnReasonModel,
   ReturnProductModel,
-  StoreCustomResponse,
+  StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import CardShipment from "screens/order-online/component/order-detail/CardShipment";
 import { getAmountPaymentRequest, getTotalAmountAfferDiscount } from "utils/AppUtils";
 import {
-  FulFillmentStatus,
-  MoneyPayThreePls,
-  OrderStatus,
+  FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
 import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
@@ -122,9 +121,20 @@ const ScreenReturnCreate = (props: PropType) => {
     ShipmentMethodOption.DELIVER_LATER
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  const [shippingFeeInformedCustomerHVC, setShippingFeeInformedCustomerHVC] = useState<
+  
+  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+    delivery_service_provider_code: "",
+    delivery_service_provider_id: null,
+    insurance_fee: null,
+    delivery_service_provider_name: "",
+    delivery_transport_type: "",
+    service: "",
+    shipping_fee_paid_to_three_pls: null,
+  });
+  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
-  >(null);
+  >(0);
+  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
@@ -132,15 +142,7 @@ const ScreenReturnCreate = (props: PropType) => {
     OrderReturnReasonModel[]
   >([]);
   const [discountValue, setDisCountValue] = useState<number>(0);
-  const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
-  const [serviceType, setServiceType] = useState<string>();
-  const [serviceName, setServiceName] = useState<string>("");
-  const [hvc, setHvc] = useState<number | null>(null);
-  const [hvcName, setHvcName] = useState<string | null>(null);
-  const [hvcCode, setHvcCode] = useState<string | null>(null);
-  const [fee, setFee] = useState<number | null>(null);
-  const [fulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [moneyRefund, setMoneyRefund] = useState(0);
@@ -278,6 +280,23 @@ const ScreenReturnCreate = (props: PropType) => {
       }
     }
   }, []);
+
+  const ChangeShippingFeeCustomer = (value: number | null) => {
+    form.setFieldsValue({shipping_fee_informed_to_customer: value});
+    setShippingFeeInformedToCustomer(value);
+  };
+
+  const onSelectShipment = (value: number) => {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+      setIsDisablePostPayment(true);
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+        setPaymentMethod(PaymentMethodOption.COD);
+      }
+    } else {
+      setIsDisablePostPayment(false);
+    }
+    setShipmentMethod(value);
+  };
 
   const handleListExchangeProducts = (listExchangeProducts: OrderLineItemRequest[]) => {
     setListExchangeProducts(listExchangeProducts);
@@ -522,7 +541,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 } else {
                   if (
                     shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-                    !serviceType
+            !thirdPL.service
                   ) {
                     showError("Vui lòng chọn đơn vị vận chuyển");
                   } else {
@@ -677,22 +696,22 @@ const ScreenReturnCreate = (props: PropType) => {
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
-      office_time: officeTime,
+      office_time: null,
     };
 
     switch (shipmentMethod) {
       case ShipmentMethodOption.DELIVER_PARTNER:
         return {
           ...objShipment,
-          delivery_service_provider_id: hvc,
+          delivery_service_provider_id: thirdPL.delivery_service_provider_id,
           delivery_service_provider_type: "external_service",
-          delivery_transport_type: serviceName,
-          delivery_service_provider_code: hvcCode,
-          delivery_service_provider_name: hvcName,
+          delivery_transport_type: thirdPL.delivery_transport_type,
+          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
+          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
           sender_address_id: storeId,
-          shipping_fee_informed_to_customer: value.shipping_fee_informed_to_customer,
-          service: serviceType!,
-          shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
+          shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
+          service: thirdPL.service,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
@@ -924,6 +943,25 @@ const ScreenReturnCreate = (props: PropType) => {
                     totalAmountReturnProducts={totalAmountReturnProducts}
                   />
                 )} */}
+                {isExchange && isStepExchange && (
+                   <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 258">
+                     <OrderCreateShipment
+                       shipmentMethod={shipmentMethod}
+                       orderPrice={totalAmountCustomerNeedToPay}
+                       storeDetail={storeDetail}
+                       customer={customer}
+                       items={listExchangeProducts}
+                       isCancelValidateDelivery={false}
+                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                       setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                       onSelectShipment={onSelectShipment}
+                       thirdPL={thirdPL}
+                       setThirdPL={setThirdPL}
+                       form={form}
+                     />
+
+                   </Card>
+                )}
                 <CardReturnReceiveProducts
                   isDetailPage={false}
                   isReceivedReturnProducts={isReceivedReturnProducts}
