@@ -24,6 +24,7 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
 import "./promo-code.scss";
+import { Link } from "react-router-dom";
 import { useParams } from "react-router";
 import { PlusOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
@@ -35,9 +36,10 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
-import { Link } from "react-router-dom";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { showSuccess } from "utils/ToastUtils";
 
 const promotionStatuses = [
   {
@@ -93,7 +95,6 @@ const promotionStatuses = [
 ]
 
 const ListCode = () => {
- 
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -125,7 +126,9 @@ const ListCode = () => {
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
+  const [showEditPopup, setShowEditPopup] = React.useState<boolean>(false);
+  const [editData, setEditData] = React.useState<any>();
+  const [data, setData] = useState<any>({
     metadata: {
       limit: 30,
       page: 1,
@@ -140,11 +143,20 @@ const ListCode = () => {
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
+  // handle get list data
   const fetchData = useCallback((data: any) => {
-    setData(data);
-    setTableLoading(false)
+    let dataSource = {
+      metadata: {
+        limit: 20,
+        total: data.length,
+        page: 1,
+      },
+      items: data
+    }
+    
+    setData(dataSource);
+    setTableLoading(false);
   }, [])
-
   useEffect(() => {
     dispatch(getListPromoCode(priceRuleId, fetchData));
   }, [dispatch, fetchData, priceRuleId]);
@@ -162,15 +174,43 @@ const ListCode = () => {
     setParams({ ...newParams })
   }, [params])
 
+  // section EDIT by Id
   const handleUpdate = (item: any) => {
-    console.log(item);
+    setEditData(item);
+    setShowEditPopup(true);
   };
-  const handleDelete = (item: any) => {
-    console.log(item);
-  };
+   // section DELETE by Id
+   function handleEdit(value: any) {
+     if(!value) return;
+    let body = {
+      ...editData,
+      code: value?.code
+    }
+    dispatch(showLoading());
+    dispatch(updatePromoCodeById(priceRuleId, editData.id, body, onUpdateSuccess));
+  }
+  const onUpdateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Cập nhật thành công");
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch]);
+
+  // section DELETE by Id
+  function handleDelete(item: any) {
+    dispatch(showLoading());
+    dispatch(getPromoCodeById(priceRuleId, item.id, onDeleteSuccess));
+  }
+  const onDeleteSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Xóa thành công");
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch]);
+
+  // section CHANGE STATUS
   const handleStatus = (item: any) => {
     console.log(item);
   };
+
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
     {
       title: "Mã giảm giá",
@@ -414,7 +454,8 @@ const ListCode = () => {
         onCancel={() => {
           setShowAddCodeRandom(false);
         }}
-        onOk={() => {
+        onOk={(data) => {
+          console.log(data);
           setShowAddCodeRandom(false);
         }}
       />
@@ -462,6 +503,21 @@ const ListCode = () => {
           </div>
         </Row>
       </Modal>
+      <ModalAddCode
+        isManual={true}
+        visible={showEditPopup}
+        okText="Thêm"
+        dataSource={editData ? editData : null}
+        cancelText="Thoát"
+        title={`Sửa mã giảm giá ${editData?.code}`}
+        onCancel={() => {
+          setShowEditPopup(false);
+        }}
+        onOk={(data) => {
+          handleEdit(data);
+          setShowEditPopup(false);
+        }}
+      />
     </ContentContainer>
   );
 };

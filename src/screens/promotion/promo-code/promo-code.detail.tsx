@@ -16,7 +16,7 @@ import "./promo-code.scss";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
 import { RiUpload2Line } from "react-icons/ri";
-import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -25,6 +25,8 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { showSuccess } from "utils/ToastUtils";
 
 export interface ProductParams {
   id: string;
@@ -75,18 +77,31 @@ const PromotionDetailScreen: React.FC = () => {
     setSource(source);
   }, [listSource]);
 
-  const fetchData = useCallback((data: any) => {
+  const handleCheckPromoList = useCallback((data: any) => {
     setCheckPromoCode(data.length > 0);
-  }, [])
+  }, []);
 
   useEffect(() => {
-    dispatch(getListPromoCode(idNumber, fetchData));
-  }, [dispatch, fetchData, idNumber]);
+    dispatch(getListPromoCode(idNumber, handleCheckPromoList));
+  }, [dispatch, handleCheckPromoList, idNumber]);
 
+  // section DELETE by Id
+  function onDelete() {
+    dispatch(showLoading());
+    dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
+  }
+  const onDeleteSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Xóa thành công");
+    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+  }, [dispatch]);
+
+  // section EDIT item
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/edit`);
+    // TO DO
   }, [history, idNumber]);
 
+  // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -95,13 +110,12 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
-
   useEffect(() => {
     dispatch(promoGetDetail(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
 
-  const promotionDetail: Array<any> | undefined = React.useMemo(() => {
+  const promoDetail: Array<any> | undefined = React.useMemo(() => {
     if (data) {
       const details = [
         {
@@ -207,8 +221,8 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 <Row gutter={30}>
                   <Col span={12}>
-                    {promotionDetail &&
-                      promotionDetail
+                    {promoDetail &&
+                      promoDetail
                         .filter((detail: detailMapping) => detail.position === "left")
                         .map((detail: detailMapping, index: number) => (
                           <Col
@@ -245,8 +259,8 @@ const PromotionDetailScreen: React.FC = () => {
                         ))}
                   </Col>
                   <Col span={12}>
-                    {promotionDetail &&
-                      promotionDetail
+                    {promoDetail &&
+                      promoDetail
                         .filter((detail: detailMapping) => detail.position === "right")
                         .map((detail: detailMapping, index: number) => (
                           <Col
@@ -314,8 +328,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {checkPromoCode  && 
-                  <Row gutter={30}>
+                {checkPromoCode  &&  <Row gutter={30}>
                     <Col span={24}>
                       <Link 
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
@@ -521,7 +534,7 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại sản phẩm"
         rightComponent={
           <Space>
-            <Button style={{ color: '#E24343'}}>Xoá</Button>
+            <Button onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
             <Button onClick={onEdit}>Sửa</Button>
             <Button>Nhân bản</Button>
             <Button type="primary">Kích hoạt</Button>

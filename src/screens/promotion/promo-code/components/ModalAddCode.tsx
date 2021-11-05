@@ -12,12 +12,13 @@ type ModalProps = {
   title: string;
   okText: string;
   cancelText: string;
+  dataSource?: any;
 };
 
 const ModalAddCode: React.FC<ModalProps> = (
   props: ModalProps
 ) => {
-  const { isManual, title, visible, okText, cancelText, onCancel, onOk } = props;
+  const { isManual, title, visible, okText, cancelText, dataSource, onCancel, onOk } = props;
 
   const onCancelClick = useCallback(() => {
     onCancel();
@@ -28,6 +29,12 @@ const ModalAddCode: React.FC<ModalProps> = (
   }, [onOk]);
 
   const [form] = Form.useForm();
+
+  function onFinish(value: any) {
+    if(!dataSource) return;
+    form.resetFields();
+    onOk(value);
+  }
 
   return (
     <Modal
@@ -44,12 +51,26 @@ const ModalAddCode: React.FC<ModalProps> = (
             <Form
               form={form}
               name="discount_add"
-              onFinish={(value) => {console.log(value);}}
+              onFinish={onFinish}
               onFinishFailed={({ errorFields }) => {console.log(errorFields)}}
               layout="vertical"
-              initialValues={{ listCode: [] }}
+              initialValues={dataSource ?  { code: dataSource.code } : { listCode: [] }}
             >
-              <Form.List
+              {dataSource && <Form.Item
+                name="code"
+                style={{marginBottom: 19}}
+              >
+                <div style={{
+                  display: "flex",
+                  gap: 30
+              }}>
+                  <Input 
+                    placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
+                    defaultValue={dataSource.code}
+                  />
+                </div>
+              </Form.Item>}
+              {!dataSource && <Form.List
                 name="listCode"
               >
                 {(fields, {add, remove}, {errors}) => {
@@ -87,7 +108,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                     </>
                   )
                 }}
-              </Form.List>
+              </Form.List>}
             </Form>
           </Col>}
           { !isManual && 

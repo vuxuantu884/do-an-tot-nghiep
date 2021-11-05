@@ -81,7 +81,6 @@ const CreatePromotionCodePage = () => {
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
-
   }
 
   const handleSubmitFail = (errorFields: any) => {
