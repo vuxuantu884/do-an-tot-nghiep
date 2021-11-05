@@ -4,8 +4,6 @@ import React, { createContext, ReactNode, useState } from "react";
 type AccountDetailAction = {
   userCode: string;
   setUserCode: (code: string) => void;
-  roleName: string;
-  setRoleName: (code: string) => void;
   accountInfo: AccountResponse;
   setAccountInfo: (acc: AccountResponse) => void;
   accountJobs: Array<AccountJobResponse>;
@@ -17,8 +15,7 @@ export const AccountDetailContext = createContext<Partial<AccountDetailAction>>(
 );
 AccountDetailProvider.defaultProps = {};
 function AccountDetailProvider(props: { children: ReactNode }) {
-  const [userCode, setUserCode] = useState<string>();
-  const [roleName, setRoleName] = useState<string>();
+  const [userCode, setUserCode] = useState<string>(); 
   const [accountInfo, setAccountInfo] = useState<AccountResponse>({} as AccountResponse);
   const [accountJobs, setAccountJobs] = useState<Array<AccountJobResponse>>(
     [] as Array<AccountJobResponse>
@@ -33,9 +30,7 @@ function AccountDetailProvider(props: { children: ReactNode }) {
         accountJobs,
         setAccountJobs,
         userCode,
-        setUserCode,
-        roleName,
-        setRoleName
+        setUserCode, 
       }}
     />
   );

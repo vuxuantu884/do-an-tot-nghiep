@@ -9,10 +9,12 @@ export const checkUserPermission = (
   acceptPermissions: Array<string> = [],
   currentPermissions: Array<string> = []
 ): boolean => {
+  // không truyền vào quyền nào => được phép truy cập
   if (Array.isArray(acceptPermissions) && acceptPermissions?.length === 0) {
     return true;
   }
 
+  // ADMIN_ALL => full quyền => được phép truy cập
   if (
     Array.isArray(currentPermissions) &&
     currentPermissions?.includes(UserPermissions.ADMIN_ALL)
@@ -20,13 +22,18 @@ export const checkUserPermission = (
     return true;
   }
 
-  acceptPermissions.forEach((element) => {
+  // nếu trong profile có 1 quyền nào đó so với quyền cần có => được phép truy cập
+  let hasPermission = false;
+  acceptPermissions.some((element) => {
     if (currentPermissions.includes(element)) {
+      hasPermission = true;
       return true;
+    } else {
+      return false;
     }
   });
 
-  return false;
+  return hasPermission;
 };
 
 export const handleCheckedModule = (
@@ -45,15 +52,16 @@ export const handleCheckedModule = (
 
   if (isCheckedFull) {
     const temps = [...checkedModules];
-    temps.push(module.id.toString());
+    temps.push(module.code);
     setCheckedModules(_.uniq(temps));
   } else {
     const temps = _.dropWhile(checkedModules, function (item) {
-      return item === module.id.toString();
+      return item === module.code;
     });
     setCheckedModules(_.uniq(temps));
   }
 };
+
 export const handleIndeterminateModule = (
   module: ModuleAuthorize,
   form: FormInstance<any>,
@@ -78,11 +86,11 @@ export const handleIndeterminateModule = (
       (value: any) => value
     ).length;
     if (numberOfChecked > 0 && numberOfChecked < permissionsIdList.length) {
-      temps.push(module.id.toString());
+      temps.push(module.code);
       // format array to unique value
       setIndeterminateModules(_.uniq(temps));
     } else {
-      setIndeterminateModules(temps.filter((id) => id !== module.id.toString()));
+      setIndeterminateModules(temps.filter((id) => id !== module.code));
     }
   } else {
     setIndeterminateModules([]);
@@ -104,18 +112,15 @@ export const onChangeModule = (
   e.stopPropagation();
   const {checked} = e.target;
   const moduleCode = module.code;
-  const moduleId = module.id;
   const {setFieldsValue} = form;
-  //remove module.id in indeterminateModules
-  setIndeterminateModules(
-    indeterminateModules.filter((id) => id !== moduleId.toString())
-  ); // set indeterminate checkbox to false
+  //removemodule.code in indeterminateModules
+  setIndeterminateModules(indeterminateModules.filter((id) => id !== moduleCode)); // set indeterminate checkbox to false
   if (checked) {
-    //add module.id to checkedModules
-    setCheckedModules(_.uniq([...checkedModules, moduleId.toString()]));
+    //addmodule.code to checkedModules
+    setCheckedModules(_.uniq([...checkedModules, moduleCode]));
   } else {
-    //remove module.id from checkedModules
-    setCheckedModules(checkedModules.filter((id) => id !== moduleId.toString()));
+    //removemodule.code from checkedModules
+    setCheckedModules(checkedModules.filter((id) => id !== moduleCode));
   }
 
   const checkedModule = _.find(allModullData?.items, function (module) {
@@ -131,13 +136,13 @@ export const onChangeModule = (
     setFieldsValue(checkedPermissions);
 
     // handle active panel here
-    // if (activePanel.includes(checkedModule.id.toString()) && !checked) {
+    // if (activePanel.includes(checkedmodule.code) && !checked) {
     //deactive module from active panel here
     // } else {
     //active module to active panel
     if (Array.isArray(activePanel)) {
       const temps: string[] = [...activePanel];
-      temps.push(checkedModule.id.toString());
+      temps.push(checkedModule.code);
       setActivePanel(_.uniq(temps));
     }
     // }

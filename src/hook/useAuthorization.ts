@@ -14,7 +14,7 @@ useAuthorization.defautProps = {
 function useAuthorization(props: useAuthorizationProps) {
   const { acceptPermissions, not } = props;
   const currentRoles: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer?.modules?.permissions
+    (state: RootReducerType) => state.permissionReducer?.permissions
   );
 
   const [allowed, setAllowed] = useState(false);
@@ -25,4 +25,4 @@ function useAuthorization(props: useAuthorizationProps) {
   return [allowed && !not];
 }
 
-export default useAuthorization;
+export default useAuthorization

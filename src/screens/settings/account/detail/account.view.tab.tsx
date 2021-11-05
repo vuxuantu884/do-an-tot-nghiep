@@ -29,9 +29,9 @@ const JobColumn: Array<ColumnProps<Job>> = [
 function AccountViewTab() {
   const history = useHistory();
   const detailContext = useContext(AccountDetailContext);
-  const { accountInfo, userCode , roleName } = detailContext;
+  const {accountInfo, userCode} = detailContext;
 
-  // const stores = useMemo(() => 
+  // const stores = useMemo(() =>
   // {
   //   // get role_name from accountInfo?.account_roles and join with ', '
   //   if (accountInfo?.account_stores) {
@@ -51,7 +51,7 @@ function AccountViewTab() {
               <span className="account-title">Nhóm phân quyền </span>
             </td>
             <td>
-              <b>: {roleName}</b>
+              {/* <b>: {roleName}</b> */}
             </td>
             <td>
               <span className="account-title">Tên đăng nhập </span>
@@ -123,7 +123,7 @@ function AccountViewTab() {
         columns={JobColumn}
         dataSource={accountInfo?.account_jobs}
         pagination={false}
-        sticky={{ offsetHeader: OFFSET_HEADER_TABLE }}
+        sticky={{offsetHeader: OFFSET_HEADER_TABLE}}
         rowKey={(key: AccountJobResponse) => key.department_id}
       />
       <BottomBarContainer
@@ -134,8 +134,8 @@ function AccountViewTab() {
             <Button
               onClick={() => history.push(`${UrlConfig.ACCOUNTS}/edit/${userCode}`)}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <RiEditLine color="#757575" style={{ width: "15px" }} /> &nbsp; Chỉnh sửa
+              <div style={{display: "flex", alignItems: "center"}}>
+                <RiEditLine color="#757575" style={{width: "15px"}} /> &nbsp; Chỉnh sửa
               </div>
             </Button>
           </Space>
