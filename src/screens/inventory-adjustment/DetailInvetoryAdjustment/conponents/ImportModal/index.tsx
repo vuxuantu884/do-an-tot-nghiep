@@ -14,6 +14,7 @@ type ImportModalProps = {
   fileList: Array<UploadFile>;
   onImport: () => void;
   dataImport?: ImportResponse;
+  hasImportUrl: boolean;
 };
 
 const InventoryTransferImportModal: React.FC<ImportModalProps> = (
@@ -26,10 +27,12 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
     fileList,
     importProgress,
     dataImport,
-    statusImport = false,
+    hasImportUrl,
+    statusImport = STATUS_IMPORT_EXPORT.DEFAULT,
   } = props;
 
   const renderModalFooter = () => {
+    
     return (
       <>
         <Button
@@ -44,6 +47,7 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
           <Button
             key="cancel"
             type="primary"
+            disabled={!hasImportUrl}
             className="create-button-custom ant-btn-outline fixed-button"
             onClick={onImport}
           >
@@ -136,6 +140,11 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
                       </li>
                     );
                   })
+                ) : dataImport?.status === "FINISH" ? (
+                  <li>
+                    <span className="danger">&#8226;</span>
+                    <Text type="danger">File không có dữ liệu</Text>
+                  </li>
                 ) : (
                   <li>
                     <span className="success">&#8226;</span>

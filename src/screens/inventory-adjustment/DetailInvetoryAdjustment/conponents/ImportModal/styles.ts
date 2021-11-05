@@ -16,6 +16,7 @@ export const ImportStatusWrapper = styled.div`
 
     & .content {
       padding: 10px 15px;
+      margin-top: 30px;
       background-color: #F5F5F5;
 
       ul {

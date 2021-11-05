@@ -125,7 +125,8 @@ const DetailInvetoryAdjustment: FC = () => {
   const [statusImport, setStatusImport] = useState<number>(1);
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
   const [dataImport, setDataImport] = useState<ImportResponse>();
-  
+  const [hasImportUrl, setHasImportUrl] = useState<boolean>(false);
+
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formStoreData, setFormStoreData] = useState<StoreResponse | null>();
 
@@ -264,6 +265,7 @@ const DetailInvetoryAdjustment: FC = () => {
                 fileList[index].status = "done";
                 fileList[index].url = data[0];
               }
+              setHasImportUrl(true);
             } else {
               fileList.splice(index, 1);
               showError("Upload ảnh không thành công");
@@ -678,7 +680,7 @@ const DetailInvetoryAdjustment: FC = () => {
         .then((response) => {
           if (response.code === HttpStatus.SUCCESS) {
             setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-            showSuccess("Đã gửi yêu cầu xuất file");
+            showSuccess("Đã gửi yêu cầu nhập file");
             setListJobImportFile([...listJobImportFile, response.data.code]);
           }
         })
@@ -703,6 +705,10 @@ const DetailInvetoryAdjustment: FC = () => {
               setImportProgress(response.data.percent);
             }
             if (response.data && response.data.status === "FINISH") {
+
+              if (!response.data.percent) {
+                setImportProgress(100);
+              }
               
               setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
               dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
@@ -1041,6 +1047,7 @@ const DetailInvetoryAdjustment: FC = () => {
                 visible={showImportModal}
                 onImport={onImport}
                 dataImport={dataImport}
+                hasImportUrl={hasImportUrl}
                 onCancel={() => {
                   setShowImportModal(false);
                   setImportProgress(0);
