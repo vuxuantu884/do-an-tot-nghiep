@@ -96,7 +96,7 @@ const FixedPriceGroup = (props: any) => {
       if (selectedItem) {
         setSelectedProduct([...selectedProduct, selectedItem])
       }
-      setData([]);
+      // setData([]);
     },
     [data, selectedProduct]
   )
