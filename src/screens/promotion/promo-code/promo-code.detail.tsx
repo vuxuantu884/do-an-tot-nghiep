@@ -50,7 +50,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
@@ -58,9 +58,8 @@ const PromotionDetailScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
-  const [store, setStore] = useState<Array<StoreResponse>>();
-  const [source, setSource] = useState<Array<SourceResponse>>();
-
+  const [stores, setStore] = useState<Array<StoreResponse>>();
+  const [sources, setSource] = useState<Array<SourceResponse>>();
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
@@ -73,7 +72,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, [listStore]);
 
   useEffect(() => {
-    const source = listSource?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
+    const source = sources?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
     setSource(source);
   }, [listSource]);
 
@@ -164,7 +163,7 @@ const PromotionDetailScreen: React.FC = () => {
       return details;
     }
   }, [data]);
- 
+
   const timeApply = [
     {
       name: "Từ",
@@ -298,7 +297,7 @@ const PromotionDetailScreen: React.FC = () => {
                 </Row>
                 <hr />
                 <Row gutter={30}>
-                  <Col span={24}> 
+                  <Col span={24}>
                     <img src={CloseIcon} alt="" />
                     <span style={{marginLeft: 14}}>Không được áp dụng chung với các khuyến mại khác</span>
                   </Col>
@@ -330,7 +329,7 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 {checkPromoCode  &&  <Row gutter={30}>
                     <Col span={24}>
-                      <Link 
+                      <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
                       >Xem danh sách mã giảm giá của đợt phát hành</Link>
                     </Col>
@@ -385,11 +384,11 @@ const PromotionDetailScreen: React.FC = () => {
                   <Col span={24} style={{
                     paddingBottom: 16
                   }}>
-                    <span 
+                    <span
                       style={{
                         fontWeight: 500
                       }}
-                    >Thời gian áp dụng: 
+                    >Thời gian áp dụng:
                       <span style={{
                         paddingLeft: 6,
                         color: "#E24343",
@@ -439,11 +438,11 @@ const PromotionDetailScreen: React.FC = () => {
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Cửa hàng áp dụng: 
+                      >Cửa hàng áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -456,7 +455,7 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              store && store.map((item: any, index: number) => (
+                              stores && stores.map((item: any, index: number) => (
                                 <li>{item.name}</li>
                               ))
                             }
@@ -471,11 +470,11 @@ const PromotionDetailScreen: React.FC = () => {
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Kênh bán áp dụng: 
+                      >Kênh bán áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -500,11 +499,11 @@ const PromotionDetailScreen: React.FC = () => {
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Nguồn đơn hàng áp dụng: 
+                      >Nguồn đơn hàng áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -517,7 +516,7 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              source && source.map((item: any, index: number) => (
+                              sources && sources.map((item: any, index: number) => (
                                 <li>{item.name}</li>
                               ))
                             }
@@ -539,7 +538,7 @@ const PromotionDetailScreen: React.FC = () => {
             <Button>Nhân bản</Button>
             <Button type="primary">Kích hoạt</Button>
           </Space>
-          
+
         }
       />
       <ModalAddCode
@@ -566,7 +565,7 @@ const PromotionDetailScreen: React.FC = () => {
         }}
         onOk={(value: any) => {
           console.log(value);
-          
+
           setShowAddCodeRandom(false);
           savePromoCode(value);
         }}
