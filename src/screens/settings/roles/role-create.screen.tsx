@@ -5,7 +5,7 @@ import {
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import { getAllModuleParam } from "config/auth.config";
+import { getAllModuleParam } from "config/module.config";
 import UrlConfig from "config/url.config";
 import { getModuleAction } from "domain/actions/auth/module.action";
 import { createRoleAction } from "domain/actions/auth/role.action";
@@ -59,7 +59,7 @@ const RoleCreateScreen: React.FC = () => {
 
   const onSetModuleData = (data: PageResponse<ModuleAuthorize>) => {
     setModuleData(data);
-    const defaultActivePanel = data.items.map((item) => item.id.toString());
+    const defaultActivePanel = data.items.map((item) => item.code);
     setActivePanel(defaultActivePanel);
   };
 

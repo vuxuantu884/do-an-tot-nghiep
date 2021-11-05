@@ -25,6 +25,6 @@ export interface PermissionName {
   permissions: Array<string>;
 }
 export interface AuthProfilePermission {
-  role: Array<RoleProfile>;
-  modules: PermissionName;
+  user_id: string;
+  permissions: Array<string>;
 }
