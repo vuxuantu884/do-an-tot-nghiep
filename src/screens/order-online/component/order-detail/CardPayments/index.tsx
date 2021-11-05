@@ -105,8 +105,6 @@ function CardPayments(props: CardPaymentsProps) {
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
-    console.log("payment_method_id", payment_method_id);
-    console.log("paymentMaster", paymentMaster);
     if (!paymentMaster) return;
     let indexPayment = payments.findIndex(
       (p) => p.payment_method_id === payment_method_id
@@ -132,7 +130,6 @@ function CardPayments(props: CardPaymentsProps) {
     }
     setPayments([...payments]);
   };
-  console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -184,7 +181,6 @@ function CardPayments(props: CardPaymentsProps) {
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  console.log("levelOrder", levelOrder);
 
   // useEffect(() => {
   //   if (isCloneOrder && paymentMethod === 2) {

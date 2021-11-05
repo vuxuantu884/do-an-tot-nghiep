@@ -300,9 +300,8 @@ const GeneralCreate = (props: any) => {
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
-                  defaultValue="SALE_CODE"
                 >
-                  <Option value={"SALE_CODE"}>Mã giảm giá</Option>
+                  <Option key="SALE_CODE" value={"SALE_CODE"}>Mã giảm giá</Option>
                   {/* <Option value={"GIFT_CODE"}>Mã quà tặng</Option> */}
                 </Select>
               </Form.Item>
@@ -336,11 +335,12 @@ const GeneralCreate = (props: any) => {
             </Col>
             <Col span={12}>
               <Form.Item
+                name="product_type"
                 label={<b>Áp dụng cho:</b>}
               >
-                <Select defaultValue="PRODUCT" onChange={(value) => setProduct(value)}>
+                <Select onChange={(value: string) => setProduct(value)}>
                 {/* <Option value={"CHOOSE_OPTION"}>Chọn điều kiện</Option> */}
-                  <Option value={"PRODUCT"}>Sản phẩm</Option>
+                  <Option key="PRODUCT" value={"PRODUCT"}>Sản phẩm</Option>
                   {/* <Option value={"CATEGORY_PRODUCT"}>Danh mục sản phẩm</Option> */}
                 </Select>
               </Form.Item>
@@ -513,13 +513,13 @@ const GeneralCreate = (props: any) => {
                 name="prerequisite_weekdays"
               >
                 <Select placeholder="Chọn ngày" mode="multiple">
-                  <Option value={"SUN"}>Chủ nhật</Option>
-                  <Option value={"MON"}>Thứ 2</Option>
-                  <Option value={"TUE"}>Thứ 3</Option>
-                  <Option value={"WED"}>Thứ 4</Option>
-                  <Option value={"THU"}>Thứ 5</Option>
-                  <Option value={"FRI"}>Thứ 6</Option>
-                  <Option value={"SAT"}>Thứ 7</Option>
+                  <Option key="SUN" value={"SUN"}>Chủ nhật</Option>
+                  <Option key="MON" value={"MON"}>Thứ 2</Option>
+                  <Option key="TUE" value={"TUE"}>Thứ 3</Option>
+                  <Option key="WED" value={"WED"}>Thứ 4</Option>
+                  <Option key="THU" value={"THU"}>Thứ 5</Option>
+                  <Option key="FRI" value={"FRI"}>Thứ 6</Option>
+                  <Option key="SAT" value={"SAT"}>Thứ 7</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -531,7 +531,7 @@ const GeneralCreate = (props: any) => {
               >
 
                 <Select placeholder="Chọn ngày" mode="multiple">
-                  {getDays().map(day => <Option value={day.key}>{day.value}</Option>)}
+                  {getDays().map(day => <Option key={day.key} value={day.key}>{day.value}</Option>)}
                 </Select>
               </Form.Item>
             </Col>
@@ -547,7 +547,7 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
                 <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
-                  {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
+                  {listStore?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -573,9 +573,9 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
                 <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple">
-                  <Option value="ADMIN">ADMIN</Option>
-                  <Option value="POS">POS</Option>
-                  <Option value="WEB">WEB</Option>
+                  <Option key="ADMIN" value="ADMIN">ADMIN</Option>
+                  <Option key="POS" value="POS">POS</Option>
+                  <Option key="POS" value="POS">WEB</Option>
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -598,7 +598,7 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
                 <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
-                  {listSource?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
+                  {listSource?.map((source: any, index: number) => <Option key={index} value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">

@@ -7,27 +7,34 @@ import NumberInput from "component/custom/number-input.custom";
 type ModalProps = {
   visible: boolean;
   onCancel: () => void;
-  onOk: () => void;
+  onOk: (data: any) => void
   isManual: boolean,
   title: string;
   okText: string;
   cancelText: string;
+  dataSource?: any;
 };
 
 const ModalAddCode: React.FC<ModalProps> = (
   props: ModalProps
 ) => {
-  const { isManual, title, visible, okText,cancelText, onCancel, onOk } = props;
+  const { isManual, title, visible, okText, cancelText, dataSource, onCancel, onOk } = props;
 
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
 
   const onOkClick = useCallback(() => {
-    onOk();
+    onOk(form.submit())
   }, [onOk]);
 
   const [form] = Form.useForm();
+
+  function onFinish(value: any) {
+    if(!dataSource) return;
+    form.resetFields();
+    onOk(value);
+  }
 
   return (
     <Modal
@@ -44,13 +51,27 @@ const ModalAddCode: React.FC<ModalProps> = (
             <Form
               form={form}
               name="discount_add"
-              onFinish={() => {}}
+              onFinish={onFinish}
               onFinishFailed={({ errorFields }) => {console.log(errorFields)}}
               layout="vertical"
-              initialValues={{ entitlements: [""] }}
+              initialValues={dataSource ?  { code: dataSource.code } : { listCode: [] }}
             >
-              <Form.List
-                name="entitlements"
+              {dataSource && <Form.Item
+                name="code"
+                style={{marginBottom: 19}}
+              >
+                <div style={{
+                  display: "flex",
+                  gap: 30
+              }}>
+                  <Input 
+                    placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
+                    defaultValue={dataSource.code}
+                  />
+                </div>
+              </Form.Item>}
+              {!dataSource && <Form.List
+                name="listCode"
               >
                 {(fields, {add, remove}, {errors}) => {
                   return (
@@ -87,7 +108,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                     </>
                   )
                 }}
-              </Form.List>
+              </Form.List>}
             </Form>
           </Col>}
           { !isManual && 
@@ -95,15 +116,20 @@ const ModalAddCode: React.FC<ModalProps> = (
             <Form
               form={form}
               name="discount_add"
-              onFinish={() => {}}
+              onFinish={(value) => {console.log(value);}}
               onFinishFailed={({ errorFields }) => {console.log(errorFields)}}
               layout="vertical"
-              initialValues={{ entitlements: [""] }}
+              initialValues={{ 
+                amount: null,
+                prifix: "",
+                ramdom_char: null,
+                suffix: ""
+              }}
             >
               <Row gutter={24}>
                 <Col span={24}>
                   <Form.Item
-                    name="amount_code"
+                    name="amount"
                     label="Số lượng mã giảm giá:"
                     rules={[
                       {
@@ -121,7 +147,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                 </Col>
                 <Col span={8}>
                   <Form.Item
-                    name="b"
+                    name="prifix"
                     label="Tiền tố:"
                     rules={[
                       {
@@ -130,16 +156,12 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <NumberInput 
-                      placeholder="VD: YODY"
-                      style={{ textAlign: "left" }}
-                      max={9999}
-                    />
+                    <Input placeholder="VD: YODY" />
                   </Form.Item>
                 </Col>
                 <Col span={8}>
                   <Form.Item
-                    name="c"
+                    name="ramdom_char"
                     label="Số kí tự ngẫu nhiên:"
                     rules={[
                       {
@@ -156,7 +178,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                 </Col>
                 <Col span={8}>
                   <Form.Item
-                    name="d"
+                    name="suffix"
                     label="Hậu tố:"
                     rules={[
                       {
@@ -165,10 +187,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                       },
                     ]}
                   >
-                    <Input 
-                      placeholder="VD: SALE"
-                      style={{ textAlign: "left" }}
-                    />
+                    <Input placeholder="VD: SALE" />
                   </Form.Item>
                 </Col>
               </Row>
