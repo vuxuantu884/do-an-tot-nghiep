@@ -12,7 +12,7 @@ type ExportModalProps = {
 const InventoryTransferExportModal: React.FC<ExportModalProps> = (
   props: ExportModalProps
 ) => {
-  const { visible, onCancel, onOk, exportProgress, statusExport = false } = props;
+  const { visible, onCancel, exportProgress, statusExport = false } = props;
   const [editFields, setEditFields] = useState(false);
   
   return (

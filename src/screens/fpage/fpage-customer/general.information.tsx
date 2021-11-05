@@ -1,17 +1,18 @@
-import {Input, Form, Row, Col, DatePicker, Select, Card, Tag, Button} from "antd";
-import {CalendarOutlined} from "@ant-design/icons";
-import {RegUtil} from "utils/RegUtils";
+import { Input, Form, Row, Col, DatePicker, Select, Card, Tag, Button } from "antd";
+import { CalendarOutlined } from "@ant-design/icons";
+import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
 import CustomInput from "./customInput";
-import React, {Fragment, useEffect} from "react";
+import React, { Fragment, useEffect } from "react";
 import arrowDown from "assets/icon/arrow-down.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import moment from "moment";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import phonePlus from "assets/icon/phone-plus.svg";
 import AddPhoneModal from "./AddPhoneModal";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
-const {Option} = Select;
+const { Option } = Select;
 
 const GeneralInformation = (props: any) => {
   const {
@@ -38,6 +39,10 @@ const GeneralInformation = (props: any) => {
 
   const [visiblePhoneModal, setVisiblePhoneModal] = React.useState<boolean>(false);
 
+  const [visibleDeletePhoneModal, setVisibleDeletePhoneModal] = React.useState<boolean>(false);
+
+  const [doDeletePhone, setDoDeletePhone] = React.useState<() => void>(() => () => { })
+
   const showPhoneModal = () => {
     setVisiblePhoneModal(true);
   };
@@ -49,31 +54,39 @@ const GeneralInformation = (props: any) => {
   useEffect(() => {
     let phoneValue = form.getFieldValue("phone");
     if (!phoneValue) {
-      form.setFieldsValue({phone: customerPhone});
+      form.setFieldsValue({ phone: customerPhone });
       getCustomerWhenPhoneChange(customerPhone);
     }
   }, [customerPhone, form, getCustomerWhenPhoneChange]);
 
   const clickPhone = (p: any) => {
-    form.setFieldsValue({phone: p});
+    form.setFieldsValue({ phone: p });
     getCustomerWhenPhoneChange(p);
   };
 
   const addNote = (e: any) => {
     e.preventDefault();
     handleNote.create(e.target.value);
-    form.setFieldsValue({note: ""});
+    form.setFieldsValue({ note: "" });
   };
 
   const deleteNote = (note: any, e: any) => {
     handleNote.delete(note, customerId);
   };
 
+  const showConfirmDeletePhone = (p: string) => {
+    setVisibleDeletePhoneModal(true);
+    setDoDeletePhone(() => () => {
+      deleteFpPhone(p);
+      setVisibleDeletePhoneModal(false);
+    });
+  };
+
   return (
     <Fragment>
       <Row gutter={24}>
         <Col span={24}>
-          <Card style={{padding: "12px 0"}}>
+          <Card style={{ padding: "12px 0" }}>
             <Col span={24}>
               <CustomInput
                 name="full_name"
@@ -94,7 +107,7 @@ const GeneralInformation = (props: any) => {
                 label={<span className="customer-field-label">Ngày sinh:</span>}
               >
                 <DatePicker
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   placeholder="Nhập ngày sinh"
                   format={"DD/MM/YYYY"}
                   suffixIcon={
@@ -106,7 +119,7 @@ const GeneralInformation = (props: any) => {
                       }}
                     >
                       <CalendarOutlined />
-                      <span style={{color: "#2a2a86", fontWeight: 500, marginLeft: 10}}>
+                      <span style={{ color: "#2a2a86", fontWeight: 500, marginLeft: 10 }}>
                         {customer?.birthday &&
                           `${moment().diff(
                             ConvertUtcToLocalDate(customer?.birthday, "MM/DD/YYYY"),
@@ -137,7 +150,7 @@ const GeneralInformation = (props: any) => {
                   ]}
                 >
                   <Input
-                    style={{borderRadius: 5}}
+                    style={{ borderRadius: 5 }}
                     minLength={9}
                     maxLength={15}
                     placeholder="Nhập số điện thoại"
@@ -165,7 +178,7 @@ const GeneralInformation = (props: any) => {
                       customerPhones.map((p: any, index: any) => (
                         <Tag
                           key={index}
-                          style={{cursor: "pointer"}}
+                          style={{ cursor: "pointer" }}
                           onClick={() => clickPhone(p)}
                         >
                           {p}
@@ -173,9 +186,9 @@ const GeneralInformation = (props: any) => {
                             alt="delete"
                             onClick={(e: any) => {
                               e.stopPropagation();
-                              deleteFpPhone(p);
+                              showConfirmDeletePhone(p);
                             }}
-                            style={{width: 16, marginBottom: 2}}
+                            style={{ width: 16, marginBottom: 2 }}
                             src={XCloseBtn}
                           ></img>
                         </Tag>
@@ -184,7 +197,7 @@ const GeneralInformation = (props: any) => {
                 </Row>
               )}
             </Col>
-            <Row hidden={showDetail} style={{padding: "0 12px"}}>
+            <Row hidden={showDetail} style={{ padding: "0 12px" }}>
               <Col span={24}>
                 <Form.Item
                   name="email"
@@ -203,7 +216,7 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   name="gender"
                   label={<span className="customer-field-label">Giới tính:</span>}
-                  // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+                // rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
                 >
                   <Select placeholder="Chọn giới tính">
                     <Option value={"male"}>Nam</Option>
@@ -234,7 +247,7 @@ const GeneralInformation = (props: any) => {
                   label={<span className="customer-field-label">Ngày cưới:</span>}
                 >
                   <DatePicker
-                    style={{width: "100%"}}
+                    style={{ width: "100%" }}
                     placeholder="Chọn ngày cưới"
                     format={"DD/MM/YYYY"}
                   />
@@ -323,7 +336,7 @@ const GeneralInformation = (props: any) => {
                     allowClear
                     optionFilterProp="children"
                     placeholder="Chọn phường/xã"
-                    // onChange={handleChangeWard}
+                  // onChange={handleChangeWard}
                   >
                     {wards.map((ward: any) => (
                       <Option key={ward.id} value={ward.id}>
@@ -353,9 +366,9 @@ const GeneralInformation = (props: any) => {
                 alignItems: "center",
               }}
             >
-              <Col span={7} style={{cursor: "pointer"}}>
+              <Col span={7} style={{ cursor: "pointer" }}>
                 <div
-                  style={{flex: 1}}
+                  style={{ flex: 1 }}
                   onClick={() => {
                     setShowDetail(!showDetail);
                   }}
@@ -365,11 +378,11 @@ const GeneralInformation = (props: any) => {
                     src={arrowDown}
                     style={
                       !showDetail
-                        ? {marginBottom: "3px", transform: "rotate(180deg)"}
-                        : {marginBottom: "3px"}
+                        ? { marginBottom: "3px", transform: "rotate(180deg)" }
+                        : { marginBottom: "3px" }
                     }
                   ></img>
-                  <span style={{marginLeft: "5px"}}>
+                  <span style={{ marginLeft: "5px" }}>
                     {showDetail ? "Xem thêm" : "Thu gọn"}
                   </span>
                 </div>
@@ -441,7 +454,7 @@ const GeneralInformation = (props: any) => {
                 </div>
               </Col>
             </Row>
-            <Row hidden gutter={12} style={{padding: "16px"}}>
+            <Row hidden gutter={12} style={{ padding: "16px" }}>
               <Col span={24}>
                 <Form.Item
                   name="customer_type_id"
@@ -466,12 +479,12 @@ const GeneralInformation = (props: any) => {
                 <Form.Item
                   name="customer_group_id"
                   label={<span className="customer-field-label">Nhóm khách hàng:</span>}
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Vui lòng chọn nhóm khách hàng",
-                  //   },
-                  // ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn nhóm khách hàng",
+                //   },
+                // ]}
                 >
                   <Select
                     showSearch
@@ -496,12 +509,12 @@ const GeneralInformation = (props: any) => {
                     <span className="customer-field-label">Nhân viên phụ trách:</span>
                   }
 
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Vui lòng chọn cấp độ khách hàng",
-                  //   },
-                  // ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn cấp độ khách hàng",
+                //   },
+                // ]}
                 >
                   <Select
                     showSearch
@@ -535,11 +548,20 @@ const GeneralInformation = (props: any) => {
         visible={visiblePhoneModal}
         customerPhone={customerPhone}
         addFpPhone={addFpPhone}
-        deleteFpPhone={deleteFpPhone}
+        deleteFpPhone={showConfirmDeletePhone}
         setFpDefaultPhone={setFpDefaultPhone}
         customerPhones={customerPhones}
         onOk={hidePhoneModal}
         onCancel={hidePhoneModal}
+      />
+
+      <ModalDeleteConfirm
+        width="400px"
+        visible={visibleDeletePhoneModal}
+        onOk={() => doDeletePhone()}
+        onCancel={() => setVisibleDeletePhoneModal(false)}
+        title="Thông báo"
+        subTitle="Bạn có chắc chắn muốn xóa số điện thoại này"
       />
     </Fragment>
   );

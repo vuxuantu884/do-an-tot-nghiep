@@ -497,7 +497,7 @@ const CreateInventoryAdjustment: FC = () => {
         />
       ),
     },
-  ];
+  ]; 
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
     let totalExcess = 0,

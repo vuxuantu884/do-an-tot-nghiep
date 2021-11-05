@@ -3,9 +3,7 @@ import ContentContainer from "component/container/content.container";
 import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
 import UrlConfig from "config/url.config";
 import { AccountGetByIdtAction } from "domain/actions/account/account.action";
-import {
-  AccountResponse
-} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import React, { useCallback, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
@@ -16,18 +14,40 @@ import AccountDetailProvider, {
 import AccountPermissionTab from "./account.permission.tab";
 import AccountViewTab from "./account.view.tab";
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
 enum TabName {
   DETAIL_TAB = "DETAIL_TAB",
   PERMISSION_TAB = "PERMISSION_TAB",
 }
-
+const dumyPerrmission = { // dumy => need to remove
+  user_id: "e85cfc75-460e-4f1a-bea7-0d8ac6cf1837",
+  modules: [
+    {
+      id: 1,
+      description: "àdadsf",
+      name: "Tạo",
+      version: 1,
+      code: "AUTHS",
+      permissions: [
+        {
+          id: 23,
+          role_id: 22,
+          module_code: "AUTHS",
+          name: "Tạo",
+          code: "CREATE",
+          store_id: 1,
+          version: 1,
+        },
+      ],
+    },
+  ],
+};
 function AccountDetail() {
   const dispatch = useDispatch();
-  const { code } = useParams<{ code: string }>();
+  const {code} = useParams<{code: string}>();
   const detailContext = useContext(AccountDetailContext);
-  const { setAccountInfo, setUserCode, setRoleName } = detailContext;
+  const {setAccountInfo, setUserCode} = detailContext;
 
   useEffect(() => {
     setUserCode && setUserCode(code);
@@ -35,21 +55,17 @@ function AccountDetail() {
 
   const setAccount = useCallback(
     (data: AccountResponse) => {
-      
-      // if (data?.account_roles) {
-      //   setRoleName && setRoleName(data.account_roles.map((role) => role.role_name).join(", "));
-      // } else {
-      //   setRoleName && setRoleName("");
-      // }
-      setRoleName && setRoleName(data?.permissions.role[0].name); // dumy for demo 
       setAccountInfo && setAccountInfo(data);
     },
-    [setAccountInfo, setRoleName]
+    [setAccountInfo]
   );
 
   useEffect(() => {
+    let data: any = {};
+    data.permissions = dumyPerrmission;
+    setAccountInfo && setAccountInfo(data);
     dispatch(AccountGetByIdtAction(code, setAccount));
-  }, [code, setAccount, dispatch]);
+  }, [code, setAccount, dispatch, setAccountInfo]);
 
   const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
     <StickyUnderNavbar>
@@ -77,7 +93,7 @@ function AccountDetail() {
       <AccountDetailStyle>
         <Card className="card-tab">
           <Tabs
-            style={{ overflow: "initial" }}
+            style={{overflow: "initial"}}
             // activeKey={activeTab}
             // onChange={(active) =>
             //   history.replace(`${history.location.pathname}#${active}`)

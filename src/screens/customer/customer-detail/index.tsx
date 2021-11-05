@@ -1,7 +1,7 @@
 import { Row, Col, Card, Tabs } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import React from "react";
+import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -28,6 +28,8 @@ import ActionButton, {
   MenuAction,
 } from "../../../component/table/ActionButton";
 import { formatCurrency } from "utils/AppUtils";
+import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const { TabPane } = Tabs;
 
@@ -48,7 +50,7 @@ const CustomerDetailIndex = () => {
   const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(
     null
   );
-  // const [loyaltyCard, setLoyaltyCard] = React.useState<PageResponse<LoyaltyCardResponse>>();
+  const [loyaltyCard, setLoyaltyCard] = React.useState<any>();
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
     Array<LoyaltyUsageResponse>
   >([]);
@@ -76,7 +78,6 @@ const CustomerDetailIndex = () => {
       name: "Trừ tiền tích lũy",
     },
   ];
-  console.log(loyaltyPoint);
   const [data, setData] = React.useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 10,
@@ -87,15 +88,24 @@ const CustomerDetailIndex = () => {
   });
   const [tableLoading, setTableLoading] = React.useState<boolean>(false);
   // add and edit contact section;
+
+  const updateLoyaltyCard = useCallback((result) => {
+    if (result && result.items && result.items.length) {
+      const loyaltyCardData = result.items.find((item: any) => item.customer_id === customer?.id);
+      setLoyaltyCard( loyaltyCardData);
+    }
+  }, [customer]);
+
   React.useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      // dispatch(LoyaltyCardSearch(cardQuery, setLoyaltyCard))
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id }, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch, customer]);
+  }, [dispatch, customer, updateLoyaltyCard]);
+  
   React.useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
@@ -211,15 +221,15 @@ const CustomerDetailIndex = () => {
       },
       {
         name: "Ngày gắn thẻ",
-        value: null,
+        value: loyaltyCard?.assigned_date ? ConvertUtcToLocalDate(loyaltyCard.assigned_date, DATE_FORMAT.DDMMYYY) : null,
       },
       {
         name: "CH gắn thẻ",
-        value: null,
+        value: loyaltyCard?.store || null,
       },
     ];
     setCustomerPoint(_detail);
-  }, [loyaltyPoint, loyaltyUsageRules, customer]);
+  }, [loyaltyPoint, loyaltyUsageRules, customer, loyaltyCard]);
 
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
@@ -394,10 +404,10 @@ const CustomerDetailIndex = () => {
                       color: "#222222",
                     }}
                   >
-                    <Col span={12} style={{ padding: "0 0 0 15px" }}>
+                    <Col span={12}>
                       <span>{detail.name}</span>
                     </Col>
-                    <Col span={12}>
+                    <Col span={12} style={{ padding: "0 0 0 15px" }}>
                       <b>: {detail.value ? detail.value : "---"}</b>
                     </Col>
                   </Col>

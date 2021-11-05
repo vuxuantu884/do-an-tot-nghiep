@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Modal, Space, Input, Button, Form } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { StyledComponent } from "./styles";
@@ -9,7 +9,7 @@ type AddPhoneModalProps = {
   visible?: boolean;
   onOk?: () => void;
   onCancel?: () => void;
-  addFpPhone: (p: string) => void;
+  addFpPhone: (p: string, callback: () => void) => void;
   deleteFpPhone: (p: string) => void;
   setFpDefaultPhone: (p: string) => void;
   customerPhones?: Array<string>;
@@ -37,9 +37,16 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
   );
   const addNewPhone = useCallback(() => {
     form.validateFields().then(() => {
-      addFpPhone(newPhone);
+      addFpPhone(newPhone, () => {
+        form.setFieldsValue({
+          "phone": ""
+        })
+      });
     });
   }, [addFpPhone, newPhone, form]);
+  useEffect(() => {
+    form.resetFields();
+  }, [visible, form])
   return (
     <Modal
       width="400px"
@@ -58,7 +65,7 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
             </div>
             <div className="phone-add-container">
               <Form.Item
-                name="phone-item"
+                name="phone"
                 rules={[
                   {
                     required: true,

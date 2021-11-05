@@ -4,7 +4,7 @@ import { Fragment, ReactNode, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { checkUserPermission } from "utils/AuthUtil";
 
-interface AuthWrapperProps extends useAuthorizationProps {
+interface AuthWrapperProps extends useAuthorizationProps  {
   children: ReactNode;
   passThrough?: boolean; // send boolean value to children
 }
@@ -16,8 +16,9 @@ AuthWrapper.defautProps = {
 
 function AuthWrapper(props: AuthWrapperProps) {
   const { acceptPermissions, not, children, passThrough } = props;
+  
   const currentRoles: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer?.modules?.permissions
+    (state: RootReducerType) => state.permissionReducer.permissions
   );
 
   const [allowed, setAllowed] = useState<boolean>(false);

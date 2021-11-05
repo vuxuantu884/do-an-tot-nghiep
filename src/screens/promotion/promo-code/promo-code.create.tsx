@@ -24,7 +24,7 @@ const CreatePromotionCodePage = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
-  }, []);
+  }, [dispatch]);
 
   const transformData = (values: any) => {
     console.log('transformData: ', values);

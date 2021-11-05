@@ -102,7 +102,7 @@ export const ErrorGHTK = {
 export const POStatus = {
   //Nháp
   DRAFT: "draft",
-  //Đã xác nhận
+  //Đã xác nhận po
   FINALIZED: "finalized",
   // Đã hoàn thành
   COMPLETED: "completed",
@@ -159,12 +159,6 @@ export const PoFinancialStatus = {
 export const DEFAULT_FORM_VALUE = {
   company: "YODY",
   company_id: 1,
-};
-
-export const UserPermissions = {
-  ADMIN_ALL: "ADMIN_ALL",
-  HR: "HR",
-  WIN: "WIN",
 };
 
 export const OFFSET_HEADER_UNDER_NAVBAR = 55; //pixels

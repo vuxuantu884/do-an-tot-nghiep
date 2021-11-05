@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { Link } from "react-router-dom";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
@@ -20,22 +20,12 @@ import { promoGetDetail } from "domain/actions/promotion/discount/discount.actio
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { StoreResponse } from "model/core/store.model";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
+
 import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 
 export interface ProductParams {
   id: string;
   variantId: string;
-}
-
-enum TabName {
-  HISTORY = '#historyTab',
-  INVENTORY = '#inventoryTab'
 }
 
 type detailMapping = {
@@ -60,14 +50,14 @@ const PromotionDetailScreen: React.FC = () => {
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<DiscountResponse | null>(null);
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  // const [listStore, setStore] = useState<Array<StoreResponse>>();
+  // const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
 
-  useEffect(() => {
-    dispatch(StoreGetListAction(setStore));
-    dispatch(getListSourceRequest(setListSource));
-  }, []);
+  // useEffect(() => {
+  //   dispatch(StoreGetListAction(setStore));
+  //   dispatch(getListSourceRequest(setListSource));
+  // }, [dispatch]);
 
   const fetchData = useCallback((data: any) => {
     setCheckPromoCode(data.length > 0);
@@ -558,7 +548,7 @@ const PromotionDetailScreen: React.FC = () => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

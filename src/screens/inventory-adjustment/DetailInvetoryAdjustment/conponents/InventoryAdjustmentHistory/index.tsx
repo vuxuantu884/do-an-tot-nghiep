@@ -150,7 +150,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
             <div className="product-item-sku">
               <Link
                 target="_blank"
-                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids${data?.adjusted_store_id}&page=1`}
+                to={`${UrlConfig.PRODUCT}/inventory#3?condition=${record.sku}&store_ids=${data?.adjusted_store_id}&page=1`}
               >
                 {record.sku}
               </Link>

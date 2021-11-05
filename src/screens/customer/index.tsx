@@ -8,7 +8,7 @@ import {
   Input,
   Select,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { ExportOutlined, ImportOutlined, PlusOutlined } from "@ant-design/icons";
 import CustomFilter from "component/table/custom.filter";
 import "./customer.scss";
 import BaseFilter from "../../component/filter/base.filter";
@@ -443,10 +443,12 @@ const Customer = () => {
     {
       id: 1,
       name: "Nhập file",
+      icon:<ImportOutlined />
     },
     {
       id: 2,
       name: "Xuất file",
+      icon:<ExportOutlined />
     },
   ];
   return (
