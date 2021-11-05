@@ -1,6 +1,7 @@
 import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
+import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
@@ -84,6 +85,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [isErrorExchange, setIsErrorExchange] = useState(false);
   const [isCanExchange, setIsCanExchange] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false);
+  const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(true);
   const history = useHistory();
   const query = useQuery();
@@ -218,17 +220,19 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const totalAmountExchange = getTotalPrice(listExchangeProducts);
 
+  const totalAmountExchangePlusShippingFee = totalAmountExchange  +
+  (shippingFeeCustomer ? shippingFeeCustomer : 0);
+
   /**
    * if return > exchange: positive
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
     let result =
-      totalAmountExchange +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+    totalAmountExchangePlusShippingFee -
       totalAmountReturnProducts;
     return result;
-  }, [shippingFeeCustomer, totalAmountExchange, totalAmountReturnProducts]);
+  }, [totalAmountExchangePlusShippingFee, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setIsFetchData(true);
@@ -882,14 +886,35 @@ const ScreenReturnCreate = (props: PropType) => {
                   orderId={orderId}
                 />
                 {isExchange && isStepExchange && (
-                  <CardExchangeProducts
-                    orderSettings={orderSettings}
+                  // <CardExchangeProducts
+                  //   orderSettings={orderSettings}
+                  //   form={form}
+                  //   items={listExchangeProducts}
+                  //   handleCardItems={handleListExchangeProducts}
+                  //   shippingFeeCustomer={shippingFeeCustomer}
+                  //   amountReturn={totalAmountReturnProducts}
+                  //   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                  // />
+                  <OrderCreateProduct
+                    changeInfo={(a:any,b,c,d)=>{}}
+                    setStoreId={(value) => {
+                      setStoreId(value);
+                      form.setFieldsValue({store_id: value});
+                    }}
+                    storeId={storeId}
+                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                    setItemGift={setItemGift}
                     form={form}
                     items={listExchangeProducts}
-                    handleCardItems={handleListExchangeProducts}
-                    shippingFeeCustomer={shippingFeeCustomer}
-                    amountReturn={totalAmountReturnProducts}
+                    setItems={handleListExchangeProducts}
+                    inventoryResponse={null}
+                    setInventoryResponse={()=>{}}
+                    orderConfig={null}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    returnOrderInformation={{
+                      totalAmountReturn: totalAmountReturnProducts
+                    }}
+                    
                   />
                 )}
                 {!isExchange && (

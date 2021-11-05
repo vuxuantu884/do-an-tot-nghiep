@@ -86,12 +86,11 @@ export default function Order() {
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
-  const [storeId, setStoreId] = useState<number | null>(null);
   const [discountRate, setDiscountRate] = useState<number>(0);
+  const [storeId, setStoreId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(
     ShipmentMethodOption.DELIVER_LATER
   );
-
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
@@ -1058,20 +1057,23 @@ export default function Order() {
                       changeInfo={onChangeInfoProduct}
                       setStoreId={(value) => {
                         setStoreId(value);
-                        formRef.current?.setFieldsValue({store_id: value});
+                        form.setFieldsValue({store_id: value});
                       }}
                       storeId={storeId}
                       shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                       setItemGift={setItemGifts}
-                      formRef={formRef}
+                      form={form}
                       items={items}
                       setItems={setItems}
                       discountRate={discountRate}
-                      setDiscountRate={setDiscountRate}
+                      setDiscountRate={(value)=>{setDiscountRate(value)}}
                       discountValue={discountValue}
-                      setDiscountValue={setDiscountValue}
+                      setDiscountValue={(value) => {
+                        setDiscountValue(value);
+                      }}
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
+                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
                     />
                     <Card title="THANH TOÁN 31">

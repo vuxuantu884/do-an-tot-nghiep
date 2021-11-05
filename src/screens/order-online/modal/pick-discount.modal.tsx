@@ -16,8 +16,8 @@ type PickDiscountModalProps = {
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (type: string, value: number, rate: number, coupon: string) => void;
   type: string;
-  value: number;
-  rate: number;
+  value?: number;
+  rate?: number;
   coupon: string;
   amount: number;
 };
@@ -25,7 +25,7 @@ type PickDiscountModalProps = {
 const PickDiscountModal: React.FC<PickDiscountModalProps> = (
   props: PickDiscountModalProps
 ) => {
-  const { visible, onCancel, onOk, type, value, rate, coupon } = props;
+  const { visible, onCancel, onOk, type, value = 0, rate = 0, coupon } = props;
   const [_type, setType] = useState<string>(type);
   const [_value, setValue] = useState<number>(value);
   const [_rate, setRate] = useState<number>(rate);

@@ -81,9 +81,10 @@ type PropType = {
   storeId: number | null;
   items?: Array<OrderLineItemRequest>;
   shippingFeeInformedToCustomer: number | null;
-  formRef: React.RefObject<FormInstance<any>>;
-  discountRate: number;
-  discountValue: number;
+  form: FormInstance<any>;
+  discountRate?: number;
+  discountValue?: number;
+  totalAmountCustomerNeedToPay: number;
   orderConfig: OrderConfigResponseModel | null | undefined;
   inventoryResponse: Array<InventoryResponse> | null;
   levelOrder?: number;
@@ -99,10 +100,13 @@ type PropType = {
     discount_value: number
   ) => void;
   setItems: (items: Array<OrderLineItemRequest>) => void;
-  setDiscountRate: (item: number) => void;
-  setDiscountValue: (item: number) => void;
+  setDiscountRate?: (item: number) => void;
+  setDiscountValue?: (item: number) => void;
   setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   fetchData?: () => void;
+  returnOrderInformation?: {
+    totalAmountReturn: number;
+  };
 };
 
 var barcode = "";
@@ -132,25 +136,29 @@ const initQueryVariant: VariantSearchQuery = {
  * isSplitOrder: đơn hàng có thể tách đơn (khi update đơn hàng)
  *
  * orderDetail: chi tiết đơn hàng
- * 
+ *
  * orderConfig: cấu hình đơn hàng
- * 
+ *
  * shippingFeeInformedToCustomer: phí ship báo khách
- * 
+ *
  * setStoreId: xử lý khi chọn cửa hàng
- * 
+ *
  * setItems: xử lý khi chọn sản phẩm
- * 
+ *
  * fetchData: load lại data
- * 
+ *
  * setDiscountValue: xử lý giá trị chiết khấu
- * 
+ *
  * setDiscountRate: xử lý tỉ lệ chiết khấu
+ *
+ * returnOrderInformation: thông tin đổi trả
+ *
+ * totalAmountCustomerNeedToPay: số tiền khách cần trả
  *
  */
 function OrderCreateProduct(props: PropType) {
   const {
-    formRef,
+    form,
     items,
     discountRate,
     discountValue,
@@ -161,6 +169,8 @@ function OrderCreateProduct(props: PropType) {
     orderDetail,
     orderConfig,
     shippingFeeInformedToCustomer,
+    returnOrderInformation,
+    totalAmountCustomerNeedToPay,
     setStoreId,
     setItems,
     fetchData,
@@ -196,13 +206,15 @@ function OrderCreateProduct(props: PropType) {
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
+  console.log("discountValue", discountValue);
+  console.log("discountValue", discountValue);
   //tách đơn
   const [splitOrderNumber, setSplitOrderNumber] = useState(0);
   const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
 
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
-  
+
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLBodyElement) {
@@ -533,7 +545,7 @@ function OrderCreateProduct(props: PropType) {
     },
   };
 
-  const AmountColumnt = {
+  const AmountColumn = {
     title: () => (
       <div className="text-center">
         <div style={{textAlign: "center"}}>Số lượng</div>
@@ -561,7 +573,7 @@ function OrderCreateProduct(props: PropType) {
     },
   };
 
-  const PriceColumnt = {
+  const PriceColumn = {
     title: () => (
       <div>
         <span style={{color: "#222222", textAlign: "right"}}>Đơn giá</span>
@@ -595,7 +607,7 @@ function OrderCreateProduct(props: PropType) {
     },
   };
 
-  const DiscountColumnt = {
+  const DiscountColumn = {
     title: () => (
       <div className="text-center">
         <div>Chiết khấu</div>
@@ -724,9 +736,9 @@ function OrderCreateProduct(props: PropType) {
 
   const columns = [
     ProductColumn,
-    AmountColumnt,
-    PriceColumnt,
-    DiscountColumnt,
+    AmountColumn,
+    PriceColumn,
+    DiscountColumn,
     TotalPriceColumn,
     ActionColumn,
   ];
@@ -849,17 +861,9 @@ function OrderCreateProduct(props: PropType) {
       setIsInputSearchProductFocus(true);
       setKeySearchVariant(value);
       if (orderConfig?.allow_choose_item && value) {
-        let isError = await formRef.current
-          ?.validateFields(["store_id"])
-          .then(() => {
-            return false;
-          })
-          .catch(() => {
-            return true;
-          });
-        if (isError) {
+        await form?.validateFields(["store_id"]).catch(() => {
           return;
-        }
+        });
       }
 
       initQueryVariant.info = value;
@@ -881,7 +885,7 @@ function OrderCreateProduct(props: PropType) {
         setSearchProducts(false);
       }
     },
-    [formRef]
+    [form]
   );
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
@@ -894,7 +898,7 @@ function OrderCreateProduct(props: PropType) {
     setVisiblePickDiscount(false);
   }, []);
 
-  const ShowInventoryModal = useCallback(() => {
+  const showInventoryModal = useCallback(() => {
     if (items !== null && items?.length) setInventoryModalVisible(true);
     else showError("Vui lòng chọn sản phẩm vào đơn hàng");
   }, [dispatch, items]);
@@ -927,26 +931,30 @@ function OrderCreateProduct(props: PropType) {
     coupon: string
   ) => {
     if (amount === 0) {
-      showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu");
+      showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu!");
     } else {
       setVisiblePickDiscount(false);
       setDiscountType(type);
-      setDiscountValue(value);
-      setDiscountRate(rate);
       setCoupon(coupon);
       if (items) {
         calculateChangeMoney(items, amount, rate, value);
       }
-      showSuccess("Thêm chiết khấu thành công");
+      showSuccess("Thêm chiết khấu thành công!");
     }
   };
 
   const calculateChangeMoney = (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
-    _discountRate: number,
-    _discountValue: number
+    _discountRate?: number,
+    _discountValue?: number
   ) => {
+    if (!_discountRate) {
+      _discountRate = 0;
+    }
+    if (!_discountValue) {
+      _discountValue = 0;
+    }
     props.changeInfo(_items, _amount, _discountRate, _discountValue);
   };
 
@@ -1048,7 +1056,7 @@ function OrderCreateProduct(props: PropType) {
   return (
     <StyledComponent>
       <Card
-        title="SẢN PHẨM"
+        title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm3"}
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
@@ -1063,7 +1071,7 @@ function OrderCreateProduct(props: PropType) {
             </Form.Item>
             <Button
               onClick={() => {
-                ShowInventoryModal();
+                showInventoryModal();
               }}
             >
               Kiểm tra tồn
@@ -1266,7 +1274,6 @@ function OrderCreateProduct(props: PropType) {
                     width: "16%",
                     float: "left",
                     textAlign: "right",
-                    fontWeight: 400,
                   }}
                 >
                   {formatCurrency(getTotalAmount(items))}
@@ -1277,7 +1284,6 @@ function OrderCreateProduct(props: PropType) {
                     width: "21%",
                     float: "left",
                     textAlign: "right",
-                    fontWeight: 400,
                   }}
                 >
                   {formatCurrency(getTotalDiscount(items))}
@@ -1316,19 +1322,22 @@ function OrderCreateProduct(props: PropType) {
             totalAmountOrder={amount}
             items={items}
             shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+            returnOrderInformation={returnOrderInformation}
+            totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
           />
         )}
-
-        <PickDiscountModal
-          amount={amount}
-          type={discountType}
-          value={discountValue}
-          rate={discountRate}
-          coupon={coupon}
-          onCancel={onCancelDiscountConfirm}
-          onOk={onOkDiscountConfirm}
-          visible={isVisiblePickDiscount}
-        />
+        {setDiscountValue && setDiscountRate && (
+          <PickDiscountModal
+            amount={amount}
+            type={discountType}
+            value={discountValue}
+            rate={discountRate}
+            coupon={coupon}
+            onCancel={onCancelDiscountConfirm}
+            onOk={onOkDiscountConfirm}
+            visible={isVisiblePickDiscount}
+          />
+        )}
         <InventoryModal
           isModalVisible={isInventoryModalVisible}
           setInventoryModalVisible={setInventoryModalVisible}
