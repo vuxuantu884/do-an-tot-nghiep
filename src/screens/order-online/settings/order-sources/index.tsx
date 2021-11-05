@@ -95,17 +95,18 @@ function OrderSources(props: PropsType) {
   /**
   * thay tên của children thành tên con + tên cha
   */
-  function renameChildrenInArrayDepartment(array: DepartmentResponse[]) {
+  function renameChildrenInArrayDepartment(array: DepartmentResponse[], startLevel = 0) {
     return array.map(({children, parent_id, name, ...rest}) => {
       if (Array.isArray(children) && children.length > 0) {
-        children = renameChildrenInArrayDepartment(children);
+        children = renameChildrenInArrayDepartment(children, startLevel + 1);
       }
-      // check parent_id > 0 thì là có children -> thay tên
-       if (parent_id > 0) {
+      // check startLevel -> thay tên (level 0 có children vẫn giữ nguyên)
+       if (startLevel > 0) {
         return {
           children,
           parent_id,
           name: `${rest.parent} - ${name} `,
+          level: startLevel,
           ...rest,
         };
       } else {
@@ -113,6 +114,7 @@ function OrderSources(props: PropsType) {
           children,
           parent_id,
           name,
+          level: startLevel,
           ...rest,
         };
       }
@@ -122,7 +124,7 @@ function OrderSources(props: PropsType) {
   let listDepartmentFormatted = renameChildrenInArrayDepartment(listDepartments);
 
   // console.log('listDepartments', listDepartments);
-  // console.log('listDepartmentFormatted', listDepartmentFormatted);
+  console.log('listDepartmentFormatted', listDepartmentFormatted);
 
   const columns: ICustomTableColumType<any>[] = [
     {
