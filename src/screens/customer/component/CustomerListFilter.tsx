@@ -287,7 +287,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           >
             <div className="base-filter-container">
               <div className="left-filter">
-                <Form.Item name="gender" label={<b>Giới tính:</b>}>
+                <Form.Item name="gender" label={<b>Giới tính</b>}>
                   <Select
                     showSearch
                     placeholder="Chọn giới tính"
@@ -305,7 +305,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                 <Form.Item
                   name="responsible_staff_code"
-                  label={<b>Nhân viên phụ trách:</b>}
+                  label={<b>Nhân viên phụ trách</b>}
                 >
                   <AutoComplete
                     notFoundContent={
@@ -325,6 +325,39 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                       // prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                     />
                   </AutoComplete>
+                </Form.Item>
+                
+                <Form.Item
+                  name="customer_group_id"   // todo thai need update
+                  label={<b>Cửa hàng</b>}
+                >
+                  <Select
+                    showSearch
+                    placeholder="Chọn cửa hàng"
+                    allowClear
+                    optionFilterProp="children"
+                  >
+                    {/* // todo thai need update */}
+                    <Option key={1} value={1}>
+                      Sẽ update chọn cửa hàng
+                    </Option>
+                  </Select>
+                </Form.Item>
+                
+                <Form.Item
+                  name="customer_group_id"   // todo thai need update
+                  label={<b>Kênh tạo KH</b>}
+                >
+                  <Select
+                    showSearch
+                    placeholder="Chọn kênh"
+                    allowClear
+                    optionFilterProp="children"
+                  >
+                    <Option key={1} value={1}>
+                      Sẽ update chọn kênh
+                    </Option>
+                  </Select>
                 </Form.Item>
               </div>
 
