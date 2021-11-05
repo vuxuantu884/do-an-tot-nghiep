@@ -187,7 +187,7 @@ const ListCode = () => {
       code: value?.code
     }
     dispatch(showLoading());
-    dispatch(updatePromoCodeById(priceRuleId, editData.id, body, onUpdateSuccess));
+    dispatch(updatePromoCodeById(priceRuleId, body, onUpdateSuccess));
   }
   const onUpdateSuccess = useCallback(() => {
     dispatch(hideLoading());
