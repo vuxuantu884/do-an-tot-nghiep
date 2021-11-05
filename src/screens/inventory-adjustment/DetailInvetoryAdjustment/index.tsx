@@ -978,13 +978,6 @@ const DetailInvetoryAdjustment: FC = () => {
                   {
                     data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ?(
                       <>
-                        <Button
-                          type="primary"
-                          onClick={onUpdateOnlineInventory}
-                          loading={isLoading} disabled={hasError || isLoading}
-                        >
-                          Hoàn thành
-                        </Button>
                         <Upload
                           beforeUpload={onBeforeUpload}
                           multiple={false}
@@ -994,18 +987,25 @@ const DetailInvetoryAdjustment: FC = () => {
                         >
                           <Button icon={<UploadOutlined />}>Nhập excel</Button>
                         </Upload>
-                      <Button
-                        type="default"
-                        className="light"
-                        size="large"
-                        icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                        onClick={() => {
-                          setShowExportModal(true);
-                          onExport();
-                        }}
-                      >
-                        Xuất excel
-                      </Button>
+                        <Button
+                          type="default"
+                          className="light"
+                          size="large"
+                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                          onClick={() => {
+                            setShowExportModal(true);
+                            onExport();
+                          }}
+                        >
+                          Xuất excel
+                        </Button>
+                        <Button
+                          type="primary"
+                          onClick={onUpdateOnlineInventory}
+                          loading={isLoading} disabled={hasError || isLoading}
+                        >
+                          Hoàn thành kiểm
+                        </Button>
                     </>
                   ) : null}
                   {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ? (
