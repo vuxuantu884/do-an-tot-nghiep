@@ -1,9 +1,10 @@
 import {FormInstance} from "antd/es/form/Form";
 import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import {AdminPermission} from "config/permissions/admin.permission";
 import _ from "lodash";
 import {ModuleAuthorize} from "model/auth/module.model";
 import {PageResponse} from "model/base/base-metadata.response";
-import {UserPermissions} from "./Constants";
+
 //returns true : can | false : can not
 export const checkUserPermission = (
   acceptPermissions: Array<string> = [],
@@ -14,10 +15,10 @@ export const checkUserPermission = (
     return true;
   }
 
-  // ADMIN_ALL => full quyền => được phép truy cập
+  // admin_all => full quyền => được phép truy cập
   if (
     Array.isArray(currentPermissions) &&
-    currentPermissions?.includes(UserPermissions.ADMIN_ALL)
+    currentPermissions?.includes(AdminPermission.all)
   ) {
     return true;
   }
