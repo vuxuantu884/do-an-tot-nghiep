@@ -39,7 +39,9 @@ import { RiUpload2Line } from "react-icons/ri";
 import { getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { deleteMultiPromoCode } from "service/promotion/promo-code/promo-code.service";
 
 const promotionStatuses = [
   {
@@ -128,6 +130,7 @@ const ListCode = () => {
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [showEditPopup, setShowEditPopup] = React.useState<boolean>(false);
   const [editData, setEditData] = React.useState<any>();
+  const [deleteData, setDeleteData] = React.useState<any>();
   const [data, setData] = useState<any>({
     metadata: {
       limit: 30,
@@ -136,7 +139,9 @@ const ListCode = () => {
     },
     items: [],
   })
- 
+  const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
+  const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
+
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query)
@@ -197,8 +202,8 @@ const ListCode = () => {
 
   // section DELETE by Id
   function handleDelete(item: any) {
-    dispatch(showLoading());
-    dispatch(getPromoCodeById(priceRuleId, item.id, onDeleteSuccess));
+    setDeleteData(item);
+    setIsShowDeleteModal(true);
   }
   const onDeleteSuccess = useCallback(() => {
     dispatch(hideLoading());
@@ -305,6 +310,34 @@ const ListCode = () => {
     }
   ]
 
+  const onMenuClick = useCallback(
+    async (index: number) => {
+      switch (index) {
+        case 1:
+          break;
+        case 2:
+          const body = {
+            created_by: "",
+            created_name: "",
+            updated_by: "",
+            updated_name: "",
+            request_id: "",
+            operator_kc_id: "",
+            id: selectedRowKey
+          }
+          const bulkDeleteResponse = await deleteMultiPromoCode(priceRuleId, body);
+          if (bulkDeleteResponse.code === 20000000) {
+            showSuccess('Thao tác thành công');
+            dispatch(getListPromoCode(priceRuleId, fetchData));
+          } else {
+            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
+          }
+          break;
+      }
+    },
+    [dispatch, fetchData, priceRuleId, selectedRowKey]
+  );
+
   return (
     <ContentContainer
       title="Mã giảm giá của đợt phát hành CPM9"
@@ -346,7 +379,7 @@ const ListCode = () => {
     >
       <Card>
         <div className="discount-code__search">
-          <CustomFilter menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
@@ -387,9 +420,14 @@ const ListCode = () => {
           </CustomFilter>
 
           <CustomTable
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => {
+              console.log('CustomTable: ', rowKey)
+              setSelectedRowKey(rowKey)
+            }}
             isRowSelection
             isLoading={tableLoading}
-            sticky={{ offsetScroll: 5 }}
+            sticky={{offsetScroll: 5}}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -517,6 +555,19 @@ const ListCode = () => {
           handleEdit(data);
           setShowEditPopup(false);
         }}
+      />
+      <ModalDeleteConfirm
+        onCancel={() => setIsShowDeleteModal(false)}
+        onOk={() => {
+          setIsShowDeleteModal(false);
+          dispatch(showLoading());
+          dispatch(getPromoCodeById(priceRuleId, deleteData.id, onDeleteSuccess));
+        }}
+        okText="Đồng ý"
+        cancelText= "Huỷ"
+        title="Xóa mã giảm giá"
+        subTitle="Bạn có chắc chắn xóa mã giảm giá, ..."
+        visible={isShowDeleteModal}
       />
     </ContentContainer>
   );

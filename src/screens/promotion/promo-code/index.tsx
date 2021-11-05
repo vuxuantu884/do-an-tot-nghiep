@@ -227,24 +227,6 @@ const PromotionCode = () => {
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
 
-  // function tagRender(props: any) {
-  //   const { label, closable, onClose } = props;
-  //   const onPreventMouseDown = (event: any) => {
-  //     event.preventDefault();
-  //     event.stopPropagation();
-  //   };
-  //   return (
-  //     <Tag
-  //       className="primary-bg"
-  //       onMouseDown={onPreventMouseDown}
-  //       closable={closable}
-  //       onClose={onClose}
-  //     >
-  //       {label}
-  //     </Tag>
-  //   );
-  // }
-
   const listStatus: Array<BaseBootstrapResponse> = [
     {
       value: "APPLYING",
@@ -416,8 +398,8 @@ const PromotionCode = () => {
           dispatch(showLoading());
           dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
         }}
-        title="Bạn có chắc muốn xoá không?"
-        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        title="Xoá mã đợt giảm giá"
+        subTitle="Bạn có chắc xoá mã đợt giảm giá?"
         visible={isShowDeleteModal}
       />
     </ContentContainer>
