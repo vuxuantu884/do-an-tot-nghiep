@@ -12,7 +12,6 @@ import {StyledComponent} from "./styles";
 type PropType = {
   accounts: AccountResponse[];
   tags: string;
-  isCloneOrder?: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
   customerId?: number | undefined;
@@ -36,7 +35,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, isCloneOrder, customerId, orderDetail} = props;
+  const {accounts, onChangeTag, tags, customerId, orderDetail} = props;
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";

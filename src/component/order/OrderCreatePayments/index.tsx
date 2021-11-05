@@ -26,6 +26,8 @@ type PropType = {
 };
 
 /**
+ * component dùng trong trang tạo đơn, chi tiết đơn hàng (đơn nháp), update đơn hàng, đổi trả đơn hàng
+ * 
  * isDisablePostPayment: disable thanh toán chưa xác định (trường hợp chọn thanh toán qua hvc)
  *
  * payments: payment mặc định (vd trường hợp clone đơn hàng)
