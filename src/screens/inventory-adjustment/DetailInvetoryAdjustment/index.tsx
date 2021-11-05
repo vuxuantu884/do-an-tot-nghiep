@@ -2,13 +2,12 @@ import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload } from "antd";
+import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import {PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import RowDetail from "screens/products/product/component/RowDetail";
 import {useHistory, useParams} from "react-router";
 import {useDispatch} from "react-redux";
 import {
@@ -396,7 +395,8 @@ const DetailInvetoryAdjustment: FC = () => {
             <Input
               type="number"
               min={0}
-              value={value ? value : 0}
+              maxLength={12}
+              value={value}
               onChange={(event) => {
                 let value =
                   event.target.value && event.target.value !== ""
@@ -409,10 +409,11 @@ const DetailInvetoryAdjustment: FC = () => {
                   dispatch(
                     updateItemOnlineInventoryAction(data?.id, row, (result) => {
                       if (result) {
-                        showSuccess("Nhập tồn thực tế thành công.");
+                        showSuccess("Nhập tồn thực tế thành công."); 
                       }
                     })
                   );
+                  setEditRealOnHand(false);
                 }
               }}
               onBlur={() => {
@@ -509,13 +510,13 @@ const DetailInvetoryAdjustment: FC = () => {
       updateOnlineInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          window.location.reload();
+          onResult(result);
           showSuccess("Hoàn thành kiểm kho thành công.");
           setIsShowConfirmAdited(false);
         }
       })
     );
-  }, [data, dispatch]);
+  }, [data, dispatch, onResult]);
 
   const onAdjustInventory = useCallback(() => {
     setLoading(true);
@@ -523,13 +524,13 @@ const DetailInvetoryAdjustment: FC = () => {
       adjustInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          window.location.reload();
+          onResult(result);
           showSuccess("Cân tồn kho thành công.");
           seIsShowConfirmAdj(false);
         }
       })
     );
-  }, [dispatch, data?.id]);
+  }, [dispatch, data?.id, onResult]);
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -603,6 +604,22 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     [dataTable, keySearch, searchVariant, onEnterFilterVariant]
   );
+
+  type RowDetailProps = {
+    label: string,
+    value: string|null,
+  }
+
+  const RenderRowInfo = (info: RowDetailProps) => {
+    return (
+      <>
+        <Row className="row-detail">
+          <Col flex="90px" className="row-detail-left label">{info.label} <Col className="dot">:</Col></Col> 
+          <Col flex="auto" className="row-detail-right data"><b>{info?.value}</b></Col>
+        </Row>
+      </>
+    );
+  };
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -884,15 +901,15 @@ const DetailInvetoryAdjustment: FC = () => {
                   extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
-                    <RowDetail title="ID Phiếu" value={data.code} />
-                    <RowDetail title="Người tạo" value={data.created_by} />
-                    <RowDetail title="Người kiểm" value="" />
+                    <RenderRowInfo label="ID Phiếu" value={data.code} />
+                    <RenderRowInfo label="Người tạo" value={data.created_by} />
+                    <RenderRowInfo label="Người kiểm" value="" />
                     {
                       <StyledComponent>
                         <Row className="audit_by">
                           <Col span={24}>
                             {data.audited_by?.map((item: string) => {
-                              return <RenderItemAuditBy user_name={item?.toString()} />;
+                              return <RenderItemAuditBy key={item?.toString()} user_name={item?.toString()} />;
                             })}
                           </Col>
                         </Row>
@@ -1007,7 +1024,9 @@ const DetailInvetoryAdjustment: FC = () => {
                         </Button>
                         <Button
                           type="primary"
-                          onClick={onUpdateOnlineInventory}
+                          onClick={() => {
+                            setIsShowConfirmAdited(true);
+                          }}
                           loading={isLoading} disabled={hasError || isLoading}
                         >
                           Hoàn thành kiểm
