@@ -1,23 +1,21 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import importIcon from "assets/icon/import.svg";
 import UrlConfig from "config/url.config";
-import {Button, Card, Col, Row, Space, Tag, Input, Tabs} from "antd";
+import { Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
-import {PaperClipOutlined, PrinterOutlined, SearchOutlined} from "@ant-design/icons";
+import {PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
 import {useHistory, useParams} from "react-router";
 import {useDispatch} from "react-redux";
-import {inventoryGetVariantByStoreAction} from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
-  InventoryAdjustmentDetailItem,
-  LineItemAdjustment,
-} from "model/inventoryadjustment";
-import {Link} from "react-router-dom";
+  inventoryGetVariantByStoreAction, inventoryUploadFileAction,
+} from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
+import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
 import {VariantResponse} from "model/product/product.model";
@@ -42,8 +40,9 @@ import {
 } from "domain/actions/inventory/inventory-adjustment.action";
 import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
-import {exportFile, getFile} from "service/other/export.service";
 import {HttpStatus} from "config/http-status.config";
+
+import { UploadRequestOption } from "rc-upload/lib/interface";
 import InventoryTransferExportModal from "./conponents/ExportModal";
 import {useReactToPrint} from "react-to-print";
 import {generateQuery} from "utils/AppUtils";
@@ -54,6 +53,10 @@ import {StyledComponent} from "screens/products/product/component/RowDetail/styl
 import ModalConfirm from "component/modal/ModalConfirm";
 import {StoreResponse} from "model/core/store.model";
 import {ConvertFullAddress} from "utils/ConvertAddress";
+import { UploadFile } from "antd/lib/upload/interface";
+import InventoryTransferImportModal from "./conponents/ImportModal";
+import { importFile,exportFile, getFile} from "service/other/import.inventory.service";
+import { ImportResponse } from "model/other/files/export-model";
 
 const {TabPane} = Tabs;
 
@@ -71,6 +74,12 @@ export interface Summary {
   TotalMiss: number | 0;
   TotalOnHand: number | 0;
   TotalRealOnHand: number | 0;
+}
+export const STATUS_IMPORT_EXPORT = {
+  DEFAULT: 1,
+  CREATE_JOB_SUCCESS: 2,
+  JOB_FINISH: 3,
+  ERROR: 4,
 }
 
 const DetailInvetoryAdjustment: FC = () => {
@@ -108,7 +117,15 @@ const DetailInvetoryAdjustment: FC = () => {
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
-  const [statusExport, setStatusExport] = useState<number>(1);
+  const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
+
+  const [listJobImportFile, setListJobImportFile] = useState<Array<string>>([]);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importProgress, setImportProgress] = useState<number>(0);
+  const [statusImport, setStatusImport] = useState<number>(1);
+  const [fileList, setFileList] = useState<Array<UploadFile>>([]);
+  const [dataImport, setDataImport] = useState<ImportResponse>();
+  
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formStoreData, setFormStoreData] = useState<StoreResponse | null>();
 
@@ -125,62 +142,6 @@ const DetailInvetoryAdjustment: FC = () => {
     }
     setAccounts(data.items);
   }, []);
-
-  const onExport = useCallback(() => {
-    exportFile({
-      conditions: data?.id.toString(),
-      type: "EXPORT_INVENTORY_ADJUSTMENT",
-    })
-      .then((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          setStatusExport(2);
-          showSuccess("Đã gửi yêu cầu xuất file");
-          setListExportFile([...listExportFile, response.data.code]);
-        }
-      })
-      .catch((error) => {
-        setStatusExport(4);
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-      });
-  }, [data?.id, listExportFile]);
-
-  const checkExportFile = useCallback(() => {
-    let getFilePromises = listExportFile.map((code) => {
-      return getFile(code);
-    });
-    Promise.all(getFilePromises).then((responses) => {
-      responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          if (exportProgress < 95) {
-            setExportProgress(exportProgress + 3);
-          }
-          if (response.data && response.data.status === "FINISH") {
-            setStatusExport(3);
-            setExportProgress(100);
-            const fileCode = response.data.code;
-            const newListExportFile = listExportFile.filter((item) => {
-              return item !== fileCode;
-            });
-            var downLoad = document.createElement("a");
-            downLoad.href = response.data.url;
-            downLoad.download = "download";
-
-            downLoad.click();
-
-            setListExportFile(newListExportFile);
-          }
-        }
-      });
-    });
-  }, [exportProgress, listExportFile]);
-
-  useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
-    checkExportFile();
-
-    const getFileInterval = setInterval(checkExportFile, 3000);
-    return () => clearInterval(getFileInterval);
-  }, [listExportFile, checkExportFile, statusExport]);
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
@@ -284,6 +245,41 @@ const DetailInvetoryAdjustment: FC = () => {
     [handlePrint]
   );
 
+  const onBeforeUpload = useCallback((file) => {
+  }, []);
+
+  const onCustomRequest = (options: UploadRequestOption<any>) => {
+    const { file } = options;
+    let files: Array<File> = [];
+    if (file instanceof File) {
+      let uuid = file.uid;
+      files.push(file);
+      dispatch(
+        inventoryUploadFileAction(
+          { files: files },
+          (data: false | Array<string>) => {
+            let index = fileList.findIndex((item) => item.uid === uuid);
+            if (!!data) {
+              if (index !== -1) {
+                fileList[index].status = "done";
+                fileList[index].url = data[0];
+              }
+            } else {
+              fileList.splice(index, 1);
+              showError("Upload ảnh không thành công");
+            }
+            setFileList([...fileList]);
+          }
+        )
+      );
+    }
+  };
+
+  const onChangeFile = useCallback((info) => {
+    setFileList([info.file]);
+    setShowImportModal(true);
+  }, []);
+  
   const onPrintAction = () => {
     if (data) {
       let params = {
@@ -610,6 +606,123 @@ const DetailInvetoryAdjustment: FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
   }, [idNumber, onResult, dispatch, setDataAccounts]);
+  
+  const onExport = useCallback(
+    () => {
+      exportFile({
+        conditions: data?.id.toString(),
+        type: "EXPORT_INVENTORY_ADJUSTMENT",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [data?.id, listExportFile]
+  );
+
+  const checkExportFile = useCallback(() => {
+    
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.percent) {
+            setExportProgress(response.data.percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            
+            setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            var downLoad = document.createElement('a');
+            downLoad.href = response.data.url;
+            downLoad.download = 'download';
+
+            downLoad.click();
+
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
+  
+
+  const onImport = useCallback(
+    () => {
+      importFile({
+        url: fileList[0].url,
+        conditions: data?.id.toString(),
+        type: "IMPORT_INVENTORY_ADJUSTMENT",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListJobImportFile([...listJobImportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [data?.id, fileList, listJobImportFile]
+  );
+
+  const checkImportFile = useCallback(() => {
+    if (statusImport !== STATUS_IMPORT_EXPORT.DEFAULT) {
+      let getFilePromises = listJobImportFile.map((code) => {
+        return getFile(code);
+      });
+      Promise.all(getFilePromises).then((responses) => {
+        responses.forEach((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setDataImport(response.data);
+            if (response.data.percent) {
+              setImportProgress(response.data.percent);
+            }
+            if (response.data && response.data.status === "FINISH") {
+              
+              setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+              dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
+            }
+            if (response.data && response.data.status === "ERROR") {
+              setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+            }
+          }
+        });
+      });
+    }
+  }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
+
+  useEffect(() => {
+    if (listJobImportFile.length === 0 || statusImport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusImport === STATUS_IMPORT_EXPORT.ERROR) return;
+    checkImportFile();
+
+    const getFileInterval = setInterval(checkImportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listJobImportFile, statusImport, checkImportFile]);
 
   return (
     <StyledWrapper>
@@ -824,8 +937,12 @@ const DetailInvetoryAdjustment: FC = () => {
                 </Card>
               </Col>
             </Row>
-
-            <div style={{display: "none"}}>
+            
+            <div style={{ display: "none" }}>
+              <Upload
+                fileList={fileList}
+              >
+              </Upload>
               <div className="printContent" ref={printElementRef}>
                 <div
                   dangerouslySetInnerHTML={{
@@ -858,28 +975,25 @@ const DetailInvetoryAdjustment: FC = () => {
                       </Space>
                     </Button>
                   )}
-                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ? (
-                    <>
-                      <Button
-                        type="primary"
-                        onClick={() => {
-                          setIsShowConfirmAdited(true);
-                        }}
-                        loading={isLoading}
-                        disabled={hasError || isLoading}
-                      >
-                        Hoàn thành
-                      </Button>
-
-                      <Button
-                        type="default"
-                        className="light"
-                        size="large"
-                        icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
-                        onClick={() => {}}
-                      >
-                        Nhập file
-                      </Button>
+                  {
+                    data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ?(
+                      <>
+                        <Button
+                          type="primary"
+                          onClick={onUpdateOnlineInventory}
+                          loading={isLoading} disabled={hasError || isLoading}
+                        >
+                          Hoàn thành
+                        </Button>
+                        <Upload
+                          beforeUpload={onBeforeUpload}
+                          multiple={false}
+                          showUploadList={false}
+                          onChange={onChangeFile}
+                          customRequest={onCustomRequest}
+                        >
+                          <Button icon={<UploadOutlined />}>Nhập excel</Button>
+                        </Upload>
                       <Button
                         type="default"
                         className="light"
@@ -890,7 +1004,7 @@ const DetailInvetoryAdjustment: FC = () => {
                           onExport();
                         }}
                       >
-                        Xuất file
+                        Xuất excel
                       </Button>
                     </>
                   ) : null}
@@ -915,11 +1029,28 @@ const DetailInvetoryAdjustment: FC = () => {
                 onCancel={() => {
                   setShowExportModal(false);
                   setExportProgress(0);
-                  setStatusExport(1);
+                  setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
                 }}
                 onOk={() => onExport()}
                 exportProgress={exportProgress}
                 statusExport={statusExport}
+              />
+            )}
+            {showImportModal && (
+              <InventoryTransferImportModal
+                visible={showImportModal}
+                onImport={onImport}
+                dataImport={dataImport}
+                onCancel={() => {
+                  setShowImportModal(false);
+                  setImportProgress(0);
+                  setListJobImportFile([]);
+                  setStatusImport(STATUS_IMPORT_EXPORT.DEFAULT);
+                  setFileList([]);
+                }}
+                importProgress={importProgress && importProgress}
+                statusImport={statusImport}
+                fileList={fileList}
               />
             )}
             {visibleManyProduct && (
