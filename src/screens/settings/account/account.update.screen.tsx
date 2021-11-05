@@ -84,13 +84,7 @@ const AccountUpdateScreen: React.FC = () => {
   const idNumber = useRef<number>(0);
 
   //State
-  const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
-    {
-      department_id: 0,
-      position_id: 0,
-      key: Number(moment().format("x")),
-    },
-  ]);
+  const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
   const [status, setStatus] = useState<string>("active");
@@ -220,12 +214,7 @@ const AccountUpdateScreen: React.FC = () => {
         storeIds.push(item.store_id);
       }
     });
-    // let roleIds: Array<number> = [];
-    // data.account_roles?.forEach((item) => {
-    //   if (item.role_id) {
-    //     roleIds.push(item.role_id);
-    //   }
-    // });
+
     let jobs: Array<AccountJobReQuest> = [];
     data.account_jobs?.forEach((item, index) => {
       jobs.push({
@@ -249,7 +238,7 @@ const AccountUpdateScreen: React.FC = () => {
       district_id: data.district_id,
       city_id: data.city_id,
       account_stores: storeIds,
-      role_id: 0, 
+      role_id: data.role_id, 
       status: data.status,
       version: data.version,
     };
@@ -559,13 +548,7 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Ngày sinh"
                   name="birthday"
                   // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
-                >
-                  {/* <DatePicker
-                    className="r-5 w-100 ip-search"
-                    placeholder="20/01/2021"
-                    format="DD/MM/YYYY"
-                    style={{width: '100%'}}
-                  /> */}
+                >              
                   <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
                 </Item>
               </Col>
@@ -585,7 +568,6 @@ const AccountUpdateScreen: React.FC = () => {
                     className="selector"
                     allowClear
                     showArrow
-                    
                     optionFilterProp="children"
                     maxTagCount="responsive"
                   >
@@ -667,10 +649,6 @@ const AccountUpdateScreen: React.FC = () => {
               <div className="margin-top-10">
                 <Row gutter={24}>
                   <Col span={24} lg={24} md={24} sm={24}>
-                    {/* <Button type="dashed" onClick={addNewJob}>
-                      <PlusOutlined /> Add field
-                    </Button> */}
-
                     <Button
                       type="link"
                       className="padding-0"
