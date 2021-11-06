@@ -346,7 +346,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {!checkPromoCode  &&  <Row gutter={30}>
+                {checkPromoCode  &&  <Row gutter={30}>
                     <Col span={24}>
                       <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
@@ -354,7 +354,7 @@ const PromotionDetailScreen: React.FC = () => {
                     </Col>
                   </Row>
                 }
-                {checkPromoCode && <Row gutter={30} style={{gap: 15}}>
+                {!checkPromoCode && <Row gutter={30} style={{gap: 15}}>
                   <Col span={24} style={{
                       color: "#E24343",
                       textAlign: "center",
