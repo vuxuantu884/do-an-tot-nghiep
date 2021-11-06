@@ -6,7 +6,7 @@ import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
 import { Button, Col, Form, Row } from "antd";
 import { useHistory } from "react-router-dom";
-import { showError, showSuccess } from "../../../utils/ToastUtils";
+import { showSuccess } from "../../../utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { PROMO_TYPE } from "utils/Constants";
 import { StoreResponse } from "model/core/store.model";

@@ -37,11 +37,10 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { addPromoCodeManual, getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCodeManual, deleteBulkPromoCode, getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { deleteMultiPromoCode } from "service/promotion/promo-code/promo-code.service";
+import { showSuccess } from "utils/ToastUtils";
 
 const promotionStatuses = [
   {
@@ -148,7 +147,7 @@ const ListCode = () => {
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
-  // handle get list data
+  // handle response get list
   const fetchData = useCallback((data: any) => {
     let dataSource = {
       metadata: {
@@ -158,10 +157,11 @@ const ListCode = () => {
       },
       items: data
     }
-    
     setData(dataSource);
     setTableLoading(false);
-  }, [])
+  }, []);
+
+  // Call API get list
   useEffect(() => {
     dispatch(getListPromoCode(priceRuleId, fetchData));
   }, [dispatch, fetchData, priceRuleId]);
@@ -194,10 +194,12 @@ const ListCode = () => {
     dispatch(showLoading());
     dispatch(updatePromoCodeById(priceRuleId, body, onUpdateSuccess));
   }
-  const onUpdateSuccess = useCallback(() => {
+  const onUpdateSuccess = useCallback((response) => {
     dispatch(hideLoading());
-    showSuccess("Cập nhật thành công");
-    dispatch(getListPromoCode(priceRuleId, fetchData));
+    if (response) {
+      showSuccess("Cập nhật thành công");
+      dispatch(getListPromoCode(priceRuleId, fetchData));
+    }
   }, [dispatch]);
 
   // section DELETE by Id
@@ -206,11 +208,6 @@ const ListCode = () => {
     setDeleteData(item);
     setIsShowDeleteModal(true);
   }
-  const onDeleteSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    dispatch(getListPromoCode(priceRuleId, fetchData));
-  }, [dispatch]);
 
   // section ADD Manual
   function handleAddManual(value: any) {
@@ -227,10 +224,34 @@ const ListCode = () => {
     dispatch(showLoading());
     dispatch(addPromoCodeManual(priceRuleId, body, onAddSuccess));
   }
-  const onAddSuccess = useCallback(() => {
+  const onAddSuccess = useCallback((response) => {
     dispatch(hideLoading());
-    showSuccess("Thêm thành công");
-    dispatch(getListPromoCode(priceRuleId, fetchData));
+    if(response) {
+      showSuccess("Thêm thành công");
+      dispatch(getListPromoCode(priceRuleId, fetchData));
+    }
+  }, [dispatch]);
+
+   // section DELETE bulk
+  function handleDeleteBulk() {
+    const body = {
+      created_by: "",
+      created_name: "",
+      updated_by: "",
+      updated_name: "",
+      request_id: "",
+      operator_kc_id: "",
+      id: selectedRowKey
+    }
+    dispatch(showLoading());
+    dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
+  }
+  const deleteCallBack = useCallback((response) => {
+    dispatch(hideLoading());
+    if (response) {
+      showSuccess("Xóa thành công");
+      dispatch(getListPromoCode(priceRuleId, fetchData));
+    }
   }, [dispatch]);
 
   // section CHANGE STATUS
@@ -321,22 +342,7 @@ const ListCode = () => {
         case 1:
           break;
         case 2:
-          const body = {
-            created_by: "",
-            created_name: "",
-            updated_by: "",
-            updated_name: "",
-            request_id: "",
-            operator_kc_id: "",
-            id: selectedRowKey
-          }
-          const bulkDeleteResponse = await deleteMultiPromoCode(priceRuleId, body);
-          if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListPromoCode(priceRuleId, fetchData));
-          } else {
-            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
-          }
+          handleDeleteBulk()
           break;
       }
     },
@@ -575,7 +581,7 @@ const ListCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(getPromoCodeById(priceRuleId, deleteData.id, onDeleteSuccess));
+          dispatch(getPromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
         }}
         okText="Đồng ý"
         cancelText= "Huỷ"
