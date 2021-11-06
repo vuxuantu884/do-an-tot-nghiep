@@ -67,12 +67,12 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
  
   useEffect(() => {
-    const stores =  listStore?.filter(item => item.id === data?.prerequisite_store_ids[0])
+    const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
     setStore(stores);
   }, [listStore]);
 
   useEffect(() => {
-    const source = sources?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
+    const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
     setSource(source);
   }, [listSource]);
 
@@ -471,8 +471,8 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              stores && stores.map((item: any, index: number) => (
-                                <li>{item.name}</li>
+                              stores && stores.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
                               ))
                             }
                           </ul>) : "Áp dụng toàn bộ"
@@ -502,8 +502,8 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            <li> YODY Kiến Xương </li>
-                            <li> YODY Hai Bà Trưng </li>
+                            <li key="0"> YODY Kiến Xương </li>
+                            <li key="1"> YODY Hai Bà Trưng </li>
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -532,8 +532,8 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              sources && sources.map((item: any, index: number) => (
-                                <li>{item.name}</li>
+                              sources && sources.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
                               ))
                             }
                           </ul>) : "Áp dụng toàn bộ"

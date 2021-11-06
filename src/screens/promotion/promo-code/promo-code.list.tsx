@@ -184,7 +184,7 @@ const ListCode = () => {
     setEditData(item);
     setShowEditPopup(true);
   };
-   // section DELETE by Id
+   // section EDIT by Id
    function handleEdit(value: any) {
     if(!value) return;
     let body = {
@@ -204,7 +204,6 @@ const ListCode = () => {
 
   // section DELETE by Id
   function handleDelete(item: any) {
-    dispatch(showLoading());
     setDeleteData(item);
     setIsShowDeleteModal(true);
   }

@@ -46,7 +46,7 @@ const CreatePromotionCodePage = () => {
     body.usage_limit_per_customer = values.usage_limit_per_customer  ? values.usage_limit_per_customer : null;
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
-    body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
+    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length ? values.prerequisite_order_source_ids : null;
     body.starts_date = values.prerequisite_duration[0]?.format();
     body.ends_date = values.prerequisite_duration[1]?.format();
     body.entitled_method = "QUANTITY";
