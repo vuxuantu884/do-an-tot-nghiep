@@ -86,10 +86,37 @@ function* getPromoCodeDetail(action: YodyAction) {
   }
 }
 
+function* getDiscountCodeDetail(action: YodyAction) {
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<DiscountResponse> = yield call(
+      getPriceRuleById,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* discountSaga() {
   yield all([
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
     takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
+    takeLatest(DiscountType.GET_DISCOUNT_CODE_DETAIL, getDiscountCodeDetail),
     takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct)
   ])
 }

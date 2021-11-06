@@ -155,7 +155,7 @@ const DiscountPage = () => {
       width: "9%",
       render: (value: any, item: any, index: number) =>
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`}
+          to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${value.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
           {value.code}

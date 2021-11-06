@@ -12,6 +12,10 @@ export const promoGetDetail = (id: number, onResult: (result: DiscountResponse|f
   return BaseAction(DiscountType.GET_PROMO_CODE_DETAIL, {id, onResult});
 }
 
+export const discountGetDetail = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.GET_DISCOUNT_CODE_DETAIL, {id, onResult});
+}
+
 export const deletePriceRulesById = (id: number, onResult: (result: DiscountResponse|false) => void) => {
   return BaseAction(DiscountType.DELETE_PRICE_RULE_BY_ID, {id, onResult});
 }
