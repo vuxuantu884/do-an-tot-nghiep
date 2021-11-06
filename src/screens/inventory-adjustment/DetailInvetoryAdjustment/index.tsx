@@ -56,6 +56,7 @@ import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
 import { importFile,exportFile, getFile} from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
+import NumberInput from "component/custom/number-input.custom";
 
 const {TabPane} = Tabs;
 
@@ -392,16 +393,11 @@ const DetailInvetoryAdjustment: FC = () => {
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
           return (
-            <Input
-              type="number"
+            <NumberInput
               min={0}
               maxLength={12}
               value={value}
-              onChange={(event) => {
-                let value =
-                  event.target.value && event.target.value !== ""
-                    ? event.target.value
-                    : 0;
+              onChange={(value) => {
                 onRealQuantityChange(value, row, index);
               }}
               onKeyPress={(event) => {
