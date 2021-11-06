@@ -137,7 +137,6 @@ const CreatePromotionCodePage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
-              // customerAdvanceMsg={customerAdvanceMsg}
             />
           </Col>
         </Row>
