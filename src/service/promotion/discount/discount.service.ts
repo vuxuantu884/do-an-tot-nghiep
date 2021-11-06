@@ -27,11 +27,11 @@ export const createPriceRule = (body: any) : Promise<any> => {
 }
 
 export const bulkDeletePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/delete`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/cancel`, body)
 }
 
 export const bulkEnablePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/enable`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/active`, body)
 }
 
 export const bulkDisablePriceRules = (body: any) : Promise<any> => {
