@@ -1053,7 +1053,7 @@ const CreateInventoryAdjustment: FC = () => {
           {visibleManyProduct && (
             <PickManyProductModal
               storeID={form.getFieldValue("adjusted_store_id")}
-              selected={[]}
+              selected={dataTable}
               isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
