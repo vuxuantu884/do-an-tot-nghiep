@@ -1,7 +1,7 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -56,6 +56,7 @@ import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
 import { importFile,exportFile, getFile} from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
+import NumberInput from "component/custom/number-input.custom";
 
 const {TabPane} = Tabs;
 
@@ -187,7 +188,7 @@ const DetailInvetoryAdjustment: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
@@ -392,16 +393,11 @@ const DetailInvetoryAdjustment: FC = () => {
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
           return (
-            <Input
-              type="number"
+            <NumberInput
               min={0}
               maxLength={12}
               value={value}
-              onChange={(event) => {
-                let value =
-                  event.target.value && event.target.value !== ""
-                    ? event.target.value
-                    : 0;
+              onChange={(value) => {
                 onRealQuantityChange(value, row, index);
               }}
               onKeyPress={(event) => {
@@ -840,6 +836,12 @@ const DetailInvetoryAdjustment: FC = () => {
                           onSelect={onSelectProduct}
                           options={renderResult}
                           ref={productSearchRef}
+                          onClickAddNew={() => {
+                            window.open(
+                              `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                              "_blank"
+                            );
+                          }}
                         />
                         <Button
                           onClick={() => {
@@ -1082,7 +1084,8 @@ const DetailInvetoryAdjustment: FC = () => {
             {visibleManyProduct && (
               <PickManyProductModal
                 storeID={data?.adjusted_store_id}
-                selected={[]}
+                selected={dataTable}
+                isTransfer
                 onSave={onPickManyProduct}
                 onCancel={() => setVisibleManyProduct(false)}
                 visible={visibleManyProduct}
