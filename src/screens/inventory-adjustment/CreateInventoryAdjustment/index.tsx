@@ -220,7 +220,7 @@ const CreateInventoryAdjustment: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
@@ -1051,6 +1051,7 @@ const CreateInventoryAdjustment: FC = () => {
             <PickManyProductModal
               storeID={form.getFieldValue("adjusted_store_id")}
               selected={[]}
+              isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
               visible={visibleManyProduct}
