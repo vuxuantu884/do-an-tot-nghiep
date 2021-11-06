@@ -251,7 +251,7 @@ export const getListSubStatusAction = (
 
 export const setSubStatusAction = (
   order_id: number,
-  statusId: number,
+  statusCode: string,
   handleData: () => void,
   action: string = "Chuyển trạng thái phụ"
 ) => {
@@ -259,7 +259,7 @@ export const setSubStatusAction = (
     type: OrderType.SET_SUB_STATUS,
     payload: {
       order_id,
-      statusId,
+      statusCode,
       action,
       handleData,
     },

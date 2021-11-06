@@ -142,8 +142,8 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
                   })
                 ) : dataImport?.status === "FINISH" ? (
                   <li>
-                    <span className="danger">&#8226;</span>
-                    <Text type="danger">File không có dữ liệu</Text>
+                    <span className="success">&#8226;</span>
+                    <Text type="success">Import thành công!</Text>
                   </li>
                 ) : (
                   <li>

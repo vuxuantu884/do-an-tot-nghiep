@@ -286,14 +286,14 @@ export const getOrderSubStatusService = (
 
 export const setSubStatusService = (
   order_id: number,
-  statusId: number,
+  statusCode: string,
   action: string
 ): Promise<BaseResponse<SourceResponse>> => {
   const params = {
     action,
   };
   return BaseAxios.put(
-    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`,
+    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusCode}`,
     params
   );
 };

@@ -1,6 +1,6 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useState} from "react";
 import {StyledWrapper} from "./styles";
-import UrlConfig from "config/url.config";
+import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {Button, Card, Col, Form, Input, Row, Select, Space, Upload, Empty} from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -47,6 +47,7 @@ import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "../constants";
 import CustomPagination from "component/table/CustomPagination";
 import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
+import {DATE_FORMAT} from "utils/DateUtils";
 
 const {Option} = Select;
 
@@ -219,26 +220,56 @@ const CreateInventoryAdjustment: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = (value: string) => {
+  const drawColumns = useCallback((data: Array<LineItemAdjustment>) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data?.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand?.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
+
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
+
+  const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
     const selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
+
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      setDataTable((prev: Array<InventoryAdjustmentDetailItem>) =>
-        prev.concat([selectedItem])
+      drawColumns(dataTable.concat([{...selectedItem, variant_name: selectedItem.name, real_on_hand: 0}]));
+
+      setDataTable((prev: Array<LineItemAdjustment>) =>
+        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
       );
-      setSearchVariant((prev: Array<LineItemAdjustment>) => prev.concat([selectedItem]));
-      setHasError(false);
-    }
-  };
+      setSearchVariant((prev: Array<LineItemAdjustment>) =>
+        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
+      );
+      setHasError(false); 
+    } 
+  },[dataTable,resultSearch,drawColumns]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -262,6 +293,7 @@ const CreateInventoryAdjustment: FC = () => {
     setIsLoadingTable(false);
     setHasError(false);
     setVisibleManyProduct(false);
+    drawColumns(arrayUnique);
   };
 
   const onBeforeUpload = useCallback((file) => {
@@ -432,7 +464,8 @@ const CreateInventoryAdjustment: FC = () => {
             isFloat={false}
             id={`item-real-${index}`}
             min={0}
-            value={value ? value : 0}
+            maxLength={12}
+            value={value}
             onChange={(quantity) => {
               onRealQuantityChange(quantity, row, index);
             }}
@@ -492,32 +525,7 @@ const CreateInventoryAdjustment: FC = () => {
         />
       ),
     },
-  ]; 
-
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
+  ];  
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -568,8 +576,7 @@ const CreateInventoryAdjustment: FC = () => {
   );
 
   const onRealQuantityChange = useCallback(
-    (quantity: number | null, row: LineItemAdjustment, index: number) => {
-
+    (quantity: number | null, row: LineItemAdjustment, index: number) => { 
       const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
 
       dataTableClone.forEach((item) => {
@@ -609,7 +616,7 @@ const CreateInventoryAdjustment: FC = () => {
     [dataTable, keySearch, form, searchVariant, onEnterFilterVariant]
   );
 
-  useEffect(() => { 
+  useEffect(() => {
     if (dataTable?.length === 0) {
       setHasError(true);
     }
@@ -722,7 +729,7 @@ const CreateInventoryAdjustment: FC = () => {
                           placeholder="Chọn loại kiểm"
                           showArrow
                           optionFilterProp="children"
-                          showSearch
+                          showSearch={false}
                           allowClear={true}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
@@ -742,7 +749,7 @@ const CreateInventoryAdjustment: FC = () => {
                 }
               >
                 <Row gutter={24}>
-                  <Col span={3}>
+                  <Col span={3} className="pt8">
                     <b>
                       Kho kiểm <span style={{color: "red"}}>*</span>
                     </b>
@@ -830,6 +837,12 @@ const CreateInventoryAdjustment: FC = () => {
                         onSelect={onSelectProduct}
                         options={renderResult}
                         ref={productSearchRef}
+                        onClickAddNew={() => {
+                          window.open(
+                            `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                            "_blank"
+                          );
+                        }}
                       />
                       <Button
                         onClick={() => {
@@ -931,6 +944,17 @@ const CreateInventoryAdjustment: FC = () => {
                       required: true,
                       message: "Vui lòng chọn ngày kiểm",
                     },
+                    {
+                      validator: async (_, value) => {
+                        const today = new Date(new Date().setHours(0, 0, 0, 0));
+                        const adjustDate = new Date(new Date(value).setHours(0, 0, 0, 0));
+                        if (adjustDate && adjustDate < today) {
+                          return Promise.reject(
+                            new Error("Ngày kiểm không được nhỏ hơn ngày hiện tại")
+                          );
+                        }
+                      },
+                    },
                   ]}
                   label={<b>Ngày kiểm</b>}
                   colon={false}
@@ -938,7 +962,7 @@ const CreateInventoryAdjustment: FC = () => {
                   <CustomDatePicker
                     style={{width: "100%"}}
                     placeholder="Chọn ngày kiểm"
-                    format={"DD/MM/YYYY"}
+                    format={DATE_FORMAT.DDMMYYY}
                   />
                 </Form.Item>
 
@@ -976,7 +1000,7 @@ const CreateInventoryAdjustment: FC = () => {
                   label={<b>Ghi chú nội bộ</b>}
                   colon={false}
                   labelCol={{span: 24, offset: 0}}
-                  rules={[{max: 500, message: "Không được nhập quá 500 ký tự!"}]}
+                  rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
                 >
                   <TextArea placeholder=" " autoSize={{minRows: 4, maxRows: 6}} />
                 </Form.Item>
@@ -1029,7 +1053,8 @@ const CreateInventoryAdjustment: FC = () => {
           {visibleManyProduct && (
             <PickManyProductModal
               storeID={form.getFieldValue("adjusted_store_id")}
-              selected={[]}
+              selected={dataTable}
+              isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
               visible={visibleManyProduct}

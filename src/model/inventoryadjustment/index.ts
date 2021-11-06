@@ -64,7 +64,7 @@ export interface LineItemAdjustment {
   real_on_hand: number,
   on_hand_adj: number | null,
   on_hand_adj_dis: string | null,
-  
+  note: string|null
 }
 
 export interface FileUrl {
@@ -79,6 +79,7 @@ export interface InventoryAdjustmentDetailItem {
   version: number;
   created_by: string;
   created_name: string;
+  created_code: string;
   created_date: Date;
   updated_by: string;
   audit_type: string;
@@ -98,6 +99,7 @@ export interface InventoryAdjustmentDetailItem {
   adjusted_date: Date;
   finished_date: Date;
   adjusted_by: string;
+  adjusted_code: string;
   total_on_hand: number;
   total_real_on_hand: number;
   total_excess: number;
