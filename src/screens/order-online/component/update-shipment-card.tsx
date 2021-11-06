@@ -31,6 +31,7 @@ import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
+  DeliveryServicesGetList,
   getFeesAction,
   getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
@@ -48,6 +49,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  DeliveryServiceResponse,
   OrderResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
@@ -81,7 +83,6 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
-import { delivery_service } from "../common/delivery-service";
 import { dangerColor } from "utils/global-styles/variables";
 
 const { Panel } = Collapse;
@@ -163,7 +164,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [serviceName, setServiceName] = useState<string>("");
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
-
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
@@ -232,6 +233,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#endregion
   useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
+    
   }, [dispatch]);
 
   const [reload, setReload] = useState(false);
@@ -913,7 +915,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   useEffect(() => {
     getRequirementName();
-  }, [getRequirementName]);
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
+  }, [dispatch, getRequirementName]);
 
   useEffect(() => {
     if (updateShipment || cancelShipment) {
@@ -928,7 +935,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // todo thai: update khi có logo các đối tác giao hàng
   const renderDeliveryPartner = (shipment: any) => {
-    const delivery = delivery_service?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+    const delivery = deliveryServices?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
     if (delivery && delivery.logo) {
       return (
         <img
@@ -1854,6 +1861,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       totalPaid={props.totalPaid}
                       serviceType={serviceType}
                       changeServiceType={changeServiceType}
+                      deliveryServices={deliveryServices}
                       discountValue={OrderDetail?.total_discount}
                       infoFees={infoFees}
                       setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}

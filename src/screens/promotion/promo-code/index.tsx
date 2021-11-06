@@ -39,7 +39,7 @@ const PromotionCode = () => {
     ...{
       type: PROMO_TYPE.MANUAL,
       request: "",
-      status: ""
+      state: ""
     },
     ...getQueryParams(query)
   }
@@ -212,7 +212,7 @@ const PromotionCode = () => {
       title: "Trạng thái",
       visible: true,
       fixed: "left",
-      dataIndex: 'status',
+      dataIndex: 'state',
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
@@ -226,24 +226,6 @@ const PromotionCode = () => {
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
-
-  // function tagRender(props: any) {
-  //   const { label, closable, onClose } = props;
-  //   const onPreventMouseDown = (event: any) => {
-  //     event.preventDefault();
-  //     event.stopPropagation();
-  //   };
-  //   return (
-  //     <Tag
-  //       className="primary-bg"
-  //       onMouseDown={onPreventMouseDown}
-  //       closable={closable}
-  //       onClose={onClose}
-  //     >
-  //       {label}
-  //     </Tag>
-  //   );
-  // }
 
   const listStatus: Array<BaseBootstrapResponse> = [
     {
@@ -346,20 +328,20 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tìm kiếm theo mã, tên đợt phát hành"
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
               </Form.Item>
-              <Form.Item name="status" className="status">
-                <CustomSelect
+              <Form.Item>
+              <CustomSelect
                   style={{ width: "100%", borderRadius: "6px" }}
                   showArrow
                   showSearch
-                  placeholder="Nguồn đơn hàng"
+                  placeholder="Chọn trạng thái"
                   notFoundContent="Không tìm thấy kết quả"
                 >
                   {listStatus.map((item, index) => (
@@ -416,8 +398,8 @@ const PromotionCode = () => {
           dispatch(showLoading());
           dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
         }}
-        title="Bạn có chắc muốn xoá không?"
-        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        title="Xoá mã đợt giảm giá"
+        subTitle="Bạn có chắc xoá mã đợt giảm giá?"
         visible={isShowDeleteModal}
       />
     </ContentContainer>

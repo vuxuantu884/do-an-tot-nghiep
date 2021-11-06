@@ -214,3 +214,13 @@
 .ant-select-selector {
   border-radius: 0px !important;
 }
+
+.ant-select {
+  &.ant-select-selector-min-height {
+    .ant-select-selector,
+    .ant-select-selector .ant-select-selection-search-input {
+      height: auto;
+      min-height: 36px;
+    }
+  }
+}

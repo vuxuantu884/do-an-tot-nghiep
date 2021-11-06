@@ -30,7 +30,23 @@ const ListInventoryAdjustment = React.lazy(() => import("screens/inventory-adjus
 const CreateInventoryAdjustment = React.lazy(() => import("screens/inventory-adjustment/CreateInventoryAdjustment"));
 const DetailInvetoryAdjustment = React.lazy( () => import("screens/inventory-adjustment/DetailInvetoryAdjustment"));
 
+//Inventory
+const InventoryScreen = React.lazy(
+  () => import("screens/products/inventory")
+);
+
 export const inventory: Array<RouteMenu> = [
+  {
+    path: `${UrlConfig.INVENTORY}`,
+    exact: true,
+    title: "Danh sách tồn",
+    icon: "icon-dot",
+    component: InventoryScreen,
+    key: "submenu24",
+    isShow: true,
+    header: null,
+    subMenu: []
+  },
   {
     path: UrlConfig.PURCHASE_ORDER,
     exact: true,

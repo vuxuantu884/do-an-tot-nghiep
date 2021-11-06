@@ -21,6 +21,15 @@ const CreatePromotionCodePage = () => {
   const [promoCodeForm] = Form.useForm();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+
+  const initialValues = {
+    title: "",
+    discount_code: "",
+    sale_type: "SALE_CODE",
+    product_type: "PRODUCT",
+    value_type: "PERCENTAGE",
+  };
+
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
@@ -72,7 +81,6 @@ const CreatePromotionCodePage = () => {
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
-
   }
 
   const handleSubmitFail = (errorFields: any) => {
@@ -119,6 +127,7 @@ const CreatePromotionCodePage = () => {
         onFinish={handerSubmit}
         onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
         layout="vertical"
+        initialValues={initialValues}
       >
         <Row gutter={24}>
           <Col span={24}>
@@ -128,7 +137,6 @@ const CreatePromotionCodePage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
-              // customerAdvanceMsg={customerAdvanceMsg}
             />
           </Col>
         </Row>

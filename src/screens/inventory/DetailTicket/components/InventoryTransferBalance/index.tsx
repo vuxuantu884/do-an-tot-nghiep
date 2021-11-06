@@ -191,7 +191,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
                 <div className="dot data">:</div>
                 <div className="row-detail-right data">{
                   ConvertUtcToLocalDate(
-                    data?.receive_date,
+                    data?.pending_date,
                     "DD/MM/YYYY"
                   )}
                 </div>

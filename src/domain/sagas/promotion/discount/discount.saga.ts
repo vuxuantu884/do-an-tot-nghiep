@@ -35,25 +35,27 @@ function* getDiscounts(action: YodyAction) {
 }
 
 function* deletePriceRuleByIdAct(action: YodyAction) {
-  console.log('deletePriceRuleByIdAct - action : ', action);
-  const { id, onDeleteSuccess } = action.payload;
+  const { id, onResult } = action.payload;
   try {
-    const response: BaseResponse<DiscountResponse> = yield call(
+    let response: BaseResponse<DiscountResponse> = yield call(
       deletePriceRuleById,
       id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onDeleteSuccess()
+        onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onResult(false);
         yield put(unauthorizedAction());
         break;
       default:
+        onResult(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onResult(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

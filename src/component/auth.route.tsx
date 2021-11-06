@@ -1,5 +1,6 @@
 import React from "react";
 import { Route } from "react-router";
+import NoPermission from "screens/no-permission.screen";
 import AuthWrapper from "./authorization/AuthWrapper";
 import Container from "./container";
 
@@ -16,8 +17,8 @@ const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
   return (
     <Route sensitive  path={path} exact={exact}>
       <Container title={title}>
-        <AuthWrapper acceptPermissions={permissions}>
-          <Component />
+        <AuthWrapper acceptPermissions={permissions} passThrough>
+          {(allowed: boolean ) => (allowed ? <Component /> : <NoPermission/>)}       
         </AuthWrapper>
       </Container>
     </Route>

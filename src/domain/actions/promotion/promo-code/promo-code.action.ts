@@ -14,3 +14,11 @@ export const getPromoCodeById = (priceRuleId: number, id: number, onResult: (res
 export const deletePromoCodeById = (priceRuleId: number, id: number, onResult: (result: DiscountResponse|false) => void) => {
   return BaseAction(PromoCodeType.DELETE_PROMO_CODE_BY_ID, {priceRuleId, id, onResult});
 }
+
+export const updatePromoCodeById = (priceRuleId: number, body: any, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, {priceRuleId, body, onResult});
+}
+
+export const addPromoCodeManual = (priceRuleId: number, body: any, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(PromoCodeType.ADD_PROMO_CODE_MANUAL, {priceRuleId, body, onResult});
+}

@@ -1,3 +1,4 @@
+import { ModuleAuthorize } from "model/auth/module.model";
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 
@@ -25,12 +26,13 @@ export interface AccountResponse extends AccountBaseModel, BaseObject {
   district: string;
   status_name: string;
   account_jobs: Array<AccountJobResponse>;
-  account_stores: Array<AccountStoreResponse>;
-  // account_roles: Array<AccountRolesResponse>;
-  permissions : { // dumy for demo => need to be removed
-    role:  {code : string, name : string}[],
-    modules: {permissions : string[]}[],
+  account_stores: Array<AccountStoreResponse>; 
+  permissions : {  
+    user_id: string;
+    modules: ModuleAuthorize[],
   }
+  role_id: number;
+  role_name: string;
 }
 
 export interface AccountSearchQuery extends BaseQuery {
@@ -86,10 +88,13 @@ export interface AccountView extends AccountBaseModel {
   role_id : number;
 }
 
+// for create and update screen
 export interface AccountRequest extends AccountBaseModel {
   code: string;
   birthday?: string;
   account_jobs: Array<AccountJobResponse>;
   account_stores: Array<AccountStoreResponse>;
   role_id : number;
+  permissions_ids? : Array<number>;
 }
+

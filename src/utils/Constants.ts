@@ -161,12 +161,6 @@ export const DEFAULT_FORM_VALUE = {
   company_id: 1,
 };
 
-export const UserPermissions = {
-  ADMIN_ALL: "ADMIN_ALL",
-  HR: "HR",
-  WIN: "WIN",
-};
-
 export const OFFSET_HEADER_UNDER_NAVBAR = 55; //pixels
 export const OFFSET_HEADER_TABLE = OFFSET_HEADER_UNDER_NAVBAR + 54; //pixels
 

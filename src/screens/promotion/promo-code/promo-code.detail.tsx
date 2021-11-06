@@ -12,16 +12,21 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import "./promo-code.scss";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
-import { RiUpload2Line } from "react-icons/ri";
-import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
+import "./promo-code.scss";
+import { RiUpload2Line } from "react-icons/ri";
+import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
-
-import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCodeManual, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { showSuccess } from "utils/ToastUtils";
 
 export interface ProductParams {
   id: string;
@@ -45,32 +50,57 @@ const PromotionDetailScreen: React.FC = () => {
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
   const [data, setData] = useState<DiscountResponse | null>(null);
-  // const [listStore, setStore] = useState<Array<StoreResponse>>();
-  // const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>();
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
-
-  // useEffect(() => {
-  //   dispatch(StoreGetListAction(setStore));
-  //   dispatch(getListSourceRequest(setListSource));
-  // }, [dispatch]);
-
-  const fetchData = useCallback((data: any) => {
-    setCheckPromoCode(data.length > 0);
-  }, [])
+  const [stores, setStore] = useState<Array<StoreResponse>>();
+  const [sources, setSource] = useState<Array<SourceResponse>>();
 
   useEffect(() => {
-    dispatch(getListPromoCode(idNumber, fetchData));
-  }, [dispatch, fetchData, idNumber]);
+    dispatch(StoreGetListAction(setListStore));
+    dispatch(getListSourceRequest(setListSource));
+  }, []);
+ 
+  useEffect(() => {
+    const stores =  listStore?.filter(item => item.id === data?.prerequisite_store_ids[0])
+    setStore(stores);
+  }, [listStore]);
 
+  useEffect(() => {
+    const source = sources?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
+    setSource(source);
+  }, [listSource]);
+
+  const handleCheckPromoList = useCallback((data: any) => {
+    setCheckPromoCode(data.length > 0);
+  }, []);
+
+  useEffect(() => {
+    dispatch(getListPromoCode(idNumber, handleCheckPromoList));
+  }, [dispatch, handleCheckPromoList, idNumber]);
+
+  // section DELETE by Id
+  function onDelete() {
+    dispatch(showLoading());
+    dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
+  }
+  const onDeleteSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Xóa thành công");
+    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+  }, [dispatch]);
+
+  // section EDIT item
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/edit`);
+    // TO DO
   }, [history, idNumber]);
 
+  // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -79,13 +109,12 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
-
   useEffect(() => {
     dispatch(promoGetDetail(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
 
-  const promotionDetail: Array<any> | undefined = React.useMemo(() => {
+  const promoDetail: Array<any> | undefined = React.useMemo(() => {
     if (data) {
       const details = [
         {
@@ -96,13 +125,13 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mã đợt phát hành",
-          value: data.code,
+          value: data.discount_codes[0]?.code ? data.discount_codes[0]?.code : "",
           position: "left",
           key: "2",
         },
         {
           name: "Loại mã",
-          value: data.type,
+          value: "Mã giảm giá",
           position: "left",
           key: "3",
         },
@@ -134,7 +163,7 @@ const PromotionDetailScreen: React.FC = () => {
       return details;
     }
   }, [data]);
- 
+
   const timeApply = [
     {
       name: "Từ",
@@ -152,6 +181,26 @@ const PromotionDetailScreen: React.FC = () => {
       key: "3",
     }
   ];
+
+  // section ADD Manual
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      created_by: "",
+      created_name: "",
+      updated_by: "",
+      updated_name: "",
+      request_id: "",
+      operator_kc_id: "",
+      code: value.listCode
+    }
+    dispatch(showLoading());
+    dispatch(addPromoCodeManual(idNumber, body, onAddSuccess));
+  }
+  const onAddSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Thêm thành công");
+  }, [dispatch]);
 
   return (
     <ContentContainer
@@ -187,8 +236,8 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 <Row gutter={30}>
                   <Col span={12}>
-                    {promotionDetail &&
-                      promotionDetail
+                    {promoDetail &&
+                      promoDetail
                         .filter((detail: detailMapping) => detail.position === "left")
                         .map((detail: detailMapping, index: number) => (
                           <Col
@@ -225,8 +274,8 @@ const PromotionDetailScreen: React.FC = () => {
                         ))}
                   </Col>
                   <Col span={12}>
-                    {promotionDetail &&
-                      promotionDetail
+                    {promoDetail &&
+                      promoDetail
                         .filter((detail: detailMapping) => detail.position === "right")
                         .map((detail: detailMapping, index: number) => (
                           <Col
@@ -264,7 +313,7 @@ const PromotionDetailScreen: React.FC = () => {
                 </Row>
                 <hr />
                 <Row gutter={30}>
-                  <Col span={24}> 
+                  <Col span={24}>
                     <img src={CloseIcon} alt="" />
                     <span style={{marginLeft: 14}}>Không được áp dụng chung với các khuyến mại khác</span>
                   </Col>
@@ -294,10 +343,9 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {checkPromoCode  && 
-                  <Row gutter={30}>
+                {checkPromoCode  &&  <Row gutter={30}>
                     <Col span={24}>
-                      <Link 
+                      <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
                       >Xem danh sách mã giảm giá của đợt phát hành</Link>
                     </Col>
@@ -352,11 +400,11 @@ const PromotionDetailScreen: React.FC = () => {
                   <Col span={24} style={{
                     paddingBottom: 16
                   }}>
-                    <span 
+                    <span
                       style={{
                         fontWeight: 500
                       }}
-                    >Thời gian áp dụng: 
+                    >Thời gian áp dụng:
                       <span style={{
                         paddingLeft: 6,
                         color: "#E24343",
@@ -406,11 +454,11 @@ const PromotionDetailScreen: React.FC = () => {
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Cửa hàng áp dụng: 
+                      >Cửa hàng áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -418,12 +466,17 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_store_ids.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {
+                              stores && stores.map((item: any, index: number) => (
+                                <li>{item.name}</li>
+                              ))
+                            }
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
@@ -433,11 +486,11 @@ const PromotionDetailScreen: React.FC = () => {
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Kênh bán áp dụng: 
+                      >Kênh bán áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -445,12 +498,14 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            <li> YODY Kiến Xương </li>
+                            <li> YODY Hai Bà Trưng </li>
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
@@ -460,11 +515,11 @@ const PromotionDetailScreen: React.FC = () => {
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Nguồn đơn hàng áp dụng: 
+                      >Nguồn đơn hàng áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -472,12 +527,17 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_order_source_ids.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {
+                              sources && sources.map((item: any, index: number) => (
+                                <li>{item.name}</li>
+                              ))
+                            }
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
@@ -489,12 +549,12 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại sản phẩm"
         rightComponent={
           <Space>
-            <Button style={{ color: '#E24343'}}>Xoá</Button>
+            <Button onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
             <Button onClick={onEdit}>Sửa</Button>
             <Button>Nhân bản</Button>
             <Button type="primary">Kích hoạt</Button>
           </Space>
-          
+
         }
       />
       <ModalAddCode
@@ -506,8 +566,9 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
       <ModalAddCode
@@ -519,7 +580,7 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeRandom(false);
         }}
-        onOk={() => {
+        onOk={(value: any) => {
           setShowAddCodeRandom(false);
         }}
       />
