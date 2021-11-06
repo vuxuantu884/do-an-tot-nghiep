@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import arrowLeft from "../../../assets/icon/arrow-left.svg";
@@ -9,11 +9,12 @@ import { useHistory } from "react-router-dom";
 import { showError, showSuccess } from "../../../utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { PROMO_TYPE } from "utils/Constants";
-import { createPriceRule } from "service/promotion/discount/discount.service";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreGetListAction } from "../../../domain/actions/core/store.action";
 import { getListSourceRequest } from "../../../domain/actions/product/source.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -36,7 +37,6 @@ const CreatePromotionCodePage = () => {
   }, [dispatch]);
 
   const transformData = (values: any) => {
-    console.log('transformData: ', values);
     let body: any = {};
     body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
@@ -66,41 +66,30 @@ const CreatePromotionCodePage = () => {
         prerequisite_subtotal_ranges: null
       }
     });
-    console.log(body);
-    
     return body;
   }
 
-  const handerSubmit = async (values: any) => {
+  const createCallback = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Thêm thành công");
+    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+  }, [dispatch]);
+
+  const onFinish = (values: any) => {
+    // Action: Lưu và kích hoạt
     const body = transformData(values);
     body.disabled = false;
-    const createResponse = await createPriceRule(body);
-    if (createResponse.code === 20000000) {
-      showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/promo-code");
-    } else {
-      showError(`${createResponse.code} - ${createResponse.message}`);
-    }
-  }
-
-  const handleSubmitFail = (errorFields: any) => {
-    const fieldName = errorFields[0].name.join("");
-    if (fieldName === "contact_name" || fieldName === "contact_phone") {
-      showError("Vui lòng nhập thông tin liên hệ");
-    }
+    dispatch(showLoading());
+    dispatch(addPriceRules(body, createCallback));
   }
 
   const save = async () => {
+    // Action: Lưu
     const values = await promoCodeForm.validateFields();
     const body = transformData(values);
     body.disabled = true;
-    const createResponse = await createPriceRule(body);
-    if (createResponse.code === 20000000) {
-      showSuccess("Lưu thành công");
-      history.push("/promotion/promo-code");
-    } else {
-      showError(`${createResponse.code} - ${createResponse.message}`);
-    }
+    dispatch(showLoading());
+    dispatch(addPriceRules(transformData(values), createCallback));
   }
 
   return (
@@ -124,8 +113,8 @@ const CreatePromotionCodePage = () => {
       <Form
         form={promoCodeForm}
         name="discount_add"
-        onFinish={handerSubmit}
-        onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
+        onFinish={onFinish}
+        onFinishFailed={({ errorFields }) => console.log(errorFields)}
         layout="vertical"
         initialValues={initialValues}
       >
@@ -157,7 +146,6 @@ const CreatePromotionCodePage = () => {
               onClick={() => save()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem", borderColor: "#2a2a86" }}
               type="ghost"
-              htmlType="submit"
             >
               Lưu
             </Button>

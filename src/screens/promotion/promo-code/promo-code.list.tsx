@@ -21,8 +21,9 @@ import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import ModalAddCode from "./components/ModalAddCode";
+import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import "./promo-code.scss";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
@@ -40,7 +41,6 @@ import { addPromoCodeManual, getListPromoCode, getPromoCodeById, updatePromoCode
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showError, showSuccess } from "utils/ToastUtils";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { deleteMultiPromoCode } from "service/promotion/promo-code/promo-code.service";
 
 const promotionStatuses = [
@@ -483,7 +483,7 @@ const ListCode = () => {
           </Col>
         </Row>
       </Modal>
-      <ModalAddCode
+      <CustomModal
         isManual={true}
         visible={showAddCodeManual}
         okText="Thêm"
@@ -497,7 +497,7 @@ const ListCode = () => {
           handleAddManual(value);
         }}
       />
-      <ModalAddCode
+      <CustomModal
         isManual={false}
         visible={showAddCodeRandom}
         okText="Thêm"
@@ -555,7 +555,7 @@ const ListCode = () => {
           </div>
         </Row>
       </Modal>
-      <ModalAddCode
+      <CustomModal
         isManual={true}
         visible={showEditPopup}
         okText="Thêm"

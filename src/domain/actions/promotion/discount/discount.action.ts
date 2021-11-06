@@ -15,3 +15,7 @@ export const promoGetDetail = (id: number, onResult: (result: DiscountResponse|f
 export const deletePriceRulesById = (id: number, onResult: (result: DiscountResponse|false) => void) => {
   return BaseAction(DiscountType.DELETE_PRICE_RULE_BY_ID, {id, onResult});
 }
+
+export const addPriceRules = (body: any, createCallback: (result: DiscountResponse) => void) => {
+  return BaseAction(DiscountType.ADD_PRICE_RULE, {body, createCallback});
+}

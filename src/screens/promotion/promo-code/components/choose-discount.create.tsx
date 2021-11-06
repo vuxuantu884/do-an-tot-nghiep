@@ -32,9 +32,6 @@ const ChooseDiscount = (props: any) => {
                 noStyle
               >
                 <NumberInput
-                  onBlur={() => {
-                    form.submit();
-                  }}
                   isFloat={typeUnit === 'PERCENTAGE'}
                   className="product-item-discount-input"
                   style={{ width: "65%", textAlign: "right" }}
