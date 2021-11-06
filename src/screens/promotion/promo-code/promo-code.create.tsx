@@ -92,6 +92,10 @@ const CreatePromotionCodePage = () => {
     dispatch(addPriceRules(transformData(values), createCallback));
   }
 
+  const reload = React.useCallback(() => {
+    promoCodeForm.resetFields();
+  }, [promoCodeForm]);
+
   return (
     <ContentContainer
       title="Tạo khuyến mãi"
@@ -136,7 +140,7 @@ const CreatePromotionCodePage = () => {
           </div>
           <div>
             <Button
-              // onClick={() => reload()}
+              onClick={() => reload()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >
