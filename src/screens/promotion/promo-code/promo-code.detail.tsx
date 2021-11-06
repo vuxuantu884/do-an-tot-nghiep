@@ -12,15 +12,15 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import "./promo-code.scss";
 import ModalAddCode from "./components/ModalAddCode";
 import Dragger from "antd/lib/upload/Dragger";
+import moment from "moment";
+import "./promo-code.scss";
 import { RiUpload2Line } from "react-icons/ri";
 import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
-import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCodeManual, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
@@ -182,9 +182,25 @@ const PromotionDetailScreen: React.FC = () => {
     }
   ];
 
-  function savePromoCode(value: any) {
-    console.log(value);
+  // section ADD Manual
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      created_by: "",
+      created_name: "",
+      updated_by: "",
+      updated_name: "",
+      request_id: "",
+      operator_kc_id: "",
+      code: value.listCode
+    }
+    dispatch(showLoading());
+    dispatch(addPromoCodeManual(idNumber, body, onAddSuccess));
   }
+  const onAddSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Thêm thành công");
+  }, [dispatch]);
 
   return (
     <ContentContainer
@@ -550,8 +566,9 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
       <ModalAddCode
@@ -564,10 +581,7 @@ const PromotionDetailScreen: React.FC = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(value: any) => {
-          console.log(value);
-
           setShowAddCodeRandom(false);
-          savePromoCode(value);
         }}
       />
       <Modal

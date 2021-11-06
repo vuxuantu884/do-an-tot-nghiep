@@ -36,7 +36,7 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCodeManual, getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -186,7 +186,7 @@ const ListCode = () => {
   };
    // section DELETE by Id
    function handleEdit(value: any) {
-     if(!value) return;
+    if(!value) return;
     let body = {
       ...editData,
       code: value?.code
@@ -202,12 +202,34 @@ const ListCode = () => {
 
   // section DELETE by Id
   function handleDelete(item: any) {
+    dispatch(showLoading());
     setDeleteData(item);
     setIsShowDeleteModal(true);
   }
   const onDeleteSuccess = useCallback(() => {
     dispatch(hideLoading());
     showSuccess("Xóa thành công");
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch]);
+
+  // section ADD Manual
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      created_by: "",
+      created_name: "",
+      updated_by: "",
+      updated_name: "",
+      request_id: "",
+      operator_kc_id: "",
+      code: value.listCode
+    }
+    dispatch(showLoading());
+    dispatch(addPromoCodeManual(priceRuleId, body, onAddSuccess));
+  }
+  const onAddSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Thêm thành công");
     dispatch(getListPromoCode(priceRuleId, fetchData));
   }, [dispatch]);
 
@@ -270,23 +292,6 @@ const ListCode = () => {
     [columns]
   );
 
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
   const listStatus: Array<BaseBootstrapResponse> = [
     {
       value: "APPLYING",
@@ -388,20 +393,19 @@ const ListCode = () => {
                 />
               </Form.Item>
               <Form.Item>
-                <CustomSelect
-                  showSearch
-                  optionFilterProp="children"
+              <CustomSelect
+                  style={{ width: "100%", borderRadius: "6px" }}
                   showArrow
+                  showSearch
                   placeholder="Chọn trạng thái"
-                  allowClear
-                  tagRender={tagRender}
-                  style={{
-                    width: "100%",
-                  }}
                   notFoundContent="Không tìm thấy kết quả"
                 >
-                  {listStatus?.map((item) => (
-                    <CustomSelect.Option key={item.value} value={item.value}>
+                  {listStatus.map((item, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={(index + 1).toString()}
+                      value={item.value}
+                    >
                       {item.name}
                     </CustomSelect.Option>
                   ))}
@@ -455,15 +459,24 @@ const ListCode = () => {
             display: "flex",
             gap: 15,
           }}>
-            <div className="card-discount-code" onClick={() => setShowAddCodeManual(true)}>
+            <div className="card-discount-code" onClick={() => {
+              setShowModalAdd(false);
+              setShowAddCodeManual(true);
+            }}>
               <img style={{ background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)" }} src={VoucherIcon} alt="" />
               <p style={{fontWeight: 500}}>Thêm mã thủ công</p>
             </div>
-            <div className="card-discount-code" onClick={() => setShowAddCodeRandom(true)}>
+            <div className="card-discount-code" onClick={() => {
+              setShowModalAdd(false);
+              setShowAddCodeRandom(true);
+            }}>
               <img style={{ background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)" }} src={AddListCouponIcon} alt="" />
               <p style={{fontWeight: 500}}>Thêm mã ngẫu nhiên</p>
             </div>
-            <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+            <div className="card-discount-code" onClick={() => {
+              setShowModalAdd(false);
+              setShowImportFile(true);
+            }}>
               <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
               <p style={{fontWeight: 500}}>Nhập file Excel</p>
             </div>
@@ -479,8 +492,9 @@ const ListCode = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
       <ModalAddCode
