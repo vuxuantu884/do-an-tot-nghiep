@@ -34,3 +34,7 @@ export const deleteMultiPromoCode = (priceRuleId: number, body: any): Promise<an
 export const updatePromoCodeById = (priceRuleId: number, body: any): Promise<PromoCodeResponse> => {
   return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes/${body.id}`, body);
 };
+
+export const addPromoCodeManual = (priceRuleId: number, body: any): Promise<PromoCodeResponse> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes`, body);
+};

@@ -36,7 +36,7 @@ import { PROMO_TYPE } from "utils/Constants";
 const DiscountPage = () => {
   const discountStatuses = [
     {
-      code: 'APPLYING',
+      code: 'ACTIVE',
       value: 'Đang áp dụng',
       style: {
         background: "rgba(42, 42, 134, 0.1)",
@@ -46,7 +46,7 @@ const DiscountPage = () => {
       }
     },
     {
-      code: 'TEMP_STOP',
+      code: 'DISABLED',
       value: 'Tạm ngưng',
       style: {
         background: "rgba(252, 175, 23, 0.1)",
@@ -56,22 +56,12 @@ const DiscountPage = () => {
       }
     },
     {
-      code: 'WAIT_FOR_START',
+      code: 'DRAFT',
       value: 'Chờ áp dụng',
       style: {
         background: "rgb(245, 245, 245)",
         borderRadius: "100px",
         color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
         padding: "5px 10px"
       }
     },
@@ -101,7 +91,7 @@ const DiscountPage = () => {
     },
     {
       id: 4,
-      name: "Xoá",
+      name: "Huỷ",
     },
   ];
   const initQuery: DiscountSearchQuery = {
@@ -162,7 +152,7 @@ const DiscountPage = () => {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "7%",
+      width: "9%",
       render: (value: any, item: any, index: number) =>
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`}
@@ -206,12 +196,12 @@ const DiscountPage = () => {
       fixed: "left",
       align: 'center',
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : "∞"}`}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : "∞"}`}</div>,
     },
     {
       title: "Người tạo",
       visible: true,
-      dataIndex: "created_by",
+      dataIndex: "created_name",
       fixed: "left",
       align: 'center',
     },
@@ -219,7 +209,7 @@ const DiscountPage = () => {
       title: "Trạng thái",
       visible: true,
       fixed: "left",
-      dataIndex: 'status',
+      dataIndex: 'state',
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
@@ -245,7 +235,7 @@ const DiscountPage = () => {
                        setSelectedRowId(item.id);
                        setConfirmDelete(true)
                      }}>
-            Xoá
+            Huỷ
           </Menu.Item>
         </Menu>
       )}/>

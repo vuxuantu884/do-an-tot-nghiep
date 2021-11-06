@@ -328,20 +328,20 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tìm kiếm theo mã, tên đợt phát hành"
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
               </Form.Item>
-              <Form.Item name="state" className="status">
-                <CustomSelect
+              <Form.Item>
+              <CustomSelect
                   style={{ width: "100%", borderRadius: "6px" }}
                   showArrow
                   showSearch
-                  placeholder="Nguồn đơn hàng"
+                  placeholder="Chọn trạng thái"
                   notFoundContent="Không tìm thấy kết quả"
                 >
                   {listStatus.map((item, index) => (
