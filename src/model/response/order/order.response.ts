@@ -64,6 +64,7 @@ export interface OrderResponse extends BaseObject {
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
+  sub_status_code?: string | null;
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
@@ -374,6 +375,7 @@ export interface OrderSubStatusResponse {
   company_id: number;
   company: string;
   sub_status: string;
+  code: string;
   status: string;
   note: string;
   is_active: boolean;

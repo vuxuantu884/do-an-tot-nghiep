@@ -117,7 +117,7 @@ const OrderDetail = (props: PropType) => {
 
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
-  const [subStatusId, setSubStatusId] = useState<number | undefined>(undefined);
+  const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
 
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
@@ -277,8 +277,8 @@ const OrderDetail = (props: PropType) => {
       setOrderDetail(_data);
       setOrderDetailAllFullfilment(data);
       setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
-      if (_data.sub_status_id) {
-        setSubStatusId(_data.sub_status_id);
+      if (_data.sub_status_code) {
+        setSubStatusCode(_data.sub_status_code);
       }
       if (
         _data.status === OrderStatus.DRAFT &&
@@ -1101,7 +1101,7 @@ const OrderDetail = (props: PropType) => {
               <Col md={6}>
                 <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
                 <SubStatusOrder
-                  subStatusId={subStatusId}
+                  subStatusCode={subStatusCode}
                   status={OrderDetail?.status}
                   orderId={OrderId}
                   fulfillments={OrderDetail?.fulfillments}
