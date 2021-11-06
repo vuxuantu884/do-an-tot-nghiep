@@ -227,22 +227,49 @@ const CreateInventoryAdjustment: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = (value: string) => {
+  const drawColumns = useCallback((data: Array<LineItemAdjustment>) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data?.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand?.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
+
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
+
+  const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
     const selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
+      drawColumns(dataTable.concat([{...selectedItem, variant_name: selectedItem.name, real_on_hand: 0}]));
+
       setDataTable((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name}])
+        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
       );
       setSearchVariant((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name}])
+        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
       );
-      setHasError(false);
-    }
-  };
+      setHasError(false); 
+    } 
+  },[dataTable,resultSearch,drawColumns]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -266,6 +293,7 @@ const CreateInventoryAdjustment: FC = () => {
     setIsLoadingTable(false);
     setHasError(false);
     setVisibleManyProduct(false);
+    drawColumns(arrayUnique);
   };
 
   const onBeforeUpload = useCallback((file) => {
@@ -497,32 +525,7 @@ const CreateInventoryAdjustment: FC = () => {
         />
       ),
     },
-  ]; 
-
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand?.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
+  ];  
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {

@@ -195,19 +195,57 @@ const DetailInvetoryAdjustment: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = (value: string) => {
+  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
+
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
+
+  const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
-    const selectedItem = resultSearch?.items?.find(
+    let selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
+
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      let data = (prev: any) => prev.concat([selectedItem]);
-      setDataTable(data);
-      setSearchVariant(data);
-      drawColumns(data);
-      setHasError(false);
-    }
-  };
+      selectedItem = {...selectedItem,  
+                          variant_id: selectedItem.id,
+                          variant_name: selectedItem.name,
+                          real_on_hand: 0,
+                          on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
+                          on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),};
+
+      drawColumns(dataTable.concat([{...selectedItem}]));
+
+      setDataTable((prev: Array<LineItemAdjustment>) =>
+        prev.concat([{...selectedItem}])
+      );
+      setSearchVariant((prev: Array<LineItemAdjustment>) =>
+        prev.concat([{...selectedItem}])
+      );
+      
+      setHasError(false); 
+    } 
+  },[dataTable,resultSearch,drawColumns]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -293,32 +331,7 @@ const DetailInvetoryAdjustment: FC = () => {
         InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback)
       );
     }
-  };
-
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
+  }; 
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
