@@ -195,9 +195,9 @@ const PromotionDetailScreen: React.FC = () => {
       code: value.listCode
     }
     dispatch(showLoading());
-    dispatch(addPromoCodeManual(idNumber, body, onAddSuccess));
+    dispatch(addPromoCodeManual(idNumber, body, addCallBack));
   }
-  const onAddSuccess = useCallback((response) => {
+  const addCallBack = useCallback((response) => {
     dispatch(hideLoading());
     if(response) {
       showSuccess("Thêm thành công");
