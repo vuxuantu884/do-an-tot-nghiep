@@ -27,10 +27,10 @@ export const deletePromoCodeById = (priceRuleId: number, id: number): Promise<Pr
   return BaseAxios.delete(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes/${id}`);
 };
 
-export const deleteMultiPromoCode = (priceRuleId: number, body: any): Promise<PromoCodeResponse> => {
+export const deleteMultiPromoCode = (priceRuleId: number, body: any): Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes/bulk/delete`, body);
 };
 
-export const updatePromoCodeById = (priceRuleId: number, id: number, body: any): Promise<PromoCodeResponse> => {
-  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes/${id}`, body);
+export const updatePromoCodeById = (priceRuleId: number, body: any): Promise<PromoCodeResponse> => {
+  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes/${body.id}`, body);
 };

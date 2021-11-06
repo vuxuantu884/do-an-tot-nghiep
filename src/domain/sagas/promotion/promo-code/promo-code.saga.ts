@@ -1,3 +1,4 @@
+import { updatePromoCodeById } from './../../../../service/promotion/promo-code/promo-code.service';
 import { PromoCodeResponse } from '../../../../model/response/promotion/promo-code/list-promo-code.response';
 import { deletePromoCodeById, getAllPromoCodeList, getPromoCodeById } from '../../../../service/promotion/promo-code/promo-code.service';
 import {YodyAction} from "../../../../base/base.action";
@@ -86,10 +87,36 @@ function* deletePromoCodeByIdAct(action: YodyAction) {
   }
 }
 
+function* updatePromoCodeByIdAct(action: YodyAction) {
+  console.log('updatePromoCodeByIdAct - action : ', action);
+  const { priceRuleId, body, onDeleteSuccess } = action.payload;
+  try {
+    const response: BaseResponse<PromoCodeResponse> = yield call(
+      updatePromoCodeById,
+      priceRuleId,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onDeleteSuccess()
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* promoCodeSaga() {
   yield all([
     takeLatest(PromoCodeType.GET_LIST_PROMO_CODE, getPromoCode),
     takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),
-    takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct)
+    takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct),
+    takeLatest(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, updatePromoCodeByIdAct)
   ])
 }

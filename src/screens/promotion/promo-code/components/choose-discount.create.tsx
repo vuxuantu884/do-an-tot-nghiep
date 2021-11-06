@@ -51,15 +51,15 @@ const ChooseDiscount = (props: any) => {
                 <Select
                   placeholder="Đơn vị"
                   style={{ width: "70px" }}
-                  defaultValue={"PERCENTAGE"}
+                  // defaultValue={"PERCENTAGE"}
                   value={typeUnit}
                   onChange={(value: string) => {
                     setTypeUnit(value);
                     form.setFieldsValue({value_type: value})
                   }}
                 >
-                  <Select.Option key='percent' value="PERCENTAGE"> {"%"} </Select.Option>
-                  <Select.Option key='percent' value="FIXED_AMOUNT"> {"đ"} </Select.Option>
+                  <Select.Option key='PERCENTAGE' value="PERCENTAGE"> {"%"} </Select.Option>
+                  <Select.Option key='FIXED_AMOUNT' value="FIXED_AMOUNT"> {"đ"} </Select.Option>
                 </Select>
               </Form.Item>
             </Input.Group>
