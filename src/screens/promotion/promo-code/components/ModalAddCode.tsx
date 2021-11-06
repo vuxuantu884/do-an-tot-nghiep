@@ -25,13 +25,12 @@ const ModalAddCode: React.FC<ModalProps> = (
   }, [onCancel]);
 
   const onOkClick = useCallback(() => {
-    onOk(form.submit())
+    onOk(form.submit());
   }, [onOk]);
 
   const [form] = Form.useForm();
 
   function onFinish(value: any) {
-    if(!dataSource) return;
     form.resetFields();
     onOk(value);
   }
@@ -59,6 +58,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               {dataSource && <Form.Item
                 name="code"
                 style={{marginBottom: 19}}
+                normalize={value => (value || '').toUpperCase()}
               >
                 <div style={{
                   display: "flex",
@@ -67,6 +67,8 @@ const ModalAddCode: React.FC<ModalProps> = (
                   <Input 
                     placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
                     defaultValue={dataSource.code}
+                    style={{width: "100%"}}
+                    maxLength={30}
                   />
                 </div>
               </Form.Item>}
@@ -81,8 +83,10 @@ const ModalAddCode: React.FC<ModalProps> = (
                         fields.map(({key, name, fieldKey, ...restField}) => {
                           return(
                             <Form.Item
+                              key={key}
                               name={name}
                               style={{marginBottom: 19}}
+                              normalize={value => value && value.toUpperCase() }
                             >
                               <div style={{
                                 display: "flex",
@@ -90,6 +94,8 @@ const ModalAddCode: React.FC<ModalProps> = (
                             }}>
                                 <Input
                                   placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
+                                  style={{width: "100%"}}
+                                  maxLength={30}
                                 />
                                 <img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />
                               </div>

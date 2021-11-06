@@ -40,8 +40,6 @@ const GeneralCreate = (props: any) => {
   const [disabledEndDate, setDisabledEndDate] = useState(false);
   const [type, setType] = useState("SALE_CODE");
   const [product, setProduct] = useState<string>("PRODUCT");
-  // const [dataTableProduct, setDataTableProduct] = useState<Array<any> | any>([] as Array<any>);
-  // const [dataTableProductCate, setDataTableProductCate] = useState<Array<any> | any>([] as Array<any>);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -66,72 +64,6 @@ const GeneralCreate = (props: any) => {
     }
     return days;
   }
-
-  // const listCategory: Array<BaseBootstrapResponse> = [
-  //   {
-  //     value: "Áo phông nam",
-  //     name: "Áo phông nam",
-  //   },
-  //   {
-  //     value: "Chân váy nữ",
-  //     name: "Chân váy nữ",
-  //   }
-  // ]
-
-  // function onDeleteItemProduct(id: number) {
-  //   // delete row
-  //   const temps = [...dataTableProduct];
-  //   temps.forEach((row, index, array) => {
-  //     if (row.id === id) {
-  //       array.splice(index, 1);
-  //     }
-  //   });
-  //   setDataTableProduct(temps);
-  // }
-
-  // const columnsProductCategory: ColumnsType<any> = [
-  //   {
-  //     title: "Danh mục",
-  //     dataIndex: "on_hand",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => {
-  //       return value || "";
-  //     },
-  //   },
-  //   {
-  //     title: "Số lượng tối thiểu",
-  //     dataIndex: "available",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => {
-  //       return value || 0;
-  //     },
-  //   },
-  //   {
-  //     title: "",
-  //     fixed: dataTableProduct.length !== 0 && "right",
-  //     width: 50,
-  //     render: (_: string, row) => (
-  //       <Button
-  //         onClick={() => onDeleteItemProductCate(row.id)}
-  //         className="product-item-delete"
-  //         icon={<AiOutlineClose />}
-  //       />
-  //     ),
-  //   },
-  // ];
-
-  // function onDeleteItemProductCate(id: number) {
-  //   // delete row
-  //   const temps = [...dataTableProductCate];
-  //   temps.forEach((row, index, array) => {
-  //     if (row.id === id) {
-  //       array.splice(index, 1);
-  //     }
-  //   });
-  //   setDataTableProductCate(temps);
-  // }
 
   const onResultSearch = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -491,7 +423,6 @@ const GeneralCreate = (props: any) => {
             <Space direction="horizontal">
               <Checkbox
                 defaultChecked={false}
-                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
                 style={{paddingBottom: "20px"}}
               >
                 Hiển thị nâng cao

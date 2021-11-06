@@ -36,7 +36,7 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCodeManual, getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -186,7 +186,7 @@ const ListCode = () => {
   };
    // section DELETE by Id
    function handleEdit(value: any) {
-     if(!value) return;
+    if(!value) return;
     let body = {
       ...editData,
       code: value?.code
@@ -202,12 +202,34 @@ const ListCode = () => {
 
   // section DELETE by Id
   function handleDelete(item: any) {
+    dispatch(showLoading());
     setDeleteData(item);
     setIsShowDeleteModal(true);
   }
   const onDeleteSuccess = useCallback(() => {
     dispatch(hideLoading());
     showSuccess("Xóa thành công");
+    dispatch(getListPromoCode(priceRuleId, fetchData));
+  }, [dispatch]);
+
+  // section ADD Manual
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      created_by: "",
+      created_name: "",
+      updated_by: "",
+      updated_name: "",
+      request_id: "",
+      operator_kc_id: "",
+      code: value.listCode
+    }
+    dispatch(showLoading());
+    dispatch(addPromoCodeManual(priceRuleId, body, onAddSuccess));
+  }
+  const onAddSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Thêm thành công");
     dispatch(getListPromoCode(priceRuleId, fetchData));
   }, [dispatch]);
 
@@ -479,8 +501,9 @@ const ListCode = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
       <ModalAddCode
