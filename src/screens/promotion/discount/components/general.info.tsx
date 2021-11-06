@@ -133,16 +133,16 @@ const GeneralInfo = (props: any) => {
                     label={<b>Mức độ ưu tiên:</b>}
                     name="priority"
                   >
-                    <Select placeholder="Chọn mức độ ưu tiên" defaultValue={1}>
-                      <Option value={"1"}>Số 1 (cao nhất)</Option>
-                      <Option value={"2"}>Số 2</Option>
-                      <Option value={"3"}>Số 3</Option>
-                      <Option value={"4"}>Số 4</Option>
-                      <Option value={"5"}>Số 5</Option>
-                      <Option value={"6"}>Số 6</Option>
-                      <Option value={"7"}>Số 7</Option>
-                      <Option value={"8"}>Số 8</Option>
-                      <Option value={"9"}>Số 9</Option>
+                    <Select placeholder="Chọn mức độ ưu tiên" >
+                      <Option value={1}>Số 1 (cao nhất)</Option>
+                      <Option value={2}>Số 2</Option>
+                      <Option value={3}>Số 3</Option>
+                      <Option value={4}>Số 4</Option>
+                      <Option value={5}>Số 5</Option>
+                      <Option value={6}>Số 6</Option>
+                      <Option value={7}>Số 7</Option>
+                      <Option value={8}>Số 8</Option>
+                      <Option value={9}>Số 9</Option>
                     </Select>
                   </Form.Item>
                 </Col>
