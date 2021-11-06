@@ -830,7 +830,7 @@ const ScreenReturnCreate = (props: PropType) => {
   };
 
   const handleCancel = () => {
-    history.push("/");
+    history.push(`${UrlConfig.ORDER}/${orderId}`);
   };
 
   /**

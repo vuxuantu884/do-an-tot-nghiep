@@ -268,8 +268,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onReload && onReload();
   };
   const onError = (error: boolean) => {
+    console.log('error');
     setUpdateShipment(false);
     setCancelShipment(false);
+    setIsvibleShippingConfirm(false);
+    setIsvibleCancelFullfilment(false);
+    setIsvibleGoodsReturn(false);
+    setIsvibleShippedConfirm(false);
   };
   const onReturnSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
