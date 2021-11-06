@@ -12,7 +12,7 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import ModalAddCode from "./components/ModalAddCode";
+import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
 import moment from "moment";
 import "./promo-code.scss";
@@ -76,13 +76,13 @@ const PromotionDetailScreen: React.FC = () => {
     setSource(source);
   }, [listSource]);
 
-  const handleCheckPromoList = useCallback((data: any) => {
+  const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.length > 0);
   }, []);
 
   useEffect(() => {
-    dispatch(getListPromoCode(idNumber, handleCheckPromoList));
-  }, [dispatch, handleCheckPromoList, idNumber]);
+    dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+  }, [dispatch, checkIsHasPromo, idNumber]);
 
   // section DELETE by Id
   function onDelete() {
@@ -557,7 +557,7 @@ const PromotionDetailScreen: React.FC = () => {
 
         }
       />
-      <ModalAddCode
+      <CustomModal
         isManual={true}
         visible={showAddCodeManual}
         okText="Thêm"
@@ -571,7 +571,7 @@ const PromotionDetailScreen: React.FC = () => {
           handleAddManual(value);
         }}
       />
-      <ModalAddCode
+      <CustomModal
         isManual={false}
         visible={showAddCodeRandom}
         okText="Thêm"
