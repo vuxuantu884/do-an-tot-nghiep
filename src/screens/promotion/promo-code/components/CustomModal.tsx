@@ -3,6 +3,7 @@ import { Col, Modal, Row, Form, Input, Button } from "antd";
 import { useCallback } from "react";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
+import "./../promo-code.scss";
 
 type ModalProps = {
   visible: boolean;
@@ -67,7 +68,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                   <Input 
                     placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
                     defaultValue={dataSource.code}
-                    style={{width: "100%"}}
+                    style={{width: "100%", textTransform: "uppercase"}}
                     maxLength={30}
                   />
                 </div>
@@ -93,8 +94,9 @@ const ModalAddCode: React.FC<ModalProps> = (
                                 gap: 30
                             }}>
                                 <Input
+                                  className="modal-input"
                                   placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
-                                  style={{width: "100%"}}
+                                  style={{width: "100%", textTransform: "uppercase"}}
                                   maxLength={30}
                                 />
                                 <img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />
