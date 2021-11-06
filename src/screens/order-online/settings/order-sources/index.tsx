@@ -1,10 +1,9 @@
 import { DeleteOutlined, ExportOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, Select, TreeSelect } from "antd";
+import { Button, Card, Form, Input, Select } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
-import FormOrderSourceChannel from "component/forms/FormOrderSourceChannel";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
@@ -22,12 +21,9 @@ import {
 import { DepartmentResponse } from "model/account/department.model";
 import { modalActionType } from "model/modal/modal.model";
 import {
-  ChannelModel,
-  ChannelTypeModel,
   OrderSourceModel,
   OrderSourceResponseModel
 } from "model/response/order/order-source.response";
-import { ChannelResponse } from "model/response/product/channel.response";
 import queryString from "query-string";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -35,22 +31,16 @@ import { withRouter } from "react-router";
 import { useHistory } from "react-router-dom";
 import { getDepartmentAllApi } from "service/accounts/account.service";
 import {
-  createChannelService,
-  deleteChannelService,
-  deleteMultiOrderSourceService,
-  editChannelService,
-  getChannelApi,
-  getChannelTypeApi
+  deleteMultiOrderSourceService
 } from "service/order/order.service";
-import { generateQuery } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { convertDepartment, generateQuery } from "utils/AppUtils";
+import { showError } from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import { StyledComponent } from "./styles";
 
 type formValuesType = {
   name: string | undefined;
   department_id: number | undefined;
-  channel_id: number | undefined;
 };
 
 type PropsType = {
@@ -71,11 +61,9 @@ function OrderSources(props: PropsType) {
   const initFilterParams: formValuesType = {
     name: "",
     department_id: undefined,
-    channel_id: undefined,
   };
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModalOrderSource, setIsShowModalOrderSource] = useState(false);
-  const [isShowModalChannel, setIsShowModalChannel] = useState(false);
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const dispatch = useDispatch();
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>([]);
@@ -83,30 +71,27 @@ function OrderSources(props: PropsType) {
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
     useState<OrderSourceModel | null>(null);
-  const [modalSingleChannel, setModalSingleChannel] = useState<ChannelModel | null>(null);
 
   const [form] = Form.useForm();
 
   const [rowSelectedObject, setRowSelectedObject] = useState<Array<OrderSourceModel>>([]);
-  const [listDepartments, setListDepartments] = useState<DepartmentResponse[]>([]);
-  const [listChannels, setListChannels] = useState<ChannelResponse[]>([]);
-  const [listChannelTypes, setListChannelTypes] = useState<ChannelTypeModel[]>([]);
+  const [listDepartments, setListDepartments] = useState<any[]>([]);
 
   /**
-  * thay tên của children thành tên con + tên cha
-  */
-  function renameChildrenInArrayDepartment(array: DepartmentResponse[], startLevel = 0) {
+   * thay tên của children thành tên con + tên cha
+   */
+  function renameChildrenInArrayDepartment(array: DepartmentResponse[], level = 0) {
     return array.map(({children, parent_id, name, ...rest}) => {
       if (Array.isArray(children) && children.length > 0) {
-        children = renameChildrenInArrayDepartment(children, startLevel + 1);
+        children = renameChildrenInArrayDepartment(children);
       }
-      // check startLevel -> thay tên (level 0 có children vẫn giữ nguyên)
-       if (startLevel > 0) {
+      // check parent_id > 0 thì là có children -> thay tên
+      if (parent_id > 0) {
         return {
           children,
           parent_id,
+          level: level + 1,
           name: `${rest.parent} - ${name} `,
-          level: startLevel,
           ...rest,
         };
       } else {
@@ -114,7 +99,7 @@ function OrderSources(props: PropsType) {
           children,
           parent_id,
           name,
-          level: startLevel,
+          level,
           ...rest,
         };
       }
@@ -124,11 +109,11 @@ function OrderSources(props: PropsType) {
   let listDepartmentFormatted = renameChildrenInArrayDepartment(listDepartments);
 
   // console.log('listDepartments', listDepartments);
-  console.log('listDepartmentFormatted', listDepartmentFormatted);
+  console.log("listDepartmentFormatted", listDepartmentFormatted);
 
   const columns: ICustomTableColumType<any>[] = [
     {
-      title: "Mã kênh/nguồn",
+      title: "Mã nguồn",
       dataIndex: "code",
       visible: true,
       className: "columnTitle",
@@ -140,27 +125,6 @@ function OrderSources(props: PropsType) {
               {value}
             </span>
           );
-        }
-      },
-    },
-    {
-      title: "Kênh",
-      dataIndex: "channel_id",
-      visible: true,
-      className: "columnTitle",
-      width: "20%",
-      render: (value, record, index) => {
-        if (value) {
-          const selectedChannel = listChannels.find((single) => {
-            return single.id === value;
-          });
-          if (selectedChannel) {
-            return (
-              <span title={value} className="title">
-                {selectedChannel.name}
-              </span>
-            );
-          }
         }
       },
     },
@@ -185,7 +149,7 @@ function OrderSources(props: PropsType) {
       dataIndex: "department",
       visible: true,
       className: "columnTitle",
-      width: "15%",
+      width: "25%",
       render: (value, record, index) => {
         if (value) {
           return (
@@ -197,13 +161,13 @@ function OrderSources(props: PropsType) {
       },
     },
     {
-      title: "Áp dụng cho đơn hàng",
+      title: "Áp dụng",
       dataIndex: "active",
       visible: true,
-      width: "15%",
+      width: "20%",
       align: "center",
       render: (value, record: OrderSourceModel, index) => {
-        if (value || record.is_channel) {
+        if (value) {
           return <span className="status active">Đang áp dụng</span>;
         }
         return <span className="status inactive">Ngưng áp dụng</span>;
@@ -288,12 +252,12 @@ function OrderSources(props: PropsType) {
     {
       id: ACTIONS_INDEX.EXPORT,
       name: "Export",
-      icon:<ExportOutlined />
+      icon: <ExportOutlined />,
     },
     {
       id: ACTIONS_INDEX.DELETE,
       name: "Xóa",
-      icon:<DeleteOutlined />
+      icon: <DeleteOutlined />,
     },
   ];
 
@@ -313,7 +277,7 @@ function OrderSources(props: PropsType) {
   const renderCardExtraHtml = () => {
     return (
       <div className="cardExtra">
-        <Button
+        {/* <Button
           type="primary"
           ghost
           size="large"
@@ -324,7 +288,7 @@ function OrderSources(props: PropsType) {
           icon={<PlusOutlined />}
         >
           Thêm kênh bán hàng
-        </Button>
+        </Button> */}
         <Button
           type="primary"
           className="ant-btn-primary"
@@ -373,13 +337,6 @@ function OrderSources(props: PropsType) {
     };
   };
 
-  const handleFormChannelFormatFormValues = (formValues: ChannelModel): ChannelModel => {
-    return {
-      ...formValues,
-      code: formValues.code.toUpperCase(),
-    };
-  };
-
   const handleFormOrderSource = {
     create: (formValues: OrderSourceModel) => {
       dispatch(
@@ -422,80 +379,6 @@ function OrderSources(props: PropsType) {
     },
   };
 
-  const handleFormChannel = {
-    create: (formValues: ChannelModel) => {
-      showLoading();
-      createChannelService(handleFormChannelFormatFormValues(formValues))
-        .then((response) => {
-          switch (response.code) {
-            case HttpStatus.SUCCESS:
-              showSuccess("Tạo mới kênh bán hàng thành công!");
-              setTableLoading(true);
-              gotoFirstPage();
-              break;
-            default:
-              response.errors.forEach((e) => showError(e));
-              break;
-          }
-        })
-        .catch((error) => {
-          console.log("error", error);
-        })
-        .finally(() => {
-          hideLoading();
-          setIsShowModalChannel(false);
-        });
-    },
-    edit: (formValues: ChannelModel) => {
-      if (modalSingleChannel) {
-        showLoading();
-        editChannelService(modalSingleChannel.id, formValues)
-          .then((response) => {
-            switch (response.code) {
-              case HttpStatus.SUCCESS:
-                showSuccess("Cập nhật kênh bán hàng thành công!");
-                fetchData();
-                break;
-              default:
-                response.errors.forEach((e) => showError(e));
-                break;
-            }
-          })
-          .catch((error) => {
-            console.log("error", error);
-          })
-          .finally(() => {
-            hideLoading();
-            setIsShowModalChannel(false);
-          });
-      }
-    },
-    delete: () => {
-      if (modalSingleChannel) {
-        showLoading();
-        deleteChannelService(modalSingleChannel.id)
-          .then((response) => {
-            switch (response.code) {
-              case HttpStatus.SUCCESS:
-                showSuccess("Xóa kênh bán hàng thành công!");
-                gotoFirstPage();
-                break;
-              default:
-                response.errors.forEach((e) => showError(e));
-                break;
-            }
-          })
-          .catch((error) => {
-            console.log("error", error);
-          })
-          .finally(() => {
-            hideLoading();
-            setIsShowModalChannel(false);
-          });
-      }
-    },
-  };
-
   useEffect(() => {
     if (queryParams) {
       setTableLoading(true);
@@ -509,14 +392,10 @@ function OrderSources(props: PropsType) {
       department_id: queryParamsParsed.department_id
         ? +queryParamsParsed.department_id
         : undefined,
-      channel_id: queryParamsParsed.channel_id
-        ? +queryParamsParsed.channel_id
-        : undefined,
     };
     form.setFieldsValue(valuesFromParams);
   }, [
     form,
-    queryParamsParsed.channel_id,
     queryParamsParsed.department_id,
     queryParamsParsed.name,
   ]);
@@ -529,12 +408,10 @@ function OrderSources(props: PropsType) {
       sort_column: "updated_date",
       name: queryParamsParsed.name,
       department_id: queryParamsParsed.department_id,
-      channel_id: queryParamsParsed.channel_id,
     });
   }, [
     DEFAULT_PAGINATION.limit,
     DEFAULT_PAGINATION.page,
-    queryParamsParsed.channel_id,
     queryParamsParsed.department_id,
     queryParamsParsed.limit,
     queryParamsParsed.name,
@@ -547,7 +424,9 @@ function OrderSources(props: PropsType) {
         switch (response.code) {
           case HttpStatus.SUCCESS:
             if (response.data) {
-              setListDepartments(response.data);
+              // setListDepartments(response.data);
+              let array: any = convertDepartment(response.data);
+              setListDepartments(array);
             }
             break;
           default:
@@ -557,44 +436,6 @@ function OrderSources(props: PropsType) {
       })
       .catch((error) => {
         showError("Có lỗi khi lấy danh sách phòng ban!");
-      });
-  }, []);
-
-  useEffect(() => {
-    getChannelApi()
-      .then((response: BaseResponse<ChannelResponse[]>) => {
-        switch (response.code) {
-          case HttpStatus.SUCCESS:
-            if (response.data) {
-              setListChannels(response.data);
-            }
-            break;
-          default:
-            response.errors.forEach((e) => showError(e));
-            break;
-        }
-      })
-      .catch((error) => {
-        showError("Có lỗi khi lấy danh sách kênh bán hàng!");
-      });
-  }, []);
-
-  useEffect(() => {
-    getChannelTypeApi()
-      .then((response: BaseResponse<ChannelTypeModel[]>) => {
-        switch (response.code) {
-          case HttpStatus.SUCCESS:
-            if (response.data) {
-              setListChannelTypes(response.data);
-            }
-            break;
-          default:
-            response.errors.forEach((e) => showError(e));
-            break;
-        }
-      })
-      .catch((error) => {
-        showError("Có lỗi khi lấy loại kênh bán hàng!");
       });
   }, []);
 
@@ -625,36 +466,14 @@ function OrderSources(props: PropsType) {
               layout="inline"
               form={form}
             >
-              <Form.Item name="name" style={{width: "40%", maxWidth: "100%"}}>
+              <Form.Item name="name" style={{width: 245, maxWidth: "100%"}}>
                 <Input
                   prefix={<img src={search} alt="" />}
-                  placeholder="Tên kênh/nguồn"
+                  placeholder="Nguồn đơn hàng"
                 />
               </Form.Item>
-              <Form.Item name="channel_id" style={{width: "20%", maxWidth: "100%"}}>
+              <Form.Item name="department_id" style={{width: 305, maxWidth: "100%"}}>
                 <Select
-                  showSearch
-                  allowClear
-                  style={{width: "100%"}}
-                  placeholder="Kênh bán hàng"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  notFoundContent="Không tìm thấy Kênh bán hàng!"
-                >
-                  {listChannels &&
-                    listChannels.map((single) => {
-                      return (
-                        <Select.Option value={single.id} key={single.id}>
-                          {single.name}
-                        </Select.Option>
-                      );
-                    })}
-                </Select>
-              </Form.Item>
-              <Form.Item name="department_id" style={{width: "20%", maxWidth: "100%"}}>
-                {/* <Select
                   showSearch
                   allowClear
                   style={{width: "100%"}}
@@ -669,22 +488,20 @@ function OrderSources(props: PropsType) {
                     listDepartments.map((single) => {
                       return (
                         <Select.Option value={single.id} key={single.id}>
-                          {single.name}
+                          <span
+                            className="hideInSelect"
+                            style={{paddingLeft: +15 * single.level}}
+                          ></span>
+                          {single?.parent?.name && (
+                            <span className="hideInDropdown">
+                              {single?.parent?.name} -{" "}
+                            </span>
+                          )}
+                          <span>{single.name}</span>
                         </Select.Option>
                       );
                     })}
-                </Select> */}
-                <TreeSelect
-                  placeholder="Chọn phòng ban/Bộ phận"
-                  treeDefaultExpandAll
-                  className="selector"
-                  allowClear
-                  showSearch
-                >
-                  {listDepartmentFormatted.map((item, index) => (
-                    <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-                  ))}
-                </TreeSelect>
+                </Select>
               </Form.Item>
               <Form.Item style={{marginRight: 0}}>
                 <Button type="primary" htmlType="submit">
@@ -715,18 +532,8 @@ function OrderSources(props: PropsType) {
               return {
                 onClick: () => {
                   setModalAction("edit");
-                  if (record.is_channel) {
-                    setModalSingleChannel({
-                      id: record.id,
-                      channel_type_id: record.channel_type?.id || undefined,
-                      code: record.code,
-                      name: record.name,
-                    });
-                    setIsShowModalChannel(true);
-                  } else {
-                    setModalSingleOrderSource(record);
+                  setModalSingleOrderSource(record);
                     setIsShowModalOrderSource(true);
-                  }
                 },
               };
             }}
@@ -754,38 +561,25 @@ function OrderSources(props: PropsType) {
           formItem={modalSingleOrderSource}
           deletedItemTitle={modalSingleOrderSource?.name}
           modalTypeText="Nguồn đơn hàng"
-          moreFormArguments={{listChannels, listDepartments}}
-        />
-        <CustomModal
-          visible={isShowModalChannel}
-          onCreate={(formValues: ChannelModel) => handleFormChannel.create(formValues)}
-          onEdit={(formValues: ChannelModel) => handleFormChannel.edit(formValues)}
-          onDelete={() => handleFormChannel.delete()}
-          onCancel={() => setIsShowModalChannel(false)}
-          modalAction={modalAction}
-          componentForm={FormOrderSourceChannel}
-          formItem={modalSingleChannel}
-          deletedItemTitle={modalSingleChannel?.name}
-          modalTypeText="Kênh bán hàng"
-          moreFormArguments={{listChannels, listDepartments, listChannelTypes}}
+          moreFormArguments={{listDepartments}}
         />
       </ContentContainer>
     </StyledComponent>
   );
 }
 
-const TreeDepartment = (item: DepartmentResponse) => {
-  return (
-    <TreeSelect.TreeNode value={item.id} title={item.name}>
-      {item.children.length > 0 && (
-        <React.Fragment>
-          {item.children.map((item, index) => (
-            <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-          ))}
-        </React.Fragment>
-      )}
-    </TreeSelect.TreeNode>
-  );
-};
+// const TreeDepartment = (item: DepartmentResponse) => {
+//   return (
+//     <TreeSelect.TreeNode value={item.id} title={item.name}>
+//       {item.children.length > 0 && (
+//         <React.Fragment>
+//           {item.children.map((item, index) => (
+//             <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+//           ))}
+//         </React.Fragment>
+//       )}
+//     </TreeSelect.TreeNode>
+//   );
+// };
 
 export default withRouter(OrderSources);

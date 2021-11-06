@@ -63,4 +63,5 @@ export const StyledComponent = styled.div`
       color: ${dangerColor};
     }
   }
+  
 `;
