@@ -1,14 +1,13 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload } from "antd";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import {PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import RowDetail from "screens/products/product/component/RowDetail";
 import {useHistory, useParams} from "react-router";
 import {useDispatch} from "react-redux";
 import {
@@ -57,6 +56,7 @@ import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
 import { importFile,exportFile, getFile} from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
+import NumberInput from "component/custom/number-input.custom";
 
 const {TabPane} = Tabs;
 
@@ -188,26 +188,64 @@ const DetailInvetoryAdjustment: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = (value: string) => {
+  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
+
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
+
+  const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
-    const selectedItem = resultSearch?.items?.find(
+    let selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
+
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      let data = (prev: any) => prev.concat([selectedItem]);
-      setDataTable(data);
-      setSearchVariant(data);
-      drawColumns(data);
-      setHasError(false);
-    }
-  };
+      selectedItem = {...selectedItem,  
+                          variant_id: selectedItem.id,
+                          variant_name: selectedItem.name,
+                          real_on_hand: 0,
+                          on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
+                          on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),};
+
+      drawColumns(dataTable.concat([{...selectedItem}]));
+
+      setDataTable((prev: Array<LineItemAdjustment>) =>
+        prev.concat([{...selectedItem}])
+      );
+      setSearchVariant((prev: Array<LineItemAdjustment>) =>
+        prev.concat([{...selectedItem}])
+      );
+      
+      setHasError(false); 
+    } 
+  },[dataTable,resultSearch,drawColumns]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -293,32 +331,7 @@ const DetailInvetoryAdjustment: FC = () => {
         InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback)
       );
     }
-  };
-
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
+  }; 
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -393,15 +406,11 @@ const DetailInvetoryAdjustment: FC = () => {
       render: (value, row, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
           return (
-            <Input
-              type="number"
+            <NumberInput
               min={0}
-              value={value ? value : 0}
-              onChange={(event) => {
-                let value =
-                  event.target.value && event.target.value !== ""
-                    ? event.target.value
-                    : 0;
+              maxLength={12}
+              value={value}
+              onChange={(value) => {
                 onRealQuantityChange(value, row, index);
               }}
               onKeyPress={(event) => {
@@ -409,10 +418,11 @@ const DetailInvetoryAdjustment: FC = () => {
                   dispatch(
                     updateItemOnlineInventoryAction(data?.id, row, (result) => {
                       if (result) {
-                        showSuccess("Nhập tồn thực tế thành công.");
+                        showSuccess("Nhập tồn thực tế thành công."); 
                       }
                     })
                   );
+                  setEditRealOnHand(false);
                 }
               }}
               onBlur={() => {
@@ -509,13 +519,13 @@ const DetailInvetoryAdjustment: FC = () => {
       updateOnlineInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          window.location.reload();
+          onResult(result);
           showSuccess("Hoàn thành kiểm kho thành công.");
           setIsShowConfirmAdited(false);
         }
       })
     );
-  }, [data, dispatch]);
+  }, [data, dispatch, onResult]);
 
   const onAdjustInventory = useCallback(() => {
     setLoading(true);
@@ -523,13 +533,13 @@ const DetailInvetoryAdjustment: FC = () => {
       adjustInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          window.location.reload();
+          onResult(result);
           showSuccess("Cân tồn kho thành công.");
           seIsShowConfirmAdj(false);
         }
       })
     );
-  }, [dispatch, data?.id]);
+  }, [dispatch, data?.id, onResult]);
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -603,6 +613,22 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     [dataTable, keySearch, searchVariant, onEnterFilterVariant]
   );
+
+  type RowDetailProps = {
+    label: string,
+    value: string|null,
+  }
+
+  const RenderRowInfo = (info: RowDetailProps) => {
+    return (
+      <>
+        <Row className="row-detail">
+          <Col flex="90px" className="row-detail-left label">{info.label} <Col className="dot">:</Col></Col> 
+          <Col flex="auto" className="row-detail-right data"><b>{info?.value}</b></Col>
+        </Row>
+      </>
+    );
+  };
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -823,6 +849,12 @@ const DetailInvetoryAdjustment: FC = () => {
                           onSelect={onSelectProduct}
                           options={renderResult}
                           ref={productSearchRef}
+                          onClickAddNew={() => {
+                            window.open(
+                              `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                              "_blank"
+                            );
+                          }}
                         />
                         <Button
                           onClick={() => {
@@ -884,15 +916,15 @@ const DetailInvetoryAdjustment: FC = () => {
                   extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
-                    <RowDetail title="ID Phiếu" value={data.code} />
-                    <RowDetail title="Người tạo" value={data.created_by} />
-                    <RowDetail title="Người kiểm" value="" />
+                    <RenderRowInfo label="ID Phiếu" value={data.code} />
+                    <RenderRowInfo label="Người tạo" value={data.created_by} />
+                    <RenderRowInfo label="Người kiểm" value="" />
                     {
                       <StyledComponent>
                         <Row className="audit_by">
                           <Col span={24}>
                             {data.audited_by?.map((item: string) => {
-                              return <RenderItemAuditBy user_name={item?.toString()} />;
+                              return <RenderItemAuditBy key={item?.toString()} user_name={item?.toString()} />;
                             })}
                           </Col>
                         </Row>
@@ -1007,7 +1039,9 @@ const DetailInvetoryAdjustment: FC = () => {
                         </Button>
                         <Button
                           type="primary"
-                          onClick={onUpdateOnlineInventory}
+                          onClick={() => {
+                            setIsShowConfirmAdited(true);
+                          }}
                           loading={isLoading} disabled={hasError || isLoading}
                         >
                           Hoàn thành kiểm
@@ -1063,7 +1097,8 @@ const DetailInvetoryAdjustment: FC = () => {
             {visibleManyProduct && (
               <PickManyProductModal
                 storeID={data?.adjusted_store_id}
-                selected={[]}
+                selected={dataTable}
+                isTransfer
                 onSave={onPickManyProduct}
                 onCancel={() => setVisibleManyProduct(false)}
                 visible={visibleManyProduct}

@@ -547,14 +547,14 @@ function* getListSubStatusSaga(action: YodyAction) {
 }
 
 function* setSubStatusSaga(action: YodyAction) {
-  let { order_id, statusId, handleData } = action.payload;
+  let { order_id, statusCode, handleData } = action.payload;
   const actionText = action.payload.action;
   yield put(showLoading());
   try {
-    let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
+    let response: BaseResponse<any> = yield call(
       setSubStatusService,
       order_id,
-      statusId,
+      statusCode,
       actionText
     );
     switch (response.code) {

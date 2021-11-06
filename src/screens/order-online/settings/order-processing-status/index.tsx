@@ -1,9 +1,9 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card } from "antd";
+import {PlusOutlined} from "@ant-design/icons";
+import {Button, Card} from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
 import CustomModal from "component/modal/CustomModal";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   actionAddOrderProcessingStatus,
@@ -11,18 +11,18 @@ import {
   actionEditOrderProcessingStatus,
   actionFetchListOrderProcessingStatus,
 } from "domain/actions/settings/order-processing-status.action";
-import { modalActionType } from "model/modal/modal.model";
-import { VariantResponse } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {modalActionType} from "model/modal/modal.model";
+import {VariantResponse} from "model/product/product.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
+import {useCallback, useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useLocation} from "react-router-dom";
+import {generateQuery} from "utils/AppUtils";
+import {StyledComponent} from "./styles";
 
 const SettingOrderProcessingStatus: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
@@ -47,6 +47,26 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   const columns: ICustomTableColumType<any>[] = [
     {
+      title: "Code",
+      dataIndex: "code",
+      visible: true,
+      className: "columnTitle",
+      width: "25%",
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{wordWrap: "break-word", wordBreak: "break-word"}}
+              className="title text"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
+    },
+    {
       title: "Trạng thái xử lý",
       dataIndex: "sub_status",
       visible: true,
@@ -57,7 +77,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
           return (
             <span
               title={value}
-              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              style={{wordWrap: "break-word", wordBreak: "break-word"}}
               className="title text"
             >
               {value}
@@ -88,7 +108,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       width: "25%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
+          <span className="text" title={value} style={{color: "#666666"}}>
             {value}
           </span>
         );
@@ -101,9 +121,9 @@ const SettingOrderProcessingStatus: React.FC = () => {
       width: "25%",
       render: (value, row, index) => {
         if (value) {
-          return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
+          return <span style={{color: "#27AE60"}}>Đang áp dụng</span>;
         }
-        return <span style={{ color: "#E24343" }}>Ngưng áp dụng</span>;
+        return <span style={{color: "#E24343"}}>Ngưng áp dụng</span>;
       },
     },
   ];
@@ -123,7 +143,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       queryParams.page = page;
       queryParams.limit = size;
       let queryParam = generateQuery(queryParams);
-      setQueryParams({ ...queryParams });
+      setQueryParams({...queryParams});
       history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
       window.scrollTo(0, 0);
     },
@@ -152,7 +172,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       ...queryParams,
       page: 1,
     };
-    setQueryParams({ ...newParams });
+    setQueryParams({...newParams});
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
     window.scrollTo(0, 0);
