@@ -197,9 +197,12 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(showLoading());
     dispatch(addPromoCodeManual(idNumber, body, onAddSuccess));
   }
-  const onAddSuccess = useCallback(() => {
+  const onAddSuccess = useCallback((response) => {
     dispatch(hideLoading());
-    showSuccess("Thêm thành công");
+    if(response) {
+      showSuccess("Thêm thành công");
+      dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+    }
   }, [dispatch]);
 
   return (
@@ -343,7 +346,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {checkPromoCode  &&  <Row gutter={30}>
+                {!checkPromoCode  &&  <Row gutter={30}>
                     <Col span={24}>
                       <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
@@ -351,7 +354,7 @@ const PromotionDetailScreen: React.FC = () => {
                     </Col>
                   </Row>
                 }
-                {!checkPromoCode && <Row gutter={30} style={{gap: 15}}>
+                {checkPromoCode && <Row gutter={30} style={{gap: 15}}>
                   <Col span={24} style={{
                       color: "#E24343",
                       textAlign: "center",
