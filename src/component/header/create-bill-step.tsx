@@ -55,10 +55,10 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setCurrentStep(0);
         break;
       case "finalized":
-        const confirmDraftOrderSubStatusId = 1;
+        // const confirmDraftOrderSubStatusId = 1;
         if (orderDetail) {
           if (
-            orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
+            // orderDetail.sub_status_id === confirmDraftOrderSubStatusId ||
             (orderDetail.payments && orderDetail.payments?.length > 0) ||
             (orderDetail.fulfillments && orderDetail.fulfillments?.length > 0)
           ) {
