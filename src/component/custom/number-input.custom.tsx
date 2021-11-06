@@ -9,6 +9,7 @@ interface NumberInputProps {
   isFloat?: boolean;
   onChange?: (v: number | null) => void;
   onBlur?: () => void;
+  onKeyPress?: (event: any) => void;
   style?: CSSProperties;
   placeholder?: string;
   format?: (a: string) => string;
@@ -33,6 +34,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     isFloat,
     onChange,
     placeholder,
+    onKeyPress,
     style,
     format,
     onBlur,
@@ -109,6 +111,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       value={format ? format(data) : data}
       style={{textAlign: 'right', ...style}}
       onBlur={onBlurEvent}
+      onKeyPress={onKeyPress}
       onChange={onChangeText}
       suffix={suffix}
       maxLength={maxLength}
