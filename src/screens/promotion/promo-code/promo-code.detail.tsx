@@ -1,4 +1,4 @@
-import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Modal, Row, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -172,7 +172,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mã đợt phát hành",
-          value: data.discount_codes[0]?.code ? data.discount_codes[0]?.code : "",
+          value: data.code,
           position: "left",
           key: "2",
         },

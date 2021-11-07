@@ -3,7 +3,6 @@ import {
   Button,
   Form,
   Input,
-  Tag,
   Row,
   Space,
   Modal,
@@ -37,7 +36,13 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { addPromoCode, deleteBulkPromoCode, getListPromoCode, deletePromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { 
+  addPromoCode,
+  deleteBulkPromoCode,
+  getListPromoCode,
+  deletePromoCodeById,
+  updatePromoCodeById 
+} from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
@@ -80,7 +85,7 @@ const ListCode = () => {
   const [showEditPopup, setShowEditPopup] = React.useState<boolean>(false);
   const [editData, setEditData] = React.useState<any>();
   const [deleteData, setDeleteData] = React.useState<any>();
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -152,7 +157,7 @@ const ListCode = () => {
       showSuccess("Cập nhật thành công");
       dispatch(getListPromoCode(priceRuleId, fetchData));
     }
-  }, [dispatch]);
+  }, [dispatch, priceRuleId, fetchData]);
 
   // section DELETE by Id
   function handleDelete(item: any) {
@@ -194,23 +199,16 @@ const ListCode = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(priceRuleId, fetchData));
     }
-  }, [dispatch]);
+  }, [dispatch, priceRuleId, fetchData]);
 
    // section DELETE bulk
-  function handleDeleteBulk() {
-    const body = {
-      ids: selectedRowKey
-    }
-    dispatch(showLoading());
-    dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
-  }
   const deleteCallBack = useCallback((response) => {
     dispatch(hideLoading());
     if (response) {
       showSuccess("Xóa thành công");
       dispatch(getListPromoCode(priceRuleId, fetchData));
     }
-  }, [dispatch]);
+  }, [dispatch, priceRuleId, fetchData]);
 
   // section CHANGE STATUS
   const handleStatus = (item: any) => {
@@ -296,15 +294,18 @@ const ListCode = () => {
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      const body = {
+        ids: selectedRowKey
+      }
       switch (index) {
         case 1:
           break;
         case 2:
-          handleDeleteBulk()
+          dispatch(showLoading());
+          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
-    },
-    [dispatch, fetchData, priceRuleId, selectedRowKey]
+    }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
   );
 
   return (
@@ -314,6 +315,10 @@ const ListCode = () => {
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
+        },
+        {
+          name: "Khuyến mại",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Mã chiết khấu đơn hàng",
