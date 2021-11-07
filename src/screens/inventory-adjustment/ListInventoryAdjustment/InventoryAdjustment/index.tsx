@@ -43,19 +43,21 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   page: 1,
   limit: 30,
   condition: null,
-  adjusted_store_id: null,
-  status: [],
+  adjusted_store_id: null, 
   from_total_variant: null,
   to_total_variant: null,
   from_total_quantity: null,
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
-  created_by: [],
+  created_name: null, 
   from_created_date: null,
   to_created_date: null,
   from_inventoryadjustment_date: null,
   to_inventoryadjustment_date: null,
+  arrcreated_name: [],
+  arrstatus: [],
+  arraudit_type: []
 };
 
 const actions: Array<MenuAction> = [
@@ -359,14 +361,11 @@ const InventoryAdjustment: React.FC = () => {
     },
     [printTicketAction]
   );
-
-  /**
-   * clear filter trong basefilter
-   */
+ 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}#1?${queryParam}`);
+    history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}?${queryParam}`);
   }, [history]);
 
   const onSelectedChange = useCallback(

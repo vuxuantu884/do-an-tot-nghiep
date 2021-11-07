@@ -1,9 +1,9 @@
-import {Card, Col, Divider, Row, Space, Table, Tag} from "antd";
+import {Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
+import {useParams} from "react-router";
 import {Link} from "react-router-dom";
 import moment from "moment";
 import "./discount.scss";
@@ -16,6 +16,8 @@ import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
 import {promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
+import {formatCurrency} from "../../../utils/AppUtils";
+import Countdown from "react-countdown";
 
 export interface ProductParams {
   id: string;
@@ -81,7 +83,7 @@ const quantityColumn:Array<ICustomTableColumType<any>> = [
   {
     title: "STT",
     align: "center",
-    render: (value: any, item: any, index: number) => index
+    render: (value: any, item: any, index: number) => index + 1
   },
   {
     title: "Sản phẩm",
@@ -161,32 +163,33 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   const renderDiscountValue = (value: number, valueType:string) => {
-    let symbol = 'đ';
+    let result = '';
     switch (valueType) {
+      case "FIXED_PRICE":
+        result = formatCurrency(value);
+        break;
       case "FIXED_AMOUNT":
-        symbol = 'đ';
+        result = formatCurrency(value);
         break;
       case "PERCENTAGE":
-        symbol = '%';
+        result = `${value}%`
         break;
     }
-    return symbol;
+    return result;
   }
 
   const transformData = (rawData: any | null) => {
     let result: any[] = [];
     if (rawData && rawData.entitlements.length > 0) {
       rawData.entitlements.forEach((rawEntitlement:any) => {
-        console.log("rawEntitlement", rawEntitlement)
         rawEntitlement.entitled_variant_ids.forEach((variant:any) => {
-          console.log("variant", variant)
           result.push({
             variant: {
               id: variant
             },
             minimum: rawEntitlement.prerequisite_quantity_ranges[0]?.greater_than_or_equal_to,
             allocationLimit: rawEntitlement.prerequisite_quantity_ranges[0]?.allocation_limit,
-            value: `${rawEntitlement.prerequisite_quantity_ranges[0]?.value}${renderDiscountValue(rawEntitlement.prerequisite_quantity_ranges[0]?.value, rawEntitlement.prerequisite_quantity_ranges[0]?.value_type)}`
+            value: `${renderDiscountValue(rawEntitlement.prerequisite_quantity_ranges[0]?.value, rawEntitlement.prerequisite_quantity_ranges[0]?.value_type)}`
           });
         })
       })
@@ -264,6 +267,21 @@ const PromotionDetailScreen: React.FC = () => {
     )
   }
 
+  // @ts-ignore
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      // Render a complete state
+      return <span>Kết thúc chương trình</span>;
+    } else {
+      // Render a countdown
+      return (
+        <span style={{color: "#FCAF17", fontWeight: 500}}>
+          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+        </span>
+      );
+    }
+  };
+
   const timeApply = [
     {
       name: "Từ",
@@ -278,7 +296,7 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value: moment(data?.starts_date).isAfter(data?.ends_date),
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
       key: "3",
     },
   ];
@@ -557,8 +575,7 @@ const PromotionDetailScreen: React.FC = () => {
                           padding: "0 16px",
                         }}
                       >
-                        <li> YODY Kiến Xương</li>
-                        <li> YODY Hai Bà Trưng</li>
+                        {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"

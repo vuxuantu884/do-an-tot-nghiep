@@ -25,7 +25,7 @@ const ModalAddCode: React.FC<ModalProps> = (
 
   useEffect(() => {
     form.setFieldsValue({code: valueChange})
-  }, [valueChange])
+  }, [valueChange, form])
 
   const onCancelClick = useCallback(() => {
     onCancel();
@@ -33,7 +33,7 @@ const ModalAddCode: React.FC<ModalProps> = (
 
   const onOkClick = useCallback(() => {
     onOk(form.submit());
-  }, [onOk]);
+  }, [onOk, form]);
 
   function onFinish(value: any) {
     form.resetFields();

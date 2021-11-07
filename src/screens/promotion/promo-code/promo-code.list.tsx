@@ -3,11 +3,11 @@ import {
   Button,
   Form,
   Input,
-  Tag,
   Row,
   Space,
   Modal,
   Col,
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -24,11 +24,11 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import search from "assets/img/search.svg";
 import "./promo-code.scss";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
-import { PlusOutlined } from "@ant-design/icons";
-import { SearchOutlined } from "@ant-design/icons";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -37,11 +37,19 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { addPromoCode, deleteBulkPromoCode, getListPromoCode, deletePromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { 
+  addPromoCode,
+  deleteBulkPromoCode,
+  getListPromoCode,
+  deletePromoCodeById,
+  updatePromoCodeById 
+} from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
 import { STATUS_CODE } from "../constant";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 
 const ListCode = () => {
   const actions: Array<MenuAction> = [
@@ -78,7 +86,7 @@ const ListCode = () => {
   const [showEditPopup, setShowEditPopup] = React.useState<boolean>(false);
   const [editData, setEditData] = React.useState<any>();
   const [deleteData, setDeleteData] = React.useState<any>();
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -88,6 +96,7 @@ const ListCode = () => {
   })
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
+  const [promoValue, setPromoValue] = useState<any>();
 
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
@@ -95,17 +104,18 @@ const ListCode = () => {
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
+  // section handle call api GET DETAIL
+  const onResult = useCallback((result: DiscountResponse | false) => {
+    setPromoValue(result);
+  }, []);
+  useEffect(() => {
+    dispatch(promoGetDetail(id, onResult));
+    return () => {};
+  }, [dispatch, id, onResult]);
+
   // handle response get list
   const fetchData = useCallback((data: any) => {
-    let dataSource = {
-      metadata: {
-        limit: 20,
-        total: data.length,
-        page: 1,
-      },
-      items: data
-    }
-    setData(dataSource);
+    setData(data);
     setTableLoading(false);
   }, []);
 
@@ -148,7 +158,7 @@ const ListCode = () => {
       showSuccess("Cập nhật thành công");
       dispatch(getListPromoCode(priceRuleId, fetchData));
     }
-  }, [dispatch]);
+  }, [dispatch, priceRuleId, fetchData]);
 
   // section DELETE by Id
   function handleDelete(item: any) {
@@ -190,27 +200,20 @@ const ListCode = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(priceRuleId, fetchData));
     }
-  }, [dispatch]);
+  }, [dispatch, priceRuleId, fetchData]);
 
    // section DELETE bulk
-  function handleDeleteBulk() {
-    const body = {
-      ids: selectedRowKey
-    }
-    dispatch(showLoading());
-    dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
-  }
   const deleteCallBack = useCallback((response) => {
     dispatch(hideLoading());
     if (response) {
       showSuccess("Xóa thành công");
       dispatch(getListPromoCode(priceRuleId, fetchData));
     }
-  }, [dispatch]);
+  }, [dispatch, priceRuleId, fetchData]);
 
   // section CHANGE STATUS
   const handleStatus = (item: any) => {
-    console.log(item);
+    // TODO
   };
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
@@ -267,49 +270,60 @@ const ListCode = () => {
     [columns]
   );
 
-  const listStatus: Array<BaseBootstrapResponse> = [
+  const statuses = [
     {
-      value: "APPLYING",
-      name: "Đang áp dụng",
+      code: 'ACTIVE',
+      value: 'Đang áp dụng',
     },
     {
-      value: "TEMP_STOP",
-      name: "Tạm ngưng",
+      code: 'DISABLED',
+      value: 'Tạm ngưng',
     },
     {
-      value: "WAIT_FOR_START",
-      name: "Chờ áp dụng",
+      code: 'DRAFT',
+      value: 'Chờ áp dụng' ,
     },
     {
-      value: "ENDED",
-      name: "Kết thúc",
+      code: 'CANCELLED',
+      value: 'Đã huỷ',
     },
-    {
-      value: "CANCELLED",
-      name: "Đã huỷ",
-    }
+
   ]
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      const body = {
+        ids: selectedRowKey
+      }
       switch (index) {
         case 1:
           break;
         case 2:
-          handleDeleteBulk()
+          dispatch(showLoading());
+          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
-    },
-    [dispatch, fetchData, priceRuleId, selectedRowKey]
+    }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
   );
+
+  const {Item} = Form;
+  const {Option} = Select;
+
+  const openFilter = useCallback(() => {
+    // setVisible(true);
+  }, [])
 
   return (
     <ContentContainer
-      title="Mã giảm giá của đợt phát hành CPM9"
+      title={`Mã giảm giá của đợt phát hành ${promoValue?.code}`}
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
+        },
+        {
+          name: "Khuyến mại",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Mã chiết khấu đơn hàng",
@@ -346,40 +360,36 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request" className="search">
+              <Item name="query" className="search">
                 <Input
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  prefix={<img src={search} alt=""/>}
                   placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
-              </Form.Item>
-              <Form.Item>
-              <CustomSelect
-                  style={{ width: "100%", borderRadius: "6px" }}
+              </Item>
+              <Item name="state" >
+                <Select
                   showArrow
                   showSearch
+                  style={{minWidth: "200px"}}
+                  optionFilterProp="children"
                   placeholder="Chọn trạng thái"
-                  notFoundContent="Không tìm thấy kết quả"
+                  allowClear={true}
                 >
-                  {listStatus.map((item, index) => (
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key={(index + 1).toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </CustomSelect.Option>
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
                   ))}
-                </CustomSelect>
-              </Form.Item>
-              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-              <Form.Item>
+                </Select>
+              </Item>
+              <Item>
                 <Button type="primary" htmlType="submit">
                   Lọc
                 </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button>Thêm bộ lọc</Button>
-              </Form.Item>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              </Item>
             </Form>
           </CustomFilter>
 
