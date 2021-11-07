@@ -173,7 +173,7 @@ const PromotionCode = () => {
       code: 'CANCELLED',
       value: 'Đã huỷ',
     },
-  
+
   ]
 
     const handleCallback = useCallback((response) => {
@@ -183,7 +183,7 @@ const PromotionCode = () => {
         dispatch(getListDiscount(params, fetchData));
       }
     }, [dispatch]);
-    
+
 
   const onMenuClick = useCallback(
     async (index: number) => {
@@ -262,6 +262,7 @@ const PromotionCode = () => {
                 style={{minWidth: "200px"}}
                 optionFilterProp="children"
                 placeholder="Chọn trạng thái"
+                allowClear={true}
               >
                 {statuses?.map((item) => (
                   <Option key={item.code} value={item.code}>

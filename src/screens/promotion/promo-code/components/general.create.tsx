@@ -126,7 +126,7 @@ const GeneralCreate = (props: any) => {
     str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
     str = str.replace(/đ/g, "d");
     // Some system encode vietnamese combining accent as individual utf-8 characters
-    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
+    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
     return str.toUpperCase().replaceAll(/\s/g,'');
   }
@@ -199,12 +199,12 @@ const GeneralCreate = (props: any) => {
               <Form.Item
                 name="discount_code"
                 label="Mã đợt phát hàng:"
-                rules={[
-                  {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
-                ]}
+                // rules={[
+                //   {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
+                // ]}
                 normalize={(value) => nonAccentVietnamese(value)}
               >
-                <Input maxLength={20} prefix="PC"/>
+                <Input maxLength={20} prefix="PC" disabled={true}/>
               </Form.Item>
             </Col>
             {/* Mô tả */}
@@ -216,6 +216,7 @@ const GeneralCreate = (props: any) => {
                 form={form}
                 placeholder="Nhập mô tả cho đợt phát hàng"
                 maxLength={500}
+
               />
             </Col>
           </Row>
@@ -228,7 +229,7 @@ const GeneralCreate = (props: any) => {
                 name="sale_type"
                 label={<b>Loại khuyến mãi</b>}
               >
-                <Select 
+                <Select
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
@@ -277,7 +278,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
             </Col>
-            {product === "PRODUCT" && 
+            {product === "PRODUCT" &&
               <>
                 <Col span={18}>
                   <Input.Group className="display-flex">
