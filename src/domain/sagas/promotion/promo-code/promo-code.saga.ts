@@ -1,6 +1,6 @@
 import { PromoCodeResponse } from '../../../../model/response/promotion/promo-code/list-promo-code.response';
 import { 
-  addPromoCodeManual,
+  addPromoCode,
   deletePromoCodeById,
   getAllPromoCodeList,
   getPromoCodeById,
@@ -129,7 +129,7 @@ function* addPromoCodeManualAct(action: YodyAction) {
   const { priceRuleId, body, addCallBack } = action.payload;
   try {
     const response: BaseResponse<PromoCodeResponse> = yield call(
-      addPromoCodeManual,
+      addPromoCode,
       priceRuleId,
       body
     );
@@ -186,7 +186,7 @@ export function* promoCodeSaga() {
     takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct),
     takeLatest(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, updatePromoCodeByIdAct),
-    takeLatest(PromoCodeType.ADD_PROMO_CODE_MANUAL, addPromoCodeManualAct),
+    takeLatest(PromoCodeType.ADD_PROMO_CODE, addPromoCodeManualAct),
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BULK, deleteBulkPromoCodeAct)
   ])
 }

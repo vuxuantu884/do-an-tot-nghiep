@@ -2,7 +2,10 @@ import {
   createPriceRule,
   searchDiscountList,
   deletePriceRuleById,
-  getPriceRuleById
+  getPriceRuleById,
+  bulkEnablePriceRules,
+  bulkDeletePriceRules,
+  bulkDisablePriceRules
 } from 'service/promotion/discount/discount.service';
 import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
 import { YodyAction } from "../../../../base/base.action";
@@ -121,11 +124,95 @@ function* addPriceRule(action: YodyAction) {
   }
 }
 
+function* bulkEnablePriceRulesAct(action: YodyAction) {
+  console.log('bulkEnablePriceRulesAct - action : ', action);
+  const { body, enableCallback } = action.payload;
+  try {
+    const response: BaseResponse<DiscountResponse> = yield call(
+      bulkEnablePriceRules,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        enableCallback(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        enableCallback(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        enableCallback(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    enableCallback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* bulkDisablePriceRulesAct(action: YodyAction) {
+  console.log('bulkDisablePriceRulesAct - action : ', action);
+  const { body, disableCallback } = action.payload;
+  try {
+    const response: BaseResponse<DiscountResponse> = yield call(
+      bulkDisablePriceRules,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        disableCallback(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        disableCallback(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        disableCallback(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    disableCallback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* bulkDeletePriceRulesAct(action: YodyAction) {
+  console.log('bulkDeletePriceRulesAct - action : ', action);
+  const { body, deleteCallback } = action.payload;
+  try {
+    const response: BaseResponse<DiscountResponse> = yield call(
+      bulkDeletePriceRules,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        deleteCallback(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        deleteCallback(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        deleteCallback(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    deleteCallback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* discountSaga() {
   yield all([
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
     takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
     takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct),
     takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule),
+    takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesAct),
+    takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesAct),
+    takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct)
   ])
 }

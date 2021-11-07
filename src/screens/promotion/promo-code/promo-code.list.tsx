@@ -37,63 +37,11 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { addPromoCodeManual, deleteBulkPromoCode, getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, deleteBulkPromoCode, getListPromoCode, deletePromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
-
-const promotionStatuses = [
-  {
-    code: 'APPLYING',
-    value: 'Đang áp dụng',
-    style: {
-      background: "rgba(42, 42, 134, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(42, 42, 134)",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'TEMP_STOP',
-    value: 'Tạm ngưng',
-    style: {
-      background: "rgba(252, 175, 23, 0.1)",
-      borderRadius: "100px",
-      color: "#FCAF17",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'WAIT_FOR_START',
-    value: 'Chờ áp dụng',
-    style: {
-      background: "rgb(245, 245, 245)",
-      borderRadius: "100px",
-      color: "rgb(102, 102, 102)",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'ENDED',
-    value: 'Kết thúc',
-    style: {
-      background: "rgba(39, 174, 96, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(39, 174, 96)",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'CANCELLED',
-    value: 'Đã huỷ',
-    style: {
-      background: "rgba(226, 67, 67, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(226, 67, 67)",
-      padding: "5px 10px"
-    }
-  },
-]
+import { STATUS_CODE } from "../constant";
 
 const ListCode = () => {
   const actions: Array<MenuAction> = [
@@ -188,8 +136,8 @@ const ListCode = () => {
    function handleEdit(value: any) {
     if(!value) return;
     let body = {
-      ...editData,
-      code: value?.code
+      id: editData.id,
+      code: value
     }
     dispatch(showLoading());
     dispatch(updatePromoCodeById(priceRuleId, body, onUpdateSuccess));
@@ -212,16 +160,29 @@ const ListCode = () => {
   function handleAddManual(value: any) {
     if(!value) return;
     let body = {
-      created_by: "",
-      created_name: "",
-      updated_by: "",
-      updated_name: "",
-      request_id: "",
-      operator_kc_id: "",
-      code: value.listCode
-    }
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
     dispatch(showLoading());
-    dispatch(addPromoCodeManual(priceRuleId, body, onAddSuccess));
+    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+  }
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
   }
   const onAddSuccess = useCallback((response) => {
     dispatch(hideLoading());
@@ -234,13 +195,7 @@ const ListCode = () => {
    // section DELETE bulk
   function handleDeleteBulk() {
     const body = {
-      created_by: "",
-      created_name: "",
-      updated_by: "",
-      updated_name: "",
-      request_id: "",
-      operator_kc_id: "",
-      id: selectedRowKey
+      ids: selectedRowKey
     }
     dispatch(showLoading());
     dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
@@ -288,7 +243,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === value);
+        const status: any | null = STATUS_CODE.find(e => e.code === value);
         return (<div
           style={status?.style}
         >
@@ -431,7 +386,6 @@ const ListCode = () => {
           <CustomTable
             selectedRowKey={selectedRowKey}
             onChangeRowKey={(rowKey) => {
-              console.log('CustomTable: ', rowKey)
               setSelectedRowKey(rowKey)
             }}
             isRowSelection
@@ -489,7 +443,7 @@ const ListCode = () => {
         </Row>
       </Modal>
       <CustomModal
-        isManual={true}
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -503,7 +457,7 @@ const ListCode = () => {
         }}
       />
       <CustomModal
-        isManual={false}
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -512,7 +466,7 @@ const ListCode = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(data) => {
-          console.log(data);
+          handleAddRandom(data);
           setShowAddCodeRandom(false);
         }}
       />
@@ -561,17 +515,17 @@ const ListCode = () => {
         </Row>
       </Modal>
       <CustomModal
-        isManual={true}
+        type={"EDIT"}
         visible={showEditPopup}
         okText="Thêm"
-        dataSource={editData ? editData : null}
+        valueChange={editData?.code}
         cancelText="Thoát"
         title={`Sửa mã giảm giá ${editData?.code}`}
         onCancel={() => {
           setShowEditPopup(false);
         }}
         onOk={(data) => {
-          handleEdit(data);
+          handleEdit(data?.code);
           setShowEditPopup(false);
         }}
       />
@@ -580,7 +534,7 @@ const ListCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(getPromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
+          dispatch(deletePromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
         }}
         okText="Đồng ý"
         cancelText= "Huỷ"

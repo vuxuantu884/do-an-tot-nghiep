@@ -20,7 +20,7 @@ import { RiUpload2Line } from "react-icons/ri";
 import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { addPromoCodeManual, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
@@ -182,20 +182,33 @@ const PromotionDetailScreen: React.FC = () => {
     }
   ];
 
-  // section ADD Manual
+  // section ADD Code
   function handleAddManual(value: any) {
     if(!value) return;
     let body = {
-      created_by: "",
-      created_name: "",
-      updated_by: "",
-      updated_name: "",
-      request_id: "",
-      operator_kc_id: "",
-      code: value.listCode
-    }
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
     dispatch(showLoading());
-    dispatch(addPromoCodeManual(idNumber, body, addCallBack));
+    dispatch(addPromoCode(idNumber, body, addCallBack));
+  }
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(idNumber, body, addCallBack));
   }
   const addCallBack = useCallback((response) => {
     dispatch(hideLoading());
@@ -561,7 +574,7 @@ const PromotionDetailScreen: React.FC = () => {
         }
       />
       <CustomModal
-        isManual={true}
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -575,7 +588,7 @@ const PromotionDetailScreen: React.FC = () => {
         }}
       />
       <CustomModal
-        isManual={false}
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -584,6 +597,7 @@ const PromotionDetailScreen: React.FC = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(value: any) => {
+          handleAddRandom(value);
           setShowAddCodeRandom(false);
         }}
       />

@@ -19,8 +19,8 @@ export const updatePromoCodeById = (priceRuleId: number, body: any, updateCallBa
   return BaseAction(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, {priceRuleId, body, updateCallBack});
 }
 
-export const addPromoCodeManual = (priceRuleId: number, body: any, addCallBack: (result: DiscountResponse|false) => void) => {
-  return BaseAction(PromoCodeType.ADD_PROMO_CODE_MANUAL, {priceRuleId, body, addCallBack});
+export const addPromoCode = (priceRuleId: number, body: any, addCallBack: (result: DiscountResponse|false) => void) => {
+  return BaseAction(PromoCodeType.ADD_PROMO_CODE, {priceRuleId, body, addCallBack});
 }
 
 export const deleteBulkPromoCode = (priceRuleId: number, body: any, deleteCallBack: (result: DiscountResponse|false) => void) => {

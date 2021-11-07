@@ -23,3 +23,15 @@ export const deletePriceRulesById = (id: number, onResult: (result: DiscountResp
 export const addPriceRules = (body: any, createCallback: (result: DiscountResponse) => void) => {
   return BaseAction(DiscountType.ADD_PRICE_RULE, {body, createCallback});
 }
+
+export const bulkEnablePriceRules = (body: any, enableCallback: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.ENABLE_PRICE_RULE, {body, enableCallback});
+}
+
+export const bulkDisablePriceRules = (body: any, disableCallback: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.DISABLE_PRICE_RULE, {body, disableCallback});
+}
+
+export const bulkDeletePriceRules = (body: any, deleteCallback: (result: DiscountResponse) => void) => {
+  return BaseAction(DiscountType.DELETE_BULK_PRICE_RULE, {body, deleteCallback});
+}
