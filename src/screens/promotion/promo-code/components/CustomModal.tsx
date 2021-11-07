@@ -149,7 +149,8 @@ const ModalAddCode: React.FC<ModalProps> = (
                     <NumberInput 
                       placeholder="Tối đã 1,000 mã"
                       style={{ textAlign: "left" }}
-                      max={9999}
+                      max={1000}
+                      min={0}
                     />
                   </Form.Item>
                 </Col>
