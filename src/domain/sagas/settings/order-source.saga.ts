@@ -108,7 +108,7 @@ function* editOrderSourceSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData();
-        showSuccess("Cập nhật thành công");
+        showSuccess("Cập nhật thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -119,7 +119,7 @@ function* editOrderSourceSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi sửa nguồn đơn hàng, vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
