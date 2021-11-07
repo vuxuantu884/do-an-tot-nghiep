@@ -124,7 +124,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, [listSource]);
 
   const checkIsHasPromo = useCallback((data: any) => {
-    setCheckPromoCode(data.length > 0);
+    setCheckPromoCode(data.items.length > 0);
   }, []);
 
   useEffect(() => {
@@ -417,7 +417,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {checkPromoCode  &&  <Row gutter={30}>
+                {checkPromoCode && <Row gutter={30}>
                     <Col span={24}>
                       <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
