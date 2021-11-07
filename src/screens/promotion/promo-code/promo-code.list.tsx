@@ -97,15 +97,7 @@ const ListCode = () => {
 
   // handle response get list
   const fetchData = useCallback((data: any) => {
-    let dataSource = {
-      metadata: {
-        limit: 20,
-        total: data.length,
-        page: 1,
-      },
-      items: data
-    }
-    setData(dataSource);
+    setData(data);
     setTableLoading(false);
   }, []);
 
