@@ -11,7 +11,7 @@ const END_POINT = "/price-rules";
 
 export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}?${params}`);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/search?${params}`);
 };
 
 export const getPriceRuleById = (id: number) : Promise<DiscountResponse> => {

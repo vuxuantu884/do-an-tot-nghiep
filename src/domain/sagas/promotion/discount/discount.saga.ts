@@ -1,8 +1,8 @@
-import { 
+import {
   createPriceRule,
   searchDiscountList,
   deletePriceRuleById,
-  getPriceRuleById 
+  getPriceRuleById
 } from 'service/promotion/discount/discount.service';
 import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
 import { YodyAction } from "../../../../base/base.action";
@@ -126,6 +126,6 @@ export function* discountSaga() {
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
     takeLatest(DiscountType.GET_PROMO_CODE_DETAIL, getPromoCodeDetail),
     takeLatest(DiscountType.DELETE_PRICE_RULE_BY_ID, deletePriceRuleByIdAct),
-    takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule)
+    takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule),
   ])
 }
