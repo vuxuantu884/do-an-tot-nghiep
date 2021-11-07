@@ -18,6 +18,7 @@ import { searchVariantsRequestAction } from "domain/actions/product/products.act
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link } from "react-router-dom";
+import {formatCurrency} from "../../../../utils/AppUtils";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -261,6 +262,7 @@ const GeneralCreate = (props: any) => {
                     color: "#222222",
                   }}
                   minLength={0}
+                  maxLength={9}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
                 />
@@ -478,7 +480,7 @@ const GeneralCreate = (props: any) => {
                 label={<b>Cửa hàng áp dụng:</b>}
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
-                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
+                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple" className="ant-select-selector-min-height">
                   {listStore?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
@@ -504,10 +506,10 @@ const GeneralCreate = (props: any) => {
                 label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
-                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple">
+                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple" className="ant-select-selector-min-height">
                   <Option key="ADMIN" value="ADMIN">ADMIN</Option>
                   <Option key="POS" value="POS">POS</Option>
-                  <Option key="POS" value="POS">WEB</Option>
+                  <Option key="WEB" value="WEB">WEB</Option>
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -529,7 +531,7 @@ const GeneralCreate = (props: any) => {
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
-                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
+                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple" className="ant-select-selector-min-height">
                   {listSource?.map((source: any, index: number) => <Option key={index} value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>

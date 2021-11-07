@@ -27,6 +27,7 @@ import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
+import Countdown from "react-countdown";
 
 export interface ProductParams {
   id: string;
@@ -112,7 +113,7 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
- 
+
   useEffect(() => {
     const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
     setStore(stores);
@@ -211,6 +212,21 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, [data]);
 
+  // @ts-ignore
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      // Render a complete state
+      return <span>Kết thúc chương trình</span>;
+    } else {
+      // Render a countdown
+      return (
+        <span style={{color: "#FCAF17", fontWeight: 500}}>
+          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+        </span>
+      );
+    }
+  };
+
   const timeApply = [
     {
       name: "Từ",
@@ -224,7 +240,7 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value:  moment(data?.starts_date).isAfter(data?.ends_date),
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
       key: "3",
     }
   ];
@@ -576,8 +592,7 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            <li key="0"> YODY Kiến Xương </li>
-                            <li key="1"> YODY Hai Bà Trưng </li>
+                            {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>

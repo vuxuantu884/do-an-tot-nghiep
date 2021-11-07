@@ -89,16 +89,25 @@ hr {
   .ant-input::-webkit-input-placeholder {
     text-transform: initial;
   }
-  
-  .ant-input:-moz-placeholder { 
+
+  .ant-input:-moz-placeholder {
       text-transform: initial;
   }
-  
-  .ant-input::-moz-placeholder {  
+
+  .ant-input::-moz-placeholder {
       text-transform: initial;
   }
-  
-  .ant-input:-ms-input-placeholder { 
+
+  .ant-input:-ms-input-placeholder {
       text-transform: initial;
+  }
+}
+.ant-select {
+  &.ant-select-selector-min-height {
+    .ant-select-selector,
+    .ant-select-selector .ant-select-selection-search-input {
+      height: auto;
+      min-height: 36px;
+    }
   }
 }
