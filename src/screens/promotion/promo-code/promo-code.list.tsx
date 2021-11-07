@@ -188,8 +188,8 @@ const ListCode = () => {
    function handleEdit(value: any) {
     if(!value) return;
     let body = {
-      ...editData,
-      code: value?.code
+      id: editData.id,
+      code: value
     }
     dispatch(showLoading());
     dispatch(updatePromoCodeById(priceRuleId, body, onUpdateSuccess));
@@ -438,7 +438,6 @@ const ListCode = () => {
           <CustomTable
             selectedRowKey={selectedRowKey}
             onChangeRowKey={(rowKey) => {
-              console.log('CustomTable: ', rowKey)
               setSelectedRowKey(rowKey)
             }}
             isRowSelection
@@ -496,7 +495,7 @@ const ListCode = () => {
         </Row>
       </Modal>
       <CustomModal
-        isManual={true}
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -510,7 +509,7 @@ const ListCode = () => {
         }}
       />
       <CustomModal
-        isManual={false}
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -519,7 +518,6 @@ const ListCode = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(data) => {
-          console.log(data);
           handleAddRandom(data);
           setShowAddCodeRandom(false);
         }}
@@ -569,17 +567,17 @@ const ListCode = () => {
         </Row>
       </Modal>
       <CustomModal
-        isManual={true}
+        type={"EDIT"}
         visible={showEditPopup}
         okText="Thêm"
-        dataSource={editData ? editData : null}
+        valueChange={editData?.code}
         cancelText="Thoát"
         title={`Sửa mã giảm giá ${editData?.code}`}
         onCancel={() => {
           setShowEditPopup(false);
         }}
         onOk={(data) => {
-          handleEdit(data);
+          handleEdit(data?.code);
           setShowEditPopup(false);
         }}
       />

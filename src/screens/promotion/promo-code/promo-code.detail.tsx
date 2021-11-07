@@ -574,7 +574,7 @@ const PromotionDetailScreen: React.FC = () => {
         }
       />
       <CustomModal
-        isManual={true}
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -588,7 +588,7 @@ const PromotionDetailScreen: React.FC = () => {
         }}
       />
       <CustomModal
-        isManual={false}
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
