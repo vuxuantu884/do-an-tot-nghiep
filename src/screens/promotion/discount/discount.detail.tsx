@@ -174,7 +174,6 @@ const PromotionDetailScreen: React.FC = () => {
   }
 
   const transformData = (rawData: any | null) => {
-    console.log("transformData", rawData)
     let result: any[] = [];
     if (rawData && rawData.entitlements.length > 0) {
       rawData.entitlements.forEach((rawEntitlement:any) => {
@@ -215,7 +214,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mã khuyến mãi",
-          value: data.discount_codes[0]?.code ? data.discount_codes[0]?.code : "",
+          value: data.code ? data.code : "",
           position: "left",
           key: "2",
         },
