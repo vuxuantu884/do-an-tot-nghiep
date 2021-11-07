@@ -21,8 +21,13 @@ import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { deletePriceRulesById, getListDiscount, bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "domain/actions/promotion/discount/discount.action";
+import { 
+  deletePriceRulesById,
+  getListDiscount,
+  bulkDeletePriceRules,
+  bulkDisablePriceRules,
+  bulkEnablePriceRules 
+} from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
@@ -195,7 +200,7 @@ const PromotionCode = () => {
           break;
         case 2:
           dispatch(showLoading());
-          dispatch(bulkEnablePriceRules(body, handleCallback));
+          dispatch(bulkDisablePriceRules(body, handleCallback));
           break;
         case 3:
           break;
@@ -203,7 +208,6 @@ const PromotionCode = () => {
           dispatch(showLoading());
           dispatch(bulkDeletePriceRules(body, handleCallback));
           break;
-
       }
     },
     [dispatch, fetchData, params, selectedRowKey]

@@ -73,7 +73,7 @@ const CreatePromotionCodePage = () => {
     dispatch(hideLoading());
     showSuccess("Thêm thành công");
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  }, [dispatch]);
+  }, [dispatch, history]);
 
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
