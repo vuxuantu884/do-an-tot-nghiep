@@ -3,7 +3,7 @@ import {
   Button,
   Form,
   Input,
-  // Tag
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
@@ -11,12 +11,11 @@ import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import CustomSelect from "component/custom/select.custom";
+import search from "assets/img/search.svg";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import "./promo-code.scss";
-import { PlusOutlined } from "@ant-design/icons";
-import { SearchOutlined } from "@ant-design/icons";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -157,27 +156,24 @@ const PromotionCode = () => {
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
 
-  const listStatus: Array<BaseBootstrapResponse> = [
+  const statuses = [
     {
-      value: "APPLYING",
-      name: "Đang áp dụng",
+      code: 'ACTIVE',
+      value: 'Đang áp dụng',
     },
     {
-      value: "TEMP_STOP",
-      name: "Tạm ngưng",
+      code: 'DISABLED',
+      value: 'Tạm ngưng',
     },
     {
-      value: "WAIT_FOR_START",
-      name: "Chờ áp dụng",
+      code: 'DRAFT',
+      value: 'Chờ áp dụng' ,
     },
     {
-      value: "ENDED",
-      name: "Kết thúc",
+      code: 'CANCELLED',
+      value: 'Đã huỷ',
     },
-    {
-      value: "CANCELLED",
-      name: "Đã huỷ",
-    }
+  
   ]
 
     const handleCallback = useCallback((response) => {
@@ -212,6 +208,9 @@ const PromotionCode = () => {
     },
     [dispatch, fetchData, params, selectedRowKey]
   );
+
+  const {Item} = Form;
+  const {Option} = Select;
 
   return (
     <ContentContainer
@@ -248,40 +247,33 @@ const PromotionCode = () => {
         <div className="promotion-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request" className="search">
-                <Input
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tìm kiếm theo mã, tên chương trình"
-                />
-              </Form.Item>
-              <Form.Item>
-              <CustomSelect
-                  style={{ width: "100%", borderRadius: "6px" }}
-                  showArrow
-                  showSearch
-                  placeholder="Chọn trạng thái"
-                  notFoundContent="Không tìm thấy kết quả"
-                >
-                  {listStatus.map((item, index) => (
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key={(index + 1).toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Form.Item>
-              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button>Thêm bộ lọc</Button>
-              </Form.Item>
+            <Item name="query" className="search">
+              <Input
+                prefix={<img src={search} alt=""/>}
+                placeholder="Tìm kiếm theo mã, tên chương trình"
+              />
+            </Item>
+            <Item name="state" >
+              <Select
+                style={{minWidth: "200px"}}
+                optionFilterProp="children"
+                placeholder="Chọn trạng thái"
+              >
+                {statuses?.map((item) => (
+                  <Option key={item.code} value={item.code}>
+                    {item.value}
+                  </Option>
+                ))}
+              </Select>
+            </Item>
+            <Item>
+              <Button type="primary" htmlType="submit">
+                Lọc
+              </Button>
+            </Item>
+            <Item>
+              <Button icon={<FilterOutlined />}>Thêm bộ lọc</Button>
+            </Item>
             </Form>
           </CustomFilter>
 
