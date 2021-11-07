@@ -51,7 +51,7 @@ const CreateDiscountPage = () => {
             greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
             less_than_or_equal_to: null,
             allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
-            value_type: entitlement['prerequisite_quantity_ranges.value_type'],
+            value_type: body.entitled_method === "FIXED_PRICE" ? "FIXED_PRICE" : entitlement['prerequisite_quantity_ranges.value_type'],
             value: entitlement['prerequisite_quantity_ranges.value'],
           },
         ],
