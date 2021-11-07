@@ -42,6 +42,8 @@ import { PromoCodeResponse } from "model/response/promotion/promo-code/list-prom
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
 import { STATUS_CODE } from "../constant";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 
 const ListCode = () => {
   const actions: Array<MenuAction> = [
@@ -88,12 +90,22 @@ const ListCode = () => {
   })
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
+  const [promoValue, setPromoValue] = useState<any>();
 
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query)
   }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+
+  // section handle call api GET DETAIL
+  const onResult = useCallback((result: DiscountResponse | false) => {
+    setPromoValue(result);
+  }, []);
+  useEffect(() => {
+    dispatch(promoGetDetail(id, onResult));
+    return () => {};
+  }, [dispatch, id, onResult]);
 
   // handle response get list
   const fetchData = useCallback((data: any) => {
@@ -202,7 +214,7 @@ const ListCode = () => {
 
   // section CHANGE STATUS
   const handleStatus = (item: any) => {
-    console.log(item);
+    // TODO
   };
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
@@ -297,7 +309,7 @@ const ListCode = () => {
 
   return (
     <ContentContainer
-      title="Mã giảm giá của đợt phát hành CPM9"
+      title={`Mã giảm giá của đợt phát hành ${promoValue?.code}`}
       breadcrumb={[
         {
           name: "Tổng quan",
