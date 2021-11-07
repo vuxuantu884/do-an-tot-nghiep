@@ -24,11 +24,10 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { deletePriceRulesById, getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import { deletePriceRulesById, getListDiscount, bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "service/promotion/discount/discount.service";
+import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 
@@ -250,50 +249,38 @@ const PromotionCode = () => {
     }
   ]
 
+    const handleCallback = useCallback((response) => {
+      dispatch(hideLoading());
+      if (response) {
+        showSuccess("Thao tác thành công");
+        dispatch(getListDiscount(params, fetchData));
+      }
+    }, [dispatch]);
+    
+
   const onMenuClick = useCallback(
     async (index: number) => {
       const body = {ids: selectedRowKey}
       switch (index) {
         case 1:
-          const bulkEnableResponse = await bulkEnablePriceRules(body);
-          if (bulkEnableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkEnablePriceRules(body, handleCallback));
           break;
         case 2:
-          const bulkDisableResponse = await bulkDisablePriceRules(body);
-          if (bulkDisableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkEnablePriceRules(body, handleCallback));
           break;
         case 3:
           break;
         case 4:
-          const bulkDeleteResponse = await bulkDeletePriceRules(body);
-          if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkDeletePriceRules(body, handleCallback));
           break;
 
       }
     },
     [dispatch, fetchData, params, selectedRowKey]
   );
-
-  const onDeleteSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params]);
 
   return (
     <ContentContainer
@@ -396,7 +383,7 @@ const PromotionCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
+          dispatch(deletePriceRulesById(modalInfo?.id, handleCallback));
         }}
         title="Xoá mã đợt giảm giá"
         subTitle="Bạn có chắc xoá mã đợt giảm giá?"
