@@ -1,9 +1,9 @@
-import {Card, Col, Divider, Row, Space, Table, Tag} from "antd";
+import {Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router";
+import {useParams} from "react-router";
 import {Link} from "react-router-dom";
 import moment from "moment";
 import "./discount.scss";

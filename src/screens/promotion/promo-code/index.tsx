@@ -60,6 +60,7 @@ const PromotionCode = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
+    dispatch(hideLoading());
     setDataSource(data)
     setTableLoading(false)
   }, [])
@@ -181,13 +182,14 @@ const PromotionCode = () => {
 
   ]
 
-    const handleCallback = useCallback((response) => {
-      dispatch(hideLoading());
-      if (response) {
-        showSuccess("Thao tác thành công");
-        dispatch(getListDiscount(params, fetchData));
-      }
-    }, [dispatch]);
+  const handleCallback = useCallback((response) => {
+    dispatch(hideLoading());
+    if (response) {
+      showSuccess("Thao tác thành công");
+      dispatch(showLoading());
+      dispatch(getListDiscount(params, fetchData));
+    }
+  }, [dispatch, params, fetchData]);
 
 
   const onMenuClick = useCallback(
@@ -210,7 +212,7 @@ const PromotionCode = () => {
           break;
       }
     },
-    [dispatch, fetchData, params, selectedRowKey]
+    [dispatch, handleCallback, selectedRowKey]
   );
 
   const {Item} = Form;
