@@ -212,6 +212,10 @@ const PromotionCode = () => {
   const {Item} = Form;
   const {Option} = Select;
 
+  const openFilter = useCallback(() => {
+    // setVisible(true);
+  }, [])
+
   return (
     <ContentContainer
       title="Danh sách đợt phát hành"
@@ -272,7 +276,7 @@ const PromotionCode = () => {
               </Button>
             </Item>
             <Item>
-              <Button icon={<FilterOutlined />}>Thêm bộ lọc</Button>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
             </Form>
           </CustomFilter>
