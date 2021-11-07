@@ -7,6 +7,7 @@ import {
   Space,
   Modal,
   Col,
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -23,11 +24,11 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import search from "assets/img/search.svg";
 import "./promo-code.scss";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
-import { PlusOutlined } from "@ant-design/icons";
-import { SearchOutlined } from "@ant-design/icons";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -269,27 +270,24 @@ const ListCode = () => {
     [columns]
   );
 
-  const listStatus: Array<BaseBootstrapResponse> = [
+  const statuses = [
     {
-      value: "APPLYING",
-      name: "Đang áp dụng",
+      code: 'ACTIVE',
+      value: 'Đang áp dụng',
     },
     {
-      value: "TEMP_STOP",
-      name: "Tạm ngưng",
+      code: 'DISABLED',
+      value: 'Tạm ngưng',
     },
     {
-      value: "WAIT_FOR_START",
-      name: "Chờ áp dụng",
+      code: 'DRAFT',
+      value: 'Chờ áp dụng' ,
     },
     {
-      value: "ENDED",
-      name: "Kết thúc",
+      code: 'CANCELLED',
+      value: 'Đã huỷ',
     },
-    {
-      value: "CANCELLED",
-      name: "Đã huỷ",
-    }
+
   ]
 
   const onMenuClick = useCallback(
@@ -307,6 +305,13 @@ const ListCode = () => {
       }
     }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
   );
+
+  const {Item} = Form;
+  const {Option} = Select;
+
+  const openFilter = useCallback(() => {
+    // setVisible(true);
+  }, [])
 
   return (
     <ContentContainer
@@ -355,40 +360,36 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request" className="search">
+              <Item name="query" className="search">
                 <Input
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  prefix={<img src={search} alt=""/>}
                   placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
-              </Form.Item>
-              <Form.Item>
-                <CustomSelect
-                  style={{ width: "100%", borderRadius: "6px" }}
+              </Item>
+              <Item name="state" >
+                <Select
                   showArrow
                   showSearch
+                  style={{minWidth: "200px"}}
+                  optionFilterProp="children"
                   placeholder="Chọn trạng thái"
-                  notFoundContent="Không tìm thấy kết quả"
+                  allowClear={true}
                 >
-                  {listStatus.map((item, index) => (
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key={(index + 1).toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </CustomSelect.Option>
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
                   ))}
-                </CustomSelect>
-              </Form.Item>
-              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-              <Form.Item>
+                </Select>
+              </Item>
+              <Item>
                 <Button type="primary" htmlType="submit">
                   Lọc
                 </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button>Thêm bộ lọc</Button>
-              </Form.Item>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              </Item>
             </Form>
           </CustomFilter>
 

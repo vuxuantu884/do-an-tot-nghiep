@@ -33,7 +33,6 @@ import { PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { ACTIONS_PROMO, STATUS_CODE } from "../constant";
-import CustomSelect from "component/custom/select.custom";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -67,6 +66,7 @@ const PromotionCode = () => {
   }, [])
 
   useEffect(() => {
+    dispatch(showLoading());
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params])
 
@@ -258,39 +258,36 @@ const PromotionCode = () => {
         <div className="promotion-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-            <Item name="query" className="search">
-              <Input
-                prefix={<img src={search} alt=""/>}
-                placeholder="Tìm kiếm theo mã, tên chương trình"
-              />
-            </Item>
-            <Item name="state" >
-              <CustomSelect
-                style={{ width: "100%", borderRadius: "6px" }}
-                showArrow
-                showSearch
-                placeholder="Chọn trạng thái"
-                notFoundContent="Không tìm thấy kết quả"
-              >
-                {statuses.map((item, index) => (
-                  <CustomSelect.Option
-                    style={{ width: "100%" }}
-                    key={(index + 1).toString()}
-                    value={item.value}
-                  >
-                    {item.code}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-            </Item>
+              <Item name="query" className="search">
+                <Input
+                  prefix={<img src={search} alt=""/>}
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
+                />
+              </Item>
+              <Item name="state" >
+                <Select
+                  showArrow
+                  showSearch
+                  style={{minWidth: "200px"}}
+                  optionFilterProp="children"
+                  placeholder="Chọn trạng thái"
+                  allowClear={true}
+                >
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              </Item>
             </Form>
           </CustomFilter>
 
