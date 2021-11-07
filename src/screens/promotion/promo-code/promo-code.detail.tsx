@@ -1,4 +1,4 @@
-import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Modal, Row, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -27,6 +27,7 @@ import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
+import Countdown from "react-countdown";
 
 export interface ProductParams {
   id: string;
@@ -111,20 +112,20 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
-  }, []);
- 
+  }, [dispatch]);
+
   useEffect(() => {
     const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
     setStore(stores);
-  }, [listStore]);
+  }, [listStore, data]);
 
   useEffect(() => {
     const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
     setSource(source);
-  }, [listSource]);
+  }, [listSource, data]);
 
   const checkIsHasPromo = useCallback((data: any) => {
-    setCheckPromoCode(data.length > 0);
+    setCheckPromoCode(data.items.length > 0);
   }, []);
 
   useEffect(() => {
@@ -140,12 +141,12 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(hideLoading());
     showSuccess("Xóa thành công");
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  }, [dispatch]);
+  }, [dispatch, history]);
 
   // section EDIT item
   const onEdit = useCallback(() => {
     // TO DO
-  }, [history, idNumber]);
+  }, []);
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -172,7 +173,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mã đợt phát hành",
-          value: data.discount_codes[0]?.code ? data.discount_codes[0]?.code : "",
+          value: data.code,
           position: "left",
           key: "2",
         },
@@ -211,6 +212,21 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, [data]);
 
+  // @ts-ignore
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      // Render a complete state
+      return <span>Kết thúc chương trình</span>;
+    } else {
+      // Render a countdown
+      return (
+        <span style={{color: "#FCAF17", fontWeight: 500}}>
+          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+        </span>
+      );
+    }
+  };
+
   const timeApply = [
     {
       name: "Từ",
@@ -224,7 +240,7 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value:  moment(data?.starts_date).isAfter(data?.ends_date),
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
       key: "3",
     }
   ];
@@ -263,7 +279,7 @@ const PromotionDetailScreen: React.FC = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(idNumber, checkIsHasPromo));
     }
-  }, [dispatch]);
+  }, [dispatch, idNumber, checkIsHasPromo]);
 
   const renderStatus = (data: DiscountResponse) => {
     const status = promoStatuses.find(status => status.code === data.state);
@@ -417,7 +433,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {checkPromoCode  &&  <Row gutter={30}>
+                {checkPromoCode && <Row gutter={30}>
                     <Col span={24}>
                       <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
@@ -576,8 +592,7 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            <li key="0"> YODY Kiến Xương </li>
-                            <li key="1"> YODY Hai Bà Trưng </li>
+                            {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>

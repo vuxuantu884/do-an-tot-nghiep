@@ -18,6 +18,7 @@ import { searchVariantsRequestAction } from "domain/actions/product/products.act
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link } from "react-router-dom";
+import {formatCurrency} from "../../../../utils/AppUtils";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -126,7 +127,7 @@ const GeneralCreate = (props: any) => {
     str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
     str = str.replace(/đ/g, "d");
     // Some system encode vietnamese combining accent as individual utf-8 characters
-    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
+    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
     return str.toUpperCase().replaceAll(/\s/g,'');
   }
@@ -199,12 +200,12 @@ const GeneralCreate = (props: any) => {
               <Form.Item
                 name="discount_code"
                 label="Mã đợt phát hàng:"
-                rules={[
-                  {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
-                ]}
+                // rules={[
+                //   {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
+                // ]}
                 normalize={(value) => nonAccentVietnamese(value)}
               >
-                <Input maxLength={20} prefix="PC"/>
+                <Input maxLength={20} prefix="PC" disabled={true}/>
               </Form.Item>
             </Col>
             {/* Mô tả */}
@@ -216,6 +217,7 @@ const GeneralCreate = (props: any) => {
                 form={form}
                 placeholder="Nhập mô tả cho đợt phát hàng"
                 maxLength={500}
+
               />
             </Col>
           </Row>
@@ -228,7 +230,7 @@ const GeneralCreate = (props: any) => {
                 name="sale_type"
                 label={<b>Loại khuyến mãi</b>}
               >
-                <Select 
+                <Select
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
@@ -260,6 +262,7 @@ const GeneralCreate = (props: any) => {
                     color: "#222222",
                   }}
                   minLength={0}
+                  maxLength={9}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
                 />
@@ -277,7 +280,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
             </Col>
-            {product === "PRODUCT" && 
+            {product === "PRODUCT" &&
               <>
                 <Col span={18}>
                   <Input.Group className="display-flex">
@@ -477,7 +480,7 @@ const GeneralCreate = (props: any) => {
                 label={<b>Cửa hàng áp dụng:</b>}
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
-                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
+                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple" className="ant-select-selector-min-height">
                   {listStore?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
@@ -503,10 +506,10 @@ const GeneralCreate = (props: any) => {
                 label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
-                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple">
+                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple" className="ant-select-selector-min-height">
                   <Option key="ADMIN" value="ADMIN">ADMIN</Option>
                   <Option key="POS" value="POS">POS</Option>
-                  <Option key="POS" value="POS">WEB</Option>
+                  <Option key="WEB" value="WEB">WEB</Option>
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -528,7 +531,7 @@ const GeneralCreate = (props: any) => {
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
-                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
+                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple" className="ant-select-selector-min-height">
                   {listSource?.map((source: any, index: number) => <Option key={index} value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
