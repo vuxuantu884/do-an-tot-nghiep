@@ -245,7 +245,7 @@ const PromotionDetailScreen: React.FC = () => {
                 className="card"
                 title={
                   <div style={{alignItems: "center" }}>
-                    <span className="title-card">THÔNG TIN CÁ NHÂN</span>
+                    <span className="title-card">THÔNG TIN CHUNG</span>
                     <Tag className="status-tag"> Đang áp dụng </Tag>
                   </div>
                 }
