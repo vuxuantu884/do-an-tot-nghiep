@@ -21,7 +21,6 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { deletePriceRulesById, getListDiscount, bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "domain/actions/promotion/discount/discount.action";
@@ -29,7 +28,7 @@ import { DiscountResponse } from "model/response/promotion/discount/list-discoun
 import { PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-
+import { ACTIONS_PROMO, STATUS_CODE } from "../constant";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -55,74 +54,6 @@ const PromotionCode = () => {
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [modalInfo, setModalInfo] = React.useState<any>();
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
-
-  const promotionStatuses = [
-    {
-      code: 'APPLYING',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'TEMP_STOP',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng' ,
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }},
-  ]
-  
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Kích hoạt",
-    },
-    {
-      id: 2,
-      name: "Tạm ngừng",
-    },
-    {
-      id: 3,
-      name: "Xuất Excel",
-    },
-    {
-      id: 4,
-      name: "Xoá",
-    },
-  ];
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setDataSource(data)
@@ -215,7 +146,7 @@ const PromotionCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === item.type);
+        const status: any | null = STATUS_CODE.find(e => e.code === item.type);
         return (<div
           style={status?.style}
         >
@@ -315,7 +246,7 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input

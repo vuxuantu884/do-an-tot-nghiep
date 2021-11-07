@@ -18,7 +18,6 @@ import {useDispatch} from "react-redux";
 import moment from "moment";
 import {DATE_FORMAT} from "../../../utils/DateUtils";
 import {DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
-import {MenuAction} from "../../../component/table/ActionButton";
 import {DiscountSearchQuery} from "../../../model/query/discount.query";
 import DiscountFilter from "./components/DiscountFilter";
 import {getQueryParams, useQuery} from "../../../utils/useQuery";
@@ -31,69 +30,12 @@ import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/res
 import {showError, showSuccess} from "../../../utils/ToastUtils";
 import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
 import { PROMO_TYPE } from "utils/Constants";
+import { STATUS_CODE, ACTIONS_DISCOUNT } from "../constant";
 
 
 const DiscountPage = () => {
-  const discountStatuses = [
-    {
-      code: 'ACTIVE',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'DISABLED',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'DRAFT',
-      value: 'Chờ áp dụng',
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }
-    },
-  ]
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Kich hoạt",
-    },
-    {
-      id: 2,
-      name: "Tạm ngừng",
-    },
-    {
-      id: 3,
-      name: "Xuất Excel",
-    },
-    {
-      id: 4,
-      name: "Huỷ",
-    },
-  ];
+  const discountStatuses = STATUS_CODE;
+  const actions = ACTIONS_DISCOUNT;
   const initQuery: DiscountSearchQuery = {
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
