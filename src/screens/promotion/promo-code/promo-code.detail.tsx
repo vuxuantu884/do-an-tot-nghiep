@@ -111,17 +111,17 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
-  }, []);
+  }, [dispatch]);
  
   useEffect(() => {
     const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
     setStore(stores);
-  }, [listStore]);
+  }, [listStore, data]);
 
   useEffect(() => {
     const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
     setSource(source);
-  }, [listSource]);
+  }, [listSource, data]);
 
   const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.items.length > 0);
@@ -140,12 +140,12 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(hideLoading());
     showSuccess("Xóa thành công");
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  }, [dispatch]);
+  }, [dispatch, history]);
 
   // section EDIT item
   const onEdit = useCallback(() => {
     // TO DO
-  }, [history, idNumber]);
+  }, []);
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -263,7 +263,7 @@ const PromotionDetailScreen: React.FC = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(idNumber, checkIsHasPromo));
     }
-  }, [dispatch]);
+  }, [dispatch, idNumber, checkIsHasPromo]);
 
   const renderStatus = (data: DiscountResponse) => {
     const status = promoStatuses.find(status => status.code === data.state);

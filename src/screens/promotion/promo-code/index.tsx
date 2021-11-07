@@ -21,8 +21,13 @@ import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { deletePriceRulesById, getListDiscount, bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "domain/actions/promotion/discount/discount.action";
+import { 
+  deletePriceRulesById,
+  getListDiscount,
+  bulkDeletePriceRules,
+  bulkDisablePriceRules,
+  bulkEnablePriceRules 
+} from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
@@ -55,11 +60,13 @@ const PromotionCode = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
+    dispatch(hideLoading());
     setDataSource(data)
     setTableLoading(false)
   }, [])
 
   useEffect(() => {
+    dispatch(showLoading());
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params])
 
@@ -176,13 +183,14 @@ const PromotionCode = () => {
 
   ]
 
-    const handleCallback = useCallback((response) => {
-      dispatch(hideLoading());
-      if (response) {
-        showSuccess("Thao tác thành công");
-        dispatch(getListDiscount(params, fetchData));
-      }
-    }, [dispatch]);
+  const handleCallback = useCallback((response) => {
+    dispatch(hideLoading());
+    if (response) {
+      showSuccess("Thao tác thành công");
+      dispatch(showLoading());
+      dispatch(getListDiscount(params, fetchData));
+    }
+  }, [dispatch, params, fetchData]);
 
 
   const onMenuClick = useCallback(
@@ -195,7 +203,7 @@ const PromotionCode = () => {
           break;
         case 2:
           dispatch(showLoading());
-          dispatch(bulkEnablePriceRules(body, handleCallback));
+          dispatch(bulkDisablePriceRules(body, handleCallback));
           break;
         case 3:
           break;
@@ -203,10 +211,9 @@ const PromotionCode = () => {
           dispatch(showLoading());
           dispatch(bulkDeletePriceRules(body, handleCallback));
           break;
-
       }
     },
-    [dispatch, fetchData, params, selectedRowKey]
+    [dispatch, handleCallback, selectedRowKey]
   );
 
   const {Item} = Form;
@@ -251,34 +258,36 @@ const PromotionCode = () => {
         <div className="promotion-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-            <Item name="query" className="search">
-              <Input
-                prefix={<img src={search} alt=""/>}
-                placeholder="Tìm kiếm theo mã, tên chương trình"
-              />
-            </Item>
-            <Item name="state" >
-              <Select
-                style={{minWidth: "200px"}}
-                optionFilterProp="children"
-                placeholder="Chọn trạng thái"
-                allowClear={true}
-              >
-                {statuses?.map((item) => (
-                  <Option key={item.code} value={item.code}>
-                    {item.value}
-                  </Option>
-                ))}
-              </Select>
-            </Item>
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-            </Item>
+              <Item name="query" className="search">
+                <Input
+                  prefix={<img src={search} alt=""/>}
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
+                />
+              </Item>
+              <Item name="state" >
+                <Select
+                  showArrow
+                  showSearch
+                  style={{minWidth: "200px"}}
+                  optionFilterProp="children"
+                  placeholder="Chọn trạng thái"
+                  allowClear={true}
+                >
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              </Item>
             </Form>
           </CustomFilter>
 
