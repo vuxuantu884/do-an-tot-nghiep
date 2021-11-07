@@ -91,13 +91,13 @@ const PromotionCode = () => {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "7%",
+      width: "12%",
       render: (value: any, item: any, index: number) =>
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
-          {value.id}
+          {value.code}
         </Link>,
     },
     {
@@ -144,13 +144,13 @@ const PromotionCode = () => {
       fixed: "left",
       dataIndex: 'state',
       align: 'center',
-      width: '12%',
+      width: '15%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_CODE.find(e => e.code === item.type);
+        const status: any | null = STATUS_CODE.find(e => e.code === item.state);
         return (<div
           style={status?.style}
         >
-          {status?.item.type}
+          {status?.value}
         </div>)
       }
     },
