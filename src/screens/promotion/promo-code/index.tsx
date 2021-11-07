@@ -33,6 +33,7 @@ import { PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { ACTIONS_PROMO, STATUS_CODE } from "../constant";
+import CustomSelect from "component/custom/select.custom";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -264,18 +265,23 @@ const PromotionCode = () => {
               />
             </Item>
             <Item name="state" >
-              <Select
-                style={{minWidth: "200px"}}
-                optionFilterProp="children"
+              <CustomSelect
+                style={{ width: "100%", borderRadius: "6px" }}
+                showArrow
+                showSearch
                 placeholder="Chọn trạng thái"
-                allowClear={true}
+                notFoundContent="Không tìm thấy kết quả"
               >
-                {statuses?.map((item) => (
-                  <Option key={item.code} value={item.code}>
-                    {item.value}
-                  </Option>
+                {statuses.map((item, index) => (
+                  <CustomSelect.Option
+                    style={{ width: "100%" }}
+                    key={(index + 1).toString()}
+                    value={item.value}
+                  >
+                    {item.code}
+                  </CustomSelect.Option>
                 ))}
-              </Select>
+              </CustomSelect>
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">
