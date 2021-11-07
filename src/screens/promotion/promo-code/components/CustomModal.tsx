@@ -124,20 +124,20 @@ const ModalAddCode: React.FC<ModalProps> = (
             <Form
               form={form}
               name="discount_add"
-              onFinish={(value) => {console.log(value);}}
+              onFinish={onFinish}
               onFinishFailed={({ errorFields }) => {console.log(errorFields)}}
               layout="vertical"
               initialValues={{ 
-                amount: null,
-                prifix: "",
-                ramdom_char: null,
+                count: null,
+                prefix: "",
+                length: null,
                 suffix: ""
               }}
             >
               <Row gutter={24}>
                 <Col span={24}>
                   <Form.Item
-                    name="amount"
+                    name="count"
                     label="Số lượng mã giảm giá:"
                     rules={[
                       {
@@ -155,7 +155,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                 </Col>
                 <Col span={8}>
                   <Form.Item
-                    name="prifix"
+                    name="prefix"
                     label="Tiền tố:"
                     rules={[
                       {
@@ -169,7 +169,7 @@ const ModalAddCode: React.FC<ModalProps> = (
                 </Col>
                 <Col span={8}>
                   <Form.Item
-                    name="ramdom_char"
+                    name="length"
                     label="Số kí tự ngẫu nhiên:"
                     rules={[
                       {

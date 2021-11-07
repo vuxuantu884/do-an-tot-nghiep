@@ -37,7 +37,7 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { addPromoCodeManual, deleteBulkPromoCode, getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, deleteBulkPromoCode, getListPromoCode, deletePromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
@@ -212,16 +212,29 @@ const ListCode = () => {
   function handleAddManual(value: any) {
     if(!value) return;
     let body = {
-      created_by: "",
-      created_name: "",
-      updated_by: "",
-      updated_name: "",
-      request_id: "",
-      operator_kc_id: "",
-      code: value.listCode
-    }
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
     dispatch(showLoading());
-    dispatch(addPromoCodeManual(priceRuleId, body, onAddSuccess));
+    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+  }
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
   }
   const onAddSuccess = useCallback((response) => {
     dispatch(hideLoading());
@@ -234,13 +247,7 @@ const ListCode = () => {
    // section DELETE bulk
   function handleDeleteBulk() {
     const body = {
-      created_by: "",
-      created_name: "",
-      updated_by: "",
-      updated_name: "",
-      request_id: "",
-      operator_kc_id: "",
-      id: selectedRowKey
+      ids: selectedRowKey
     }
     dispatch(showLoading());
     dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
@@ -513,6 +520,7 @@ const ListCode = () => {
         }}
         onOk={(data) => {
           console.log(data);
+          handleAddRandom(data);
           setShowAddCodeRandom(false);
         }}
       />
@@ -580,7 +588,7 @@ const ListCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(getPromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
+          dispatch(deletePromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
         }}
         okText="Đồng ý"
         cancelText= "Huỷ"
