@@ -858,8 +858,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
         const total = item.amount;
         valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
-
-          let value = discount.value_type === "FIXED_AMOUNT" ? discount.value * quantity : total * (discount.value/100)
+          console.log("handleAutomaticDiscount - item: ", item);
+          let value = 0;
+          if (discount.value_type === "FIXED_AMOUNT") {
+            value = discount.value * quantity;
+          } else if (discount.value_type === "FIXED_AMOUNT") {
+            value = total * (discount.value/100);
+          } else if (discount.value_type === "FIXED_PRICE") {
+            value = item.price - discount.value;
+          }
+          if (value > item.price) {
+            value = item.price;
+          }
           return value;
         }))
         const discountItem: OrderItemDiscountRequest = {

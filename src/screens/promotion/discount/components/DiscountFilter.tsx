@@ -131,6 +131,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 optionFilterProp="children"
                 // mode="multiple"
                 placeholder="Chọn trạng thái"
+                allowClear={true}
               >
                 {statuses?.map((item) => (
                   <Option key={item.code} value={item.code}>
