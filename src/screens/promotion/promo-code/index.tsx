@@ -21,16 +21,14 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { deletePriceRulesById, getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import { deletePriceRulesById, getListDiscount, bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "service/promotion/discount/discount.service";
+import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-
+import { ACTIONS_PROMO, STATUS_CODE } from "../constant";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -56,74 +54,6 @@ const PromotionCode = () => {
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [modalInfo, setModalInfo] = React.useState<any>();
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
-
-  const promotionStatuses = [
-    {
-      code: 'APPLYING',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'TEMP_STOP',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng' ,
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }},
-  ]
-  
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Kích hoạt",
-    },
-    {
-      id: 2,
-      name: "Tạm ngừng",
-    },
-    {
-      id: 3,
-      name: "Xuất Excel",
-    },
-    {
-      id: 4,
-      name: "Xoá",
-    },
-  ];
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setDataSource(data)
@@ -216,7 +146,7 @@ const PromotionCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === item.type);
+        const status: any | null = STATUS_CODE.find(e => e.code === item.type);
         return (<div
           style={status?.style}
         >
@@ -250,50 +180,38 @@ const PromotionCode = () => {
     }
   ]
 
+    const handleCallback = useCallback((response) => {
+      dispatch(hideLoading());
+      if (response) {
+        showSuccess("Thao tác thành công");
+        dispatch(getListDiscount(params, fetchData));
+      }
+    }, [dispatch]);
+    
+
   const onMenuClick = useCallback(
     async (index: number) => {
       const body = {ids: selectedRowKey}
       switch (index) {
         case 1:
-          const bulkEnableResponse = await bulkEnablePriceRules(body);
-          if (bulkEnableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkEnablePriceRules(body, handleCallback));
           break;
         case 2:
-          const bulkDisableResponse = await bulkDisablePriceRules(body);
-          if (bulkDisableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkEnablePriceRules(body, handleCallback));
           break;
         case 3:
           break;
         case 4:
-          const bulkDeleteResponse = await bulkDeletePriceRules(body);
-          if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkDeletePriceRules(body, handleCallback));
           break;
 
       }
     },
     [dispatch, fetchData, params, selectedRowKey]
   );
-
-  const onDeleteSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params]);
 
   return (
     <ContentContainer
@@ -328,7 +246,7 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Form.Item name="request" className="search">
                 <Input
@@ -396,7 +314,7 @@ const PromotionCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
+          dispatch(deletePriceRulesById(modalInfo?.id, handleCallback));
         }}
         title="Xoá mã đợt giảm giá"
         subTitle="Bạn có chắc xoá mã đợt giảm giá?"

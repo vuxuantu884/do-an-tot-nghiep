@@ -12,7 +12,7 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import ModalAddCode from "./components/ModalAddCode";
+import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
 import moment from "moment";
 import "./promo-code.scss";
@@ -20,7 +20,7 @@ import { RiUpload2Line } from "react-icons/ri";
 import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { addPromoCodeManual, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
@@ -67,22 +67,22 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
  
   useEffect(() => {
-    const stores =  listStore?.filter(item => item.id === data?.prerequisite_store_ids[0])
+    const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
     setStore(stores);
   }, [listStore]);
 
   useEffect(() => {
-    const source = sources?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
+    const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
     setSource(source);
   }, [listSource]);
 
-  const handleCheckPromoList = useCallback((data: any) => {
+  const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.length > 0);
   }, []);
 
   useEffect(() => {
-    dispatch(getListPromoCode(idNumber, handleCheckPromoList));
-  }, [dispatch, handleCheckPromoList, idNumber]);
+    dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+  }, [dispatch, checkIsHasPromo, idNumber]);
 
   // section DELETE by Id
   function onDelete() {
@@ -182,24 +182,40 @@ const PromotionDetailScreen: React.FC = () => {
     }
   ];
 
-  // section ADD Manual
+  // section ADD Code
   function handleAddManual(value: any) {
     if(!value) return;
     let body = {
-      created_by: "",
-      created_name: "",
-      updated_by: "",
-      updated_name: "",
-      request_id: "",
-      operator_kc_id: "",
-      code: value.listCode
-    }
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
     dispatch(showLoading());
-    dispatch(addPromoCodeManual(idNumber, body, onAddSuccess));
+    dispatch(addPromoCode(idNumber, body, addCallBack));
   }
-  const onAddSuccess = useCallback(() => {
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(idNumber, body, addCallBack));
+  }
+  const addCallBack = useCallback((response) => {
     dispatch(hideLoading());
-    showSuccess("Thêm thành công");
+    if(response) {
+      showSuccess("Thêm thành công");
+      dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+    }
   }, [dispatch]);
 
   return (
@@ -471,8 +487,8 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              stores && stores.map((item: any, index: number) => (
-                                <li>{item.name}</li>
+                              stores && stores.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
                               ))
                             }
                           </ul>) : "Áp dụng toàn bộ"
@@ -502,8 +518,8 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            <li> YODY Kiến Xương </li>
-                            <li> YODY Hai Bà Trưng </li>
+                            <li key="0"> YODY Kiến Xương </li>
+                            <li key="1"> YODY Hai Bà Trưng </li>
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -532,8 +548,8 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              sources && sources.map((item: any, index: number) => (
-                                <li>{item.name}</li>
+                              sources && sources.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
                               ))
                             }
                           </ul>) : "Áp dụng toàn bộ"
@@ -557,8 +573,8 @@ const PromotionDetailScreen: React.FC = () => {
 
         }
       />
-      <ModalAddCode
-        isManual={true}
+      <CustomModal
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -571,8 +587,8 @@ const PromotionDetailScreen: React.FC = () => {
           handleAddManual(value);
         }}
       />
-      <ModalAddCode
-        isManual={false}
+      <CustomModal
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -581,6 +597,7 @@ const PromotionDetailScreen: React.FC = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(value: any) => {
+          handleAddRandom(value);
           setShowAddCodeRandom(false);
         }}
       />

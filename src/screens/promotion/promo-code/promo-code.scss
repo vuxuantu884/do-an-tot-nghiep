@@ -84,3 +84,21 @@ hr {
   width: 100%;
   padding: 10px 30px;
 }
+
+#discount_add {
+  .ant-input::-webkit-input-placeholder {
+    text-transform: initial;
+  }
+  
+  .ant-input:-moz-placeholder { 
+      text-transform: initial;
+  }
+  
+  .ant-input::-moz-placeholder {  
+      text-transform: initial;
+  }
+  
+  .ant-input:-ms-input-placeholder { 
+      text-transform: initial;
+  }
+}

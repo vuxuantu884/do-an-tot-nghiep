@@ -11,7 +11,7 @@ const END_POINT = "/price-rules";
 
 export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageResponse<DiscountResponse>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}?${params}`);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/search?${params}`);
 };
 
 export const getPriceRuleById = (id: number) : Promise<DiscountResponse> => {
@@ -27,15 +27,15 @@ export const createPriceRule = (body: any) : Promise<any> => {
 }
 
 export const bulkDeletePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/cancel`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/cancel`, body)
 }
 
 export const bulkEnablePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/active`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/active`, body)
 }
 
 export const bulkDisablePriceRules = (body: any) : Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/bulk/disable`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/disable`, body)
 }
 
 export const applyDiscount = (item: OrderLineItemRequest | undefined, quantity: number) : Promise<any> => {

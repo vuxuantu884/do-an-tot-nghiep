@@ -244,7 +244,7 @@ const FixedPriceGroup = (props: any) => {
                 className: "ant-col-info",
                 align: 'center',
                 width: '15%',
-                render: (value, item, index) => item.available
+                render: (value, item, index) => item.on_hand
               },
               {
                 title: "Giá vốn",

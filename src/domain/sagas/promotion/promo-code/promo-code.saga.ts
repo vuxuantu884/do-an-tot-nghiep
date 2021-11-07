@@ -1,10 +1,11 @@
-import { updatePromoCodeById } from './../../../../service/promotion/promo-code/promo-code.service';
 import { PromoCodeResponse } from '../../../../model/response/promotion/promo-code/list-promo-code.response';
 import { 
-  addPromoCodeManual,
+  addPromoCode,
   deletePromoCodeById,
   getAllPromoCodeList,
-  getPromoCodeById 
+  getPromoCodeById,
+  updatePromoCodeById,
+  deleteBulkPromoCode
 } from '../../../../service/promotion/promo-code/promo-code.service';
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -69,7 +70,7 @@ function* getPromoCodeByIdAct(action: YodyAction) {
 
 function* deletePromoCodeByIdAct(action: YodyAction) {
   console.log('deletePriceRuleByIdAct - action : ', action);
-  const { priceRuleId, id, onDeleteSuccess } = action.payload;
+  const { priceRuleId, id, deleteCallBack } = action.payload;
   try {
     const response: BaseResponse<PromoCodeResponse> = yield call(
       deletePromoCodeById,
@@ -78,23 +79,26 @@ function* deletePromoCodeByIdAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onDeleteSuccess()
+        deleteCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
+        deleteCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
+        deleteCallBack(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    deleteCallBack(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* updatePromoCodeByIdAct(action: YodyAction) {
   console.log('updatePromoCodeByIdAct - action : ', action);
-  const { priceRuleId, body, onDeleteSuccess } = action.payload;
+  const { priceRuleId, body, updateCallBack } = action.payload;
   try {
     const response: BaseResponse<PromoCodeResponse> = yield call(
       updatePromoCodeById,
@@ -103,41 +107,75 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onDeleteSuccess()
+        updateCallBack(true);
         break;
       case HttpStatus.UNAUTHORIZED:
+        updateCallBack(false);
         yield put(unauthorizedAction());
         break;
       default:
+        updateCallBack(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    updateCallBack(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* addPromoCodeManualAct(action: YodyAction) {
   console.log('addPromoCodeManualAct - action : ', action);
-  const { priceRuleId, body, onAddSuccess } = action.payload;
+  const { priceRuleId, body, addCallBack } = action.payload;
   try {
     const response: BaseResponse<PromoCodeResponse> = yield call(
-      addPromoCodeManual,
+      addPromoCode,
       priceRuleId,
       body
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onAddSuccess()
+        addCallBack(true)
         break;
       case HttpStatus.UNAUTHORIZED:
+        addCallBack(false)
         yield put(unauthorizedAction());
         break;
       default:
+        addCallBack(false)
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    addCallBack(false)
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* deleteBulkPromoCodeAct(action: YodyAction) {
+  console.log('deleteBulkPromoCodeAct - action : ', action);
+  const { priceRuleId, body, deleteCallBack } = action.payload;
+  try {
+    const response: BaseResponse<PromoCodeResponse> = yield call(
+      deleteBulkPromoCode,
+      priceRuleId,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        deleteCallBack(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        deleteCallBack(false)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        deleteCallBack(false)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    deleteCallBack(false)
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -148,6 +186,7 @@ export function* promoCodeSaga() {
     takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct),
     takeLatest(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, updatePromoCodeByIdAct),
-    takeLatest(PromoCodeType.ADD_PROMO_CODE_MANUAL, addPromoCodeManualAct)
+    takeLatest(PromoCodeType.ADD_PROMO_CODE, addPromoCodeManualAct),
+    takeLatest(PromoCodeType.DELETE_PROMO_CODE_BULK, deleteBulkPromoCodeAct)
   ])
 }

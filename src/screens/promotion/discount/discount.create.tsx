@@ -66,7 +66,7 @@ const CreateDiscountPage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/promo-code");
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
@@ -79,7 +79,7 @@ const CreateDiscountPage = () => {
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu thành công");
-      history.push("/promotion/promo-code");
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
