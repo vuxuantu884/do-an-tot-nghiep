@@ -28,7 +28,7 @@ export const deletePromoCodeById = (priceRuleId: number, id: number): Promise<Pr
 };
 
 export const deleteBulkPromoCode = (priceRuleId: number, body: any): Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/discount-codes/bulk/delete`, body);
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/batch/discount-codes/delete`, body);
 };
 
 export const updatePromoCodeById = (priceRuleId: number, body: any): Promise<PromoCodeResponse> => {

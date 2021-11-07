@@ -1,4 +1,4 @@
-import { 
+import {
   createPriceRule,
   searchDiscountList,
   deletePriceRuleById,

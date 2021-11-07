@@ -85,9 +85,10 @@ const GeneralInfo = (props: any) => {
                 placeholder="Nhập mã khuyến mại"
                 maxLength={20}
                 upperCase={true}
+                disabled={true}
                 restFormItem={{
                   rules: [
-                    { required: true, message: 'Vui lòng nhập mã khuyến mại' },
+                    // { required: true, message: 'Vui lòng nhập mã khuyến mại' },
                     { pattern: /^DI([0-9])+$/, message: 'Mã khuyến mại sai định dạng' }
                   ]
                 }}

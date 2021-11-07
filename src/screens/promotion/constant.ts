@@ -1,7 +1,7 @@
 import { MenuAction } from 'component/table/ActionButton';
 export const STATUS_CODE = [
 {
-    code: 'APPLYING',
+    code: 'ACTIVE',
     value: 'Đang áp dụng',
     style: {
     background: "rgba(42, 42, 134, 0.1)",
@@ -11,7 +11,7 @@ export const STATUS_CODE = [
     }
 },
 {
-    code: 'TEMP_STOP',
+    code: 'DISABLED',
     value: 'Tạm ngưng',
     style: {
     background: "rgba(252, 175, 23, 0.1)",
@@ -20,21 +20,12 @@ export const STATUS_CODE = [
     padding: "5px 10px"
     }},
 {
-    code: 'WAIT_FOR_START',
+    code: 'DRAFT',
     value: 'Chờ áp dụng' ,
     style: {
     background: "rgb(245, 245, 245)",
     borderRadius: "100px",
     color: "rgb(102, 102, 102)",
-    padding: "5px 10px"
-    }},
-{
-    code: 'ENDED',
-    value: 'Kết thúc',
-    style: {
-    background: "rgba(39, 174, 96, 0.1)",
-    borderRadius: "100px",
-    color: "rgb(39, 174, 96)",
     padding: "5px 10px"
     }},
 {

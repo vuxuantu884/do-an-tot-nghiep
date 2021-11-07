@@ -29,20 +29,16 @@ type DiscountFilterProps = {
 
 const statuses = [
   {
-    code: 'APPLYING',
+    code: 'ACTIVE',
     value: 'Đang áp dụng',
   },
   {
-    code: 'TEMP_STOP',
+    code: 'DISABLED',
     value: 'Tạm ngưng',
   },
   {
-    code: 'WAIT_FOR_START',
+    code: 'DRAFT',
     value: 'Chờ áp dụng' ,
-  },
-  {
-    code: 'ENDED',
-    value: 'Kết thúc',
   },
   {
     code: 'CANCELLED',
@@ -129,14 +125,13 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 placeholder="Tìm kiếm theo mã, tên chương trình"
               />
             </Item>
-            <Item name="statuses" >
+            <Item name="state" >
               <Select
                 style={{minWidth: "200px"}}
                 optionFilterProp="children"
-                mode="multiple"
+                // mode="multiple"
                 placeholder="Chọn trạng thái"
               >
-                <Option value="">Tất cả trạng thái</Option>
                 {statuses?.map((item) => (
                   <Option key={item.code} value={item.code}>
                     {item.value}

@@ -59,7 +59,7 @@ const ListCode = () => {
     request: "",
     from_created_date: "",
     to_created_date: "",
-    status: "",
+    state: "",
     applied_shop: "",
     applied_source: "",
     customer_category: "",
@@ -67,9 +67,9 @@ const ListCode = () => {
   };
   const dispatch = useDispatch();
   const query = useQuery();
-  const {id} = useParams() as any; 
+  const {id} = useParams() as any;
   const priceRuleId = id;
-  
+
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);

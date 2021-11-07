@@ -41,7 +41,7 @@ const DiscountPage = () => {
     request: "",
     from_created_date: "",
     to_created_date: "",
-    status: "",
+    state: null,
     applied_shop: "",
     applied_source: "",
     customer_category: "",
