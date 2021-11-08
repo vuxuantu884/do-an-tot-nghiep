@@ -1,4 +1,4 @@
-import { EyeInvisibleOutlined, EyeTwoTone, PlusOutlined } from "@ant-design/icons";
+import {EyeInvisibleOutlined, EyeTwoTone, PlusOutlined} from "@ant-design/icons";
 import {
   Affix,
   Button,
@@ -14,44 +14,47 @@ import {
   Select,
   Space,
   Switch,
-  Table
+  Table,
 } from "antd";
 import deleteIcon from "assets/icon/delete.svg";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import UrlConfig from "config/url.config";
 import {
-  AccountGetByIdtAction, AccountUpdateAction, DepartmentGetListAction,
-  PositionGetListAction
+  AccountGetByCodeAction,
+  AccountUpdateAction,
+  DepartmentGetListAction,
+  PositionGetListAction,
 } from "domain/actions/account/account.action";
-import { RoleGetListAction } from "domain/actions/auth/role.action";
+import {RoleGetListAction} from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction
+  DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import {StoreGetListAction} from "domain/actions/core/store.action";
 import {
   AccountJobReQuest,
   AccountJobResponse,
   AccountRequest,
-  AccountResponse, AccountStoreResponse,
-  AccountView
+  AccountResponse,
+  AccountStoreResponse,
+  AccountView,
 } from "model/account/account.model";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
-import { CountryResponse } from "model/content/country.model";
-import { CityView, DistrictResponse } from "model/content/district.model";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {DepartmentResponse} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
+import {CountryResponse} from "model/content/country.model";
+import {CityView, DistrictResponse} from "model/content/district.model";
+import {StoreResponse} from "model/core/store.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import moment from "moment";
-import { RuleObject } from "rc-field-form/lib/interface";
-import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { useParams } from "react-router-dom";
-import { convertDistrict } from "utils/AppUtils";
-import { PASSWORD_RULES } from "./account.rules";
+import {RuleObject} from "rc-field-form/lib/interface";
+import {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {useParams} from "react-router-dom";
+import {convertDistrict} from "utils/AppUtils";
+import {PASSWORD_RULES} from "./account.rules";
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -80,7 +83,7 @@ const AccountUpdateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
 
-  const listStoreRoot = useRef<Array<AccountStoreResponse>>(); 
+  const listStoreRoot = useRef<Array<AccountStoreResponse>>();
   const idNumber = useRef<number>(0);
 
   //State
@@ -116,6 +119,8 @@ const AccountUpdateScreen: React.FC = () => {
     listJob.push({
       department_id: 0,
       position_id: 0,
+      position_name: "",
+      department_name: "",
       key: Number(moment().format("x")),
     });
     setAccountJob(listJob);
@@ -163,23 +168,39 @@ const AccountUpdateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-      let accStores: Array<AccountStoreResponse> = []; 
+      let accStores: Array<AccountStoreResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
-      values.account_stores.forEach((el: number) => {
-        let checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
-        accStores.push({
-          store_id: el,
-          id: checkSote?.id,
-        });
+      console.log(listAccountSelected);
+
+      listStore?.forEach((el: StoreResponse) => {
+        if (values.account_stores.includes(el.id)) {
+          accStores.push({
+            store_id: el.id,
+            store: el.name,
+          });
+        }
       });
-     
+
       listAccountSelected.forEach((el: AccountJobReQuest) => {
-        accJobs.push({
-          department_id: el.department_id,
-          position_id: el.position_id,
-        });
+        if (el.department_id && el.position_id) {
+          const department_name = listDepartment?.find(
+            (item) => item.id === el.department_id
+          )?.name;
+
+          const position_name = listPosition?.find(
+            (item) => item.id === el.position_id
+          )?.name;
+
+          accJobs.push({
+            department_id: el.department_id,
+            position_id: el.position_id,
+            department_name,
+            position_name,
+          });
+        }
       });
+
       let accountModel: AccountRequest = {
         full_name: values.full_name,
         gender: values.gender,
@@ -198,17 +219,26 @@ const AccountUpdateScreen: React.FC = () => {
         account_jobs: [...accJobs],
         version: values.version,
       };
+
       if (idNumber) {
         dispatch(AccountUpdateAction(idNumber.current, accountModel, onUpdateSuccess));
       }
     },
-    [dispatch, idNumber, listaccountJob, onUpdateSuccess]
+    [
+      dispatch,
+      idNumber,
+      listaccountJob,
+      onUpdateSuccess,
+      listStore,
+      listDepartment,
+      listPosition,
+    ]
   );
   const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
     listStoreRoot.current = data.account_stores;
-    // listRolesRoot.current = data.account_roles;
+
     data.account_stores?.forEach((item) => {
       if (item.store_id) {
         storeIds.push(item.store_id);
@@ -220,6 +250,8 @@ const AccountUpdateScreen: React.FC = () => {
       jobs.push({
         position_id: item.position_id,
         department_id: item.department_id,
+        position_name: item.position_name || "",
+        department_name: item.department_name || "",
         key: Number(moment().format("x")) + index,
       });
     });
@@ -238,9 +270,10 @@ const AccountUpdateScreen: React.FC = () => {
       district_id: data.district_id,
       city_id: data.city_id,
       account_stores: storeIds,
-      role_id: data.role_id, 
+      role_id: data.role_id,
       status: data.status,
       version: data.version,
+      permissions: data.permissions,
     };
     idNumber.current = data.id;
     setStatus(accountView.status);
@@ -345,8 +378,9 @@ const AccountUpdateScreen: React.FC = () => {
     dispatch(StoreGetListAction(setStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
-    dispatch(AccountGetByIdtAction(userCode, setAccount));
+    dispatch(AccountGetByCodeAction(userCode, setAccount));
   }, [dispatch, setDataDistrict, userCode, setAccount]);
+
   if (accountDetail == null) {
     return (
       <Card>
@@ -548,13 +582,13 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Ngày sinh"
                   name="birthday"
                   // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
-                >              
+                >
                   <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  name="roles"
+                  name="role_id"
                   label="Nhóm phân quyền"
                   rules={[
                     {
