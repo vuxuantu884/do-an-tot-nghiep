@@ -1,7 +1,9 @@
 import React from "react";
-import { Card, Tabs, Form, Button } from "antd";
+import { Card, Tabs, Form, Button, Tooltip } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { EcommerceConfigPermissions } from "config/permissions/ecommerce.permission";
+
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import SyncEcommerce from "./tab/sync-ecommerce";
@@ -29,11 +31,17 @@ import EcommerceModal from "screens/ecommerce/common/ecommerce-custom-modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { showSuccess } from "utils/ToastUtils";
 import {ecommerceConfigDeleteAction} from "domain/actions/ecommerce/ecommerce.actions"
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
+
+const viewShopListPermission = [EcommerceConfigPermissions.VIEW_SHOP_LIST];
+const connectShopPermission = [EcommerceConfigPermissions.CONNECT_SHOP];
+
 
 const EcommerceConfig: React.FC = () => {
   const dispatch = useDispatch();
@@ -176,14 +184,27 @@ const EcommerceConfig: React.FC = () => {
       extra={
         <>
           {activeTab === "sync" && (
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-              onClick={handleConnectEcommerce}
-            >
-              Thêm kết nối mới
-            </Button>
+            <AuthWrapper acceptPermissions={connectShopPermission} passThrough>
+              {(allowed: boolean) => (allowed ?
+                <Button
+                  className="ant-btn-outline ant-btn-primary"
+                  size="large"
+                  icon={<PlusOutlined />}
+                  onClick={handleConnectEcommerce}
+                >
+                  Thêm kết nối mới
+                </Button>
+                : <Tooltip overlay="Bạn không có quyền thêm kết nối mới!" color="blue" placement="top">
+                    <Button
+                      size="large"
+                      icon={<PlusOutlined />}
+                      disabled
+                    >
+                      Thêm kết nối mới
+                    </Button>
+                  </Tooltip>
+              )}
+            </AuthWrapper>
           )}
         </>
       }
@@ -199,12 +220,16 @@ const EcommerceConfig: React.FC = () => {
             }}
           >
             <TabPane tab="Đồng bộ sàn" key="sync">
-              <SyncEcommerce
-                configData={configData}
-                setConfigToView={setConfigToView}
-                reloadConfigData={reloadConfigData}
-                showDeleteModal={handleShowDeleteModal}
-              />
+              <AuthWrapper acceptPermissions={viewShopListPermission} passThrough>
+                {(allowed: boolean) => (allowed ?
+                  <SyncEcommerce
+                    configData={configData}
+                    setConfigToView={setConfigToView}
+                    reloadConfigData={reloadConfigData}
+                    showDeleteModal={handleShowDeleteModal}
+                  />
+                  : <NoPermission />)}
+              </AuthWrapper>
             </TabPane>
             <TabPane tab="Cài đặt cấu hình" key="setting">
               <SettingConfig
@@ -224,6 +249,7 @@ const EcommerceConfig: React.FC = () => {
             </TabPane>
           </Tabs>
         </Card>
+
         <EcommerceModal
           onCancel={() => setIsShowDeleteModal(false)}
           onOk={onOkDeleteEcommerce}
