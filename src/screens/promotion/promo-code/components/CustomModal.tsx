@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
 import "./../promo-code.scss";
+import { checkPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 
 type ModalProps = {
   visible: boolean;
@@ -40,6 +41,9 @@ const ModalAddCode: React.FC<ModalProps> = (
     onOk(value);
   }
 
+  function validateFunc(value: any) {
+  }
+
   return (
     <Modal
       onOk={onOkClick}
@@ -61,7 +65,7 @@ const ModalAddCode: React.FC<ModalProps> = (
               <Form.Item
                 name="code"
                 style={{marginBottom: 19}}
-                normalize={value => (value || '').toUpperCase().replaceAll(/\s/g,'')}
+                normalize={value => validateFunc(value)}
               >
                 <div style={{
                   display: "flex",
