@@ -61,14 +61,14 @@ const PromotionCode = () => {
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     dispatch(hideLoading());
-    setDataSource(data)
-    setTableLoading(false)
+    setDataSource(data);
+    setTableLoading(false);
   }, [])
 
   useEffect(() => {
     dispatch(showLoading());
     dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params])
+  }, [dispatch, fetchData, params]);
 
   const onPageChange = useCallback(
     (page, limit) => {

@@ -15,7 +15,6 @@ import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
@@ -35,7 +34,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
 import { 
   addPromoCode,
@@ -110,7 +108,6 @@ const ListCode = () => {
   }, []);
   useEffect(() => {
     dispatch(promoGetDetail(id, onResult));
-    return () => {};
   }, [dispatch, id, onResult]);
 
   // handle response get list
