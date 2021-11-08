@@ -9,3 +9,8 @@ export const EcommerceConfigPermissions = {
   CONNECT_SHOP: "ecommerces_shop_connect",
 };
 
+export const EcommerceOrderPermissions = {
+  ORDERS_VIEW: "orders_view",
+  ORDERS_UPDATE: "orders_update",
+  ORDERS_DOWNLOAD: "ecommerces_order_download",
+};
