@@ -8,7 +8,7 @@ import {
   Row,
   Space,
   Tag,
-  Typography,
+  Typography
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -20,48 +20,46 @@ import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
-import {ShipperGetListAction} from "domain/actions/account/account.action";
+import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
+  DeliveryServicesGetList,
   getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
-  UpdateShipmentAction,
+  UpdateShipmentAction
 } from "domain/actions/order/order.action";
-import {AccountResponse} from "model/account/account.model";
-import {StoreResponse} from "model/core/store.model";
-import {thirdPLModel} from "model/order/shipment.model";
-import {OrderSettingsModel} from "model/other/order/order-model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
+import { thirdPLModel } from "model/order/shipment.model";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
-  UpdateShipmentRequest,
+  UpdateShipmentRequest
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  DeliveryServiceResponse,
   OrderResponse,
-  TrackingLogFulfillmentResponse,
+  TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router";
-import {setTimeout} from "timers";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { setTimeout } from "timers";
 import {
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency,
-  getAmountPayment,
-  InfoServiceDeliveryDetail,
-  getShippingAddressDefault,
-  replaceFormatString,
-  SumWeight,
+  getAmountPayment, getShippingAddressDefault, SumWeight,
   SumWeightResponse,
-  TrackingCode,
+  TrackingCode
 } from "utils/AppUtils";
-import {FulFillmentStatus, OrderStatus, ShipmentMethodOption} from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
-import {delivery_service} from "../common/delivery-service";
+import { FulFillmentStatus, OrderStatus, ShipmentMethodOption } from "utils/Constants";
+import { dangerColor } from "utils/global-styles/variables";
+import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
@@ -135,7 +133,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
   const [cancelReason, setCancelReason] = useState<string>("");
-
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
@@ -171,6 +169,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#endregion
   useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
+    
   }, [dispatch]);
 
   const [reload, setReload] = useState(false);
@@ -239,7 +238,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setReload(true);
     showSuccess("Xuất kho thành công");
     setIsvibleShippingConfirm(false);
-    onReload && onReload();
+    // onReload && onReload();
+    window.location.reload();
   };
 
   const onShipedSuccess = (value: OrderResponse) => {
@@ -726,6 +726,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
+  const [addressError, setAddressError] = useState<string>("");
   // end
 
   const onPrint = () => {
@@ -733,9 +734,92 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setReload(true);
   };
 
+  const renderPushingStatusWhenFailed = () => {
+    if(!OrderDetail) {
+      return;
+    }
+    if(OrderDetail.fulfillments) {
+      let failedFulfillment = OrderDetail.fulfillments.find((singleFulfillment) => {
+        return singleFulfillment.shipment?.pushing_status === "failed"
+      })
+      if(failedFulfillment && failedFulfillment?.shipment?.pushing_note) {
+        return (
+          <Col md={12}>
+            <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">Trạng thái:</p>
+                </Col>
+                <Col span={14}>
+                  <b className="text-field" style={{color: dangerColor}}>
+                    {failedFulfillment?.shipment.pushing_note}
+                  </b>
+                </Col>
+              </Row>
+          </Col>
+        )
+      }
+    }
+  };
+  useEffect(() => {
+    if (!props.storeDetail) {
+      setAddressError("Thiếu thông tin địa chỉ cửa hàng");
+    }
+    if (
+      props.customerDetail &&
+      props.storeDetail &&
+      (getShippingAddressDefault(props.customerDetail)?.city_id ||
+        getShippingAddressDefault(props.customerDetail)?.district_id) &&
+      getShippingAddressDefault(props.customerDetail)?.ward_id &&
+      getShippingAddressDefault(props.customerDetail)?.full_address
+    ) {
+      let request = {
+        from_city_id: props.storeDetail?.city_id,
+        from_city: props.storeDetail?.city_name,
+        from_district_id: props.storeDetail?.district_id,
+        from_district: props.storeDetail?.district_name,
+        from_ward_id: props.storeDetail?.ward_id,
+        to_country_id: getShippingAddressDefault(props.customerDetail)?.country_id,
+        to_city_id: getShippingAddressDefault(props.customerDetail)?.city_id,
+        to_city: getShippingAddressDefault(props.customerDetail)?.city,
+        to_district_id: getShippingAddressDefault(props.customerDetail)?.district_id,
+        to_district: getShippingAddressDefault(props.customerDetail)?.district,
+        to_ward_id: getShippingAddressDefault(props.customerDetail)?.ward_id,
+        from_address: props.storeDetail?.address,
+        to_address: getShippingAddressDefault(props.customerDetail)?.full_address,
+        price: OrderDetail?.total_line_amount_after_line_discount,
+        quantity: 1,
+        weight: SumWeight(OrderDetail?.items),
+        length: 0,
+        height: 0,
+        width: 0,
+        service_id: 0,
+        service: "",
+        option: "",
+        insurance: 0,
+        coupon: "",
+        cod: 0,
+      };
+      console.log("request", request);
+      setAddressError("");
+    } else {
+      setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng");
+    }
+  }, [
+    props.customerDetail,
+    dispatch,
+    props.storeDetail,
+    OrderDetail?.total_line_amount_after_line_discount,
+    OrderDetail?.items,
+  ]);
+
   useEffect(() => {
     getRequirementName();
-  }, [getRequirementName]);
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
+  }, [dispatch, getRequirementName]);
 
   useEffect(() => {
     if (updateShipment || cancelShipment) {
@@ -750,7 +834,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // todo thai: update khi có logo các đối tác giao hàng
   const renderDeliveryPartner = (shipment: any) => {
-    const delivery = delivery_service?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+    const delivery = deliveryServices?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
     if (delivery && delivery.logo) {
       return (
         <img
@@ -1059,7 +1143,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             </Col>
                           </Row>
                         </Col>
-
+                        {renderPushingStatusWhenFailed()}
                         {CheckShipmentType(props.OrderDetail!) === "external_service" && (
                           <Col md={12}>
                             <Row gutter={30}>
@@ -1082,6 +1166,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         )}
                       </Row>
                     )}
+                   
                     <Row className="orders-shipment-item">
                       <Collapse ghost>
                         <Panel
@@ -1142,7 +1227,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Panel>
                       </Collapse>
                     </Row>
-                    {CheckShipmentType(props.OrderDetail!) === "external_service" &&
+                    {(CheckShipmentType(props.OrderDetail!) === "external_service" ||
+                      CheckShipmentType(props.OrderDetail!) === "shopee") &&
                       fulfillment.status !== FulFillmentStatus.CANCELLED &&
                       fulfillment.status !== FulFillmentStatus.RETURNING &&
                       fulfillment.status !== FulFillmentStatus.RETURNED && (

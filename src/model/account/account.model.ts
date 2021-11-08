@@ -1,3 +1,4 @@
+import { ModuleAuthorize } from "model/auth/module.model";
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 
@@ -15,22 +16,23 @@ export interface AccountBaseModel {
   address: string;
   status: string;
   is_shipper?: boolean;
+  code: string;
+  birthday?: string;
+  role_id : number;
 }
 
-export interface AccountResponse extends AccountBaseModel, BaseObject {
-  birthday: string;
+export interface AccountResponse extends AccountBaseModel, BaseObject { 
   gender_name: string;
   country_name: string;
   city_name: string;
   district: string;
   status_name: string;
   account_jobs: Array<AccountJobResponse>;
-  account_stores: Array<AccountStoreResponse>;
-  // account_roles: Array<AccountRolesResponse>;
-  permissions : { // dumy for demo => need to be removed
-    role:  {code : string, name : string}[],
-    modules: {permissions : string[]}[],
+  account_stores: Array<AccountStoreResponse>; 
+  permissions : {  
+    modules: Array<ModuleAuthorize>,
   }
+  role_name: string;
 }
 
 export interface AccountSearchQuery extends BaseQuery {
@@ -74,22 +76,23 @@ export interface LoginResponse {
 export interface AccountJobReQuest {
   position_id: number;
   department_id: number;
+  department_name: string;
+  position_name: string;
   key: number;
   id?: number;
 }
 
-export interface AccountView extends AccountBaseModel {
-  code: string;
-  birthday?: string;
+export interface AccountView extends AccountBaseModel {  
   account_jobs?: Array<AccountJobReQuest>;
   account_stores: Array<number>;
-  role_id : number;
+  permissions : {
+    modules: Array<ModuleAuthorize>,
+  }
 }
 
-export interface AccountRequest extends AccountBaseModel {
-  code: string;
-  birthday?: string;
+// for create and update screen
+export interface AccountRequest extends AccountBaseModel { 
   account_jobs: Array<AccountJobResponse>;
-  account_stores: Array<AccountStoreResponse>;
-  role_id : number;
+  account_stores: Array<AccountStoreResponse>; 
 }
+

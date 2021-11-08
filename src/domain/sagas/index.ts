@@ -33,9 +33,9 @@ import { inventoryAdjustmentSaga } from "./invetory/inventory-adjustment.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
 import { departmentSaga } from "./account/department.saga";
 import { discountSaga } from "./promotion/discount/discount.saga";
-import { promotionCodeSaga } from "./promotion/promotion-code/promotion-code.saga";
 import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
 import { moduleSaga } from "./auth/module.saga";
+import { promoCodeSaga } from "./promotion/promo-code/promo-code.saga";
 
 function* rootSaga() {
   yield all([
@@ -72,7 +72,7 @@ function* rootSaga() {
     OrderReturnSaga(),
     inventoryAdjustmentSaga(),
     discountSaga(),
-    promotionCodeSaga(),
+    promoCodeSaga(),
     departmentSaga(),
     GoodsReceiptsSaga(),
     moduleSaga()

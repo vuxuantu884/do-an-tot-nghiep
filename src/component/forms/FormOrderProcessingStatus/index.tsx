@@ -10,7 +10,7 @@ type FormValueType = {
   company_id: number;
   company: string;
   sub_status?: string;
-  sub_status_code?: string;
+  code?: string;
   status?: string;
   active?: boolean;
   note?: string;
@@ -27,7 +27,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
           company: CONSTANTS.DEFAULT_FORM_VALUE.company,
           sub_status: formItem?.sub_status,
-          sub_status_code: formItem?.sub_status_code,
+          code: formItem?.code,
           status: formItem?.status,
           active: formItem?.active,
           note: formItem?.note,
@@ -36,9 +36,9 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
           company: CONSTANTS.DEFAULT_FORM_VALUE.company,
           sub_status: "",
-          sub_status_code: "",
+          code: "",
           status: undefined,
-          active: true,
+          active: false,
           note: "",
         };
   const bootstrapReducer = useSelector(
@@ -87,7 +87,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
               />
             </Form.Item>
             <Form.Item
-              name="sub_status_code"
+              name="code"
               label="Code trạng thái"
               rules={[
                 {

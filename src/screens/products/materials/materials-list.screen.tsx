@@ -17,7 +17,7 @@ import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 
@@ -25,14 +25,17 @@ const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
+    icon:<EditOutlined />
   },
   {
     id: 2,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 3,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 const { Item } = Form;

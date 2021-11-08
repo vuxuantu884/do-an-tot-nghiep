@@ -4,7 +4,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { AccountJobResponse } from "model/account/account.model";
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { RiEditLine } from "react-icons/ri";
 import { useHistory } from "react-router";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
@@ -18,30 +18,29 @@ type Job = {
 const JobColumn: Array<ColumnProps<Job>> = [
   {
     title: "Bộ phận",
-    dataIndex: "department_name",
+    dataIndex: "department",
   },
   {
     title: "Vị trí",
-    dataIndex: "position_name",
+    dataIndex: "position",
   },
 ];
 
 function AccountViewTab() {
   const history = useHistory();
   const detailContext = useContext(AccountDetailContext);
-  const { accountInfo, userCode , roleName } = detailContext;
+  const {accountInfo, userCode} = detailContext;
 
-  // const stores = useMemo(() => 
-  // {
-  //   // get role_name from accountInfo?.account_roles and join with ', '
-  //   if (accountInfo?.account_stores) {
-  //     return accountInfo.account_stores.map((role) => role.store).join(", ");
-  //   }else{
-  //     return "";
-  //   }
-  // }
-  // , [accountInfo])
-  const stores = "";
+  const stores = useMemo(() =>
+  {
+    // get role_name from accountInfo?.account_roles and join with ', '
+    if (accountInfo?.account_stores) {
+      return accountInfo.account_stores.map((role) => role.store).join(", ");
+    }else{
+      return "";
+    }
+  }
+  , [accountInfo]) 
   return (
     <div className="padding-top-20">
       <table className="table-detail">
@@ -51,7 +50,7 @@ function AccountViewTab() {
               <span className="account-title">Nhóm phân quyền </span>
             </td>
             <td>
-              <b>: {roleName}</b>
+              <b>: {accountInfo?.role_name}</b>
             </td>
             <td>
               <span className="account-title">Tên đăng nhập </span>
@@ -123,7 +122,7 @@ function AccountViewTab() {
         columns={JobColumn}
         dataSource={accountInfo?.account_jobs}
         pagination={false}
-        sticky={{ offsetHeader: OFFSET_HEADER_TABLE }}
+        sticky={{offsetHeader: OFFSET_HEADER_TABLE}}
         rowKey={(key: AccountJobResponse) => key.department_id}
       />
       <BottomBarContainer
@@ -134,8 +133,8 @@ function AccountViewTab() {
             <Button
               onClick={() => history.push(`${UrlConfig.ACCOUNTS}/edit/${userCode}`)}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <RiEditLine color="#757575" style={{ width: "15px" }} /> &nbsp; Chỉnh sửa
+              <div style={{display: "flex", alignItems: "center"}}>
+                <RiEditLine color="#757575" style={{width: "15px"}} /> &nbsp; Chỉnh sửa
               </div>
             </Button>
           </Space>

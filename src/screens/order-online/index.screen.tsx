@@ -1,3 +1,4 @@
+import { PrinterOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tag } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
@@ -11,7 +12,7 @@ import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -39,7 +40,7 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { delivery_service } from "./common/delivery-service";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { nameQuantityWidth, StyledComponent } from "./index.screen.styles";
 import ExportModal from "./modal/export.modal";
 import "./scss/index.screen.scss";
@@ -49,10 +50,12 @@ const actions: Array<MenuAction> = [
   {
     id: 4,
     name: "In phiếu giao hàng",
+    icon:<PrinterOutlined />
   },
   {
     id: 5,
     name: "In phiếu xuất kho",
+    icon:<PrinterOutlined />
   },
 ];
 
@@ -128,6 +131,18 @@ const ListOrderScreen: React.FC = () => {
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
+
+  let deliveryServices: any[] = []
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        deliveryServices = response
+        // setDeliveryServices(response);
+      })
+    );
+  }, [dispatch]);
+
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -210,7 +225,7 @@ const ListOrderScreen: React.FC = () => {
         <div className="productNameQuantityHeader">
           <span className="productNameWidth">Sản phẩm</span>
           <span className="quantity quantityWidth">
-            <span>Số lượng</span>
+            <span>SL</span>
           </span>
         </div>
       ),
@@ -275,7 +290,7 @@ const ListOrderScreen: React.FC = () => {
       key: "customer.amount_money",
       visible: true,
       align: "right",
-      width: "90px",
+      width: "150px",
     },
     {
       title: "HTVC",
@@ -287,7 +302,7 @@ const ListOrderScreen: React.FC = () => {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
               case "external_service":
                 const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
-                const service = delivery_service.find((service) => service.id === service_id);
+                const service = deliveryServices.find((service) => service.id === service_id);
                 return (
                   service && (
                     <img
@@ -378,20 +393,12 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Đóng gói",
-      dataIndex: "packed_status",
       key: "packed_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "unpicked":
-            processIcon = "icon-blank";
-            break;
-          case "picked":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
+      render: (record: any) => {
+        let processIcon = "icon-blank";
+        if (record.fulfillments.length) {
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          processIcon = newFulfillments[0].packed_on ? "icon-full" : "icon-blank";
         }
         return (
           <div className="text-center">
@@ -401,22 +408,26 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 100,
     },
     {
       title: "Xuất kho",
-      dataIndex: "received_status",
       key: "received_status",
-      render: (received_status: boolean) => {
+      render: (record: any) => {
+        let processIcon = "icon-blank";
+        if (record.fulfillments.length) {
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          processIcon = newFulfillments[0].export_on ? "icon-full" : "icon-blank";
+        }
         return (
           <div className="text-center">
-            <div className={received_status ? "icon-full" : "icon-blank"} />
+            <div className={processIcon} />
           </div>
         );
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 100,
     },
     {
       title: "Thanh toán",
@@ -443,7 +454,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 110,
     },
     {
       title: "Trả hàng",
@@ -470,10 +481,10 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 100,
     },
     {
-      title: "Tổng SL sản phẩm",
+      title: "Tổng SL",
       dataIndex: "items",
       key: "item.quantity.total",
       render: (items) => {
@@ -483,7 +494,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: 70,
+      width: 100,
     },
     {
       title: "Khu vực",
@@ -500,7 +511,7 @@ const ListOrderScreen: React.FC = () => {
       },
       key: "area",
       visible: true,
-      width: "300px",
+      width: "200px",
     },
     {
       title: "Kho cửa hàng",
@@ -533,6 +544,7 @@ const ListOrderScreen: React.FC = () => {
         );
       },
       visible: true,
+      align: "center",
     },
 
     {
@@ -556,9 +568,10 @@ const ListOrderScreen: React.FC = () => {
         );
       },
       visible: true,
+      align: "center",
     },
     {
-      title: "Phương thức thanh toán",
+      title: "Kiểu thanh toán",
       dataIndex: "payments",
       key: "payments.type",
       render: (payments: Array<OrderPaymentModel>) =>
@@ -566,6 +579,8 @@ const ListOrderScreen: React.FC = () => {
           return <Tag>{payment.payment_method}</Tag>;
         }),
       visible: true,
+      align: "center",
+      width: '4%'
     },
     {
       title: "Nhân viên bán hàng",
@@ -573,6 +588,7 @@ const ListOrderScreen: React.FC = () => {
       key: "assignee",
       visible: true,
       align: "center",
+      width: '5%'
     },
     {
       title: "Nhân viên tạo đơn",
@@ -580,6 +596,7 @@ const ListOrderScreen: React.FC = () => {
       key: "account",
       visible: true,
       align: "center",
+      width: '5%'
     },
     {
       title: "Ngày hoàn tất đơn",
@@ -882,7 +899,7 @@ const ListOrderScreen: React.FC = () => {
             listSource={listSource}
             listStore={listStore}
             accounts={accounts}
-            deliveryService={delivery_service}
+            deliveryService={deliveryServices}
             listPaymentMethod={listPaymentMethod}
             subStatus={listOrderProcessingStatus}
             onShowColumnSetting={() => setShowSettingColumn(true)}
@@ -892,7 +909,7 @@ const ListOrderScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630 }}
+            scroll={{ x: 4000 }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

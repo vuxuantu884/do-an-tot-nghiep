@@ -8,3 +8,30 @@ export const getListDiscount = (query: BaseQuery, setData: (data: PageResponse<D
   return BaseAction(DiscountType.GET_LIST_DISCOUNTS, { query, setData });
 }
 
+export const promoGetDetail = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.GET_PROMO_CODE_DETAIL, {id, onResult});
+}
+
+export const discountGetDetail = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.GET_DISCOUNT_CODE_DETAIL, {id, onResult});
+}
+
+export const deletePriceRulesById = (id: number, onResult: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.DELETE_PRICE_RULE_BY_ID, {id, onResult});
+}
+
+export const addPriceRules = (body: any, createCallback: (result: DiscountResponse) => void) => {
+  return BaseAction(DiscountType.ADD_PRICE_RULE, {body, createCallback});
+}
+
+export const bulkEnablePriceRules = (body: any, enableCallback: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.ENABLE_PRICE_RULE, {body, enableCallback});
+}
+
+export const bulkDisablePriceRules = (body: any, disableCallback: (result: DiscountResponse|false) => void) => {
+  return BaseAction(DiscountType.DISABLE_PRICE_RULE, {body, disableCallback});
+}
+
+export const bulkDeletePriceRules = (body: any, deleteCallback: (result: DiscountResponse) => void) => {
+  return BaseAction(DiscountType.DELETE_BULK_PRICE_RULE, {body, deleteCallback});
+}

@@ -2,15 +2,13 @@ import {
   Card, Col, Row, InputNumber,
   Form, Switch, Space, Select,
   DatePicker, Divider, Checkbox,
-  TimePicker, Button
+  TimePicker
 } from "antd";
 import "../discount.scss"
 import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
-import CustomFilter from "../../../../component/table/custom.filter";
 import FixedPriceSelection from "./FixedPriceSelection";
 
-const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
 
@@ -23,25 +21,25 @@ const GeneralInfo = (props: any) => {
     // customerAdvanceMsg
   } = props;
 
-  const [showTimeAdvance, setShowTimeAdvance] = useState(false)
+  const [showTimeAdvance] = useState(false)
   // const [showCustomerAdvance, setShowCustomerAdvance] = useState(false)
   const [allStore, setAllStore] = useState(false)
   const [allChannel, setAllChannel] = useState(false)
   const [allSource, setAllSource] = useState(false)
-  const [allCustomer, setAllCustomer] = useState(false)
+  const [allCustomer] = useState(false)
   const [unlimitedUsage, setUnlimitedUsage] = useState(false)
-  const [disabledEndDate, setDisabledEndDate] = useState(false)
+  // const [disabledEndDate, setDisabledEndDate] = useState(false)
   const [discountMethod, setDiscountMethod] = useState('FIXED_PRICE')
 
   useMemo(() => {
     form.setFieldsValue({
       customer_selection: allCustomer
     })
-  }, [allCustomer])
+  }, [allCustomer, form])
 
   useEffect(() => {
     form.resetFields(['entitlements'])
-  }, [discountMethod])
+  }, [discountMethod, form])
 
   const getDays = () => {
     let days = [];
@@ -73,7 +71,7 @@ const GeneralInfo = (props: any) => {
                 name="title"
                 label={<b>Tên khuyến mại: </b>}
                 form={form}
-                message="Vui lòng nhập tên khuyến mại"
+                message="Cần nhập tên khuyến mại"
                 placeholder="Nhập tên khuyến mại"
                 isRequired={true}
                 maxLength={255}
@@ -84,10 +82,16 @@ const GeneralInfo = (props: any) => {
                 name="discount_code"
                 label={<b>Mã khuyến mại: </b>}
                 form={form}
-                message="Vui lòng nhập mã khuyến mại"
                 placeholder="Nhập mã khuyến mại"
                 maxLength={20}
                 upperCase={true}
+                disabled={true}
+                restFormItem={{
+                  rules: [
+                    // { required: true, message: 'Vui lòng nhập mã khuyến mại' },
+                    { pattern: /^DI([0-9])+$/, message: 'Mã khuyến mại sai định dạng' }
+                  ]
+                }}
               />
             </Col>
             <Col span={12}>
@@ -130,16 +134,16 @@ const GeneralInfo = (props: any) => {
                     label={<b>Mức độ ưu tiên:</b>}
                     name="priority"
                   >
-                    <Select placeholder="Chọn mức độ ưu tiên" defaultValue={1}>
-                      <Option value={"1"}>Số 1 (cao nhất)</Option>
-                      <Option value={"2"}>Số 2</Option>
-                      <Option value={"3"}>Số 3</Option>
-                      <Option value={"4"}>Số 4</Option>
-                      <Option value={"5"}>Số 5</Option>
-                      <Option value={"6"}>Số 6</Option>
-                      <Option value={"7"}>Số 7</Option>
-                      <Option value={"8"}>Số 8</Option>
-                      <Option value={"9"}>Số 9</Option>
+                    <Select placeholder="Chọn mức độ ưu tiên" >
+                      <Option value={1}>Số 1 (cao nhất)</Option>
+                      <Option value={2}>Số 2</Option>
+                      <Option value={3}>Số 3</Option>
+                      <Option value={4}>Số 4</Option>
+                      <Option value={5}>Số 5</Option>
+                      <Option value={6}>Số 6</Option>
+                      <Option value={7}>Số 7</Option>
+                      <Option value={8}>Số 8</Option>
+                      <Option value={9}>Số 9</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -152,6 +156,7 @@ const GeneralInfo = (props: any) => {
                 label={<b>Mô tả: </b>}
                 form={form}
                 placeholder="Nhập mô tả cho khuyến mại"
+                maxLength={500}
               />
             </Col>
           </Row>
@@ -176,27 +181,29 @@ const GeneralInfo = (props: any) => {
       <Col span={6}>
         <Card>
           <Row gutter={6} style={{padding: "0px 16px"}}>
+            <Col span={24}>
+              <div className="ant-col ant-form-item-label" style={{width: '100%'}}>
+                <label htmlFor="discount_add_starts_date" className="ant-form-item-required">
+                  <b>Thời gian áp dụng:</b>
+                </label>
+              </div>
+            </Col>
+
             <Col span={12}>
               <Form.Item
                 name="starts_date"
-                label={<b>Thời gian áp dụng:</b>}
                 rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
               >
                 <DatePicker style={{width: "100%"}} placeholder="Từ ngày"/>
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="ends_date"
-                label=" "
-              >
+              <Form.Item name="ends_date">
                 <DatePicker style={{width: "100%"}} placeholder="Đến ngày"/>
-
               </Form.Item>
             </Col>
             <Space direction="horizontal">
               <Switch onChange={value => {
-                setDisabledEndDate(value);
                 if (value) {
                   form.resetFields(['prerequisite_duration'])
                 }
@@ -261,7 +268,12 @@ const GeneralInfo = (props: any) => {
                 label={<b>Cửa hàng áp dụng:</b>}
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
-                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
+                <Select
+                  disabled={allStore}
+                  placeholder="Chọn chi nhánh"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
                   {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
@@ -286,7 +298,12 @@ const GeneralInfo = (props: any) => {
                 label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
-                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple">
+                <Select
+                  disabled={allChannel}
+                  placeholder="Chọn kênh bán hàng"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
                   <Option value="ADMIN">ADMIN</Option>
                   <Option value="POS">POS</Option>
                   <Option value="WEB">WEB</Option>
@@ -313,7 +330,12 @@ const GeneralInfo = (props: any) => {
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
-                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
+                <Select
+                  disabled={allSource}
+                  placeholder="Chọn nguồn đơn hàng"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
                   {listSource?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>

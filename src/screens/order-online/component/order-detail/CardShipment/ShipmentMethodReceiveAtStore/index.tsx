@@ -8,7 +8,7 @@ type PropType = {
   storeDetail?: StoreCustomResponse | null;
 };
 
-function ShipmentMethodReceiveAtHome(props: PropType) {
+function ShipmentMethodReceiveAtStore(props: PropType) {
   const { storeDetail } = props;
   return (
     <StyledComponent>
@@ -50,4 +50,4 @@ function ShipmentMethodReceiveAtHome(props: PropType) {
   );
 }
 
-export default ShipmentMethodReceiveAtHome;
+export default ShipmentMethodReceiveAtStore;

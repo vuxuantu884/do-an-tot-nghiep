@@ -14,6 +14,7 @@ import {
   actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import {
+  DeliveryServicesGetList,
   OrderDetailAction,
   PaymentMethodGetList
 } from "domain/actions/order/order.action";
@@ -35,6 +36,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  DeliveryServiceResponse,
   FulFillmentResponse,
   OrderResponse,
   OrderReturnReasonModel,
@@ -145,6 +147,14 @@ const ScreenReturnCreate = (props: PropType) => {
   >([]);
   const [discountValue, setDisCountValue] = useState<number>(0);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
+  const [serviceType, setServiceType] = useState<string>();
+  const [serviceName, setServiceName] = useState<string>("");
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [hvcName, setHvcName] = useState<string | null>(null);
+  const [hvcCode, setHvcCode] = useState<string | null>(null);
+  const [fee, setFee] = useState<number | null>(null);
+  const [fulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [moneyRefund, setMoneyRefund] = useState(0);
@@ -193,6 +203,7 @@ const ScreenReturnCreate = (props: PropType) => {
     shipping_address: null,
     billing_address: null,
     payments: [],
+    channel_id: null,
   };
 
   let listPaymentMethodsReturnToCustomer = listPaymentMethods.find((single) => {
@@ -961,6 +972,7 @@ const ScreenReturnCreate = (props: PropType) => {
                     setHvcName={setHvcName}
                     setHvcCode={setHvcCode}
                     setFee={setFee}
+                    deliveryServices={deliveryServices}
                     payments={payments}
                     onPayments={setPayments}
                     fulfillments={fulfillments}
@@ -1091,6 +1103,11 @@ const ScreenReturnCreate = (props: PropType) => {
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
+      })
+    );
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
       })
     );
   }, [dispatch]);

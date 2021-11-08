@@ -23,6 +23,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 
 const initQuery: StoreQuery = {
   info: "",
@@ -40,6 +41,7 @@ const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
+    icon:<DeleteOutlined />
   },
   // {
   //   id: 2,
@@ -48,6 +50,7 @@ const actions: Array<MenuAction> = [
   {
     id: 3,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 

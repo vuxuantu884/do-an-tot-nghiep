@@ -23,7 +23,7 @@ import { CategoryResponse, CategoryView } from "model/product/category.model";
 import UrlConfig from "config/url.config";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -32,14 +32,17 @@ const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
+    icon:<EditOutlined />
   },
   {
     id: 2,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 3,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 

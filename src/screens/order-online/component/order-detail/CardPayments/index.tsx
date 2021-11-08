@@ -1,85 +1,67 @@
-import {BugOutlined} from "@ant-design/icons";
 import {
   Button,
   Card,
+  Row,
   Col,
+  Radio,
+  InputNumber,
+  Form,
+  Space,
   Collapse,
   Divider,
-  Form,
   Input,
-  InputNumber,
-  Radio,
-  Row,
-  Space,
 } from "antd";
-import Calculate from "assets/icon/caculate.svg";
+
+import { BugOutlined } from "@ant-design/icons";
 import Cash from "component/icon/Cash";
+import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import YdCoin from "component/icon/YdCoin";
-import {PaymentMethodGetList} from "domain/actions/order/order.action";
-import {OrderPaymentRequest} from "model/request/order.request";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
-import {formatCurrency, formatSuffixPoint, replaceFormat} from "utils/AppUtils";
+import Calculate from "assets/icon/caculate.svg";
+
+import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethodOption,
 } from "utils/Constants";
-import {StyledComponent} from "./styles";
-
-const {Panel} = Collapse;
+import { formatCurrency, formatSuffixPoint, replaceFormat } from "utils/AppUtils";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { StyledComponent } from "./styles";
+import { OrderCreateContext } from "contexts/order-online/order-create-context";
+const { Panel } = Collapse;
 
 type CardPaymentsProps = {
   payments: OrderPaymentRequest[];
   paymentMethod: number;
-  totalAmountOrder: number;
+  amount: number;
   shipmentMethod: number;
+  isCloneOrder: boolean;
   levelOrder?: number;
   updateOrder?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
-  isDisablePostPayment?: boolean;
-  setPaymentMethod: (paymentType: number) => void;
+  setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
+  isDisablePostPayment?: boolean;
 };
 
-/**
- * isDisablePostPayment: disable thanh toán chưa xác định (trường hợp chọn thanh toán qua hvc)
- *
- * payments: payment mặc định (vd trường hợp clone đơn hàng)
- *
- * setPayments: xử lý khi điền payment
- *
- * loyaltyRate: điểm loyalty
- *
- * setPaymentMethod: xử lý khi chọn phương thức thanh toán
- *
- * paymentMethod: phương thức thanh toán mặc định (vd trường hợp clone đơn hàng)
- *
- * totalAmountOrder: tiền đơn hàng
- *
- * shipmentMethod: phương thức đóng gói giao hàng để hiển thị thông báo
- */
-function CardPayments(props: CardPaymentsProps): JSX.Element {
+function CardPayments(props: CardPaymentsProps) {
   const {
-    totalAmountOrder,
     levelOrder = 0,
     paymentMethod,
     payments,
+    isCloneOrder,
     shipmentMethod,
     loyaltyRate,
     isDisablePostPayment = false,
     setPayments,
-    setPaymentMethod,
   } = props;
-
-  console.log("payments", payments);
-
   const changePaymentMethod = (value: number) => {
-    setPaymentMethod(value);
+    props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(value);
     } else {
@@ -102,38 +84,27 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
     return usageRate;
   }, [loyaltyRate]);
 
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
-
-  /**
-   * tổng số tiền đã trả
-   */
-  const totalAmountPayment = getAmountPayment(payments);
-
-  const totalAmountCustomerNeedToPay = useMemo(() => {
-    return totalAmountOrder - totalAmountPayment;
-  }, [totalAmountOrder, totalAmountPayment]);
-
   const handleInputPoint = (index: number, point: number) => {
     payments[index].point = point;
     payments[index].amount = point * usageRate;
     payments[index].paid_amount = point * usageRate;
     payments[index].payment_method_code = PaymentMethodCode.POINT;
     setPayments([...payments]);
+    // props.setPayments([...paymentData]);
   };
+
+  // const totalAmountPaid = useMemo(() => {
+  //   let total = 0;
+  //   payments.forEach((p) => (total = total + p.amount));
+  //   return total;
+  // }, [payments]);
+
+  // const moneyReturn = useMemo(() => {
+  //   return props.amount - totalAmountPaid;
+  // }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
-    console.log("payment_method_id", payment_method_id);
-    console.log("paymentMaster", paymentMaster);
     if (!paymentMaster) return;
     let indexPayment = payments.findIndex(
       (p) => p.payment_method_id === payment_method_id
@@ -159,7 +130,6 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
     }
     setPayments([...payments]);
   };
-
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -190,20 +160,43 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
     setPayments(_paymentData);
   };
 
+  const createOrderContext = useContext(OrderCreateContext);
+  const totalOrderAmountAfterDiscountAddShippingFee =
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (props.amount ? props.amount : 0);
+
+  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
+    let value = 0;
+    if (items !== null) {
+      if (items.length > 0) {
+        items.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+    return value;
+  };
+  const totalAmountPayment = getAmountPayment(payments);
+
+  const totalAmountCustomerNeedToPay =
+    createOrderContext?.price.totalAmountCustomerNeedToPay || (props.amount ? (props.amount - totalAmountPayment) : 0);
+
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
 
-  console.log("levelOrder", levelOrder);
+  // useEffect(() => {
+  //   if (isCloneOrder && paymentMethod === 2) {
+  //     handlePickPaymentMethod(paymentMethod);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [paymentMethod]);
 
   return (
     <StyledComponent>
-      <Card title="THANH TOÁN 3">
+      <Card title="THANH TOÁN">
         <div className="create-order-payment ">
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
             // required
-            style={{marginBottom: 0}}
+            style={{ marginBottom: 0 }}
           >
             <Radio.Group
               value={paymentMethod}
@@ -241,7 +234,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
               )}
             {paymentMethod === PaymentMethodOption.COD &&
               shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-                <div className="order-cod-payment-footer" style={{height: 83}}>
+                <div className="order-cod-payment-footer" style={{ height: 83 }}>
                   <div>
                     <div>
                       <div>
@@ -259,9 +252,9 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
           <Row
             gutter={24}
             hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
-            style={{marginTop: 18}}
+            style={{ marginTop: 18 }}
           >
-            <div style={{padding: "0 24px", maxWidth: "100%"}}>
+            <div style={{ padding: "0 24px", maxWidth: "100%" }}>
               <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
                 <Panel
                   className="orders-timeline-custom orders-dot-status"
@@ -281,31 +274,33 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                   showArrow={false}
                   // disabled={levelOrder > 2}
                 >
-                  <div style={{width: "1200px", maxWidth: "100%"}}>
+                  <div style={{ width: "1200px", maxWidth: "100%" }}>
                     <Row gutter={24}>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{paddingRight: "20px"}}>
+                          <span style={{ paddingRight: "20px" }}>
                             Tiền khách phải trả:{" "}
                           </span>
-                          <strong>{formatCurrency(totalAmountOrder)}</strong>
+                          <strong>
+                            {formatCurrency(totalOrderAmountAfterDiscountAddShippingFee)}
+                          </strong>
                         </div>
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
+                          <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
                           <strong>
                             {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                           </strong>
                         </div>
                       </Col>
-                      <Divider style={{margin: "10px 0"}} />
+                      <Divider style={{ margin: "10px 0" }} />
                       <Col xs={24} lg={24}>
                         <Row
                           className="btn-list-method"
                           gutter={5}
                           align="middle"
-                          style={{marginLeft: 0, marginRight: 0}}
+                          style={{ marginLeft: 0, marginRight: 0 }}
                         >
                           {ListPaymentMethods.map((method, index) => {
                             // console.log("method", method);
@@ -342,7 +337,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                             return (
                               <Col key={method.code} className="btn-payment-method">
                                 <Button
-                                  style={{display: "flex", padding: 10}}
+                                  style={{ display: "flex", padding: 10 }}
                                   type={
                                     payments.some(
                                       (p) =>
@@ -374,13 +369,13 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                         <Row
                           gutter={24}
                           className="row-price"
-                          style={{height: 38, margin: "10px 0"}}
+                          style={{ height: 38, margin: "10px 0" }}
                         >
                           <Col
                             lg={15}
                             xxl={9}
                             className="row-large-title"
-                            style={{padding: "8px 0", marginLeft: 2}}
+                            style={{ padding: "8px 0", marginLeft: 2 }}
                           >
                             <b>Khách cần trả:</b>
                           </Col>
@@ -395,30 +390,32 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                             }}
                           >
                             <span className="t-result-blue">
-                              {formatCurrency(totalAmountOrder)}
+                              {formatCurrency(
+                                totalOrderAmountAfterDiscountAddShippingFee
+                              )}
                             </span>
                           </Col>
                         </Row>
                         {payments.map((method, index) => {
                           // console.log("paymentData", paymentData);
-                          console.log("method", method);
+                          // console.log("method", method);
                           return (
                             <Row
                               gutter={20}
                               className="row-price"
-                              key={method.code}
-                              style={{margin: "10px 0"}}
+                              key={index}
+                              style={{ margin: "10px 0" }}
                             >
-                              <Col lg={15} xxl={9} style={{padding: "0"}}>
+                              <Col lg={15} xxl={9} style={{ padding: "0" }}>
                                 <Row align="middle">
-                                  <b style={{padding: "8px 0"}}>
+                                  <b style={{ padding: "8px 0" }}>
                                     {method.payment_method}:
                                   </b>
-                                  {method.code ===
-                                  PaymentMethodCode.POINT ? (
+                                  {method.code === PaymentMethodCode.POINT ? (
                                     <Col className="point-spending">
                                       <span
                                         style={{
+                                          fontSize: 14,
                                           marginLeft: 5,
                                         }}
                                       >
@@ -426,7 +423,12 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                         (1 điểm = {formatCurrency(usageRate)}₫)
                                       </span>
                                       <InputNumber
-                                        value={method.point}
+                                        value={
+                                          // method.point
+                                          isCloneOrder
+                                            ? method.amount / usageRate
+                                            : method.point
+                                        }
                                         style={{
                                           width: 110,
                                           marginLeft: 12,
@@ -442,10 +444,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                         }
                                         min={0}
                                         max={
-                                          calculateMax(
-                                            totalAmountCustomerNeedToPay,
-                                            index
-                                          ) / usageRate
+                                          calculateMax(props.amount, index) / usageRate
                                         }
                                         onChange={(value) => {
                                           handleInputPoint(index, value);
@@ -458,7 +457,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                   {method.code === PaymentMethodCode.BANK_TRANSFER ? (
                                     <Col
                                       className="point-spending"
-                                      style={{marginLeft: 12}}
+                                      style={{ marginLeft: 12 }}
                                       lg={14}
                                       xxl={14}
                                     >
@@ -478,15 +477,12 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                   className="lbl-money"
                                   lg={6}
                                   xxl={6}
-                                  style={{marginLeft: 10}}
+                                  style={{ marginLeft: 10 }}
                                 >
                                   <InputNumber
                                     size="middle"
                                     min={0}
-                                    max={calculateMax(
-                                      totalAmountCustomerNeedToPay,
-                                      index
-                                    )}
+                                    max={calculateMax(props.amount, index)}
                                     value={method.amount}
                                     disabled={
                                       method.code === PaymentMethodCode.POINT ||
@@ -517,7 +513,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                                     marginLeft: 10,
                                   }}
                                 >
-                                  <span style={{padding: "14px", lineHeight: 1}}>
+                                  <span style={{ padding: "14px", lineHeight: 1 }}>
                                     {formatCurrency(method.amount)}
                                   </span>
                                 </Col>
@@ -528,9 +524,9 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                         <Row
                           gutter={20}
                           className="row-price"
-                          style={{height: 38, margin: "10px 0 0 0"}}
+                          style={{ height: 38, margin: "10px 0 0 0" }}
                         >
-                          <Col lg={15} xxl={9} style={{padding: "8px 0"}}>
+                          <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
                             <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                           </Col>
                           <Col
@@ -543,7 +539,7 @@ function CardPayments(props: CardPaymentsProps): JSX.Element {
                               fontSize: "20px",
                             }}
                           >
-                            <span style={{color: false ? "blue" : "red"}}>
+                            <span style={{ color: false ? "blue" : "red" }}>
                               {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                             </span>
                           </Col>

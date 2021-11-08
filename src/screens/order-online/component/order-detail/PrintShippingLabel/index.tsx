@@ -1,15 +1,15 @@
-import { Button } from "antd";
-import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
+import {Button} from "antd";
+import {actionFetchPrintFormByOrderIds} from "domain/actions/printer/printer.action";
 import purify from "dompurify";
-import { OrderSettingsModel } from "model/other/order/order-model";
-import { FulFillmentResponse } from "model/response/order/order.response";
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useReactToPrint } from "react-to-print";
-import { FulFillmentStatus } from "utils/Constants";
-import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
+import {OrderSettingsModel} from "model/other/order/order-model";
+import {FulFillmentResponse} from "model/response/order/order.response";
+import React, {useEffect, useRef, useState} from "react";
+import {useDispatch} from "react-redux";
+import {useReactToPrint} from "react-to-print";
+import {FulFillmentStatus} from "utils/Constants";
+import {LIST_PRINTER_TYPES} from "utils/Printer.constants";
 import IconPrint from "./images/iconPrint.svg";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   fulfillment: FulFillmentResponse | null | undefined;
@@ -19,7 +19,7 @@ type PropType = {
 };
 
 const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
-  const { fulfillment, orderId, onPrint } = props;
+  const {fulfillment, orderId, onPrint} = props;
   const dispatch = useDispatch();
   const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
@@ -28,12 +28,13 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
+    onAfterPrint: () => {
+      onPrint && onPrint();
+    },
   });
 
   let printType = "";
-  const getPrintType = (
-    fulfillment: FulFillmentResponse | null | undefined
-  ) => {
+  const getPrintType = (fulfillment: FulFillmentResponse | null | undefined) => {
     if (!fulfillment) {
       return;
     }
@@ -103,11 +104,16 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
       alert("Printing completed...");
     };
     //for chrome
-    window.matchMedia("print").addListener(function (mql) {
-      if (mql.matches) {
-        onAfterPrint();
-      }
-    });
+    if (window.matchMedia) {
+      var mediaQueryList = window.matchMedia("print");
+      mediaQueryList.addListener(function (mql) {
+        if (mql.matches) {
+          onAfterPrint();
+        } else {
+          onAfterPrint();
+        }
+      });
+    }
     window.addEventListener("beforeprint ", onAfterPrint);
     window.addEventListener("onafterprint", onAfterPrint);
     return () => {
@@ -124,18 +130,13 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
             onClick={(e) => {
               e.stopPropagation();
               dispatch(
-                actionFetchPrintFormByOrderIds(
-                  [orderId],
-                  printType,
-                  (response) => {
-                    //xóa thẻ p thừa
-                    let textResponse = response.data[0].html_content;
-                    let result = textResponse.replaceAll("<p></p>", "");
-                    setPrintContent(result);
-                    handlePrint();
-                    onPrint && onPrint();
-                  }
-                )
+                actionFetchPrintFormByOrderIds([orderId], printType, (response) => {
+                  //xóa thẻ p thừa
+                  let textResponse = response.data[0].html_content;
+                  let result = textResponse.replaceAll("<p></p>", "");
+                  setPrintContent(result);
+                  handlePrint();
+                })
               );
             }}
           >
@@ -144,7 +145,7 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
               ? "In phiếu xuất kho"
               : "In phiếu giao hàng"}
           </Button>
-          <div style={{ display: "none" }}>
+          <div style={{display: "none"}}>
             <div className="printContent333" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{

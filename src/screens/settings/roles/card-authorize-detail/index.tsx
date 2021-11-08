@@ -85,8 +85,8 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                     className="site-collapse-custom-collapse"
                 >
                     {moduleData?.items.map((module: ModuleAuthorize) => {
-                        const isIndeterminate = indeterminateModules.includes(module.id.toString());
-                        const isChecked = checkedModules.includes(module.id.toString());
+                        const isIndeterminate = indeterminateModules.includes(module.code);
+                        const isChecked = checkedModules.includes(module.code);
 
                         return (
                             <Panel
@@ -101,14 +101,14 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                                                 {_.capitalize(module.name)}
                                             </b>
                                         </Checkbox>
-                                        {activePanel.includes(module.id.toString()) ? (
+                                        {activePanel.includes(module.code) ? (
                                             <HiOutlineChevronDoubleDown color="#2A2A86" />
                                         ) : (
                                             <HiChevronDoubleRight color="#2A2A86" />
                                         )}
                                     </div>
                                 }
-                                key={module.id}
+                                key={module.code}
                                 className="site-collapse-custom-panel"
                             >
                                 <div className="panel-content">

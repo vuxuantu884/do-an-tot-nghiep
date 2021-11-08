@@ -1,16 +1,10 @@
-import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Modal, Row, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import {
-  productGetDetail,
-  productUpdateAction
-} from "domain/actions/product/products.action";
-import { ProductResponse } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory, useParams } from 'react-router';
 import { Link } from "react-router-dom";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
@@ -18,20 +12,26 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import "../promotion-code.scss";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import ModalAddCode from "../components/ModalAddCode";
+import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
+import moment from "moment";
+import "./promo-code.scss";
 import { RiUpload2Line } from "react-icons/ri";
+import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { StoreResponse } from "model/core/store.model";
+import { SourceResponse } from "model/response/order/source.response";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { showSuccess } from "utils/ToastUtils";
+import Countdown from "react-countdown";
 
 export interface ProductParams {
   id: string;
   variantId: string;
-}
-
-enum TabName {
-  HISTORY = '#historyTab',
-  INVENTORY = '#inventoryTab'
 }
 
 type detailMapping = {
@@ -42,28 +42,114 @@ type detailMapping = {
   isWebsite?: boolean;
 };
 
+const promoStatuses = [
+  {
+    code: 'ACTIVE',
+    value: 'Đang áp dụng',
+    style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+  {
+    code: 'DISABLED',
+    value: 'Tạm ngưng',
+    style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "#FCAF17",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+  {
+    code: 'DRAFT',
+    value: 'Chờ áp dụng',
+    style: {
+      background: "rgb(245, 245, 245)",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+  {
+    code: 'CANCELLED',
+    value: 'Đã huỷ',
+    style: {
+      background: "rgba(226, 67, 67, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(226, 67, 67)",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+]
+
 const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const location = useLocation();
-  const {hash} = location;
 
-  const id = "1";
+  const { id } = useParams() as any;
+  const idNumber = parseInt(id);
 
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
   const [showImportFile, setShowImportFile] = React.useState<boolean>(false);
-  const [data, setData] = useState<ProductResponse | null>(null);
-  
-  const idNumber = parseInt(id);
-  const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
-  }, [history, idNumber]);
+  const [data, setData] = useState<DiscountResponse | null>(null);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>();
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
+  const [stores, setStore] = useState<Array<StoreResponse>>();
+  const [sources, setSource] = useState<Array<SourceResponse>>();
 
-  const onResult = useCallback((result: ProductResponse | false) => {
+  useEffect(() => {
+    dispatch(StoreGetListAction(setListStore));
+    dispatch(getListSourceRequest(setListSource));
+  }, [dispatch]);
+
+  useEffect(() => {
+    const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
+    setStore(stores);
+  }, [listStore, data]);
+
+  useEffect(() => {
+    const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
+    setSource(source);
+  }, [listSource, data]);
+
+  const checkIsHasPromo = useCallback((data: any) => {
+    setCheckPromoCode(data.items.length > 0);
+  }, []);
+
+  useEffect(() => {
+    dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+  }, [dispatch, checkIsHasPromo, idNumber]);
+
+  // section DELETE by Id
+  function onDelete() {
+    dispatch(showLoading());
+    dispatch(deletePriceRulesById(idNumber, onDeleteSuccess));
+  }
+  const onDeleteSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    showSuccess("Xóa thành công");
+    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+  }, [dispatch, history]);
+
+  // section EDIT item
+  const onEdit = useCallback(() => {
+    // TO DO
+  }, []);
+
+  // section handle call api GET DETAIL
+  const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
       setError(true);
@@ -71,95 +157,146 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
-
   useEffect(() => {
-    dispatch(productGetDetail(idNumber, onResult));
+    dispatch(promoGetDetail(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
 
-  const promotion = {
-    name: "Tên đợt phát hành",
-    code: "CPM12",
-    typeCode: "Mã giảm giá",
-    description: "",
-    amountCodeRelease: "0",
-    amountUsed: "0",
-    discountInfo: "Giảm 3% tối đa 100.000"
-  };
-
-  const promotionDetail: Array<any> | undefined = React.useMemo(() => {
-    if (promotion) {
+  const promoDetail: Array<any> | undefined = React.useMemo(() => {
+    if (data) {
       const details = [
         {
           name: "Tên đợt phát hành",
-          value: promotion.name,
+          value: data.title,
           position: "left",
           key: "1",
         },
         {
           name: "Mã đợt phát hành",
-          value: promotion.code,
+          value: data.code,
           position: "left",
           key: "2",
         },
         {
           name: "Loại mã",
-          value: promotion.typeCode,
+          value: "Mã giảm giá",
           position: "left",
           key: "3",
         },
         {
           name: "Mô tả đợt phát hành",
-          value: promotion.description,
+          value: data.description,
           position: "left",
           key: "4",
         },
         {
           name: "SL mã phát hành",
-          value: promotion.amountCodeRelease,
+          value: data.usage_limit,
           position: "right",
           key: "5",
         },
         {
           name: "Số lượng đã sử dụng",
-          value: promotion.amountUsed,
+          value: data.usage_limit_per_customer,
           position: "right",
           key: "6",
         },
         {
           name: "Thông tin km",
-          value: promotion.discountInfo,
+          value: "", // TODO
           position: "right",
           key: "7",
         },
       ];
       return details;
     }
-  }, [promotion]);
- 
+  }, [data]);
+
+  // @ts-ignore
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      // Render a complete state
+      return <span>Kết thúc chương trình</span>;
+    } else {
+      // Render a countdown
+      return (
+        <span style={{color: "#FCAF17", fontWeight: 500}}>
+          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+        </span>
+      );
+    }
+  };
+
   const timeApply = [
     {
       name: "Từ",
-      value: "25-8-2021  14:30",
+      value: data?.starts_date && moment(data.starts_date).format(DATE_FORMAT.DDMMYY_HHmm),
       key: "1",
     },
     {
       name: "Đến",
-      value: "",
+      value: data?.ends_date && moment(data.ends_date).format(DATE_FORMAT.DDMMYY_HHmm),
       key: "2",
     },
     {
       name: "Còn",
-      value: "30 ngày 23:56:13",
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
       key: "3",
     }
   ];
+
+  // section ADD Code
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
+    dispatch(showLoading());
+    dispatch(addPromoCode(idNumber, body, addCallBack));
+  }
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(idNumber, body, addCallBack));
+  }
+  const addCallBack = useCallback((response) => {
+    dispatch(hideLoading());
+    if(response) {
+      showSuccess("Thêm thành công");
+      dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+    }
+  }, [dispatch, idNumber, checkIsHasPromo]);
+
+  const renderStatus = (data: DiscountResponse) => {
+    const status = promoStatuses.find(status => status.code === data.state);
+    return (
+        <span
+          style={status?.style}
+        >
+          {status?.value}
+        </span>
+    )
+  }
 
   return (
     <ContentContainer
       isError={error}
       isLoading={loading}
-      title="Chi tiết chiết khấu"
+      title={data ? data.title : "Chi tiết đợt khuyến mãi"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -167,7 +304,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Chiết khấu",
@@ -182,15 +319,15 @@ const PromotionDetailScreen: React.FC = () => {
                 className="card"
                 title={
                   <div style={{alignItems: "center" }}>
-                    <span className="title-card">THÔNG TIN CÁ NHÂN</span>
-                    <Tag className="status-tag"> Đang áp dụng </Tag>
+                    <span className="title-card">THÔNG TIN CHUNG</span>
+                    {renderStatus(data)}
                   </div>
                 }
               >
                 <Row gutter={30}>
                   <Col span={12}>
-                    {promotionDetail &&
-                      promotionDetail
+                    {promoDetail &&
+                      promoDetail
                         .filter((detail: detailMapping) => detail.position === "left")
                         .map((detail: detailMapping, index: number) => (
                           <Col
@@ -227,8 +364,8 @@ const PromotionDetailScreen: React.FC = () => {
                         ))}
                   </Col>
                   <Col span={12}>
-                    {promotionDetail &&
-                      promotionDetail
+                    {promoDetail &&
+                      promoDetail
                         .filter((detail: detailMapping) => detail.position === "right")
                         .map((detail: detailMapping, index: number) => (
                           <Col
@@ -266,7 +403,7 @@ const PromotionDetailScreen: React.FC = () => {
                 </Row>
                 <hr />
                 <Row gutter={30}>
-                  <Col span={24}> 
+                  <Col span={24}>
                     <img src={CloseIcon} alt="" />
                     <span style={{marginLeft: 14}}>Không được áp dụng chung với các khuyến mại khác</span>
                   </Col>
@@ -296,14 +433,15 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {true  && 
-                  <Row gutter={30}>
+                {checkPromoCode && <Row gutter={30}>
                     <Col span={24}>
-                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMOTION_CODE}/discount-code`}>Xem danh sách mã giảm giá của đợt phát hành</Link>
+                      <Link
+                        to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
+                      >Xem danh sách mã giảm giá của đợt phát hành</Link>
                     </Col>
                   </Row>
                 }
-                {false && <Row gutter={30} style={{gap: 15}}>
+                {!checkPromoCode && <Row gutter={30} style={{gap: 15}}>
                   <Col span={24} style={{
                       color: "#E24343",
                       textAlign: "center",
@@ -346,16 +484,17 @@ const PromotionDetailScreen: React.FC = () => {
               </Card>
             </Col>
             <Col span={24} md={6}>
+              {/* Thời gian áp dụng */}
               <Card className="card">
                 <Row>
                   <Col span={24} style={{
                     paddingBottom: 16
                   }}>
-                    <span 
+                    <span
                       style={{
                         fontWeight: 500
                       }}
-                    >Thời gian áp dụng: 
+                    >Thời gian áp dụng:
                       <span style={{
                         paddingLeft: 6,
                         color: "#E24343",
@@ -399,16 +538,17 @@ const PromotionDetailScreen: React.FC = () => {
                     ))}
                 </Row>
               </Card>
+              {/* Cửa hàng áp dụng */}
               <Card className="card">
                 <Row>
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Cửa hàng áp dụng: 
+                      >Cửa hàng áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -416,25 +556,31 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_store_ids.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {
+                              stores && stores.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
+                              ))
+                            }
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
+              {/* Kênh bán áp dụng */}
               <Card className="card">
                 <Row>
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Kênh bán áp dụng: 
+                      >Kênh bán áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -442,25 +588,27 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
+              {/* Nguồn đơn hàng áp dụng */}
               <Card className="card">
                 <Row>
                     <Col span={24} style={{
                       paddingBottom: 16
                     }}>
-                      <span 
+                      <span
                         style={{
                           fontWeight: 500
                         }}
-                      >Nguồn đơn hàng áp dụng: 
+                      >Nguồn đơn hàng áp dụng:
                         <span style={{
                           paddingLeft: 6,
                           color: "#E24343",
@@ -468,12 +616,17 @@ const PromotionDetailScreen: React.FC = () => {
                       </span>
                     </Col>
                       <Col span={24}>
-                        <ul style={{
-                          padding: "0 16px"
-                        }}>
-                          <li> YODY Kiến Xương </li>
-                          <li> YODY Hai Bà Trưng </li>
-                        </ul>
+                        {
+                          data?.prerequisite_order_source_ids.length > 0 ? (<ul style={{
+                            padding: "0 16px"
+                          }}>
+                            {
+                              sources && sources.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
+                              ))
+                            }
+                          </ul>) : "Áp dụng toàn bộ"
+                        }
                       </Col>
                 </Row>
               </Card>
@@ -485,16 +638,16 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại sản phẩm"
         rightComponent={
           <Space>
-            <Button style={{ color: '#E24343'}}>Xoá</Button>
-            <Button>Sửa</Button>
+            <Button onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
+            <Button onClick={onEdit}>Sửa</Button>
             <Button>Nhân bản</Button>
             <Button type="primary">Kích hoạt</Button>
           </Space>
-          
+
         }
       />
-      <ModalAddCode
-        isManual={true}
+      <CustomModal
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -502,12 +655,13 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
-      <ModalAddCode
-        isManual={false}
+      <CustomModal
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -515,7 +669,8 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeRandom(false);
         }}
-        onOk={() => {
+        onOk={(value: any) => {
+          handleAddRandom(value);
           setShowAddCodeRandom(false);
         }}
       />
@@ -544,7 +699,7 @@ const PromotionDetailScreen: React.FC = () => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

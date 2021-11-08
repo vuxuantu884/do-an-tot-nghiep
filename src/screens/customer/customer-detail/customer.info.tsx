@@ -74,6 +74,22 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
           position: "right",
           key: "6",
         },
+        {
+          name: "Địa chỉ",
+          value: `${customer.full_address ? customer.full_address : ""}${
+            customer.ward ? " - " + customer.ward : ""
+          }${customer.district ? " - " + customer.district : ""}${
+            customer.city ? " - " + customer.city : ""
+          }`,
+          position: "left",
+          key: "8",
+        },
+        {
+          name: "Kênh",
+          value: customer.channel,
+          position: "right",
+          key: "12",
+        },
       ];
       return details;
     }
@@ -142,16 +158,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
             value: customer.tax_code,
             position: "right",
             key: "7",
-          },
-          {
-            name: "Địa chỉ",
-            value: `${customer.full_address ? customer.full_address : ""}${
-              customer.ward ? " - " + customer.ward : ""
-            }${customer.district ? " - " + customer.district : ""}${
-              customer.city ? " - " + customer.city : ""
-            }`,
-            position: "left",
-            key: "8",
           },
           {
             name: "Ghi chú",

@@ -19,6 +19,7 @@ import {
 } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
+  DeliveryServicesGetList,
   orderCreateAction,
   OrderDetailAction,
   PaymentMethodGetList,
@@ -44,6 +45,8 @@ import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
 import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
 import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {
+  DeliveryServiceResponse,
+  FulFillmentResponse,
   OrderConfig,
   OrderResponse,
   StoreCustomResponse,
@@ -75,6 +78,7 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 let typeButton = "";
 
 export default function Order() {
+  const DEFAULT_CHANNEL_ID = 13; //đang fix cứng admin
   const dispatch = useDispatch();
   const history = useHistory();
   const [isSaveDraft, setIsSaveDraft] = useState(false);
@@ -94,6 +98,7 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.POSTPAYMENT
   );
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
@@ -228,6 +233,7 @@ export default function Order() {
     shipping_address: null,
     billing_address: null,
     payments: [],
+    channel_id: null,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -440,6 +446,7 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
+    values.channel_id = DEFAULT_CHANNEL_ID;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -571,6 +578,11 @@ export default function Order() {
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
   }, [dispatch, setDataAccounts]);
 
   //windows offset

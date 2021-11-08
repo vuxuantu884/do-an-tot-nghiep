@@ -6,6 +6,7 @@ import Dragger from "antd/es/upload/Dragger";
 import {PlusOutlined} from "@ant-design/icons";
 import FixedPriceGroup from "./FixedPriceGroup";
 import importIcon from "../../../../assets/icon/import.svg";
+import { Link } from "react-router-dom";
 
 const FixedPriceSelection = (props: any) => {
   const {form, discountMethod} = props;
@@ -21,6 +22,12 @@ const FixedPriceSelection = (props: any) => {
         name="entitlements"
       >
         {(fields, {add, remove}, {errors}) => {
+          // if (Array.isArray(fields) && fields.length >= 2) {
+          //   const last = fields[fields.length - 1]
+          //   fields.pop();
+          //   fields.unshift(last);
+          // }
+
           return (
             <>
               <Row>
@@ -53,8 +60,9 @@ const FixedPriceSelection = (props: any) => {
                   </Row>
                 </Col>
               </Row>
+
               {
-                fields.map(({key, name, fieldKey, ...restField}) => {
+                fields.reverse().map(({key, name, fieldKey, ...restField}) => {
                   return(
                     <FixedPriceGroup
                       key={key}
@@ -99,7 +107,7 @@ const FixedPriceSelection = (props: any) => {
           <Col span={19}>
             <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
             <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <a>tại đây</a></p>
+            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
             <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
             <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
               không F5 hoặc tắt cửa sổ trình duyệt.</p>

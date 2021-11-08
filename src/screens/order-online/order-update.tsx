@@ -32,6 +32,7 @@ import {
   orderUpdateAction,
   OrderDetailAction,
   getTrackingLogFulfillmentAction,
+  DeliveryServicesGetList,
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -54,6 +55,7 @@ import {
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  DeliveryServiceResponse,
   FulFillmentResponse,
   OrderConfig,
   OrderResponse,
@@ -97,7 +99,6 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import eyeOutline from "assets/icon/eye_outline.svg";
-import { delivery_service } from "./common/delivery-service";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import CardPayments from "./component/order-detail/CardPayments";
@@ -152,6 +153,7 @@ export default function Order(props: PropType) {
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
   const [serviceName, setServiceName] = useState<string>("");
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -331,9 +333,9 @@ export default function Order(props: PropType) {
   );
 
   const getImageDeliveryService = useCallback((service_id) => {
-    const service = delivery_service.find((item) => item.id === service_id);
+    const service = deliveryServices.find((item) => item.id === service_id);
     return service?.logo;
-  }, []);
+  }, [deliveryServices]);
 
   const copyOrderID = (e: any, data: string | null) => {
     e.stopPropagation();
@@ -499,6 +501,11 @@ export default function Order(props: PropType) {
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
   }, [dispatch]);
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
@@ -1511,6 +1518,7 @@ export default function Order(props: PropType) {
                       setServiceName={setServiceName}
                       setHVC={setHvc}
                       setFee={setFee}
+                      deliveryServices={deliveryServices}
                       payments={payments}
                       onPayments={onPayments}
                       fulfillments={fulfillments}

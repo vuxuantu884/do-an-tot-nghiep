@@ -65,4 +65,8 @@ export const StyledWrapper = styled.div`
       border-color: red;
     }
   }
+
+  .pt8{
+    padding-top: 8px;
+  }
 `;

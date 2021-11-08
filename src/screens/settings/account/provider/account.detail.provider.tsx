@@ -4,21 +4,17 @@ import React, { createContext, ReactNode, useState } from "react";
 type AccountDetailAction = {
   userCode: string;
   setUserCode: (code: string) => void;
-  roleName: string;
-  setRoleName: (code: string) => void;
   accountInfo: AccountResponse;
   setAccountInfo: (acc: AccountResponse) => void;
   accountJobs: Array<AccountJobResponse>;
   setAccountJobs: (jobs: Array<AccountJobResponse>) => void;
-
 };
 export const AccountDetailContext = createContext<Partial<AccountDetailAction>>(
   {} as AccountDetailAction
 );
 AccountDetailProvider.defaultProps = {};
-function AccountDetailProvider(props: { children: ReactNode }) {
+function AccountDetailProvider(props: {children: ReactNode}) {
   const [userCode, setUserCode] = useState<string>();
-  const [roleName, setRoleName] = useState<string>();
   const [accountInfo, setAccountInfo] = useState<AccountResponse>({} as AccountResponse);
   const [accountJobs, setAccountJobs] = useState<Array<AccountJobResponse>>(
     [] as Array<AccountJobResponse>
@@ -34,8 +30,6 @@ function AccountDetailProvider(props: { children: ReactNode }) {
         setAccountJobs,
         userCode,
         setUserCode,
-        roleName,
-        setRoleName
       }}
     />
   );

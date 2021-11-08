@@ -12,25 +12,15 @@ import {RiInformationLine} from "react-icons/ri";
 import {Link} from "react-router-dom";
 import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
-import {DeleteOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import {formatCurrency} from "../../../../utils/AppUtils";
 
 const Option = Select.Option;
-const discountTypes = [
-  {
-    value: "FIXED_AMOUNT",
-    name: "đ"
-  },
-  {
-    value: "PERCENTAGE",
-    name: "%"
-  }
-]
 
 const FixedPriceGroup = (props: any) => {
   const {
     key,
     name,
-    fieldKey,
     form,
     remove,
     isFirst,
@@ -81,14 +71,14 @@ const FixedPriceGroup = (props: any) => {
     let entitlementFields = form.getFieldValue('entitlements')
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)})
     form.setFieldsValue({entitlements: entitlementFields})
-  }, [selectedProduct])
+  }, [form, name, selectedProduct])
 
   useEffect(() => {
     let entitlementFields = form.getFieldValue('entitlements')
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
     console.log('discountType: ', discountType)
     form.setFieldsValue({entitlements: entitlementFields})
-  }, [discountType])
+  }, [discountType, form, name])
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -107,7 +97,7 @@ const FixedPriceGroup = (props: any) => {
       if (selectedItem) {
         setSelectedProduct([...selectedProduct, selectedItem])
       }
-      setData([]);
+      // setData([]);
     },
     [data, selectedProduct]
   )
@@ -120,7 +110,7 @@ const FixedPriceGroup = (props: any) => {
       }
       setVisibleManyProduct(false);
     },
-    [selectedProduct]
+    [form, name, selectedProduct]
   );
 
   const onDeleteItem = useCallback(
@@ -163,15 +153,17 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Input.Group compact>
+          <Input.Group compact style={{display: 'flex'}}>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
+              style={{flex: '1 1 auto'}}
             >
               <NumberInput
-                style={{textAlign: 'end', borderRadius: '0px', width: "300px"}}
+                style={{textAlign: 'end', borderRadius: '0px'}}
                 min={0}
                 maxLength={discountType === 'PERCENTAGE' ? 2 : 9}
+                // format={(a) => formatCurrency(a)}
               />
             </Form.Item>
             <Form.Item
@@ -204,6 +196,7 @@ const FixedPriceGroup = (props: any) => {
               ref={productSearchRef}
             />
             <Button
+              icon={<PlusOutlined/>}
               onClick={() => setVisibleManyProduct(true)}
               style={{width: 132, marginLeft: 10}}
             >
@@ -239,9 +232,9 @@ const FixedPriceGroup = (props: any) => {
                           </Link>
                         </div>
                         <div className="product-item-name">
-                                  <span className="product-item-name-detail">
-                                    {item.name}
-                                  </span>
+                          <span className="product-item-name-detail">
+                            {item.name}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -253,14 +246,14 @@ const FixedPriceGroup = (props: any) => {
                 className: "ant-col-info",
                 align: 'center',
                 width: '15%',
-                render: (value, item, index) => item.available
+                render: (value, item, index) => item.on_hand
               },
               {
                 title: "Giá vốn",
                 className: "ant-col-info",
                 align: 'center',
                 width: '15%',
-                render: (value, item, index) => item.variant_prices[0]?.import_price || ''
+                render: (value, item, index) => formatCurrency(item.variant_prices[0]?.import_price)
               },
               {
                 className: "ant-col-info",
