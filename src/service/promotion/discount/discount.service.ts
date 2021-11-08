@@ -38,40 +38,27 @@ export const bulkDisablePriceRules = (body: any) : Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/disable`, body)
 }
 
-export const applyDiscount = (item: OrderLineItemRequest | undefined, quantity: number) : Promise<any> => {
-  if (item === undefined) return Promise.reject(null);
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`,
-    {
-      "order_id": null,
-      "customer_id": null,
-      "store_id": null,
-      "sales_channel_name": "ADMIN",
-      "order_source_id": null,
-      "line_items": [
-        {
-          "custom": true,
-          "product_id": null,
-          "variant_id": item.variant_id,
-          "sku": null,
-          "quantity": quantity,
-          "original_unit_price": 0,
-          "applied_discount": {
-            "discount_code": "string",
-            "title": "string",
-            "value_type": "FIXED_AMOUNT",
-            "value": 0
-          },
-          "taxable": true
-        }
-      ],
+export const applyDiscount = (items: Array<any>) : Promise<any> => {
+  if (items === undefined) return Promise.reject(null);
+  // return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`,
+  const body: any = {};
+  body["line_items"] = items.map(item => {
+    return {
+      "custom": true,
+      "product_id": null,
+      "variant_id": item.variant_id,
+      "sku": null,
+      "quantity": item.quantity,
+      "original_unit_price": 0,
       "applied_discount": {
         "discount_code": "string",
         "title": "string",
         "value_type": "FIXED_AMOUNT",
         "value": 0
       },
-      "taxes_included": false,
-      "tax_exempt": false
+      "taxable": true
     }
-  )
+  })
+
+  return BaseAxios.post(`http://localhost:4000/unicorn/promotion-service/apply`, body)
 }
