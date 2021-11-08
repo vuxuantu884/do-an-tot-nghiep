@@ -897,7 +897,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
     } catch (e) {
       console.log(e);
-      showError(e.toString());
+      showError("Thao tác thất bại");
       setLoadingAutomaticDiscount(false)
       return null;
     }
@@ -960,7 +960,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         console.log('applyCouponDiscount: ', applyResponse);
       } catch(e) {
         console.log(e);
-        showError(e.toString());
+        showError("Thao tác thất bại");
         setLoadingAutomaticDiscount(false)
         return null;
       }
