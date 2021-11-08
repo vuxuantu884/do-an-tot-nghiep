@@ -60,21 +60,17 @@ const ListCode = () => {
       name: "Xoá",
     },
   ];
-  const initQuery: DiscountSearchQuery = {
-    type: "MANUAL",
-    request: "",
-    from_created_date: "",
-    to_created_date: "",
-    state: "",
-    applied_shop: "",
-    applied_source: "",
-    customer_category: "",
-    discount_method: ""
-  };
   const dispatch = useDispatch();
-  const query = useQuery();
   const {id} = useParams() as any;
   const priceRuleId = id;
+  const query = useQuery();
+  let dataQuery: any = {
+    ...{
+      request: "",
+      state: ""
+    },
+    ...getQueryParams(query)
+  }
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
@@ -95,11 +91,6 @@ const ListCode = () => {
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [promoValue, setPromoValue] = useState<any>();
-
-  let dataQuery: DiscountSearchQuery = {
-    ...initQuery,
-    ...getQueryParams(query)
-  }
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
   // section handle call api GET DETAIL
@@ -118,8 +109,8 @@ const ListCode = () => {
 
   // Call API get list
   useEffect(() => {
-    dispatch(getListPromoCode(priceRuleId, fetchData));
-  }, [dispatch, fetchData, priceRuleId]);
+    dispatch(getListPromoCode(priceRuleId, params, fetchData));
+  }, [dispatch, fetchData, priceRuleId, params]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -129,9 +120,9 @@ const ListCode = () => {
   );
 
   const onFilter = useCallback(values => {
-    let newParams = { ...params, ...values, page: 1 };
+    let newParams = {...params, ...values, page: 1};
     console.log("newParams", newParams);
-    setParams({ ...newParams })
+    setParams({...newParams})
   }, [params])
 
   // section EDIT by Id
@@ -153,7 +144,7 @@ const ListCode = () => {
     dispatch(hideLoading());
     if (response) {
       showSuccess("Cập nhật thành công");
-      dispatch(getListPromoCode(priceRuleId, fetchData));
+      dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
   }, [dispatch, priceRuleId, fetchData]);
 
@@ -195,7 +186,7 @@ const ListCode = () => {
     dispatch(hideLoading());
     if(response) {
       showSuccess("Thêm thành công");
-      dispatch(getListPromoCode(priceRuleId, fetchData));
+      dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
   }, [dispatch, priceRuleId, fetchData]);
 
@@ -204,7 +195,7 @@ const ListCode = () => {
     dispatch(hideLoading());
     if (response) {
       showSuccess("Xóa thành công");
-      dispatch(getListPromoCode(priceRuleId, fetchData));
+      dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
   }, [dispatch, priceRuleId, fetchData]);
 
