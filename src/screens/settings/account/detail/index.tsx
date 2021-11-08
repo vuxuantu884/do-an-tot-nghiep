@@ -1,15 +1,15 @@
-import { Card, Tabs } from "antd";
+import {Card, Tabs} from "antd";
 import ContentContainer from "component/container/content.container";
-import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
+import {StickyUnderNavbar} from "component/container/sticky-under-navbar";
 import UrlConfig from "config/url.config";
-import { AccountGetByIdtAction } from "domain/actions/account/account.action";
-import { AccountResponse } from "model/account/account.model";
-import React, { useCallback, useContext, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useParams } from "react-router";
-import { AccountDetailStyle } from "../account.detail.style";
+import {AccountGetByCodeAction} from "domain/actions/account/account.action";
+import {AccountResponse} from "model/account/account.model";
+import React, {useCallback, useContext, useEffect} from "react";
+import {useDispatch} from "react-redux";
+import {useParams} from "react-router";
+import {AccountDetailStyle} from "../account.detail.style";
 import AccountDetailProvider, {
-  AccountDetailContext
+  AccountDetailContext,
 } from "../provider/account.detail.provider";
 import AccountPermissionTab from "./account.permission.tab";
 import AccountViewTab from "./account.view.tab";
@@ -20,29 +20,7 @@ enum TabName {
   DETAIL_TAB = "DETAIL_TAB",
   PERMISSION_TAB = "PERMISSION_TAB",
 }
-const dumyPerrmission = { // dumy => need to remove
-  user_id: "e85cfc75-460e-4f1a-bea7-0d8ac6cf1837",
-  modules: [
-    {
-      id: 1,
-      description: "àdadsf",
-      name: "Tạo",
-      version: 1,
-      code: "AUTHS",
-      permissions: [
-        {
-          id: 23,
-          role_id: 22,
-          module_code: "AUTHS",
-          name: "Tạo",
-          code: "CREATE",
-          store_id: 1,
-          version: 1,
-        },
-      ],
-    },
-  ],
-};
+
 function AccountDetail() {
   const dispatch = useDispatch();
   const {code} = useParams<{code: string}>();
@@ -60,12 +38,13 @@ function AccountDetail() {
     [setAccountInfo]
   );
 
+  const getAccountData = useCallback(() => {
+    dispatch(AccountGetByCodeAction(code, setAccount));
+  }, [dispatch, code, setAccount]);
+
   useEffect(() => {
-    let data: any = {};
-    data.permissions = dumyPerrmission;
-    setAccountInfo && setAccountInfo(data);
-    dispatch(AccountGetByIdtAction(code, setAccount));
-  }, [code, setAccount, dispatch, setAccountInfo]);
+    getAccountData();
+  }, [getAccountData]);
 
   const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
     <StickyUnderNavbar>
@@ -92,19 +71,12 @@ function AccountDetail() {
     >
       <AccountDetailStyle>
         <Card className="card-tab">
-          <Tabs
-            style={{overflow: "initial"}}
-            // activeKey={activeTab}
-            // onChange={(active) =>
-            //   history.replace(`${history.location.pathname}#${active}`)
-            // }
-            renderTabBar={renderTabBar}
-          >
+          <Tabs style={{overflow: "initial"}} renderTabBar={renderTabBar}>
             <TabPane tab="Thông tin cơ bản" key={TabName.DETAIL_TAB}>
               <AccountViewTab />
             </TabPane>
             <TabPane tab="Thông tin phân quyền" key={TabName.PERMISSION_TAB}>
-              <AccountPermissionTab />
+              <AccountPermissionTab getAccountData={getAccountData}/>
             </TabPane>
           </Tabs>
         </Card>
