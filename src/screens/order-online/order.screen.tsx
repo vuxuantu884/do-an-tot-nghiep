@@ -242,6 +242,7 @@ export default function Order() {
     shipping_address: null,
     billing_address: null,
     payments: [],
+    channel_id: null,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
