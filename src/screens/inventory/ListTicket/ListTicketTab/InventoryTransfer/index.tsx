@@ -353,9 +353,8 @@ const InventoryTransferTab: React.FC = () => {
   
   const setSearchResult = useCallback(
     (result: PageResponse<Array<InventoryTransferDetailItem>> | false) => {
-      setTableLoading(true);
       if (!!result) {
-        setTableLoading(false);
+      setTableLoading(false);
         setData(result);
       }
     },
@@ -377,6 +376,7 @@ const InventoryTransferTab: React.FC = () => {
       let newParams = { ...params, ...values, page: 1 };
       setParams(newParams);
       let queryParam = generateQuery(newParams);
+      setTableLoading(true);
       history.push(`${UrlConfig.INVENTORY_TRANSFER}#1?${queryParam}`);
     },
     [history, params]
