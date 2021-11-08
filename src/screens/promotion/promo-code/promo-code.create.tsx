@@ -37,6 +37,7 @@ const CreatePromotionCodePage = () => {
   }, [dispatch]);
 
   const transformData = (values: any) => {
+    console.log('transformData: ', values)
     let body: any = {};
     body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
@@ -56,9 +57,9 @@ const CreatePromotionCodePage = () => {
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [
           {
-            greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
+            greater_than_or_equal_to: entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to,
             less_than_or_equal_to: null,
-            allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
+            allocation_limit: null,
             value_type: values.value_type,
             value: values.value,
           },
@@ -70,15 +71,19 @@ const CreatePromotionCodePage = () => {
   }
 
   const createCallback = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Thêm thành công");
-    history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+
+    setTimeout(() => {
+      showSuccess("Thêm thành công");
+      dispatch(hideLoading());
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
+    }, 2000);
+
   }, [dispatch, history]);
 
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
     const body = transformData(values);
-    body.disabled = false;
+    body.activated = true;
     dispatch(showLoading());
     dispatch(addPriceRules(body, createCallback));
   }
@@ -87,7 +92,7 @@ const CreatePromotionCodePage = () => {
     // Action: Lưu
     const values = await promoCodeForm.validateFields();
     const body = transformData(values);
-    body.disabled = true;
+    body.activated = false;
     dispatch(showLoading());
     dispatch(addPriceRules(transformData(values), createCallback));
   }

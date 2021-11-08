@@ -72,8 +72,10 @@ const DiscountPage = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
-    setDiscounts(data)
-    setTableLoading(false)
+    setTimeout(() => {
+      setDiscounts(data)
+      setTableLoading(false)
+    }, 1500)
   }, [])
 
   useEffect(() => {
@@ -83,9 +85,10 @@ const DiscountPage = () => {
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
-  }, [dispatch, fetchData, params]);
+  }, []);
 
   useEffect(() => {
+    setTableLoading(true)
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params])
 
@@ -198,13 +201,16 @@ const DiscountPage = () => {
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      setTableLoading(true)
       const body = {ids: selectedRowKey}
       switch (index) {
         case 1:
           const bulkEnableResponse = await bulkEnablePriceRules(body);
           if (bulkEnableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
           }
@@ -212,8 +218,10 @@ const DiscountPage = () => {
         case 2:
           const bulkDisableResponse = await bulkDisablePriceRules(body);
           if (bulkDisableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
           }
@@ -223,8 +231,10 @@ const DiscountPage = () => {
         case 4:
           const bulkDeleteResponse = await bulkDeletePriceRules(body);
           if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
           }
@@ -311,11 +321,13 @@ const DiscountPage = () => {
       <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}
         onOk={async () => {
+          setTableLoading(true)
           const deleteResponse = await deletePriceRuleById(selectedRowId);
           if (deleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${deleteResponse.code} - ${deleteResponse.message}`)
           }

@@ -17,7 +17,11 @@ import Dragger from "antd/lib/upload/Dragger";
 import moment from "moment";
 import "./promo-code.scss";
 import { RiUpload2Line } from "react-icons/ri";
-import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import {
+  bulkEnablePriceRules,
+  deletePriceRulesById,
+  promoGetDetail,
+} from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
@@ -131,6 +135,16 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(getListPromoCode(idNumber, checkIsHasPromo));
   }, [dispatch, checkIsHasPromo, idNumber]);
+
+  const onActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
+  const onActivateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    dispatch(promoGetDetail(idNumber, onResult));
+  }, []);
 
   // section DELETE by Id
   function onDelete() {
@@ -641,7 +655,7 @@ const PromotionDetailScreen: React.FC = () => {
             <Button onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
             <Button onClick={onEdit}>Sửa</Button>
             <Button>Nhân bản</Button>
-            <Button type="primary">Kích hoạt</Button>
+            <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
           </Space>
 
         }
