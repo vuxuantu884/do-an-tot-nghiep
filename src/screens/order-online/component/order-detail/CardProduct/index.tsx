@@ -318,9 +318,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 }, [event]);
 
   useEffect(() => {
-    if (coupon) {
+    if (coupon && items) {
       console.log("Apply coupon: ", coupon)
-      // applyCouponDiscount(items);
+      // let _items = [...items];
+      // applyCouponDiscount(_items);
+      // let _amount = totalAmount(_items);
+      // handleCardItems(_items);
+      // setAmount(_amount);
+      // calculateChangeMoney(_items, _amount, discountRate, discountValue);
     }
   }, [coupon])
 
@@ -397,7 +402,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     let _items = [...items];
     let _amount = totalAmount(_items);
     handleCardItems(_items);
-    // await handleAutomaticDiscount(_items, item, splitLine)
     setAmount(_amount);
     calculateChangeMoney(_items, _amount, discountRate, discountValue);
   }, [items]);
@@ -922,32 +926,34 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         ) {
           applyResponse.data.line_items.forEach((discountLineItem:any) => {
             const orderItems = items.filter(item => item.variant_id === discountLineItem.variant_id);
-            let valuestDiscount = 0;
-            console.log('orderItems[0]: ',orderItems[0]);
-            const quantity = orderItems[0].quantity;
-            const suggested_discounts = discountLineItem.suggested_discounts;
-            const total = orderItems[0].amount;
-            valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
-              let value = 0;
-              if (discount.value_type === "FIXED_AMOUNT") {
-                value = discount.value * quantity;
-              } else if (discount.value_type === "PERCENTAGE") {
-                value = total * (discount.value/100);
-              } else if (discount.value_type === "FIXED_PRICE") {
-                value = orderItems[0].price - discount.value;
-              }
-              if (value > orderItems[0].price) {
-                value = orderItems[0].price;
-              }
-              return value;
-            }))
-            const discountItem: OrderItemDiscountRequest = {
-              rate: Math.round((valuestDiscount/(orderItems[0].price * orderItems[0].quantity)) * 100 * 100) / 100,
-              value: valuestDiscount,
-              amount: valuestDiscount,
-              reason: '',
-            };
-            orderItems.forEach(e => e.discount_items = [discountItem]);
+            if (orderItems && orderItems.length > 0) {
+              let valuestDiscount = 0;
+              console.log('orderItems[0]: ',orderItems[0]);
+              const quantity = orderItems[0].quantity;
+              const suggested_discounts = discountLineItem.suggested_discounts;
+              const total = orderItems[0].amount;
+              valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
+                let value = 0;
+                if (discount.value_type === "FIXED_AMOUNT") {
+                  value = discount.value * quantity;
+                } else if (discount.value_type === "PERCENTAGE") {
+                  value = total * (discount.value/100);
+                } else if (discount.value_type === "FIXED_PRICE") {
+                  value = orderItems[0].price - discount.value;
+                }
+                if (value > orderItems[0].price) {
+                  value = orderItems[0].price;
+                }
+                return value;
+              }))
+              const discountItem: OrderItemDiscountRequest = {
+                rate: Math.round((valuestDiscount/(orderItems[0].price * orderItems[0].quantity)) * 100 * 100) / 100,
+                value: valuestDiscount,
+                amount: valuestDiscount,
+                reason: '',
+              };
+              orderItems.forEach(e => e.discount_items = [discountItem]);
+            }
           })
         }
         console.log('applyCouponDiscount - items: ', items)
