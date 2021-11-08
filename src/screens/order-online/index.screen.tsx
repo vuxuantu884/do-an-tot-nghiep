@@ -393,20 +393,12 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Đóng gói",
-      dataIndex: "packed_status",
       key: "packed_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "unpicked":
-            processIcon = "icon-blank";
-            break;
-          case "picked":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
+      render: (record: any) => {
+        let processIcon = "icon-blank";
+        if (record.fulfillments.length) {
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          processIcon = newFulfillments[0].packed_on ? "icon-full" : "icon-blank";
         }
         return (
           <div className="text-center">
@@ -420,12 +412,16 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Xuất kho",
-      dataIndex: "received_status",
       key: "received_status",
-      render: (received_status: boolean) => {
+      render: (record: any) => {
+        let processIcon = "icon-blank";
+        if (record.fulfillments.length) {
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          processIcon = newFulfillments[0].export_on ? "icon-full" : "icon-blank";
+        }
         return (
           <div className="text-center">
-            <div className={received_status ? "icon-full" : "icon-blank"} />
+            <div className={processIcon} />
           </div>
         );
       },

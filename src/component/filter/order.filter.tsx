@@ -442,7 +442,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
 
     if (initialValues.price_min || initialValues.price_max) {
-      let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
+      let textPrice = (initialValues.price_min ? `${initialValues.price_min} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " 0 ") + " ~ " + (initialValues.price_max ? `${initialValues.price_max} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " ?? ")
       list.push({
         key: 'price',
         name: 'Tổng tiền',
@@ -864,6 +864,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
                     <InputNumber
                       className="price_min"
+                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       placeholder="Từ"
                       min="0"
                       max="100000000"
@@ -874,6 +875,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item name="price_max" style={{width: '45%', marginBottom: 0}}>
                     <InputNumber
                       className="site-input-right price_max"
+                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       placeholder="Đến"
                       min="0"
                       max="1000000000"

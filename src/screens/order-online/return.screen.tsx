@@ -198,7 +198,7 @@ const ListOrderScreen: React.FC = () => {
             processIcon = "icon-full";
             break;
           case "partial_paid":
-            processIcon = "icon-partial";
+            processIcon = "icon-full";
             break;
           default:
             break;
