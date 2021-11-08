@@ -32,6 +32,7 @@ import { SourceResponse } from "model/response/order/source.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
 import Countdown from "react-countdown";
+import { getQueryParams, useQuery } from "utils/useQuery";
 
 export interface ProductParams {
   id: string;
@@ -132,8 +133,17 @@ const PromotionDetailScreen: React.FC = () => {
     setCheckPromoCode(data.items.length > 0);
   }, []);
 
+  const query = useQuery();
+  let dataQuery: any = {
+    ...{
+      request: "",
+      state: ""
+    },
+    ...getQueryParams(query)
+  }
+
   useEffect(() => {
-    dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+    dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
   }, [dispatch, checkIsHasPromo, idNumber]);
 
   const onActivate = () => {
@@ -291,7 +301,7 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(hideLoading());
     if(response) {
       showSuccess("Thêm thành công");
-      dispatch(getListPromoCode(idNumber, checkIsHasPromo));
+      dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
     }
   }, [dispatch, idNumber, checkIsHasPromo]);
 

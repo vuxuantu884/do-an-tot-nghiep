@@ -8,14 +8,13 @@ type AccountDetailAction = {
   setAccountInfo: (acc: AccountResponse) => void;
   accountJobs: Array<AccountJobResponse>;
   setAccountJobs: (jobs: Array<AccountJobResponse>) => void;
-
 };
 export const AccountDetailContext = createContext<Partial<AccountDetailAction>>(
   {} as AccountDetailAction
 );
 AccountDetailProvider.defaultProps = {};
-function AccountDetailProvider(props: { children: ReactNode }) {
-  const [userCode, setUserCode] = useState<string>(); 
+function AccountDetailProvider(props: {children: ReactNode}) {
+  const [userCode, setUserCode] = useState<string>();
   const [accountInfo, setAccountInfo] = useState<AccountResponse>({} as AccountResponse);
   const [accountJobs, setAccountJobs] = useState<Array<AccountJobResponse>>(
     [] as Array<AccountJobResponse>
@@ -30,7 +29,7 @@ function AccountDetailProvider(props: { children: ReactNode }) {
         accountJobs,
         setAccountJobs,
         userCode,
-        setUserCode, 
+        setUserCode,
       }}
     />
   );

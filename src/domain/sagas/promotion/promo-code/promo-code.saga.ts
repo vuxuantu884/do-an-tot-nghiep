@@ -19,11 +19,12 @@ import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 
 function* getPromoCode(action: YodyAction) {
-  const { priceRuleId, setData } = action.payload;
+  const { priceRuleId, query, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<PromoCodeResponse>> = yield call(
       getAllPromoCodeList,
-      priceRuleId
+      priceRuleId,
+      query
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
