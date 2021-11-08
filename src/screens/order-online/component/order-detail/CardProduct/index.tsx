@@ -862,7 +862,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           let value = 0;
           if (discount.value_type === "FIXED_AMOUNT") {
             value = discount.value * quantity;
-          } else if (discount.value_type === "FIXED_AMOUNT") {
+          } else if (discount.value_type === "PERCENTAGE") {
             value = total * (discount.value/100);
           } else if (discount.value_type === "FIXED_PRICE") {
             value = item.price - discount.value;

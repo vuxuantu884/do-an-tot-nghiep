@@ -21,12 +21,12 @@ import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { 
+import {
   deletePriceRulesById,
   getListDiscount,
   bulkDeletePriceRules,
   bulkDisablePriceRules,
-  bulkEnablePriceRules 
+  bulkEnablePriceRules
 } from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
@@ -61,14 +61,14 @@ const PromotionCode = () => {
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     dispatch(hideLoading());
-    setDataSource(data)
-    setTableLoading(false)
+    setDataSource(data);
+    setTableLoading(false);
   }, [])
 
   useEffect(() => {
     dispatch(showLoading());
     dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params])
+  }, [dispatch, fetchData, params]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -79,7 +79,6 @@ const PromotionCode = () => {
 
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
-    console.log("newParams", newParams);
     setParams({...newParams})
   }, [params])
 
@@ -117,14 +116,16 @@ const PromotionCode = () => {
       title: "SL mã",
       visible: true,
       fixed: "left",
-      dataIndex: "usage_limit_per_customer",
+      align: 'center',
+      dataIndex: "number_of_discount_codes",
       width: "10%",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "usage_limit",
+      align: 'center',
+      dataIndex: "total_usage_count",
       width: "10%",
     },
     {
@@ -184,11 +185,12 @@ const PromotionCode = () => {
   ]
 
   const handleCallback = useCallback((response) => {
-    dispatch(hideLoading());
+
     if (response) {
-      showSuccess("Thao tác thành công");
-      dispatch(showLoading());
-      dispatch(getListDiscount(params, fetchData));
+      setTimeout(() => {
+        showSuccess("Thao tác thành công");
+        dispatch(getListDiscount(params, fetchData));
+      }, 1500)
     }
   }, [dispatch, params, fetchData]);
 

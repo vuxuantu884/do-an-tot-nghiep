@@ -2,9 +2,10 @@ import BaseAction from 'base/base.action';
 import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {PromoCodeType} from "../../../types/promotion.type";
 import {DiscountResponse} from "../../../../model/response/promotion/discount/list-discount.response";
+import { BaseQuery } from './../../../../model/base/base.query';
 
-export const getListPromoCode = (priceRuleId: number, setData: (data: PageResponse<DiscountResponse>) => void) => {
-  return BaseAction(PromoCodeType.GET_LIST_PROMO_CODE, { priceRuleId, setData });
+export const getListPromoCode = (priceRuleId: number, query: BaseQuery, setData: (data: PageResponse<DiscountResponse>) => void) => {
+  return BaseAction(PromoCodeType.GET_LIST_PROMO_CODE, { priceRuleId, query, setData });
 }
 
 export const getPromoCodeById = (priceRuleId: number, id: number, onResult: (result: DiscountResponse|false) => void) => {
