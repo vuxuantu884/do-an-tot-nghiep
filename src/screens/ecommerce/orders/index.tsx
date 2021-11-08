@@ -108,6 +108,20 @@ const initQuery: EcommerceOrderSearchQuery = {
   reference_code: null,
 };
 
+// todo thai need update
+const ECOMMERCE_SOURCE = {
+  shopee: 16,
+  lazada: 19,
+  sendo: 20,
+  tiki: 100
+}
+const ALL_ECOMMERCE_SOURCE_ID = [
+  ECOMMERCE_SOURCE.shopee,
+  ECOMMERCE_SOURCE.lazada,
+  ECOMMERCE_SOURCE.sendo,
+  ECOMMERCE_SOURCE.tiki
+];
+
 const EcommerceOrderSync: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -520,14 +534,12 @@ const EcommerceOrderSync: React.FC = () => {
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "finalized_on",
+      dataIndex: "completed_on",
       key: "completed_on",
       visible: true,
       align: "center",
       width: "200px",
-      render: (finalized_on) => (
-        <div>{convertDateTimeFormat(finalized_on)}</div>
-      ),
+      render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on)}</div>,
     },
     {
       title: "Ngày huỷ đơn",
@@ -662,16 +674,21 @@ const EcommerceOrderSync: React.FC = () => {
     }
   };
 
-  const getEcommerceOrderList = useCallback((queryRequest: any) => {
+  const getEcommerceOrderList = useCallback(() => {
+    const requestParams = { ...params };
+    if (!requestParams.source_ids?.length) {
+      requestParams.source_ids = ALL_ECOMMERCE_SOURCE_ID;
+    }
+    
     setTableLoading(true);
-    dispatch(getListOrderAction(queryRequest, (result) => {
+    dispatch(getListOrderAction(requestParams, (result) => {
       setTableLoading(false);
       setSearchResult(result);
     }));
-  }, [dispatch, setSearchResult]);
+  }, [dispatch, params, setSearchResult]);
 
   const reloadPage = () => {
-    getEcommerceOrderList(params);
+    getEcommerceOrderList();
   };
 
   const closeResultGetOrderModal = () => {
@@ -680,12 +697,8 @@ const EcommerceOrderSync: React.FC = () => {
   };
 
   useEffect(() => {
-    setTableLoading(true);
-    dispatch(getListOrderAction(params, (result) => {
-      setTableLoading(false);
-      setSearchResult(result);
-    }));
-  }, [dispatch, params, setSearchResult]);
+    getEcommerceOrderList();
+  }, [getEcommerceOrderList]);
 
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));

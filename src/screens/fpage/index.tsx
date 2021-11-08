@@ -1,32 +1,32 @@
-import React, {useEffect, useCallback} from "react";
+import React, { useEffect, useCallback } from "react";
 import FpageOrders from "./fpage-order/FpageOrders";
 import FpageCustomer from "./fpage-customer/create.customer";
-import {Tabs} from "antd";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {FpageCustomerResponse} from "model/response/ecommerce/fpage.response";
-import {useQuery} from "utils/useQuery";
-import {useDispatch} from "react-redux";
-import {FpageCustomerSearchQuery} from "model/query/customer.query";
+import { Tabs } from "antd";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { FpageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { useQuery } from "utils/useQuery";
+import { useDispatch } from "react-redux";
+import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import {
   CustomerSearchByPhone,
   CustomerDetail,
 } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
-import {getListOrderActionFpage} from "domain/actions/order/order.action";
+import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import {
   getFpageCustomerInfo,
   addFpagePhone,
   deleteFpagePhone,
   setFpageDefaultPhone,
 } from "domain/actions/ecommerce/ecommerce.actions";
-import {PageResponse} from "model/base/base-metadata.response";
-import {OrderModel} from "model/order/order.model";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
-import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
-import {showError} from "utils/ToastUtils";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderModel } from "model/order/order.model";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import { showError } from "utils/ToastUtils";
 
-const {TabPane} = Tabs;
+const { TabPane } = Tabs;
 
 const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",
@@ -42,11 +42,12 @@ function FpageCRM() {
   const [customer, setCustomer] = React.useState<CustomerResponse | null>();
   const [isClearOrderTab, setIsClearOrderTab] = React.useState<boolean>(false);
   const [userId] = React.useState<string | null>(queryString?.get("userId"));
+  const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
+  const [pageId] = React.useState<string | null>(queryString?.get("pageId"));
   const [fpageCustomerInfo, setFpageCustomerInfo] =
     React.useState<FpageCustomerResponse | null>();
 
   const [customerPhone, setCustomerPhone] = React.useState<string | null>("");
-  const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [customerPhones, setCustomerPhones] = React.useState<Array<string>>([]);
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel> | undefined>(
     []
@@ -74,7 +75,7 @@ function FpageCRM() {
   }, [userId, dispatch, setFpageCustomerInfo]);
   useEffect(() => {
     if (fpageCustomerInfo) {
-      const {default_phone, phones} = fpageCustomerInfo;
+      const { default_phone, phones } = fpageCustomerInfo;
       if (default_phone) {
         setCustomerPhone(default_phone);
       }
@@ -82,9 +83,12 @@ function FpageCRM() {
     }
   }, [fpageCustomerInfo, setCustomerPhone, setCustomerPhones]);
   const addFpPhone = useCallback(
-    (phone: string) => {
+    (phone: string, callback: () => void) => {
       if (userId) {
-        dispatch(addFpagePhone(userId, phone, setFpageCustomerInfo));
+        dispatch(addFpagePhone(userId, phone, (customerInfo: FpageCustomerResponse) => {
+          setFpageCustomerInfo(customerInfo);
+          callback();
+        }));
       }
     },
     [userId, dispatch]
@@ -120,7 +124,7 @@ function FpageCRM() {
 
   const onPageChange = React.useCallback(
     (page, limit) => {
-      setQuerySearchOrderFpage({...querySearchOrderFpage, page, limit});
+      setQuerySearchOrderFpage({ ...querySearchOrderFpage, page, limit });
     },
     [querySearchOrderFpage, setQuerySearchOrderFpage]
   );
@@ -197,6 +201,8 @@ function FpageCRM() {
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>} forceRender={!isClearOrderTab}>
           <FpageOrders
+            fbId={userId}
+            pageId={pageId}
             customer={customer}
             setCustomer={setCustomer}
             setActiveTabKey={setActiveTabKey}

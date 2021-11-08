@@ -14,7 +14,8 @@ import {useDispatch} from "react-redux";
 import {Link} from "react-router-dom";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {RoleListStyled} from "./role-list.style";
-
+import _ from "lodash";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 const defaultRoleListParams: RoleSearchQuery = {
   page: 1,
   limit: 200,
@@ -50,13 +51,9 @@ const RoleListScreen = () => {
       visible: true,
     },
     {
-      title: "Cập nhật lần cuối",
-      dataIndex: "updated_date",
-      align: "center",
+      title: "Mô tả",
+      dataIndex: "description",
       visible: true,
-      render: (value: string) => {
-        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
-      },
     },
     {
       title: "Người cập nhật lần cuối",
@@ -65,9 +62,13 @@ const RoleListScreen = () => {
       visible: true,
     },
     {
-      title: "Diễn dải",
-      dataIndex: "description",
+      title: "Cập nhật lần cuối",
+      dataIndex: "updated_date",
+      align: "center",
       visible: true,
+      render: (value: string) => {
+        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
+      },
     },
   ]);
 
@@ -91,9 +92,8 @@ const RoleListScreen = () => {
       visible: true,
       render: (value: Array<PermissionsAuthorize>) => {
         let formatValue = "";
-        value.forEach((item, index) => {
-          // upper first letter and lower all other
-          let name = item.name.charAt(0).toUpperCase() + item.name.slice(1).toLowerCase();
+        value.forEach((item) => {
+          let name = _.capitalize(item.name);
           formatValue += name + " / ";
         });
         formatValue = formatValue.substring(0, formatValue.length - 2);
@@ -127,7 +127,7 @@ const RoleListScreen = () => {
             isLoading={loading}
             pagination={false}
             showColumnSetting
-            // scroll={{ x: 1080 }}
+            sticky={{offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}

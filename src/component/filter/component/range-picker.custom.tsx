@@ -60,7 +60,7 @@ const CustomRangePicker: React.FC<CustomRangePickerProps> = (
       _.isEqual(getRange(1, "month"), value) ||
       _.isEqual(getRange(0, "month"), value)
     ) {
-      return undefined;
+      return [moment(value?.[0]), moment(value?.[1])];
     }
     if (value && value.length > 0) {
       const from = value[0],

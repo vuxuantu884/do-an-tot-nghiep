@@ -511,8 +511,8 @@
       }
       .ant-select {
         &-selector {
-          min-height: 38px;
-          border-radius: $border-radius;
+          height: 38px;
+          // border-radius: $border-radius;
           padding: 0 14px;
           .ant-select-selection {
             &-search-input {
@@ -727,6 +727,23 @@
       // }
       & > tr.ant-table-row-selected > td {
         // background-color: inherit;
+      }
+    }
+    &-sticky-scroll{
+      height: $scoll-bar-table !important;
+      &-bar{
+        border-radius: $border-radius-scoll-bar-table !important;
+        height: $scoll-bar-table;
+      }
+    }
+
+    &-wrapper{
+      ::-webkit-scrollbar{ 
+        height: $scoll-bar-table;
+      }
+      ::-webkit-scrollbar-thumb {
+        
+        border-radius: $border-radius-scoll-bar-table !important;
       }
     }
     @for $i from 1 through 5 {
@@ -999,8 +1016,8 @@
 .ant-input-group.ant-input-group-compact > .ant-cascader-picker:last-child .ant-input,
 .ant-input-group.ant-input-group-compact > .ant-select:last-child > .ant-select-selector,
 .ant-input-group.ant-input-group-compact > :last-child {
-  border-top-right-radius: $border-radius;
-  border-bottom-right-radius: $border-radius;
+  // border-top-right-radius: $border-radius;
+  // border-bottom-right-radius: $border-radius;
   &:is(.ant-select-selector) {
     background-color: $background-color-secondary;
   }

@@ -1,16 +1,16 @@
 import { Button, Form, Input, Tag } from "antd";
+import search from "assets/img/search.svg";
+import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
+import ButtonSetting from "component/table/ButtonSetting";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryQuery } from "model/inventory";
-import React, { useCallback, useEffect, useState } from "react";
-import search from "assets/img/search.svg";
 import {
-  InventoryQueryField,
+  InventoryQueryField
 } from "model/inventory/field";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import ButtonSetting from "component/table/ButtonSetting";
+import React, { useCallback, useEffect, useState } from "react";
 
 export interface InventoryFilterProps {
   params: InventoryQuery;
@@ -84,21 +84,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
 ) => {
   const {
-    params,
-    actions,
-    listStore,
-    onMenuClick,
+    params, 
+    listStore, 
     onFilter,
     openColumn
   } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({status:"on_hand"});
   const [formBaseFilter] = Form.useForm();
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
 
   const onBaseFinish = useCallback(
     (values: InventoryQuery) => {
@@ -115,18 +107,19 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [params]);
   return (
     <div className="inventory-filter">
-      <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form
-          onFinish={onBaseFinish}
-          initialValues={advanceFilters}
-          form={formBaseFilter}
-          name={"baseInventory"}
-          layout="inline"
-        >
+      {/* <CustomFilter onMenuClick={onActionClick} menu={actions}> */}
+      <Form
+        onFinish={onBaseFinish}
+        initialValues={advanceFilters}
+        form={formBaseFilter}
+        name={"baseInventory"}
+        layout="inline"
+      >
+        <FilterWrapper>
           <Item name={InventoryQueryField.condition} className="search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: "100%" }}
+              style={{width: "100%"}}
               placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
             />
           </Item>
@@ -140,6 +133,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               allowClear
               tagRender={tagRender}
               style={{
+                minWidth: "150px",
                 width: "100%",
               }}
               notFoundContent="Không tìm thấy kết quả"
@@ -161,6 +155,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
               allowClear
               tagRender={tagRender}
               style={{
+                minWidth: "150px",
                 width: "100%",
               }}
               notFoundContent="Không tìm thấy kết quả"
@@ -178,10 +173,11 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
             </Button>
           </Item>
           <Item>
-              <ButtonSetting onClick={openColumn} />
-            </Item>
-        </Form>
-      </CustomFilter>
+            <ButtonSetting onClick={openColumn} />
+          </Item>
+        </FilterWrapper>
+      </Form>
+      {/* </CustomFilter> */}
     </div>
   );
 };

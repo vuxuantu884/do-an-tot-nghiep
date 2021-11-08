@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   Button,
   Form,
@@ -70,7 +71,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [shopIdSelected, setShopIdSelected] = useState<Array<any>>([]);
 
-  const params: ProductEcommerceQuery = useMemo(
+  const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
       limit: 30,
@@ -233,12 +234,16 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     {
       title: "Sản phẩm (Yody)",
       visible: true,
-      render: (l: any, v: any, i: any) => {
-        const link = `${UrlConfig.PRODUCT}/${l.core_product_id}/variants/${l.core_variant_id}`
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductLink>
-            <a href={link} rel="noreferrer" target="_blank">{l.core_variant}</a>
-            <div>{l.core_sku}</div>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+            >
+              {item.core_variant}
+            </Link>
+            <div>{item.core_sku}</div>
           </StyledProductLink>
         );
       },
@@ -346,7 +351,6 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       query.sku_or_name_core = value.sku_or_name_core;
       query.connected_date_from = value.connected_date_from;
       query.connected_date_to = value.connected_date_to;
-      
     }
 
     const querySearch: ProductEcommerceQuery = { ...query };
@@ -454,9 +458,9 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
     onClearConnectionDate();
     setVisibleFilter(false);
 
-    formAdvance.setFieldsValue(params);
+    formAdvance.setFieldsValue(initialFormValues);
     formAdvance.submit();
-  }, [formAdvance, params]);
+  }, [formAdvance, initialFormValues]);
 
   const openFilter = React.useCallback(() => {
     setVisibleFilter(true);
@@ -559,10 +563,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
   //handle select connection date
   const [connectionStartDate, setConnectionStartDate] = useState(
-    params.connected_date_from || null
+    initialFormValues.connected_date_from || null
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    params.connected_date_to || null
+    initialFormValues.connected_date_to || null
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
@@ -629,7 +633,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
+            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
@@ -743,8 +747,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
           <Form
             form={formAdvance}
             onFinish={onSearch}
-            //ref={formRef}
-            initialValues={params}
+            initialValues={initialFormValues}
             layout="vertical"
           >
             <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>
@@ -838,25 +841,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("yesterday")}
-                    className={
-                      dateButtonSelected === "yesterday" ? "active-btn" : ""
-                    }
+                    className={ dateButtonSelected === "yesterday" ? "active-btn" : "" }
                   >
                     Hôm qua
                   </Button>
                   <Button
                     onClick={() => onSelectDate("today")}
-                    className={
-                      dateButtonSelected === "today" ? "active-btn" : ""
-                    }
+                    className={ dateButtonSelected === "today" ? "active-btn" : "" }
                   >
                     Hôm nay
                   </Button>
                   <Button
                     onClick={() => onSelectDate("thisweek")}
-                    className={
-                      dateButtonSelected === "thisweek" ? "active-btn" : ""
-                    }
+                    className={ dateButtonSelected === "thisweek" ? "active-btn" : "" }
                   >
                     Tuần này
                   </Button>
@@ -864,25 +861,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("lastweek")}
-                    className={
-                      dateButtonSelected === "lastweek" ? "active-btn" : ""
-                    }
+                    className={ dateButtonSelected === "lastweek" ? "active-btn" : "" }
                   >
                     Tuần trước
                   </Button>
                   <Button
                     onClick={() => onSelectDate("thismonth")}
-                    className={
-                      dateButtonSelected === "thismonth" ? "active-btn" : ""
-                    }
+                    className={ dateButtonSelected === "thismonth" ? "active-btn" : "" }
                   >
                     Tháng này
                   </Button>
                   <Button
                     onClick={() => onSelectDate("lastmonth")}
-                    className={
-                      dateButtonSelected === "lastmonth" ? "active-btn" : ""
-                    }
+                    className={ dateButtonSelected === "lastmonth" ? "active-btn" : "" }
                   >
                     Tháng trước
                   </Button>

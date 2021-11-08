@@ -29,15 +29,18 @@ import { showSuccess, showWarning } from "utils/ToastUtils";
 import { DistrictResponse } from "model/content/district.model";
 import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 2,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 const DefaultCountry = 233;

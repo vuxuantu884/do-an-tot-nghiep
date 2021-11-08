@@ -1,44 +1,23 @@
 import {
   Button,
-  Card,
-  Checkbox,
-  Col,
-  Collapse,
-  Form,
-  FormInstance,
-  Input,
-  Row,
+  Card, Col, Form, Input,
+  Row
 } from "antd";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import { getAllModuleParam } from "config/module.config";
 import UrlConfig from "config/url.config";
-import {getModuleAction} from "domain/actions/auth/module.action";
-import {createRoleAction} from "domain/actions/auth/role.action";
-import {ModuleAuthorize, ModuleAuthorizeQuery} from "model/auth/module.model";
-import {PermissionsAuthorize} from "model/auth/permission.model";
-import {RoleAuthorize, RoleAuthorizeRequest} from "model/auth/roles.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {Fragment, useEffect, useState} from "react";
-import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
-import {useDispatch} from "react-redux";
-import {useHistory} from "react-router";
-import {
-  handleCheckedModule,
-  handleIndeterminateModule,
-  onChangeModule,
-} from "utils/AuthUtil";
-import {showError, showSuccess} from "utils/ToastUtils";
-import {RoleStyled} from "./role-create.style";
+import { getModuleAction } from "domain/actions/auth/module.action";
+import { createRoleAction } from "domain/actions/auth/role.action";
+import { ModuleAuthorize } from "model/auth/module.model";
+import { RoleAuthorize, RoleAuthorizeRequest } from "model/auth/roles.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { AuthorizeDetailCard } from "./card-authorize-detail";
 
-const {Panel} = Collapse;
-
-const GET_ALL_MODULE_LIMIT = 100;
-const moduleQueryParam: ModuleAuthorizeQuery = {
-  get_permission: true,
-  limit: GET_ALL_MODULE_LIMIT,
-  status: "ACTIVE",
-};
 const RoleCreateScreen: React.FC = () => {
   const history = useHistory();
   const [form] = Form.useForm();
@@ -78,12 +57,17 @@ const RoleCreateScreen: React.FC = () => {
     );
   };
 
+  const onSetModuleData = (data: PageResponse<ModuleAuthorize>) => {
+    setModuleData(data);
+    const defaultActivePanel = data.items.map((item) => item.code);
+    setActivePanel(defaultActivePanel);
+  };
+
   useEffect(() => {
-    dispatch(getModuleAction(moduleQueryParam, setModuleData));
+    dispatch(getModuleAction(getAllModuleParam, onSetModuleData));
   }, [dispatch]);
 
   return (
-    <RoleStyled>
       <ContentContainer
         title="Tạo nhóm quyền mới"
         breadcrumb={[
@@ -131,10 +115,10 @@ const RoleCreateScreen: React.FC = () => {
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
                     name="description"
-                    label="Diễn dải"
-                    rules={[{max: 255, message: "Diễn dải không vượt quá 255 kí tự"}]}
+                    label="Mô tả"
+                    rules={[{ max: 255, message: "Mô tả không vượt quá 255 kí tự" }]}
                   >
-                    <Input placeholder="Nhập diễn dải" />
+                    <Input placeholder="Nhập mô tả" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -149,6 +133,7 @@ const RoleCreateScreen: React.FC = () => {
             setCheckedModules={setCheckedModules}
             moduleData={moduleData}
             form={form}
+            isShowTitle={true}
           />
           <BottomBarContainer
             back="Quay lại danh sách"
@@ -160,124 +145,7 @@ const RoleCreateScreen: React.FC = () => {
           />
         </Form>
       </ContentContainer>
-    </RoleStyled>
   );
 };
-interface AuthorizeDetailCardProps {
-  activePanel: string | string[];
-  setActivePanel: (data: string | string[]) => void;
-  indeterminateModules: string[];
-  setIndeterminateModules: (data: string[]) => void;
-  checkedModules: string[];
-  setCheckedModules: (data: string[]) => void;
-  moduleData: PageResponse<ModuleAuthorize> | undefined;
-  form: FormInstance<any>;
-  onChangeCheckboxModule?: (e: CheckboxChangeEvent, module: ModuleAuthorize) => void;
-  onChangeCheckboxPermission?: (e: CheckboxChangeEvent, module: ModuleAuthorize) => void;
-}
-export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
-  const {
-    activePanel,
-    setActivePanel,
-    indeterminateModules,
-    setIndeterminateModules,
-    checkedModules,
-    setCheckedModules,
-    moduleData,
-    form,
-    onChangeCheckboxModule,
-    onChangeCheckboxPermission,
-  } = props;
 
-  const handleChangeModule = (e: CheckboxChangeEvent, module: ModuleAuthorize) => {
-    onChangeModule(
-      e,
-      module,
-      form,
-      checkedModules,
-      setCheckedModules,
-      indeterminateModules,
-      setIndeterminateModules,
-      moduleData,
-      activePanel,
-      setActivePanel
-    );
-    onChangeCheckboxModule && onChangeCheckboxModule(e, module);
-  };
-
-  const handleChangeCheckboxPermission = (
-    e: CheckboxChangeEvent,
-    module: ModuleAuthorize
-  ) => {
-    handleCheckedModule(module, form, checkedModules, setCheckedModules);
-    handleIndeterminateModule(
-      module,
-      form,
-      indeterminateModules,
-      setIndeterminateModules
-    );
-    onChangeCheckboxPermission && onChangeCheckboxPermission(e, module);
-  };
-
-  return (
-    <Card title="PHÂN QUYỀN CHI TIẾT">
-      <Collapse
-        bordered={false}
-        activeKey={activePanel}
-        onChange={(key: string | string[]) => {
-          setActivePanel(key);
-        }}
-        expandIcon={() => <Fragment />}
-        className="site-collapse-custom-collapse"
-      >
-        {moduleData?.items.map((module: ModuleAuthorize) => {
-          const isIndeterminate = indeterminateModules.includes(module.id.toString());
-          const isChecked = checkedModules.includes(module.id.toString());
-
-          return (
-            <Panel
-              header={
-                <div className="panel-header">
-                  <Checkbox
-                    onChange={(e) => handleChangeModule(e, module)}
-                    indeterminate={isIndeterminate && !isChecked}
-                    checked={isChecked || isIndeterminate}
-                  >
-                    <b>
-                      {module.name.charAt(0).toUpperCase() +
-                        module.name.slice(1).toLowerCase()}
-                    </b>
-                  </Checkbox>
-                  {activePanel.includes(module.id.toString()) ? (
-                    <HiOutlineChevronDoubleDown color="#2A2A86" />
-                  ) : (
-                    <HiChevronDoubleRight color="#2A2A86" />
-                  )}
-                </div>
-              }
-              key={module.id}
-              className="site-collapse-custom-panel"
-            >
-              <div className="panel-content">
-                {module.permissions.map((value: PermissionsAuthorize) => {
-                  return (
-                    <Form.Item name={value.id} key={value.id} valuePropName="checked">
-                      <Checkbox
-                        className="panel-content-item"
-                        onChange={(e) => handleChangeCheckboxPermission(e, module)}
-                      >
-                        {value.name.charAt(0).toUpperCase() +
-                          value.name.slice(1).toLowerCase()}
-                      </Checkbox>
-                    </Form.Item>
-                  );
-                })}
-              </div>
-            </Panel>
-          );
-        })}
-      </Collapse>
-    </Card>
-  );
-};
 export default RoleCreateScreen;

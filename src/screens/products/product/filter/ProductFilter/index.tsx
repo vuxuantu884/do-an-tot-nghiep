@@ -1,35 +1,25 @@
-import {
-  Button,
-  Collapse,
-  Form,
-  Input,
-  Select,
-  Space,
-  Tag,
-} from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import {useCallback, useState } from "react";
+import {FilterOutlined} from "@ant-design/icons";
+import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.model";
-import { SizeResponse } from "model/product/size.model";
-import { ColorResponse } from "model/product/color.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { CountryResponse } from "model/content/country.model";
-import { VariantSearchQuery } from "model/product/product.model";
-import CustomFilter from "component/table/custom.filter";
+import {FilterWrapper} from "component/container/filter.container";
 import BaseFilter from "component/filter/base.filter";
-import { StyledComponent } from "./style";
-import ButtonSetting from "component/table/ButtonSetting";
-import {
-  SearchVariantField,
-  SearchVariantMapping,
-} from "model/product/product-mapping";
 import NumberInputRange from "component/filter/component/number-input-range";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
-import moment from "moment";
-import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 import CustomSelectOne from "component/filter/component/select-one.custom";
+import {MenuAction} from "component/table/ActionButton";
+import ButtonSetting from "component/table/ButtonSetting";
+import {AccountResponse} from "model/account/account.model";
+import {BaseBootstrapResponse} from "model/content/bootstrap.model";
+import {CountryResponse} from "model/content/country.model";
+import {SupplierResponse} from "model/core/supplier.model";
+import {ColorResponse} from "model/product/color.model";
+import {SearchVariantField, SearchVariantMapping} from "model/product/product-mapping";
+import {VariantSearchQuery} from "model/product/product.model";
+import {SizeResponse} from "model/product/size.model";
+import moment from "moment";
+import {useCallback, useState} from "react";
+import {checkFixedDate, DATE_FORMAT} from "utils/DateUtils";
+import {StyledComponent} from "./style";
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -47,13 +37,11 @@ type ProductFilterProps = {
   onClickOpen?: () => void;
 };
 
-const { Item } = Form;
-const { Option } = Select;
+const {Item} = Form;
+const {Option} = Select;
 
-const ProductFilter: React.FC<ProductFilterProps> = (
-  props: ProductFilterProps
-) => {
-  const[formAvd] = Form.useForm();
+const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
+  const [formAvd] = Form.useForm();
   const {
     params,
     listStatus,
@@ -63,9 +51,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
     listMainColors,
     listColors,
     listSupplier,
-    actions,
     listCountries,
-    onMenuClick,
     onFilter,
     onClickOpen,
   } = props;
@@ -79,11 +65,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   );
   const onFinishAvd = useCallback(
     (values: any) => {
+      console.log("onFinishAvd: ", values);
       setAdvanceFilters(values);
       if (values.created_date) {
+        console.log("11111");
         const [from_created_date, to_created_date] = values.created_date;
         values.from_created_date = values.created_date ? from_created_date : undefined;
         values.to_created_date = values.created_date ? to_created_date : undefined;
+        console.log("onFinishAvd - values: ", values);
       }
       onFilter && onFilter(values);
     },
@@ -99,12 +88,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  const onActionClick = useCallback(
-    (index: number) => {
-      onMenuClick && onMenuClick(index);
-    },
-    [onMenuClick]
-  );
+
   const onClearFilterClick = useCallback(() => {
     formAvd.resetFields();
     formAvd.submit();
@@ -124,13 +108,10 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   return (
     <StyledComponent>
       <div className="product-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} initialValues={params} layout="inline">
+        <Form onFinish={onFinish} initialValues={params} layout="inline">
+          <FilterWrapper>
             <Item name="info" className="search">
-              <Input
-                prefix={<img src={search} alt="" />}
-                placeholder="Tên/Mã sản phẩm"
-              />
+              <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã sản phẩm" />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">
@@ -138,13 +119,15 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Button>
             </Item>
             <Item>
-              <Button onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button onClick={openFilter} icon={<FilterOutlined />}>
+                Thêm bộ lọc
+              </Button>
             </Item>
             <Item>
               <ButtonSetting onClick={onClickOpen} />
-            </Item>
-          </Form>
-        </CustomFilter>
+            </Item>{" "}
+          </FilterWrapper>
+        </Form>
         <FilterList
           filters={advanceFilters}
           listColors={listColors}
@@ -170,11 +153,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
             initialValues={{}}
             layout="vertical"
           >
-            <Space
-              className="po-filter"
-              direction="vertical"
-              style={{ width: "100%" }}
-            >
+            <Space className="po-filter" direction="vertical" style={{width: "100%"}}>
               {Object.keys(SearchVariantMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
@@ -272,7 +251,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     component = (
                       <CustomSelectOne
                         span={12}
-                        data={{ true: "Cho phép bán", false: "Ngừng bán" }}
+                        data={{true: "Cho phép bán", false: "Ngừng bán"}}
                       />
                     );
                     break;
@@ -292,9 +271,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                   <Collapse key={key}>
                     <Collapse.Panel
                       key="1"
-                      header={
-                        <span>{SearchVariantMapping[key].toUpperCase()}</span>
-                      }
+                      header={<span>{SearchVariantMapping[key].toUpperCase()}</span>}
                     >
                       <Item name={key}>{component}</Item>
                     </Collapse.Panel>
@@ -323,7 +300,7 @@ const FilterList = ({
   let filtersKeys = Object.keys(filters);
   let renderTxt: any = null;
   return (
-    <Space wrap={true} style={{ marginBottom: 20 }}>
+    <Space wrap={true} style={{marginBottom: 20}}>
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return null;
@@ -340,9 +317,7 @@ const FilterList = ({
               renderTxt = `${SearchVariantMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
             break;
           case SearchVariantField.color:
-            let index = listColors.findIndex(
-              (item: ColorResponse) => item.id === value
-            );
+            let index = listColors.findIndex((item: ColorResponse) => item.id === value);
             renderTxt = `${SearchVariantMapping[filterKey]} : ${listColors[index].name}`;
             break;
           case SearchVariantField.main_color:
@@ -382,7 +357,9 @@ const FilterList = ({
             renderTxt = `${SearchVariantMapping[filterKey]} : ${listMerchandisers[index5].full_name}`;
             break;
           case SearchVariantField.brand:
-            let index6 = listBrands.findIndex((item: BaseBootstrapResponse) => item.value === value);
+            let index6 = listBrands.findIndex(
+              (item: BaseBootstrapResponse) => item.value === value
+            );
             renderTxt = `${SearchVariantMapping[filterKey]} : ${listBrands[index6].name}`;
             break;
           case SearchVariantField.inventory:

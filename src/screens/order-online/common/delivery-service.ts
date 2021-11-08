@@ -7,31 +7,31 @@ import LogoDHL from "assets/img/LogoDHL.svg";
 export const delivery_service = [
     {
       code: "ghtk",
-      id: 1,
+      id: 2,
       logo: LogoGHTK,
       name: "Giao hàng tiết kiệm",
     },
     {
       code: "ghn",
-      id: 2,
+      id: 3,
       logo: LogoGHN,
       name: "Giao hàng nhanh",
     },
     {
       code: "vtp",
-      id: 3,
+      id: 4,
       logo: LogoVTP,
       name: "Viettel Post",
     },
     {
       code: "dhl",
-      id: 4,
+      id: 5,
       logo: LogoDHL,
       name: "DHL",
     },
     {
       code: "vnp",
-      id: 5,
+      id: 55,
       logo: undefined,   //@todo thai update khi có logo
       name: "VNP",
     },

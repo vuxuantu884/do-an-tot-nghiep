@@ -64,6 +64,7 @@ export interface OrderResponse extends BaseObject {
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
+  sub_status_code?: string | null;
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
@@ -247,6 +248,7 @@ export interface ShipmentResponse extends BaseObject {
   tracking_code: string | null;
   tracking_url: string | null;
   pushing_status: string | null;
+  pushing_note: string | null;
   received_date: string | null;
   sender_address_id: number | null;
   sender_address?: StoreResponse;
@@ -373,6 +375,7 @@ export interface OrderSubStatusResponse {
   company_id: number;
   company: string;
   sub_status: string;
+  code: string;
   status: string;
   note: string;
   is_active: boolean;

@@ -1,42 +1,49 @@
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { Card, Switch, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import { MenuAction } from "component/table/ActionButton";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import {MenuAction} from "component/table/ActionButton";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   AccountDeleteAction,
   AccountSearchAction,
   AccountUpdateAction,
   DepartmentGetListAction,
-  PositionGetListAction
+  PositionGetListAction,
 } from "domain/actions/account/account.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import {StoreGetListAction} from "domain/actions/core/store.action";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import {
   AccountResponse,
-  AccountRolesResponse, AccountSearchQuery, AccountStoreResponse
+  AccountRolesResponse,
+  AccountSearchQuery,
+  AccountStoreResponse,
 } from "model/account/account.model";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import {DepartmentResponse} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {StoreResponse} from "model/core/store.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {Link, useHistory} from "react-router-dom";
+import {generateQuery} from "utils/AppUtils";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {showSuccess} from "utils/ToastUtils";
+import {getQueryParams, useQuery} from "utils/useQuery";
+import {SearchContainer} from "./account.search.style";
 const actions: Array<MenuAction> = [
   {
-    id: 1,
-    name: "Xóa",
+    id:1,
+    name: "Export",
+    icon:<ExportOutlined />
   },
   {
     id: 2,
-    name: "Export",
+    name: "Xóa",
+    icon:<DeleteOutlined />
   },
 ];
 
@@ -71,83 +78,7 @@ const ListAccountScreen: React.FC = () => {
     },
     items: [],
   });
-  const columns: Array<ICustomTableColumType<AccountResponse>> = [
-    {
-      title: "Mã nhân viên",
-      render: (value: AccountResponse) => {
-        return <Link to={`${UrlConfig.ACCOUNTS}/${value.code}`}>{value.code}</Link>;
-      },
-    },
-    {
-      title: "Tên đăng nhập",
-      dataIndex: "user_name",
-    },
-    {
-      title: "Họ tên",
-      dataIndex: "full_name",
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "mobile",
-    },
-    {
-      title: "Cửa hàng",
-      dataIndex: "account_stores",
-      render: (stores: Array<AccountStoreResponse>) => (
-        <>
-          {stores.length < 3 ? (
-            <span>
-              {stores.map((item) => {
-                return <Tag color="green">{item.store}</Tag>;
-              })}
-            </span>
-          ) : (
-            <span>
-              <Tag color="green">{stores[0].store}</Tag><Tag color="green">+{stores.length-1}...</Tag>
-            </span>
-          )}
-        </>
-      ),
-    },
-    {
-      title: "Phân quyền",
-      dataIndex: "account_roles",
-      render: (values: Array<AccountRolesResponse>) => (
-        <span>
-          {values.map((item) => {
-            return <Tag color="blue">{item.role_name}</Tag>;
-          })}
-        </span>
-      ),
-    },
-    {
-      title: "Ngày tạo",
-      render: (value: AccountResponse) => {
-        return ConvertUtcToLocalDate(value.created_date, "DD/MM/YYYY");
-      },
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      align: "center",
-      render: (value: string, row: AccountResponse) => (
-        <Switch
-          size="small"
-          className="ant-switch-success"
-          defaultChecked={value === "active"}
-          onChange={(checked) => {
-            dispatch(
-              AccountUpdateAction(
-                row.id,
-                {...row, status: checked ? "active" : "inactive"},
-                () => {}
-              )
-            );
-          }}
-        />
-      ),
-    },
-  ];
+
   const onSelect = useCallback((selectedRow: Array<AccountResponse>) => {
     let selectData: Array<AccountResponse> = [];
     selectedRow.forEach((x) => {
@@ -162,14 +93,14 @@ const ListAccountScreen: React.FC = () => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({...params});
       history.replace(`${UrlConfig.ACCOUNTS}?${queryParam}`);
     },
     [history, params]
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.ACCOUNTS}?${queryParam}`);
@@ -217,6 +148,108 @@ const ListAccountScreen: React.FC = () => {
     },
     [accountSelected, deleteCallback, dispatch]
   );
+
+  const AcctionCompoent = useChangeHeaderToAction(
+    "Mã nhân viên",
+    accountSelected.length > 0,
+    onMenuClick,
+    actions
+  );
+
+  const defaultColumns: Array<ICustomTableColumType<AccountResponse>> = [
+    {
+      title: <AcctionCompoent />,
+      fixed: "left",
+      width: 130,
+      render: (value: AccountResponse) => {
+        return <Link to={`${UrlConfig.ACCOUNTS}/${value.code}`}>{value.code}</Link>;
+      },
+    },
+    {
+      title: "Tên đăng nhập",
+      dataIndex: "user_name",
+    },
+    {
+      title: "Họ tên",
+      dataIndex: "full_name",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "mobile",
+    },
+    {
+      title: "Cửa hàng",
+      dataIndex: "account_stores",
+      width: 300,
+      render: (stores: Array<AccountStoreResponse>) => (
+        <>
+          {stores.length < 3 ? (
+            <span>
+              {stores.map((item) => {
+                return <Tag color="green">{item.store}</Tag>;
+              })}
+            </span>
+          ) : (
+            <span>
+              <Tag color="green">{stores[0].store}</Tag>
+              <Tag color="green">{stores[1].store}</Tag>
+              <Tag color="green">+{stores.length - 2}...</Tag>
+            </span>
+          )}
+        </>
+      ),
+    },
+    {
+      title: "Phân quyền",
+      width: 200,
+      dataIndex: "account_roles",
+      render: (values: Array<AccountRolesResponse>) => (
+        <span>
+          {values?.map((item) => {
+            return <Tag color="blue">{item.role_name}</Tag>;
+          })}
+        </span>
+      ),
+    },
+    {
+      title: "Ngày tạo",
+      width: 150,
+      render: (value: AccountResponse) => {
+        return ConvertUtcToLocalDate(value.created_date, "DD/MM/YYYY");
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      width: 150,
+      align: "center",
+      render: (value: string, row: AccountResponse) => (
+        <Switch
+          size="small"
+          className="ant-switch-success"
+          defaultChecked={value === "active"}
+          onChange={(checked) => {
+            dispatch(
+              AccountUpdateAction(
+                row.id,
+                {...row, status: checked ? "active" : "inactive"},
+                () => {}
+              )
+            );
+          }}
+        />
+      ),
+    },
+  ];
+
+  let [columns, setColumns] =
+    useState<Array<ICustomTableColumType<AccountResponse>>>(defaultColumns);
+
+  useLayoutEffect(() => {
+    setColumns(defaultColumns);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountSelected]);
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(DepartmentGetListAction(setDepartment));
@@ -240,8 +273,8 @@ const ListAccountScreen: React.FC = () => {
       ]}
       extra={<ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />}
     >
-      <Card>
-        <div className="padding-20">
+      <SearchContainer>
+        <Card>
           <AccountFilter
             onMenuClick={onMenuClick}
             actions={actions}
@@ -252,26 +285,26 @@ const ListAccountScreen: React.FC = () => {
             listStatus={listStatus}
             listStore={listStore}
           />
-            <CustomTable
-              isRowSelection
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              onSelectedChange={onSelect}
-              isLoading={tableLoading}
-              dataSource={data.items}
-              columns={columns}
-              rowKey={(item: AccountResponse) => item.id}
-              scroll={{ x: 1800 }}
-              sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-            />
-        </div>
-      </Card>
+          <CustomTable
+            isRowSelection
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onSelectedChange={onSelect}
+            isLoading={tableLoading}
+            dataSource={data.items}
+            columns={columns}
+            rowKey={(item: AccountResponse) => item.id}
+            scroll={{x: 1500}}
+            sticky={{offsetScroll: 5, offsetHeader: 55}}
+          />
+        </Card>
+      </SearchContainer>
     </ContentContainer>
   );
 };

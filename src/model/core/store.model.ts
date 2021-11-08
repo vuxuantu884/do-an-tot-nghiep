@@ -2,6 +2,7 @@ import { BaseQuery } from 'model/base/base.query';
 import {BaseObject} from 'model/base/base.response'
 
 export interface StoreResponse extends BaseObject {
+  id: number,
   name: string,
   rank: number,
   rank_name: string,

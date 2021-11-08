@@ -1,21 +1,13 @@
-import CustomTable, {
-  ICustomTableColumType
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { inventoryGetListAction } from "domain/actions/inventory/inventory.action";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  AllInventoryResponse,
-  InventoryQuery,
-  InventoryResponse
-} from "model/inventory";
+import { AllInventoryResponse, InventoryQuery, InventoryResponse } from "model/inventory";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  HiChevronDoubleRight,
-  HiOutlineChevronDoubleDown
-} from "react-icons/hi";
+import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/image-product.component";
@@ -28,7 +20,7 @@ import { TabProps } from "./tab.props";
 const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
 
-   const query = new URLSearchParams(history.location.hash.substring(2));
+  const query = new URLSearchParams(history.location.hash.substring(2));
 
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
@@ -45,32 +37,27 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     },
     items: [],
   });
-  const onResult = useCallback(
-    (result: PageResponse<AllInventoryResponse> | false) => {
-      setLoading(false);
-      if (result) {
-        console.log(result);
-        setData(result);
-      }
-    },
-    []
-  );
+  const onResult = useCallback((result: PageResponse<AllInventoryResponse> | false) => {
+    setLoading(false);
+    if (result) {
+      console.log(result);
+      setData(result);
+    }
+  }, []);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.push(
-        `${UrlConfig.INVENTORY}${history.location.hash}?${queryParam}`
-      );
+      setPrams({...params});
+      history.push(`${UrlConfig.INVENTORY}${history.location.hash}?${queryParam}`);
     },
     [history, params]
   );
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.INVENTORY}#1?${queryParam}`);
@@ -78,29 +65,43 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     [history, params]
   );
 
-  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
+  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
+    []
+  );
+  const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
 
   const openColumn = useCallback(() => {
     setShowSettingColumn(true);
   }, []);
 
-  const columnsFinal = useMemo(
-    () => columns.filter((item) => item.visible),
-    [columns]
+  const onSelect = useCallback((selectedRow: Array<InventoryResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+
+  const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
+
+  const ActionComponent = useChangeHeaderToAction(
+    "Ảnh",
+    selected.length > 0,
+    () => {},
+    []
   );
 
   useEffect(() => {
     setColumns([
       {
         width: 100,
-        title: "Ảnh",
+        title: <ActionComponent />,
         visible: true,
-        align: "center",
         dataIndex: "url",
         render: (value) => <ImageProduct path={value} isUpload={false} />,
       },
       {
-        title: "Barcode",
+        title: `${selected.length > 0 ? "" : "Barcode"}`,
         visible: true,
         dataIndex: "barcode",
       },
@@ -141,7 +142,9 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         align: "right",
       },
     ]);
-  }, [params]);
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, selected]);
 
   useEffect(() => {
     setLoading(true);
@@ -162,8 +165,8 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
         isRowSelection
         isLoading={loading}
         dataSource={data.items}
-        scroll={{ x: 900 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+        scroll={{x: 900}}
+        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -172,6 +175,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
+        onSelectedChange={onSelect}
         expandable={{
           expandIcon: (props) => {
             let icon = <HiChevronDoubleRight size={12} />;
@@ -180,7 +184,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             }
             return (
               <div
-                style={{ cursor: "pointer" }}
+                style={{cursor: "pointer"}}
                 onClick={(event) => props.onExpand(props.record, event)}
               >
                 {icon}
@@ -191,7 +195,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
             <CustomTable
               dataSource={record.inventories}
               rowKey={(item) => item.id}
-              scroll={{ y: 250 }}
+              scroll={{y: 250}}
               pagination={false}
               columns={[
                 {

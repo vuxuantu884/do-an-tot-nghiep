@@ -1,6 +1,6 @@
 import React, { useState, useMemo, createRef } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { RefSelectProps } from "antd/lib/select";
 import {
   Button,
@@ -93,7 +93,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     variants: null
   });
 
-  const params: ProductEcommerceQuery = useMemo(
+  const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
       limit: 30,
@@ -170,11 +170,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const [keySearchVariant, setKeySearchVariant] = useState("");
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
     const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
+    const [isSaving, setIsSaving] = useState(false);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [productSelected, setProductSelected] = useState<any>();
 
 
-    // handle save connect Yody product
+    // handle save single connected Yody product
     const saveConnectYodyProduct = () => {
       const newConnectItemList =
         copyConnectItemList &&
@@ -192,18 +193,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         ecommerce_correspond_to_core: 1,
       };
 
-      setProductSelected(null);
       updateConnectItemList(newConnectItemList);
       const request = {
         variants: [connectProductSelected],
       };
 
-      setIsLoading(true);
+      setIsSaving(true);
       dispatch(
         putConnectEcommerceItem(request, (result) => {
           setIsVisibleConfirmConnectModal(false);
-          setIsLoading(false);
+          setIsSaving(false);
           if (result) {
+            setProductSelected(null);
             showSuccess("Ghép nối sản phẩm thành công");
             reloadPage();
           } else {
@@ -369,11 +370,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       return options;
     }, [resultSearchVariant]);
 
-    const gotoProductDetail = () => {
-      const link = `${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`
-      window.open(link, "_blank");
-    };
-
     return (
       <StyledYodyProductColumn>
         {(!productSelected || !productSelected.id) && (
@@ -410,8 +406,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             <ul>
               <li>
                 <b>Tên sản phẩm: </b>
-                <span onClick={gotoProductDetail} className="link">
-                  {productSelected.core_variant}
+                <span>
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.PRODUCT}/${productSelected.product_id}/variants/${productSelected.id}`}
+                  >
+                    {productSelected.core_variant}
+                  </Link>
                 </span>
               </li>
 
@@ -436,11 +437,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <Button
                 type="primary"
                 onClick={handleSaveConnectYodyProduct}
+                loading={!isVisibleConfirmConnectModal && isSaving}
               >
                 Lưu
               </Button>
 
               <Button
+                disabled={isSaving}
                 onClick={() => cancelConnectYodyProduct(productSelected.id)}
               >
                 Hủy
@@ -452,7 +455,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         {isVisibleConfirmConnectModal &&
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectModal}
-            isLoading={isLoading}
+            isLoading={isSaving}
             dataSource={diffPriceProduct}
             okConfirmConnectModal={saveConnectYodyProduct}
             cancelConfirmConnectModal={cancelConfirmConnectModal}
@@ -468,10 +471,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "70px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <img
-            src={l.ecommerce_image_url}
+            src={item.ecommerce_image_url}
             style={{ height: "40px" }}
             alt=""
           ></img>
@@ -482,12 +485,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Sku/ itemID (Sàn)",
       visible: true,
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <div>
-            <div>{l.ecommerce_sku}</div>
-            <div style={{ color: "#737373" }}>{l.ecommerce_product_id}</div>
-            <div style={{ color: "#2a2a86" }}>({l.shop})</div>
+            <div>{item.ecommerce_sku}</div>
+            <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
+            <div style={{ color: "#2a2a86" }}>({item.shop})</div>
           </div>
         );
       },
@@ -496,8 +499,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       title: "Sản phẩm (Sàn)",
       visible: true,
       width: "250px",
-      render: (l: any, v: any, i: any) => {
-        return <div>{l.ecommerce_variant}</div>;
+      render: (item: any, v: any, i: any) => {
+        return <div>{item.ecommerce_variant}</div>;
       },
     },
     {
@@ -505,10 +508,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "90px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <span>
-            {l.ecommerce_price ? formatCurrency(l.ecommerce_price) : "-"}
+            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
           </span>
         );
       },
@@ -524,10 +527,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       visible: true,
       align: "center",
       width: "150px",
-      render: (l: any, v: any, i: any) => {
+      render: (item: any, v: any, i: any) => {
         return (
           <StyledProductConnectStatus>
-            {l.connect_status === "waiting" && (
+            {item.connect_status === "waiting" && (
               <span className="not-connect-status">Chưa ghép nối</span>
             )}
           </StyledProductConnectStatus>
@@ -654,9 +657,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     removeEcommerce();
     setVisibleFilter(false);
 
-    formAdvance.setFieldsValue(params);
+    formAdvance.setFieldsValue(initialFormValues);
     formAdvance.submit();
-  }, [formAdvance, params]);
+  }, [formAdvance, initialFormValues]);
 
   const openFilter = React.useCallback(() => {
     setVisibleFilter(true);
@@ -844,7 +847,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form form={formAdvance} onFinish={onSearch} initialValues={params}>
+            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   showSearch
@@ -930,7 +933,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               form={formAdvance}
               onFinish={onSearch}
               //ref={formRef}
-              initialValues={params}
+              initialValues={initialFormValues}
               layout="vertical"
             >
               <Form.Item name="ecommerce_id" label={<b>CHỌN SÀN</b>}>

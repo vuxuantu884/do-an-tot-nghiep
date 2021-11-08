@@ -31,6 +31,7 @@ import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
+  DeliveryServicesGetList,
   getFeesAction,
   getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
@@ -48,6 +49,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  DeliveryServiceResponse,
   OrderResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
@@ -81,7 +83,7 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 import ShipmentMethodDeliverPartner from "./order-detail/CardShipment/ShipmentMethodDeliverPartner";
-import { delivery_service } from "../common/delivery-service";
+import { dangerColor } from "utils/global-styles/variables";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -162,7 +164,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [serviceName, setServiceName] = useState<string>("");
   const [fee, setFee] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
-
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
   );
@@ -231,6 +233,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#endregion
   useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
+    
   }, [dispatch]);
 
   const [reload, setReload] = useState(false);
@@ -299,7 +302,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setReload(true);
     showSuccess("Xuất kho thành công");
     setIsvibleShippingConfirm(false);
-    onReload && onReload();
+    // onReload && onReload();
+    window.location.reload();
   };
 
   const onShipedSuccess = (value: OrderResponse) => {
@@ -829,6 +833,33 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onOkShippingConfirm();
     setReload(true)
   };
+
+  const renderPushingStatusWhenFailed = () => {
+    if(!OrderDetail) {
+      return;
+    }
+    if(OrderDetail.fulfillments) {
+      let failedFulfillment = OrderDetail.fulfillments.find((singleFulfillment) => {
+        return singleFulfillment.shipment?.pushing_status === "failed"
+      })
+      if(failedFulfillment && failedFulfillment?.shipment?.pushing_note) {
+        return (
+          <Col md={12}>
+            <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">Trạng thái:</p>
+                </Col>
+                <Col span={14}>
+                  <b className="text-field" style={{color: dangerColor}}>
+                    {failedFulfillment?.shipment.pushing_note}
+                  </b>
+                </Col>
+              </Row>
+          </Col>
+        )
+      }
+    }
+  };
   useEffect(() => {
     if (!props.storeDetail) {
       setAddressError("Thiếu thông tin địa chỉ cửa hàng");
@@ -884,7 +915,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   useEffect(() => {
     getRequirementName();
-  }, [getRequirementName]);
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
+  }, [dispatch, getRequirementName]);
 
   useEffect(() => {
     if (updateShipment || cancelShipment) {
@@ -899,7 +935,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // todo thai: update khi có logo các đối tác giao hàng
   const renderDeliveryPartner = (shipment: any) => {
-    const delivery = delivery_service?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+    const delivery = deliveryServices?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
     if (delivery && delivery.logo) {
       return (
         <img
@@ -1212,7 +1248,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             </Col>
                           </Row>
                         </Col>
-
+                        {renderPushingStatusWhenFailed()}
                         {CheckShipmentType(props.OrderDetail!) === "external_service" && (
                           <Col md={12}>
                             <Row gutter={30}>
@@ -1235,6 +1271,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         )}
                       </Row>
                     )}
+                   
                     <Row className="orders-shipment-item">
                       <Collapse ghost>
                         <Panel
@@ -1295,7 +1332,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Panel>
                       </Collapse>
                     </Row>
-                    {CheckShipmentType(props.OrderDetail!) === "external_service" &&
+                    {(CheckShipmentType(props.OrderDetail!) === "external_service" ||
+                      CheckShipmentType(props.OrderDetail!) === "shopee") &&
                       fulfillment.status !== FulFillmentStatus.CANCELLED &&
                       fulfillment.status !== FulFillmentStatus.RETURNING &&
                       fulfillment.status !== FulFillmentStatus.RETURNED && (
@@ -1823,6 +1861,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       totalPaid={props.totalPaid}
                       serviceType={serviceType}
                       changeServiceType={changeServiceType}
+                      deliveryServices={deliveryServices}
                       discountValue={OrderDetail?.total_discount}
                       infoFees={infoFees}
                       setShippingFeeInformedCustomer={changeShippingFeeInformedCustomer}

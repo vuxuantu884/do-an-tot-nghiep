@@ -421,11 +421,11 @@ const ProductCreateScreen: React.FC = () => {
         } else {
           let notSelected = "";
           if (sizeSelected.length === 0 && colorSelected.length > 0) {
-            notSelected = "kích thước";
+            notSelected = "kích cỡ";
           } else if (colorSelected.length === 0 && sizeSelected.length > 0) {
             notSelected = "màu sắc";
           } else {
-            notSelected = "kích thước và màu sắc";
+            notSelected = "kích cỡ và màu sắc";
           }
           let subTitle = `Bạn chưa chọn ${notSelected}. Bạn có muốn tạo sản phẩm?`;
           setModalConfirm({
