@@ -64,7 +64,13 @@ const CreatePromotionCodePage = () => {
             value: values.value,
           },
         ],
-        prerequisite_subtotal_ranges: null
+        prerequisite_subtotal_ranges: values.subtotal_min ? {
+          greater_than_or_equal_to: values.subtotal_min,
+          less_than_or_equal_to: null,
+          allocation_limit: null,
+          value_type: values.value_type,
+          value: values.value,
+        } : null
       }
     });
     return body;
