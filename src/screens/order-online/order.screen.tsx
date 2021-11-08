@@ -80,6 +80,7 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 let typeButton = "";
 
 export default function Order() {
+  const DEFAULT_CHANNEL_ID = 13; //đang fix cứng admin
   const dispatch = useDispatch();
   const history = useHistory();
   const [isSaveDraft, setIsSaveDraft] = useState(false);
@@ -453,6 +454,7 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
+    values.channel_id = DEFAULT_CHANNEL_ID;
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
