@@ -3,37 +3,35 @@ import { Card, Switch, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import {MenuAction} from "component/table/ActionButton";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   AccountDeleteAction,
   AccountSearchAction,
   AccountUpdateAction,
   DepartmentGetListAction,
-  PositionGetListAction,
+  PositionGetListAction
 } from "domain/actions/account/account.action";
-import {StoreGetListAction} from "domain/actions/core/store.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import {
-  AccountResponse,
-  AccountRolesResponse,
-  AccountSearchQuery,
-  AccountStoreResponse,
+  AccountResponse, AccountSearchQuery,
+  AccountStoreResponse
 } from "model/account/account.model";
-import {DepartmentResponse} from "model/account/department.model";
-import {PositionResponse} from "model/account/position.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link, useHistory} from "react-router-dom";
-import {generateQuery} from "utils/AppUtils";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showSuccess} from "utils/ToastUtils";
-import {getQueryParams, useQuery} from "utils/useQuery";
-import {SearchContainer} from "./account.search.style";
+import { DepartmentResponse } from "model/account/department.model";
+import { PositionResponse } from "model/account/position.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { SearchContainer } from "./account.search.style";
 const actions: Array<MenuAction> = [
   {
     id:1,
@@ -202,14 +200,7 @@ const ListAccountScreen: React.FC = () => {
     {
       title: "Phân quyền",
       width: 200,
-      dataIndex: "account_roles",
-      render: (values: Array<AccountRolesResponse>) => (
-        <span>
-          {values?.map((item) => {
-            return <Tag color="blue">{item.role_name}</Tag>;
-          })}
-        </span>
-      ),
+      dataIndex: "role_name",
     },
     {
       title: "Ngày tạo",
