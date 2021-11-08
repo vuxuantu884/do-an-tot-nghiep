@@ -41,6 +41,8 @@ import {
   disconnectEcommerceItem,
   postSyncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
+import useAuthorization from "hook/useAuthorization";
+import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
 
 import disconnectIcon from "assets/icon/disconnect.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
@@ -56,6 +58,10 @@ import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-eco
 import { StyledProductConnectStatus, StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
 
 
+const deleteProductPermission = [EcommerceProductPermissions.DELETE_PRODUCT];
+const syncStockPermission = [EcommerceProductPermissions.UPDATE_STOCK_PRODUCT];
+const disconnectProductPermission = [EcommerceProductPermissions.DISCONNECT_PRODUCT];
+
 type ConnectedItemsProps = {
   variantData: any;
   getProductUpdated: any;
@@ -69,6 +75,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const { Option } = Select;
+
+  const [allowDeleteProduct] = useAuthorization({
+    acceptPermissions: deleteProductPermission,
+    not: false,
+  });
+
+  const [allowSyncStock] = useAuthorization({
+    acceptPermissions: syncStockPermission,
+    not: false,
+  });
+
+  const [allowDisconnectProduct] = useAuthorization({
+    acceptPermissions: disconnectProductPermission,
+    not: false,
+  });
+  
+  const isShowAction = allowDeleteProduct || allowSyncStock || allowDisconnectProduct;
+  
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
@@ -552,19 +576,25 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
   const actionList = (
     <Menu>
-      <Menu.Item key="1">
-        <span onClick={handleSyncStockItemsSelected}>
-          Đồng bộ tồn kho lên sàn
-        </span>
-      </Menu.Item>
+      {allowSyncStock &&
+        <Menu.Item key="1">
+          <span onClick={handleSyncStockItemsSelected}>
+            Đồng bộ tồn kho lên sàn
+          </span>
+        </Menu.Item>
+      }
 
-      <Menu.Item key="2" disabled={isDisableAction()}>
-        <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
-      </Menu.Item>
+      {allowDeleteProduct &&
+        <Menu.Item key="2" disabled={isDisableAction()}>
+          <span onClick={handleDeleteItemsSelected}>Xóa sản phẩm lấy về</span>
+        </Menu.Item>
+      }
 
-      <Menu.Item key="3" disabled={isDisableAction()}>
-        <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
-      </Menu.Item>
+      {allowDisconnectProduct &&
+        <Menu.Item key="3" disabled={isDisableAction()}>
+          <span onClick={handleDisconnectItemsSelected}>Hủy liên kết</span>
+        </Menu.Item>
+      }
     </Menu>
   );
 
@@ -715,18 +745,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         <StyledProductFilter>
           <div className="filter">
             <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
-              <Form.Item name="action" className="action-dropdown">
-                <Dropdown
-                  overlay={actionList}
-                  trigger={["click"]}
-                  disabled={tableLoading}
-                >
-                  <Button className="action-button">
-                    <div style={{ marginRight: 10 }}>Thao tác</div>
-                    <DownOutlined />
-                  </Button>
-                </Dropdown>
-              </Form.Item>
+              {isShowAction &&
+                <div className="action-dropdown">
+                  <Dropdown
+                    overlay={actionList}
+                    trigger={["click"]}
+                    disabled={tableLoading}
+                  >
+                    <Button className="action-button">
+                      <div style={{ marginRight: 10 }}>Thao tác</div>
+                      <DownOutlined />
+                    </Button>
+                  </Dropdown>
+                </div>
+              }
 
               <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
@@ -812,7 +844,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isRowSelection
+          isRowSelection={isShowAction}
           isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
