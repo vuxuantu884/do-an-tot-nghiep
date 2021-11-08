@@ -38,7 +38,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           sub_status: "",
           code: "",
           status: undefined,
-          active: true,
+          active: false,
           note: "",
         };
   const bootstrapReducer = useSelector(
