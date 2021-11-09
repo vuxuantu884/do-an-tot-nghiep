@@ -60,5 +60,5 @@ export const applyDiscount = (items: Array<any>) : Promise<any> => {
     }
   })
 
-  return BaseAxios.post(`http://localhost:4000/unicorn/promotion-service/apply`, body)
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, body)
 }
