@@ -50,14 +50,15 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
-  created_name: null, 
+  created_name: [], 
   from_created_date: null,
   to_created_date: null,
-  from_inventoryadjustment_date: null,
-  to_inventoryadjustment_date: null,
-  arrcreated_name: [],
-  arrstatus: [],
-  arraudit_type: []
+  from_audited_date: null,
+  to_audited_date: null,
+  from_adjusted_date: null,
+  to_adjusted_date: null,
+  status: [],
+  audit_type: [],
 };
 
 const actions: Array<MenuAction> = [
@@ -161,7 +162,7 @@ const InventoryAdjustment: React.FC = () => {
     {
       title: "Tổng SL",
       width: 90,
-      dataIndex: "total_real_on_hand",
+      dataIndex: "total_on_hand",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -264,7 +265,7 @@ const InventoryAdjustment: React.FC = () => {
       dataIndex: "audited_date",
       visible: true,
       align: "left",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Cân tồn kho",
@@ -278,7 +279,7 @@ const InventoryAdjustment: React.FC = () => {
             <div>
               <b>{item.adjusted_by}</b>
             </div>
-            <div>{ConvertUtcToLocalDate(item.adjusted_date, "DD/MM/YYYY")}</div>
+            <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>
         );
       },

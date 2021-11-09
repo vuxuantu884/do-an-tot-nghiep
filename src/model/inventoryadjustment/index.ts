@@ -6,20 +6,21 @@ export interface InventoryAdjustmentSearchQuery {
   limit: number;
   condition: string | null, 
   adjusted_store_id: number | null, 
-  arrstatus: [], 
-  arraudit_type: [],
+  status: [] | null, 
+  audit_type: [] | null,
   from_total_variant: number | null,
   to_total_variant: number | null,
   from_total_quantity: number | null,
   to_total_quantity: number | null,
   from_total_amount: number | null,
   to_total_amount: number | null,
-  created_name: string | null, 
-  arrcreated_name: [],
+  created_name: string[] | null,
   from_created_date: string|null,
   to_created_date: string|null,
-  from_inventoryadjustment_date: string|null,
-  to_inventoryadjustment_date: string|null,
+  from_audited_date: string|null,
+  to_audited_date: string|null,
+  from_adjusted_date: string|null,
+  to_adjusted_date: string|null,
 }
 
 export type StoreStatus = {

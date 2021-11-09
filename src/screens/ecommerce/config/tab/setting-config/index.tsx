@@ -1,5 +1,5 @@
 import { StyledConfig } from "./styles";
-import { Row, Col, Form, Select, Button, Tooltip } from "antd";
+import { Row, Col, Form, Select, Button } from "antd";
 import React, { useEffect, useState } from "react";
 import CustomSelect from "component/custom/select.custom";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -661,37 +661,21 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </Col>
           </Row>
           <div className="customer-bottom-button">
-            {isConfigExist ?
-              (allowDeleteShop ?
-                <Button
-                  className="disconnect-btn"
-                  icon={<img src={disconnectIcon} alt="" />}
-                  style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
-                  type="ghost"
-                  onClick={() => handleDisconnectEcommerce()}
-                  disabled={isLoading}
-                >
-                  Xóa gian hàng
-                </Button>
-                :
-                <Tooltip
-                  overlay={`Bạn không có quyền xoá gian hàng`}
-                  color="blue" placement="top">
-                  <Button
-                    className="disconnect-btn"
-                    icon={<img src={disconnectIcon} alt="" />}
-                    style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
-                    type="ghost"
-                    disabled={true}
-                  >
-                    Xóa gian hàng
-                  </Button>
-                </Tooltip>
-              )
+            {(isConfigExist && allowDeleteShop) ?
+              <Button
+                className="disconnect-btn"
+                icon={<img src={disconnectIcon} alt="" />}
+                style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
+                type="ghost"
+                onClick={() => handleDisconnectEcommerce()}
+                disabled={isLoading}
+              >
+                Xóa gian hàng
+              </Button>
               : <div></div>
             }
 
-            {allowUpdateShop ?
+            {allowUpdateShop &&
               <Button
                 type="primary"
                 htmlType="submit"
@@ -700,19 +684,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               >
                 {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}
               </Button>
-              :
-              <Tooltip
-                overlay={`Bạn không có quyền ${isConfigExist ? "lưu cấu hình" : "tạo cấu hình"}`}
-                color="blue" placement="top">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  disabled={true}
-                  icon={<img src={saveIcon} alt="" />}
-                >
-                  {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}
-                </Button>
-              </Tooltip>
             }
           </div>
         </Form>

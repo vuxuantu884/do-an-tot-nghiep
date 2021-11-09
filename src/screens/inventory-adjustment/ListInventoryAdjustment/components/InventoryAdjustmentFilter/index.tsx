@@ -62,9 +62,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
-      arrstatus: [],
-      arraudit_type: [],
-      arrcreated_name: [],
+      status: Array.isArray(params.status) ? params.status : [params.status],
+      created_name: Array.isArray(params.created_name)
+        ? params.created_name
+        : [params.created_name],
     };
   }, [params]);
 
@@ -79,14 +80,24 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       ? moment(initialValues.to_created_date, DATE_FORMAT.DDMMYYY)
       : null
   );
+  const [isFromAuditedDate, setIsFromAuditedDate] = useState(
+    initialValues.from_audited_date
+      ? moment(initialValues.from_audited_date, DATE_FORMAT.DDMMYYY)
+      : null
+  );
+  const [isToAuditedDate, setIsToAuditedDate] = useState(
+    initialValues.to_audited_date
+      ? moment(initialValues.to_audited_date, DATE_FORMAT.DDMMYYY)
+      : null
+  );
   const [isFromAdjustedBy, setIsFromAdjustedBy] = useState(
-    initialValues.from_inventoryadjustment_date
-      ? moment(initialValues.from_inventoryadjustment_date, DATE_FORMAT.DDMMYYY)
+    initialValues.from_adjusted_date
+      ? moment(initialValues.from_adjusted_date, DATE_FORMAT.DDMMYYY)
       : null
   );
   const [isToAdjustedBy, setIsToAdjustedBy] = useState(
-    initialValues.to_inventoryadjustment_date
-      ? moment(initialValues.to_inventoryadjustment_date, DATE_FORMAT.DDMMYYY)
+    initialValues.to_adjusted_date
+      ? moment(initialValues.to_adjusted_date, DATE_FORMAT.DDMMYYY)
       : null
   );
 
@@ -97,22 +108,26 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
+  const [createDateClick, setCreateDateClick] = useState("");
+  const [auditedDateClick, setAuditedDateClickClick] = useState("");
+  const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
+
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
     switch (type) {
       case "create_date":
         setCreateDateClick("");
-        setIsFromCreatedDate(dateString[0]);
-        setIsToCreatedDate(dateString[1]);
+        setIsFromCreatedDate(moment(dateString[0], "DD-MM-YYYY"));
+        setIsToCreatedDate(moment(dateString[1], "DD-MM-YYYY"));
         break;
       case "adjusted_by":
         setAdjustmentDateClick("");
-        setIsFromAdjustedBy(dateString[0]);
-        setIsToAdjustedBy(dateString[1]);
+        setIsFromAdjustedBy(moment(dateString[0], "DD-MM-YYYY"));
+        setIsToAdjustedBy(moment(dateString[1], "DD-MM-YYYY"));
         break;
-      case "audited_by":
-        setAdjustmentDateClick("");
-        setIsFromAdjustedBy(dateString[0]);
-        setIsToAdjustedBy(dateString[1]);
+      case "audited_date":
+        setAuditedDateClickClick("");
+        setIsFromAuditedDate(moment(dateString[0], "DD-MM-YYYY"));
+        setIsToAuditedDate(moment(dateString[1], "DD-MM-YYYY"));
         break;
     }
   }, []);
@@ -131,6 +146,9 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setAdjustmentDateClick("");
     setIsFromAdjustedBy(null);
     setIsToAdjustedBy(null);
+    setAuditedDateClickClick("");
+    setIsFromAuditedDate(null);
+    setIsToAuditedDate(null);
 
     formSearchRef?.current?.setFieldsValue({
       code: "",
@@ -147,9 +165,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setVisible(false);
   }, []);
 
-  const [createDateClick, setCreateDateClick] = useState("");
-  const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
-
   const clickOptionDate = useCallback(
     (type, value) => {
       let minValue = null;
@@ -157,46 +172,40 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
       switch (value) {
         case "today":
-          minValue = moment().startOf("day").format(DATE_FORMAT.DDMMYYY);
-          maxValue = moment().endOf("day").format(DATE_FORMAT.DDMMYYY);
+          minValue = moment().startOf("day");
+          maxValue = moment().endOf("day");
           break;
         case "yesterday":
           minValue = moment()
             .startOf("day")
-            .subtract(1, "days")
-            .format(DATE_FORMAT.DDMMYYY);
+            .subtract(1, "days");
           maxValue = moment()
             .endOf("day")
-            .subtract(1, "days")
-            .format(DATE_FORMAT.DDMMYYY);
+            .subtract(1, "days");
           break;
         case "thisweek":
-          minValue = moment().startOf("week").format(DATE_FORMAT.DDMMYYY);
-          maxValue = moment().endOf("week").format(DATE_FORMAT.DDMMYYY);
+          minValue = moment().startOf("week");
+          maxValue = moment().endOf("week");
           break;
         case "lastweek":
           minValue = moment()
             .startOf("week")
-            .subtract(1, "weeks")
-            .format(DATE_FORMAT.DDMMYYY);
+            .subtract(1, "weeks");
           maxValue = moment()
             .endOf("week")
-            .subtract(1, "weeks")
-            .format(DATE_FORMAT.DDMMYYY);
+            .subtract(1, "weeks");
           break;
         case "thismonth":
-          minValue = moment().startOf("month").format(DATE_FORMAT.DDMMYYY);
-          maxValue = moment().endOf("month").format(DATE_FORMAT.DDMMYYY);
+          minValue = moment().startOf("month");
+          maxValue = moment().endOf("month");
           break;
         case "lastmonth":
           minValue = moment()
             .startOf("month")
-            .subtract(1, "months")
-            .format(DATE_FORMAT.DDMMYYY);
+            .subtract(1, "months");
           maxValue = moment()
             .endOf("month")
-            .subtract(1, "months")
-            .format(DATE_FORMAT.DDMMYYY);
+            .subtract(1, "months");
           break;
         default:
           break;
@@ -215,14 +224,14 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           }
           break;
         case "audited_date":
-          if (adjustmentDateClick === value) {
-            setAdjustmentDateClick("");
-            setIsFromAdjustedBy(null);
-            setIsToAdjustedBy(null);
+          if (auditedDateClick === value) {
+            setAuditedDateClickClick("");
+            setIsFromAuditedDate(null);
+            setIsToAuditedDate(null);
           } else {
-            setAdjustmentDateClick(value);
-            setIsFromAdjustedBy(moment(minValue, DATE_FORMAT.DDMMYYY));
-            setIsToAdjustedBy(moment(maxValue, DATE_FORMAT.DDMMYYY));
+            setAuditedDateClickClick(value);
+            setIsFromAuditedDate(moment(minValue, DATE_FORMAT.DDMMYYY));
+            setIsToAuditedDate(moment(maxValue, DATE_FORMAT.DDMMYYY));
           }
           break;
         case "adjusted_date":
@@ -240,7 +249,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           break;
       }
     },
-    [createDateClick, adjustmentDateClick]
+    [createDateClick, auditedDateClick, adjustmentDateClick]
   );
 
   const onCloseTag = useCallback(
@@ -270,17 +279,28 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           setIsFromCreatedDate(null);
           setIsToCreatedDate(null);
           onFilter &&
-            onFilter({...params, form_created_date: null, to_created_date: null});
+            onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         case "audited_date":
+          setAuditedDateClickClick("");
+          setIsFromAuditedDate(null);
+          setIsToAuditedDate(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              from_audited_date: null,
+              to_audited_date: null,
+            });
+          break;
+        case "adjusted_date":
           setAdjustmentDateClick("");
           setIsFromAdjustedBy(null);
           setIsToAdjustedBy(null);
           onFilter &&
             onFilter({
               ...params,
-              from_inventory_adjustment_date: null,
-              to_inventory_adjustment_date: null,
+              from_adjusted_date: null,
+              to_adjusted_date: null,
             });
           break;
         default:
@@ -315,29 +335,31 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       }
       const valuesForm = {
         ...values,
-        from_created_date: isFromCreatedDate
-          ? moment(isFromCreatedDate, DATE_FORMAT.DDMMYYY)?.format(DATE_FORMAT.DDMMYYY)
-          : null,
-        to_created_date: isToCreatedDate
-          ? moment(isToCreatedDate, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.DDMMYYY)
-          : null,
-        from_audited_date: isFromAdjustedBy
-          ? moment(isFromAdjustedBy, DATE_FORMAT.DDMMYYY)?.format(DATE_FORMAT.DDMMYYY)
-          : null,
-        to_adjusted_date: isToAdjustedBy
-          ? moment(isToAdjustedBy, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.DDMMYYY)
-          : null,
+        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
+        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
+        from_adjusted_date: isFromAdjustedBy ? moment(isFromAdjustedBy) : null,
+        to_adjusted_date: isToAdjustedBy ? moment(isToAdjustedBy) : null,
+        from_audited_date: isFromAuditedDate ? moment(isFromAuditedDate) : null,
+        to_audited_date: isToAuditedDate ? moment(isToAuditedDate) : null,
       };
       onFilter && onFilter(valuesForm);
     },
-    [isFromCreatedDate, isFromAdjustedBy, isToAdjustedBy, isToCreatedDate, onFilter]
+    [
+      isFromCreatedDate,
+      isToCreatedDate,
+      isFromAdjustedBy,
+      isToAdjustedBy,
+      isFromAuditedDate,
+      isToAuditedDate,
+      onFilter,
+    ]
   );
 
   let filters = useMemo(() => {
     let list = [];
-    if (initialValues.arrstatus.length) {
+    if (initialValues?.status?.length) {
       let textStatus = "";
-      initialValues.arrstatus.forEach((statusValue) => {
+      initialValues.status.forEach((statusValue) => {
         const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
           (status) => status.value === statusValue
         );
@@ -349,16 +371,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         value: textStatus,
       });
     }
-    if (initialValues.arraudit_type.length) {
+    if (initialValues?.audit_type?.length) {
       let auditTypeName = "";
-      initialValues.arraudit_type.forEach((value) => {
+      initialValues.audit_type.forEach((value) => {
         const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
           (auditType) => auditType.value === value
         );
         auditTypeName = auditType ? auditTypeName + auditType.name + ";" : auditTypeName;
       });
       list.push({
-        key: "status",
+        key: "audit_type",
         name: "Loại kiểm",
         value: auditTypeName,
       });
@@ -374,46 +396,63 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         value: textTotalQuantity,
       });
     }
-    if (initialValues.arrcreated_name.length) {
+    if (initialValues?.created_name?.length) {
       let textAccount = "";
-      initialValues.arrcreated_name.forEach((i) => {
+      initialValues.created_name.forEach((i) => {
         const findAccount = accounts?.find((item) => item.code === i);
         textAccount = findAccount
           ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
           : textAccount;
       });
       list.push({
-        key: "created_name",
+        key: "create_name",
         name: "Người tạo",
         value: textAccount,
       });
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
       let textCreatedDate =
-        (initialValues.from_created_date ? initialValues.from_created_date : "??") +
+        (initialValues.from_created_date
+          ? moment(initialValues.from_created_date).format("DD-MM-YYYY")
+          : "??") +
         " ~ " +
-        (initialValues.to_created_date ? initialValues.to_created_date : "??");
+        (initialValues.to_created_date
+          ? moment(initialValues.to_created_date).format("DD-MM-YYYY")
+          : "??");
       list.push({
         key: "created_date",
         name: "Ngày tạo",
         value: textCreatedDate,
       });
     }
-    if (
-      initialValues.from_inventoryadjustment_date ||
-      initialValues.to_inventoryadjustment_date
-    ) {
-      let textInventoryAdjustmentDate =
-        (initialValues.from_inventoryadjustment_date
-          ? initialValues.from_inventoryadjustment_date
-          : "??") +
-        " ~ " +
-        (initialValues.to_inventoryadjustment_date
-          ? initialValues.to_inventoryadjustment_date
-          : "??");
+    if (initialValues.from_audited_date || initialValues.to_audited_date) {
+      let textInventoryAuditedDate =
+      (initialValues.from_audited_date
+        ? moment(initialValues.from_audited_date).format("DD-MM-YYYY")
+        : "??") +
+      " ~ " +
+      (initialValues.to_audited_date
+        ? moment(initialValues.to_audited_date).format("DD-MM-YYYY")
+        : "??");
       list.push({
         key: "audited_date",
         name: "Ngày kiểm",
+        value: textInventoryAuditedDate,
+      });
+    }
+
+    if (initialValues.from_adjusted_date || initialValues.to_adjusted_date) {
+      let textInventoryAdjustmentDate =
+      (initialValues.from_adjusted_date
+        ? moment(initialValues.from_adjusted_date).format("DD-MM-YYYY")
+        : "??") +
+      " ~ " +
+      (initialValues.to_adjusted_date
+        ? moment(initialValues.to_adjusted_date).format("DD-MM-YYYY")
+        : "??");
+      list.push({
+        key: "adjusted_date",
+        name: "Ngày cân bằng",
         value: textInventoryAdjustmentDate,
       });
     }
@@ -493,7 +532,8 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 <Row gutter={12} style={{marginTop: "10px"}}>
                   <Col span={24}>
                     <Collapse
-                      defaultActiveKey={initialValues.arrstatus.length ? ["1"] : []}>
+                      defaultActiveKey={initialValues?.status?.length ? ["1"] : []}
+                    >
                       <Panel header="Trạng thái" key="1" className="header-filter">
                         <Item name="status" style={{margin: "10px 0px"}}>
                           <CustomSelect
@@ -659,10 +699,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 <Row gutter={12} style={{marginTop: "10px"}}>
                   <Col span={24}>
                     <Collapse
-                      defaultActiveKey={initialValues.arrcreated_name.length ? ["1"] : []}
+                      defaultActiveKey={initialValues?.created_name?.length ? ["1"] : []}
                     >
                       <Panel header="Người tạo" key="1" className="header-filter">
-                        <Item name="created_by">
+                        <Item name="created_name">
                           <CustomSelect
                             mode="multiple"
                             showSearch
@@ -693,8 +733,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                   <Col span={24}>
                     <Collapse
                       defaultActiveKey={
-                        initialValues.from_inventoryadjustment_date &&
-                        initialValues.to_inventoryadjustment_date
+                        initialValues.from_audited_date && initialValues.to_audited_date
                           ? ["1"]
                           : []
                       }
@@ -704,7 +743,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "yesterday")}
                             className={
-                              adjustmentDateClick === "yesterday" ? "active" : "deactive"
+                              auditedDateClick === "yesterday" ? "active" : "deactive"
                             }
                           >
                             Hôm qua
@@ -712,7 +751,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "today")}
                             className={
-                              adjustmentDateClick === "today" ? "active" : "deactive"
+                              auditedDateClick === "today" ? "active" : "deactive"
                             }
                           >
                             Hôm nay
@@ -720,7 +759,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "thisweek")}
                             className={
-                              adjustmentDateClick === "thisweek" ? "active" : "deactive"
+                              auditedDateClick === "thisweek" ? "active" : "deactive"
                             }
                           >
                             Tuần này
@@ -728,14 +767,9 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         </div>
                         <div className="date-option">
                           <Button
-                            onClick={() =>
-                              clickOptionDate(
-                                "inventoryaudited_dateadjustment_date",
-                                "lastweek"
-                              )
-                            }
+                            onClick={() => clickOptionDate("audited_date", "lastweek")}
                             className={
-                              adjustmentDateClick === "lastweek" ? "active" : "deactive"
+                              auditedDateClick === "lastweek" ? "active" : "deactive"
                             }
                           >
                             Tuần trước
@@ -743,7 +777,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "thismonth")}
                             className={
-                              adjustmentDateClick === "thismonth" ? "active" : "deactive"
+                              auditedDateClick === "thismonth" ? "active" : "deactive"
                             }
                           >
                             Tháng này
@@ -751,7 +785,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "lastmonth")}
                             className={
-                              adjustmentDateClick === "lastmonth" ? "active" : "deactive"
+                              auditedDateClick === "lastmonth" ? "active" : "deactive"
                             }
                           >
                             Tháng trước
@@ -765,11 +799,11 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           format={DATE_FORMAT.DDMMYYY}
                           style={{width: "100%"}}
                           value={[
-                            isFromAdjustedBy
-                              ? moment(isFromAdjustedBy, DATE_FORMAT.DDMMYYY)
+                            isFromAuditedDate
+                              ? moment(isFromAuditedDate, DATE_FORMAT.DDMMYYY)
                               : null,
-                            isToAdjustedBy
-                              ? moment(isToAdjustedBy, DATE_FORMAT.DDMMYYY)
+                            isToAuditedDate
+                              ? moment(isToAuditedDate, DATE_FORMAT.DDMMYYY)
                               : null,
                           ]}
                           onChange={(date, dateString) =>
@@ -784,8 +818,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                   <Col span={24}>
                     <Collapse
                       defaultActiveKey={
-                        initialValues.from_inventoryadjustment_date &&
-                        initialValues.to_inventoryadjustment_date
+                        initialValues.from_adjusted_date && initialValues.to_adjusted_date
                           ? ["1"]
                           : []
                       }
@@ -793,7 +826,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                       <Panel header="Ngày cân bằng" key="1" className="header-filter">
                         <div className="date-option">
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "yesterday")}
+                            onClick={() => clickOptionDate("adjusted_date", "yesterday")}
                             className={
                               adjustmentDateClick === "yesterday" ? "active" : "deactive"
                             }
@@ -801,7 +834,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             Hôm qua
                           </Button>
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "today")}
+                            onClick={() => clickOptionDate("adjusted_date", "today")}
                             className={
                               adjustmentDateClick === "today" ? "active" : "deactive"
                             }
@@ -809,7 +842,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             Hôm nay
                           </Button>
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "thisweek")}
+                            onClick={() => clickOptionDate("adjusted_date", "thisweek")}
                             className={
                               adjustmentDateClick === "thisweek" ? "active" : "deactive"
                             }
@@ -819,12 +852,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         </div>
                         <div className="date-option">
                           <Button
-                            onClick={() =>
-                              clickOptionDate(
-                                "inventoryaudited_dateadjustment_date",
-                                "lastweek"
-                              )
-                            }
+                            onClick={() => clickOptionDate("adjusted_date", "lastweek")}
                             className={
                               adjustmentDateClick === "lastweek" ? "active" : "deactive"
                             }
@@ -832,7 +860,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             Tuần trước
                           </Button>
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "thismonth")}
+                            onClick={() => clickOptionDate("adjusted_date", "thismonth")}
                             className={
                               adjustmentDateClick === "thismonth" ? "active" : "deactive"
                             }
@@ -840,7 +868,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             Tháng này
                           </Button>
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "lastmonth")}
+                            onClick={() => clickOptionDate("adjusted_date", "lastmonth")}
                             className={
                               adjustmentDateClick === "lastmonth" ? "active" : "deactive"
                             }
@@ -864,7 +892,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                               : null,
                           ]}
                           onChange={(date, dateString) =>
-                            onChangeRangeDate(date, dateString, "audited_date")
+                            onChangeRangeDate(date, dateString, "adjusted_date")
                           }
                         />
                       </Panel>
@@ -874,11 +902,12 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 <Row gutter={12} style={{marginTop: "10px"}}>
                   <Col span={24}>
                     <Collapse
-                        defaultActiveKey={initialValues.arraudit_type.length ? ["1"] : []}>
+                      defaultActiveKey={initialValues?.audit_type?.length ? ["1"] : []}
+                    >
                       <Panel header="Loại kiểm kho" key="1" className="header-filter">
                         <Item name="audit_type" style={{margin: "10px 0px"}}>
                           <CustomSelect
-                            mode="multiple" 
+                            mode="multiple"
                             showSearch
                             showArrow
                             maxTagCount="responsive"

@@ -17,6 +17,10 @@ import {
   postProductEcommerceList,
   getProductEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
+import useAuthorization from "hook/useAuthorization";
 
 import checkCircleIcon from "assets/icon/check-circle.svg";
 
@@ -39,10 +43,19 @@ const PRODUCT_TAB = {
   }
 }
 
+const viewProductPermission = [EcommerceProductPermissions.VIEW_PRODUCT];
+const downloadProductPermission = [EcommerceProductPermissions.DOWNLOAD_PRODUCT];
+
+
 const Products: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("total-item");
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [allowDownloadProduct] = useAuthorization({
+    acceptPermissions: downloadProductPermission,
+    not: false,
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [isShowGetProductModal, setIsShowGetProductModal] = useState(false);
@@ -164,46 +177,54 @@ const Products: React.FC = () => {
         ]}
         extra={
           <>
-            <Button
-              onClick={handleGetProductsFromEcommerce}
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<DownloadOutlined />}
-            >
-              Tải sản phẩm từ sàn về
-            </Button>
+            {allowDownloadProduct &&
+              <Button
+                onClick={handleGetProductsFromEcommerce}
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<DownloadOutlined />}
+              >
+                Tải sản phẩm từ sàn về
+              </Button>
+            }
           </>
         }
       >
-        <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
-          <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
-          <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
-          <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
-        </Tabs>
-        
-        {activeTab === PRODUCT_TAB.total.key &&
-          <TotalItemsEcommerce
-            tableLoading={tableLoading}
-            variantData={variantData}
-            getProductUpdated={getProductUpdated}
-          />
-        }
-        
-        {activeTab === PRODUCT_TAB.connected.key &&
-          <ConnectedItems
-            tableLoading={tableLoading}
-            variantData={variantData}
-            getProductUpdated={getProductUpdated}
-          />
-        }
-        
-        {activeTab === PRODUCT_TAB.notConnected.key &&
-          <NotConnectedItems
-            tableLoading={tableLoading}
-            variantData={variantData}
-            getProductUpdated={getProductUpdated}
-          />
-        }
+        <AuthWrapper acceptPermissions={viewProductPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <>
+              <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
+                <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
+                <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
+                <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
+              </Tabs>
+              
+              {activeTab === PRODUCT_TAB.total.key &&
+                <TotalItemsEcommerce
+                  tableLoading={tableLoading}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
+              }
+              
+              {activeTab === PRODUCT_TAB.connected.key &&
+                <ConnectedItems
+                  tableLoading={tableLoading}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
+              }
+              
+              {activeTab === PRODUCT_TAB.notConnected.key &&
+                <NotConnectedItems
+                  tableLoading={tableLoading}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
+              }
+            </>
+          : <NoPermission />)}
+        </AuthWrapper>
       </ContentContainer>
 
       {isShowGetProductModal &&

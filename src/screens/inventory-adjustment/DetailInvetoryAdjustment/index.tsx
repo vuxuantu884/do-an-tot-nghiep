@@ -20,7 +20,7 @@ import {
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
-  InventoryAdjustmentDetailItem,
+  InventoryAdjustmentDetailItem, 
   LineItemAdjustment,
 } from "model/inventoryadjustment";
 import {Link} from "react-router-dom";
@@ -66,7 +66,7 @@ import {UploadFile} from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
 import {importFile, exportFile, getFile} from "service/other/import.inventory.service";
 import {ImportResponse} from "model/other/files/export-model";
-import NumberInput from "component/custom/number-input.custom";
+import NumberInput from "component/custom/number-input.custom"; 
 
 const {TabPane} = Tabs;
 
@@ -140,14 +140,14 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     items: [],
   });
-  const [tableLoading, setTableLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(true);
 
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
     TotalOnHand: 0,
     TotalRealOnHand: 0,
-  });
+  });  
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -236,8 +236,7 @@ const DetailInvetoryAdjustment: FC = () => {
     (result: PageResponse<LineItemAdjustment> | false) => {
       setTableLoading(true);
       if (result) {
-        setTableLoading(false);
-        setDatalinesItem(result);
+        setDatalinesItem({...result});
         drawColumns(result?.items);
         setHasError(false);
         if (result?.items && result?.items.length > 0) {
@@ -254,6 +253,7 @@ const DetailInvetoryAdjustment: FC = () => {
             total: total,
           });
         }
+        setTableLoading(false);
       }
     },
     [drawColumns]
@@ -313,18 +313,25 @@ const DetailInvetoryAdjustment: FC = () => {
       const dataTemp = [...dataLinesItem.items, ...newResult];
 
       const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
+      setTableLoading(true);
 
       arrayUnique.forEach((item) => {
-        dispatch(updateItemOnlineInventoryAction(idNumber, item, (result) => {}));
+        dispatch(
+          updateItemOnlineInventoryAction(idNumber, item, () => {
+            if (result) {
+              dispatch(
+                getLinesItemAdjustmentAction(
+                  idNumber,
+                  `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+                  onResultDataTable
+                )
+              );
+            }
+          })
+        );
       });
-      dispatch(
-        getLinesItemAdjustmentAction(
-          idNumber,
-          `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
-          onResultDataTable
-        )
-      );
 
+      setTableLoading(false);
       setHasError(false);
       setVisibleManyProduct(false);
     },
@@ -545,19 +552,30 @@ const DetailInvetoryAdjustment: FC = () => {
     },
   ];
 
-  const onResult = useCallback((result) => {
-    setLoading(true);
-    if (!result) {
-      setError(true);
-      return;
-    } else {
-      setLoading(false);
-      let data: InventoryAdjustmentDetailItem = result;
-      setHasError(false);
-      setFormStoreData(data?.store);
-      setData(data);
-    }
-  }, []);
+  const onResult = useCallback(
+    (result) => {
+      setLoading(true);
+      if (!result) {
+        setError(true);
+        return;
+      } else {
+        setLoading(false);
+        let data: InventoryAdjustmentDetailItem = result;
+        setHasError(false);
+        setFormStoreData(data?.store);
+        setData(data);
+
+        dispatch(
+          getLinesItemAdjustmentAction(
+            idNumber,
+            `page=1&limit=30&condition=${keySearch?.toString()}`,
+            onResultDataTable
+          )
+        );
+      }
+    },
+    [idNumber, keySearch, onResultDataTable, dispatch]
+  );
 
   const onUpdateOnlineInventory = useCallback(() => {
     setLoading(true);
@@ -589,6 +607,7 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
+      setTableLoading(true);
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
@@ -596,6 +615,7 @@ const DetailInvetoryAdjustment: FC = () => {
           onResultDataTable
         )
       );
+      setTableLoading(false);
     },
     [keySearch, dispatch, idNumber, onResultDataTable]
   );
@@ -604,13 +624,16 @@ const DetailInvetoryAdjustment: FC = () => {
     user_name: string;
   };
 
-  const RenderItemAuditBy = (auditBY: accountAudit) => {
-    const account = accounts.find(
-      (e) => e.code.toLocaleLowerCase() === auditBY.user_name.toLocaleLowerCase()
-    );
+  const RenderItemAuditBy = useCallback(
+    (auditBY: accountAudit) => {
+      const account = accounts.find(
+        (e) => e.code.toLocaleLowerCase() === auditBY.user_name.toLocaleLowerCase()
+      );
 
-    return <div>{`${account?.code} - ${account?.full_name}`}</div>;
-  };
+      return <div>{`${account?.code} - ${account?.full_name}`}</div>;
+    },
+    [accounts]
+  );
 
   const onRealQuantityChange = useCallback(
     (quantity: number | any, row: LineItemAdjustment, index: number) => {
@@ -659,16 +682,28 @@ const DetailInvetoryAdjustment: FC = () => {
     );
   };
 
+  const onPageChange = useCallback(
+    (page, size) => {
+      setDatalinesItem({
+        ...dataLinesItem,
+        metadata: {...dataLinesItem.metadata, page: page, limit: size},
+      });
+
+      dispatch(
+        getLinesItemAdjustmentAction(
+          idNumber,
+          `page=${page}&limit=${size}&condition=${keySearch?.toString()}`,
+          onResultDataTable
+        )
+      );
+    },
+    [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
+  );
+
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
   }, [idNumber, onResult, dispatch, setDataAccounts]);
-
-  useEffect(() => {
-    dispatch(
-      getLinesItemAdjustmentAction(idNumber, `page=1&limit=30`, onResultDataTable)
-    );
-  }, [dispatch, idNumber, onResultDataTable]);
 
   const onExport = useCallback(() => {
     exportFile({
@@ -857,10 +892,16 @@ const DetailInvetoryAdjustment: FC = () => {
                         onChange={(active) => setActiveTab(active)}
                       >
                         <TabPane tab={`Thừa/Thiếu (${objSummary?.partly})`} key="1">
-                          <InventoryAdjustmentHistory data={data} dataLinesItem={dataLinesItem.items} />
+                          <InventoryAdjustmentHistory
+                            data={data}
+                            dataLinesItem={dataLinesItem.items}
+                          />
                         </TabPane>
                         <TabPane tab={`Tất cả (${objSummary?.total})`} key="2">
-                          <InventoryAdjustmentListAll data={data} dataLinesItem={dataLinesItem.items} />
+                          <InventoryAdjustmentListAll
+                            data={data}
+                            dataLinesItem={dataLinesItem.items}
+                          />
                         </TabPane>
                       </Tabs>
                     </Card>
@@ -932,6 +973,8 @@ const DetailInvetoryAdjustment: FC = () => {
                           total: dataLinesItem.metadata.total,
                           current: dataLinesItem.metadata.page,
                           showSizeChanger: true,
+                          onChange: onPageChange,
+                          onShowSizeChange: onPageChange,
                         }}
                         dataSource={dataLinesItem.items}
                         rowKey={(item: LineItemAdjustment) => item.id}
