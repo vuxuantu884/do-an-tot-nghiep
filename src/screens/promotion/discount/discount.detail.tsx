@@ -14,7 +14,7 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
+import {promoGetDetail, getVariants} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import Countdown from "react-countdown";
@@ -130,6 +130,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const [data, setData] = useState<DiscountResponse | null>(null);
+  const [dataVariants, setDataVariants] = useState<any | null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
@@ -142,6 +143,7 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(getListSourceRequest(setListSource));
     dispatch(getListChannelRequest(setListChannel));
     dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getVariants(idNumber, handleResponse));
   }, []);
 
   useEffect(() => {
@@ -171,6 +173,17 @@ const PromotionDetailScreen: React.FC = () => {
       setError(true);
     } else {
       setData(result);
+    }
+  }, []);
+
+  const handleResponse = useCallback((result: any | false) => {
+    setLoading(false);
+    if (!result) {
+      setError(true);
+    } else {
+      setDataVariants(result);
+      console.log(dataVariants);
+      
     }
   }, []);
 
