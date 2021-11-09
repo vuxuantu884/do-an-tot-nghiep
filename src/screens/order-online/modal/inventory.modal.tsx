@@ -31,8 +31,9 @@ const InventoryModal: React.FC<InventoryModalProps> = (
     handleCancel,
   } = props;
 
+  // const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
+  // const inventoryData:any=[];
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
-
   const setAvailable = (storeId: number, variantId: number) => {
     let inventoryInt = null;
     if (inventoryArray && inventoryArray.length) {
@@ -83,6 +84,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   useEffect(() => {
     if (storeId) setSelectedStoreId(storeId);
   }, [storeId]);
+
 
   return (
     <Modal

@@ -19,4 +19,8 @@ const inventoryGetDetailVariantIdsSaga = (variant_id:Number[],store_id:Number|nu
   return BaseAction(InventoryType.GET_DETAIL_lIST_VARIANT, {variant_id,store_id, setData})
 }
 
-export {inventoryGetListAction, inventoryGetDetailAction, inventoryGetHistoryAction, inventoryGetDetailVariantIdsSaga};
+const inventoryGetDetailVariantIdsExt = (variant_id:Number[],store_id:Number|null, setData: (data: Array<InventoryResponse>|null) => void) => {
+  return BaseAction(InventoryType.GET_DETAIL_lIST_VARIANT_EXT, {variant_id,store_id, setData})
+}
+
+export {inventoryGetListAction, inventoryGetDetailAction, inventoryGetHistoryAction, inventoryGetDetailVariantIdsSaga,inventoryGetDetailVariantIdsExt};
