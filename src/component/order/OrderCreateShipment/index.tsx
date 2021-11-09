@@ -266,7 +266,8 @@ function OrderCreateShipment(props: PropType) {
     } else {
       setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng!");
     }
-  }, [customer, dispatch, items, storeDetail, totalAmountCustomerNeedToPay]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer, dispatch, items, storeDetail]);
 
   useEffect(() => {
     dispatch(ShipperGetListAction(setListShippers));

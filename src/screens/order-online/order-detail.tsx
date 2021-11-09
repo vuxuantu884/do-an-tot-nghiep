@@ -624,7 +624,8 @@ const OrderDetail = (props: PropType) => {
                 {/*--- product ---*/}
                 <UpdateProductCard
                   OrderDetail={OrderDetail}
-                  shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                  // shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                  shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
                   customerNeedToPayValue={customerNeedToPayValue}
                   totalAmountReturnProducts={totalAmountReturnProducts}
                 />
@@ -836,6 +837,8 @@ const OrderDetail = (props: PropType) => {
                                       disabledActions={disabledActions}
                                       isDisablePostPayment={isDisablePostPayment}
                                       listPaymentMethods={listPaymentMethods}
+                                      shippingFeeInformedToCustomer={shippingFeeInformedCustomer}
+                                      form={form}
                                     />
                                   )}
                                 </Panel>
@@ -1104,6 +1107,8 @@ const OrderDetail = (props: PropType) => {
                       disabledActions={disabledActions}
                       listPaymentMethods={listPaymentMethods}
                       isDisablePostPayment={isDisablePostPayment}
+                      shippingFeeInformedToCustomer={shippingFeeInformedCustomer}
+                      form={form}
                     />
                   )}
 
@@ -1125,7 +1130,8 @@ const OrderDetail = (props: PropType) => {
                     OrderDetail?.total_paid
                       ? OrderDetail?.total_paid
                       : paymentMethod === 2
-                      ? totalPaid
+                      // ? totalPaid
+                      ? 0
                       : 0
                   }
                   officeTime={officeTime}
