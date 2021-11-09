@@ -17,6 +17,7 @@ import {
   Table,
   Tooltip,
 } from "antd";
+import _ from "lodash";
 import {RefSelectProps} from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
@@ -316,6 +317,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     };
 }, [event]);
 
+  useEffect(() => {
+    if (coupon && items) {
+      console.log("Apply coupon: ", coupon)
+      // let _items = [...items];
+      // applyCouponDiscount(_items);
+      // let _amount = totalAmount(_items);
+      // handleCardItems(_items);
+      // setAmount(_amount);
+      // calculateChangeMoney(_items, _amount, discountRate, discountValue);
+    }
+  }, [coupon])
+
   const totalAmount = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       if (!items) {
@@ -382,6 +395,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const handleChangeItems = useCallback(() => {
+    console.log('handleChangeItems');
     if (!items) {
       return 0;
     }
@@ -409,6 +423,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       if (value !== null) {
         _items[index].price = value;
       }
+      _items.forEach(item => item.discount_items = [createNewDiscountItem()]);
       handleCardItems(_items);
       handleChangeItems();
     }
@@ -844,41 +859,110 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const handleAutomaticDiscount = async (_items: Array<OrderLineItemRequest>, item: OrderLineItemRequest, splitLine:boolean) => {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(item => item.variant_id === item.variant_id).length : item.quantity;
-    const checkingDiscountResponse = await applyDiscount(item, quantity);
-    setLoadingAutomaticDiscount(false)
-    if (item && checkingDiscountResponse &&
-      checkingDiscountResponse.code === 20000000 &&
-      checkingDiscountResponse.data.line_items.length
-    ) {
-      const suggested_discounts = checkingDiscountResponse.data.line_items.find(
-        (lineItem: any) => lineItem.variant_id === item.variant_id
-      )?.suggested_discounts;
-      if (suggested_discounts.length > 0) {
-        const quantity = item.quantity;
+    try {
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}]);
+      setLoadingAutomaticDiscount(false)
+      if (item && checkingDiscountResponse &&
+        checkingDiscountResponse.code === 20000000 &&
+        checkingDiscountResponse.data.line_items.length
+      ) {
+        const suggested_discounts = checkingDiscountResponse.data.line_items.find(
+          (lineItem: any) => lineItem.variant_id === item.variant_id
+        )?.suggested_discounts;
+        if (suggested_discounts && suggested_discounts.length > 0) {
+          const quantity = item.quantity;
+          const total = item.amount;
+          valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
+            let value = 0;
+            if (discount.value_type === "FIXED_AMOUNT") {
+              value = discount.value * quantity;
+            } else if (discount.value_type === "PERCENTAGE") {
+              value = total * (discount.value/100);
+            } else if (discount.value_type === "FIXED_PRICE") {
+              value = item.price - discount.value;
+            }
+            if (value > item.price) {
+              value = item.price;
+            }
+            return value;
+          }))
+          const discountItem: OrderItemDiscountRequest = {
+            rate: Math.round((valuestDiscount/item.price) * 100 * 100) / 100,
+            value: valuestDiscount,
+            amount: valuestDiscount,
+            reason: '',
+          };
+          item.discount_items[0] = discountItem;
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      showError("Thao tác thất bại");
+      setLoadingAutomaticDiscount(false)
+      return null;
+    }
 
-        const total = item.amount;
-        valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
-          console.log("handleAutomaticDiscount - item: ", item);
-          let value = 0;
-          if (discount.value_type === "FIXED_AMOUNT") {
-            value = discount.value * quantity;
-          } else if (discount.value_type === "PERCENTAGE") {
-            value = total * (discount.value/100);
-          } else if (discount.value_type === "FIXED_PRICE") {
-            value = item.price - discount.value;
+  }
+
+  const applyCouponDiscount = async (items: Array<OrderLineItemRequest> | undefined) => {
+    if (items) {
+      try {
+        const requestBody = _.uniqWith(items, (otherItem, currentItem) => {
+          let flag = false;
+          if (currentItem.variant_id === otherItem.variant_id) {
+            currentItem.quantity += otherItem.quantity;
+            flag = true;
           }
-          if (value > item.price) {
-            value = item.price;
-          }
-          return value;
-        }))
-        const discountItem: OrderItemDiscountRequest = {
-          rate: Math.round((valuestDiscount/item.price) * 100 * 100) / 100,
-          value: valuestDiscount,
-          amount: valuestDiscount,
-          reason: '',
-        };
-        item.discount_items[0] = discountItem;
+          return flag;
+        }).map(e => ({
+          variant_id: e.variant_id,
+          quantity: e.quantity
+        }));
+        const applyResponse = await applyDiscount(requestBody);
+        setLoadingAutomaticDiscount(false)
+        if (applyResponse &&
+          applyResponse.code === 20000000 &&
+          applyResponse.data.line_items.length
+        ) {
+          applyResponse.data.line_items.forEach((discountLineItem:any) => {
+            const orderItems = items.filter(item => item.variant_id === discountLineItem.variant_id);
+            if (orderItems && orderItems.length > 0) {
+              let valuestDiscount = 0;
+              console.log('orderItems[0]: ',orderItems[0]);
+              const quantity = orderItems[0].quantity;
+              const suggested_discounts = discountLineItem.suggested_discounts;
+              const total = orderItems[0].amount;
+              valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
+                let value = 0;
+                if (discount.value_type === "FIXED_AMOUNT") {
+                  value = discount.value * quantity;
+                } else if (discount.value_type === "PERCENTAGE") {
+                  value = total * (discount.value/100);
+                } else if (discount.value_type === "FIXED_PRICE") {
+                  value = orderItems[0].price - discount.value;
+                }
+                if (value > orderItems[0].price) {
+                  value = orderItems[0].price;
+                }
+                return value;
+              }))
+              const discountItem: OrderItemDiscountRequest = {
+                rate: Math.round((valuestDiscount/(orderItems[0].price * orderItems[0].quantity)) * 100 * 100) / 100,
+                value: valuestDiscount,
+                amount: valuestDiscount,
+                reason: '',
+              };
+              orderItems.forEach(e => e.discount_items = [discountItem]);
+            }
+          })
+        }
+        console.log('applyCouponDiscount - items: ', items)
+        console.log('applyCouponDiscount: ', applyResponse);
+      } catch(e) {
+        console.log(e);
+        showError("Thao tác thất bại");
+        setLoadingAutomaticDiscount(false)
+        return null;
       }
     }
   }
@@ -899,7 +983,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       if (r.id === newV) {
         if (splitLine || index === -1) {
           _items.push(item);
-
           await handleAutomaticDiscount(_items, item, splitLine)
           setAmount(amount + (item.price - item.discount_items[0].amount));
           calculateChangeMoney(
@@ -1042,6 +1125,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _discountRate: number,
     _discountValue: number
   ) => {
+    console.log('_items: ', _items)
+    console.log('_amount: ', _amount)
+    console.log('_discountRate: ', _discountRate)
+    console.log('_discountValue: ', _discountValue)
     props.changeInfo(_items, _amount, _discountRate, _discountValue);
 
   };
