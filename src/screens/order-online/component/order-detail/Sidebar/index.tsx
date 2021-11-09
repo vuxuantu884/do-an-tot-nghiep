@@ -62,7 +62,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG">
+      <Card title="THÔNG TIN ĐƠN HÀNG 3">
         <Form.Item
           label="Nhân viên bán hàng"
           name="assignee_code"

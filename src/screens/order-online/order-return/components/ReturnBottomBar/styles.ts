@@ -8,7 +8,7 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
     left: 240px;
-    padding: 20px 20px;
+    padding: 10px 20px;
     position: fixed;
     right: 0px;
     z-index: 983;
