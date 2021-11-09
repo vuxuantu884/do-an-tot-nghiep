@@ -305,9 +305,14 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     let list = []
     if (initialValues.status.length) {
       let textStatus = ""
-      initialValues.status.forEach(statusValue => {
+      initialValues.status.forEach((statusValue, index) => {
         const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(status => status.value === statusValue)
-        textStatus = status ? textStatus + status.name + ";" : textStatus
+        if (index > 0) {
+          textStatus = status ? textStatus + status.name + ";" : textStatus
+        }
+        else {
+          textStatus = status ? textStatus + status.name : textStatus
+        }
       })
       list.push({
         key: 'status',
@@ -341,9 +346,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     }
     if (initialValues.created_by.length) {
       let textAccount = ""
-      initialValues.created_by.forEach(i => {
+      initialValues.created_by.forEach((i, index) => {
         const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        if (index > 0) {
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        } else {
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        }
       })
       list.push({
         key: 'created_by',
@@ -394,12 +403,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   placeholder="Kho gửi"
                   showArrow
                   showSearch
+                  allowClear
+                  onClear={() => formSearchRef?.current?.submit()}
                 >
-                  <Option
-                    value={""}
-                  >
-                    Chọn kho gửi
-                  </Option>
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
                     stores.map((item, index) => (
@@ -423,12 +429,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   showArrow
                   showSearch
                   optionFilterProp="children"
+                  allowClear
+                  onClear={() => formSearchRef?.current?.submit()}
                 >
-                  <Option
-                    value={""}
-                  >
-                    Chọn kho nhận
-                  </Option>
                   {Array.isArray(stores) &&
                     stores.length > 0 &&
                     stores.map((item, index) => (

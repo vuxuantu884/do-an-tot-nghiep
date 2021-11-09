@@ -48,6 +48,7 @@ import CustomPagination from "component/table/CustomPagination";
 import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
+import moment from "moment";
 
 const {Option} = Select;
 
@@ -84,7 +85,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [auditType, setAuditType] = useState<string>("");
+  const [auditType, setAuditType] = useState<string>(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
   const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
   const [formStoreData, setFormStoreData] = useState<Store | null>();
@@ -98,11 +99,7 @@ const CreateInventoryAdjustment: FC = () => {
     TotalRealOnHand: 0,
   });
 
-  const lstAudiTypes = [
-    {
-      key: "total",
-      name: "Toàn bộ",
-    },
+  const lstAudiTypes = [ 
     {
       key: "partly",
       name: "Một phần",
@@ -131,6 +128,8 @@ const CreateInventoryAdjustment: FC = () => {
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
+    data.audited_by  = data.audited_by ?? [];
+     
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
@@ -167,15 +166,9 @@ const CreateInventoryAdjustment: FC = () => {
 
   const onChangeAuditType = useCallback(
     (auditType: string) => {
-      if (!form.getFieldValue("adjusted_store_id")) {
-        showError("Vui lòng chọn kho kiểm");
-        form.setFieldsValue({audit_type: null});
-        return false;
-      }
-
       setAuditType(auditType);
     },
-    [form]
+    []
   );
 
   // get store
@@ -220,29 +213,56 @@ const CreateInventoryAdjustment: FC = () => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = (value: string) => {
+  const drawColumns = useCallback((data: Array<LineItemAdjustment>) => {
+    let totalExcess = 0,
+      totalMiss = 0,
+      totalQuantity = 0,
+      totalReal = 0;
+    data?.forEach((element: LineItemAdjustment) => {
+      totalQuantity += element.on_hand;
+      totalReal += parseInt(element.real_on_hand?.toString()) ?? 0;
+      let on_hand_adj = element.on_hand_adj ?? 0;
+      if (on_hand_adj > 0) {
+        totalExcess += on_hand_adj;
+      }
+      if (on_hand_adj < 0) {
+        totalMiss += -on_hand_adj;
+      }
+    });
+
+    setObjSummaryTable({
+      TotalOnHand: totalQuantity,
+      TotalExcess: totalExcess,
+      TotalMiss: totalMiss,
+      TotalRealOnHand: totalReal,
+    });
+  }, []);
+
+  const onSelectProduct = useCallback((value: string) => {
     const dataTemp = [...dataTable];
     const selectedItem = resultSearch?.items?.find(
       (variant: VariantResponse) => variant.id.toString() === value
     );
 
     if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
+      drawColumns(dataTable.concat([{...selectedItem, variant_name: selectedItem.name, real_on_hand: 0}]));
+
       setDataTable((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name}])
+        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
       );
       setSearchVariant((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem, variant_name: selectedItem.name}])
+        prev.concat([{...selectedItem, variant_name: selectedItem.name,real_on_hand: 0}])
       );
-      setHasError(false);
-    }
-  };
+      setHasError(false); 
+    } 
+  },[dataTable,resultSearch,drawColumns]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -266,6 +286,7 @@ const CreateInventoryAdjustment: FC = () => {
     setIsLoadingTable(false);
     setHasError(false);
     setVisibleManyProduct(false);
+    drawColumns(arrayUnique);
   };
 
   const onBeforeUpload = useCallback((file) => {
@@ -497,32 +518,7 @@ const CreateInventoryAdjustment: FC = () => {
         />
       ),
     },
-  ]; 
-
-  const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
-    let totalExcess = 0,
-      totalMiss = 0,
-      totalQuantity = 0,
-      totalReal = 0;
-    data.forEach((element: LineItemAdjustment) => {
-      totalQuantity += element.on_hand;
-      totalReal += parseInt(element.real_on_hand?.toString()) ?? 0;
-      let on_hand_adj = element.on_hand_adj ?? 0;
-      if (on_hand_adj > 0) {
-        totalExcess += on_hand_adj;
-      }
-      if (on_hand_adj < 0) {
-        totalMiss += -on_hand_adj;
-      }
-    });
-
-    setObjSummaryTable({
-      TotalOnHand: totalQuantity,
-      TotalExcess: totalExcess,
-      TotalMiss: totalMiss,
-      TotalRealOnHand: totalReal,
-    });
-  }, []);
+  ];  
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -713,6 +709,7 @@ const CreateInventoryAdjustment: FC = () => {
                       <Form.Item
                         style={{margin: "0px"}}
                         name="audit_type"
+                        initialValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
                         label=""
                         rules={[
                           {
@@ -728,6 +725,7 @@ const CreateInventoryAdjustment: FC = () => {
                           optionFilterProp="children"
                           showSearch={false}
                           allowClear={true}
+                          defaultValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
                           }}
@@ -957,6 +955,7 @@ const CreateInventoryAdjustment: FC = () => {
                   colon={false}
                 >
                   <CustomDatePicker
+                    disableDate={(date) => date < moment().startOf("days")}
                     style={{width: "100%"}}
                     placeholder="Chọn ngày kiểm"
                     format={DATE_FORMAT.DDMMYYY}
@@ -968,6 +967,10 @@ const CreateInventoryAdjustment: FC = () => {
                   label={<b>Người kiểm</b>}
                   labelCol={{span: 24, offset: 0}}
                   colon={false}
+                  rules={[{
+                      required: true,
+                      message: "Vui lòng chọn người kiểm",
+                  }]}
                 >
                   <CustomSelect
                     mode="multiple"
@@ -1050,7 +1053,8 @@ const CreateInventoryAdjustment: FC = () => {
           {visibleManyProduct && (
             <PickManyProductModal
               storeID={form.getFieldValue("adjusted_store_id")}
-              selected={[]}
+              selected={dataTable}
+              isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
               visible={visibleManyProduct}

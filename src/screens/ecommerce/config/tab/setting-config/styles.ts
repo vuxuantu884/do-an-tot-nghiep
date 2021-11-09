@@ -51,8 +51,9 @@ export const StyledConfig = styled.div`
   }
   .customer-bottom-button{
     margin-left: -50px;
-    button:first-child{
-      color: red
+    
+    .disconnect-btn {
+      color: red;
     }
   }
   .ant-form-item-label{

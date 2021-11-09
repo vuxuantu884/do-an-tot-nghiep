@@ -20,10 +20,8 @@ const CreateDiscountPage = () => {
   const dispatch = useDispatch();
   const [discountForm] = Form.useForm();
   const history = useHistory();
-  // const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  // const [customerAdvanceMsg, setCustomerAdvanceMsg] = React.useState<string | null>(null);
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
@@ -31,13 +29,7 @@ const CreateDiscountPage = () => {
   }, [dispatch]);
 
   const transformData = (values: any) => {
-    console.log('transformData: ', values);
     let body: any = {};
-    // if (body.customer_selection && body.prerequisite_gender === null) {
-    //   console.log('Vui lòng nhập đối tượng khách hàng')
-    //   setCustomerAdvanceMsg("Vui lòng nhập đối tượng khách hàng")
-    // }
-    // body.discount_codes.push(values.discount_codes)
     body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;
     body.priority = values.priority;
@@ -59,7 +51,7 @@ const CreateDiscountPage = () => {
             greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
             less_than_or_equal_to: null,
             allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
-            value_type: entitlement['prerequisite_quantity_ranges.value_type'],
+            value_type: body.entitled_method === "FIXED_PRICE" ? "FIXED_PRICE" : entitlement['prerequisite_quantity_ranges.value_type'],
             value: entitlement['prerequisite_quantity_ranges.value'],
           },
         ],
@@ -70,11 +62,11 @@ const CreateDiscountPage = () => {
   }
   const handerSubmit = async (values: any) => {
     const body = transformData(values);
-    body.disabled = false;
+    body.activated = true;
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/promo-code");
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
@@ -83,11 +75,11 @@ const CreateDiscountPage = () => {
   const save = async () => {
     const values = await discountForm.validateFields();
     const body = transformData(values);
-    body.disabled = true;
+    body.activated = false;
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu thành công");
-      history.push("/promotion/promo-code");
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }

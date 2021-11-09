@@ -85,9 +85,10 @@ const GeneralInfo = (props: any) => {
                 placeholder="Nhập mã khuyến mại"
                 maxLength={20}
                 upperCase={true}
+                disabled={true}
                 restFormItem={{
                   rules: [
-                    { required: true, message: 'Vui lòng nhập mã khuyến mại' },
+                    // { required: true, message: 'Vui lòng nhập mã khuyến mại' },
                     { pattern: /^DI([0-9])+$/, message: 'Mã khuyến mại sai định dạng' }
                   ]
                 }}
@@ -267,7 +268,12 @@ const GeneralInfo = (props: any) => {
                 label={<b>Cửa hàng áp dụng:</b>}
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
-                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
+                <Select
+                  disabled={allStore}
+                  placeholder="Chọn chi nhánh"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
                   {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
@@ -324,7 +330,12 @@ const GeneralInfo = (props: any) => {
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
-                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
+                <Select
+                  disabled={allSource}
+                  placeholder="Chọn nguồn đơn hàng"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                >
                   {listSource?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>

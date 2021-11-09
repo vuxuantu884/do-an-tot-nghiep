@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Col, Input, Modal, Row, Radio } from "antd";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { Col, Input, Modal, Radio, Row } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
+import { OrderLineItemRequest } from "model/request/order.request";
+import React, { useCallback, useEffect, useState } from "react";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
@@ -14,7 +14,6 @@ type InventoryModalProps = {
   setResultSearchStore: any;
   dataSearchCanAccess: Array<StoreResponse> | null;
   handleCancel: () => void;
-  setStoreForm:(id:number|null)=>void
 };
 
 const InventoryModal: React.FC<InventoryModalProps> = (
@@ -30,12 +29,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (
     setStoreId,
     setInventoryModalVisible,
     handleCancel,
-    setStoreForm
   } = props;
 
-  const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
-
-  const inventoryData:any=[];
+  // const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
+  // const inventoryData:any=[];
+  const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
   const setAvailable = (storeId: number, variantId: number) => {
     let inventoryInt = null;
     if (inventoryArray && inventoryArray.length) {
@@ -65,12 +63,9 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   };
 
   const onChange = (e: any) => {
-    sethangeStoreItem(e.target.value);
+    setSelectedStoreId(e.target.value);
   };
 
-  useEffect(() => {
-    if (storeId) sethangeStoreItem(storeId);
-  }, [storeId]);
 
   const onSearchInventory = useCallback(
     (value) => {
@@ -80,20 +75,16 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   );
 
   const handleOk = useCallback(() => {
-    if (changeStoreItem) {
-      setStoreId(changeStoreItem);
-      setStoreForm(changeStoreItem);
-      setInventoryModalVisible(false)
+    if(selectedStoreId) {
+      setStoreId(selectedStoreId)
     }
-  }, [setStoreId,changeStoreItem,setInventoryModalVisible,setStoreForm]);
+    setInventoryModalVisible(false)
+  }, [selectedStoreId, setInventoryModalVisible, setStoreId]);
 
-  // useEffect(()=>{
-  //   dataSearchCanAccess?.forEach(function(data, index){
-  //     inventoryData.push({
-  //       storeId:
-  //     });
-  //   });
-  // },[dataSearchCanAccess,columnsItem])
+  useEffect(() => {
+    if (storeId) setSelectedStoreId(storeId);
+  }, [storeId]);
+
 
   return (
     <Modal
@@ -118,7 +109,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (
       <Row gutter={24} className="margin-top-10">
         <Col md={24}>
           <div className="overflow-table">
-            <Radio.Group onChange={onChange} value={changeStoreItem}  style={{ width: "100%" }}> 
+            <Radio.Group onChange={onChange} value={selectedStoreId}  style={{ width: "100%" }}> 
               <table className="rules">
                 <thead>
                   <tr>

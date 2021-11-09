@@ -42,7 +42,7 @@ export const ShipperGetListAction = (
   return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData }); 
 };
 
-export const AccountGetByIdtAction = (
+export const AccountGetByCodeAction = (
   code: string,
   setData: (data: AccountResponse) => void
 ) => {

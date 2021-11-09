@@ -13,6 +13,7 @@ import {Link} from "react-router-dom";
 import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import {formatCurrency} from "../../../../utils/AppUtils";
 
 const Option = Select.Option;
 
@@ -162,6 +163,7 @@ const FixedPriceGroup = (props: any) => {
                 style={{textAlign: 'end', borderRadius: '0px'}}
                 min={0}
                 maxLength={discountType === 'PERCENTAGE' ? 2 : 9}
+                // format={(a) => formatCurrency(a)}
               />
             </Form.Item>
             <Form.Item
@@ -244,14 +246,14 @@ const FixedPriceGroup = (props: any) => {
                 className: "ant-col-info",
                 align: 'center',
                 width: '15%',
-                render: (value, item, index) => item.available
+                render: (value, item, index) => item.on_hand
               },
               {
                 title: "Giá vốn",
                 className: "ant-col-info",
                 align: 'center',
                 width: '15%',
-                render: (value, item, index) => item.variant_prices[0]?.import_price || ''
+                render: (value, item, index) => formatCurrency(item.variant_prices[0]?.import_price)
               },
               {
                 className: "ant-col-info",

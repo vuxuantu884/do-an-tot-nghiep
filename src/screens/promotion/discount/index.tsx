@@ -18,7 +18,6 @@ import {useDispatch} from "react-redux";
 import moment from "moment";
 import {DATE_FORMAT} from "../../../utils/DateUtils";
 import {DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
-import {MenuAction} from "../../../component/table/ActionButton";
 import {DiscountSearchQuery} from "../../../model/query/discount.query";
 import DiscountFilter from "./components/DiscountFilter";
 import {getQueryParams, useQuery} from "../../../utils/useQuery";
@@ -31,85 +30,18 @@ import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/res
 import {showError, showSuccess} from "../../../utils/ToastUtils";
 import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
 import { PROMO_TYPE } from "utils/Constants";
+import { STATUS_CODE, ACTIONS_DISCOUNT } from "../constant";
 
 
 const DiscountPage = () => {
-  const discountStatuses = [
-    {
-      code: 'APPLYING',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'TEMP_STOP',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng',
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }
-    },
-  ]
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Kich hoạt",
-    },
-    {
-      id: 2,
-      name: "Tạm ngừng",
-    },
-    {
-      id: 3,
-      name: "Xuất Excel",
-    },
-    {
-      id: 4,
-      name: "Xoá",
-    },
-  ];
+  const discountStatuses = STATUS_CODE;
+  const actions = ACTIONS_DISCOUNT;
   const initQuery: DiscountSearchQuery = {
     type: PROMO_TYPE.AUTOMATIC,
     request: "",
     from_created_date: "",
     to_created_date: "",
-    status: "",
+    state: null,
     applied_shop: "",
     applied_source: "",
     customer_category: "",
@@ -140,8 +72,10 @@ const DiscountPage = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
-    setDiscounts(data)
-    setTableLoading(false)
+    setTimeout(() => {
+      setDiscounts(data)
+      setTableLoading(false)
+    }, 1500)
   }, [])
 
   useEffect(() => {
@@ -151,9 +85,10 @@ const DiscountPage = () => {
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
-  }, [dispatch, fetchData, params]);
+  }, []);
 
   useEffect(() => {
+    setTableLoading(true)
     dispatch(getListDiscount(params, fetchData));
   }, [dispatch, fetchData, params])
 
@@ -162,10 +97,10 @@ const DiscountPage = () => {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "7%",
+      width: "9%",
       render: (value: any, item: any, index: number) =>
         <Link
-          to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`}
+          to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${value.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
           {value.code}
@@ -206,12 +141,12 @@ const DiscountPage = () => {
       fixed: "left",
       align: 'center',
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : "∞"}`}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : "∞"}`}</div>,
     },
     {
       title: "Người tạo",
       visible: true,
-      dataIndex: "created_by",
+      dataIndex: "created_name",
       fixed: "left",
       align: 'center',
     },
@@ -219,7 +154,7 @@ const DiscountPage = () => {
       title: "Trạng thái",
       visible: true,
       fixed: "left",
-      dataIndex: 'status',
+      dataIndex: 'state',
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
@@ -245,7 +180,7 @@ const DiscountPage = () => {
                        setSelectedRowId(item.id);
                        setConfirmDelete(true)
                      }}>
-            Xoá
+            Huỷ
           </Menu.Item>
         </Menu>
       )}/>
@@ -266,13 +201,16 @@ const DiscountPage = () => {
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      setTableLoading(true)
       const body = {ids: selectedRowKey}
       switch (index) {
         case 1:
           const bulkEnableResponse = await bulkEnablePriceRules(body);
           if (bulkEnableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
           }
@@ -280,8 +218,10 @@ const DiscountPage = () => {
         case 2:
           const bulkDisableResponse = await bulkDisablePriceRules(body);
           if (bulkDisableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
           }
@@ -291,8 +231,10 @@ const DiscountPage = () => {
         case 4:
           const bulkDeleteResponse = await bulkDeletePriceRules(body);
           if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
           }
@@ -379,11 +321,13 @@ const DiscountPage = () => {
       <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}
         onOk={async () => {
+          setTableLoading(true)
           const deleteResponse = await deletePriceRuleById(selectedRowId);
           if (deleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-
+            setTimeout(() => {
+              showSuccess('Thao tác thành công');
+              dispatch(getListDiscount(params, fetchData));
+            }, 2000)
           } else {
             showError(`${deleteResponse.code} - ${deleteResponse.message}`)
           }

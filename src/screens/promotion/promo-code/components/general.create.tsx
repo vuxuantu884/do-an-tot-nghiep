@@ -18,6 +18,7 @@ import { searchVariantsRequestAction } from "domain/actions/product/products.act
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link } from "react-router-dom";
+import {formatCurrency} from "../../../../utils/AppUtils";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -40,8 +41,6 @@ const GeneralCreate = (props: any) => {
   const [disabledEndDate, setDisabledEndDate] = useState(false);
   const [type, setType] = useState("SALE_CODE");
   const [product, setProduct] = useState<string>("PRODUCT");
-  // const [dataTableProduct, setDataTableProduct] = useState<Array<any> | any>([] as Array<any>);
-  // const [dataTableProductCate, setDataTableProductCate] = useState<Array<any> | any>([] as Array<any>);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -66,72 +65,6 @@ const GeneralCreate = (props: any) => {
     }
     return days;
   }
-
-  // const listCategory: Array<BaseBootstrapResponse> = [
-  //   {
-  //     value: "Áo phông nam",
-  //     name: "Áo phông nam",
-  //   },
-  //   {
-  //     value: "Chân váy nữ",
-  //     name: "Chân váy nữ",
-  //   }
-  // ]
-
-  // function onDeleteItemProduct(id: number) {
-  //   // delete row
-  //   const temps = [...dataTableProduct];
-  //   temps.forEach((row, index, array) => {
-  //     if (row.id === id) {
-  //       array.splice(index, 1);
-  //     }
-  //   });
-  //   setDataTableProduct(temps);
-  // }
-
-  // const columnsProductCategory: ColumnsType<any> = [
-  //   {
-  //     title: "Danh mục",
-  //     dataIndex: "on_hand",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => {
-  //       return value || "";
-  //     },
-  //   },
-  //   {
-  //     title: "Số lượng tối thiểu",
-  //     dataIndex: "available",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => {
-  //       return value || 0;
-  //     },
-  //   },
-  //   {
-  //     title: "",
-  //     fixed: dataTableProduct.length !== 0 && "right",
-  //     width: 50,
-  //     render: (_: string, row) => (
-  //       <Button
-  //         onClick={() => onDeleteItemProductCate(row.id)}
-  //         className="product-item-delete"
-  //         icon={<AiOutlineClose />}
-  //       />
-  //     ),
-  //   },
-  // ];
-
-  // function onDeleteItemProductCate(id: number) {
-  //   // delete row
-  //   const temps = [...dataTableProductCate];
-  //   temps.forEach((row, index, array) => {
-  //     if (row.id === id) {
-  //       array.splice(index, 1);
-  //     }
-  //   });
-  //   setDataTableProductCate(temps);
-  // }
 
   const onResultSearch = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -194,7 +127,7 @@ const GeneralCreate = (props: any) => {
     str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
     str = str.replace(/đ/g, "d");
     // Some system encode vietnamese combining accent as individual utf-8 characters
-    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
+    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
     str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
     return str.toUpperCase().replaceAll(/\s/g,'');
   }
@@ -266,13 +199,13 @@ const GeneralCreate = (props: any) => {
             <Col span={12}>
               <Form.Item
                 name="discount_code"
-                label="Mã đợt phát hàng:"
-                rules={[
-                  {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
-                ]}
+                label="Mã đợt phát hành:"
+                // rules={[
+                //   {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
+                // ]}
                 normalize={(value) => nonAccentVietnamese(value)}
               >
-                <Input maxLength={20} prefix="PC"/>
+                <Input maxLength={20} prefix="PC" disabled={true}/>
               </Form.Item>
             </Col>
             {/* Mô tả */}
@@ -284,6 +217,7 @@ const GeneralCreate = (props: any) => {
                 form={form}
                 placeholder="Nhập mô tả cho đợt phát hàng"
                 maxLength={500}
+
               />
             </Col>
           </Row>
@@ -296,7 +230,7 @@ const GeneralCreate = (props: any) => {
                 name="sale_type"
                 label={<b>Loại khuyến mãi</b>}
               >
-                <Select 
+                <Select
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
@@ -320,7 +254,7 @@ const GeneralCreate = (props: any) => {
         >
           <Row gutter={30}>
             <Col span={12}>
-              <Form.Item label="Đơn hàng có giá trị từ:">
+              <Form.Item label="Đơn hàng có giá trị từ:" name={"subtotal_min"}>
                 <NumberInput
                   style={{
                     textAlign: "right",
@@ -328,6 +262,7 @@ const GeneralCreate = (props: any) => {
                     color: "#222222",
                   }}
                   minLength={0}
+                  maxLength={9}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
                 />
@@ -345,7 +280,7 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
             </Col>
-            {product === "PRODUCT" && 
+            {product === "PRODUCT" &&
               <>
                 <Col span={18}>
                   <Input.Group className="display-flex">
@@ -491,7 +426,6 @@ const GeneralCreate = (props: any) => {
             <Space direction="horizontal">
               <Checkbox
                 defaultChecked={false}
-                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
                 style={{paddingBottom: "20px"}}
               >
                 Hiển thị nâng cao
@@ -546,7 +480,7 @@ const GeneralCreate = (props: any) => {
                 label={<b>Cửa hàng áp dụng:</b>}
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
-                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple">
+                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple" className="ant-select-selector-min-height">
                   {listStore?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
@@ -572,10 +506,10 @@ const GeneralCreate = (props: any) => {
                 label={<b>Kênh bán hàng áp dụng:</b>}
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
-                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple">
+                <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple" className="ant-select-selector-min-height">
                   <Option key="ADMIN" value="ADMIN">ADMIN</Option>
                   <Option key="POS" value="POS">POS</Option>
-                  <Option key="POS" value="POS">WEB</Option>
+                  <Option key="WEB" value="WEB">WEB</Option>
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
@@ -593,19 +527,19 @@ const GeneralCreate = (props: any) => {
           <Row gutter={12} style={{padding: "0px 16px"}}>
             <Col span={24}>
               <Form.Item
-                name="prerequisite_order_sources_ids"
+                name="prerequisite_order_source_ids"
                 label={<b>Nguồn đơn hàng áp dụng:</b>}
                 rules={[{required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng"}]}
               >
-                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple">
+                <Select disabled={allSource} placeholder="Chọn nguồn đơn hàng" mode="multiple" className="ant-select-selector-min-height">
                   {listSource?.map((source: any, index: number) => <Option key={index} value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
                 <Switch onChange={value => {
-                  form.validateFields(['prerequisite_order_sources_ids'])
+                  form.validateFields(['prerequisite_order_source_ids'])
                   form.setFieldsValue({
-                    prerequisite_order_sources_ids: undefined
+                    prerequisite_order_source_ids: undefined
                   })
                   setAllSource(value)
                 }}/>

@@ -108,7 +108,7 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(null);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi lấy chi tiết tồn kho hàng! Vui lòng thử lại sau!");
   }
 }
 

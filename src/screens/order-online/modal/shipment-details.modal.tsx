@@ -72,7 +72,7 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
       visible={visible}
       centered
       title={[
-        <span style={{fontWeight: 600, fontSize: 16}}>Chi tiết đơn hàng {shipmentDetails.code}</span>
+        <span style={{fontWeight: 600, fontSize: 16}}>Chi tiết đơn giao hàng {shipmentDetails.code}</span>
       ]}
       width={700}
       footer={[

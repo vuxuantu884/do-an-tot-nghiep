@@ -1,4 +1,4 @@
-import { Button, Card, Col, Modal, Row, Space, Tag } from "antd";
+import { Button, Card, Col, Modal, Row, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -12,21 +12,27 @@ import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import CloseIcon from "assets/icon/x-close-red.svg";
 import UserIcon from "assets/icon/user-icon.svg";
 import DiscountIcon from "assets/icon/discount.svg";
-import "./promo-code.scss";
-import ModalAddCode from "./components/ModalAddCode";
+import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
-import { RiUpload2Line } from "react-icons/ri";
-import { deletePriceRulesById, promoGetDetail } from "domain/actions/promotion/discount/discount.action";
-import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import moment from "moment";
+import "./promo-code.scss";
+import { RiUpload2Line } from "react-icons/ri";
+import {
+  bulkEnablePriceRules,
+  deletePriceRulesById,
+  promoGetDetail,
+} from "domain/actions/promotion/discount/discount.action";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import { addPromoCode, getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
+import Countdown from "react-countdown";
+import { getQueryParams, useQuery } from "utils/useQuery";
 
 export interface ProductParams {
   id: string;
@@ -40,6 +46,53 @@ type detailMapping = {
   key: string;
   isWebsite?: boolean;
 };
+
+const promoStatuses = [
+  {
+    code: 'ACTIVE',
+    value: 'Đang áp dụng',
+    style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+  {
+    code: 'DISABLED',
+    value: 'Tạm ngưng',
+    style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "#FCAF17",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+  {
+    code: 'DRAFT',
+    value: 'Chờ áp dụng',
+    style: {
+      background: "rgb(245, 245, 245)",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+  {
+    code: 'CANCELLED',
+    value: 'Đã huỷ',
+    style: {
+      background: "rgba(226, 67, 67, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(226, 67, 67)",
+      padding: "5px 10px",
+      marginLeft: "20px"
+    }
+  },
+]
 
 const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
@@ -64,25 +117,44 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
-  }, []);
- 
+  }, [dispatch]);
+
   useEffect(() => {
-    const stores =  listStore?.filter(item => item.id === data?.prerequisite_store_ids[0])
+    const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
     setStore(stores);
-  }, [listStore]);
+  }, [listStore, data]);
 
   useEffect(() => {
-    const source = sources?.filter(item => item.id === data?.prerequisite_order_source_ids[0])
+    const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
     setSource(source);
-  }, [listSource]);
+  }, [listSource, data]);
 
-  const handleCheckPromoList = useCallback((data: any) => {
-    setCheckPromoCode(data.length > 0);
+  const checkIsHasPromo = useCallback((data: any) => {
+    setCheckPromoCode(data.items.length > 0);
   }, []);
 
+  const query = useQuery();
+  let dataQuery: any = {
+    ...{
+      request: "",
+      state: ""
+    },
+    ...getQueryParams(query)
+  }
+
   useEffect(() => {
-    dispatch(getListPromoCode(idNumber, handleCheckPromoList));
-  }, [dispatch, handleCheckPromoList, idNumber]);
+    dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
+  }, [dispatch, checkIsHasPromo, idNumber]);
+
+  const onActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
+  const onActivateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    dispatch(promoGetDetail(idNumber, onResult));
+  }, []);
 
   // section DELETE by Id
   function onDelete() {
@@ -93,12 +165,12 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(hideLoading());
     showSuccess("Xóa thành công");
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
-  }, [dispatch]);
+  }, [dispatch, history]);
 
   // section EDIT item
   const onEdit = useCallback(() => {
     // TO DO
-  }, [history, idNumber]);
+  }, []);
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -125,7 +197,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Mã đợt phát hành",
-          value: data.discount_codes[0]?.code ? data.discount_codes[0]?.code : "",
+          value: data.code,
           position: "left",
           key: "2",
         },
@@ -164,6 +236,21 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, [data]);
 
+  // @ts-ignore
+  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      // Render a complete state
+      return <span>Kết thúc chương trình</span>;
+    } else {
+      // Render a countdown
+      return (
+        <span style={{color: "#FCAF17", fontWeight: 500}}>
+          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+        </span>
+      );
+    }
+  };
+
   const timeApply = [
     {
       name: "Từ",
@@ -177,13 +264,56 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value:  moment(data?.starts_date).isAfter(data?.ends_date),
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
       key: "3",
     }
   ];
 
-  function savePromoCode(value: any) {
-    console.log(value);
+  // section ADD Code
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
+    dispatch(showLoading());
+    dispatch(addPromoCode(idNumber, body, addCallBack));
+  }
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(idNumber, body, addCallBack));
+  }
+  const addCallBack = useCallback((response) => {
+    dispatch(hideLoading());
+    if(response) {
+      showSuccess("Thêm thành công");
+      dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
+    }
+  }, [dispatch, idNumber, checkIsHasPromo]);
+
+  const renderStatus = (data: DiscountResponse) => {
+    const status = promoStatuses.find(status => status.code === data.state);
+    return (
+        <span
+          style={status?.style}
+        >
+          {status?.value}
+        </span>
+    )
   }
 
   return (
@@ -213,8 +343,8 @@ const PromotionDetailScreen: React.FC = () => {
                 className="card"
                 title={
                   <div style={{alignItems: "center" }}>
-                    <span className="title-card">THÔNG TIN CÁ NHÂN</span>
-                    <Tag className="status-tag"> Đang áp dụng </Tag>
+                    <span className="title-card">THÔNG TIN CHUNG</span>
+                    {renderStatus(data)}
                   </div>
                 }
               >
@@ -327,7 +457,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
-                {checkPromoCode  &&  <Row gutter={30}>
+                {checkPromoCode && <Row gutter={30}>
                     <Col span={24}>
                       <Link
                         to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
@@ -455,8 +585,8 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              stores && stores.map((item: any, index: number) => (
-                                <li>{item.name}</li>
+                              stores && stores.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
                               ))
                             }
                           </ul>) : "Áp dụng toàn bộ"
@@ -486,8 +616,7 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            <li> YODY Kiến Xương </li>
-                            <li> YODY Hai Bà Trưng </li>
+                            {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -516,8 +645,8 @@ const PromotionDetailScreen: React.FC = () => {
                             padding: "0 16px"
                           }}>
                             {
-                              sources && sources.map((item: any, index: number) => (
-                                <li>{item.name}</li>
+                              sources && sources.map((item, index) => (
+                                <li key={index.toString()}>{item.name}</li>
                               ))
                             }
                           </ul>) : "Áp dụng toàn bộ"
@@ -536,13 +665,13 @@ const PromotionDetailScreen: React.FC = () => {
             <Button onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
             <Button onClick={onEdit}>Sửa</Button>
             <Button>Nhân bản</Button>
-            <Button type="primary">Kích hoạt</Button>
+            <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
           </Space>
 
         }
       />
-      <ModalAddCode
-        isManual={true}
+      <CustomModal
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -550,12 +679,13 @@ const PromotionDetailScreen: React.FC = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
-      <ModalAddCode
-        isManual={false}
+      <CustomModal
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -564,10 +694,8 @@ const PromotionDetailScreen: React.FC = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(value: any) => {
-          console.log(value);
-
+          handleAddRandom(value);
           setShowAddCodeRandom(false);
-          savePromoCode(value);
         }}
       />
       <Modal

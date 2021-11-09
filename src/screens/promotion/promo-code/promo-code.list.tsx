@@ -3,11 +3,11 @@ import {
   Button,
   Form,
   Input,
-  Tag,
   Row,
   Space,
   Modal,
   Col,
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -15,86 +15,39 @@ import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import CustomSelect from "component/custom/select.custom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import exportIcon from "assets/icon/export.svg";
 import VoucherIcon from "assets/img/voucher.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
-import ModalAddCode from "./components/ModalAddCode";
+import CustomModal from "./components/CustomModal";
 import Dragger from "antd/lib/upload/Dragger";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import search from "assets/img/search.svg";
 import "./promo-code.scss";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
-import { PlusOutlined } from "@ant-design/icons";
-import { SearchOutlined } from "@ant-design/icons";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { RiUpload2Line } from "react-icons/ri";
-import { getListPromoCode, getPromoCodeById, updatePromoCodeById } from "domain/actions/promotion/promo-code/promo-code.action";
+import { 
+  addPromoCode,
+  deleteBulkPromoCode,
+  getListPromoCode,
+  deletePromoCodeById,
+  updatePromoCodeById 
+} from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { showError, showSuccess } from "utils/ToastUtils";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { deleteMultiPromoCode } from "service/promotion/promo-code/promo-code.service";
-
-const promotionStatuses = [
-  {
-    code: 'APPLYING',
-    value: 'Đang áp dụng',
-    style: {
-      background: "rgba(42, 42, 134, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(42, 42, 134)",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'TEMP_STOP',
-    value: 'Tạm ngưng',
-    style: {
-      background: "rgba(252, 175, 23, 0.1)",
-      borderRadius: "100px",
-      color: "#FCAF17",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'WAIT_FOR_START',
-    value: 'Chờ áp dụng',
-    style: {
-      background: "rgb(245, 245, 245)",
-      borderRadius: "100px",
-      color: "rgb(102, 102, 102)",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'ENDED',
-    value: 'Kết thúc',
-    style: {
-      background: "rgba(39, 174, 96, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(39, 174, 96)",
-      padding: "5px 10px"
-    }
-  },
-  {
-    code: 'CANCELLED',
-    value: 'Đã huỷ',
-    style: {
-      background: "rgba(226, 67, 67, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(226, 67, 67)",
-      padding: "5px 10px"
-    }
-  },
-]
+import { showSuccess } from "utils/ToastUtils";
+import { STATUS_CODE } from "../constant";
+import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
+import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 
 const ListCode = () => {
   const actions: Array<MenuAction> = [
@@ -107,22 +60,18 @@ const ListCode = () => {
       name: "Xoá",
     },
   ];
-  const initQuery: DiscountSearchQuery = {
-    type: "MANUAL",
-    request: "",
-    from_created_date: "",
-    to_created_date: "",
-    status: "",
-    applied_shop: "",
-    applied_source: "",
-    customer_category: "",
-    discount_method: ""
-  };
   const dispatch = useDispatch();
-  const query = useQuery();
-  const {id} = useParams() as any; 
+  const {id} = useParams() as any;
   const priceRuleId = id;
-  
+  const query = useQuery();
+  let dataQuery: any = {
+    ...{
+      request: "",
+      state: ""
+    },
+    ...getQueryParams(query)
+  }
+
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
@@ -131,7 +80,7 @@ const ListCode = () => {
   const [showEditPopup, setShowEditPopup] = React.useState<boolean>(false);
   const [editData, setEditData] = React.useState<any>();
   const [deleteData, setDeleteData] = React.useState<any>();
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<PageResponse<PromoCodeResponse>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -141,30 +90,27 @@ const ListCode = () => {
   })
   const [isShowDeleteModal, setIsShowDeleteModal] = React.useState<boolean>(false);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
-
-  let dataQuery: DiscountSearchQuery = {
-    ...initQuery,
-    ...getQueryParams(query)
-  }
+  const [promoValue, setPromoValue] = useState<any>();
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
 
-  // handle get list data
-  const fetchData = useCallback((data: any) => {
-    let dataSource = {
-      metadata: {
-        limit: 20,
-        total: data.length,
-        page: 1,
-      },
-      items: data
-    }
-    
-    setData(dataSource);
-    setTableLoading(false);
-  }, [])
+  // section handle call api GET DETAIL
+  const onResult = useCallback((result: DiscountResponse | false) => {
+    setPromoValue(result);
+  }, []);
   useEffect(() => {
-    dispatch(getListPromoCode(priceRuleId, fetchData));
-  }, [dispatch, fetchData, priceRuleId]);
+    dispatch(promoGetDetail(id, onResult));
+  }, [dispatch, id, onResult]);
+
+  // handle response get list
+  const fetchData = useCallback((data: any) => {
+    setData(data);
+    setTableLoading(false);
+  }, []);
+
+  // Call API get list
+  useEffect(() => {
+    dispatch(getListPromoCode(priceRuleId, params, fetchData));
+  }, [dispatch, fetchData, priceRuleId, params]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -174,9 +120,9 @@ const ListCode = () => {
   );
 
   const onFilter = useCallback(values => {
-    let newParams = { ...params, ...values, page: 1 };
+    let newParams = {...params, ...values, page: 1};
     console.log("newParams", newParams);
-    setParams({ ...newParams })
+    setParams({...newParams})
   }, [params])
 
   // section EDIT by Id
@@ -184,36 +130,78 @@ const ListCode = () => {
     setEditData(item);
     setShowEditPopup(true);
   };
-   // section DELETE by Id
+   // section EDIT by Id
    function handleEdit(value: any) {
-     if(!value) return;
+    if(!value) return;
     let body = {
-      ...editData,
-      code: value?.code
+      id: editData.id,
+      code: value
     }
     dispatch(showLoading());
     dispatch(updatePromoCodeById(priceRuleId, body, onUpdateSuccess));
   }
-  const onUpdateSuccess = useCallback(() => {
+  const onUpdateSuccess = useCallback((response) => {
     dispatch(hideLoading());
-    showSuccess("Cập nhật thành công");
-    dispatch(getListPromoCode(priceRuleId, fetchData));
-  }, [dispatch]);
+    if (response) {
+      showSuccess("Cập nhật thành công");
+      dispatch(getListPromoCode(priceRuleId, params, fetchData));
+    }
+  }, [dispatch, priceRuleId, fetchData]);
 
   // section DELETE by Id
   function handleDelete(item: any) {
     setDeleteData(item);
     setIsShowDeleteModal(true);
   }
-  const onDeleteSuccess = useCallback(() => {
+
+  // section ADD Manual
+  function handleAddManual(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: [],
+      generate_discount_codes: null
+    };
+    (value.listCode as Array<string>).forEach(element => {
+      if (!element) return;
+      (body.discount_codes as Array<any>).push({code: element});
+    });
+    dispatch(showLoading());
+    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+  }
+  function handleAddRandom(value: any) {
+    if(!value) return;
+    let body = {
+      discount_codes: null,
+      generate_discount_codes: {
+        prefix: value.prefix,
+        suffix: value.suffix,
+        length: value.length,
+        count: value.count
+      }
+    };
+    dispatch(showLoading());
+    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+  }
+  const onAddSuccess = useCallback((response) => {
     dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    dispatch(getListPromoCode(priceRuleId, fetchData));
-  }, [dispatch]);
+    if(response) {
+      showSuccess("Thêm thành công");
+      dispatch(getListPromoCode(priceRuleId, params, fetchData));
+    }
+  }, [dispatch, priceRuleId, fetchData]);
+
+   // section DELETE bulk
+  const deleteCallBack = useCallback((response) => {
+    dispatch(hideLoading());
+    if (response) {
+      showSuccess("Xóa thành công");
+      dispatch(getListPromoCode(priceRuleId, params, fetchData));
+    }
+  }, [dispatch, priceRuleId, fetchData]);
 
   // section CHANGE STATUS
   const handleStatus = (item: any) => {
-    console.log(item);
+    // TODO
   };
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
@@ -246,7 +234,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === value);
+        const status: any | null = STATUS_CODE.find(e => e.code === value);
         return (<div
           style={status?.style}
         >
@@ -270,81 +258,60 @@ const ListCode = () => {
     [columns]
   );
 
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
-  const listStatus: Array<BaseBootstrapResponse> = [
+  const statuses = [
     {
-      value: "APPLYING",
-      name: "Đang áp dụng",
+      code: 'ACTIVE',
+      value: 'Đang áp dụng',
     },
     {
-      value: "TEMP_STOP",
-      name: "Tạm ngưng",
+      code: 'DISABLED',
+      value: 'Tạm ngưng',
     },
     {
-      value: "WAIT_FOR_START",
-      name: "Chờ áp dụng",
+      code: 'DRAFT',
+      value: 'Chờ áp dụng' ,
     },
     {
-      value: "ENDED",
-      name: "Kết thúc",
+      code: 'CANCELLED',
+      value: 'Đã huỷ',
     },
-    {
-      value: "CANCELLED",
-      name: "Đã huỷ",
-    }
+
   ]
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      const body = {
+        ids: selectedRowKey
+      }
       switch (index) {
         case 1:
           break;
         case 2:
-          const body = {
-            created_by: "",
-            created_name: "",
-            updated_by: "",
-            updated_name: "",
-            request_id: "",
-            operator_kc_id: "",
-            id: selectedRowKey
-          }
-          const bulkDeleteResponse = await deleteMultiPromoCode(priceRuleId, body);
-          if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListPromoCode(priceRuleId, fetchData));
-          } else {
-            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
-    },
-    [dispatch, fetchData, priceRuleId, selectedRowKey]
+    }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
   );
+
+  const {Item} = Form;
+  const {Option} = Select;
+
+  const openFilter = useCallback(() => {
+    // setVisible(true);
+  }, [])
 
   return (
     <ContentContainer
-      title="Mã giảm giá của đợt phát hành CPM9"
+      title={`Mã giảm giá của đợt phát hành ${promoValue?.code}`}
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
+        },
+        {
+          name: "Khuyến mại",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
           name: "Mã chiết khấu đơn hàng",
@@ -381,48 +348,42 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request" className="search">
+              <Item name="query" className="search">
                 <Input
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  prefix={<img src={search} alt=""/>}
                   placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
-              </Form.Item>
-              <Form.Item>
-                <CustomSelect
-                  showSearch
-                  optionFilterProp="children"
+              </Item>
+              <Item name="state" >
+                <Select
                   showArrow
+                  showSearch
+                  style={{minWidth: "200px"}}
+                  optionFilterProp="children"
                   placeholder="Chọn trạng thái"
-                  allowClear
-                  tagRender={tagRender}
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
+                  allowClear={true}
                 >
-                  {listStatus?.map((item) => (
-                    <CustomSelect.Option key={item.value} value={item.value}>
-                      {item.name}
-                    </CustomSelect.Option>
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
                   ))}
-                </CustomSelect>
-              </Form.Item>
-              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-              <Form.Item>
+                </Select>
+              </Item>
+              <Item>
                 <Button type="primary" htmlType="submit">
                   Lọc
                 </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button>Thêm bộ lọc</Button>
-              </Form.Item>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              </Item>
             </Form>
           </CustomFilter>
 
           <CustomTable
             selectedRowKey={selectedRowKey}
             onChangeRowKey={(rowKey) => {
-              console.log('CustomTable: ', rowKey)
               setSelectedRowKey(rowKey)
             }}
             isRowSelection
@@ -455,23 +416,32 @@ const ListCode = () => {
             display: "flex",
             gap: 15,
           }}>
-            <div className="card-discount-code" onClick={() => setShowAddCodeManual(true)}>
+            <div className="card-discount-code" onClick={() => {
+              setShowModalAdd(false);
+              setShowAddCodeManual(true);
+            }}>
               <img style={{ background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)" }} src={VoucherIcon} alt="" />
               <p style={{fontWeight: 500}}>Thêm mã thủ công</p>
             </div>
-            <div className="card-discount-code" onClick={() => setShowAddCodeRandom(true)}>
+            <div className="card-discount-code" onClick={() => {
+              setShowModalAdd(false);
+              setShowAddCodeRandom(true);
+            }}>
               <img style={{ background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)" }} src={AddListCouponIcon} alt="" />
               <p style={{fontWeight: 500}}>Thêm mã ngẫu nhiên</p>
             </div>
-            <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+            <div className="card-discount-code" onClick={() => {
+              setShowModalAdd(false);
+              setShowImportFile(true);
+            }}>
               <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
               <p style={{fontWeight: 500}}>Nhập file Excel</p>
             </div>
           </Col>
         </Row>
       </Modal>
-      <ModalAddCode
-        isManual={true}
+      <CustomModal
+        type={"MANUAL"}
         visible={showAddCodeManual}
         okText="Thêm"
         cancelText="Thoát"
@@ -479,12 +449,13 @@ const ListCode = () => {
         onCancel={() => {
           setShowAddCodeManual(false);
         }}
-        onOk={() => {
+        onOk={(value) => {
           setShowAddCodeManual(false);
+          handleAddManual(value);
         }}
       />
-      <ModalAddCode
-        isManual={false}
+      <CustomModal
+        type={"RANDOM"}
         visible={showAddCodeRandom}
         okText="Thêm"
         cancelText="Thoát"
@@ -493,7 +464,7 @@ const ListCode = () => {
           setShowAddCodeRandom(false);
         }}
         onOk={(data) => {
-          console.log(data);
+          handleAddRandom(data);
           setShowAddCodeRandom(false);
         }}
       />
@@ -541,18 +512,18 @@ const ListCode = () => {
           </div>
         </Row>
       </Modal>
-      <ModalAddCode
-        isManual={true}
+      <CustomModal
+        type={"EDIT"}
         visible={showEditPopup}
         okText="Thêm"
-        dataSource={editData ? editData : null}
+        valueChange={editData?.code}
         cancelText="Thoát"
         title={`Sửa mã giảm giá ${editData?.code}`}
         onCancel={() => {
           setShowEditPopup(false);
         }}
         onOk={(data) => {
-          handleEdit(data);
+          handleEdit(data?.code);
           setShowEditPopup(false);
         }}
       />
@@ -561,7 +532,7 @@ const ListCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(getPromoCodeById(priceRuleId, deleteData.id, onDeleteSuccess));
+          dispatch(deletePromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
         }}
         okText="Đồng ý"
         cancelText= "Huỷ"

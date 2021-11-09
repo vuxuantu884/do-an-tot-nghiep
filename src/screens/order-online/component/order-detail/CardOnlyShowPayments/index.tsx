@@ -192,7 +192,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
                         }
                         key="100"
                       >
-                        {isShowPaymentPartialPayment && OrderDetail !== null && (
+                        {/* {isShowPaymentPartialPayment && OrderDetail !== null && (
                           <UpdatePaymentCard
                             setSelectedPaymentMethod={onPaymentSelect}
                             setVisibleUpdatePayment={setVisibleUpdatePayment}
@@ -221,7 +221,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
                               setReload(true);
                             }}
                           />
-                        )}
+                        )} */}
                       </Panel>
                     )}
                     {OrderDetail?.fulfillments &&
@@ -440,7 +440,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
         )}
 
       {/* Chưa thanh toán đơn nháp*/}
-      {OrderDetail &&
+      {/* {OrderDetail &&
         OrderDetail.payments?.length === 0 &&
         (OrderDetail.fulfillments?.length === 0 ||
           (OrderDetail?.fulfillments &&
@@ -465,7 +465,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
               setReload(true);
             }}
           />
-        )}
+        )} */}
 
       {/*--- end payment ---*/}
     </StyledComponent>

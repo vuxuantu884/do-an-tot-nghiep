@@ -1,7 +1,7 @@
-import BaseAxios from 'base/base.axios';
+import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import { ApiConfig } from 'config/api.config';
-import { AuthProfilePermission } from 'model/auth/permission.model';
+import {ApiConfig} from "config/api.config";
+import {AuthProfilePermission, UserPermissionRequest} from "model/auth/permission.model";
 
 // export const permissionModuleListApi = (query: PermissionQuery): Promise<BaseResponse<PageResponse<PermissionResponse>>> => {
 //   let params = generateQuery(query);
@@ -18,4 +18,11 @@ export const profilePermissionApi = (
     },
   };
   return BaseAxios.get(url, config);
+};
+
+export const updateAccountPermissionApi = (
+  params: UserPermissionRequest
+): Promise<BaseResponse<string>> => {
+  const url = `${ApiConfig.AUTH}/permissions/users`;
+  return BaseAxios.put(url, params);
 };

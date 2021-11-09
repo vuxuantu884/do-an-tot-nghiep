@@ -26,7 +26,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
 
   const {modalAction, formItem, form, visible, moreFormArguments} = props;
 
-  const {listChannels, listDepartments} = moreFormArguments;
+  const {listDepartments} = moreFormArguments;
   const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
@@ -123,7 +123,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                     return Promise.reject(new Error("Chỉ nhập kí tự chữ và in hoa!"));
                   },
                 }),
-                { len: 4, message: "Nhập 4 ký tự!" },
+                {len: 4, message: "Nhập 4 ký tự!"},
               ]}
             >
               <Input
@@ -138,39 +138,9 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         <Row gutter={30}>
           <Col span={12}>
             <Form.Item
-              name="channel_id"
-              label="Kênh bán"
-              rules={[{required: true, message: "Vui lòng chọn kênh!"}]}
-            >
-              <Select
-                showSearch
-                allowClear
-                style={{width: "100%"}}
-                placeholder="Chọn danh sách kênh"
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-                notFoundContent="Không tìm thấy phòng ban"
-              >
-                {listChannels &&
-                  listChannels.map((single: any) => {
-                    return (
-                      <Select.Option value={single.id} key={single.id}>
-                        {single.name}
-                      </Select.Option>
-                    );
-                  })}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
               name="department_id"
               label="Phòng ban"
-              rules={[
-                { required: true, message: "Vui lòng chọn phòng ban!" }
-              ]}
+              rules={[{required: true, message: "Vui lòng chọn phòng ban!"}]}
             >
               <Select
                 showSearch
@@ -183,14 +153,28 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                 }
                 notFoundContent="Không tìm thấy phòng ban"
                 onChange={(value, option: any) => {
-                  form.setFieldsValue({department: option.children});
+                  let selectedDepartment = listDepartments.find((single: any) => {
+                    return single.id === value;
+                  });
+                  if (selectedDepartment) {
+                    form.setFieldsValue({department: selectedDepartment.name});
+                  }
                 }}
               >
                 {listDepartments &&
                   listDepartments.map((single: any) => {
                     return (
                       <Select.Option value={single.id} key={single.id}>
-                        {single.name}
+                        <span
+                          className="hideInSelect"
+                          style={{paddingLeft: +15 * single.level}}
+                        ></span>
+                        {single?.parent?.name && (
+                          <span className="hideInDropdown">
+                            {single?.parent?.name} -{" "}
+                          </span>
+                        )}
+                        <span>{single.name}</span>
                       </Select.Option>
                     );
                   })}

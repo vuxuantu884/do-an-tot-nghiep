@@ -16,7 +16,7 @@ type PickManyProductModalType = {
   visible: boolean;
   isTransfer?: boolean;
   onCancel: () => void;
-  selected: Array<VariantResponse>;
+  selected: Array<any>;
   onSave: (result: Array<VariantResponse>) => void;
   storeID?: number;
 };

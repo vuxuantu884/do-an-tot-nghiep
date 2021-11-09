@@ -155,6 +155,7 @@ export const StyledWrapper = styled.div`
 
   .ant-card-body {
     padding: 0 20px;
+    padding-bottom: 20px;
   }
   .ant-tabs-nav {
     padding: 0;

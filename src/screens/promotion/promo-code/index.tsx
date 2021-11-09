@@ -3,7 +3,7 @@ import {
   Button,
   Form,
   Input,
-  // Tag
+  Select
 } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import moment from "moment";
@@ -11,26 +11,28 @@ import actionColumn from "./actions/action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import CustomSelect from "component/custom/select.custom";
+import search from "assets/img/search.svg";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import "./promo-code.scss";
-import { PlusOutlined } from "@ant-design/icons";
-import { SearchOutlined } from "@ant-design/icons";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { deletePriceRulesById, getListDiscount } from "domain/actions/promotion/discount/discount.action";
+import {
+  deletePriceRulesById,
+  getListDiscount,
+  bulkDeletePriceRules,
+  bulkDisablePriceRules,
+  bulkEnablePriceRules
+} from "domain/actions/promotion/discount/discount.action";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { PROMO_TYPE } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { bulkDeletePriceRules, bulkDisablePriceRules, bulkEnablePriceRules } from "service/promotion/discount/discount.service";
+import { showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-
+import { ACTIONS_PROMO, STATUS_CODE } from "../constant";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -57,82 +59,16 @@ const PromotionCode = () => {
   const [modalInfo, setModalInfo] = React.useState<any>();
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
-  const promotionStatuses = [
-    {
-      code: 'APPLYING',
-      value: 'Đang áp dụng',
-      style: {
-        background: "rgba(42, 42, 134, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(42, 42, 134)",
-        padding: "5px 10px"
-      }
-    },
-    {
-      code: 'TEMP_STOP',
-      value: 'Tạm ngưng',
-      style: {
-        background: "rgba(252, 175, 23, 0.1)",
-        borderRadius: "100px",
-        color: "#FCAF17",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'WAIT_FOR_START',
-      value: 'Chờ áp dụng' ,
-      style: {
-        background: "rgb(245, 245, 245)",
-        borderRadius: "100px",
-        color: "rgb(102, 102, 102)",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'ENDED',
-      value: 'Kết thúc',
-      style: {
-        background: "rgba(39, 174, 96, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(39, 174, 96)",
-        padding: "5px 10px"
-      }},
-    {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
-      style: {
-        background: "rgba(226, 67, 67, 0.1)",
-        borderRadius: "100px",
-        color: "rgb(226, 67, 67)",
-        padding: "5px 10px"
-      }},
-  ]
-  
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Kích hoạt",
-    },
-    {
-      id: 2,
-      name: "Tạm ngừng",
-    },
-    {
-      id: 3,
-      name: "Xuất Excel",
-    },
-    {
-      id: 4,
-      name: "Xoá",
-    },
-  ];
-
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
-    setDataSource(data)
-    setTableLoading(false)
+    dispatch(hideLoading());
+    setDataSource(data);
+    setTableLoading(false);
   }, [])
 
   useEffect(() => {
+    dispatch(showLoading());
     dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params])
+  }, [dispatch, fetchData, params]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -143,7 +79,6 @@ const PromotionCode = () => {
 
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
-    console.log("newParams", newParams);
     setParams({...newParams})
   }, [params])
 
@@ -161,13 +96,13 @@ const PromotionCode = () => {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "7%",
+      width: "12%",
       render: (value: any, item: any, index: number) =>
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
           style={{color: '#2A2A86', fontWeight: 500}}
         >
-          {value.id}
+          {value.code}
         </Link>,
     },
     {
@@ -181,14 +116,16 @@ const PromotionCode = () => {
       title: "SL mã",
       visible: true,
       fixed: "left",
-      dataIndex: "usage_limit_per_customer",
+      align: 'center',
+      dataIndex: "number_of_discount_codes",
       width: "10%",
     },
     {
       title: "Đã sử dụng",
       visible: true,
       fixed: "left",
-      dataIndex: "usage_limit",
+      align: 'center',
+      dataIndex: "total_usage_count",
       width: "10%",
     },
     {
@@ -214,86 +151,79 @@ const PromotionCode = () => {
       fixed: "left",
       dataIndex: 'state',
       align: 'center',
-      width: '12%',
+      width: '15%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = promotionStatuses.find(e => e.code === item.type);
+        const status: any | null = STATUS_CODE.find(e => e.code === item.state);
         return (<div
           style={status?.style}
         >
-          {status?.item.type}
+          {status?.value}
         </div>)
       }
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
   ];
 
-  const listStatus: Array<BaseBootstrapResponse> = [
+  const statuses = [
     {
-      value: "APPLYING",
-      name: "Đang áp dụng",
+      code: 'ACTIVE',
+      value: 'Đang áp dụng',
     },
     {
-      value: "TEMP_STOP",
-      name: "Tạm ngưng",
+      code: 'DISABLED',
+      value: 'Tạm ngưng',
     },
     {
-      value: "WAIT_FOR_START",
-      name: "Chờ áp dụng",
+      code: 'DRAFT',
+      value: 'Chờ áp dụng' ,
     },
     {
-      value: "ENDED",
-      name: "Kết thúc",
+      code: 'CANCELLED',
+      value: 'Đã huỷ',
     },
-    {
-      value: "CANCELLED",
-      name: "Đã huỷ",
-    }
+
   ]
+
+  const handleCallback = useCallback((response) => {
+
+    if (response) {
+      setTimeout(() => {
+        showSuccess("Thao tác thành công");
+        dispatch(getListDiscount(params, fetchData));
+      }, 1500)
+    }
+  }, [dispatch, params, fetchData]);
+
 
   const onMenuClick = useCallback(
     async (index: number) => {
       const body = {ids: selectedRowKey}
       switch (index) {
         case 1:
-          const bulkEnableResponse = await bulkEnablePriceRules(body);
-          if (bulkEnableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkEnablePriceRules(body, handleCallback));
           break;
         case 2:
-          const bulkDisableResponse = await bulkDisablePriceRules(body);
-          if (bulkDisableResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkDisablePriceRules(body, handleCallback));
           break;
         case 3:
           break;
         case 4:
-          const bulkDeleteResponse = await bulkDeletePriceRules(body);
-          if (bulkDeleteResponse.code === 20000000) {
-            showSuccess('Thao tác thành công');
-            dispatch(getListDiscount(params, fetchData));
-          } else {
-            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
-          }
+          dispatch(showLoading());
+          dispatch(bulkDeletePriceRules(body, handleCallback));
           break;
-
       }
     },
-    [dispatch, fetchData, params, selectedRowKey]
+    [dispatch, handleCallback, selectedRowKey]
   );
 
-  const onDeleteSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    showSuccess("Xóa thành công");
-    dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params]);
+  const {Item} = Form;
+  const {Option} = Select;
+
+  const openFilter = useCallback(() => {
+    // setVisible(true);
+  }, [])
 
   return (
     <ContentContainer
@@ -328,42 +258,38 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Form.Item name="request" className="search">
+              <Item name="query" className="search">
                 <Input
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tìm kiếm theo mã, tên đợt phát hành"
+                  prefix={<img src={search} alt=""/>}
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
                 />
-              </Form.Item>
-              <Form.Item name="state" className="status">
-                <CustomSelect
-                  style={{ width: "100%", borderRadius: "6px" }}
+              </Item>
+              <Item name="state" >
+                <Select
                   showArrow
                   showSearch
-                  placeholder="Nguồn đơn hàng"
-                  notFoundContent="Không tìm thấy kết quả"
+                  style={{minWidth: "200px"}}
+                  optionFilterProp="children"
+                  placeholder="Chọn trạng thái"
+                  allowClear={true}
                 >
-                  {listStatus.map((item, index) => (
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key={(index + 1).toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </CustomSelect.Option>
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
                   ))}
-                </CustomSelect>
-              </Form.Item>
-              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-              <Form.Item>
+                </Select>
+              </Item>
+              <Item>
                 <Button type="primary" htmlType="submit">
                   Lọc
                 </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button>Thêm bộ lọc</Button>
-              </Form.Item>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              </Item>
             </Form>
           </CustomFilter>
 
@@ -396,7 +322,7 @@ const PromotionCode = () => {
         onOk={() => {
           setIsShowDeleteModal(false);
           dispatch(showLoading());
-          dispatch(deletePriceRulesById(modalInfo?.id, onDeleteSuccess));
+          dispatch(deletePriceRulesById(modalInfo?.id, handleCallback));
         }}
         title="Xoá mã đợt giảm giá"
         subTitle="Bạn có chắc xoá mã đợt giảm giá?"
