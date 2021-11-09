@@ -159,104 +159,106 @@ const Products: React.FC = () => {
 
 
   return (
-    <AuthWrapper acceptPermissions={viewProductPermission} passThrough>
-      {(allowed: boolean) => (allowed ?
-        <StyledComponent>
-          <ContentContainer
-            title="DANH SÁCH SẢN PHẨM"
-            breadcrumb={[
-              {
-                name: "Tổng quan",
-                path: UrlConfig.HOME,
-              },
-              {
-                name: "Sàn TMĐT",
-                path: `${UrlConfig.ECOMMERCE}`,
-              },
-              {
-                name: "Sản phẩm",
-              },
-            ]}
-            extra={
-              <>
-                {allowDownloadProduct &&
-                  <Button
-                    onClick={handleGetProductsFromEcommerce}
-                    className="ant-btn-outline ant-btn-primary"
-                    size="large"
-                    icon={<DownloadOutlined />}
-                  >
-                    Tải sản phẩm từ sàn về
-                  </Button>
-                }
-              </>
+    <StyledComponent>
+      <ContentContainer
+        title="DANH SÁCH SẢN PHẨM"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Sàn TMĐT",
+            path: `${UrlConfig.ECOMMERCE}`,
+          },
+          {
+            name: "Sản phẩm",
+          },
+        ]}
+        extra={
+          <>
+            {allowDownloadProduct &&
+              <Button
+                onClick={handleGetProductsFromEcommerce}
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<DownloadOutlined />}
+              >
+                Tải sản phẩm từ sàn về
+              </Button>
             }
-          >
-            <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
-              <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
-              <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
-              <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
-            </Tabs>
-            
-            {activeTab === PRODUCT_TAB.total.key &&
-              <TotalItemsEcommerce
-                tableLoading={tableLoading}
-                variantData={variantData}
-                getProductUpdated={getProductUpdated}
-              />
-            }
-            
-            {activeTab === PRODUCT_TAB.connected.key &&
-              <ConnectedItems
-                tableLoading={tableLoading}
-                variantData={variantData}
-                getProductUpdated={getProductUpdated}
-              />
-            }
-            
-            {activeTab === PRODUCT_TAB.notConnected.key &&
-              <NotConnectedItems
-                tableLoading={tableLoading}
-                variantData={variantData}
-                getProductUpdated={getProductUpdated}
-              />
-            }
-          </ContentContainer>
-    
-          {isShowGetProductModal &&
-            <UpdateProductDataModal
-              isVisible={isShowGetProductModal}
-              isLoading={isLoading}
-              cancelGetProductModal={cancelGetProductModal}
-              getProductsFromEcommerce={getProductsFromEcommerce}
-            />
-          }
-    
-          <Modal
-            width="600px"
-            className=""
-            visible={isShowResultGetItemModal}
-            title={"Có " + totalGetItem + " sản phẩm được cập nhật thành công"}
-            okText="Đóng"
-            onOk={redirectToNotConnectedItems}
-            onCancel={redirectToNotConnectedItems}
-            cancelButtonProps={{ style: { display: 'none' } }}
-          >
-            <div>
-              <div>
-                <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-                <span>Có <p style={{ color: "orange", display: "inline-block" }}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
-              </div>
-              <div>
-                <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
-                <span>Có <p style={{ color: "green", display: "inline-block" }}>{itemsUpdated}</p> sản phẩm đã update thành công</span>
-              </div>
-            </div>
-          </Modal>
-    
-        </StyledComponent>
-        : <NoPermission />)}
-    </AuthWrapper>
+          </>
+        }
+      >
+        <AuthWrapper acceptPermissions={viewProductPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <>
+              <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
+                <TabPane tab={PRODUCT_TAB.total.title} key={PRODUCT_TAB.total.key} />
+                <TabPane tab={PRODUCT_TAB.connected.title} key={PRODUCT_TAB.connected.key} />
+                <TabPane tab={PRODUCT_TAB.notConnected.title} key={PRODUCT_TAB.notConnected.key} />
+              </Tabs>
+              
+              {activeTab === PRODUCT_TAB.total.key &&
+                <TotalItemsEcommerce
+                  tableLoading={tableLoading}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
+              }
+              
+              {activeTab === PRODUCT_TAB.connected.key &&
+                <ConnectedItems
+                  tableLoading={tableLoading}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
+              }
+              
+              {activeTab === PRODUCT_TAB.notConnected.key &&
+                <NotConnectedItems
+                  tableLoading={tableLoading}
+                  variantData={variantData}
+                  getProductUpdated={getProductUpdated}
+                />
+              }
+            </>
+          : <NoPermission />)}
+        </AuthWrapper>
+      </ContentContainer>
+
+      {isShowGetProductModal &&
+        <UpdateProductDataModal
+          isVisible={isShowGetProductModal}
+          isLoading={isLoading}
+          cancelGetProductModal={cancelGetProductModal}
+          getProductsFromEcommerce={getProductsFromEcommerce}
+        />
+      }
+
+      <Modal
+        width="600px"
+        className=""
+        visible={isShowResultGetItemModal}
+        title={"Có " + totalGetItem + " sản phẩm được cập nhật thành công"}
+        okText="Đóng"
+        onOk={redirectToNotConnectedItems}
+        onCancel={redirectToNotConnectedItems}
+        cancelButtonProps={{ style: { display: 'none' } }}
+      >
+        <div>
+          <div>
+            <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
+            <span>Có <p style={{ color: "orange", display: "inline-block" }}>{itemsNotConnected}</p> sản phẩm được tải mới về để ghép</span>
+          </div>
+          <div>
+            <img src={checkCircleIcon} style={{ marginRight: 5 }} alt="" />
+            <span>Có <p style={{ color: "green", display: "inline-block" }}>{itemsUpdated}</p> sản phẩm đã update thành công</span>
+          </div>
+        </div>
+      </Modal>
+
+    </StyledComponent>
   );
 };
 

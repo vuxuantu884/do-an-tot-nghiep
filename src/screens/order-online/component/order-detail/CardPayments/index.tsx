@@ -288,7 +288,7 @@ function CardPayments(props: CardPaymentsProps) {
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
+                          <span style={{ paddingRight: "20px" }}>Còn phải trả: 4 </span>
                           <strong>
                             {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                           </strong>
@@ -377,7 +377,7 @@ function CardPayments(props: CardPaymentsProps) {
                             className="row-large-title"
                             style={{ padding: "8px 0", marginLeft: 2 }}
                           >
-                            <b>Khách cần trả:</b>
+                            <b>Khách cần trả: 4</b>
                           </Col>
                           <Col
                             className="lbl-money"

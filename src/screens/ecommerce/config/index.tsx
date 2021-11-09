@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Tabs, Form, Button, Tooltip } from "antd";
+import { Card, Tabs, Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { EcommerceConfigPermissions } from "config/permissions/ecommerce.permission";
@@ -33,6 +33,7 @@ import { showSuccess } from "utils/ToastUtils";
 import {ecommerceConfigDeleteAction} from "domain/actions/ecommerce/ecommerce.actions"
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
+import useAuthorization from "hook/useAuthorization";
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
@@ -47,6 +48,13 @@ const EcommerceConfig: React.FC = () => {
   const dispatch = useDispatch();
   const connectQuery = useQuery();
   const [configForm] = Form.useForm();
+
+  const [allowConnectShop] = useAuthorization({
+    acceptPermissions: connectShopPermission,
+    not: false,
+  });
+
+
   const [activeTab, setActiveTab] = useState<string>("sync");
   const history = useHistory();
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
@@ -183,84 +191,71 @@ const EcommerceConfig: React.FC = () => {
       ]}
       extra={
         <>
-          {activeTab === "sync" && (
-            <AuthWrapper acceptPermissions={connectShopPermission} passThrough>
-              {(allowed: boolean) => (allowed ?
-                <Button
-                  className="ant-btn-outline ant-btn-primary"
-                  size="large"
-                  icon={<PlusOutlined />}
-                  onClick={handleConnectEcommerce}
-                >
-                  Thêm kết nối mới
-                </Button>
-                : <Tooltip overlay="Bạn không có quyền thêm kết nối mới!" color="blue" placement="top">
-                    <Button
-                      size="large"
-                      icon={<PlusOutlined />}
-                      disabled
-                    >
-                      Thêm kết nối mới
-                    </Button>
-                  </Tooltip>
-              )}
-            </AuthWrapper>
+          {activeTab === "sync" && allowConnectShop && (
+            <Button
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<PlusOutlined />}
+              onClick={handleConnectEcommerce}
+            >
+              Thêm kết nối mới
+            </Button>
           )}
         </>
       }
     >
-      <StyledComponent>
-        <Card>
-          <Tabs
-            activeKey={activeTab}
-            onChange={(active) => {
-              history.replace(`${history.location.pathname}#${active}`);
-              reloadConfigData();
-              setConfigFromEcommerce(undefined)
-            }}
-          >
-            <TabPane tab="Đồng bộ sàn" key="sync">
-              <AuthWrapper acceptPermissions={viewShopListPermission} passThrough>
-                {(allowed: boolean) => (allowed ?
+      <AuthWrapper acceptPermissions={viewShopListPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <StyledComponent>
+            <Card>
+              <Tabs
+                activeKey={activeTab}
+                onChange={(active) => {
+                  history.replace(`${history.location.pathname}#${active}`);
+                  reloadConfigData();
+                  setConfigFromEcommerce(undefined)
+                }}
+              >
+                <TabPane tab="Đồng bộ sàn" key="sync">
                   <SyncEcommerce
                     configData={configData}
                     setConfigToView={setConfigToView}
                     reloadConfigData={reloadConfigData}
                     showDeleteModal={handleShowDeleteModal}
                   />
-                  : <NoPermission />)}
-              </AuthWrapper>
-            </TabPane>
-            <TabPane tab="Cài đặt cấu hình" key="setting">
-              <SettingConfig
-                listStores={stores}
-                accounts={accounts}
-                accountChangeSearch={accountChangeSearch}
-                form={configForm}
-                configData={configData}
-                configToView={configToView}
-                reloadConfigData={reloadConfigData}
-                setConfigToView={setConfigToView}
-                configFromEcommerce={configFromEcommerce}
-                setConfigFromEcommerce={setConfigFromEcommerce}
-                showDeleteModal={handleShowDeleteModal}
-                storeChangeSearch={storeChangeSearch}
-              />
-            </TabPane>
-          </Tabs>
-        </Card>
-
-        <EcommerceModal
-          onCancel={() => setIsShowDeleteModal(false)}
-          onOk={onOkDeleteEcommerce}
-          visible={isShowDeleteModal}
-          okText="Đồng ý"
-          cancelText="Hủy"
-          title=""
-          text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
-          icon={DeleteIcon}
-        />
-      </StyledComponent>
+                </TabPane>
+                <TabPane tab="Cài đặt cấu hình" key="setting">
+                  <SettingConfig
+                    listStores={stores}
+                    accounts={accounts}
+                    accountChangeSearch={accountChangeSearch}
+                    form={configForm}
+                    configData={configData}
+                    configToView={configToView}
+                    reloadConfigData={reloadConfigData}
+                    setConfigToView={setConfigToView}
+                    configFromEcommerce={configFromEcommerce}
+                    setConfigFromEcommerce={setConfigFromEcommerce}
+                    showDeleteModal={handleShowDeleteModal}
+                    storeChangeSearch={storeChangeSearch}
+                  />
+                </TabPane>
+              </Tabs>
+            </Card>
+    
+            <EcommerceModal
+              onCancel={() => setIsShowDeleteModal(false)}
+              onOk={onOkDeleteEcommerce}
+              visible={isShowDeleteModal}
+              okText="Đồng ý"
+              cancelText="Hủy"
+              title=""
+              text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
+              icon={DeleteIcon}
+            />
+          </StyledComponent>
+          : <NoPermission />)}
+      </AuthWrapper>
     </ContentContainer>
   );
 };

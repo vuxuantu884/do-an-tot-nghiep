@@ -81,21 +81,23 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
 
   const onChangeRangeDate = useCallback(
     (dates, dateString, type) => {
+      const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
+      const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
-          setIsFromCreatedDate(moment(dateString[0], 'DD-MM-YYYY'))
-          setIsToCreatedDate(moment(dateString[1], 'DD-MM-YYYY'))
+          setIsFromCreatedDate(fromDateString)
+          setIsToCreatedDate(toDateString)
           break;
         case 'transfer_date':
           setTransferDateClick('')
-          setIsFromTransferDate(moment(dateString[0], 'DD-MM-YYYY'))
-          setIsToTransferDate(moment(dateString[1], 'DD-MM-YYYY'))
+          setIsFromTransferDate(fromDateString)
+          setIsToTransferDate(toDateString)
           break;
         case 'receive_date':
           setTransferDateClick('')
-          setIsFromReceiveDate(moment(dateString[0], 'DD-MM-YYYY'))
-          setIsToReceiveDate(moment(dateString[1], 'DD-MM-YYYY'))
+          setIsFromReceiveDate(fromDateString)
+          setIsToReceiveDate(toDateString)
           break;
         default: break
       }

@@ -736,6 +736,29 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setReload(true);
   };
 
+  // kiểm tra xem đã trả hết hàng chưa
+  const checkIfOrderCanReturn = () => {
+    if(!OrderDetail) {
+      return false;
+    }
+    if(OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
+      return true
+    }
+    const orderReturnItems = OrderDetail?.order_returns;
+    // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về true
+    if(orderReturnItems && orderReturnItems.length > 0) {
+      return orderReturnItems.some((singleReturnItem) => {
+        let selectedItem = OrderDetail.items.find((item) => item.id === singleReturnItem.id);
+        if(selectedItem && selectedItem.quantity > singleReturnItem.quantity) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+
+    }
+  }
+
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
       return;
@@ -1442,7 +1465,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             justifyContent: "flex-end",
           }}
         >
-          {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
+          {props.stepsStatusValue === FulFillmentStatus.SHIPPED && checkIfOrderCanReturn() ? (
             <Button
               type="primary"
               style={{margin: "0 10px", padding: "0 25px"}}
@@ -1453,7 +1476,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 );
               }}
             >
-              Đổi trả hàng
+              Đổi trả hàng 3
             </Button>
           ) : (
             <>
