@@ -322,7 +322,7 @@ function OrderPayments(props: PropType): JSX.Element {
         })}
         <Row gutter={20} className="row-price" style={{height: 38, margin: "10px 0 0 0"}}>
           <Col lg={15} xxl={9} style={{padding: "8px 0"}}>
-            <b>{totalAmountCustomerNeedToPay >= 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+            <b>{totalAmountCustomerNeedToPay >= 0 ? "Còn phải trả: 1" : "Tiền thừa:"}</b>
           </Col>
           <Col
             className="lbl-money"
