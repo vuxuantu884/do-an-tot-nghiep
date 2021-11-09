@@ -161,7 +161,7 @@ const InventoryAdjustment: React.FC = () => {
     {
       title: "Tổng SL",
       width: 90,
-      dataIndex: "total_real_on_hand",
+      dataIndex: "total_on_hand",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -264,7 +264,7 @@ const InventoryAdjustment: React.FC = () => {
       dataIndex: "audited_date",
       visible: true,
       align: "left",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Cân tồn kho",
@@ -278,7 +278,7 @@ const InventoryAdjustment: React.FC = () => {
             <div>
               <b>{item.adjusted_by}</b>
             </div>
-            <div>{ConvertUtcToLocalDate(item.adjusted_date, "DD/MM/YYYY")}</div>
+            <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>
         );
       },
