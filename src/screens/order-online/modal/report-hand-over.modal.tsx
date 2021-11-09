@@ -33,7 +33,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
-  const listSourcesEcommerce=orderPackContextData.listSourcesEcommerce;
+  const listChannels=orderPackContextData.listChannels;
   const data=orderPackContextData.data;
 
   const dataCanAccess = useMemo(() => {
@@ -124,7 +124,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
             <Col md={24}>
               <Form.Item
                 label="Hãng vận chuyển"
-                name="hvc"
+                name="delivery_service_id"
                 rules={[
                   {
                     required: true,
@@ -239,7 +239,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listSourcesEcommerce.map((item, index) => (
+                  {listChannels.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>
@@ -248,51 +248,6 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               </Form.Item>
             </Col>
           </Row>
-
-          {/* <Row gutter={24}>
-            <Col md={24}>
-              <Form.Item
-                label="ID đơn hàng"
-                name="codes"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn kiểu biên bản",
-                  },
-                ]}
-              >
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  allowClear
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn ID đơn hàng/ Mã hãng vận chuyển"
-                  notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                    console.log(value);
-                  }}
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {testAraay.map((item, index) => (
-                    <Select.Option key={index.toString()} value={item.id}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row> */}
-
           <Row gutter={24}>
             <Col md={24}>
               <Form.Item

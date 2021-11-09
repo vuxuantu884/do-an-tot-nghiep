@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
@@ -380,7 +381,7 @@ export const createShippingOrderService = (
 export const getGoodsReceiptsTypeService = (): Promise<
   BaseResponse<GoodsReceiptsTypeResponse>
 > => {
-  const link = `${ApiConfig.ORDER}/goods-receipts/types`;
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/types`;
   return BaseAxios.get(link);
 };
 
@@ -411,3 +412,10 @@ export const getSourcesEcommerceService = (): Promise<
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/ecommerce`);
 };
+
+export const getChannelsService=(typeId:number):Promise<BaseResponse<ChannelResponse[]>>=>{
+  let link=`${ApiConfig.ORDER}/channels`;
+  if(typeId!==null)
+    link=`${ApiConfig.ORDER}/channels?type_id=${typeId}`
+  return BaseAxios.get(link);
+}

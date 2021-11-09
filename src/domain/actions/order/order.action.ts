@@ -25,6 +25,7 @@ import {
   OrderActionLogResponse,
 } from "model/response/order/action-log.response";
 import {
+  ChannelsResponse,
   DeliveryMappedStoreType,
   DeliveryServiceResponse,
   DeliveryTransportTypesResponse,
@@ -433,4 +434,8 @@ export const splitOrderAction = (
 
 export const getSourcesEcommerce = (setData: (data: Array<SourceEcommerceResponse>) => void) => {
   return BaseAction(OrderType.SOURCES_ECOMMERCE, { setData });
+}
+
+export const getChannels=(typeId:number, setData:(data:ChannelsResponse[])=>void)=>{
+  return BaseAction(OrderType.GET_CHANNELS,{typeId,setData});
 }

@@ -25,6 +25,7 @@ import {
   createShippingOrderService,
   deleteDeliveryMappedStoreService,
   getChannelApi,
+  getChannelsService,
   getDeliveryMappedStoresService,
   getDeliveryTransportTypesService,
   getFulfillmentsApi,
@@ -834,6 +835,27 @@ function* getSourcesEcommerceSaga(action: YodyAction) {
   } catch (error) { }
 }
 
+function* getChannelsSaga(action:YodyAction){
+  let{typeId,setData}=action.payload;
+  try{
+    let response:BaseResponse<ChannelResponse[]>=yield call(getChannelsService, typeId);
+    switch(response.code){
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  }
+  catch(e){
+    showError(`Có lỗi xảy ra, vui lòng thử lại`);
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
@@ -876,4 +898,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LOCALSTOGARE_PACK, loadOrderPackSaga);
   yield takeLatest(OrderType.SPLIT_ORDER, splitOrderSaga);
   yield takeLatest(OrderType.SOURCES_ECOMMERCE, getSourcesEcommerceSaga);
+  yield takeLatest(OrderType.GET_CHANNELS, getChannelsSaga);
 }
