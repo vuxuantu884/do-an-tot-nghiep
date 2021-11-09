@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Menu, Tooltip } from "antd";
+import { Button, Card, Menu } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -135,6 +135,11 @@ const EcommerceOrderSync: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
+  const [allowViewOrder] = useAuthorization({
+    acceptPermissions: ordersViewPermission,
+    not: false,
+  });
+
   const [allowDownloadOrder] = useAuthorization({
     acceptPermissions: ordersDownloadPermission,
     not: false,
@@ -159,7 +164,7 @@ const EcommerceOrderSync: React.FC = () => {
   // );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [tableLoading, setTableLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
@@ -701,7 +706,9 @@ const EcommerceOrderSync: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   const reloadPage = () => {
-    getEcommerceOrderList();
+    if (allowViewOrder) {
+      getEcommerceOrderList();
+    }
   };
 
   const closeResultGetOrderModal = () => {
@@ -710,69 +717,61 @@ const EcommerceOrderSync: React.FC = () => {
   };
 
   useEffect(() => {
-    getEcommerceOrderList();
-  }, [getEcommerceOrderList]);
+    if (allowViewOrder) {
+      getEcommerceOrderList();
+    }
+  }, [allowViewOrder, getEcommerceOrderList]);
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(StoreGetListAction(setStore));
-    dispatch(
-      actionFetchListOrderProcessingStatus(
-        {},
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-        }
-      )
-    );
-  }, [dispatch, setDataAccounts]);
+    if (allowViewOrder) {
+      dispatch(AccountSearchAction({}, setDataAccounts));
+      dispatch(StoreGetListAction(setStore));
+      dispatch(
+        actionFetchListOrderProcessingStatus(
+          {},
+          (data: OrderProcessingStatusResponseModel) => {
+            setListOrderProcessingStatus(data.items);
+          }
+        )
+      );
+    }
+  }, [allowViewOrder, dispatch, setDataAccounts]);
 
   return (
-    <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
-      {(allowed: boolean) => (allowed ?
-        <StyledComponent>
-          <ContentContainer
-            title="Danh sách đơn hàng"
-            breadcrumb={[
-              {
-                name: "Tổng quan",
-                path: UrlConfig.HOME,
-              },
-              {
-                name: "Sàn TMĐT",
-                path: `${UrlConfig.ECOMMERCE}`,
-              },
-              {
-                name: "Danh sách đơn hàng",
-              },
-            ]}
-            extra={
-              <>
-                {allowDownloadOrder ?
-                  <Button
-                    disabled={tableLoading}
-                    onClick={openGetOrderModal}
-                    className="ant-btn-outline ant-btn-primary"
-                    size="large"
-                    icon={<DownloadOutlined />}
-                  >
-                    Tải đơn hàng về
-                  </Button>
-                  :
-                  <Tooltip
-                    overlay="Bạn không có quyền tải đơn hàng về"
-                    color="blue" placement="top">
-                    <Button
-                      disabled={true}
-                      size="large"
-                      icon={<DownloadOutlined />}
-                    >
-                      Tải đơn hàng về
-                    </Button>
-                  </Tooltip>
-                }
-              </>
+    <StyledComponent>
+      <ContentContainer
+        title="Danh sách đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Sàn TMĐT",
+            path: `${UrlConfig.ECOMMERCE}`,
+          },
+          {
+            name: "Danh sách đơn hàng",
+          },
+        ]}
+        extra={
+          <>
+            {allowDownloadOrder &&
+              <Button
+                disabled={tableLoading}
+                onClick={openGetOrderModal}
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<DownloadOutlined />}
+              >
+                Tải đơn hàng về
+              </Button>
             }
-          >
+          </>
+        }
+      >
+        <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
             <Card>
               <EcommerceOrderFilter
                 tableLoading={tableLoading}
@@ -814,50 +813,50 @@ const EcommerceOrderSync: React.FC = () => {
                 className="ecommerce-order-list"
               />
             </Card>
-    
-            {isShowGetOrderModal && (
-              <DownloadOrderDataModal
-                visible={isShowGetOrderModal}
-                onCancel={cancelGetOrderModal}
-                onOk={updateOrderList}
-              />
-            )}
-    
-            {isShowResultGetOrderModal && (
-              <ResultDownloadOrderDataModal
-                visible={isShowResultGetOrderModal}
-                onCancel={closeResultGetOrderModal}
-                onOk={closeResultGetOrderModal}
-                downloadOrderData={downloadOrderData}
-              />
-            )}
-    
-            {/* // todo thai: handle later
-            {isShowUpdateConnectionModal && (
-              <UpdateConnectionModal
-                visible={isShowUpdateConnectionModal}
-                onCancel={cancelUpdateConnectionModal}
-                onOk={updateProductConnection}
-                data={updateConnectionData}
-              />
-            )} */}
-    
-            {showSettingColumn && (
-              <ModalSettingColumn
-                visible={showSettingColumn}
-                isSetDefaultColumn={true}
-                onCancel={() => setShowSettingColumn(false)}
-                onOk={(data) => {
-                  setShowSettingColumn(false);
-                  setColumn(data);
-                }}
-                data={columns}
-              />
-            )}
-          </ContentContainer>
-        </StyledComponent>
-        : <NoPermission />)}
-    </AuthWrapper>
+            : <NoPermission />)}
+        </AuthWrapper>
+
+        {isShowGetOrderModal && (
+          <DownloadOrderDataModal
+            visible={isShowGetOrderModal}
+            onCancel={cancelGetOrderModal}
+            onOk={updateOrderList}
+          />
+        )}
+
+        {isShowResultGetOrderModal && (
+          <ResultDownloadOrderDataModal
+            visible={isShowResultGetOrderModal}
+            onCancel={closeResultGetOrderModal}
+            onOk={closeResultGetOrderModal}
+            downloadOrderData={downloadOrderData}
+          />
+        )}
+
+        {/* // todo thai: handle later
+        {isShowUpdateConnectionModal && (
+          <UpdateConnectionModal
+            visible={isShowUpdateConnectionModal}
+            onCancel={cancelUpdateConnectionModal}
+            onOk={updateProductConnection}
+            data={updateConnectionData}
+          />
+        )} */}
+
+        {showSettingColumn && (
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            isSetDefaultColumn={true}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumn(data);
+            }}
+            data={columns}
+          />
+        )}
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 
