@@ -1,5 +1,7 @@
-import { PromoCodeResponse } from '../../../../model/response/promotion/promo-code/list-promo-code.response';
+import { getVariantApi } from './../../../../service/product/product.service';
+import { PromoCodeResponse } from 'model/response/promotion/promo-code/list-promo-code.response';
 import { 
+  checkPromoCode,
   addPromoCode,
   deletePromoCodeById,
   getAllPromoCodeList,
@@ -17,6 +19,30 @@ import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {takeLatest} from "typed-redux-saga";
 import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
+
+function* checkPromoCodeAtc(action: YodyAction) {
+  const { code, handleResponse } = action.payload;
+  try {
+    const response: BaseResponse<PageResponse<PromoCodeResponse>> = yield call(
+      checkPromoCode,
+      code
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleResponse(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        handleResponse(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        handleResponse(false);
+        break;
+    }
+  } catch (error) {
+    handleResponse(false);
+  }
+}
 
 function* getPromoCode(action: YodyAction) {
   const { priceRuleId, query, setData } = action.payload;
@@ -183,6 +209,7 @@ function* deleteBulkPromoCodeAct(action: YodyAction) {
 
 export function* promoCodeSaga() {
   yield all([
+    takeLatest(PromoCodeType.CHECK_PROMO_CODE, checkPromoCodeAtc),
     takeLatest(PromoCodeType.GET_LIST_PROMO_CODE, getPromoCode),
     takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct),

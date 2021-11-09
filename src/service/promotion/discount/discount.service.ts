@@ -5,7 +5,6 @@ import {generateQuery} from "../../../utils/AppUtils";
 import BaseAxios from "../../../base/base.axios";
 import {ApiConfig} from "../../../config/api.config";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
-import {OrderLineItemRequest} from "../../../model/request/order.request";
 
 const END_POINT = "/price-rules";
 
@@ -16,6 +15,10 @@ export const searchDiscountList = (query: BaseQuery): Promise<BaseResponse<PageR
 
 export const getPriceRuleById = (id: number) : Promise<DiscountResponse> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
+}
+
+export const getVariantApi = (id: number) : Promise<DiscountResponse> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}/variants`);
 }
 
 export const deletePriceRuleById = (id: number): Promise<any> => {
