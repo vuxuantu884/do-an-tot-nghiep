@@ -67,6 +67,7 @@ import {
   ShipmentMethodOption,
   TaxTreatment
 } from "utils/Constants";
+import { DEFAULT_CHANNEL_ID } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
@@ -76,7 +77,6 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 let typeButton = "";
 
 export default function Order() {
-  const DEFAULT_CHANNEL_ID = 13; //đang fix cứng admin
   const dispatch = useDispatch();
   const history = useHistory();
   const [isSaveDraft, setIsSaveDraft] = useState(false);
@@ -720,6 +720,7 @@ export default function Order() {
                 url: response.url,
                 note: response.note,
                 tags: response.tags,
+                channel_id: response.channel_id,
               });
               form.resetFields();
               // load lại form sau khi set initialValue

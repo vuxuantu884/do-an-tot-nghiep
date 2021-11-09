@@ -128,6 +128,8 @@ const CreateInventoryAdjustment: FC = () => {
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
+    data.audited_by  = data.audited_by ?? [];
+     
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
@@ -965,6 +967,10 @@ const CreateInventoryAdjustment: FC = () => {
                   label={<b>Người kiểm</b>}
                   labelCol={{span: 24, offset: 0}}
                   colon={false}
+                  rules={[{
+                      required: true,
+                      message: "Vui lòng chọn người kiểm",
+                  }]}
                 >
                   <CustomSelect
                     mode="multiple"
