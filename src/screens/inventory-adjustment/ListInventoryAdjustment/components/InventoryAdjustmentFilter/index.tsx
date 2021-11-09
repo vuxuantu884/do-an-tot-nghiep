@@ -113,21 +113,23 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
+    const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
+    const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
     switch (type) {
       case "create_date":
         setCreateDateClick("");
-        setIsFromCreatedDate(moment(dateString[0], "DD-MM-YYYY"));
-        setIsToCreatedDate(moment(dateString[1], "DD-MM-YYYY"));
+        setIsFromCreatedDate(fromDateString);
+        setIsToCreatedDate(toDateString);
         break;
       case "adjusted_by":
         setAdjustmentDateClick("");
-        setIsFromAdjustedBy(moment(dateString[0], "DD-MM-YYYY"));
-        setIsToAdjustedBy(moment(dateString[1], "DD-MM-YYYY"));
+        setIsFromAdjustedBy(fromDateString);
+        setIsToAdjustedBy(toDateString);
         break;
       case "audited_date":
         setAuditedDateClickClick("");
-        setIsFromAuditedDate(moment(dateString[0], "DD-MM-YYYY"));
-        setIsToAuditedDate(moment(dateString[1], "DD-MM-YYYY"));
+        setIsFromAuditedDate(fromDateString);
+        setIsToAuditedDate(toDateString);
         break;
     }
   }, []);
