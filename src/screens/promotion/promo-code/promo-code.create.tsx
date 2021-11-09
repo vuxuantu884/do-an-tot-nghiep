@@ -15,6 +15,8 @@ import { StoreGetListAction } from "../../../domain/actions/core/store.action";
 import { getListSourceRequest } from "../../../domain/actions/product/source.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 import CreateBillStep from "../../../component/header/create-bill-step";
 import CreatePromoCodeStep from "./components/create-promo-code-step";
 const { Step } = Steps;
@@ -25,6 +27,7 @@ const CreatePromotionCodePage = () => {
   const [promoCodeForm] = Form.useForm();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
   const initialValues = {
     title: "",
@@ -38,6 +41,7 @@ const CreatePromotionCodePage = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
 
   const transformData = (values: any) => {
@@ -144,6 +148,7 @@ const CreatePromotionCodePage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
+              listChannel={listChannel}
             />
           </Col>
         </Row>

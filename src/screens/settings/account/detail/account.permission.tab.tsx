@@ -7,7 +7,7 @@ import _ from "lodash";
 import {ModuleAuthorize} from "model/auth/module.model";
 import {PermissionsAuthorize, UserPermissionRequest} from "model/auth/permission.model";
 import {PageResponse} from "model/base/base-metadata.response";
-import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
 import {CreateRoleStyled} from "screens/settings/account/detail/index.style";
 import {AuthorizeDetailCard} from "screens/settings/roles/card-authorize-detail";
@@ -65,12 +65,11 @@ function AccountPermissionTab(props: AccountPermissionProps) {
     const permission = getCheckedPermissionObjects();
     dispatch(
       updateAccountPermissionAction(permission, (result: string) => {
-        if (result) {
-          getAccountData();
-        }
+        getAccountData();
       })
     );
   };
+
   const onChangeCheckBoxModule = (e: CheckboxChangeEvent, module: ModuleAuthorize) => {
     updatePermission();
   };
@@ -84,10 +83,8 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   };
 
   // handle checkbox
-  const onSetModuleData = useCallback(
+  const handleDefaultCheckbox = useCallback(
     (data: PageResponse<ModuleAuthorize>) => {
-      setModuleData(data);
-
       // get total permission of module
       const totalPermissionOfModules = new Map(
         data.items.map((item) => [item.code, item.permissions.length])
@@ -120,6 +117,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
       });
 
       // set default checked
+      form.resetFields();
       form.setFieldsValue(defaultCheckedPermission);
       setCheckedModules(defaultCheckedModules);
       setIndeterminateModules(defaultIndeterminateModules);
@@ -129,12 +127,22 @@ function AccountPermissionTab(props: AccountPermissionProps) {
     [accountInfo, form]
   );
 
+  const onSetModuleData = useCallback(
+    (data: PageResponse<ModuleAuthorize>) => {
+      setModuleData(data);
+      handleDefaultCheckbox(data);
+    },
+    [handleDefaultCheckbox]
+  );
+
   useEffect(() => {
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
       dispatch(getModuleAction(getAllModuleParam, onSetModuleData));
+    } else if (moduleData) {
+      handleDefaultCheckbox(moduleData);
     }
-  }, [dispatch, onSetModuleData]);
+  }, [dispatch, onSetModuleData, handleDefaultCheckbox, moduleData]);
 
   return (
     <>

@@ -18,6 +18,8 @@ import {promoGetDetail} from "../../../domain/actions/promotion/discount/discoun
 import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import Countdown from "react-countdown";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { getListChannelRequest } from "domain/actions/order/order.action";
 
 export interface ProductParams {
   id: string;
@@ -130,12 +132,15 @@ const PromotionDetailScreen: React.FC = () => {
   const [data, setData] = useState<DiscountResponse | null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [stores, setStore] = useState<Array<StoreResponse>>();
   const [sources, setSource] = useState<Array<SourceResponse>>();
+  const [channel, setChannel] = useState<Array<ChannelResponse>>();
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
     dispatch(promoGetDetail(idNumber, onResult));
   }, []);
 
@@ -147,11 +152,18 @@ const PromotionDetailScreen: React.FC = () => {
   }, [listStore]);
 
   useEffect(() => {
-    const source = sources?.filter(
+    const source = listSource?.filter(
       (item) => item.id === data?.prerequisite_order_source_ids[0],
     );
     setSource(source);
   }, [listSource]);
+
+  useEffect(() => {
+    const channel = listChannel?.filter(
+      (item) => item.id === data?.prerequisite_order_source_ids[0],
+    );
+    setChannel(channel);
+  }, [listChannel]);
 
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
@@ -569,13 +581,14 @@ const PromotionDetailScreen: React.FC = () => {
                     </span>
                   </Col>
                   <Col span={24}>
-                    {data?.prerequisite_sales_channel_names.length > 0 ? (
+                  {data?.prerequisite_sales_channel_names.length > 0 ? (
                       <ul
                         style={{
                           padding: "0 16px",
                         }}
                       >
-                        {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
+                        {channel &&
+                        channel.map((item: any, index: number) => <li>{item.name}</li>)}
                       </ul>
                     ) : (
                       "Áp dụng toàn bộ"

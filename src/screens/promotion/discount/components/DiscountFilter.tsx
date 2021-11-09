@@ -14,6 +14,7 @@ import CustomFilter from "../../../../component/table/custom.filter";
 import {checkFixedDate, DATE_FORMAT} from "../../../../utils/DateUtils";
 import {SearchVariantField, SearchVariantMapping} from "../../../../model/promotion/promotion-mapping";
 import { FilterOutlined } from "@ant-design/icons"
+import { ChannelResponse } from "model/response/product/channel.response";
 
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
@@ -311,6 +312,7 @@ const FilterList = (({
                        resetField,
                        listStore,
                        listSource,
+                       listChannel,
                        listCustomerCategories
                      }: any) => {
   let filterKeys = Object.keys(filters);

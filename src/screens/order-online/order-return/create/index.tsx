@@ -192,6 +192,7 @@ const ScreenReturnCreate = (props: PropType) => {
     shipping_address: null,
     billing_address: null,
     payments: [],
+    channel_id: null,
   };
 
   let listPaymentMethodsReturnToCustomer = listPaymentMethods.find((single) => {

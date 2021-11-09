@@ -82,7 +82,7 @@ const RoleListScreen = () => {
   );
   const columnsChild = [
     {
-      dataIndex: "module_name",
+      dataIndex: "name",
       visible: true,
       width: 200,
       render: (value: string) => <b>{value}</b>,
