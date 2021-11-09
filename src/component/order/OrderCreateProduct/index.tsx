@@ -813,43 +813,49 @@ function OrderCreateProduct(props: PropType) {
   const handleAutomaticDiscount = async (_items: Array<OrderLineItemRequest>, item: OrderLineItemRequest, splitLine:boolean) => {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(singleItem => singleItem.variant_id === item.variant_id).length : item.quantity;
-    const checkingDiscountResponse = await applyDiscount(item, quantity);
-    setLoadingAutomaticDiscount(false)
-    if (item && checkingDiscountResponse &&
-      checkingDiscountResponse.code === 20000000 &&
-      checkingDiscountResponse.data.line_items.length
-    ) {
-      const suggested_discounts = checkingDiscountResponse.data.line_items.find(
-        (lineItem: any) => lineItem.variant_id === item.variant_id
-      )?.suggested_discounts;
-      if (suggested_discounts.length > 0) {
-        const quantity = item.quantity;
-
-        const total = item.amount;
-        valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
-          console.log("handleAutomaticDiscount - item: ", item);
-          let value = 0;
-          if (discount.value_type === "FIXED_AMOUNT") {
-            value = discount.value * quantity;
-          } else if (discount.value_type === "FIXED_AMOUNT") {
-            value = total * (discount.value/100);
-          } else if (discount.value_type === "FIXED_PRICE") {
-            value = item.price - discount.value;
-          }
-          if (value > item.price) {
-            value = item.price;
-          }
-          return value;
-        }))
-        const discountItem: OrderItemDiscountRequest = {
-          rate: Math.round((valuestDiscount/item.price) * 100 * 100) / 100,
-          value: valuestDiscount,
-          amount: valuestDiscount,
-          reason: '',
-        };
-        item.discount_items[0] = discountItem;
+    try {
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}]);
+      setLoadingAutomaticDiscount(false)
+      if (item && checkingDiscountResponse &&
+        checkingDiscountResponse.code === 20000000 &&
+        checkingDiscountResponse.data.line_items.length
+      ) {
+        const suggested_discounts = checkingDiscountResponse.data.line_items.find(
+          (lineItem: any) => lineItem.variant_id === item.variant_id
+        )?.suggested_discounts;
+        if (suggested_discounts && suggested_discounts.length > 0) {
+          const quantity = item.quantity;
+          const total = item.amount;
+          valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
+            let value = 0;
+            if (discount.value_type === "FIXED_AMOUNT") {
+              value = discount.value * quantity;
+            } else if (discount.value_type === "PERCENTAGE") {
+              value = total * (discount.value/100);
+            } else if (discount.value_type === "FIXED_PRICE") {
+              value = item.price - discount.value;
+            }
+            if (value > item.price) {
+              value = item.price;
+            }
+            return value;
+          }))
+          const discountItem: OrderItemDiscountRequest = {
+            rate: Math.round((valuestDiscount/item.price) * 100 * 100) / 100,
+            value: valuestDiscount,
+            amount: valuestDiscount,
+            reason: '',
+          };
+          item.discount_items[0] = discountItem;
+        }
       }
+    } catch (e) {
+      console.log(e);
+      showError("Thao tác thất bại");
+      setLoadingAutomaticDiscount(false)
+      return null;
     }
+
   }
 
   const onSearchVariantSelect = useCallback(
