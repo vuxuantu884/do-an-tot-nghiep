@@ -84,7 +84,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [auditType, setAuditType] = useState<string>("");
+  const [auditType, setAuditType] = useState<string>(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
   const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
   const [formStoreData, setFormStoreData] = useState<Store | null>();
@@ -98,11 +98,7 @@ const CreateInventoryAdjustment: FC = () => {
     TotalRealOnHand: 0,
   });
 
-  const lstAudiTypes = [
-    {
-      key: "total",
-      name: "Toàn bộ",
-    },
+  const lstAudiTypes = [ 
     {
       key: "partly",
       name: "Một phần",
@@ -167,15 +163,9 @@ const CreateInventoryAdjustment: FC = () => {
 
   const onChangeAuditType = useCallback(
     (auditType: string) => {
-      if (!form.getFieldValue("adjusted_store_id")) {
-        showError("Vui lòng chọn kho kiểm");
-        form.setFieldsValue({audit_type: null});
-        return false;
-      }
-
       setAuditType(auditType);
     },
-    [form]
+    []
   );
 
   // get store
@@ -716,6 +706,7 @@ const CreateInventoryAdjustment: FC = () => {
                       <Form.Item
                         style={{margin: "0px"}}
                         name="audit_type"
+                        initialValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
                         label=""
                         rules={[
                           {
@@ -731,6 +722,7 @@ const CreateInventoryAdjustment: FC = () => {
                           optionFilterProp="children"
                           showSearch={false}
                           allowClear={true}
+                          defaultValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
                           }}

@@ -19,6 +19,7 @@ const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
+  dataLinesItem: Array<LineItemAdjustment>;
 };
 
 export interface Summary {
@@ -30,8 +31,7 @@ export interface Summary {
 
 const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment
-) => {
-  const [editReason, setEditReason] = useState<boolean | any>(false);
+) => { 
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
@@ -48,7 +48,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   const [keySearch, setKeySearch] = useState<string | any>("");
 
   const dispatch = useDispatch();
-  const {data} = props;
+  const {data, dataLinesItem} = props;
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -71,7 +71,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     [keySearch, dataTable]
   );
 
-  const onChangeReason = useCallback( 
+  const onChangeReason = useCallback(
     (value: string | null, row: LineItemAdjustment, index: number) => {
       const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
 
@@ -80,10 +80,8 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
           value = value ?? "";
           item.note = value;
         }
-      });
+      }); 
 
-      setEditReason(true);
-      
       let dataEdit =
         (searchVariant && searchVariant.length > 0) || keySearch !== ""
           ? [...dataTableClone]
@@ -92,8 +90,10 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       setDataTable(dataTableClone);
       setSearchVariant(dataTableClone);
 
-      onEnterFilterVariant(dataEdit); 
-  }, [searchVariant ,keySearch, dataTable, onEnterFilterVariant]);
+      onEnterFilterVariant(dataEdit);
+    },
+    [searchVariant, keySearch, dataTable, onEnterFilterVariant]
+  );
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
     let totalExcess = 0,
@@ -249,37 +249,34 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
               }}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
-                  // event.preventDefault();
+                  event.preventDefault();
+                  row.note = event.currentTarget.value;
+
                   dispatch(
-                    updateItemOnlineInventoryAction(
-                      data?.id,
-                      row,
-                      (result) => {
-                        if (result) {
-                          showSuccess("Nhập lý do thành công.");
-                        }
+                    updateItemOnlineInventoryAction(data?.id, row, (result) => {
+                      if (result) {
+                        showSuccess("Nhập lý do thành công.");
                       }
-                    )
-                  );
-                  setEditReason(false);
+                    })
+                  ); 
                 }
               }}
-              onBlur={(e) => {
-                if (editReason) {
-                  dispatch(
-                    updateItemOnlineInventoryAction(
-                      data?.id,
-                      row,
-                      (result) => {
-                        if (result) {
-                          showSuccess("Nhập lý do thành công.");
-                        }
-                      }
-                    )
-                  );
-                  setEditReason(false);
-                }
-              }}
+              // onBlur={(e) => {
+              //   if (editReason) {
+              //     dispatch(
+              //       updateItemOnlineInventoryAction(
+              //         data?.id,
+              //         row,
+              //         (result) => {
+              //           if (result) {
+              //             showSuccess("Nhập lý do thành công.");
+              //           }
+              //         }
+              //       )
+              //     );
+              //     setEditReason(false);
+              //   }
+              // }}
             />
           );
         }
@@ -289,11 +286,12 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   ];
 
   useEffect(() => {
-    let dataDis = data.line_items?.filter((e) => e.on_hand_adj !== 0) || [];
+    const dataDis = dataLinesItem?.filter((e) => e.on_hand_adj !== 0) || [];
+    
     setDataTable(dataDis);
     setSearchVariant(dataDis);
     drawColumns(dataDis);
-  }, [data, drawColumns]);
+  }, [dataLinesItem, drawColumns]);
 
   return (
     <>
