@@ -472,7 +472,9 @@ const CustomerDetailIndex = () => {
                       />
                     </TabPane>
                     <TabPane tab="Lịch sử chăm sóc" key="caring-history">
-                      <CustomerCareHistory />
+                      <CustomerCareHistory
+                        customer={customer}
+                      />
                     </TabPane>
                     <TabPane tab="Ghi chú" key="notes">
                       <CustomerNoteInfo
