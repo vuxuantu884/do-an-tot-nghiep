@@ -18,6 +18,7 @@ const GeneralInfo = (props: any) => {
     form,
     listStore,
     listSource,
+    listChannel
     // customerAdvanceMsg
   } = props;
 
@@ -304,9 +305,7 @@ const GeneralInfo = (props: any) => {
                   mode="multiple"
                   className="ant-select-selector-min-height"
                 >
-                  <Option value="ADMIN">ADMIN</Option>
-                  <Option value="POS">POS</Option>
-                  <Option value="WEB">WEB</Option>
+                  {listChannel?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">

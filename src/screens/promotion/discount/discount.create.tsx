@@ -14,6 +14,8 @@ import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
 import { PROMO_TYPE } from "utils/Constants";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 
 const CreateDiscountPage = () => {
@@ -22,10 +24,11 @@ const CreateDiscountPage = () => {
   const history = useHistory();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
-
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
 
   const transformData = (values: any) => {
@@ -136,6 +139,7 @@ const CreateDiscountPage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
+              listChannel={listChannel}
               // customerAdvanceMsg={customerAdvanceMsg}
             />
           </Col>

@@ -14,12 +14,14 @@ import CustomFilter from "../../../../component/table/custom.filter";
 import {checkFixedDate, DATE_FORMAT} from "../../../../utils/DateUtils";
 import {SearchVariantField, SearchVariantMapping} from "../../../../model/promotion/promotion-mapping";
 import { FilterOutlined } from "@ant-design/icons"
+import { ChannelResponse } from "model/response/product/channel.response";
 
 type DiscountFilterProps = {
   params: DiscountSearchQuery;
   actions: Array<MenuAction>;
   listStore: Array<StoreResponse> | undefined;
   listSource: Array<SourceResponse>;
+  listChannel: Array<ChannelResponse>;
   listCustomerCategories: Array<CustomerGroupModel>;
   // tableLoading: boolean;
   onMenuClick?: (index: number) => void;
@@ -80,6 +82,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     actions,
     listStore,
     listSource,
+    listChannel,
     listCustomerCategories,
     // tableLoading,
     onMenuClick,
@@ -155,6 +158,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           resetField={resetField}
           listStore={listStore}
           listSource={listSource}
+          listChannel={listChannel}
           listCustomerCategories={listCustomerCategories}
         />
         {/*<BaseFilter*/}
@@ -311,6 +315,7 @@ const FilterList = (({
                        resetField,
                        listStore,
                        listSource,
+                       listChannel,
                        listCustomerCategories
                      }: any) => {
   let filterKeys = Object.keys(filters);

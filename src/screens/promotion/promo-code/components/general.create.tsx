@@ -29,6 +29,7 @@ const GeneralCreate = (props: any) => {
     form,
     listStore,
     listSource,
+    listChannel,
     // customerAdvanceMsg
   } = props;
 
@@ -507,9 +508,7 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
                 <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple" className="ant-select-selector-min-height">
-                  <Option key="ADMIN" value="ADMIN">ADMIN</Option>
-                  <Option key="POS" value="POS">POS</Option>
-                  <Option key="WEB" value="WEB">WEB</Option>
+                {listChannel?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
