@@ -17,7 +17,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {Tag, Space, Card} from "antd";
 import {InventoryAdjustmentWrapper} from "./styles";
 import {
-  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
+  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, 
   STATUS_INVENTORY_ADJUSTMENT,
 } from "../constants";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
@@ -250,10 +250,10 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <div>
             <div>
-              <b>{item.created_code ?? ""}</b>
+              <b>{item.created_name ?? ""}</b>
             </div>
             <div>
-              <b>{item.created_by}</b>
+              <b>{item.created_by ?? ""}</b>
             </div>
           </div>
         );
@@ -277,7 +277,7 @@ const InventoryAdjustment: React.FC = () => {
             <b>{item.adjusted_code ?? ""}</b>
             </div>
             <div>
-              <b>{item.adjusted_by}</b>
+              <b>{item.adjusted_by ?? ""}</b>
             </div>
             <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>
