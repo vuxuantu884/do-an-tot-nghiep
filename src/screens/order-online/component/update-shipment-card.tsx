@@ -57,7 +57,7 @@ import {
   SumWeightResponse,
   TrackingCode
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, ShipmentMethodOption } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { dangerColor } from "utils/global-styles/variables";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
@@ -736,11 +736,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setReload(true);
   };
 
-  const renderPushingStatusWhenFailed = () => {
-    if(!OrderDetail) {
+  const renderPushingStatusWhenDeliverPartnerFailed = () => {
+    if(!OrderDetail || !OrderDetail.fulfillments) {
       return;
     }
-    if(OrderDetail.fulfillments) {
+    if( OrderDetail.fulfillments[0]?.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE) {
       let failedFulfillment = OrderDetail.fulfillments.find((singleFulfillment) => {
         return singleFulfillment.shipment?.pushing_status === "failed"
       })
@@ -1145,7 +1145,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             </Col>
                           </Row>
                         </Col>
-                        {renderPushingStatusWhenFailed()}
+                        {renderPushingStatusWhenDeliverPartnerFailed()}
                         {CheckShipmentType(props.OrderDetail!) === "external_service" && (
                           <Col md={12}>
                             <Row gutter={30}>

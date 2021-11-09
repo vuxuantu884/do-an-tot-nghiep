@@ -192,7 +192,7 @@ function CardPayments(props: CardPaymentsProps) {
   return (
     <StyledComponent>
       <Card title="THANH TOÁN">
-        <div className="create-order-payment ">
+        <div className="create-order-payment 222">
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
             // required

@@ -61,7 +61,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
     setPaymentMethod,
   } = props;
 
-  console.log("payments", payments);
+  console.log("isDisablePostPayment", isDisablePostPayment);
 
   const changePaymentMethod = (value: number) => {
     setPaymentMethod(value);

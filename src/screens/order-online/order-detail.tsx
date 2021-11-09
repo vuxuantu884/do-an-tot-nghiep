@@ -116,6 +116,7 @@ const OrderDetail = (props: PropType) => {
     Array<LoyaltyUsageResponse>
   >([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+  console.log('isDisablePostPayment', isDisablePostPayment)
 
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
@@ -520,6 +521,7 @@ const OrderDetail = (props: PropType) => {
   };
 
   const onSelectShipment = (value: number) => {
+    console.log('value', value)
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
@@ -653,7 +655,7 @@ const OrderDetail = (props: PropType) => {
                       title={
                         <Space>
                           <div className="d-flex">
-                            <span className="title-card">THANH TOÁN</span>
+                            <span className="title-card">THANH TOÁN 2</span>
                           </div>
                           {checkPaymentStatusToShow(OrderDetail) === -1 && (
                             <Tag className="orders-tag orders-tag-default">
@@ -804,7 +806,7 @@ const OrderDetail = (props: PropType) => {
                                 >
                                   {isShowPaymentPartialPayment && OrderDetail !== null && (
                                     <UpdatePaymentCard
-                                      setSelectedPaymentMethod={onPaymentSelect}
+                                      setPaymentMethod={onPaymentSelect}
                                       setVisibleUpdatePayment={setVisibleUpdatePayment}
                                       setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                                       setPayments={onPayments}
@@ -960,7 +962,7 @@ const OrderDetail = (props: PropType) => {
                       title={
                         <Space>
                           <div className="d-flex">
-                            <span className="title-card">THANH TOÁN</span>
+                            <span className="title-card">THANH TOÁN 3</span>
                           </div>
                           {checkPaymentStatusToShow(OrderDetail) === 1 && (
                             <Tag
@@ -1081,7 +1083,7 @@ const OrderDetail = (props: PropType) => {
                     (OrderDetail?.fulfillments &&
                       OrderDetail.fulfillments[0].shipment === null)) && (
                     <UpdatePaymentCard
-                      setSelectedPaymentMethod={onPaymentSelect}
+                    setPaymentMethod={onPaymentSelect}
                       setPayments={onPayments}
                       paymentMethod={paymentMethod}
                       shipmentMethod={shipmentMethod}
@@ -1101,6 +1103,7 @@ const OrderDetail = (props: PropType) => {
                       }}
                       disabledActions={disabledActions}
                       listPaymentMethods={listPaymentMethods}
+                      isDisablePostPayment={isDisablePostPayment}
                     />
                   )}
 
@@ -1111,7 +1114,7 @@ const OrderDetail = (props: PropType) => {
                   shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                   setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
                   setVisibleUpdatePayment={setVisibleUpdatePayment}
-                  setShipmentMethod={setShipmentMethod}
+                  setShipmentMethod={onSelectShipment}
                   setOfficeTime={setOfficeTime}
                   setVisibleShipping={setVisibleShipping}
                   OrderDetail={OrderDetail}
