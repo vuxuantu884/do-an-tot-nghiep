@@ -30,6 +30,8 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
     (fromIndex, toIndex) => {
       if (toIndex < 0 || toIndex > columns.length - 1) return; // Ignores if outside designated area
       const items = [...columns];
+      if (items[fromIndex].fixed || items[toIndex].fixed) return;
+
       const item = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, item);
       setColumn(items);
@@ -138,6 +140,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       }
     >
       <p>Kéo thả chuột để lựa chọn cột theo trình tự bạn mong muốn.</p>
+      {columns.filter(item => item.fixed).length > 0 && <p>Bạn không thể thay đổi các cột đã được cố định.</p>}
       <ReactCustomScrollbars style={{ height: "300px" }} autoHide>
         <ReactDragListView
           onDragEnd={onDrag}
@@ -174,6 +177,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
                   checked={item.visible}
                 >
                   {item.title}
+                  <span style={{ color: '#2a2a86', fontWeight: 500, marginLeft: '30px' }}>{item.fixed ? 'Cố định' : ''}</span>
                 </Checkbox>
               </List.Item>
             )}
