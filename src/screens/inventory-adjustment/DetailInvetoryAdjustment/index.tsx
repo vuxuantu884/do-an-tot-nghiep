@@ -237,7 +237,7 @@ const DetailInvetoryAdjustment: FC = () => {
       setTableLoading(true);
       if (result) {
         setTableLoading(false);
-        setDatalinesItem(result);
+        setDatalinesItem({...result});
         drawColumns(result?.items);
         setHasError(false);
         if (result?.items && result?.items.length > 0) {
@@ -297,7 +297,7 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     [dataLinesItem.items, resultSearch, keySearch, idNumber, dispatch, onResultDataTable]
   );
-
+ 
   const onPickManyProduct = useCallback(
     (result: Array<VariantResponse>) => {
       const newResult = result?.map((item) => {
@@ -313,18 +313,24 @@ const DetailInvetoryAdjustment: FC = () => {
       const dataTemp = [...dataLinesItem.items, ...newResult];
 
       const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
-
+      setTableLoading(true);
+     
       arrayUnique.forEach((item) => {
-        dispatch(updateItemOnlineInventoryAction(idNumber, item, (result) => {}));
+        dispatch(updateItemOnlineInventoryAction(idNumber, item, () => {
+          if (result) {
+            dispatch(
+              getLinesItemAdjustmentAction(
+                idNumber,
+                `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+                onResultDataTable
+              )
+            );
+          }
+        }));
       });
-      dispatch(
-        getLinesItemAdjustmentAction(
-          idNumber,
-          `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
-          onResultDataTable
-        )
-      );
-
+      
+     
+      setTableLoading(false);
       setHasError(false);
       setVisibleManyProduct(false);
     },
@@ -857,10 +863,16 @@ const DetailInvetoryAdjustment: FC = () => {
                         onChange={(active) => setActiveTab(active)}
                       >
                         <TabPane tab={`Thừa/Thiếu (${objSummary?.partly})`} key="1">
-                          <InventoryAdjustmentHistory data={data} dataLinesItem={dataLinesItem.items} />
+                          <InventoryAdjustmentHistory
+                            data={data}
+                            dataLinesItem={dataLinesItem.items}
+                          />
                         </TabPane>
                         <TabPane tab={`Tất cả (${objSummary?.total})`} key="2">
-                          <InventoryAdjustmentListAll data={data} dataLinesItem={dataLinesItem.items} />
+                          <InventoryAdjustmentListAll
+                            data={data}
+                            dataLinesItem={dataLinesItem.items}
+                          />
                         </TabPane>
                       </Tabs>
                     </Card>
