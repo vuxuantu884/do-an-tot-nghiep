@@ -314,12 +314,9 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 placeholder="Kho gửi"
                 showArrow
                 showSearch
+                allowClear
+                onClear={() => formSearchRef?.current?.submit()}
               >
-                <Option
-                  value={""}
-                >
-                  Chọn kho gửi
-                </Option>
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
                   stores.map((item, index) => (
@@ -343,12 +340,9 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 showArrow
                 showSearch
                 optionFilterProp="children"
+                allowClear
+                onClear={() => formSearchRef?.current?.submit()}
               >
-                <Option
-                  value={""}
-                >
-                  Chọn kho nhận
-                </Option>
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
                   stores.map((item, index) => (
