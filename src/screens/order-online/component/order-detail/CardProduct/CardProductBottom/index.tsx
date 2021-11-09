@@ -145,6 +145,12 @@ function CardProductBottom(props: PropType) {
                   onClose={() => {
                     setDiscountRate(0);
                     setDiscountValue(0);
+                    items?.forEach(item => item.discount_items = [{
+                      rate: 0,
+                      value: 0,
+                      amount: 0,
+                      reason: '',
+                    }])
                   }}
                 >
                   {coupon}{" "}

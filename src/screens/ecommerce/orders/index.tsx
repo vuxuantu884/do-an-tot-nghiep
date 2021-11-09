@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Menu } from "antd";
+import { Button, Card, Menu, Tooltip } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -41,6 +41,9 @@ import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataMod
 import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
 // todo thai: handle later
 // import UpdateConnectionModal from "./component/UpdateConnectionModal";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { EcommerceOrderPermissions } from "config/permissions/ecommerce.permission";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
@@ -58,6 +61,7 @@ import {
   nameQuantityWidth,
   StyledComponent,
 } from "screens/ecommerce/orders/orderStyles";
+import useAuthorization from "hook/useAuthorization";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -122,10 +126,19 @@ const ALL_ECOMMERCE_SOURCE_ID = [
   ECOMMERCE_SOURCE.tiki
 ];
 
+const ordersViewPermission = [EcommerceOrderPermissions.ORDERS_VIEW];
+const ordersDownloadPermission = [EcommerceOrderPermissions.ORDERS_DOWNLOAD];
+
+
 const EcommerceOrderSync: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [allowDownloadOrder] = useAuthorization({
+    acceptPermissions: ordersDownloadPermission,
+    not: false,
+  });
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
   // todo thai: handle later
@@ -714,119 +727,137 @@ const EcommerceOrderSync: React.FC = () => {
   }, [dispatch, setDataAccounts]);
 
   return (
-    <StyledComponent>
-      <ContentContainer
-        title="Danh sách đơn hàng"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Sàn TMĐT",
-            path: `${UrlConfig.ECOMMERCE}`,
-          },
-          {
-            name: "Danh sách đơn hàng",
-          },
-        ]}
-        extra={
-          <>
-            <Button
-              disabled={tableLoading}
-              onClick={openGetOrderModal}
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<DownloadOutlined />}
-            >
-              Tải đơn hàng về
-            </Button>
-          </>
-        }
-      >
-        <Card>
-          <EcommerceOrderFilter
-            tableLoading={tableLoading}
-            onMenuClick={onMenuClick}
-            actionList={actionList}
-            onFilter={onFilter}
-            onClearFilter={onClearFilter}
-            params={params}
-            initQuery={initQuery}
-            listStore={listStore}
-            accounts={accounts}
-            deliveryService={delivery_service}
-            subStatus={listOrderProcessingStatus}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-          />
-
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            scroll={{ x: 3630 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-            pagination={
-              tableLoading
-                ? false
-                : {
-                    pageSize: data.metadata.limit,
-                    total: data.metadata.total,
-                    current: data.metadata.page,
-                    showSizeChanger: true,
-                    onChange: onPageChange,
-                    onShowSizeChange: onPageChange,
-                  }
+    <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
+      {(allowed: boolean) => (allowed ?
+        <StyledComponent>
+          <ContentContainer
+            title="Danh sách đơn hàng"
+            breadcrumb={[
+              {
+                name: "Tổng quan",
+                path: UrlConfig.HOME,
+              },
+              {
+                name: "Sàn TMĐT",
+                path: `${UrlConfig.ECOMMERCE}`,
+              },
+              {
+                name: "Danh sách đơn hàng",
+              },
+            ]}
+            extra={
+              <>
+                {allowDownloadOrder ?
+                  <Button
+                    disabled={tableLoading}
+                    onClick={openGetOrderModal}
+                    className="ant-btn-outline ant-btn-primary"
+                    size="large"
+                    icon={<DownloadOutlined />}
+                  >
+                    Tải đơn hàng về
+                  </Button>
+                  :
+                  <Tooltip
+                    overlay="Bạn không có quyền tải đơn hàng về"
+                    color="blue" placement="top">
+                    <Button
+                      disabled={true}
+                      size="large"
+                      icon={<DownloadOutlined />}
+                    >
+                      Tải đơn hàng về
+                    </Button>
+                  </Tooltip>
+                }
+              </>
             }
-            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: OrderModel) => item.id}
-            className="ecommerce-order-list"
-          />
-        </Card>
-
-        {isShowGetOrderModal && (
-          <DownloadOrderDataModal
-            visible={isShowGetOrderModal}
-            onCancel={cancelGetOrderModal}
-            onOk={updateOrderList}
-          />
-        )}
-
-        {isShowResultGetOrderModal && (
-          <ResultDownloadOrderDataModal
-            visible={isShowResultGetOrderModal}
-            onCancel={closeResultGetOrderModal}
-            onOk={closeResultGetOrderModal}
-            downloadOrderData={downloadOrderData}
-          />
-        )}
-
-        {/* // todo thai: handle later
-        {isShowUpdateConnectionModal && (
-          <UpdateConnectionModal
-            visible={isShowUpdateConnectionModal}
-            onCancel={cancelUpdateConnectionModal}
-            onOk={updateProductConnection}
-            data={updateConnectionData}
-          />
-        )} */}
-
-        {showSettingColumn && (
-          <ModalSettingColumn
-            visible={showSettingColumn}
-            isSetDefaultColumn={true}
-            onCancel={() => setShowSettingColumn(false)}
-            onOk={(data) => {
-              setShowSettingColumn(false);
-              setColumn(data);
-            }}
-            data={columns}
-          />
-        )}
-      </ContentContainer>
-    </StyledComponent>
+          >
+            <Card>
+              <EcommerceOrderFilter
+                tableLoading={tableLoading}
+                onMenuClick={onMenuClick}
+                actionList={actionList}
+                onFilter={onFilter}
+                onClearFilter={onClearFilter}
+                params={params}
+                initQuery={initQuery}
+                listStore={listStore}
+                accounts={accounts}
+                deliveryService={delivery_service}
+                subStatus={listOrderProcessingStatus}
+                onShowColumnSetting={() => setShowSettingColumn(true)}
+              />
+    
+              <CustomTable
+                isRowSelection
+                isLoading={tableLoading}
+                showColumnSetting={true}
+                scroll={{ x: 3630 }}
+                sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                pagination={
+                  tableLoading
+                    ? false
+                    : {
+                        pageSize: data.metadata.limit,
+                        total: data.metadata.total,
+                        current: data.metadata.page,
+                        showSizeChanger: true,
+                        onChange: onPageChange,
+                        onShowSizeChange: onPageChange,
+                      }
+                }
+                onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+                dataSource={data.items}
+                columns={columnFinal}
+                rowKey={(item: OrderModel) => item.id}
+                className="ecommerce-order-list"
+              />
+            </Card>
+    
+            {isShowGetOrderModal && (
+              <DownloadOrderDataModal
+                visible={isShowGetOrderModal}
+                onCancel={cancelGetOrderModal}
+                onOk={updateOrderList}
+              />
+            )}
+    
+            {isShowResultGetOrderModal && (
+              <ResultDownloadOrderDataModal
+                visible={isShowResultGetOrderModal}
+                onCancel={closeResultGetOrderModal}
+                onOk={closeResultGetOrderModal}
+                downloadOrderData={downloadOrderData}
+              />
+            )}
+    
+            {/* // todo thai: handle later
+            {isShowUpdateConnectionModal && (
+              <UpdateConnectionModal
+                visible={isShowUpdateConnectionModal}
+                onCancel={cancelUpdateConnectionModal}
+                onOk={updateProductConnection}
+                data={updateConnectionData}
+              />
+            )} */}
+    
+            {showSettingColumn && (
+              <ModalSettingColumn
+                visible={showSettingColumn}
+                isSetDefaultColumn={true}
+                onCancel={() => setShowSettingColumn(false)}
+                onOk={(data) => {
+                  setShowSettingColumn(false);
+                  setColumn(data);
+                }}
+                data={columns}
+              />
+            )}
+          </ContentContainer>
+        </StyledComponent>
+        : <NoPermission />)}
+    </AuthWrapper>
   );
 };
 

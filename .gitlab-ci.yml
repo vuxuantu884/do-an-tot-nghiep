@@ -11,15 +11,27 @@ stages:
   - docker_build
   - deploy
 
-docker build:
+docker build dev:
   stage: docker_build
   tags:
   - build-yody-tag
   only:
     - develop
-    - uat
   variables:
     DOCKER_FILE: Dockerfile
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
+docker build uat:
+  stage: docker_build
+  tags:
+  - build-yody-tag
+  only:
+    - uat
+  variables:
+    DOCKER_FILE: Dockerfile-uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:

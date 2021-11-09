@@ -199,7 +199,7 @@ const GeneralCreate = (props: any) => {
             <Col span={12}>
               <Form.Item
                 name="discount_code"
-                label="Mã đợt phát hàng:"
+                label="Mã đợt phát hành:"
                 // rules={[
                 //   {required: true, message: 'Vui lòng nhập mã đợt phát hành'},
                 // ]}
@@ -254,7 +254,7 @@ const GeneralCreate = (props: any) => {
         >
           <Row gutter={30}>
             <Col span={12}>
-              <Form.Item label="Đơn hàng có giá trị từ:">
+              <Form.Item label="Đơn hàng có giá trị từ:" name={"subtotal_min"}>
                 <NumberInput
                   style={{
                     textAlign: "right",

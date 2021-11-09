@@ -26,18 +26,12 @@ if [[ -z $NAMESPACE ]]; then
 fi
 
 envsubst < $MODULE_DIR/main.$ENVIRONMENT.yml >k8s-main.yml
-envsubst < $MODULE_DIR/config.$ENVIRONMENT.yml >k8s-config.yml
-
 
 
 # Apply deployment template
 
 kubectl apply -f k8s-main.yml -n $NAMESPACE
 if [[ $? != 0 ]]; then exit 1; fi
-
-kubectl apply -f k8s-config.yml -n $NAMESPACE
-if [[ $? != 0 ]]; then exit 1; fi
-
 
 kubectl rollout status deployments/$SERVICE_NAME -n $NAMESPACE
 if [[ $? != 0 ]]; then
