@@ -48,6 +48,7 @@ import CustomPagination from "component/table/CustomPagination";
 import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
+import moment from "moment";
 
 const {Option} = Select;
 
@@ -952,6 +953,7 @@ const CreateInventoryAdjustment: FC = () => {
                   colon={false}
                 >
                   <CustomDatePicker
+                    disableDate={(date) => date < moment().startOf("days")}
                     style={{width: "100%"}}
                     placeholder="Chọn ngày kiểm"
                     format={DATE_FORMAT.DDMMYYY}
