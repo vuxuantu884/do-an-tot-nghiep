@@ -41,10 +41,10 @@ export const bulkDisablePriceRules = (body: any) : Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/disable`, body)
 }
 
-export const applyDiscount = (items: Array<any>) : Promise<any> => {
+export const applyDiscount = (items: Array<any>, salesChannelName: string) : Promise<any> => {
   if (items === undefined) return Promise.reject(null);
   // return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`,
-  const body: any = {};
+  const body: any = {sales_channel_name: salesChannelName};
   body["line_items"] = items.map(item => {
     return {
       "custom": true,
@@ -52,6 +52,7 @@ export const applyDiscount = (items: Array<any>) : Promise<any> => {
       "variant_id": item.variant_id,
       "sku": null,
       "quantity": item.quantity,
+
       "original_unit_price": 0,
       "applied_discount": {
         "discount_code": "string",
@@ -62,6 +63,5 @@ export const applyDiscount = (items: Array<any>) : Promise<any> => {
       "taxable": true
     }
   })
-
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, body)
 }
