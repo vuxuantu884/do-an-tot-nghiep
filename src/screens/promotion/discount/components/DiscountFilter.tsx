@@ -21,7 +21,6 @@ type DiscountFilterProps = {
   actions: Array<MenuAction>;
   listStore: Array<StoreResponse> | undefined;
   listSource: Array<SourceResponse>;
-  listChannel: Array<ChannelResponse>;
   listCustomerCategories: Array<CustomerGroupModel>;
   // tableLoading: boolean;
   onMenuClick?: (index: number) => void;
@@ -82,7 +81,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     actions,
     listStore,
     listSource,
-    listChannel,
     listCustomerCategories,
     // tableLoading,
     onMenuClick,
@@ -158,7 +156,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           resetField={resetField}
           listStore={listStore}
           listSource={listSource}
-          listChannel={listChannel}
           listCustomerCategories={listCustomerCategories}
         />
         {/*<BaseFilter*/}

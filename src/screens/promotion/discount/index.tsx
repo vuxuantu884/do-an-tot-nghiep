@@ -68,7 +68,6 @@ const DiscountPage = () => {
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [customerGroups, setCustomerGroups] = useState<Array<CustomerGroupModel>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [selectedRowId, setSelectedRowId] = useState<number>(-1);
@@ -85,7 +84,6 @@ const DiscountPage = () => {
     dispatch(getListDiscount(params, fetchData));
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
@@ -296,7 +294,6 @@ const DiscountPage = () => {
             actions={actions}
             listStore={listStore}
             listSource={listSource}
-            listChannel={listChannel}
             listCustomerCategories={customerGroups}
             onFilter={onFilter}
           />
