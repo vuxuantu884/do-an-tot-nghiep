@@ -8,3 +8,10 @@ export const CustomerListPermissions = {
   EXPORT_CUSTOMER: "customers_export",
   UPDATE_CUSTOMER: "customers_update",
 };
+
+export const CustomerGroupPermissions = {
+  CREATE: "customers_group_create",
+  VIEW: "customers_group_view",
+  UPDATE: "customers_group_update",
+  DELETE: "customers_group_delete",
+};
