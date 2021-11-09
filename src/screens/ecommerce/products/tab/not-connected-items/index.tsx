@@ -449,8 +449,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </li>
             </ul>
 
-            <div className="button">
-              {allowConnectProduct ?
+            {allowConnectProduct &&
+              <div className="button">
                 <Button
                   type="primary"
                   onClick={handleSaveConnectYodyProduct}
@@ -458,26 +458,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                 >
                   Lưu
                 </Button>
-                :
-                <Tooltip
-                  overlay="Bạn không có quyền ghép nối sản phẩm"
-                  color="blue" placement="top">
-                  <Button
-                    type="primary"
-                    disabled={true}
-                  >
-                    Lưu
-                  </Button>
-                </Tooltip>
-              }
 
-              <Button
-                disabled={isSaving}
-                onClick={() => cancelConnectYodyProduct(productSelected.id)}
-              >
-                Hủy
-              </Button>
-            </div>
+                <Button
+                  disabled={isSaving}
+                  onClick={() => cancelConnectYodyProduct(productSelected.id)}
+                >
+                  Hủy
+                </Button>
+              </div>
+            }
           </div>
         )}
 
@@ -1036,7 +1025,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isRowSelection
+          isRowSelection={allowConnectProduct}
           isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
@@ -1054,7 +1043,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           rowKey={(data) => data.id}
         />
 
-        {allowConnectProduct ?
+        {allowConnectProduct &&
           <Button
             style={{ margin: "20px 0" }}
             type="primary"
@@ -1065,20 +1054,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           >
             Lưu các cặp đã chọn
           </Button>
-          :
-          <Tooltip
-            overlay="Bạn không có quyền ghép nối sản phẩm"
-            color="blue" placement="top">
-            <Button
-              style={{ margin: "20px 0" }}
-              type="primary"
-              disabled={true}
-              size="large"
-              icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
-            >
-              Lưu các cặp đã chọn
-            </Button>
-          </Tooltip>
         }
         
       </Card>
