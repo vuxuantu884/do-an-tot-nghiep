@@ -22,3 +22,11 @@ export const CustomerLevelPermissions = {
   UPDATE: "customers_level_update",
   DELETE: "customers_level_delete",
 };
+
+export const CustomerCardPermissions = {
+  CREATE_RELEASE: "loyalties_card_release",
+  VIEW_RELEASE: "loyalties_card_release_list",
+  VIEW_CARD: "loyalties_card_list",
+  ASSIGN: "loyalties_card_assignment",
+  LOCK: "loyalties_card_lock",
+};

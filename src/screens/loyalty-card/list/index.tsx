@@ -14,6 +14,10 @@ import { useDispatch } from 'react-redux';
 import { LoyaltyCardLock, LoyaltyCardSearch } from 'domain/actions/loyalty/card/loyalty-card.action';
 import AssignCustomer from '../component/assign-customer/AssignCustomer';
 import ModalConfirmLock from 'component/modal/ModalConfirmLock';
+import AuthWrapper from 'component/authorization/AuthWrapper';
+import NoPermission from 'screens/no-permission.screen';
+import { CustomerCardPermissions } from 'config/permissions/customer.permission';
+import useAuthorization from 'hook/useAuthorization';
 
 const CARD_STATUS = {
   ASSIGNED: {
@@ -29,6 +33,10 @@ const CARD_STATUS = {
     value: 'INACTIVE'
   }
 }
+
+const viewCardListPermission = [CustomerCardPermissions.VIEW_CARD];
+const assignCardPermission = [CustomerCardPermissions.ASSIGN];
+const lockCardPermission = [CustomerCardPermissions.LOCK];
 
 const LoyaltyCards = () => {
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -47,6 +55,85 @@ const LoyaltyCards = () => {
       return CARD_STATUS.INACTIVE
     }
   }
+
+  const RenderActionColumn = (value: any, row: any, index: number) => {
+    const [allowLockCard] = useAuthorization({
+      acceptPermissions: lockCardPermission,
+      not: false,
+    });
+
+    const [allowAssignCard] = useAuthorization({
+      acceptPermissions: assignCardPermission,
+      not: false,
+    });
+    
+    const isShowAction = allowAssignCard || allowLockCard;
+    
+    const menu = (
+      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        {allowAssignCard &&
+          <Menu.Item key="1">
+          <Button
+            icon={<img alt="" style={{ marginRight: 12 }} src={assignIcon} />}
+            type="text"
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+              color: '#222222'
+            }}
+            onClick={() => {
+              setSelectedItem(value)
+              setIsShowAssignCustomerModal(true)
+            }}
+          >
+            Gán
+          </Button>
+          </Menu.Item>
+        }
+        
+        {allowLockCard && value.status !== 'INACTIVE' &&
+          <Menu.Item key="2">
+          <Button
+            icon={<img alt="" style={{ marginRight: 12 }} src={lockIcon} />}
+            type="text"
+            style={{
+              paddingLeft: 24,
+              background: "transparent",
+              border: "none",
+              color: '#222222'
+            }}
+            onClick={() => {
+              setSelectedItem(value)
+              setIsShowLockConfirmModal(true)
+            }}
+          >
+            Khóa
+          </Button>
+          </Menu.Item>
+        }
+      </Menu>
+    );
+
+    return (
+      <>
+        {isShowAction && value.status !== 'INACTIVE' &&
+          <Dropdown
+            overlay={menu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              icon={<img src={threeDot} alt=""></img>}
+            ></Button>
+          </Dropdown>
+        }
+      </>
+    );
+  }
+
   const pageColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -94,81 +181,7 @@ const LoyaltyCards = () => {
       title: "",
       visible: true,
       width: "72px",
-      render: (value: any, i: any) => {
-        const menu = (
-          <Menu>
-            <Menu.Item key="1">
-              <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={assignIcon} />}
-                type="text"
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                  color: '#222222'
-                }}
-                onClick={() => {
-                  setSelectedItem(value)
-                  setIsShowAssignCustomerModal(true)
-                }}
-              >
-                Gán
-              </Button>
-            </Menu.Item>
-            {
-              value.status !== 'INACTIVE' && (
-                <Menu.Item key="2">
-                  <Button
-                    icon={<img alt="" style={{ marginRight: 12 }} src={lockIcon} />}
-                    type="text"
-                    style={{
-                      paddingLeft: 24,
-                      background: "transparent",
-                      border: "none",
-                      color: '#222222'
-                    }}
-                    onClick={() => {
-                      setSelectedItem(value)
-                      setIsShowLockConfirmModal(true)
-                    }}
-                  >
-                    Khóa
-                  </Button>
-                </Menu.Item>
-              )
-            }
-          </Menu>
-        );
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="action-group"
-            >
-              {
-                value.status !== 'INACTIVE' ? (
-                  <Dropdown
-                    overlay={menu}
-                    trigger={["click"]}
-                    placement="bottomRight"
-                  >
-                    <Button
-                      type="text"
-                      className="p-0 ant-btn-custom"
-                      icon={<img src={threeDot} alt=""></img>}
-                    ></Button>
-                  </Dropdown>
-                ) : <></>
-              }
-            </div>
-          </div>
-        )
-      }
+      render: (value: any, row: any, index: number) => RenderActionColumn(value, row, index)
     }
   ]
 
@@ -206,21 +219,27 @@ const LoyaltyCards = () => {
 
   return (
     <div className="loyalty-cards">
-      <CustomTable
-        isLoading={tableLoading}
-        sticky={{ offsetScroll: 5 }}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        dataSource={data.items}
-        columns={pageColumns}
-        rowKey={(item: any) => item.id}
-      />
+      <AuthWrapper acceptPermissions={viewCardListPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <CustomTable
+            isLoading={tableLoading}
+            sticky={{ offsetScroll: 5 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            dataSource={data.items}
+            columns={pageColumns}
+            rowKey={(item: any) => item.id}
+          />
+          : <NoPermission />)
+        }
+      </AuthWrapper>
+      
       <AssignCustomer
         visible={isShowAssignCustomerModal}
         onClose={() => {
