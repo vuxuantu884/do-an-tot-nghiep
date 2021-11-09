@@ -19,6 +19,7 @@ const {TextArea} = Input;
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
+  dataLinesItem: Array<LineItemAdjustment>;
 };
 
 export interface Summary {
@@ -30,8 +31,7 @@ export interface Summary {
 
 const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment
-) => {
-  const [editReason, setEditReason] = useState<boolean | any>(false);
+) => { 
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
@@ -48,7 +48,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   const [keySearch, setKeySearch] = useState<string>("");
   const dispatch = useDispatch();
 
-  const {data} = props;
+  const {data, dataLinesItem} = props;
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
@@ -78,8 +78,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         : [...dataTable];
 
     const dataTableClone = _.cloneDeep(dataEdit);
-    dataTableClone[index].note = value;
-    setEditReason(true);
+    dataTableClone[index].note = value; 
 
     if (searchVariant && (searchVariant.length > 0 || keySearch !== "")) {
       setSearchVariant(dataTableClone);
@@ -230,7 +229,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       dataIndex: "note",
       align: "left",
       width: 200,
-      render: (value: string, row, index: number) => {
+      render: (value: string, row:LineItemAdjustment, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED) {
           return (
             <TextArea
@@ -244,34 +243,34 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
                     : "";
                 onChangeReason(value, index);
               }}
-              onKeyPress={(event) => {
+              onKeyPress={event => {
                 if (event.key === "Enter") {
                   event.preventDefault();
+                  row.note = event.currentTarget.value;
+                  
                   dispatch(
-                    updateItemOnlineInventoryAction(
-                      data?.id,
-                      dataTable[index],
-                      (result) => {
+                    updateItemOnlineInventoryAction(data?.id, row, (result) => {
+                      if (result) {
                         showSuccess("Nhập lý do thành công.");
                       }
-                    )
-                  );
+                    })
+                  ); 
                 }
               }}
-              onBlur={(e) => {
-                if (editReason) {
-                  dispatch(
-                    updateItemOnlineInventoryAction(
-                      data?.id,
-                      dataTable[index],
-                      (result) => {
-                        showSuccess("Nhập lý do thành công.");
-                      }
-                    )
-                  );
-                  setEditReason(false);
-                }
-              }}
+              // onBlur={(e) => {
+              //   if (editReason) {
+              //     dispatch(
+              //       updateItemOnlineInventoryAction(
+              //         data?.id,
+              //         dataTable[index],
+              //         (result) => {
+              //           showSuccess("Nhập lý do thành công.");
+              //         }
+              //       )
+              //     );
+              //     setEditReason(false);
+              //   }
+              // }}
             />
           );
         }
@@ -281,10 +280,10 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   ];
 
   useEffect(() => {
-    setDataTable(data.line_items);
-    setSearchVariant(data.line_items);
-    drawColumns(data.line_items);
-  }, [data, drawColumns]);
+    setDataTable(dataLinesItem);
+    setSearchVariant(dataLinesItem);
+    drawColumns(dataLinesItem);
+  }, [dataLinesItem, drawColumns]);
 
   return (
     <>
