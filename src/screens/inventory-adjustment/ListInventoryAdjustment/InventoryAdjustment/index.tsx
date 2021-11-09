@@ -50,14 +50,15 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
-  created_name: null, 
+  created_name: [], 
   from_created_date: null,
   to_created_date: null,
-  from_inventoryadjustment_date: null,
-  to_inventoryadjustment_date: null,
-  arrcreated_name: [],
-  arrstatus: [],
-  arraudit_type: []
+  from_audited_date: null,
+  to_audited_date: null,
+  from_adjusted_date: null,
+  to_adjusted_date: null,
+  status: [],
+  audit_type: [],
 };
 
 const actions: Array<MenuAction> = [
