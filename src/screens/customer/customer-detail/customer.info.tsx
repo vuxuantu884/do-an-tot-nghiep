@@ -4,12 +4,16 @@ import { Link, useParams } from "react-router-dom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import arrowLeft from "assets/icon/arrow-left.svg";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { CustomerListPermissions } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const genreEnum: any = {
   male: "Nam",
   female: "Nữ",
   other: "Khác",
 };
+
+const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
 
 type CustomerInfoProps = {
   customer: CustomerResponse | undefined;
@@ -31,6 +35,12 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
   props: CustomerInfoProps
 ) => {
   const { customer } = props;
+
+  const [allowUpdateCustomer] = useAuthorization({
+    acceptPermissions: updateCustomerPermission,
+    not: false,
+  });
+
   const params = useParams<CustomerParams>();
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
   const customerDetail: Array<detailMapping> | undefined = React.useMemo(() => {
@@ -215,11 +225,13 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
           )}
         </div>
       }
-      extra={[
-        <Link key={params.id} to={`/customers/${params.id}/edit`}>
-          Cập nhật
-        </Link>,
-      ]}
+      extra={allowUpdateCustomer &&
+        [
+          <Link key={params.id} to={`/customers/${params.id}/edit`}>
+            Cập nhật
+          </Link>,
+        ]
+      }
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>

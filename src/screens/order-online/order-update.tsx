@@ -10,7 +10,7 @@ import {
   Row,
   Space,
   Tag,
-  Typography
+  Typography,
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -19,29 +19,33 @@ import eyeOutline from "assets/icon/eye_outline.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { Type } from "config/type.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
   AccountSearchAction,
-  ShipperGetListAction
+  ShipperGetListAction,
 } from "domain/actions/account/account.action";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import {StoreDetailCustomAction} from "domain/actions/core/store.action";
+import {CustomerDetail} from "domain/actions/customer/customer.action";
+import {inventoryGetDetailVariantIdsSaga} from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
-  getLoyaltyUsage
+  getLoyaltyUsage,
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  configOrderSaga, DeliveryServicesGetList, getTrackingLogFulfillmentAction, OrderDetailAction, orderUpdateAction
+  configOrderSaga,
+  DeliveryServicesGetList,
+  getTrackingLogFulfillmentAction,
+  OrderDetailAction,
+  orderUpdateAction,
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { InventoryResponse } from "model/inventory";
-import { modalActionType } from "model/modal/modal.model";
-import { OrderSettingsModel } from "model/other/order/order-model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {InventoryResponse} from "model/inventory";
+import {modalActionType} from "model/modal/modal.model";
+import {OrderSettingsModel} from "model/other/order/order-model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -49,27 +53,27 @@ import {
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
-  ShipmentRequest
+  ShipmentRequest,
 } from "model/request/order.request";
 import {
   CustomerResponse,
-  ShippingAddress
+  ShippingAddress,
 } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {
   DeliveryServiceResponse,
   FulFillmentResponse,
   OrderConfig,
   OrderResponse,
   StoreCustomResponse,
-  TrackingLogFulfillmentResponse
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router-dom";
 import {
   checkPaymentStatusToShow,
   CheckShipmentType,
@@ -79,7 +83,7 @@ import {
   getTotalAmountAfferDiscount,
   SumCOD,
   SumWeightResponse,
-  TrackingCode
+  TrackingCode,
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -88,10 +92,10 @@ import {
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
-  TaxTreatment
+  TaxTreatment,
 } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardProduct from "./component/order-detail/CardProduct";
@@ -110,7 +114,7 @@ type OrderParam = {
 export default function Order(props: PropType) {
   const dispatch = useDispatch();
   const history = useHistory();
-  let { id } = useParams<OrderParam>();
+  let {id} = useParams<OrderParam>();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
@@ -147,7 +151,7 @@ export default function Order(props: PropType) {
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
   const [serviceName, setServiceName] = useState<string>("");
-  console.log(setServiceName)
+  console.log(setServiceName);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
@@ -328,10 +332,15 @@ export default function Order(props: PropType) {
     [setTag]
   );
 
-  const getImageDeliveryService = useCallback((service_id) => {
-    const service = deliveryServices.find((item) => item.id === service_id);
-    return service?.logo;
-  }, [deliveryServices]);
+  const getImageDeliveryService = useCallback(
+    (service_code) => {
+      const service = deliveryServices.find((item) => item.code === service_code);
+      console.log("deliveryServices", deliveryServices);
+      console.log("service", service);
+      return service?.logo;
+    },
+    [deliveryServices]
+  );
 
   const copyOrderID = (e: any, data: string | null) => {
     e.stopPropagation();
@@ -340,7 +349,7 @@ export default function Order(props: PropType) {
       e.target.style.width = "23px";
     }, 100);
     clearTimeout(decWidth);
-    navigator.clipboard.writeText(data ? data : "").then(() => { });
+    navigator.clipboard.writeText(data ? data : "").then(() => {});
   };
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
@@ -661,8 +670,8 @@ export default function Order(props: PropType) {
     }
   }, []);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  console.log(setIsDisablePostPayment)
-  console.log('isDisablePostPayment', isDisablePostPayment)
+  console.log(setIsDisablePostPayment);
+  console.log("isDisablePostPayment", isDisablePostPayment);
   // const onShipmentSelect = (value: number) => {
   //   if (value === ShipmentMethodOption.DELIVER_PARTNER) {
   //     setIsDisablePostPayment(true);
@@ -676,8 +685,8 @@ export default function Order(props: PropType) {
   // };
 
   const [totalPaid, setTotalPaid] = useState(0);
-  console.log('totalPaid', totalPaid)
-  console.log('setTotalPaid', setTotalPaid)
+  console.log("totalPaid", totalPaid);
+  console.log("setTotalPaid", setTotalPaid);
   // const onPayments = (value: Array<OrderPaymentRequest>) => {
   //   setPayments(value);
   //   let total = 0;
@@ -690,7 +699,7 @@ export default function Order(props: PropType) {
   }, [dispatch]);
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-  console.log('loyaltyRate', loyaltyRate)
+  console.log("loyaltyRate", loyaltyRate);
 
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
@@ -701,7 +710,7 @@ export default function Order(props: PropType) {
   }, [history, id]);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  console.log('storeDetail', storeDetail)
+  console.log("storeDetail", storeDetail);
 
   useEffect(() => {
     if (storeId != null) {
@@ -739,7 +748,7 @@ export default function Order(props: PropType) {
           // ffm des id
           fulfillments: res.fulfillments?.sort((a, b) => b.id - a.id),
         };
-        const { customer_id } = response;
+        const {customer_id} = response;
         setOrderDetail(response);
         if (customer_id) {
           dispatch(
@@ -788,7 +797,7 @@ export default function Order(props: PropType) {
                 discount_amount: item.discount_amount,
                 position: item.position,
                 gifts: giftResponse,
-                available: item.available
+                available: item.available,
               };
             });
           let newDatingShip = initialForm.dating_ship;
@@ -893,7 +902,9 @@ export default function Order(props: PropType) {
   useEffect(() => {
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      let shippingAddressItem = customer.shipping_addresses.find((p: any) => p.default === true);
+      let shippingAddressItem = customer.shipping_addresses.find(
+        (p: any) => p.default === true
+      );
       if (shippingAddressItem) onChangeShippingAddress(shippingAddressItem);
     } else {
       setLoyaltyPoint(null);
@@ -928,8 +939,8 @@ export default function Order(props: PropType) {
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
-          ? totalAmountPayable
-          : (rank.limit_order_percent * totalAmountPayable) / 100;
+        ? totalAmountPayable
+        : (rank.limit_order_percent * totalAmountPayable) / 100;
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
@@ -974,7 +985,7 @@ export default function Order(props: PropType) {
         if (
           ((value.available ? value.available : 0) <= 0 ||
             (productItem ? productItem?.quantity : 0) >
-            (value.available ? value.available : 0)) &&
+              (value.available ? value.available : 0)) &&
           configOrder?.sellable_inventory !== true
         ) {
           status = false;
@@ -1006,7 +1017,7 @@ export default function Order(props: PropType) {
       return false;
     }
     return true;
-  }, [OrderDetail?.items, OrderDetail?.linked_order_code])
+  }, [OrderDetail?.items, OrderDetail?.linked_order_code]);
 
   // console.log(inventoryResponse)
 
@@ -1020,7 +1031,7 @@ export default function Order(props: PropType) {
 
   const setStoreForm = useCallback(
     (id: number | null) => {
-      formRef.current?.setFieldsValue({ store_id: id });
+      formRef.current?.setFieldsValue({store_id: id});
     },
     [formRef]
   );
@@ -1049,14 +1060,14 @@ export default function Order(props: PropType) {
               layout="vertical"
               initialValues={initialForm}
               ref={formRef}
-              onFinishFailed={({ errorFields }: any) => {
+              onFinishFailed={({errorFields}: any) => {
                 const element: any = document.getElementById(
                   errorFields[0].name.join("")
                 );
                 element?.focus();
                 const y =
                   element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                window.scrollTo({ top: y, behavior: "smooth" });
+                window.scrollTo({top: y, behavior: "smooth"});
               }}
               onFinish={onFinish}
             >
@@ -1075,7 +1086,7 @@ export default function Order(props: PropType) {
               <Form.Item noStyle hidden name="tags">
                 <Input />
               </Form.Item>
-              <Row gutter={20} style={{ marginBottom: "70px" }}>
+              <Row gutter={20} style={{marginBottom: "70px"}}>
                 <Col md={18}>
                   <CardCustomer
                     customer={customer}
@@ -1151,7 +1162,7 @@ export default function Order(props: PropType) {
                           </Space>
                         }
                       >
-                        <div style={{ marginBottom: 20 }}>
+                        <div style={{marginBottom: 20}}>
                           <Row>
                             <Col span={12}>
                               <span className="text-field margin-right-40">
@@ -1171,38 +1182,38 @@ export default function Order(props: PropType) {
                                   (OrderDetail?.total_paid
                                     ? OrderDetail?.total_paid
                                     : 0) >=
-                                  0
+                                0
                                   ? `Còn phải trả:`
                                   : `Hoàn tiền cho khách:`}
                               </span>
-                              <b style={{ color: "red" }}>
+                              <b style={{color: "red"}}>
                                 {OrderDetail?.fulfillments &&
-                                  OrderDetail?.fulfillments.length > 0 &&
-                                  OrderDetail?.fulfillments[0].status !== "returned" &&
-                                  OrderDetail?.fulfillments[0].shipment?.cod
+                                OrderDetail?.fulfillments.length > 0 &&
+                                OrderDetail?.fulfillments[0].status !== "returned" &&
+                                OrderDetail?.fulfillments[0].shipment?.cod
                                   ? 0
                                   : formatCurrency(
-                                    Math.abs(
-                                      orderAmount -
-                                      (OrderDetail?.total_paid
-                                        ? OrderDetail?.total_paid
-                                        : 0)
-                                    )
-                                  )}
+                                      Math.abs(
+                                        orderAmount -
+                                          (OrderDetail?.total_paid
+                                            ? OrderDetail?.total_paid
+                                            : 0)
+                                      )
+                                    )}
                               </b>
                             </Col>
                           </Row>
                         </div>
                         {OrderDetail?.payments && (
                           <div>
-                            <div style={{ padding: "0 24px 24px 24px" }}>
+                            <div style={{padding: "0 24px 24px 24px"}}>
                               <Collapse
                                 className="orders-timeline"
                                 defaultActiveKey={["100"]}
                                 ghost
                               >
                                 {OrderDetail.total === SumCOD(OrderDetail) &&
-                                  OrderDetail.total === OrderDetail.total_paid ? (
+                                OrderDetail.total === OrderDetail.total_paid ? (
                                   ""
                                 ) : (
                                   <>
@@ -1234,7 +1245,7 @@ export default function Order(props: PropType) {
                                                   </b>
                                                   <span>{payment.reference}</span>
                                                   {payment.payment_method_id === 5 && (
-                                                    <span style={{ marginLeft: 10 }}>
+                                                    <span style={{marginLeft: 10}}>
                                                       {payment.amount / 1000} điểm
                                                     </span>
                                                   )}
@@ -1265,7 +1276,7 @@ export default function Order(props: PropType) {
                                   OrderDetail?.fulfillments.length > 0 &&
                                   OrderDetail?.fulfillments[0].shipment &&
                                   OrderDetail?.fulfillments[0].status !==
-                                  FulFillmentStatus.RETURNED &&
+                                    FulFillmentStatus.RETURNED &&
                                   OrderDetail?.fulfillments[0].shipment.cod && (
                                     <Collapse.Panel
                                       className={
@@ -1281,10 +1292,10 @@ export default function Order(props: PropType) {
                                               <b>
                                                 COD
                                                 {OrderDetail.fulfillments[0].status !==
-                                                  "shipped" ? (
+                                                "shipped" ? (
                                                   <Tag
                                                     className="orders-tag orders-tag-warning"
-                                                    style={{ marginLeft: 10 }}
+                                                    style={{marginLeft: 10}}
                                                   >
                                                     Đang chờ thu
                                                   </Tag>
@@ -1304,26 +1315,26 @@ export default function Order(props: PropType) {
                                               </b>
                                               <span className="amount">
                                                 {OrderDetail !== null &&
-                                                  OrderDetail?.fulfillments
+                                                OrderDetail?.fulfillments
                                                   ? formatCurrency(
-                                                    OrderDetail.fulfillments[0].shipment
-                                                      ?.cod
-                                                  )
+                                                      OrderDetail.fulfillments[0].shipment
+                                                        ?.cod
+                                                    )
                                                   : 0}
                                               </span>
                                             </div>
                                             <div className="orderPaymentItem__right">
                                               {OrderDetail?.fulfillments[0].status ===
                                                 "shipped" && (
-                                                  <div>
-                                                    <span className="date">
-                                                      {ConvertUtcToLocalDate(
-                                                        OrderDetail?.updated_date,
-                                                        "DD/MM/YYYY HH:mm"
-                                                      )}
-                                                    </span>
-                                                  </div>
-                                                )}
+                                                <div>
+                                                  <span className="date">
+                                                    {ConvertUtcToLocalDate(
+                                                      OrderDetail?.updated_date,
+                                                      "DD/MM/YYYY HH:mm"
+                                                    )}
+                                                  </span>
+                                                </div>
+                                              )}
                                             </div>
                                           </div>
                                         </>
@@ -1344,17 +1355,17 @@ export default function Order(props: PropType) {
                     OrderDetail.fulfillments[0].shipment &&
                     OrderDetail.fulfillments[0].status !== "returned" &&
                     OrderDetail.fulfillments[0].shipment?.cod ===
-                    (OrderDetail?.fulfillments[0].shipment
-                      .shipping_fee_informed_to_customer
-                      ? OrderDetail?.fulfillments[0].shipment
+                      (OrderDetail?.fulfillments[0].shipment
                         .shipping_fee_informed_to_customer
-                      : 0) +
-                    OrderDetail?.total_line_amount_after_line_discount -
-                    (OrderDetail?.discounts &&
-                      OrderDetail?.discounts.length > 0 &&
-                      OrderDetail?.discounts[0].amount
-                      ? OrderDetail?.discounts[0].amount
-                      : 0) &&
+                        ? OrderDetail?.fulfillments[0].shipment
+                            .shipping_fee_informed_to_customer
+                        : 0) +
+                        OrderDetail?.total_line_amount_after_line_discount -
+                        (OrderDetail?.discounts &&
+                        OrderDetail?.discounts.length > 0 &&
+                        OrderDetail?.discounts[0].amount
+                          ? OrderDetail?.discounts[0].amount
+                          : 0) &&
                     checkPaymentStatusToShow(OrderDetail) !== 1 && (
                       <Card
                         className="margin-top-20"
@@ -1377,7 +1388,7 @@ export default function Order(props: PropType) {
                           </Space>
                         }
                       >
-                        <div className="padding-24">
+                        <div style={{paddingBottom: 20}}>
                           <Row>
                             <Col span={12}>
                               <span className="text-field margin-right-40">
@@ -1389,12 +1400,12 @@ export default function Order(props: PropType) {
                               <span className="text-field margin-right-40">
                                 Còn phải trả:
                               </span>
-                              <b style={{ color: "red" }}>0</b>
+                              <b style={{color: "red"}}>0</b>
                             </Col>
                           </Row>
                         </div>
-                        <Divider style={{ margin: "0px" }} />
-                        <div className="padding-24">
+                        <Divider style={{margin: "0px"}} />
+                        <div style={{padding: "20px 20px 0 20px"}}>
                           <Collapse
                             className="orders-timeline"
                             defaultActiveKey={["1"]}
@@ -1418,7 +1429,7 @@ export default function Order(props: PropType) {
                                   COD
                                   <Tag
                                     className="orders-tag orders-tag-warning"
-                                    style={{ marginLeft: 10 }}
+                                    style={{marginLeft: 10}}
                                   >
                                     Đang chờ thu
                                   </Tag>
@@ -1430,8 +1441,8 @@ export default function Order(props: PropType) {
                                   >
                                     {OrderDetail.fulfillments
                                       ? formatCurrency(
-                                        OrderDetail.fulfillments[0].shipment?.cod
-                                      )
+                                          OrderDetail.fulfillments[0].shipment?.cod
+                                        )
                                       : 0}
                                   </b>
                                 </div>
@@ -1539,7 +1550,7 @@ export default function Order(props: PropType) {
                           {OrderDetail?.fulfillments &&
                             OrderDetail?.fulfillments.length > 0 &&
                             OrderDetail?.fulfillments[0].status ===
-                            FulFillmentStatus.SHIPPED && (
+                              FulFillmentStatus.SHIPPED && (
                               <Tag
                                 className="orders-tag text-menu"
                                 style={{
@@ -1561,18 +1572,18 @@ export default function Order(props: PropType) {
                               <div className="text-menu">
                                 <img
                                   src={calendarOutlined}
-                                  style={{ marginRight: 9.5 }}
+                                  style={{marginRight: 9.5}}
                                   alt=""
                                 ></img>
-                                <span style={{ color: "#222222", lineHeight: "16px" }}>
+                                <span style={{color: "#222222", lineHeight: "16px"}}>
                                   {OrderDetail?.fulfillments &&
-                                    OrderDetail?.fulfillments.length > 0 &&
-                                    OrderDetail?.fulfillments[0].shipment
-                                      ?.expected_received_date
+                                  OrderDetail?.fulfillments.length > 0 &&
+                                  OrderDetail?.fulfillments[0].shipment
+                                    ?.expected_received_date
                                     ? moment(
-                                      OrderDetail?.fulfillments[0].shipment
-                                        ?.expected_received_date
-                                    ).format("DD/MM/YYYY")
+                                        OrderDetail?.fulfillments[0].shipment
+                                          ?.expected_received_date
+                                      ).format("DD/MM/YYYY")
                                     : ""}
                                 </span>
                                 {OrderDetail?.fulfillments &&
@@ -1593,7 +1604,7 @@ export default function Order(props: PropType) {
                           {requirementNameView && (
                             <div className="text-menu">
                               <img src={eyeOutline} alt="eye"></img>
-                              <span style={{ marginLeft: "5px", fontWeight: 500 }}>
+                              <span style={{marginLeft: "5px", fontWeight: 500}}>
                                 {requirementNameView}
                               </span>
                             </div>
@@ -1608,8 +1619,7 @@ export default function Order(props: PropType) {
                             fulfillment.shipment && (
                               <div
                                 key={fulfillment.id}
-                                className="padding-24"
-                                style={{ paddingTop: 6, paddingBottom: 4 }}
+                                style={{paddingTop: 6, paddingBottom: 4}}
                               >
                                 <Collapse
                                   className="saleorder_shipment_order_colapse payment_success"
@@ -1619,14 +1629,15 @@ export default function Order(props: PropType) {
                                       : "",
                                   ]}
                                   onChange={(e) => console.log(e[0])}
-                                  expandIcon={({ isActive }) => (
+                                  expandIcon={({isActive}) => (
                                     <div className="saleorder-header-arrow">
                                       <img
                                         alt=""
                                         src={doubleArrow}
                                         style={{
-                                          transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"
-                                            }`,
+                                          transform: `${
+                                            !isActive ? "rotate(270deg)" : "rotate(0deg)"
+                                          }`,
                                         }}
                                       />
                                     </div>
@@ -1637,13 +1648,13 @@ export default function Order(props: PropType) {
                                     className={
                                       fulfillment.status ===
                                         FulFillmentStatus.CANCELLED ||
-                                        fulfillment.status ===
+                                      fulfillment.status ===
                                         FulFillmentStatus.RETURNING ||
-                                        fulfillment.status === FulFillmentStatus.RETURNED
+                                      fulfillment.status === FulFillmentStatus.RETURNED
                                         ? "orders-timeline-custom order-shipment-dot-cancelled"
                                         : fulfillment.status === FulFillmentStatus.SHIPPED
-                                          ? "orders-timeline-custom order-shipment-dot-active"
-                                          : "orders-timeline-custom order-shipment-dot-default"
+                                        ? "orders-timeline-custom order-shipment-dot-active"
+                                        : "orders-timeline-custom order-shipment-dot-default"
                                     }
                                     showArrow={true}
                                     header={
@@ -1674,7 +1685,7 @@ export default function Order(props: PropType) {
                                               }
                                               src={copyFileBtn}
                                               alt=""
-                                              style={{ width: 23 }}
+                                              style={{width: 23}}
                                             />
                                           </div>
                                           <FulfillmentStatusTag
@@ -1685,7 +1696,6 @@ export default function Order(props: PropType) {
                                             orderSettings={orderSettings}
                                             orderId={OrderDetail?.id}
                                           />
-
                                         </div>
 
                                         <div className="saleorder-header-content__date">
@@ -1697,7 +1707,7 @@ export default function Order(props: PropType) {
                                           >
                                             Ngày tạo:
                                           </span>
-                                          <span style={{ color: "#000000d9" }}>
+                                          <span style={{color: "#000000d9"}}>
                                             {moment(
                                               fulfillment.shipment?.created_date
                                             ).format("DD/MM/YYYY")}
@@ -1709,14 +1719,14 @@ export default function Order(props: PropType) {
                                   >
                                     {fulfillment.shipment
                                       ?.delivery_service_provider_type ===
-                                      "pick_at_store" ? (
+                                    "pick_at_store" ? (
                                       <div>
                                         <Row gutter={24}>
                                           <Col md={24}>
                                             <Col span={24}>
                                               <b>
                                                 <img
-                                                  style={{ marginRight: 12 }}
+                                                  style={{marginRight: 12}}
                                                   src={storeBluecon}
                                                   alt=""
                                                 />
@@ -1725,7 +1735,7 @@ export default function Order(props: PropType) {
                                             </Col>
                                           </Col>
                                         </Row>
-                                        <Row gutter={24} style={{ paddingTop: "15px" }}>
+                                        <Row gutter={24} style={{paddingTop: "15px"}}>
                                           <Col md={6}>
                                             <Col span={24}>
                                               <p className="text-field">Tên cửa hàng:</p>
@@ -1760,20 +1770,22 @@ export default function Order(props: PropType) {
                                       </div>
                                     ) : (
                                       <Row gutter={24}>
-                                        <Col md={5}>
-                                          <Col span={24}>
-                                            <p className="text-field">
-                                              Đối tác giao hàng:
-                                            </p>
-                                          </Col>
-                                          <Col span={24}>
-                                            <b>
-                                              {/* Lấy ra đối tác */}
-                                              {(fulfillment.shipment
-                                                ?.delivery_service_provider_type ===
-                                                "external_service" || fulfillment.shipment
+                                        <Col md={12}>
+                                          <Row gutter={30}>
+                                            <Col span={10}>
+                                              <p className="text-field">
+                                                Đối tác giao hàng: 1
+                                              </p>
+                                            </Col>
+                                            <Col span={14}>
+                                              <b>
+                                                {/* Lấy ra đối tác */}
+                                                {(fulfillment.shipment
                                                   ?.delivery_service_provider_type ===
-                                                "shopee") && (
+                                                  "external_service" ||
+                                                  fulfillment.shipment
+                                                    ?.delivery_service_provider_type ===
+                                                    "shopee") && (
                                                   <img
                                                     style={{
                                                       width: "112px",
@@ -1781,31 +1793,33 @@ export default function Order(props: PropType) {
                                                     }}
                                                     src={getImageDeliveryService(
                                                       fulfillment.shipment
-                                                        .delivery_service_provider_id
+                                                        .delivery_service_provider_code
                                                     )}
                                                     alt=""
                                                   ></img>
                                                 )}
 
-                                              {fulfillment.shipment
-                                                ?.delivery_service_provider_type ===
-                                                "shipper" &&
-                                                shipper &&
-                                                shipper.find(
-                                                  (s) =>
-                                                    fulfillment.shipment?.shipper_code ===
-                                                    s.code
-                                                )?.full_name}
-                                            </b>
-                                          </Col>
+                                                {fulfillment.shipment
+                                                  ?.delivery_service_provider_type ===
+                                                  "shipper" &&
+                                                  shipper &&
+                                                  shipper.find(
+                                                    (s) =>
+                                                      fulfillment.shipment
+                                                        ?.shipper_code === s.code
+                                                  )?.full_name}
+                                              </b>
+                                            </Col>
+                                          </Row>
                                         </Col>
                                         {CheckShipmentType(OrderDetail!) ===
                                           "external_service" && (
-                                            <Col md={5}>
-                                              <Col span={24}>
+                                          <Col md={12}>
+                                            <Row gutter={30}>
+                                              <Col span={10}>
                                                 <p className="text-field">Dịch vụ:</p>
                                               </Col>
-                                              <Col span={24}>
+                                              <Col span={14}>
                                                 <b className="text-field">
                                                   {/* {getServiceName(OrderDetail!)} */}
                                                   {
@@ -1814,67 +1828,77 @@ export default function Order(props: PropType) {
                                                   }
                                                 </b>
                                               </Col>
-                                            </Col>
-                                          )}
+                                            </Row>
+                                          </Col>
+                                        )}
 
-                                        <Col md={5}>
-                                          <Col span={24}>
-                                            <p className="text-field">
-                                              Phí ship trả HVC:
-                                            </p>
-                                          </Col>
-                                          <Col span={24}>
-                                            <b className="text-field">
-                                              {OrderDetail?.fulfillments &&
-                                                formatCurrency(
-                                                  fulfillment.shipment
-                                                    ?.shipping_fee_paid_to_three_pls
-                                                    ? fulfillment.shipment
+                                        <Col md={12}>
+                                          <Row gutter={30}>
+                                            <Col span={10}>
+                                              <p className="text-field">
+                                                Phí ship trả HVC:
+                                              </p>
+                                            </Col>
+                                            <Col span={14}>
+                                              <b className="text-field">
+                                                {OrderDetail?.fulfillments &&
+                                                  formatCurrency(
+                                                    fulfillment.shipment
                                                       ?.shipping_fee_paid_to_three_pls
-                                                    : 0
-                                                )}
-                                            </b>
-                                          </Col>
+                                                      ? fulfillment.shipment
+                                                          ?.shipping_fee_paid_to_three_pls
+                                                      : 0
+                                                  )}
+                                              </b>
+                                            </Col>
+                                          </Row>
                                         </Col>
 
-                                        <Col md={5}>
-                                          <Col span={24}>
-                                            <p className="text-field">
-                                              Phí ship báo khách:
-                                            </p>
-                                          </Col>
-                                          <Col span={24}>
-                                            <b className="text-field">
-                                              {formatCurrency(
-                                                fulfillment.shipment
-                                                  ?.shipping_fee_informed_to_customer
-                                                  ? fulfillment.shipment
+                                        <Col md={12}>
+                                          <Row gutter={30}>
+                                            <Col span={10}>
+                                              <p className="text-field">
+                                                Phí ship báo khách:
+                                              </p>
+                                            </Col>
+                                            <Col span={14}>
+                                              <b className="text-field">
+                                                {formatCurrency(
+                                                  fulfillment.shipment
                                                     ?.shipping_fee_informed_to_customer
-                                                  : 0
-                                              )}
-                                            </b>
-                                          </Col>
+                                                    ? fulfillment.shipment
+                                                        ?.shipping_fee_informed_to_customer
+                                                    : 0
+                                                )}
+                                              </b>
+                                            </Col>
+                                          </Row>
                                         </Col>
 
                                         {CheckShipmentType(OrderDetail!) ===
                                           "external_service" && (
-                                            <Col md={4}>
-                                              <Col span={24}>
+                                          <Col md={12}>
+                                            <Row gutter={30}>
+                                              <Col span={10}>
                                                 <p className="text-field">Trọng lượng:</p>
                                               </Col>
-                                              <Col span={24}>
+                                              <Col span={14}>
                                                 <b className="text-field">
                                                   {OrderDetail?.fulfillments &&
-                                                    OrderDetail?.fulfillments.length > 0 &&
+                                                    OrderDetail?.fulfillments.length >
+                                                      0 &&
                                                     formatCurrency(
                                                       OrderDetail.items &&
-                                                      SumWeightResponse(OrderDetail.items)
+                                                        SumWeightResponse(
+                                                          OrderDetail.items
+                                                        )
                                                     )}
                                                   g
                                                 </b>
                                               </Col>
-                                            </Col>
-                                          )}
+                                            </Row>
+                                          </Col>
+                                        )}
                                       </Row>
                                     )}
                                     <Row className="orders-shipment-item">
@@ -1882,7 +1906,7 @@ export default function Order(props: PropType) {
                                         <Collapse.Panel
                                           header={
                                             <Row>
-                                              <Col style={{ alignItems: "center" }}>
+                                              <Col style={{alignItems: "center"}}>
                                                 <b
                                                   style={{
                                                     marginRight: "10px",
@@ -1919,7 +1943,7 @@ export default function Order(props: PropType) {
                                                   <Badge
                                                     status="default"
                                                     text={item.variant}
-                                                    style={{ marginLeft: 7 }}
+                                                    style={{marginLeft: 7}}
                                                   />
                                                 </div>
                                                 <div
@@ -1934,7 +1958,7 @@ export default function Order(props: PropType) {
                                                   ) : (
                                                     <div></div>
                                                   )}
-                                                  <span style={{ marginRight: 10 }}>
+                                                  <span style={{marginRight: 10}}>
                                                     {item.quantity >= 10
                                                       ? item.quantity
                                                       : "0" + item.quantity}
@@ -1949,11 +1973,11 @@ export default function Order(props: PropType) {
                                     {CheckShipmentType(OrderDetail!) ===
                                       "external_service" &&
                                       fulfillment.status !==
-                                      FulFillmentStatus.CANCELLED &&
+                                        FulFillmentStatus.CANCELLED &&
                                       fulfillment.status !==
-                                      FulFillmentStatus.RETURNING &&
+                                        FulFillmentStatus.RETURNING &&
                                       fulfillment.status !==
-                                      FulFillmentStatus.RETURNED && (
+                                        FulFillmentStatus.RETURNED && (
                                         <Row
                                           gutter={24}
                                           style={{
@@ -2005,7 +2029,7 @@ export default function Order(props: PropType) {
                                                           }
                                                           src={copyFileBtn}
                                                           alt=""
-                                                          style={{ width: 23 }}
+                                                          style={{width: 23}}
                                                         />
                                                       </div>
                                                     </Col>
@@ -2024,7 +2048,7 @@ export default function Order(props: PropType) {
                                               >
                                                 <Collapse
                                                   className="orders-timeline"
-                                                  expandIcon={({ isActive }) => (
+                                                  expandIcon={({isActive}) => (
                                                     <img
                                                       src={doubleArrow}
                                                       alt=""
@@ -2087,8 +2111,8 @@ export default function Order(props: PropType) {
                                         </Row>
                                       )}
                                     {fulfillment.status === FulFillmentStatus.CANCELLED ||
-                                      fulfillment.status === FulFillmentStatus.RETURNING ||
-                                      fulfillment.status === FulFillmentStatus.RETURNED ? (
+                                    fulfillment.status === FulFillmentStatus.RETURNING ||
+                                    fulfillment.status === FulFillmentStatus.RETURNED ? (
                                       <div className="saleorder-custom-steps">
                                         <div className="saleorder-steps-one saleorder-steps dot-active">
                                           <span>Ngày tạo</span>
@@ -2100,37 +2124,37 @@ export default function Order(props: PropType) {
                                         </div>
                                         {fulfillment.status_before_cancellation ===
                                           FulFillmentStatus.SHIPPING && (
-                                            <div
-                                              className={
-                                                fulfillment.status ===
-                                                  FulFillmentStatus.RETURNED
-                                                  ? "saleorder-steps-two saleorder-steps dot-active hide-steps-two-line"
-                                                  : "saleorder-steps-two saleorder-steps dot-active"
-                                              }
-                                            >
-                                              <span>Ngày hủy</span>
-                                              <span>
-                                                {moment(fulfillment?.cancel_date).format(
-                                                  "DD/MM/YYYY HH:mm"
-                                                )}
-                                              </span>
-                                            </div>
-                                          )}
+                                          <div
+                                            className={
+                                              fulfillment.status ===
+                                              FulFillmentStatus.RETURNED
+                                                ? "saleorder-steps-two saleorder-steps dot-active hide-steps-two-line"
+                                                : "saleorder-steps-two saleorder-steps dot-active"
+                                            }
+                                          >
+                                            <span>Ngày hủy</span>
+                                            <span>
+                                              {moment(fulfillment?.cancel_date).format(
+                                                "DD/MM/YYYY HH:mm"
+                                              )}
+                                            </span>
+                                          </div>
+                                        )}
                                         {fulfillment.status_before_cancellation !==
                                           FulFillmentStatus.SHIPPING && (
-                                            <div className="saleorder-steps-three saleorder-steps dot-active">
-                                              <span>Ngày nhận lại</span>
-                                              <span>
-                                                {moment(fulfillment?.cancel_date).format(
-                                                  "DD/MM/YYYY HH:mm"
-                                                )}
-                                              </span>
-                                            </div>
-                                          )}
+                                          <div className="saleorder-steps-three saleorder-steps dot-active">
+                                            <span>Ngày nhận lại</span>
+                                            <span>
+                                              {moment(fulfillment?.cancel_date).format(
+                                                "DD/MM/YYYY HH:mm"
+                                              )}
+                                            </span>
+                                          </div>
+                                        )}
                                         {fulfillment.status_before_cancellation ===
                                           FulFillmentStatus.SHIPPING &&
                                           fulfillment.status ===
-                                          FulFillmentStatus.RETURNED && (
+                                            FulFillmentStatus.RETURNED && (
                                             <div className="saleorder-steps-three saleorder-steps dot-active">
                                               <span>Ngày nhận lại</span>
                                               <span>
@@ -2172,7 +2196,7 @@ export default function Order(props: PropType) {
                   orderDetail={OrderDetail}
                   isVisibleGroupButtons={false}
                   updateCancelClick={updateCancelClick}
-                  showSaveAndConfirmModal={() => { }}
+                  showSaveAndConfirmModal={() => {}}
                   updating={updating}
                 />
               )}

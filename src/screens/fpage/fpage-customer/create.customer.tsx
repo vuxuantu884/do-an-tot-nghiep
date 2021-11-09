@@ -28,6 +28,11 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
 import { formatCurrency } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
+import useAuthorization from "hook/useAuthorization";
+import { FpagePermissions } from "config/permissions/fpage.permission";
+
+
+const createCustomerPermission = [FpagePermissions.CREATE_CUSTOMER];
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -54,6 +59,13 @@ const FpageCustomerDetail = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [allowCreateCustomer] = useAuthorization({
+    acceptPermissions: createCustomerPermission,
+    not: false,
+  });
+
+  
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
@@ -430,25 +442,28 @@ const FpageCustomerDetail = (props: any) => {
             rowKey={(data) => data.id}
           />
         </Card>
-        <div className="customer-bottom-button">
-          <Button
-            style={{ marginRight: "10px" }}
-            onClick={() => history.goBack()}
-            type="ghost"
-          >
-            Hủy
-          </Button>
-          {!customer && (
-            <Button type="primary" htmlType="submit">
-              Tạo mới khách hàng
+        {allowCreateCustomer &&
+          <div className="customer-bottom-button">
+            <Button
+              style={{ marginRight: "10px" }}
+              onClick={() => history.goBack()}
+              type="ghost"
+            >
+              Hủy
             </Button>
-          )}
-          {customer && (
-            <Button type="primary" htmlType="submit">
-              Lưu khách hàng
-            </Button>
-          )}
-        </div>
+            {!customer && (
+              <Button type="primary" htmlType="submit">
+                Tạo mới khách hàng
+              </Button>
+            )}
+            {customer && (
+              <Button type="primary" htmlType="submit">
+                Lưu khách hàng
+              </Button>
+            )}
+          </div>
+        }
+        
       </Form>
     </div>
   );

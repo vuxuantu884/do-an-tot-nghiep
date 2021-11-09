@@ -45,7 +45,7 @@ function SidebarOrderHistory(props: PropType) {
 
   return (
     <StyledComponent>
-      <Card title="Lịch sử mua hàng">
+      <Card title="Lịch sử mua hàng 1">
         {!customerHistory
           ? "Vui lòng chọn khách hàng!"
           : customerHistory?.map((single) => {
@@ -54,7 +54,7 @@ function SidebarOrderHistory(props: PropType) {
                   <Col span={15}>
                     <div className="singleHistoryOrder__info">
                       <h4 className="singleHistoryOrder__title">
-                        {moment(single.finalized_on).format(formatDate)}
+                        {moment(single.created_date).format(formatDate)}
                       </h4>
                       <div className="singleHistoryOrder__date">
                         <Link

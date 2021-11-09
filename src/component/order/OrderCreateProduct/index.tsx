@@ -179,6 +179,7 @@ function OrderCreateProduct(props: PropType) {
     setDiscountRate,
   } = props;
   const dispatch = useDispatch();
+  console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer)
   const [loadingAutomaticDiscount, setLoadingAutomaticDiscount] = useState(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -1382,7 +1383,7 @@ function OrderCreateProduct(props: PropType) {
             showDiscountModal={ShowDiscountModal}
             totalAmountOrder={amount}
             items={items}
-            shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+            shippingFeeInformedToCustomer={0}
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
           />

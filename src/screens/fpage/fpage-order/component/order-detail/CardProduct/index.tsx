@@ -1148,7 +1148,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">
-              <div className="font-weight-500">Phí ship báo khách:</div>
+              <div className="font-weight-500">Phí ship báo khách 3:</div>
               <div className="font-weight-500 payment-row-money">
                 {props.shippingFeeCustomer !== null
                   ? formatCurrency(props.shippingFeeCustomer)
