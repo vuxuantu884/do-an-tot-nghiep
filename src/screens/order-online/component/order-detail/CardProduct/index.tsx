@@ -128,7 +128,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     storeId,
     inventoryResponse,
     selectStore,
-    setStoreForm,
     handleCardItems,
     levelOrder = 0,
     orderId,
@@ -1502,7 +1501,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           setResultSearchStore={setResultSearchStore}
           dataSearchCanAccess={dataSearchCanAccess}
           handleCancel={handleInventoryCancel}
-          setStoreForm={setStoreForm}
+          // setStoreForm={setStoreForm}
         />
       </Card>
     </StyledComponent>

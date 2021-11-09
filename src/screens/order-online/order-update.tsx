@@ -10,33 +10,36 @@ import {
   Row,
   Space,
   Tag,
-  Typography,
+  Typography
 } from "antd";
+import calendarOutlined from "assets/icon/calendar_outline.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import doubleArrow from "assets/icon/double_arrow.svg";
+import eyeOutline from "assets/icon/eye_outline.svg";
+import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
   AccountSearchAction,
-  ShipperGetListAction,
+  ShipperGetListAction
 } from "domain/actions/account/account.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
-  getLoyaltyUsage,
+  getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  configOrderSaga,
-  orderUpdateAction,
-  OrderDetailAction,
-  getTrackingLogFulfillmentAction,
-  DeliveryServicesGetList,
+  configOrderSaga, DeliveryServicesGetList, getTrackingLogFulfillmentAction, OrderDetailAction, orderUpdateAction
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -46,13 +49,14 @@ import {
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
-  ShipmentRequest,
+  ShipmentRequest
 } from "model/request/order.request";
 import {
   CustomerResponse,
-  ShippingAddress,
+  ShippingAddress
 } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   DeliveryServiceResponse,
@@ -60,7 +64,7 @@ import {
   OrderConfig,
   OrderResponse,
   StoreCustomResponse,
-  TrackingLogFulfillmentResponse,
+  TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
@@ -75,7 +79,7 @@ import {
   getTotalAmountAfferDiscount,
   SumCOD,
   SumWeightResponse,
-  TrackingCode,
+  TrackingCode
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -84,7 +88,7 @@ import {
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -94,16 +98,6 @@ import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import calendarOutlined from "assets/icon/calendar_outline.svg";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import doubleArrow from "assets/icon/double_arrow.svg";
-import storeBluecon from "assets/img/storeBlue.svg";
-import eyeOutline from "assets/icon/eye_outline.svg";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import CardPayments from "./component/order-detail/CardPayments";
-import CardShipment from "./component/order-detail/CardShipment";
-import { modalActionType } from "model/modal/modal.model";
 
 let typeButton = "";
 type PropType = {
@@ -138,12 +132,12 @@ export default function Order(props: PropType) {
     Array<LoyaltyUsageResponse>
   >([]);
 
-  const [hvc, setHvc] = useState<number | null>(null);
-  const [fee, setFee] = useState<number | null>(null);
+  const [hvc] = useState<number | null>(null);
+  const [fee] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(null);
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
-    null
-  );
+  // const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
+  //   null
+  // );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
@@ -153,6 +147,7 @@ export default function Order(props: PropType) {
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string | null>();
   const [serviceName, setServiceName] = useState<string>("");
+  console.log(setServiceName)
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
@@ -664,31 +659,36 @@ export default function Order(props: PropType) {
     }
   }, []);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  const onShipmentSelect = (value: number) => {
-    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
-        setPaymentMethod(PaymentMethodOption.COD);
-      }
-    } else {
-      setIsDisablePostPayment(false);
-    }
-    setShipmentMethod(value);
-  };
+  console.log(setIsDisablePostPayment)
+  console.log('isDisablePostPayment', isDisablePostPayment)
+  // const onShipmentSelect = (value: number) => {
+  //   if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+  //     setIsDisablePostPayment(true);
+  //     if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+  //       setPaymentMethod(PaymentMethodOption.COD);
+  //     }
+  //   } else {
+  //     setIsDisablePostPayment(false);
+  //   }
+  //   setShipmentMethod(value);
+  // };
 
   const [totalPaid, setTotalPaid] = useState(0);
-  const onPayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
-    let total = 0;
-    value.forEach((p) => (total = total + p.amount));
-    setTotalPaid(total);
-  };
+  console.log('totalPaid', totalPaid)
+  console.log('setTotalPaid', setTotalPaid)
+  // const onPayments = (value: Array<OrderPaymentRequest>) => {
+  //   setPayments(value);
+  //   let total = 0;
+  //   value.forEach((p) => (total = total + p.amount));
+  //   setTotalPaid(total);
+  // };
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     dispatch(getLoyaltyRate(setLoyaltyRate));
   }, [dispatch]);
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+  console.log('loyaltyRate', loyaltyRate)
 
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
@@ -699,6 +699,7 @@ export default function Order(props: PropType) {
   }, [history, id]);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  console.log('storeDetail', storeDetail)
 
   useEffect(() => {
     if (storeId != null) {
@@ -1466,7 +1467,7 @@ export default function Order(props: PropType) {
                       </div> */}
                       </Card>
                     )}
-                  {(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
+                  {/* {(!OrderDetail?.payments || !OrderDetail?.payments.length) &&
                     (!(
                       OrderDetail?.fulfillments?.length &&
                       OrderDetail.fulfillments[0].shipment?.cod
@@ -1489,8 +1490,8 @@ export default function Order(props: PropType) {
                         loyaltyRate={loyaltyRate}
                         isDisablePostPayment={isDisablePostPayment}
                       />
-                    )}
-                  {!fulfillments.length && (
+                    )} */}
+                  {/* {!fulfillments.length && (
                     <CardShipment
                       setShipmentMethodProps={onShipmentSelect}
                       shipmentMethod={shipmentMethod}
@@ -1524,7 +1525,7 @@ export default function Order(props: PropType) {
                       fulfillments={fulfillments}
                       isCloneOrder={false}
                     />
-                  )}
+                  )} */}
                   {fulfillments.length > 0 && (
                     <Card
                       className="orders-update-shipment "
