@@ -812,7 +812,7 @@ function OrderCreateProduct(props: PropType) {
 
   const handleAutomaticDiscount = async (_items: Array<OrderLineItemRequest>, item: OrderLineItemRequest, splitLine:boolean) => {
     let valuestDiscount = 0;
-    let quantity = splitLine ? _items.filter(item => item.variant_id === item.variant_id).length : item.quantity;
+    let quantity = splitLine ? _items.filter(singleItem => singleItem.variant_id === item.variant_id).length : item.quantity;
     const checkingDiscountResponse = await applyDiscount(item, quantity);
     setLoadingAutomaticDiscount(false)
     if (item && checkingDiscountResponse &&

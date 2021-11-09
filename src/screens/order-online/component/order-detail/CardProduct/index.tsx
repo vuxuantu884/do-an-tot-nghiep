@@ -127,7 +127,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     storeId,
     inventoryResponse,
     selectStore,
-    setStoreForm,
     handleCardItems,
     levelOrder = 0,
     orderId,

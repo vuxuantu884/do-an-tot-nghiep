@@ -1,8 +1,8 @@
-import {Col, Row, Typography} from "antd";
+import { Col, Row, Typography } from "antd";
 import IconStoreBlue from "assets/img/storeBlue.svg";
-import {StoreCustomResponse} from "model/response/order/order.response";
+import { StoreCustomResponse } from "model/response/order/order.response";
 import React from "react";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   storeDetail?: StoreCustomResponse | null;
@@ -10,7 +10,7 @@ type PropType = {
 };
 
 function ShipmentMethodReceiveAtStore(props: PropType) {
-  const {storeDetail, isCancelValidateDelivery} = props;
+  const {storeDetail} = props;
   return (
     <StyledComponent>
       <div className="receive-at-store">

@@ -1,48 +1,49 @@
-import {Button, Card, Col, Collapse, Divider, Form, Modal, Row, Space, Tag} from "antd";
+import { Button, Card, Col, Collapse, Divider, Form, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
-import {OrderDetailContext} from "contexts/order-online/order-detail-context";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {StoreDetailAction} from "domain/actions/core/store.action";
-import {CustomerDetail} from "domain/actions/customer/customer.action";
-import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
-import {actionSetIsReceivedOrderReturn} from "domain/actions/order/order-return.action";
+import { OrderDetailContext } from "contexts/order-online/order-detail-context";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
   confirmDraftOrderAction,
   getListReasonRequest,
   OrderDetailAction,
   PaymentMethodGetList,
-  UpdatePaymentAction,
+  UpdatePaymentAction
 } from "domain/actions/order/order.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {OrderSettingsModel} from "model/other/order/order-model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderPaymentRequest,
-  UpdateOrderPaymentRequest,
+  UpdateOrderPaymentRequest
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
-import {OrderResponse, StoreCustomResponse} from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory, useParams} from "react-router-dom";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
   formatCurrency,
   getAmountPayment,
-  SumCOD,
+  SumCOD
 } from "utils/AppUtils";
-import {FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption} from "utils/Constants";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showSuccess} from "utils/ToastUtils";
+import { FulFillmentStatus, OrderStatus, PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import ActionHistory from "./component/order-detail/Sidebar/ActionHistory";
@@ -53,11 +54,9 @@ import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
+import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
-import CardShipment from "./component/order-detail/CardShipment";
-import OrderCreateShipment from "component/order/OrderCreateShipment";
-import CancelOrderModal from "./modal/cancel-order.modal";
 const { Panel } = Collapse;
 
 type PropType = {
@@ -554,6 +553,7 @@ const OrderDetail = (props: PropType) => {
       );
     }
   };
+  console.log(renderShipment)
 
   useEffect(() => {
     window.addEventListener("scroll", scroll);

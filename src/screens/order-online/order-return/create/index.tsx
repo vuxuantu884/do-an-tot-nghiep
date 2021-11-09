@@ -14,12 +14,10 @@ import {
   actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import {
-  DeliveryServicesGetList,
   OrderDetailAction,
   PaymentMethodGetList
 } from "domain/actions/order/order.action";
 import { thirdPLModel } from "model/order/shipment.model";
-import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -36,8 +34,6 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  DeliveryServiceResponse,
-  FulFillmentResponse,
   OrderResponse,
   OrderReturnReasonModel,
   ReturnProductModel,
@@ -60,7 +56,6 @@ import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
-import CardExchangeProducts from "../components/CardExchangeProducts";
 import CardReturnMoneyPageCreate from "../components/CardReturnMoney/CardReturnMoneyPageCreate";
 import CardReturnMoneyPageCreateReturn from "../components/CardReturnMoney/CardReturnMoneyPageCreate/CardReturnMoneyPageCreateReturn";
 import CardReturnOrder from "../components/CardReturnOrder";
@@ -107,6 +102,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
   const dispatch = useDispatch();
+  console.log('itemGifts', itemGifts)
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
@@ -138,7 +134,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<
     number | null
   >(0);
-  const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
+  // const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
@@ -147,22 +143,14 @@ const ScreenReturnCreate = (props: PropType) => {
   >([]);
   const [discountValue, setDisCountValue] = useState<number>(0);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
-  const [serviceType, setServiceType] = useState<string>();
-  const [serviceName, setServiceName] = useState<string>("");
-  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
-  const [hvc, setHvc] = useState<number | null>(null);
-  const [hvcName, setHvcName] = useState<string | null>(null);
-  const [hvcCode, setHvcCode] = useState<string | null>(null);
-  const [fee, setFee] = useState<number | null>(null);
-  const [fulfillments] = useState<Array<FulFillmentResponse>>([]);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [moneyRefund, setMoneyRefund] = useState(0);
 
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
+  // const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+  //   chonCuaHangTruocMoiChonSanPham: false,
+  //   cauHinhInNhieuLienHoaDon: 1,
+  // });
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -303,12 +291,12 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      setIsDisablePostPayment(true);
+      // setIsDisablePostPayment(true);
       if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
-      setIsDisablePostPayment(false);
+      // setIsDisablePostPayment(false);
     }
     setShipmentMethod(value);
   };
@@ -1105,22 +1093,22 @@ const ScreenReturnCreate = (props: PropType) => {
         setListPaymentMethods(result);
       })
     );
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setDeliveryServices(response);
-      })
-    );
+    // dispatch(
+    //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+    //     setDeliveryServices(response);
+    //   })
+    // );
   }, [dispatch]);
 
   /**
    * orderSettings
    */
-  useEffect(() => {
-    setOrderSettings({
-      chonCuaHangTruocMoiChonSanPham: true,
-      cauHinhInNhieuLienHoaDon: 3,
-    });
-  }, []);
+  // useEffect(() => {
+  //   setOrderSettings({
+  //     chonCuaHangTruocMoiChonSanPham: true,
+  //     cauHinhInNhieuLienHoaDon: 3,
+  //   });
+  // }, []);
 
   return (
     <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>

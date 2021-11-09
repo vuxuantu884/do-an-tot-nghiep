@@ -129,6 +129,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [cancelShipment, setCancelShipment] = useState(false);
 
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
+  console.log(setTakeMoneyHelper)
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
@@ -727,6 +728,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
   const [addressError, setAddressError] = useState<string>("");
+  console.log(addressError)
   // end
 
   const onPrint = () => {

@@ -1,4 +1,4 @@
-import {Card, Col, Form, FormInstance, Input, Row} from "antd";
+import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -6,30 +6,30 @@ import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import {Type} from "config/type.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import {StoreDetailCustomAction} from "domain/actions/core/store.action";
-import {CustomerDetail} from "domain/actions/customer/customer.action";
-import {inventoryGetDetailVariantIdsSaga} from "domain/actions/inventory/inventory.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
-  getLoyaltyUsage,
+  getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
   DeliveryServicesGetList,
   orderCreateAction,
   OrderDetailAction,
-  PaymentMethodGetList,
+  PaymentMethodGetList
 } from "domain/actions/order/order.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {InventoryResponse} from "model/inventory";
-import {modalActionType} from "model/modal/modal.model";
-import {thirdPLModel} from "model/order/shipment.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
+import { thirdPLModel } from "model/order/shipment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -38,28 +38,26 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
-  ShippingAddress,
+  ShippingAddress
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderConfig,
+  DeliveryServiceResponse, OrderConfig,
   OrderResponse,
-  StoreCustomResponse,
+  StoreCustomResponse
 } from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router-dom";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
-  scrollAndFocusToDomElement,
+  scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
   OrderStatus,
@@ -67,10 +65,10 @@ import {
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
-import {useQuery} from "utils/useQuery";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
@@ -99,6 +97,7 @@ export default function Order() {
     PaymentMethodOption.POSTPAYMENT
   );
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+  console.log('deliveryServices', deliveryServices)
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
