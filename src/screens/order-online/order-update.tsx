@@ -314,6 +314,7 @@ export default function Order(props: PropType) {
     shipping_address: null,
     billing_address: null,
     payments: [],
+    channel_id: null,
   };
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -588,6 +589,7 @@ export default function Order(props: PropType) {
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    values.channel_id = OrderDetail.channel_id;
     console.log("onFinish onFinish", values);
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -1123,7 +1125,7 @@ export default function Order(props: PropType) {
                         title={
                           <Space>
                             <div className="d-flex">
-                              <span className="title-card">THANH TOÁN</span>
+                              <span className="title-card">THANH TOÁN 4</span>
                             </div>
                             {checkPaymentStatusToShow(OrderDetail) === -1 && (
                               <Tag className="orders-tag orders-tag-default">
@@ -1359,7 +1361,7 @@ export default function Order(props: PropType) {
                         title={
                           <Space>
                             <div className="d-flex">
-                              <span className="title-card">THANH TOÁN</span>
+                              <span className="title-card">THANH TOÁN 5</span>
                             </div>
                             {checkPaymentStatusToShow(OrderDetail) === 1 && (
                               <Tag

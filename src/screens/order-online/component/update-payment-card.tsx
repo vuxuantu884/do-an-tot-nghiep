@@ -26,7 +26,7 @@ type PropType = {
   amount: any;
   disabled?: boolean;
   isDisablePostPayment?: boolean;
-  setSelectedPaymentMethod: (paymentType: number) => void;
+  setPaymentMethod: (paymentType: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setShowPaymentPartialPayment?: (value: boolean) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
@@ -36,8 +36,9 @@ type PropType = {
 };
 
 function UpdatePaymentCard(props: PropType) {
-  const {disabledActions, listPaymentMethods, amount, setShowPaymentPartialPayment} =
+  const {disabledActions, listPaymentMethods, amount, setShowPaymentPartialPayment, isDisablePostPayment, setPaymentMethod} =
     props;
+    console.log('isDisablePostPayment', isDisablePostPayment);
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
@@ -227,20 +228,20 @@ function UpdatePaymentCard(props: PropType) {
           className="margin-top-20 orders-update-payment"
           title={
             <div className="d-flex" style={{marginTop: "5px", border: "none"}}>
-              <span className="title-card">THANH TOÁN</span>
+              <span className="title-card">THANH TOÁN 6</span>
             </div>
           }
         >
           {props.isVisibleUpdatePayment === true && (
             <OrderCreatePayments
-              setPaymentMethod={() => {}}
+              setPaymentMethod={setPaymentMethod}
               payments={paymentData}
               setPayments={setPaymentData}
               paymentMethod={props.paymentMethod}
               shipmentMethod={props.shipmentMethod}
               totalAmountOrder={amount}
               loyaltyRate={loyaltyRate}
-              isDisablePostPayment={false}
+              isDisablePostPayment={isDisablePostPayment}
               listPaymentMethod={listPaymentMethods}
             />
           )}
