@@ -15,3 +15,10 @@ export const CustomerGroupPermissions = {
   UPDATE: "customers_group_update",
   DELETE: "customers_group_delete",
 };
+
+export const CustomerLevelPermissions = {
+  CREATE: "customers_level_create",
+  VIEW: "customers_level_view",
+  UPDATE: "customers_level_update",
+  DELETE: "customers_level_delete",
+};
