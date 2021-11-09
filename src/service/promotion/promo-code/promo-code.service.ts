@@ -8,8 +8,8 @@ import {ApiConfig} from "../../../config/api.config";
 
 const END_POINT = "/price-rules/";
 
-export const checkPromoCode = (id : number): Promise<PromoCodeResponse> => {
-  return BaseAxios.get(`${ApiConfig.PROMOTION}/discount-codes/lookup?code=${id}`);
+export const checkPromoCode = (code : string): Promise<any> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/discount-codes/lookup?code=${code}`);
 };
 
 export const getAllPromoCodeList = (priceRuleId: number, query: BaseQuery): Promise<BaseResponse<PageResponse<PromoCodeResponse>>> => {

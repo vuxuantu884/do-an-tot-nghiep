@@ -4,7 +4,8 @@ import { useCallback, useEffect } from "react";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
 import "./../promo-code.scss";
-import { checkPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+import _ from "lodash";
+import { checkPromoCode } from "service/promotion/promo-code/promo-code.service";
 
 type ModalProps = {
   visible: boolean;
@@ -22,8 +23,6 @@ const ModalAddCode: React.FC<ModalProps> = (
 ) => {
   const { type, title, visible, okText, cancelText, valueChange, onCancel, onOk } = props;
   const [form] = Form.useForm();
-
-
   useEffect(() => {
     form.setFieldsValue({code: valueChange})
   }, [valueChange, form])
@@ -33,6 +32,8 @@ const ModalAddCode: React.FC<ModalProps> = (
   }, [onCancel]);
 
   const onOkClick = useCallback(() => {
+    const isFormValid = form.getFieldsError().some((item) => item.errors.length > 0);
+    if(isFormValid) return;
     onOk(form.submit());
   }, [onOk, form]);
 
@@ -41,7 +42,19 @@ const ModalAddCode: React.FC<ModalProps> = (
     onOk(value);
   }
 
-  function validateFunc(value: any) {
+  function nonAccentVietnamese(str: string) {
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    // Some system encode vietnamese combining accent as individual utf-8 characters
+    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
+    str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
+    return str.toUpperCase().replaceAll(/\s/g,'');
   }
 
   return (
@@ -65,19 +78,33 @@ const ModalAddCode: React.FC<ModalProps> = (
               <Form.Item
                 name="code"
                 style={{marginBottom: 19}}
-                normalize={value => validateFunc(value)}
+                rules = {
+                  [
+                     ({
+                        getFieldValue
+                     }) => ({
+                        validator(rule, value) {
+                          return new Promise((resolve, reject) => {
+                            const response = checkPromoCode(value);
+                            response.then(response => {
+                              if (response?.code === 20000000) {
+                                reject("Code đã tồn tại");
+                              } else {
+                                resolve("");
+                              }
+                            });
+                          });
+                        }
+                     })
+                  ]
+                }
+                normalize={value => nonAccentVietnamese(value)}
               >
-                <div style={{
-                  display: "flex",
-                  gap: 30
-              }}>
-                  <Input
-                    placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
-                    style={{width: "100%", textTransform: "uppercase"}}
-                    maxLength={30}
-                    defaultValue={valueChange}
-                  />
-                </div>
+                <Input
+                  placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
+                  style={{width: "100%"}}
+                  maxLength={30}
+                />
               </Form.Item>
             </Form>
           </Col>}
@@ -103,20 +130,36 @@ const ModalAddCode: React.FC<ModalProps> = (
                               key={key}
                               name={name}
                               style={{marginBottom: 19}}
-                              normalize={value => (value || '').toUpperCase().replaceAll(/\s/g,'')}
+                              rules = {
+                                [
+                                   ({
+                                      getFieldValue
+                                   }) => ({
+                                      validator(rule, value) {
+                                        return new Promise((resolve, reject) => {
+                                          const response = checkPromoCode(value);
+                                          response.then(response => {
+                                            if (response?.code === 20000000) {
+                                              reject("Code đã tồn tại");
+                                            } else {
+                                              resolve("");
+                                            }
+                                          });
+                                        });
+                                      }
+                                   })
+                                ]
+                              }
+                              normalize={value => nonAccentVietnamese(value)}
                             >
-                              <div style={{
-                                display: "flex",
-                                gap: 30
-                            }}>
-                                <Input
-                                  className="modal-input"
-                                  placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
-                                  style={{width: "100%", textTransform: "uppercase"}}
-                                  maxLength={30}
-                                />
-                                <img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />
-                              </div>
+                              <Input
+                                className="modal-input"
+                                placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
+                                style={{width: "100%", textTransform: "uppercase"}}
+                                maxLength={30}
+                                suffix={<img src={CloseIcon} style={{marginRight: 13}} alt="" onClick={() => remove(name)} />}
+                              />
+                              
                             </Form.Item>
                           )
                         })

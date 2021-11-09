@@ -20,11 +20,11 @@ import {PromoCodeType} from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
 
 function* checkPromoCodeAtc(action: YodyAction) {
-  const { id, handleResponse } = action.payload;
+  const { code, handleResponse } = action.payload;
   try {
     const response: BaseResponse<PageResponse<PromoCodeResponse>> = yield call(
       checkPromoCode,
-      id
+      code
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
