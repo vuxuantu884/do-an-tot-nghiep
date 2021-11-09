@@ -21,11 +21,16 @@ import CustomSelect from "component/custom/select.custom";
 import {OrderSearchQuery} from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
-import {STATUS_INVENTORY_ADJUSTMENT_ARRAY} from "../../constants";
+import {
+  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
+  STATUS_INVENTORY_ADJUSTMENT_ARRAY,
+} from "../../constants";
 import {InventoryAdjustmentSearchQuery} from "model/inventoryadjustment";
 import {StoreResponse} from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
+import {DATE_FORMAT} from "utils/DateUtils";
+import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "screens/inventory-adjustment/constants";
 
 const {Panel} = Collapse;
 type InventoryAdjustmentFilterProps = {
@@ -59,31 +64,41 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     return {
       ...params,
       status: Array.isArray(params.status) ? params.status : [params.status],
-      created_by: Array.isArray(params.created_by)
-        ? params.created_by
-        : [params.created_by],
+      created_name: Array.isArray(params.created_name)
+        ? params.created_name
+        : [params.created_name],
     };
   }, [params]);
 
   const [visible, setVisible] = useState(false);
   const [isFromCreatedDate, setIsFromCreatedDate] = useState(
     initialValues.from_created_date
-      ? moment(initialValues.from_created_date, "DD-MM-YYYY")
+      ? moment(initialValues.from_created_date, DATE_FORMAT.DDMMYYY)
       : null
   );
   const [isToCreatedDate, setIsToCreatedDate] = useState(
     initialValues.to_created_date
-      ? moment(initialValues.to_created_date, "DD-MM-YYYY")
+      ? moment(initialValues.to_created_date, DATE_FORMAT.DDMMYYY)
       : null
   );
-  const [isFromInventoryAdjustmentDate, setIsFromInventoryAdjustmentDate] = useState(
-    initialValues.from_inventoryadjustment_date
-      ? moment(initialValues.from_inventoryadjustment_date, "DD-MM-YYYY")
+  const [isFromAuditedDate, setIsFromAuditedDate] = useState(
+    initialValues.from_audited_date
+      ? moment(initialValues.from_audited_date, DATE_FORMAT.DDMMYYY)
       : null
   );
-  const [isToInventoryAdjustmentDate, setIsToInventoryAdjustmentDate] = useState(
-    initialValues.to_inventoryadjustment_date
-      ? moment(initialValues.to_inventoryadjustment_date, "DD-MM-YYYY")
+  const [isToAuditedDate, setIsToAuditedDate] = useState(
+    initialValues.to_audited_date
+      ? moment(initialValues.to_audited_date, DATE_FORMAT.DDMMYYY)
+      : null
+  );
+  const [isFromAdjustedBy, setIsFromAdjustedBy] = useState(
+    initialValues.from_adjusted_date
+      ? moment(initialValues.from_adjusted_date, DATE_FORMAT.DDMMYYY)
+      : null
+  );
+  const [isToAdjustedBy, setIsToAdjustedBy] = useState(
+    initialValues.to_adjusted_date
+      ? moment(initialValues.to_adjusted_date, DATE_FORMAT.DDMMYYY)
       : null
   );
 
@@ -94,18 +109,29 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
+  const [createDateClick, setCreateDateClick] = useState("");
+  const [auditedDateClick, setAuditedDateClickClick] = useState("");
+  const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
+
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
+    const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
+    const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
     switch (type) {
       case "create_date":
-          setCreateDateClick("");
-          setIsFromCreatedDate(dateString[0]);
-          setIsToCreatedDate(dateString[1]);
+        setCreateDateClick("");
+        setIsFromCreatedDate(fromDateString);
+        setIsToCreatedDate(toDateString);
         break;
-        case "adjustment_date":
-          setAdjustmentDateClick("");
-          setIsFromInventoryAdjustmentDate(dateString[0]);
-          setIsToInventoryAdjustmentDate(dateString[1]);
-          break;
+      case "adjusted_by":
+        setAdjustmentDateClick("");
+        setIsFromAdjustedBy(fromDateString);
+        setIsToAdjustedBy(toDateString);
+        break;
+      case "audited_date":
+        setAuditedDateClickClick("");
+        setIsFromAuditedDate(fromDateString);
+        setIsToAuditedDate(toDateString);
+        break;
     }
   }, []);
 
@@ -121,13 +147,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setIsFromCreatedDate(null);
     setIsToCreatedDate(null);
     setAdjustmentDateClick("");
-    setIsFromInventoryAdjustmentDate(null);
-    setIsToInventoryAdjustmentDate(null);
+    setIsFromAdjustedBy(null);
+    setIsToAdjustedBy(null);
+    setAuditedDateClickClick("");
+    setIsFromAuditedDate(null);
+    setIsToAuditedDate(null);
 
     formSearchRef?.current?.setFieldsValue({
-      condition: "",
-      adjusted_store_id: '',
-    })
+      code: "",
+      adjusted_store_id: "",
+    });
 
     setVisible(false);
   }, [formSearchRef, onClearFilter]);
@@ -139,9 +168,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setVisible(false);
   }, []);
 
-  const [createDateClick, setCreateDateClick] = useState("");
-  const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
-
   const clickOptionDate = useCallback(
     (type, value) => {
       let minValue = null;
@@ -149,28 +175,28 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
       switch (value) {
         case "today":
-          minValue = moment().startOf("day").format("DD-MM-YYYY");
-          maxValue = moment().endOf("day").format("DD-MM-YYYY");
+          minValue = moment().startOf("day");
+          maxValue = moment().endOf("day");
           break;
         case "yesterday":
-          minValue = moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY");
-          maxValue = moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY");
+          minValue = moment().startOf("day").subtract(1, "days");
+          maxValue = moment().endOf("day").subtract(1, "days");
           break;
         case "thisweek":
-          minValue = moment().startOf("week").format("DD-MM-YYYY");
-          maxValue = moment().endOf("week").format("DD-MM-YYYY");
+          minValue = moment().startOf("week");
+          maxValue = moment().endOf("week");
           break;
         case "lastweek":
-          minValue = moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY");
-          maxValue = moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY");
+          minValue = moment().startOf("week").subtract(1, "weeks");
+          maxValue = moment().endOf("week").subtract(1, "weeks");
           break;
         case "thismonth":
-          minValue = moment().startOf("month").format("DD-MM-YYYY");
-          maxValue = moment().endOf("month").format("DD-MM-YYYY");
+          minValue = moment().startOf("month");
+          maxValue = moment().endOf("month");
           break;
         case "lastmonth":
-          minValue = moment().startOf("month").subtract(1, "months").format("DD-MM-YYYY");
-          maxValue = moment().endOf("month").subtract(1, "months").format("DD-MM-YYYY");
+          minValue = moment().startOf("month").subtract(1, "months");
+          maxValue = moment().endOf("month").subtract(1, "months");
           break;
         default:
           break;
@@ -184,26 +210,37 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
             setIsToCreatedDate(null);
           } else {
             setCreateDateClick(value);
-            setIsFromCreatedDate(moment(minValue, "DD-MM-YYYY"));
-            setIsToCreatedDate(moment(maxValue, "DD-MM-YYYY"));
+            setIsFromCreatedDate(moment(minValue, DATE_FORMAT.DDMMYYY));
+            setIsToCreatedDate(moment(maxValue, DATE_FORMAT.DDMMYYY));
           }
           break;
         case "audited_date":
+          if (auditedDateClick === value) {
+            setAuditedDateClickClick("");
+            setIsFromAuditedDate(null);
+            setIsToAuditedDate(null);
+          } else {
+            setAuditedDateClickClick(value);
+            setIsFromAuditedDate(moment(minValue, DATE_FORMAT.DDMMYYY));
+            setIsToAuditedDate(moment(maxValue, DATE_FORMAT.DDMMYYY));
+          }
+          break;
+        case "adjusted_date":
           if (adjustmentDateClick === value) {
             setAdjustmentDateClick("");
-            setIsFromInventoryAdjustmentDate(null);
-            setIsToInventoryAdjustmentDate(null);
+            setIsFromAdjustedBy(null);
+            setIsToAdjustedBy(null);
           } else {
             setAdjustmentDateClick(value);
-            setIsFromInventoryAdjustmentDate(moment(minValue, "DD-MM-YYYY"));
-            setIsToInventoryAdjustmentDate(moment(maxValue, "DD-MM-YYYY"));
+            setIsFromAdjustedBy(moment(minValue, DATE_FORMAT.DDMMYYY));
+            setIsToAdjustedBy(moment(maxValue, DATE_FORMAT.DDMMYYY));
           }
           break;
         default:
           break;
       }
     },
-    [createDateClick, adjustmentDateClick]
+    [createDateClick, auditedDateClick, adjustmentDateClick]
   );
 
   const onCloseTag = useCallback(
@@ -225,25 +262,36 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           onFilter &&
             onFilter({...params, from_total_amount: null, to_total_amount: null});
           break;
-        case "created_by":
-          onFilter && onFilter({...params, created_by: []});
+        case "created_name":
+          onFilter && onFilter({...params, created_name: null});
           break;
         case "created_date":
           setCreateDateClick("");
           setIsFromCreatedDate(null);
           setIsToCreatedDate(null);
           onFilter &&
-            onFilter({...params, form_created_date: null, to_created_date: null});
+            onFilter({...params, from_created_date: null, to_created_date: null});
           break;
         case "audited_date":
-          setAdjustmentDateClick("");
-          setIsFromInventoryAdjustmentDate(null);
-          setIsToInventoryAdjustmentDate(null);
+          setAuditedDateClickClick("");
+          setIsFromAuditedDate(null);
+          setIsToAuditedDate(null);
           onFilter &&
             onFilter({
               ...params,
-              from_inventory_adjustment_date: null,
-              to_inventory_adjustment_date: null,
+              from_audited_date: null,
+              to_audited_date: null,
+            });
+          break;
+        case "adjusted_date":
+          setAdjustmentDateClick("");
+          setIsFromAdjustedBy(null);
+          setIsToAdjustedBy(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              from_adjusted_date: null,
+              to_adjusted_date: null,
             });
           break;
         default:
@@ -278,33 +326,29 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       }
       const valuesForm = {
         ...values,
-        from_created_date: isFromCreatedDate
-          ? moment(isFromCreatedDate, "DD-MM-YYYY")?.format("DD-MM-YYYY")
-          : null,
-        to_created_date: isToCreatedDate
-          ? moment(isToCreatedDate, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
-        from_inventory_adjustment_date: isFromInventoryAdjustmentDate
-          ? moment(isFromInventoryAdjustmentDate, "DD-MM-YYYY")?.format("DD-MM-YYYY")
-          : null,
-        to_inventory_adjustment_date: isToInventoryAdjustmentDate
-          ? moment(isToInventoryAdjustmentDate, "DD-MM-YYYY").format("DD-MM-YYYY")
-          : null,
+        from_created_date: isFromCreatedDate ? moment(isFromCreatedDate) : null,
+        to_created_date: isToCreatedDate ? moment(isToCreatedDate) : null,
+        from_adjusted_date: isFromAdjustedBy ? moment(isFromAdjustedBy) : null,
+        to_adjusted_date: isToAdjustedBy ? moment(isToAdjustedBy) : null,
+        from_audited_date: isFromAuditedDate ? moment(isFromAuditedDate) : null,
+        to_audited_date: isToAuditedDate ? moment(isToAuditedDate) : null,
       };
       onFilter && onFilter(valuesForm);
     },
     [
       isFromCreatedDate,
-      isFromInventoryAdjustmentDate,
-      isToInventoryAdjustmentDate,
       isToCreatedDate,
+      isFromAdjustedBy,
+      isToAdjustedBy,
+      isFromAuditedDate,
+      isToAuditedDate,
       onFilter,
     ]
   );
 
   let filters = useMemo(() => {
     let list = [];
-    if (initialValues.status.length) {
+    if (initialValues?.status?.length) {
       let textStatus = "";
       initialValues.status.forEach((statusValue) => {
         const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
@@ -318,15 +362,18 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         value: textStatus,
       });
     }
-    if (initialValues.from_total_variant || initialValues.to_total_variant) {
-      let textTotalVariant =
-        (initialValues.from_total_variant ? initialValues.from_total_variant : " ?? ") +
-        " ~ " +
-        (initialValues.to_total_variant ? initialValues.to_total_variant : " ?? ");
+    if (initialValues?.audit_type?.length) {
+      let auditTypeName = "";
+      initialValues.audit_type.forEach((value) => {
+        const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
+          (auditType) => auditType.value === value
+        );
+        auditTypeName = auditType ? auditTypeName + auditType.name + ";" : auditTypeName;
+      });
       list.push({
-        key: "total_variant",
-        name: "Sản phẩm",
-        value: textTotalVariant,
+        key: "audit_type",
+        name: "Loại kiểm",
+        value: auditTypeName,
       });
     }
     if (initialValues.from_total_quantity || initialValues.to_total_quantity) {
@@ -340,46 +387,63 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         value: textTotalQuantity,
       });
     }
-    if (initialValues.created_by.length) {
+    if (initialValues?.created_name?.length) {
       let textAccount = "";
-      initialValues.created_by.forEach((i) => {
+      initialValues.created_name.forEach((i) => {
         const findAccount = accounts?.find((item) => item.code === i);
         textAccount = findAccount
           ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
           : textAccount;
       });
       list.push({
-        key: "created_by",
+        key: "create_name",
         name: "Người tạo",
         value: textAccount,
       });
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
       let textCreatedDate =
-        (initialValues.from_created_date ? initialValues.from_created_date : "??") +
+        (initialValues.from_created_date
+          ? moment(initialValues.from_created_date).format("DD-MM-YYYY")
+          : "??") +
         " ~ " +
-        (initialValues.to_created_date ? initialValues.to_created_date : "??");
+        (initialValues.to_created_date
+          ? moment(initialValues.to_created_date).format("DD-MM-YYYY")
+          : "??");
       list.push({
         key: "created_date",
         name: "Ngày tạo",
         value: textCreatedDate,
       });
     }
-    if (
-      initialValues.from_inventoryadjustment_date ||
-      initialValues.to_inventoryadjustment_date
-    ) {
-      let textInventoryAdjustmentDate =
-        (initialValues.from_inventoryadjustment_date
-          ? initialValues.from_inventoryadjustment_date
+    if (initialValues.from_audited_date || initialValues.to_audited_date) {
+      let textInventoryAuditedDate =
+        (initialValues.from_audited_date
+          ? moment(initialValues.from_audited_date).format("DD-MM-YYYY")
           : "??") +
         " ~ " +
-        (initialValues.to_inventoryadjustment_date
-          ? initialValues.to_inventoryadjustment_date
+        (initialValues.to_audited_date
+          ? moment(initialValues.to_audited_date).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "audited_date",
         name: "Ngày kiểm",
+        value: textInventoryAuditedDate,
+      });
+    }
+
+    if (initialValues.from_adjusted_date || initialValues.to_adjusted_date) {
+      let textInventoryAdjustmentDate =
+        (initialValues.from_adjusted_date
+          ? moment(initialValues.from_adjusted_date).format("DD-MM-YYYY")
+          : "??") +
+        " ~ " +
+        (initialValues.to_adjusted_date
+          ? moment(initialValues.to_adjusted_date).format("DD-MM-YYYY")
+          : "??");
+      list.push({
+        key: "adjusted_date",
+        name: "Ngày cân bằng",
         value: textInventoryAdjustmentDate,
       });
     }
@@ -398,15 +462,15 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         >
           <Item name="adjusted_store_id">
             <CustomSelect
-            style={{
-              width: 150,
-            }}
+              style={{
+                width: 150,
+              }}
+              allowClear={true}
               placeholder="Chọn kho kiểm"
               showArrow
               showSearch
               optionFilterProp="children"
             >
-              <Option value={""}>Chọn kho kiểm</Option>
               {Array.isArray(stores) &&
                 stores.length > 0 &&
                 stores.map((item, index) => (
@@ -416,13 +480,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 ))}
             </CustomSelect>
           </Item>
-          <Item style={{flex: 1}} name="condition" className="input-search">
+          <Item style={{flex: 1}} name="code" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo ID phiếu kiểm, tên kho kiểm,..."
+              placeholder="Tìm kiếm theo mã phiếu kiểm"
               onBlur={(e) => {
                 formSearchRef?.current?.setFieldsValue({
-                  condition: e.target.value.trim(),
+                  code: e.target.value.trim(),
                 });
               }}
             />
@@ -458,16 +522,18 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               <>
                 <Row gutter={12} style={{marginTop: "10px"}}>
                   <Col span={24}>
-                    <Collapse defaultActiveKey={initialValues.status.length ? ["1"] : []}>
+                    <Collapse
+                      defaultActiveKey={initialValues?.status?.length ? ["1"] : []}
+                    >
                       <Panel header="Trạng thái" key="1" className="header-filter">
                         <Item name="status" style={{margin: "10px 0px"}}>
                           <CustomSelect
                             mode="multiple"
-                            style={{width: "100%"}}
                             showArrow
                             placeholder="Chọn trạng thái"
                             notFoundContent="Không tìm thấy kết quả"
                             optionFilterProp="children"
+                            style={{width: "100%"}}
                             getPopupContainer={(trigger) => trigger.parentNode}
                           >
                             {STATUS_INVENTORY_ADJUSTMENT_ARRAY.map((item, index) => (
@@ -539,37 +605,6 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 <Row gutter={12} style={{marginTop: "10px"}}>
                   <Col span={24}>
                     <Collapse
-                      defaultActiveKey={initialValues.created_by.length ? ["1"] : []}
-                    >
-                      <Panel header="Người tạo" key="1" className="header-filter">
-                        <Item name="created_by">
-                          <Select
-                            mode="multiple"
-                            showSearch
-                            placeholder="Chọn người tạo"
-                            notFoundContent="Không tìm thấy kết quả"
-                            style={{width: "100%"}}
-                            optionFilterProp="children"
-                            getPopupContainer={(trigger) => trigger.parentNode}
-                          >
-                            {accounts.map((item, index) => (
-                              <Option
-                                style={{width: "100%"}}
-                                key={index.toString()}
-                                value={item.code.toString()}
-                              >
-                                {`${item.full_name} - ${item.code}`}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Item>
-                      </Panel>
-                    </Collapse>
-                  </Col>
-                </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
-                  <Col span={24}>
-                    <Collapse
                       defaultActiveKey={
                         initialValues.from_created_date && initialValues.to_created_date
                           ? ["1"]
@@ -634,14 +669,14 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           Tuỳ chọn khoảng thời gian:
                         </p>
                         <DatePicker.RangePicker
-                          format="DD-MM-YYYY"
+                          format={DATE_FORMAT.DDMMYYY}
                           style={{width: "100%"}}
                           value={[
                             isFromCreatedDate
-                              ? moment(isFromCreatedDate, "DD-MM-YYYY")
+                              ? moment(isFromCreatedDate, DATE_FORMAT.DDMMYYY)
                               : null,
                             isToCreatedDate
-                              ? moment(isToCreatedDate, "DD-MM-YYYY")
+                              ? moment(isToCreatedDate, DATE_FORMAT.DDMMYYY)
                               : null,
                           ]}
                           onChange={(date, dateString) =>
@@ -655,9 +690,41 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 <Row gutter={12} style={{marginTop: "10px"}}>
                   <Col span={24}>
                     <Collapse
+                      defaultActiveKey={initialValues?.created_name?.length ? ["1"] : []}
+                    >
+                      <Panel header="Người tạo" key="1" className="header-filter">
+                        <Item name="created_name">
+                          <CustomSelect
+                            mode="multiple"
+                            showSearch
+                            showArrow
+                            maxTagCount="responsive"
+                            placeholder="Chọn người tạo"
+                            notFoundContent="Không tìm thấy kết quả"
+                            style={{width: "100%"}}
+                            optionFilterProp="children"
+                            getPopupContainer={(trigger) => trigger.parentNode}
+                          >
+                            {accounts.map((item, index) => (
+                              <CustomSelect.Option
+                                style={{width: "100%"}}
+                                key={index.toString()}
+                                value={item.code.toString()}
+                              >
+                                {`${item.full_name} - ${item.code}`}
+                              </CustomSelect.Option>
+                            ))}
+                          </CustomSelect>
+                        </Item>
+                      </Panel>
+                    </Collapse>
+                  </Col>
+                </Row>
+                <Row gutter={12} style={{marginTop: "10px"}}>
+                  <Col span={24}>
+                    <Collapse
                       defaultActiveKey={
-                        initialValues.from_inventoryadjustment_date &&
-                        initialValues.to_inventoryadjustment_date
+                        initialValues.from_audited_date && initialValues.to_audited_date
                           ? ["1"]
                           : []
                       }
@@ -667,7 +734,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "yesterday")}
                             className={
-                              adjustmentDateClick === "yesterday" ? "active" : "deactive"
+                              auditedDateClick === "yesterday" ? "active" : "deactive"
                             }
                           >
                             Hôm qua
@@ -675,13 +742,98 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           <Button
                             onClick={() => clickOptionDate("audited_date", "today")}
                             className={
-                              adjustmentDateClick === "today" ? "active" : "deactive"
+                              auditedDateClick === "today" ? "active" : "deactive"
                             }
                           >
                             Hôm nay
                           </Button>
                           <Button
                             onClick={() => clickOptionDate("audited_date", "thisweek")}
+                            className={
+                              auditedDateClick === "thisweek" ? "active" : "deactive"
+                            }
+                          >
+                            Tuần này
+                          </Button>
+                        </div>
+                        <div className="date-option">
+                          <Button
+                            onClick={() => clickOptionDate("audited_date", "lastweek")}
+                            className={
+                              auditedDateClick === "lastweek" ? "active" : "deactive"
+                            }
+                          >
+                            Tuần trước
+                          </Button>
+                          <Button
+                            onClick={() => clickOptionDate("audited_date", "thismonth")}
+                            className={
+                              auditedDateClick === "thismonth" ? "active" : "deactive"
+                            }
+                          >
+                            Tháng này
+                          </Button>
+                          <Button
+                            onClick={() => clickOptionDate("audited_date", "lastmonth")}
+                            className={
+                              auditedDateClick === "lastmonth" ? "active" : "deactive"
+                            }
+                          >
+                            Tháng trước
+                          </Button>
+                        </div>
+                        <p>
+                          <SettingOutlined style={{marginRight: "10px"}} />
+                          Tuỳ chọn khoảng thời gian:
+                        </p>
+                        <DatePicker.RangePicker
+                          format={DATE_FORMAT.DDMMYYY}
+                          style={{width: "100%"}}
+                          value={[
+                            isFromAuditedDate
+                              ? moment(isFromAuditedDate, DATE_FORMAT.DDMMYYY)
+                              : null,
+                            isToAuditedDate
+                              ? moment(isToAuditedDate, DATE_FORMAT.DDMMYYY)
+                              : null,
+                          ]}
+                          onChange={(date, dateString) =>
+                            onChangeRangeDate(date, dateString, "audited_date")
+                          }
+                        />
+                      </Panel>
+                    </Collapse>
+                  </Col>
+                </Row>
+                <Row gutter={12} style={{marginTop: "10px"}}>
+                  <Col span={24}>
+                    <Collapse
+                      defaultActiveKey={
+                        initialValues.from_adjusted_date && initialValues.to_adjusted_date
+                          ? ["1"]
+                          : []
+                      }
+                    >
+                      <Panel header="Ngày cân bằng" key="1" className="header-filter">
+                        <div className="date-option">
+                          <Button
+                            onClick={() => clickOptionDate("adjusted_date", "yesterday")}
+                            className={
+                              adjustmentDateClick === "yesterday" ? "active" : "deactive"
+                            }
+                          >
+                            Hôm qua
+                          </Button>
+                          <Button
+                            onClick={() => clickOptionDate("adjusted_date", "today")}
+                            className={
+                              adjustmentDateClick === "today" ? "active" : "deactive"
+                            }
+                          >
+                            Hôm nay
+                          </Button>
+                          <Button
+                            onClick={() => clickOptionDate("adjusted_date", "thisweek")}
                             className={
                               adjustmentDateClick === "thisweek" ? "active" : "deactive"
                             }
@@ -691,12 +843,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         </div>
                         <div className="date-option">
                           <Button
-                            onClick={() =>
-                              clickOptionDate(
-                                "inventoryaudited_dateadjustment_date",
-                                "lastweek"
-                              )
-                            }
+                            onClick={() => clickOptionDate("adjusted_date", "lastweek")}
                             className={
                               adjustmentDateClick === "lastweek" ? "active" : "deactive"
                             }
@@ -704,7 +851,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             Tuần trước
                           </Button>
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "thismonth")}
+                            onClick={() => clickOptionDate("adjusted_date", "thismonth")}
                             className={
                               adjustmentDateClick === "thismonth" ? "active" : "deactive"
                             }
@@ -712,7 +859,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             Tháng này
                           </Button>
                           <Button
-                            onClick={() => clickOptionDate("audited_date", "lastmonth")}
+                            onClick={() => clickOptionDate("adjusted_date", "lastmonth")}
                             className={
                               adjustmentDateClick === "lastmonth" ? "active" : "deactive"
                             }
@@ -725,20 +872,57 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           Tuỳ chọn khoảng thời gian:
                         </p>
                         <DatePicker.RangePicker
-                          format="DD-MM-YYYY"
+                          format={DATE_FORMAT.DDMMYYY}
                           style={{width: "100%"}}
                           value={[
-                            isFromInventoryAdjustmentDate
-                              ? moment(isFromInventoryAdjustmentDate, "DD-MM-YYYY")
+                            isFromAdjustedBy
+                              ? moment(isFromAdjustedBy, DATE_FORMAT.DDMMYYY)
                               : null,
-                            isToInventoryAdjustmentDate
-                              ? moment(isToInventoryAdjustmentDate, "DD-MM-YYYY")
+                            isToAdjustedBy
+                              ? moment(isToAdjustedBy, DATE_FORMAT.DDMMYYY)
                               : null,
                           ]}
                           onChange={(date, dateString) =>
-                            onChangeRangeDate(date, dateString, "audited_date")
+                            onChangeRangeDate(date, dateString, "adjusted_date")
                           }
                         />
+                      </Panel>
+                    </Collapse>
+                  </Col>
+                </Row>
+                <Row gutter={12} style={{marginTop: "10px"}}>
+                  <Col span={24}>
+                    <Collapse
+                      defaultActiveKey={initialValues?.audit_type?.length ? ["1"] : []}
+                    >
+                      <Panel header="Loại kiểm kho" key="1" className="header-filter">
+                        <Item name="audit_type" style={{margin: "10px 0px"}}>
+                          <CustomSelect
+                            mode="multiple"
+                            showSearch
+                            showArrow
+                            maxTagCount="responsive"
+                            placeholder="Chọn loại kiểm kho"
+                            notFoundContent="Không tìm thấy kết quả"
+                            optionFilterProp="children"
+                            style={{width: "100%"}}
+                            getPopupContainer={(trigger) => trigger.parentNode}
+                          >
+                            {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
+                              if (item.value === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
+                                  return (<CustomSelect.Option
+                                    style={{width: "100%"}}
+                                    key={index.toString()}
+                                    value={item.value}
+                                  >
+                                    {item.name}
+                                  </CustomSelect.Option>)
+                              }else{
+                                return null
+                              }
+                            })}
+                          </CustomSelect>
+                        </Item>
                       </Panel>
                     </Collapse>
                   </Col>

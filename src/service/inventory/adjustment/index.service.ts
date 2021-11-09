@@ -46,3 +46,11 @@ export const getPrintTicketIdsService = (
 ): Promise<Array<PrinterInventoryTransferResponseModel>> => {  
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/print_forms?${queryPrint}`);
 };
+
+export const getLinesItemAdjustmentApi = (
+  id: number,
+  queryString: string | null
+  ): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item?${queryString}`);
+};
+

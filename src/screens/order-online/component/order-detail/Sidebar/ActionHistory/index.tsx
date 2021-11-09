@@ -49,7 +49,7 @@ function ActionHistory(props: PropType) {
     return (
       <div className="cardTitle">
         <img src={historyAction} alt=""></img>
-        <span>Lịch sử thao tác đơn hàng</span>
+        <span>Lịch sử thao tác đơn hàng 4</span>
       </div>
     );
   };

@@ -111,11 +111,13 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
   const onChangeRangeDate = useCallback(
     (dates, dateString, type) => {
+      const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
+      const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
-          setIsFromCreatedDate(moment(dateString[0], 'DD-MM-YYYY'))
-          setIsToCreatedDate(moment(dateString[1], 'DD-MM-YYYY'))
+          setIsFromCreatedDate(fromDateString)
+          setIsToCreatedDate(toDateString)
           break;
         default: break
       }
@@ -314,12 +316,9 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 placeholder="Kho gửi"
                 showArrow
                 showSearch
+                allowClear
+                onClear={() => formSearchRef?.current?.submit()}
               >
-                <Option
-                  value={""}
-                >
-                  Chọn kho gửi
-                </Option>
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
                   stores.map((item, index) => (
@@ -343,12 +342,9 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
                 showArrow
                 showSearch
                 optionFilterProp="children"
+                allowClear
+                onClear={() => formSearchRef?.current?.submit()}
               >
-                <Option
-                  value={""}
-                >
-                  Chọn kho nhận
-                </Option>
                 {Array.isArray(stores) &&
                   stores.length > 0 &&
                   stores.map((item, index) => (

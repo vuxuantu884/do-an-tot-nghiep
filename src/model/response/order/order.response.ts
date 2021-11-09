@@ -70,6 +70,7 @@ export interface OrderResponse extends BaseObject {
   receive_date?: string;
   order_code?: string;
   order_id?: number;
+  order_returns?: Array<OrderLineItemResponse>;
   order_return_origin?: OrderReturnModel;
   point_refund?: number;
   money_refund?: number;
@@ -228,9 +229,12 @@ export interface ShippingAddress {
 }
 
 export interface ShipmentResponse extends BaseObject {
+  delivery_service_provider_code: string | null;
   delivery_service_provider_id: number | null;
+  delivery_service_provider_name: string | null;
   delivery_service_provider_type: string | null;
   delivery_transport_type: string | null;
+  insurance_fee: number | null;
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;

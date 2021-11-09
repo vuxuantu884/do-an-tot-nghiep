@@ -55,7 +55,13 @@ import {
   StyledYodyProductColumn,
 } from "./styles";
 import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
+import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
+import useAuthorization from "hook/useAuthorization";
 
+
+
+const connectProductPermission = [EcommerceProductPermissions.CONNECT_PRODUCT];
+const deleteProductPermission = [EcommerceProductPermissions.DELETE_PRODUCT];
 
 type NotConnectedItemsProps = {
   variantData: any;
@@ -71,6 +77,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const dispatch = useDispatch();
   const { Option } = Select;
   const history = useHistory();
+
+  const [allowConnectProduct] = useAuthorization({
+    acceptPermissions: connectProductPermission,
+    not: false,
+  });
 
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
@@ -166,6 +177,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     updateConnectItemList: any
   ) => {
     const autoCompleteRef = createRef<RefSelectProps>();
+
+    const [allowConnectProduct] = useAuthorization({
+      acceptPermissions: connectProductPermission,
+      not: false,
+    });
 
     const [keySearchVariant, setKeySearchVariant] = useState("");
     const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
@@ -433,22 +449,24 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </li>
             </ul>
 
-            <div className="button">
-              <Button
-                type="primary"
-                onClick={handleSaveConnectYodyProduct}
-                loading={!isVisibleConfirmConnectModal && isSaving}
-              >
-                Lưu
-              </Button>
+            {allowConnectProduct &&
+              <div className="button">
+                <Button
+                  type="primary"
+                  onClick={handleSaveConnectYodyProduct}
+                  loading={!isVisibleConfirmConnectModal && isSaving}
+                >
+                  Lưu
+                </Button>
 
-              <Button
-                disabled={isSaving}
-                onClick={() => cancelConnectYodyProduct(productSelected.id)}
-              >
-                Hủy
-              </Button>
-            </div>
+                <Button
+                  disabled={isSaving}
+                  onClick={() => cancelConnectYodyProduct(productSelected.id)}
+                >
+                  Hủy
+                </Button>
+              </div>
+            }
           </div>
         )}
 
@@ -464,6 +482,28 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
       </StyledYodyProductColumn>
     );
   };
+
+  const RenderDeleteItemColumn = (l: any, item: any, index: number) => {
+    const [allowDeleteProduct] = useAuthorization({
+      acceptPermissions: deleteProductPermission,
+      not: false,
+    });
+    
+    const isShowAction = item.connect_status === "waiting" && allowDeleteProduct;
+
+    return (
+      <>
+        {isShowAction &&
+          <img
+            src={closeIcon}
+            className="delete-item-icon"
+            alt=""
+            onClick={() => handleDeleteItem(l)}
+          />
+        }
+      </>
+    );
+  }
 
   const [columns] = useState<any>([
     {
@@ -539,16 +579,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       width: "60px",
-      render: (l: any, v: any, i: any) => {
-        return (
-          <img
-            src={closeIcon}
-            className="delete-item-icon"
-            alt=""
-            onClick={() => handleDeleteItem(l)}
-          />
-        );
-      },
+      render: (l: any, item: any, index: number) => RenderDeleteItemColumn(l, item, index)
     },
   ]);
 
@@ -994,7 +1025,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isRowSelection
+          isRowSelection={allowConnectProduct}
           isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
@@ -1012,16 +1043,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           rowKey={(data) => data.id}
         />
 
-        <Button
-          style={{ margin: "20px 0" }}
-          type="primary"
-          onClick={handleConnectedYodyProducts}
-          disabled={disableSaveConnectedYodyProduct()}
-          size="large"
-          icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
-        >
-          Lưu các cặp đã chọn
-        </Button>
+        {allowConnectProduct &&
+          <Button
+            style={{ margin: "20px 0" }}
+            type="primary"
+            onClick={handleConnectedYodyProducts}
+            disabled={disableSaveConnectedYodyProduct()}
+            size="large"
+            icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
+          >
+            Lưu các cặp đã chọn
+          </Button>
+        }
+        
       </Card>
 
       {isVisibleConfirmConnectItemsModal &&

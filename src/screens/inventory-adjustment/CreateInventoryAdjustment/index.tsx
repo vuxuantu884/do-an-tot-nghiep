@@ -48,6 +48,7 @@ import CustomPagination from "component/table/CustomPagination";
 import {AiOutlineClose} from "react-icons/ai";
 import InventoryAdjustmentTimeLine from "../DetailInvetoryAdjustment/conponents/InventoryAdjustmentTimeLine";
 import {DATE_FORMAT} from "utils/DateUtils";
+import moment from "moment";
 
 const {Option} = Select;
 
@@ -84,7 +85,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [auditType, setAuditType] = useState<string>("");
+  const [auditType, setAuditType] = useState<string>(INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY);
   const [adjustStoreIdBak, setAdjustStoreIdBak] = useState<number | null>(null);
 
   const [formStoreData, setFormStoreData] = useState<Store | null>();
@@ -98,11 +99,7 @@ const CreateInventoryAdjustment: FC = () => {
     TotalRealOnHand: 0,
   });
 
-  const lstAudiTypes = [
-    {
-      key: "total",
-      name: "Toàn bộ",
-    },
+  const lstAudiTypes = [ 
     {
       key: "partly",
       name: "Một phần",
@@ -131,6 +128,8 @@ const CreateInventoryAdjustment: FC = () => {
     const storeCurr = stores.find(
       (e) => e.id.toString() === data.adjusted_store_id.toString()
     );
+    data.audited_by  = data.audited_by ?? [];
+     
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
 
@@ -167,15 +166,9 @@ const CreateInventoryAdjustment: FC = () => {
 
   const onChangeAuditType = useCallback(
     (auditType: string) => {
-      if (!form.getFieldValue("adjusted_store_id")) {
-        showError("Vui lòng chọn kho kiểm");
-        form.setFieldsValue({audit_type: null});
-        return false;
-      }
-
       setAuditType(auditType);
     },
-    [form]
+    []
   );
 
   // get store
@@ -716,6 +709,7 @@ const CreateInventoryAdjustment: FC = () => {
                       <Form.Item
                         style={{margin: "0px"}}
                         name="audit_type"
+                        initialValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
                         label=""
                         rules={[
                           {
@@ -731,6 +725,7 @@ const CreateInventoryAdjustment: FC = () => {
                           optionFilterProp="children"
                           showSearch={false}
                           allowClear={true}
+                          defaultValue={INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY}
                           onChange={(value: string) => {
                             onChangeAuditType(value);
                           }}
@@ -960,6 +955,7 @@ const CreateInventoryAdjustment: FC = () => {
                   colon={false}
                 >
                   <CustomDatePicker
+                    disableDate={(date) => date < moment().startOf("days")}
                     style={{width: "100%"}}
                     placeholder="Chọn ngày kiểm"
                     format={DATE_FORMAT.DDMMYYY}
@@ -971,6 +967,10 @@ const CreateInventoryAdjustment: FC = () => {
                   label={<b>Người kiểm</b>}
                   labelCol={{span: 24, offset: 0}}
                   colon={false}
+                  rules={[{
+                      required: true,
+                      message: "Vui lòng chọn người kiểm",
+                  }]}
                 >
                   <CustomSelect
                     mode="multiple"

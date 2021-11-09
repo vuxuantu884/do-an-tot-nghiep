@@ -326,7 +326,7 @@ function CardPayments(props: CardPaymentsProps) {
                         style={{ margin: "10px 0", alignItems: "center" }}
                       >
                         <Col span={10} style={{padding: "0 12px"}}>
-                          <b>Khách cần trả:</b>
+                          <b>Khách cần trả: 3</b>
                         </Col>
                         <Col
                           span={14}

@@ -128,7 +128,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     storeId,
     inventoryResponse,
     selectStore,
-    setStoreForm,
     handleCardItems,
     levelOrder = 0,
     orderId,
@@ -1081,18 +1080,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     dispatch(StoreSearchListAction(resultSearchStore, setStoreArrayResponse));
   }, [resultSearchStore]);
 
-  const dataSearchCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = [];
-    if (storeArrayResponse && storeArrayResponse != null) {
-      newData = storeArrayResponse.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
-    }
-    return newData;
-  }, [storeArrayResponse, userReducer.account]);
+  // const dataSearchCanAccess = useMemo(() => {
+  //   let newData: Array<StoreResponse> = [];
+  //   if (storeArrayResponse && storeArrayResponse != null) {
+  //     newData = storeArrayResponse.filter((store) =>
+  //       haveAccess(
+  //         store.id,
+  //         userReducer.account ? userReducer.account.account_stores : []
+  //       )
+  //     );
+  //   }
+  //   return newData;
+  // }, [storeArrayResponse, userReducer.account]);
 
   const handleInventoryCancel = useCallback(() => {
     setInventoryModalVisible(false);
@@ -1500,9 +1499,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           columnsItem={items}
           inventoryArray={inventoryResponse}
           setResultSearchStore={setResultSearchStore}
-          dataSearchCanAccess={dataSearchCanAccess}
+          dataSearchCanAccess={storeArrayResponse}
           handleCancel={handleInventoryCancel}
-          setStoreForm={setStoreForm}
+          // setStoreForm={setStoreForm}
         />
       </Card>
     </StyledComponent>
