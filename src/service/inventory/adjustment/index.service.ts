@@ -4,7 +4,6 @@ import { ApiConfig } from "../../../config/api.config";
 import { generateQuery } from "utils/AppUtils"; 
 import { InventoryAdjustmentDetailItem, InventoryAdjustmentSearchQuery, LineItemAdjustment } from "model/inventoryadjustment";
 import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
-import { PageResponse } from "model/base/base-metadata.response";
 
 export const getListInventoryAdjustmentApi = (
   query: InventoryAdjustmentSearchQuery
