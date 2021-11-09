@@ -34,6 +34,8 @@ const InventoryModal: React.FC<InventoryModalProps> = (
   } = props;
 
   const [changeStoreItem, sethangeStoreItem] = useState<number | null>(null);
+
+  const inventoryData:any=[];
   const setAvailable = (storeId: number, variantId: number) => {
     let inventoryInt = null;
     if (inventoryArray && inventoryArray.length) {
@@ -84,6 +86,14 @@ const InventoryModal: React.FC<InventoryModalProps> = (
       setInventoryModalVisible(false)
     }
   }, [setStoreId,changeStoreItem,setInventoryModalVisible,setStoreForm]);
+
+  // useEffect(()=>{
+  //   dataSearchCanAccess?.forEach(function(data, index){
+  //     inventoryData.push({
+  //       storeId:
+  //     });
+  //   });
+  // },[dataSearchCanAccess,columnsItem])
 
   return (
     <Modal

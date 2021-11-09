@@ -8,7 +8,7 @@ import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
+import { inventoryGetDetailVariantIdsExt, inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -945,12 +945,14 @@ export default function Order() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (items && items != null) {
+    if (items && items != null&& items.length) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsSaga(variant_id, null, setInventoryResponse));
+      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
     }
   }, [dispatch, items]);
+
+  console.log("inventoryResponse",inventoryResponse)
 
   useEffect(() => {
     dispatch(
