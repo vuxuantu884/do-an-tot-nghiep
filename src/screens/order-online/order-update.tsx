@@ -328,8 +328,10 @@ export default function Order(props: PropType) {
     [setTag]
   );
 
-  const getImageDeliveryService = useCallback((service_id) => {
-    const service = deliveryServices.find((item) => item.id === service_id);
+  const getImageDeliveryService = useCallback((service_code) => {
+    const service = deliveryServices.find((item) => item.code === service_code);
+    console.log('deliveryServices', deliveryServices)
+    console.log('service', service)
     return service?.logo;
   }, [deliveryServices]);
 
@@ -1608,7 +1610,6 @@ export default function Order(props: PropType) {
                             fulfillment.shipment && (
                               <div
                                 key={fulfillment.id}
-                                className="padding-24"
                                 style={{ paddingTop: 6, paddingBottom: 4 }}
                               >
                                 <Collapse
@@ -1763,7 +1764,7 @@ export default function Order(props: PropType) {
                                         <Col md={5}>
                                           <Col span={24}>
                                             <p className="text-field">
-                                              Đối tác giao hàng:
+                                              Đối tác giao hàng: 1
                                             </p>
                                           </Col>
                                           <Col span={24}>
@@ -1781,7 +1782,7 @@ export default function Order(props: PropType) {
                                                     }}
                                                     src={getImageDeliveryService(
                                                       fulfillment.shipment
-                                                        .delivery_service_provider_id
+                                                        .delivery_service_provider_code
                                                     )}
                                                     alt=""
                                                   ></img>

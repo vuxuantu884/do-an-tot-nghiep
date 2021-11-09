@@ -146,7 +146,7 @@ function CardProductBottom(props: PropType) {
           </Row>
 
           <Row className="paymentRow" justify="space-between">
-            <div>Phí ship báo khách:</div>
+            <div>Phí ship báo khách: 3</div>
             <div className="font-weight-500 paymentRow-money">
               {shippingFeeInformedToCustomer
                 ? formatCurrency(shippingFeeInformedToCustomer)

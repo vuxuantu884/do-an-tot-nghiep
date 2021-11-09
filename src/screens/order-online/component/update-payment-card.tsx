@@ -1,19 +1,18 @@
-import {Button, Card, Col, Row} from "antd";
+import { Button, Card, Col, FormInstance, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderPayments from "component/order/OrderPayments";
-import {getLoyaltyRate} from "domain/actions/loyalty/loyalty.action";
-import {UpdatePaymentAction} from "domain/actions/order/order.action";
-import {OrderPaymentRequest, UpdateFulFillmentRequest} from "model/request/order.request";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {OrderResponse} from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
-import {OrderStatus} from "utils/Constants";
-import {showSuccess} from "utils/ToastUtils";
+import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
+import { UpdatePaymentAction } from "domain/actions/order/order.action";
+import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { OrderResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { OrderStatus } from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import {StyledComponent} from "./update-payment-card.styles";
+import { StyledComponent } from "./update-payment-card.styles";
 
 type PropType = {
   listPaymentMethods: PaymentMethodResponse[];
@@ -26,6 +25,8 @@ type PropType = {
   amount: any;
   disabled?: boolean;
   isDisablePostPayment?: boolean;
+  shippingFeeInformedToCustomer: number;
+  form: FormInstance<any>;
   setPaymentMethod: (paymentType: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setShowPaymentPartialPayment?: (value: boolean) => void;
@@ -36,9 +37,13 @@ type PropType = {
 };
 
 function UpdatePaymentCard(props: PropType) {
-  const {disabledActions, listPaymentMethods, amount, setShowPaymentPartialPayment, isDisablePostPayment, setPaymentMethod} =
+  const {disabledActions, listPaymentMethods, amount, isVisibleUpdatePayment, setShowPaymentPartialPayment, isDisablePostPayment, form, setPaymentMethod, shippingFeeInformedToCustomer} =
     props;
     console.log('isDisablePostPayment', isDisablePostPayment);
+    console.log('isVisibleUpdatePayment', isVisibleUpdatePayment);
+    console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer);
+    console.log('form', form);
+    console.log('setPaymentMethod', setPaymentMethod);
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
@@ -148,7 +153,7 @@ function UpdatePaymentCard(props: PropType) {
 
   const renderPaymentMethod = () => {
     return (
-      <div className="create-order-payment">
+      <div className="create-order-payment 222">
         <OrderPayments
           payments={paymentData}
           setPayments={setPaymentData}
@@ -232,19 +237,22 @@ function UpdatePaymentCard(props: PropType) {
             </div>
           }
         >
-          {props.isVisibleUpdatePayment === true && (
-            <OrderCreatePayments
-              setPaymentMethod={setPaymentMethod}
-              payments={paymentData}
-              setPayments={setPaymentData}
-              paymentMethod={props.paymentMethod}
-              shipmentMethod={props.shipmentMethod}
-              totalAmountOrder={amount}
-              loyaltyRate={loyaltyRate}
-              isDisablePostPayment={isDisablePostPayment}
-              listPaymentMethod={listPaymentMethods}
-            />
-          )}
+          {props.isVisibleUpdatePayment === true && renderPaymentMethod()
+          // (
+            
+          //   <OrderCreatePayments
+          //     setPaymentMethod={setPaymentMethod}
+          //     payments={paymentData}
+          //     setPayments={setPaymentData}
+          //     paymentMethod={props.paymentMethod}
+          //     shipmentMethod={props.shipmentMethod}
+          //     totalAmountOrder={amount}
+          //     loyaltyRate={loyaltyRate}
+          //     isDisablePostPayment={isDisablePostPayment}
+          //     listPaymentMethod={listPaymentMethods}
+          //   />
+          // )
+          }
 
           {props.isVisibleUpdatePayment === false && (
             <div>

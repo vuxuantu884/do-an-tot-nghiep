@@ -34,7 +34,7 @@ import {
   deleteMultiOrderSourceService
 } from "service/order/order.service";
 import { convertDepartment, generateQuery } from "utils/AppUtils";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
 import { StyledComponent } from "./styles";
 
@@ -219,6 +219,7 @@ function OrderSources(props: PropsType) {
         .then((response: BaseResponse<any>) => {
           switch (response.code) {
             case HttpStatus.SUCCESS:
+              showSuccess("Xóa danh sách thành công!");
               setTableLoading(true);
               gotoFirstPage();
               setTableLoading(false);
