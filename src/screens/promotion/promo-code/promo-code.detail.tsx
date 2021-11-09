@@ -33,6 +33,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
 import Countdown from "react-countdown";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import CreatePromoCodeStep from "./components/create-promo-code-step";
 
 export interface ProductParams {
   id: string;
@@ -334,6 +335,7 @@ const PromotionDetailScreen: React.FC = () => {
           name: "Chiết khấu",
         },
       ]}
+      // extra={<CreatePromoCodeStep step={1} />}
     >
       {data !== null && (
         <React.Fragment>

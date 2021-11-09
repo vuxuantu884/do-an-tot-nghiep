@@ -1,5 +1,5 @@
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {Button, Col, Form, Input, Row, Select, Space, Table, Tooltip} from "antd";
+import {Button, Col, Form, Input, InputNumber, Row, Select, Space, Table, Tooltip} from "antd";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import {searchVariantsRequestAction} from "../../../../domain/actions/product/products.action";
@@ -33,6 +33,7 @@ const FixedPriceGroup = (props: any) => {
   const [selectedProduct, setSelectedProduct] = useState<Array<VariantResponse>>([])
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [discountType, setDiscountType] = useState("FIXED_AMOUNT")
+  const [minQuantityWarning, setMinQuantityWarning] = useState(false)
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const onResultSearch = useCallback(
@@ -95,7 +96,7 @@ const FixedPriceGroup = (props: any) => {
     (value) => {
       const selectedItem = data.find(e => e.id === Number(value));
       if (selectedItem) {
-        setSelectedProduct([...selectedProduct, selectedItem])
+        setSelectedProduct([selectedItem].concat(selectedProduct))
       }
       // setData([]);
     },
@@ -127,6 +128,8 @@ const FixedPriceGroup = (props: any) => {
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
+            validateStatus={minQuantityWarning ? "warning" : "success"}
+            help={minQuantityWarning ? "SL tối thiểu nên nhỏ hơn Giới hạn và Số lượng áp dụng" : ""}
             name={[name, "prerequisite_quantity_ranges.greater_than_or_equal_to"]}
             label={<Space>
               <span>SL tối thiểu</span>
@@ -134,6 +137,24 @@ const FixedPriceGroup = (props: any) => {
                 <RiInformationLine/>
               </Tooltip>
             </Space>}
+            rules={[
+              {required: true, message: "Cần nhập số lượng tối thiểu"},
+              {validator: (_, value) =>
+                {
+                  const entitlement = form.getFieldsValue().entitlements[name];
+                  const usageLimit = form.getFieldValue("usage_limit");
+                  const allocation_limit = entitlement["prerequisite_quantity_ranges.allocation_limit"]
+                  if (
+                    (allocation_limit && value > allocation_limit) ||
+                    (usageLimit && value > usageLimit)
+                  ) {
+                    setMinQuantityWarning(true)
+                  } else {
+                    setMinQuantityWarning(false)
+                  }
+                },
+              },
+            ]}
           >
             <NumberInput key={`${key}-min`} min={0}/>
           </Form.Item>
@@ -149,7 +170,7 @@ const FixedPriceGroup = (props: any) => {
               </Tooltip>
             </Space>}
           >
-            <NumberInput key={`${key}-usage`} min={0}/>
+            <NumberInput key={`${key}-usage`} min={0} />
           </Form.Item>
         </Col>
         <Col span={9}>
@@ -158,23 +179,29 @@ const FixedPriceGroup = (props: any) => {
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
               style={{flex: '1 1 auto'}}
+              rules={[
+                {required: true, message: "Cần nhập chiết khấu"},
+              ]}
             >
-              <NumberInput
+              <InputNumber
                 style={{textAlign: 'end', borderRadius: '0px'}}
-                min={0}
-                maxLength={discountType === 'PERCENTAGE' ? 2 : 9}
-                // format={(a) => formatCurrency(a)}
+                min={1}
+                max={discountType === 'PERCENTAGE' ? 99 : 999999999}
+                step={discountType === 'PERCENTAGE' ? 0.01 : 1}
               />
             </Form.Item>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value_type"]}
               label=" "
             >
-              <Select style={{borderRadius: '0px'}} onSelect={(value: string) => {
-                setDiscountType(value)
-              }}>
-                <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
+              <Select
+                style={{borderRadius: '0px'}}
+                onSelect={(value: string) => {
+                  setDiscountType(value)
+                }}
+              >
                 {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
+                <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
               </Select>
             </Form.Item>
           </Input.Group>
@@ -194,6 +221,7 @@ const FixedPriceGroup = (props: any) => {
               onSelect={onSelectProduct}
               options={renderResult}
               ref={productSearchRef}
+              textEmpty={"Không có kết quả"}
             />
             <Button
               icon={<PlusOutlined/>}

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import "./discount.scss";
-import {useHistory} from "react-router-dom";
+import { useHistory} from "react-router-dom";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import {Button, Col, Form, Row} from "antd";
@@ -41,7 +41,7 @@ const CreateDiscountPage = () => {
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
     body.starts_date = values.starts_date.format();
-    body.ends_date = values.ends_date?.format();
+    body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values.entitlements.map((entitlement: any) => {
       return {
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
@@ -122,13 +122,14 @@ const CreateDiscountPage = () => {
         onFinish={handerSubmit}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
+        scrollToFirstError
         initialValues={{
           entitlements: [""],
           priority: 1,
           entitled_method: "FIXED_PRICE"
         }}
       >
-        <Row gutter={24}>
+        <Row >
           <Col span={24}>
             <GeneralInfo
               className="general-info"

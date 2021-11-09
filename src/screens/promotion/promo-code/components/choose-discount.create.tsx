@@ -1,4 +1,4 @@
-import {Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
+import {Checkbox, Col, Form, Input, InputNumber, Row, Select, Tooltip} from "antd";
 import React, {useState} from "react";
 import "../promo-code.scss";
 import NumberInput from "component/custom/number-input.custom";
@@ -36,12 +36,12 @@ const ChooseDiscount = (props: any) => {
                   className="product-item-discount-input"
                   style={{ width: "65%", textAlign: "right" }}
                   placeholder="Nhập giá trị khuyến mãi"
-                  format={(a) => formatCurrency(a)}
-                  replace={(a) => replaceFormatString(a)}
-                  min={0}
-                  default={0}
-                  maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : 3}
-                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 100}
+                  format={(a) => typeUnit !== 'PERCENTAGE' ? formatCurrency(a) : parseFloat(a).toFixed(2)}
+                  replace={(a) => typeUnit !== 'PERCENTAGE' ? replaceFormatString(a) : parseFloat(a).toFixed(2)}
+                  min={1}
+                  default={1}
+                  // maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : }
+                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 99}
                 />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
@@ -64,7 +64,7 @@ const ChooseDiscount = (props: any) => {
         </Col>
         {/* Mỗi mã được sử dụng */}
         <Col span={8}>
-          <Form.Item 
+          <Form.Item
             label="Mỗi mã được sử dụng:"
             name="usage_limit"
             rules={[
@@ -74,15 +74,16 @@ const ChooseDiscount = (props: any) => {
               }
             ]}
           >
-            <NumberInput
+            <InputNumber
               style={{
                 textAlign: "right",
                 width: "100%",
                 color: "#222222",
               }}
-              maxLength={999999999999999}
+              max={999999}
               minLength={0}
               disabled={isUsageLimit}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             />
           </Form.Item>
         </Col>
@@ -117,18 +118,20 @@ const ChooseDiscount = (props: any) => {
         </Col>
         {/* Mỗi khách được sử dụng tối đa */}
         <Col span={8}>
-          <Form.Item 
+          <Form.Item
             name="usage_limit_per_customer"
             label="Mỗi khách được sử dụng tối đa:"
           >
-            <NumberInput
+            <InputNumber
               style={{
                 textAlign: "right",
                 width: "100%",
                 color: "#222222",
               }}
               minLength={0}
+              max={999999}
               disabled={isUsageLimitPerCus}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             />
           </Form.Item>
         </Col>
@@ -147,8 +150,8 @@ const ChooseDiscount = (props: any) => {
       <Row gutter={30} style={{padding: "0 16px 0"}}>
         <Checkbox> Áp dụng chung với các mã khuyến mại khác&nbsp;&nbsp;
           <Tooltip title="Bao gồm chiết khấu khách hàng, chiết khấu tích điểm, chiết khấu tự nhập cho đơn hàng và chương trình khuyến mãi">
-            <InfoCircleOutlined /> 
-          </Tooltip> 
+            <InfoCircleOutlined />
+          </Tooltip>
         </Checkbox>
       </Row>
     </Col>

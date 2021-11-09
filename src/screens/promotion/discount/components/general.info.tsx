@@ -5,6 +5,7 @@ import {
   TimePicker
 } from "antd";
 import "../discount.scss"
+import moment from 'moment';
 import CustomInput from "../../../customer/common/customInput";
 import React, {useEffect, useMemo, useState} from "react";
 import FixedPriceSelection from "./FixedPriceSelection";
@@ -28,7 +29,7 @@ const GeneralInfo = (props: any) => {
   const [allSource, setAllSource] = useState(false)
   const [allCustomer] = useState(false)
   const [unlimitedUsage, setUnlimitedUsage] = useState(false)
-  // const [disabledEndDate, setDisabledEndDate] = useState(false)
+  const [disabledEndDate, setDisabledEndDate] = useState(false)
   const [discountMethod, setDiscountMethod] = useState('FIXED_PRICE')
 
   useMemo(() => {
@@ -65,7 +66,7 @@ const GeneralInfo = (props: any) => {
             </div>
           }
         >
-          <Row gutter={30} style={{padding: "16px 30px"}}>
+          <Row gutter={30} style={{padding: "16px 16px"}}>
             <Col span={12}>
               <CustomInput
                 name="title"
@@ -162,7 +163,7 @@ const GeneralInfo = (props: any) => {
           </Row>
         </Card>
         <Card>
-          <Row gutter={30} style={{padding: "16px 30px"}}>
+          <Row gutter={30} style={{padding: "16px 16px"}}>
             <Col span={24}>
               <Form.Item
                 name="entitled_method"
@@ -194,19 +195,30 @@ const GeneralInfo = (props: any) => {
                 name="starts_date"
                 rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
               >
-                <DatePicker style={{width: "100%"}} placeholder="Từ ngày"/>
+                <DatePicker
+                  style={{width: "100%"}}
+                  placeholder="Từ ngày"
+                  showNow
+                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, 'days')}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="ends_date">
-                <DatePicker style={{width: "100%"}} placeholder="Đến ngày"/>
+                <DatePicker
+                  disabled={disabledEndDate}
+                  style={{width: "100%"}}
+                  placeholder="Đến ngày"
+                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
+                />
               </Form.Item>
             </Col>
             <Space direction="horizontal">
               <Switch onChange={value => {
                 if (value) {
-                  form.resetFields(['prerequisite_duration'])
+                  form.resetFields(['ends_date'])
                 }
+                setDisabledEndDate(value)
               }}/>
               {"Không cần ngày kết thúc"}
             </Space>
@@ -273,6 +285,9 @@ const GeneralInfo = (props: any) => {
                   placeholder="Chọn chi nhánh"
                   mode="multiple"
                   className="ant-select-selector-min-height"
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
                 >
                   {listStore?.map((store: any) => <Option value={store.id}>{store.name}</Option>)}
                 </Select>
