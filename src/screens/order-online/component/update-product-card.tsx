@@ -391,8 +391,8 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
             {totalAmountReturnProducts ? (
               <Row className="payment-row" justify="space-between">
-                <span className="font-size-text">Tổng tiền hàng trả:</span>
-                <span>{formatCurrency(totalAmountReturnProducts)}</span>
+                <strong className="font-size-text">Tổng tiền hàng trả:</strong>
+                <strong>{formatCurrency(totalAmountReturnProducts)}</strong>
               </Row>
             ) : null}
             {totalAmountReturnProducts ? (

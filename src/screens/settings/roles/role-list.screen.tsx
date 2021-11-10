@@ -60,6 +60,14 @@ const RoleListScreen = () => {
       dataIndex: "updated_by",
       align: "center",
       visible: true,
+      render: (value, record) => {
+        return (
+          <span>
+            {record.updated_name}
+            <br /> {value} 
+          </span>
+        );
+      },
     },
     {
       title: "Cập nhật lần cuối",

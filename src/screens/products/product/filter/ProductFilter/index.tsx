@@ -1,13 +1,13 @@
 import {FilterOutlined} from "@ant-design/icons";
 import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
 import search from "assets/img/search.svg";
-import {FilterWrapper} from "component/container/filter.container";
 import BaseFilter from "component/filter/base.filter";
 import NumberInputRange from "component/filter/component/number-input-range";
 import CustomRangePicker from "component/filter/component/range-picker.custom";
 import CustomSelectOne from "component/filter/component/select-one.custom";
 import {MenuAction} from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
+import CustomFilter from "component/table/custom.filter";
 import {AccountResponse} from "model/account/account.model";
 import {BaseBootstrapResponse} from "model/content/bootstrap.model";
 import {CountryResponse} from "model/content/country.model";
@@ -54,6 +54,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     listCountries,
     onFilter,
     onClickOpen,
+    actions,
+    onMenuClick,
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
@@ -109,7 +111,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     <StyledComponent>
       <div className="product-filter">
         <Form onFinish={onFinish} initialValues={params} layout="inline">
-          <FilterWrapper>
+          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Item name="info" className="search">
               <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã sản phẩm" />
             </Item>
@@ -125,8 +127,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
             </Item>
             <Item>
               <ButtonSetting onClick={onClickOpen} />
-            </Item>{" "}
-          </FilterWrapper>
+            </Item>
+          </CustomFilter>
         </Form>
         <FilterList
           filters={advanceFilters}

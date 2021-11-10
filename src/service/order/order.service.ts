@@ -139,7 +139,7 @@ export const updateFulFillmentStatus = (
 ): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}`;
   let params = {
-    action: request.action,
+    ...request,
   };
   return BaseAxios.put(link, params);
 };

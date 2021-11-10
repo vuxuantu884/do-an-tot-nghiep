@@ -22,6 +22,9 @@ import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const actions: Array<MenuAction> = [
   {
@@ -159,14 +162,25 @@ const Category = () => {
     [selected, history]
   );
 
+  const [canDeleteVariants] = useAuthorization({
+    acceptPermissions: [ProductPermission.delete_variant],
+  });
+  const [canUpdateCategories] = useAuthorization({
+    acceptPermissions: [ProductPermission.categories_update],
+  });
+  
   const menuFilter = useMemo(() => {
     return actions.filter((item) => {
-      if (selected.length > 1) {
-        return item.id !== 1 && item.id !== 2;
+      if (item.id === 1) {
+        return selected.length === 1 && canUpdateCategories;
+      }
+      if (item.id === 2) {
+        return canDeleteVariants;
       }
       return true;
     });
-  }, [selected]);
+  }, [selected, canDeleteVariants, canUpdateCategories]);
+
   const onSelect = useCallback((selectedRow: Array<CategoryView>) => {
     setSelected(
       selectedRow.filter(function (el) {
@@ -174,6 +188,7 @@ const Category = () => {
       })
     );
   }, []);
+
   useEffect(() => {
     setLoading(true);
     dispatch(getCategoryRequestAction(params, onGetSuccess));
@@ -195,7 +210,11 @@ const Category = () => {
           path: `${UrlConfig.CATEGORIES}`,
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />}
+      extra={
+        <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
+          <ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />
+        </AuthWrapper>
+      }
     >
       <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
@@ -203,7 +222,7 @@ const Category = () => {
             <Item name="query">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
+                style={{width: 200}}
                 placeholder="Tên/Mã danh mục"
               />
             </Item>
