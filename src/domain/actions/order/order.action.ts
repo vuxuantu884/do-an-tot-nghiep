@@ -348,7 +348,7 @@ export const getListChannelRequest = (
 };
 
 export const getListReasonRequest = (
-  setData: (data: Array<{ id: number; name: string }>) => void
+  setData: (data: Array<{ id: number, name: string, sub_reasons: any[] }>) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_REASON_REQUEST, { setData });
 };

@@ -111,8 +111,13 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
 
   const onChangeRangeDate = useCallback(
     (dates, dateString, type) => {
-      const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
-      const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
+      let fromDateString = null;
+      let toDateString = null;
+    
+      if (dates) {
+        fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
+        toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
+      }
       switch(type) {
         case 'create_date':
           setCreateDateClick('')
@@ -267,11 +272,23 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     let list = []
     if (initialValues.action.length) {
       let textAction = ""
+
+      if (initialValues.action.length > 1) {
         
-      initialValues.action.forEach(actionValue => {
-        const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
-        textAction = status ? textAction + status.name + ";" : textAction
-      })
+        initialValues.action.forEach(actionValue => {
+          const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
+          textAction = status ? textAction + status.name + "; " : textAction
+        })
+
+      } else if (initialValues.action.length === 1) {
+        
+        initialValues.action.forEach(actionValue => {
+          const status = ACTIONS_STATUS_ARRAY?.find(status => status.value === actionValue)
+          textAction = status ? textAction + status.name : textAction
+        })
+
+      }
+
       list.push({
         key: 'action',
         name: 'Trạng thái',
@@ -280,10 +297,23 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (
     }
     if (initialValues.updated_by.length) {
       let textAccount = ""
+      
+      if (initialValues.updated_by.length > 1) {
+        
       initialValues.updated_by.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
+
+      } else if (initialValues.updated_by.length === 1) {
+  
+        initialValues.updated_by.forEach(i => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+
+      }
+
       list.push({
         key: 'updated_by',
         name: 'Người sửa',

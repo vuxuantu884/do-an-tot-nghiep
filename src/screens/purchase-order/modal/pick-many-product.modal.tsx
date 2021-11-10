@@ -43,7 +43,6 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const [query, setQuery] = useState<VariantSearchQuery>(
     props.storeID ? initQueryHasStoreID : initQuery
   );
-
   const onResultSuccess = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
       if (!!result) {
@@ -158,7 +157,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
               <ProductItem
                 isTransfer={props.isTransfer}
                 checked={
-                  selection.findIndex((item1) => item.id === item1.id) !== -1
+                  selection.findIndex((item1) => item.id === (item1.variant_id ?? item1.id)) !== -1
                 }
                 showCheckBox={true}
                 data={item}

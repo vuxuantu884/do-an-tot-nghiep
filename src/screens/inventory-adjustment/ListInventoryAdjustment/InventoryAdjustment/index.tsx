@@ -436,7 +436,7 @@ const InventoryAdjustment: React.FC = () => {
           break;
       }
     },
-    [printTicketAction]
+    [onExport, printTicketAction, selectedRowKeys]
   );
  
   const onClearFilter = useCallback(() => {
