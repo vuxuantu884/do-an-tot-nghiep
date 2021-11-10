@@ -1118,7 +1118,7 @@ function OrderCreateProduct(props: PropType) {
   return (
     <StyledComponent>
       <Card
-        title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm3"}
+        title={returnOrderInformation ? "Thông tin sản phẩm đổi2" : "Sản phẩm3"}
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
