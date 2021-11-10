@@ -46,6 +46,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
   });
 
   const [keySearch, setKeySearch] = useState<string | any>("");
+  const [editReason, setEditReason] = useState<boolean | any>(false);
 
   const dispatch = useDispatch();
   const {data, dataLinesItem} = props;
@@ -89,6 +90,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
 
       setDataTable(dataTableClone);
       setSearchVariant(dataTableClone);
+      setEditReason(true);
 
       onEnterFilterVariant(dataEdit);
     },
@@ -243,6 +245,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
             <TextArea
               placeholder="Lý do lệch tồn"
               id={`item-reason-${index}`}
+              maxLength={250}
               value={value ? value : ""}
               onChange={(e) => {
                 onChangeReason(e.target.value, row, index);
@@ -258,25 +261,26 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
                         showSuccess("Nhập lý do thành công.");
                       }
                     })
-                  ); 
+                  );
+                  setEditReason(false); 
                 }
               }}
-              // onBlur={(e) => {
-              //   if (editReason) {
-              //     dispatch(
-              //       updateItemOnlineInventoryAction(
-              //         data?.id,
-              //         row,
-              //         (result) => {
-              //           if (result) {
-              //             showSuccess("Nhập lý do thành công.");
-              //           }
-              //         }
-              //       )
-              //     );
-              //     setEditReason(false);
-              //   }
-              // }}
+              onBlur={(e) => {
+                if (editReason) {
+                  dispatch(
+                    updateItemOnlineInventoryAction(
+                      data?.id,
+                      row,
+                      (result) => {
+                        if (result) {
+                          showSuccess("Nhập lý do thành công.");
+                        }
+                      }
+                    )
+                  );
+                  setEditReason(false);
+                }
+              }}
             />
           );
         }

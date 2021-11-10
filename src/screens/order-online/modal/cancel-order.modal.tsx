@@ -28,7 +28,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
       cancelText="Huỷ"
       width={600}
     >
-       <div>
+      <div>
         <Form.Item label="Chọn lý do" labelCol={{span: 4}} style={{alignItems:"center"}}>
           <CustomSelect
             showSearch placeholder="Chọn lý do huỷ đơn"

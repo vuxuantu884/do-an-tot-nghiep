@@ -815,7 +815,11 @@ function OrderCreateProduct(props: PropType) {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(singleItem => singleItem.variant_id === item.variant_id).length : item.quantity;
     try {
-      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
+      const orderInfo:any = {
+        storeId,
+        salesChannelName: "ADMIN"
+      }
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], orderInfo);
       setLoadingAutomaticDiscount(false)
       if (item && checkingDiscountResponse &&
         checkingDiscountResponse.code === 20000000 &&
@@ -927,9 +931,10 @@ function OrderCreateProduct(props: PropType) {
       }
 
       initQueryVariant.info = value;
+      initQueryVariant.store_ids=form?.getFieldValue(["store_id"]);
+      console.log("initQueryVariant",initQueryVariant)
       if (value.trim()) {
         (async () => {
-          // console.log('setSearchProducts true');
           setSearchProducts(true);
           try {
             await dispatch(
@@ -1192,6 +1197,15 @@ function OrderCreateProduct(props: PropType) {
                   if (value) {
                     setStoreId(value);
                     setIsShowProductSearch(true);
+                    setKeySearchVariant("");
+                    setResultSearchVariant({
+                      metadata: {
+                        limit: 0,
+                        page: 1,
+                        total: 0,
+                      },
+                      items: [],
+                    })
                   } else {
                     setIsShowProductSearch(false);
                   }
@@ -1408,7 +1422,7 @@ function OrderCreateProduct(props: PropType) {
           columnsItem={items}
           inventoryArray={inventoryResponse}
           setResultSearchStore={setResultSearchStore}
-          dataSearchCanAccess={dataSearchCanAccess}
+          dataSearchCanAccess={storeArrayResponse}
           handleCancel={handleInventoryCancel}
           // setStoreForm={setStoreForm}
         />

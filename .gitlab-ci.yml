@@ -37,8 +37,22 @@ docker build uat:
   script:
     - sh deployment/dockerbuild.sh
 
+docker build production:
+  stage: docker_build
+  tags:
+  - build-yody-tag
+  only:
+    - master
+  variables:
+    DOCKER_FILE: Dockerfile-production
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - sh deployment/dockerbuild.sh
+
 deploy to dev:
   stage: deploy
+  cache: {}
   tags:
     - nonprod-deploy
   only:
@@ -54,6 +68,7 @@ deploy to dev:
 
 deploy to uat:
   stage: deploy
+  cache: {}
   when: manual
   tags:
     - nonprod-deploy
@@ -63,6 +78,23 @@ deploy to uat:
     HOST: uat.yody.io
     NAMESPACE: uat
     ENVIRONMENT: uat
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+
+deploy to production:
+  stage: deploy
+  when: manual
+  cache: {}
+  tags:
+    - production
+  only:
+    - master
+  variables:
+    HOST: yody.io
+    NAMESPACE: production
+    ENVIRONMENT: production
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
