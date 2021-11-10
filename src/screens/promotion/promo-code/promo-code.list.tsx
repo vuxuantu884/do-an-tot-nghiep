@@ -146,7 +146,7 @@ const ListCode = () => {
       showSuccess("Cập nhật thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
-  }, [dispatch, priceRuleId, fetchData]);
+  }, [dispatch, priceRuleId, params, fetchData]);
 
   // section DELETE by Id
   function handleDelete(item: any) {
@@ -188,7 +188,7 @@ const ListCode = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
-  }, [dispatch, priceRuleId, fetchData]);
+  }, [dispatch, priceRuleId, params, fetchData]);
 
    // section DELETE bulk
   const deleteCallBack = useCallback((response) => {
@@ -197,7 +197,7 @@ const ListCode = () => {
       showSuccess("Xóa thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
-  }, [dispatch, priceRuleId, fetchData]);
+  }, [dispatch, priceRuleId, params, fetchData]);
 
   // section CHANGE STATUS
   const handleStatus = (item: any) => {

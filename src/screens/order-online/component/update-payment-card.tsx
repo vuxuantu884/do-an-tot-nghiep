@@ -7,7 +7,7 @@ import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/ord
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { OrderStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
@@ -31,7 +31,7 @@ type PropType = {
   setVisibleUpdatePayment: (value: boolean) => void;
   setShowPaymentPartialPayment?: (value: boolean) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
-  setTotalPaid: (value: number) => void;
+  // setTotalPaid: (value: number) => void;
   reload?: () => void;
   disabledActions?: (type: string) => void;
 };
@@ -55,11 +55,11 @@ function UpdatePaymentCard(props: PropType) {
     props.setVisibleUpdatePayment(true);
   };
 
-  const totalAmountPaid = useMemo(() => {
-    let total = 0;
-    paymentData.forEach((p) => (total = total + p.amount));
-    return total;
-  }, [paymentData]);
+  // const totalAmountPaid = useMemo(() => {
+  //   let total = 0;
+  //   paymentData.forEach((p) => (total = total + p.amount));
+  //   return total;
+  // }, [paymentData]);
 
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
@@ -204,9 +204,9 @@ function UpdatePaymentCard(props: PropType) {
     }
   }, [createPayment, disabledActions]);
 
-  useEffect(() => {
-    props.setTotalPaid(totalAmountPaid);
-  }, [props, totalAmountPaid]);
+  // useEffect(() => {
+  //   props.setTotalPaid(totalAmountPaid);
+  // }, [props, totalAmountPaid]);
 
   useEffect(() => {
     dispatch(getLoyaltyRate(setLoyaltyRate));

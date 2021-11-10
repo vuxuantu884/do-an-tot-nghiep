@@ -4,7 +4,6 @@ import { useCallback, useEffect } from "react";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
 import "./../promo-code.scss";
-import _ from "lodash";
 import { checkPromoCode } from "service/promotion/promo-code/promo-code.service";
 
 type ModalProps = {

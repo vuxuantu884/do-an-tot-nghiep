@@ -1,5 +1,5 @@
-import {Button, Checkbox, Col, Form, Modal, Row, Space, message, List, Divider} from "antd";
-import React, {useCallback, useEffect, useState} from "react";
+import {Button, Checkbox, Col, Form, Modal, Row, Space, message, Divider} from "antd";
+import React, {useEffect, useState} from "react";
 import "../discount.scss";
 import {RiUpload2Line} from "react-icons/ri";
 import Dragger from "antd/es/upload/Dragger";
@@ -27,9 +27,9 @@ const FixedPriceSelection = (props: any) => {
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState([])
   const [uploadStatus, setUploadStatus] = useState<'error' | 'success' | 'done' | 'uploading' | 'removed' | undefined>(undefined)
 
-  const importData = useCallback(() => {
+  // const importData = useCallback(() => {
 
-  }, [entitlementsResponse])
+  // }, [entitlementsResponse])
 
   useEffect(() => {
     console.log('useEffect: ', uploadStatus);

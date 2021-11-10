@@ -138,35 +138,6 @@ const PromotionDetailScreen: React.FC = () => {
   const [sources, setSource] = useState<Array<SourceResponse>>();
   const [channel, setChannel] = useState<Array<ChannelResponse>>();
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
-  useEffect(() => {
-    dispatch(StoreGetListAction(setListStore));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
-    dispatch(promoGetDetail(idNumber, onResult));
-    dispatch(getVariants(idNumber, handleResponse));
-  }, []);
-
-  useEffect(() => {
-    const stores = listStore?.filter(
-      (item) => item.id === data?.prerequisite_store_ids[0],
-    );
-    setStore(stores);
-  }, [listStore]);
-
-  useEffect(() => {
-    const source = listSource?.filter(
-      (item) => item.id === data?.prerequisite_order_source_ids[0],
-    );
-    setSource(source);
-  }, [listSource]);
-
-  useEffect(() => {
-    const channel = listChannel?.filter(
-      (item) => item.id === data?.prerequisite_order_source_ids[0],
-    );
-    setChannel(channel);
-  }, [listChannel]);
-
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -175,7 +146,6 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
-
   const handleResponse = useCallback((result: any | false) => {
     setLoading(false);
     if (!result) {
@@ -185,9 +155,41 @@ const PromotionDetailScreen: React.FC = () => {
       console.log(dataVariants);
       
     }
-  }, []);
+  }, [dataVariants]);
+  useEffect(() => {
+    dispatch(StoreGetListAction(setListStore));
+    dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
+    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getVariants(idNumber, handleResponse));
+  }, [dispatch, handleResponse, idNumber, onResult]);
 
-  const renderDiscountValue = (value: number, valueType:string) => {
+  useEffect(() => {
+    const stores = listStore?.filter(
+      (item) => item.id === data?.prerequisite_store_ids[0],
+    );
+    setStore(stores);
+  }, [data?.prerequisite_store_ids, listStore]);
+
+  useEffect(() => {
+    const source = listSource?.filter(
+      (item) => item.id === data?.prerequisite_order_source_ids[0],
+    );
+    setSource(source);
+  }, [data?.prerequisite_order_source_ids, listSource]);
+
+  useEffect(() => {
+    const channel = listChannel?.filter(
+      (item) => item.id === data?.prerequisite_order_source_ids[0],
+    );
+    setChannel(channel);
+  }, [data?.prerequisite_order_source_ids, listChannel]);
+
+  
+
+ 
+
+  const renderDiscountValue = useCallback((value: number, valueType:string) => {
     let result = '';
     switch (valueType) {
       case "FIXED_PRICE":
@@ -201,9 +203,9 @@ const PromotionDetailScreen: React.FC = () => {
         break;
     }
     return result;
-  }
+  }, []);
 
-  const transformData = (rawData: any | null) => {
+  const transformData = useCallback((rawData: any | null) => {
     let result: any[] = [];
     if (rawData && rawData.entitlements.length > 0) {
       rawData.entitlements.forEach((rawEntitlement:any) => {
@@ -221,10 +223,10 @@ const PromotionDetailScreen: React.FC = () => {
       return result;
     }
     return [];
-  }
+  }, [renderDiscountValue]);
   useEffect(() => {
     setEntitlements(transformData(data));
-  }, [data])
+  }, [data, transformData])
 
   const getEntitled_method = (data: DiscountResponse) => {
     if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
