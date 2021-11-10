@@ -17,6 +17,7 @@ const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
 
 type CustomerInfoProps = {
   customer: CustomerResponse | undefined;
+  loyaltyCard: any;
 };
 
 type CustomerParams = {
@@ -34,7 +35,7 @@ type detailMapping = {
 const CustomerInfo: React.FC<CustomerInfoProps> = (
   props: CustomerInfoProps
 ) => {
-  const { customer } = props;
+  const { customer, loyaltyCard } = props;
 
   const [allowUpdateCustomer] = useAuthorization({
     acceptPermissions: updateCustomerPermission,
@@ -66,7 +67,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
         },
         {
           name: "Thẻ khách hàng",
-          value: customer.card_number,
+          value: loyaltyCard?.card_number,
           position: "right",
           key: "4",
         },
@@ -103,7 +104,8 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
       ];
       return details;
     }
-  }, [customer]);
+  }, [customer, loyaltyCard]);
+  
   const customerDetailCollapse: Array<detailMapping> | undefined =
     React.useMemo(() => {
       if (customer) {

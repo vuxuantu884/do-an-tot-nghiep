@@ -5,7 +5,8 @@ import {
   getPriceRuleById,
   bulkEnablePriceRules,
   bulkDeletePriceRules,
-  bulkDisablePriceRules
+  bulkDisablePriceRules,
+  getVariantApi
 } from 'service/promotion/discount/discount.service';
 import { DiscountResponse } from 'model/response/promotion/discount/list-discount.response';
 import { YodyAction } from "../../../../base/base.action";
@@ -44,6 +45,33 @@ function* getDiscounts(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+
+function* getVariantsAct(action: YodyAction) {
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      getVariantApi,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 
 function* deletePriceRuleByIdAct(action: YodyAction) {
   const { id, onResult } = action.payload;
@@ -213,6 +241,7 @@ export function* discountSaga() {
     takeLatest(DiscountType.ADD_PRICE_RULE, addPriceRule),
     takeLatest(DiscountType.ENABLE_PRICE_RULE, bulkEnablePriceRulesAct),
     takeLatest(DiscountType.DISABLE_PRICE_RULE, bulkDisablePriceRulesAct),
-    takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct)
+    takeLatest(DiscountType.DELETE_BULK_PRICE_RULE, bulkDeletePriceRulesAct),
+    takeLatest(DiscountType.GET_VARIANTS, getVariantsAct)
   ])
 }

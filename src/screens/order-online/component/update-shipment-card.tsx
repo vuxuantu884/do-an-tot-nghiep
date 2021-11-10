@@ -50,6 +50,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
+  checkIfOrderHasReturnedAll,
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency,
@@ -89,6 +90,7 @@ type UpdateShipmentCardProps = {
   OrderDetailAllFullfilment: OrderResponse | null;
   orderSettings?: OrderSettingsModel;
   disabledBottomActions?: boolean;
+  reasons? : any[];
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -133,7 +135,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const [cancelReason, setCancelReason] = useState<string>("");
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
@@ -293,7 +294,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onReload && onReload();
   };
   //fulfillmentTypeOrderRequest
-  const fulfillmentTypeOrderRequest = (type: number) => {
+  const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}) => {
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
       fulfillment_id: null,
@@ -332,8 +333,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess, onError));
           break;
         case 5:
+          console.log('dataCancelFFM', dataCancelFFM);
+          
           value.status = FulFillmentStatus.CANCELLED;
           value.action = FulFillmentStatus.CANCELLED;
+          value.cancel_reason_id = dataCancelFFM.reasonID
+          value.sub_cancel_reason_id = dataCancelFFM.reasonSubID
+          value.reason = dataCancelFFM.reason
           setCancelShipment(true);
           dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
@@ -344,8 +350,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         case 7:
+          console.log('dataCancelFFM', dataCancelFFM);
           value.status = FulFillmentStatus.RETURNED;
           value.action = FulFillmentStatus.RETURNED;
+          value.cancel_reason_id = dataCancelFFM.reasonID
+          value.sub_cancel_reason_id = dataCancelFFM.reasonSubID
+          value.reason = dataCancelFFM.reason
           setCancelShipment(true);
           dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
@@ -678,8 +688,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   // Cancel fulfillments
   const [isvibleCancelFullfilment, setIsvibleCancelFullfilment] =
     useState<boolean>(false);
-  const [isvibleCancelandGetGoodsBack, setIsvibleCancelandGetGoodsBack] =
-    useState<boolean>(false);
+  const [isShipping, setIsShipping] = useState<boolean>(false);
   const [isvibleGoodsReturn, setIsvibleGoodsReturn] = useState<boolean>(false);
   const [fullfilmentIdGoodReturn, setFullfilmentIdGoodReturn] = useState<number | null>(
     null
@@ -691,20 +700,22 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].status !== FulFillmentStatus.SHIPPING
     ) {
+      setIsShipping(false);
       setIsvibleCancelFullfilment(true);
     } else {
-      setIsvibleCancelandGetGoodsBack(true);
+      setIsShipping(true);
+      setIsvibleCancelFullfilment(true);
     }
-  }, [setIsvibleCancelFullfilment, props.OrderDetail]);
+  }, [props.OrderDetail]);
 
-  const onOKCancelFullfilment = () => {
-    fulfillmentTypeOrderRequest(5);
-    setIsvibleCancelandGetGoodsBack(false);
+  const onOKCancelFullfilment = (reasonID: string, reasonSubID: string, reason: string) => {
+    fulfillmentTypeOrderRequest(5, {reasonID, reasonSubID, reason});
+    setIsvibleCancelFullfilment(false);
   };
   // cancel fulfillment 3 button modal
-  const onOkCancelAndGetGoodsBack = () => {
-    fulfillmentTypeOrderRequest(7);
-    setIsvibleCancelandGetGoodsBack(false);
+  const onOkCancelAndGetGoodsBack = (reasonID: string, reasonSubID: string, reason: string) => {
+    fulfillmentTypeOrderRequest(7, {reasonID, reasonSubID, reason});
+    setIsvibleCancelFullfilment(false);
   };
   // return goods
   const onOKGoodsReturn = () => {
@@ -713,7 +724,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       order_id: null,
       fulfillment_id: null,
       status: "",
-      cancel_reason: cancelReason,
     };
     value.order_id = props.OrderDetail?.id;
     value.fulfillment_id = fullfilmentIdGoodReturn;
@@ -735,29 +745,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onOkShippingConfirm();
     setReload(true);
   };
-
-  // kiểm tra xem đã trả hết hàng chưa
-  const checkIfOrderCanReturn = () => {
-    if(!OrderDetail) {
-      return false;
-    }
-    if(OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
-      return true
-    }
-    const orderReturnItems = OrderDetail?.order_returns;
-    // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về true
-    if(orderReturnItems && orderReturnItems.length > 0) {
-      return orderReturnItems.some((singleReturnItem) => {
-        let selectedItem = OrderDetail.items.find((item) => item.id === singleReturnItem.id);
-        if(selectedItem && selectedItem.quantity > singleReturnItem.quantity) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-
-    }
-  }
 
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
@@ -1465,7 +1452,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             justifyContent: "flex-end",
           }}
         >
-          {props.stepsStatusValue === FulFillmentStatus.SHIPPED && checkIfOrderCanReturn() ? (
+          {props.stepsStatusValue === FulFillmentStatus.SHIPPED 
+          && checkIfOrderHasReturnedAll(OrderDetail) 
+          ? (
             <Button
               type="primary"
               style={{margin: "0 10px", padding: "0 25px"}}
@@ -1714,34 +1703,23 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         } để giao hàng thành công?`}
       />
       {/* Huy fulfillment pick, pack, unship */}
-      <SaveAndConfirmOrder
+      <CancelFullfilmentModal
+        shipping={isShipping}
         onCancel={() => setIsvibleCancelFullfilment(false)}
         onOk={onOKCancelFullfilment}
-        visible={isvibleCancelFullfilment}
-        cancelShipment={cancelShipment}
-        icon={DeleteIcon}
-        okText="Hủy đơn giao"
-        cancelText="Thoát"
-        title="Bạn có chắc chắn hủy đơn giao hàng này không?"
-        text="Tiền thu hộ nếu có cũng sẽ bị hủy"
-      />
-      {/* Huy fulfillment shiping */}
-      <CancelFullfilmentModal
-        onCancel={() => setIsvibleCancelandGetGoodsBack(false)}
-        onOk={onOKCancelFullfilment}
         onOkandMore={onOkCancelAndGetGoodsBack}
-        visible={isvibleCancelandGetGoodsBack}
+        visible={isvibleCancelFullfilment}
         isCanceling={cancelShipment}
         icon={DeleteIcon}
         okText="Hủy đơn giao"
         cancelText="Thoát"
         title="Bạn có chắc chắn hủy đơn giao hàng này không?"
         text="Tiền thu hộ nếu có cũng sẽ bị hủy"
+        reasons={props.reasons ? props.reasons : []}
       />
 
       {/* Nhận hàng trả lại */}
       <GetGoodsBack
-        setCancelReason={setCancelReason}
         onCancel={() => setIsvibleGoodsReturn(false)}
         onOk={onOKGoodsReturn}
         visible={isvibleGoodsReturn}

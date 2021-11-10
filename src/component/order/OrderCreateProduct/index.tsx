@@ -815,7 +815,7 @@ function OrderCreateProduct(props: PropType) {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(singleItem => singleItem.variant_id === item.variant_id).length : item.quantity;
     try {
-      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}]);
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
       setLoadingAutomaticDiscount(false)
       if (item && checkingDiscountResponse &&
         checkingDiscountResponse.code === 20000000 &&
@@ -1118,7 +1118,7 @@ function OrderCreateProduct(props: PropType) {
   return (
     <StyledComponent>
       <Card
-        title={returnOrderInformation ? "Thông tin sản phẩm đổi" : "Sản phẩm3"}
+        title={returnOrderInformation ? "Thông tin sản phẩm đổi2" : "Sản phẩm3"}
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
@@ -1383,7 +1383,7 @@ function OrderCreateProduct(props: PropType) {
             showDiscountModal={ShowDiscountModal}
             totalAmountOrder={amount}
             items={items}
-            shippingFeeInformedToCustomer={0}
+            shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
           />

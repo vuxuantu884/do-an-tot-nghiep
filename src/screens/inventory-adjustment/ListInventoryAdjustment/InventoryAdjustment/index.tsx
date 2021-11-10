@@ -21,6 +21,7 @@ import {
   STATUS_INVENTORY_ADJUSTMENT,
 } from "../constants";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import {HttpStatus} from "config/http-status.config";
 import {Link} from "react-router-dom";
 import UrlConfig from "config/url.config";
 import {generateQuery} from "utils/AppUtils";
@@ -33,6 +34,10 @@ import {useReactToPrint} from "react-to-print";
 import purify from "dompurify";
 import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
 import CustomFilter from "component/table/custom.filter";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { exportFile, getFile} from "service/other/import.inventory.service";
+import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryAdjustment";
+import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -81,6 +86,11 @@ const InventoryAdjustment: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [selected, setSelected] = useState<Array<InventoryAdjustmentDetailItem>>([]);
+  
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
 
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -286,6 +296,62 @@ const InventoryAdjustment: React.FC = () => {
     },
   ];
 
+  const onExport = useCallback(() => {
+    exportFile({
+      conditions: selectedRowKeys[0].toString(),
+      type: "EXPORT_INVENTORY_ADJUSTMENT",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [listExportFile, selectedRowKeys]);
+
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.percent) {
+            setExportProgress(response.data.percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            var downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+
+            downLoad.click();
+
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [listExportFile]);
+
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
+
+
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<InventoryAdjustmentDetailItem>>>(defaultColumns);
 
@@ -356,11 +422,21 @@ const InventoryAdjustment: React.FC = () => {
         case ACTIONS_INDEX.PRINT:
           printTicketAction(index);
           break;
+        case ACTIONS_INDEX.EXPORT:
+          if (selectedRowKeys.length > 1) {
+            showError('Chỉ chọn 1 phiếu');
+          } else if (selectedRowKeys.length === 1 ){
+            setShowExportModal(true);
+            onExport();
+          } else {
+            showError("Vui lòng chọn 1 phiếu để export");
+          }
+          break;
         default:
           break;
       }
     },
-    [printTicketAction]
+    [onExport, printTicketAction, selectedRowKeys]
   );
  
   const onClearFilter = useCallback(() => {
@@ -436,6 +512,19 @@ const InventoryAdjustment: React.FC = () => {
           }}
           data={columns}
         />
+        {showExportModal && (
+          <InventoryTransferExportModal
+            visible={showExportModal}
+            onCancel={() => {
+              setShowExportModal(false);
+              setExportProgress(0);
+              setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+            }}
+            onOk={() => onExport()}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+          />
+        )}
         <div style={{display: "none"}}>
           <div className="printContent" ref={printElementRef}>
             <div

@@ -39,6 +39,13 @@ const InventoryTransferExportModal: React.FC<ExportModalProps> = (
       ]}
       width={600}
     >
+      {
+        statusExport === 1 && (
+          <Row style={{ justifyContent: 'center'}}>
+            <p>Đang gửi yêu cầu, vui lòng đợi trong giây lát ...</p>
+          </Row>
+        )
+      }
       {statusExport !== 1 && (
       <Row style={{ justifyContent: 'center'}}>
         {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}

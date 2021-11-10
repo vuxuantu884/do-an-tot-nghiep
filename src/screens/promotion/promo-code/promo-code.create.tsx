@@ -4,7 +4,7 @@ import UrlConfig from "../../../config/url.config";
 import arrowLeft from "../../../assets/icon/arrow-left.svg";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
-import { Button, Col, Form, Row } from "antd";
+import {Button, Col, Form, Row} from "antd";
 import { useHistory } from "react-router-dom";
 import { showSuccess } from "../../../utils/ToastUtils";
 import { useDispatch } from "react-redux";
@@ -15,6 +15,8 @@ import { StoreGetListAction } from "../../../domain/actions/core/store.action";
 import { getListSourceRequest } from "../../../domain/actions/product/source.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,7 @@ const CreatePromotionCodePage = () => {
   const [promoCodeForm] = Form.useForm();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
   const initialValues = {
     title: "",
@@ -29,11 +32,13 @@ const CreatePromotionCodePage = () => {
     sale_type: "SALE_CODE",
     product_type: "PRODUCT",
     value_type: "PERCENTAGE",
+    value: "1"
   };
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
 
   const transformData = (values: any) => {
@@ -48,9 +53,13 @@ const CreatePromotionCodePage = () => {
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length ? values.prerequisite_order_source_ids : null;
-    body.starts_date = values.prerequisite_duration[0]?.format();
-    body.ends_date = values.prerequisite_duration[1]?.format();
+    body.starts_date = values.starts_date.format();
+    body.ends_date = values.ends_date?.format() || null;
     body.entitled_method = "QUANTITY";
+    body.prerequisite_subtotal_range = {
+      greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
+      less_than_or_equal_to: null
+    }
     body.entitlements = values.entitlements.map((entitlement: any) => {
       return {
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
@@ -64,13 +73,7 @@ const CreatePromotionCodePage = () => {
             value: values.value,
           },
         ],
-        prerequisite_subtotal_ranges: values.subtotal_min ? {
-          greater_than_or_equal_to: values.subtotal_min,
-          less_than_or_equal_to: null,
-          allocation_limit: null,
-          value_type: values.value_type,
-          value: values.value,
-        } : null
+        prerequisite_subtotal_ranges: null
       }
     });
     return body;
@@ -124,6 +127,7 @@ const CreatePromotionCodePage = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         },
       ]}
+      // extra={<CreatePromoCodeStep step={0}/>}
     >
       <Form
         form={promoCodeForm}
@@ -141,6 +145,7 @@ const CreatePromotionCodePage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
+              listChannel={listChannel}
             />
           </Col>
         </Row>

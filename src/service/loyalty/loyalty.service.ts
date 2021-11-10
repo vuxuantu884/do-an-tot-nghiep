@@ -64,3 +64,7 @@ export const addLoyaltyPointService = (customerId: number, params: UpdateLoyalty
 export const subtractLoyaltyPointService = (customerId: number, params: UpdateLoyaltyPoint): Promise<BaseResponse<LoyaltyPoint>> => {
   return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/subtract-instant`, params);
 };
+
+export const getLoyaltyAdjustPointService = (customerId: number): Promise<BaseResponse<LoyaltyPoint>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/transactions/customer/${customerId}/admin`);
+};

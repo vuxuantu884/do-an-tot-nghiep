@@ -31,6 +31,8 @@ import { convertCategory, convertSizeResponeToDetail } from "utils/AppUtils";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "../../../utils/ToastUtils";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
 
 const { Option } = Select;
 
@@ -179,9 +181,11 @@ const SizeUpdateScreen: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
+              <AuthWrapper acceptPermissions={[ProductPermission.sizes_update]}>
               <Button loading={loading} htmlType="submit" type="primary">
                 Lưu
               </Button>
+              </AuthWrapper>
             </Space>
           </div>
         </Form>

@@ -149,8 +149,7 @@ const EcommerceOrderSync: React.FC = () => {
   // todo thai: handle later
   // const [isShowUpdateConnectionModal, setIsShowUpdateConnectionModal] =
   //   useState(false);
-  const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] =
-    useState(false);
+  const [isShowResultGetOrderModal, setIsShowResultGetOrderModal] = useState(false);
   const [downloadOrderData, setDownloadOrderData] = useState<any>({
     total: 0,
     create_total: 0,
@@ -684,12 +683,9 @@ const EcommerceOrderSync: React.FC = () => {
   };
 
   const updateOrderList = (data: any) => {
+    setDownloadOrderData(data);
     setIsShowGetOrderModal(false);
     setIsShowResultGetOrderModal(true);
-
-    if (data && data.total) {
-      setDownloadOrderData(data);
-    }
   };
 
   const getEcommerceOrderList = useCallback(() => {

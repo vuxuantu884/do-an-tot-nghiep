@@ -96,17 +96,16 @@ const OrderDetail = (props: PropType) => {
     useState<number>(0);
   // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
-  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>([]);
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string, sub_reasons: any[] }>>([]);
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
-  const [totalAmountReturnProducts] = useState<number>(0);
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
   // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
@@ -291,6 +290,10 @@ const OrderDetail = (props: PropType) => {
         setIsShowConfirmOrderButton(true);
       } else {
         setIsShowConfirmOrderButton(false);
+      }
+      if(_data.order_return_origin?.total_amount) {
+        setTotalAmountReturnProducts(_data.order_return_origin?.total_amount)
+
       }
     }
   }, []);
@@ -616,7 +619,7 @@ const OrderDetail = (props: PropType) => {
                     listReturnProducts={OrderDetail?.order_return_origin?.items}
                     pointUsing={OrderDetail.order_return_origin.point_refund}
                     totalAmountReturnToCustomer={
-                      OrderDetail?.order_return_origin.money_refund
+                      OrderDetail?.order_return_origin.total_amount
                     }
                   />
                 )}
@@ -760,7 +763,7 @@ const OrderDetail = (props: PropType) => {
                                                     ? "Hoàn tiền cho khách"
                                                     : payment.payment_method}
                                                 </b>
-                                                <span>{payment.reference}</span>
+                                                <span style={{marginLeft: 12}}>{payment.reference}</span>
                                                 {payment.payment_method_id === 5 && (
                                                   <span style={{marginLeft: 10}}>
                                                     {payment.amount / 1000} điểm
@@ -811,7 +814,7 @@ const OrderDetail = (props: PropType) => {
                                       setVisibleUpdatePayment={setVisibleUpdatePayment}
                                       setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                                       setPayments={onPayments}
-                                      setTotalPaid={setTotalPaid}
+                                      // setTotalPaid={setTotalPaid}
                                       orderDetail={OrderDetail}
                                       paymentMethod={paymentMethod}
                                       shipmentMethod={shipmentMethod}
@@ -1094,7 +1097,7 @@ const OrderDetail = (props: PropType) => {
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
                       showPartialPayment={false}
-                      setTotalPaid={setTotalPaid}
+                      // setTotalPaid={setTotalPaid}
                       isVisibleUpdatePayment={isVisibleUpdatePayment}
                       setVisibleUpdatePayment={setVisibleUpdatePayment}
                       disabled={
@@ -1142,6 +1145,7 @@ const OrderDetail = (props: PropType) => {
                   onReload={() => setReload(true)}
                   disabledActions={disabledActions}
                   disabledBottomActions={disabledBottomActions}
+                  reasons={reasons}
                 />
                 {/*--- end shipment ---*/}
 

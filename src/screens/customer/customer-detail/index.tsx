@@ -1,7 +1,7 @@
 import { Row, Col, Card, Tabs } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -72,6 +72,7 @@ const CustomerDetailIndex = () => {
     page: 1,
     customer_ids: null,
   });
+
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -90,7 +91,8 @@ const CustomerDetailIndex = () => {
       name: "Trừ tiền tích lũy",
     },
   ];
-  const [data, setData] = React.useState<PageResponse<OrderModel>>({
+
+  const [orderHistory, setOrderHistory] = React.useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 10,
       page: 1,
@@ -98,8 +100,14 @@ const CustomerDetailIndex = () => {
     },
     items: [],
   });
+
   const [tableLoading, setTableLoading] = React.useState<boolean>(false);
   // add and edit contact section;
+
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const updateLoyaltyCard = useCallback((result) => {
     if (result && result.items && result.items.length) {
@@ -108,20 +116,19 @@ const CustomerDetailIndex = () => {
     }
   }, [customer]);
 
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (!allowViewCustomerDetail) {
       return;
     }
     
     if (customer) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
-      dispatch(LoyaltyCardSearch({ customer_id: customer.id }, updateLoyaltyCard));
+      dispatch(LoyaltyCardSearch({ customer_id: customer.id, status: "ACTIVE"}, updateLoyaltyCard));
     } else {
       setLoyaltyPoint(null);
     }
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-  }, [dispatch, customer, updateLoyaltyCard, allowViewCustomerDetail]);
+  }, [dispatch, customer, allowViewCustomerDetail, updateLoyaltyCard]);
   
   React.useEffect(() => {
     if (!allowViewCustomerDetail) {
@@ -175,10 +182,6 @@ const CustomerDetailIndex = () => {
   };
 
   React.useEffect(() => {
-    if (!allowViewCustomerDetail) {
-      return;
-    }
-    
     const _detail = [
       {
         name: "Tổng chi tiêu",
@@ -209,7 +212,7 @@ const CustomerDetailIndex = () => {
     ];
 
     setCustomerSpendDetail(_detail);
-  }, [allowViewCustomerDetail, loyaltyPoint]);
+  }, [loyaltyPoint]);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -220,13 +223,14 @@ const CustomerDetailIndex = () => {
 
   const setOrderHistoryItems = React.useCallback(
     (data: PageResponse<OrderModel> | false) => {
+      setTableLoading(false);
       if (data) {
-        setData(data);
-        setTableLoading(false);
+        setOrderHistory(data);
       }
     },
     []
   );
+  
   React.useEffect(() => {
     if (!allowViewCustomerDetail) {
       return;
@@ -234,15 +238,13 @@ const CustomerDetailIndex = () => {
 
     if (params?.id) {
       queryParams.customer_ids = [params?.id];
+      setTableLoading(true);
       dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
     }
   }, [params, dispatch, queryParams, setOrderHistoryItems, allowViewCustomerDetail]);
   // end
-  React.useEffect(() => {
-    if (!allowViewCustomerDetail) {
-      return;
-    }
 
+  React.useEffect(() => {
     const _detail = [
       { name: "Điểm hiện tại", value: loyaltyPoint?.point || null },
       {
@@ -258,11 +260,11 @@ const CustomerDetailIndex = () => {
       },
       {
         name: "CH gắn thẻ",
-        value: loyaltyCard?.store || null,
+        value: loyaltyCard?.assigned_store || null,
       },
     ];
     setCustomerPoint(_detail);
-  }, [loyaltyPoint, loyaltyUsageRules, customer, loyaltyCard, allowViewCustomerDetail]);
+  }, [loyaltyPoint, loyaltyUsageRules, loyaltyCard]);
 
   React.useEffect(() => {
     if (!allowViewCustomerDetail) {
@@ -385,7 +387,8 @@ const CustomerDetailIndex = () => {
           <>
             <Row gutter={24} className="customer-info-detail">
               <Col span={18}>
-                <CustomerInfo customer={customer} />
+                <CustomerInfo customer={customer} loyaltyCard={loyaltyCard} />
+
                 <Card
                   style={{ marginTop: 20 }}
                   title={
@@ -466,13 +469,15 @@ const CustomerDetailIndex = () => {
                   >
                     <TabPane tab="Lịch sử mua hàng" key="history">
                       <CustomerHistoryInfo
-                        orderData={data}
+                        orderData={orderHistory}
                         onPageChange={onPageChange}
                         tableLoading={tableLoading}
                       />
                     </TabPane>
                     <TabPane tab="Lịch sử chăm sóc" key="caring-history">
-                      <CustomerCareHistory />
+                      <CustomerCareHistory
+                        customer={customer}
+                      />
                     </TabPane>
                     <TabPane tab="Ghi chú" key="notes">
                       <CustomerNoteInfo

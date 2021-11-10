@@ -112,7 +112,7 @@ const RoleCreateScreen: React.FC = () => {
                     <Input placeholder="Nhập tên vai trò" />
                   </Form.Item>
                 </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
+                <Col span={24} lg={16} md={12} sm={24}>
                   <Form.Item
                     name="description"
                     label="Mô tả"
