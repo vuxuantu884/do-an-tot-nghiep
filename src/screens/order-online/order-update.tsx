@@ -11,7 +11,7 @@ import {
   Row,
   Space,
   Tag,
-  Typography,
+  Typography
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -23,19 +23,19 @@ import CreateBillStep from "component/header/create-bill-step";
 import CreateOrderSidebar from "component/order/CreateOrder/CreateOrderSidebar";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import {Type} from "config/type.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
   AccountSearchAction,
-  ShipperGetListAction,
+  ShipperGetListAction
 } from "domain/actions/account/account.action";
-import {StoreDetailCustomAction} from "domain/actions/core/store.action";
-import {CustomerDetail} from "domain/actions/customer/customer.action";
-import {inventoryGetDetailVariantIdsSaga} from "domain/actions/inventory/inventory.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { inventoryGetDetailVariantIdsSaga } from "domain/actions/inventory/inventory.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
-  getLoyaltyUsage,
+  getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
   configOrderSaga,
@@ -43,15 +43,15 @@ import {
   getTrackingLogFulfillmentAction,
   OrderDetailAction,
   orderUpdateAction,
-  PaymentMethodGetList,
+  PaymentMethodGetList
 } from "domain/actions/order/order.action";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {InventoryResponse} from "model/inventory";
-import {modalActionType} from "model/modal/modal.model";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryResponse } from "model/inventory";
+import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import {OrderSettingsModel} from "model/other/order/order-model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -59,38 +59,36 @@ import {
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
-  ShipmentRequest,
+  ShipmentRequest 
 } from "model/request/order.request";
 import {
   CustomerResponse,
-  ShippingAddress,
+  ShippingAddress
 } from "model/response/customer/customer.response";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   DeliveryServiceResponse,
   FulFillmentResponse,
   OrderConfig,
   OrderResponse,
   StoreCustomResponse,
-  TrackingLogFulfillmentResponse,
+  TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory, useParams} from "react-router-dom";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 import {
   checkPaymentStatusToShow,
   CheckShipmentType,
-  formatCurrency,
-  getAmountPayment,
-  getAmountPaymentRequest,
+  formatCurrency, getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
   SumCOD,
   SumWeightResponse,
-  TrackingCode,
+  TrackingCode
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -100,16 +98,15 @@ import {
   PaymentMethodOption,
   ShipmentMethod,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
-import OrderDetailSidebar from "./component/order-detail/Sidebar";
 
 let typeButton = "";
 type PropType = {

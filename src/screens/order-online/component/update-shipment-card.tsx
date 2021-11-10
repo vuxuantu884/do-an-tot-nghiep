@@ -1444,7 +1444,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           }}
         >
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED 
-          // && checkIfOrderHasReturnedAll(OrderDetail) 
+          && checkIfOrderHasReturnedAll(OrderDetail) 
           ? (
             <Button
               type="primary"

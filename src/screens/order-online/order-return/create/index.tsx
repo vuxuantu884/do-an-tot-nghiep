@@ -1,21 +1,22 @@
-import {Card, Col, Form, Row} from "antd";
+import { Card, Col, Form, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import UrlConfig from "config/url.config";
-import {CreateOrderReturnContext} from "contexts/order-return/create-order-return";
-import {StoreDetailCustomAction} from "domain/actions/core/store.action";
-import {CustomerDetail} from "domain/actions/customer/customer.action";
-import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
   actionCreateOrderExchange,
   actionCreateOrderReturn,
-  actionGetOrderReturnReasons,
+  actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
-import {OrderDetailAction, PaymentMethodGetList} from "domain/actions/order/order.action";
-import {thirdPLModel} from "model/order/shipment.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { OrderDetailAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import { thirdPLModel } from "model/order/shipment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   ExchangeRequest,
@@ -25,28 +26,29 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ReturnRequest,
-  ShipmentRequest,
+  ShipmentRequest
 } from "model/request/order.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
-import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
   OrderReturnReasonModel,
   ReturnProductModel,
-  StoreCustomResponse,
+  StoreCustomResponse
 } from "model/response/order/order.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import {
   checkIfOrderHasReturnedAll,
   getAmountPaymentRequest,
   getListItemsCanReturn,
   getTotalAmountAfferDiscount,
+  scrollAndFocusToDomElement
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -54,11 +56,11 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
-import {DEFAULT_CHANNEL_ID, RETURN_MONEY_TYPE} from "utils/Order.constants";
-import {showError} from "utils/ToastUtils";
-import {useQuery} from "utils/useQuery";
+import { DEFAULT_CHANNEL_ID, RETURN_MONEY_TYPE } from "utils/Order.constants";
+import { showError } from "utils/ToastUtils";
+import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageCreate from "../components/CardReturnMoney/CardReturnMoneyPageCreate";
 import CardReturnMoneyPageCreateReturn from "../components/CardReturnMoney/CardReturnMoneyPageCreate/CardReturnMoneyPageCreateReturn";
@@ -388,14 +390,6 @@ const ScreenReturnCreate = (props: PropType) => {
     }
   };
 
-  const focusOnElement = (element: HTMLElement | null) => {
-    if (element) {
-      element?.focus();
-      const offsetY = element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-      window.scrollTo({top: offsetY, behavior: "smooth"});
-    }
-  };
-
   const onReturn = () => {
     let checkIfHasReturnProduct = listReturnProducts.some((single) => {
       return single.quantity > 0;
@@ -403,7 +397,7 @@ const ScreenReturnCreate = (props: PropType) => {
     if (!checkIfHasReturnProduct) {
       showError("Vui lòng chọn ít nhất 1 sản phẩm");
       const element: any = document.getElementById("search_product");
-      focusOnElement(element);
+      scrollAndFocusToDomElement(element);
       return;
     }
 
@@ -418,7 +412,7 @@ const ScreenReturnCreate = (props: PropType) => {
       })
       .catch((error) => {
         const element: any = document.getElementById(error.errorFields[0].name.join(""));
-        focusOnElement(element);
+        scrollAndFocusToDomElement(element);
       });
   };
 
@@ -432,14 +426,14 @@ const ScreenReturnCreate = (props: PropType) => {
         if (!checkIfHasReturnProduct) {
           showError("Vui lòng chọn ít nhất 1 sản phẩm");
           const element: any = document.getElementById("search_product");
-          focusOnElement(element);
+          scrollAndFocusToDomElement(element);
           return;
         } else {
           if (isReceivedReturnProducts) {
             setIsStepExchange(value);
             setTimeout(() => {
               const element: any = document.getElementById("store_id");
-              focusOnElement(element);
+              scrollAndFocusToDomElement(element);
             }, 500);
           } else {
             setIsVisibleModalWarning(true);
@@ -526,6 +520,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
           let values: ExchangeRequest = form.getFieldsValue();
           let valuesResult = onFinish(values);
+          valuesResult.channel_id = DEFAULT_CHANNEL_ID;
           console.log("valuesResult", valuesResult);
           if (checkPointFocus(values)) {
             const handleCreateOrderExchangeByValue = (valuesResult: ExchangeRequest) => {
@@ -533,6 +528,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 showError("Đã tạo đơn đổi hàng không thành công!");
                 return;
               }
+              showLoading();
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
@@ -548,6 +544,7 @@ const ScreenReturnCreate = (props: PropType) => {
                   );
                 })
               );
+              hideLoading();
             };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -1052,7 +1049,7 @@ const ScreenReturnCreate = (props: PropType) => {
                 setIsStepExchange(true);
                 setTimeout(() => {
                   const element: any = document.getElementById("store_id");
-                  focusOnElement(element);
+                  scrollAndFocusToDomElement(element);
                 }, 500);
               }
             }

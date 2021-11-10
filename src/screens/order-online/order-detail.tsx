@@ -105,7 +105,7 @@ const OrderDetail = (props: PropType) => {
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
-  const [totalAmountReturnProducts] = useState<number>(0);
+  const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
   // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
@@ -290,6 +290,10 @@ const OrderDetail = (props: PropType) => {
         setIsShowConfirmOrderButton(true);
       } else {
         setIsShowConfirmOrderButton(false);
+      }
+      if(_data.order_return_origin?.total_amount) {
+        setTotalAmountReturnProducts(_data.order_return_origin?.total_amount)
+
       }
     }
   }, []);
@@ -615,7 +619,7 @@ const OrderDetail = (props: PropType) => {
                     listReturnProducts={OrderDetail?.order_return_origin?.items}
                     pointUsing={OrderDetail.order_return_origin.point_refund}
                     totalAmountReturnToCustomer={
-                      OrderDetail?.order_return_origin.money_refund
+                      OrderDetail?.order_return_origin.total_amount
                     }
                   />
                 )}
