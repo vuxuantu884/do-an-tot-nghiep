@@ -129,6 +129,18 @@ function OrderCreateShipment(props: PropType) {
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
+    setShippingFeeInformedToCustomer(0);
+    if(value ===ShipmentMethodOption.DELIVER_PARTNER) {
+      setThirdPL({
+        delivery_service_provider_code: "",
+        delivery_service_provider_id: null,
+        insurance_fee: null,
+        delivery_service_provider_name: "",
+        delivery_transport_type: "",
+        service: "",
+        shipping_fee_paid_to_three_pls: null,
+      });
+    }
   };
 
   const shipping_requirements = useSelector(

@@ -760,7 +760,7 @@ const OrderDetail = (props: PropType) => {
                                                     ? "Hoàn tiền cho khách"
                                                     : payment.payment_method}
                                                 </b>
-                                                <span>{payment.reference}</span>
+                                                <span style={{marginLeft: 12}}>{payment.reference}</span>
                                                 {payment.payment_method_id === 5 && (
                                                   <span style={{marginLeft: 10}}>
                                                     {payment.amount / 1000} điểm
