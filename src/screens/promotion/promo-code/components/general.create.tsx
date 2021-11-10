@@ -13,14 +13,13 @@ import ProductItem from "screens/purchase-order/component/product-item";
 import UrlConfig from "config/url.config";
 import "../promo-code.scss"
 import { useDispatch } from "react-redux";
-import { AiOutlineClose } from "react-icons/ai";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link } from "react-router-dom";
-import {formatCurrency} from "../../../../utils/AppUtils";
-import {CloseCircleOutlined, CloseOutlined} from "@ant-design/icons";
+import { CloseOutlined } from "@ant-design/icons";
 import moment from "moment";
+import { showError } from "utils/ToastUtils";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -104,6 +103,11 @@ const GeneralCreate = (props: any) => {
   const onSelectProduct = useCallback(
     (value) => {
       const selectedItem = data.find(e => e.id === Number(value));
+      const checkExist = selectedProduct.some((e) => e.id === value);
+      if (checkExist) {
+        showError("Sản phẩm đã được chọn!");
+        return;
+      }
       if (selectedItem) {
         setSelectedProduct([selectedItem].concat(selectedProduct))
       }

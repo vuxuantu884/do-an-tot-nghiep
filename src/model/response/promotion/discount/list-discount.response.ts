@@ -6,9 +6,10 @@ export interface DiscountResponse extends BaseObject {
   discount_codes: any[];
   ends_date: string;
   entitled_method: string;
+  entitlements: any[];
   id: number;
   number_of_discount_codes: number;
-  number_of_entitlements: number
+  number_of_entitlements: number;
   priority: number;
   starts_date: string;
   title: string;
