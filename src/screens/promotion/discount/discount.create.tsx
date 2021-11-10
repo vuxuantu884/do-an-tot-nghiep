@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import "./discount.scss";
-import {useHistory} from "react-router-dom";
+import { useHistory} from "react-router-dom";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import {Button, Col, Form, Row} from "antd";
@@ -13,31 +13,27 @@ import {useDispatch} from "react-redux";
 import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
+import { PROMO_TYPE } from "utils/Constants";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();
   const [discountForm] = Form.useForm();
   const history = useHistory();
-  const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  // const [customerAdvanceMsg, setCustomerAdvanceMsg] = React.useState<string | null>(null);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
-
-  }, []);
+    dispatch(getListChannelRequest(setListChannel));
+  }, [dispatch]);
 
   const transformData = (values: any) => {
-    console.log('transformData: ', values);
     let body: any = {};
-    // if (body.customer_selection && body.prerequisite_gender === null) {
-    //   console.log('Vui lòng nhập đối tượng khách hàng')
-    //   setCustomerAdvanceMsg("Vui lòng nhập đối tượng khách hàng")
-    // }
-    // body.discount_codes.push(values.discount_codes)
-    body.type = "AUTOMATIC";
+    body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;
     body.priority = values.priority;
     body.description = values.descriptionl
@@ -48,7 +44,7 @@ const CreateDiscountPage = () => {
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
     body.starts_date = values.starts_date.format();
-    body.ends_date = values.ends_date?.format();
+    body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values.entitlements.map((entitlement: any) => {
       return {
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
@@ -58,7 +54,7 @@ const CreateDiscountPage = () => {
             greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
             less_than_or_equal_to: null,
             allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
-            value_type: entitlement['prerequisite_quantity_ranges.value_type'],
+            value_type: body.entitled_method === "FIXED_PRICE" ? "FIXED_PRICE" : entitlement['prerequisite_quantity_ranges.value_type'],
             value: entitlement['prerequisite_quantity_ranges.value'],
           },
         ],
@@ -69,25 +65,24 @@ const CreateDiscountPage = () => {
   }
   const handerSubmit = async (values: any) => {
     const body = transformData(values);
-    body.disabled = false;
+    body.activated = true;
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push("/promotion/discount");
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
-
   }
 
   const save = async () => {
     const values = await discountForm.validateFields();
     const body = transformData(values);
-    body.disabled = true;
+    body.activated = false;
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu thành công");
-      history.push("/promotion/discount");
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
@@ -98,7 +93,7 @@ const CreateDiscountPage = () => {
     const fieldName = errorFields[0].name.join("");
     if (fieldName === "contact_name" || fieldName === "contact_phone") {
       showError("Vui lòng nhập thông tin liên hệ");
-      setCollapseActive(true);
+      // setCollapseActive(true);
     }
   }
 
@@ -130,13 +125,14 @@ const CreateDiscountPage = () => {
         onFinish={handerSubmit}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
+        scrollToFirstError
         initialValues={{
           entitlements: [""],
           priority: 1,
           entitled_method: "FIXED_PRICE"
         }}
       >
-        <Row gutter={24}>
+        <Row >
           <Col span={24}>
             <GeneralInfo
               className="general-info"
@@ -144,6 +140,7 @@ const CreateDiscountPage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
+              listChannel={listChannel}
               // customerAdvanceMsg={customerAdvanceMsg}
             />
           </Col>

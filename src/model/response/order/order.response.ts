@@ -64,11 +64,13 @@ export interface OrderResponse extends BaseObject {
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
+  sub_status_code?: string | null;
   reason_name?: string;
   return_date?: string;
   receive_date?: string;
   order_code?: string;
   order_id?: number;
+  order_returns?: Array<OrderResponse>;
   order_return_origin?: OrderReturnModel;
   point_refund?: number;
   money_refund?: number;
@@ -227,9 +229,12 @@ export interface ShippingAddress {
 }
 
 export interface ShipmentResponse extends BaseObject {
+  delivery_service_provider_code: string | null;
   delivery_service_provider_id: number | null;
+  delivery_service_provider_name: string | null;
   delivery_service_provider_type: string | null;
   delivery_transport_type: string | null;
+  insurance_fee: number | null;
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;
@@ -247,6 +252,7 @@ export interface ShipmentResponse extends BaseObject {
   tracking_code: string | null;
   tracking_url: string | null;
   pushing_status: string | null;
+  pushing_note: string | null;
   received_date: string | null;
   sender_address_id: number | null;
   sender_address?: StoreResponse;
@@ -373,6 +379,7 @@ export interface OrderSubStatusResponse {
   company_id: number;
   company: string;
   sub_status: string;
+  code: string;
   status: string;
   note: string;
   is_active: boolean;
@@ -403,6 +410,7 @@ export interface ErrorLogResponse extends BaseObject {
 
 export interface OrderReturnModel extends OrderResponse {
   received: boolean;
+  total_amount: number;
 }
 
 export interface OrderReturnReasonModel {

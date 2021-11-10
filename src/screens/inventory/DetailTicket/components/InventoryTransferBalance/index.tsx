@@ -175,7 +175,8 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
                   )}
                 </div>
               </div>
-            </Col><Col span={8} >
+            </Col>
+            <Col span={8} >
               <div className="row-detail">
                 <div className="row-detail-left title">Ngày chuyển</div>
                 <div className="dot data">:</div>
@@ -186,12 +187,14 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
                   )}
                 </div>
               </div>
+            </Col>
+            <Col span={8} >
               <div className="row-detail">
                 <div className="row-detail-left title">Ngày nhận</div>
                 <div className="dot data">:</div>
                 <div className="row-detail-right data">{
                   ConvertUtcToLocalDate(
-                    data?.receive_date,
+                    data?.pending_date,
                     "DD/MM/YYYY"
                   )}
                 </div>

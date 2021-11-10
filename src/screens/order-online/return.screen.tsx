@@ -32,15 +32,18 @@ import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 2,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 
@@ -153,6 +156,12 @@ const ListOrderScreen: React.FC = () => {
       // width: "20%",
     },
     {
+      title: "Kho cửa hàng",
+      dataIndex: "store",
+      key: "store",
+      visible: true,
+    },
+    {
       title: "Trạng thái nhận hàng",
       dataIndex: "received",
       key: "received",
@@ -189,7 +198,7 @@ const ListOrderScreen: React.FC = () => {
             processIcon = "icon-full";
             break;
           case "partial_paid":
-            processIcon = "icon-partial";
+            processIcon = "icon-full";
             break;
           default:
             break;
@@ -455,7 +464,7 @@ const ListOrderScreen: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 200 }}
+          scroll={{ x: 1600 * columnFinal.length/(columns.length ? columns.length : 1)}}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={{
             pageSize: data.metadata.limit,

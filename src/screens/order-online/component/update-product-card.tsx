@@ -361,7 +361,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">
-              <div className="font-weight-500">Phí ship báo khách:</div>
+              <div className="font-weight-500">Phí ship báo khách 5:</div>
               <div className="font-weight-500 payment-row-money">
                 {(props.OrderDetail &&
                   props.OrderDetail?.fulfillments &&
@@ -385,14 +385,14 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">
-                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
+                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả: 1"}
               </strong>
               <strong>{formatCurrency(props.customerNeedToPayValue)}</strong>
             </Row>
             {totalAmountReturnProducts ? (
               <Row className="payment-row" justify="space-between">
-                <span className="font-size-text">Tổng tiền hàng trả:</span>
-                <span>{formatCurrency(totalAmountReturnProducts)}</span>
+                <strong className="font-size-text">Tổng tiền hàng trả:</strong>
+                <strong>{formatCurrency(totalAmountReturnProducts)}</strong>
               </Row>
             ) : null}
             {totalAmountReturnProducts ? (
@@ -405,7 +405,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   <strong className="font-size-text" style={{ fontWeight: "bold" }}>
                     {props.customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
-                      : "Khách cần trả:"}
+                      : "Khách cần trả: 1"}
                   </strong>
                   <strong className="text-success font-size-price">
                     {formatCurrency(

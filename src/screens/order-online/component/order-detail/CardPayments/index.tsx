@@ -105,8 +105,6 @@ function CardPayments(props: CardPaymentsProps) {
 
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
-    console.log("payment_method_id", payment_method_id);
-    console.log("paymentMaster", paymentMaster);
     if (!paymentMaster) return;
     let indexPayment = payments.findIndex(
       (p) => p.payment_method_id === payment_method_id
@@ -132,7 +130,6 @@ function CardPayments(props: CardPaymentsProps) {
     }
     setPayments([...payments]);
   };
-  console.log(payments);
   const handleInputMoney = (index: number, amount: number) => {
     if (payments[index].code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -184,7 +181,6 @@ function CardPayments(props: CardPaymentsProps) {
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  console.log("levelOrder", levelOrder);
 
   // useEffect(() => {
   //   if (isCloneOrder && paymentMethod === 2) {
@@ -196,7 +192,7 @@ function CardPayments(props: CardPaymentsProps) {
   return (
     <StyledComponent>
       <Card title="THANH TOÁN">
-        <div className="create-order-payment ">
+        <div className="create-order-payment 222">
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
             // required
@@ -292,7 +288,7 @@ function CardPayments(props: CardPaymentsProps) {
                       </Col>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
+                          <span style={{ paddingRight: "20px" }}>Còn phải trả: 4 </span>
                           <strong>
                             {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                           </strong>
@@ -381,7 +377,7 @@ function CardPayments(props: CardPaymentsProps) {
                             className="row-large-title"
                             style={{ padding: "8px 0", marginLeft: 2 }}
                           >
-                            <b>Khách cần trả:</b>
+                            <b>Khách cần trả: 4</b>
                           </Col>
                           <Col
                             className="lbl-money"

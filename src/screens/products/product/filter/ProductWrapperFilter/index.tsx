@@ -1,3 +1,4 @@
+import { FilterOutlined } from "@ant-design/icons";
 import { Button, Collapse, Form, Input, Select, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
@@ -132,7 +133,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
               </Button>
             </Item>
             <Item>
-              <Button onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button onClick={openFilter}  icon={<FilterOutlined />}>Thêm bộ lọc</Button>
             </Item>
             <Item>
               <ButtonSetting onClick={onClickOpen} />

@@ -15,6 +15,7 @@ import {Link} from "react-router-dom";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {RoleListStyled} from "./role-list.style";
 import _ from "lodash";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 const defaultRoleListParams: RoleSearchQuery = {
   page: 1,
   limit: 200,
@@ -81,7 +82,7 @@ const RoleListScreen = () => {
   );
   const columnsChild = [
     {
-      dataIndex: "module_name",
+      dataIndex: "name",
       visible: true,
       width: 200,
       render: (value: string) => <b>{value}</b>,
@@ -126,7 +127,7 @@ const RoleListScreen = () => {
             isLoading={loading}
             pagination={false}
             showColumnSetting
-            // scroll={{ x: 1080 }}
+            sticky={{offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}

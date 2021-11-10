@@ -2,7 +2,7 @@ import {
   DeleteOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
-  PlusOutlined
+  PlusOutlined,
 } from "@ant-design/icons";
 import {
   Affix,
@@ -18,7 +18,7 @@ import {
   Row,
   Select,
   Space,
-  Switch
+  Switch,
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
@@ -26,38 +26,38 @@ import UrlConfig from "config/url.config";
 import {
   AccountCreateAction,
   DepartmentGetListAction,
-  PositionGetListAction
+  PositionGetListAction,
 } from "domain/actions/account/account.action";
-import { RoleGetListAction } from "domain/actions/auth/role.action";
+import {RoleGetListAction} from "domain/actions/auth/role.action";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction
+  DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import {StoreGetListAction} from "domain/actions/core/store.action";
 import {
   AccountJobReQuest,
   AccountJobResponse,
   AccountRequest,
-  AccountResponse, AccountStoreResponse,
-  AccountView
+  AccountResponse,
+  AccountStoreResponse,
+  AccountView,
 } from "model/account/account.model";
-import { DepartmentResponse } from "model/account/department.model";
-import { PositionResponse } from "model/account/position.model";
-import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
-import { CountryResponse } from "model/content/country.model";
-import { CityView, DistrictResponse } from "model/content/district.model";
-import { StoreResponse } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import moment from "moment";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { convertDistrict } from "utils/AppUtils";
-import { showSuccess } from "utils/ToastUtils";
-import { PASSWORD_RULES } from "./account.rules";
+import {DepartmentResponse} from "model/account/department.model";
+import {PositionResponse} from "model/account/position.model";
+import {RoleResponse, RoleSearchQuery} from "model/auth/roles.model";
+import {CountryResponse} from "model/content/country.model";
+import {CityView, DistrictResponse} from "model/content/district.model";
+import {StoreResponse} from "model/core/store.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import {createRef, useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {convertDistrict} from "utils/AppUtils";
+import {showSuccess} from "utils/ToastUtils";
+import {PASSWORD_RULES} from "./account.rules";
 
-const { Item, List } = Form;
-const { Option, OptGroup } = Select;
+const {Item, List} = Form;
+const {Option, OptGroup} = Select;
 
 const DefaultCountry = 233;
 const initRequest = {
@@ -92,13 +92,7 @@ const AccountCreateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
   //State
-  const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
-    {
-      department_id: 0,
-      position_id: 0,
-      key: Number(moment().format("x")),
-    },
-  ]);
+  const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([]);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
@@ -127,11 +121,17 @@ const AccountCreateScreen: React.FC = () => {
 
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
+    if(!listJob[key]){
+      listJob[key] = {} as AccountJobReQuest;
+    }
     listJob[key].department_id = e;
     setAccountJob(listJob);
   };
   const onChangePosition = (e: any, key: number) => {
     let listJob = [...listaccountJob];
+    if(!listJob[key]){
+      listJob[key] = {} as AccountJobReQuest;
+    }
     listJob[key].position_id = e;
     setAccountJob(listJob);
   };
@@ -167,21 +167,35 @@ const AccountCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-
       let accStores: Array<AccountStoreResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
-      values.account_stores.forEach((el: number) => {
-        accStores.push({
-          store_id: el,
-        });
+
+      listStore?.forEach((el: StoreResponse) => {
+        if (values.account_stores.includes(el.id)) {
+          accStores.push({
+            store_id: el.id,
+            store: el.name,
+          });
+        }
       });
 
       listAccountSelected.forEach((el: AccountJobReQuest) => {
+        if (el.department_id && el.position_id) {
+        const department_name = listDepartment?.find(
+          (item) => item.id === el.department_id
+        )?.name;
+        const position_name = listPosition?.find(
+          (item) => item.id === el.position_id
+        )?.name;
+        
         accJobs.push({
           department_id: el.department_id,
           position_id: el.position_id,
+          department_name,
+          position_name
         });
+      }
       });
 
       let accountModel: AccountRequest = {
@@ -200,12 +214,11 @@ const AccountCreateScreen: React.FC = () => {
         district_id: values.district_id,
         account_jobs: [...accJobs],
         role_id: values.role_id,
-
       };
       dispatch(AccountCreateAction(accountModel, onCreateSuccess));
       setLoadingSaveButton(true);
     },
-    [dispatch, listaccountJob, onCreateSuccess]
+    [dispatch, listaccountJob, onCreateSuccess, listStore, listDepartment, listPosition]
   );
   const onCancel = useCallback(() => history.goBack(), [history]);
   //End callback
@@ -256,6 +269,7 @@ const AccountCreateScreen: React.FC = () => {
         layout="vertical"
         onFinish={onFinish}
         initialValues={initRequest}
+        scrollToFirstError
       >
         <Card
           title="Thông tin người dùng"
@@ -282,15 +296,14 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
-                  hasFeedback
+                  rules={[{required: true, message: "Vui lòng nhập tên đăng nhập"}]}
                 >
                   <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+                  rules={[{required: true, message: "Vui lòng chọn giới tính"}]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -309,8 +322,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Mã nhân viên"
                   name="code"
-                  rules={[{ required: true, message: "Vui lòng nhập mã nhân viên" }]}
-                  hasFeedback
+                  rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
                 >
                   <Input className="r-5" placeholder="VD: YD0000" size="large" />
                 </Item>
@@ -319,8 +331,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
-                  hasFeedback
+                  rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
                 >
                   <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
                 </Item>
@@ -331,11 +342,10 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   rules={[
                     ...PASSWORD_RULES,
-                    { required: true, message: "Vui lòng nhập tên đăng nhập" },
+                    {required: true, message: "Vui lòng nhập tên đăng nhập"},
                   ]}
                   name="password"
                   label="Mật khẩu"
-                  hasFeedback
                 >
                   <Input.Password
                     autoComplete="new-password"
@@ -353,9 +363,8 @@ const AccountCreateScreen: React.FC = () => {
                   name="confirm"
                   label="Nhập lại mật khẩu"
                   dependencies={["password"]}
-                  hasFeedback
                   rules={[
-                    ({ getFieldValue }) => ({
+                    ({getFieldValue}) => ({
                       validator(_, value) {
                         if (!value || getFieldValue("password") === value) {
                           return Promise.resolve();
@@ -378,14 +387,13 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Số điện thoại"
                   name="mobile"
-                  rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}
-                  hasFeedback
+                  rules={[{required: true, message: "Vui lòng nhập số điện thoại"}]}
                 >
                   <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item name="account_stores" label="Cửa hàng" hasFeedback>
+                <Form.Item name="account_stores" label="Cửa hàng">
                   <Select
                     placeholder="Chọn cửa hàng"
                     allowClear
@@ -400,7 +408,7 @@ const AccountCreateScreen: React.FC = () => {
                         value === "all"
                       ) {
                         if (isSelectAllStore) {
-                          formRef.current?.setFieldsValue({ account_stores: [] });
+                          formRef.current?.setFieldsValue({account_stores: []});
                           setIsSelectAllStore(false);
                         } else {
                           formRef.current?.setFieldsValue({
@@ -427,21 +435,14 @@ const AccountCreateScreen: React.FC = () => {
             </Row>
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Ngày sinh" name="birthday" hasFeedback>
-                  {/* <DatePicker
-                    className="r-5 w-100 ip-search"
-                    placeholder="20/01/2021"
-                    format="DD/MM/YYYY"
-                    style={{ width: "100%" }}
-                  /> */}
-                  <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
+                <Item label="Ngày sinh" name="birthday">
+                  <CustomDatepicker style={{width: "100%"}} placeholder="20/01/2021" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
                   name="role_id"
                   label="Nhóm phân quyền"
-                  hasFeedback
                   rules={[
                     {
                       required: true,
@@ -518,9 +519,9 @@ const AccountCreateScreen: React.FC = () => {
           <Collapse.Panel key="1" header="Thông tin công việc">
             <div className="padding-20">
               <List name="account_jobs">
-                {(fields, { add, remove }) => (
+                {(fields, {add, remove}) => (
                   <>
-                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
+                    {fields.map(({key, name, fieldKey, ...restField}, index) => (
                       <Row key={key} gutter={16}>
                         <Col md={8}>
                           <Item
@@ -535,7 +536,7 @@ const AccountCreateScreen: React.FC = () => {
                               showSearch
                               optionFilterProp="children"
                               onChange={(value) => onChangeDepartment(value, index)}
-                              style={{ width: "100%" }}
+                              style={{width: "100%"}}
                             >
                               {listDepartment?.map((item) => (
                                 <Option key={item.id} value={item.id}>
@@ -558,7 +559,7 @@ const AccountCreateScreen: React.FC = () => {
                               showSearch
                               optionFilterProp="children"
                               onChange={(value) => onChangePosition(value, index)}
-                              style={{ width: "100%" }}
+                              style={{width: "100%"}}
                             >
                               {listPosition?.map((item) => (
                                 <Option key={item.id} value={item.id}>
@@ -570,7 +571,7 @@ const AccountCreateScreen: React.FC = () => {
                           </Item>
                         </Col>
                         {fields.length > 1 && (
-                          <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+                          <Col md={4} style={{display: "flex", alignItems: "center"}}>
                             <Button
                               onClick={() => remove(name)}
                               icon={<DeleteOutlined />}
@@ -594,7 +595,7 @@ const AccountCreateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Affix offsetBottom={20}>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
+          <div className="margin-top-10" style={{textAlign: "right"}}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy

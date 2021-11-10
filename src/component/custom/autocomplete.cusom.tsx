@@ -9,6 +9,7 @@ interface CustomAutoCompleteType {
   id?: string;
   placeholder?: string;
   dropdownMatchSelectWidth?: number;
+  disabled?: boolean;
   style?: CSSProperties;
   dropdownClassName?: string;
   onSearch?: (value: string) => void;
@@ -106,6 +107,7 @@ export default class CustomAutoComplete extends Component<
           </div>
         )}
         onSelect={this.onSelect}
+        disabled={this.props.disabled}
       >
         <Input
           ref={(ref) => (this.inputRef = ref)}

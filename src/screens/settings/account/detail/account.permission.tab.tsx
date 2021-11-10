@@ -1,53 +1,149 @@
-import { Col, Divider, Form, Row } from "antd";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { getAllModuleParam } from "config/auth.config";
-import { getModuleAction } from "domain/actions/auth/module.action";
-import { ModuleAuthorize } from "model/auth/module.model";
-import { PermissionsAuthorize } from "model/auth/permission.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { CreateRoleStyled } from "screens/settings/account/detail/index.style";
-import { AuthorizeDetailCard } from "screens/settings/roles/card-authorize-detail";
-import { AccountDetailContext } from "../provider/account.detail.provider";
+import {Col, Divider, Form, Row} from "antd";
+import {CheckboxChangeEvent} from "antd/lib/checkbox";
+import {getAllModuleParam} from "config/module.config";
+import {getModuleAction} from "domain/actions/auth/module.action";
+import {updateAccountPermissionAction} from "domain/actions/auth/permission.action";
+import _ from "lodash";
+import {ModuleAuthorize} from "model/auth/module.model";
+import {PermissionsAuthorize, UserPermissionRequest} from "model/auth/permission.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
+import {useDispatch} from "react-redux";
+import {CreateRoleStyled} from "screens/settings/account/detail/index.style";
+import {AuthorizeDetailCard} from "screens/settings/roles/card-authorize-detail";
+import {AccountDetailContext} from "../provider/account.detail.provider";
 
-function AccountPermissionTab() {
+type AccountPermissionProps = {
+  getAccountData: () => void;
+};
+
+function AccountPermissionTab(props: AccountPermissionProps) {
+  const {getAccountData} = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-
+  const isFirstLoad = useRef(true);
   const [moduleData, setModuleData] = useState<PageResponse<ModuleAuthorize>>();
+  const [permissionData, setPermissionData] = useState<Map<number, PermissionsAuthorize>>(
+    new Map([])
+  ); // Map<permissionId, PermissionsAuthorize>
   const [activePanel, setActivePanel] = useState<string | string[]>([]);
   const [indeterminateModules, setIndeterminateModules] = useState<string[]>([]);
   const [checkedModules, setCheckedModules] = useState<string[]>([]);
 
   const detailContext = useContext(AccountDetailContext);
-  const { accountInfo, roleName } = detailContext;
+  const {accountInfo} = detailContext;
 
+  const getCheckedPermissions = useCallback(() => {
+    const permissionForm = form.getFieldsValue(true);
+    const permissions_ids: number[] = [];
+    Object.keys(permissionForm).forEach((key) => {
+      let intKey = parseInt(key);
 
-  const onChangeCheckBoxPermission = ((e: CheckboxChangeEvent, module: ModuleAuthorize, permission: PermissionsAuthorize) => {
-    const { checked } = e.target;
-    console.log("checked", checked);
-    console.log("module", module);
-    console.log("permission", permission);
-  });
+      if (permissionForm[key] && typeof intKey === "number") {
+        permissions_ids.push(intKey);
+      }
+    });
+    return permissions_ids;
+  }, [form]);
 
-  const onChangeCheckBoxModule = ((e: CheckboxChangeEvent, module: ModuleAuthorize) => {
-    const { checked } = e.target;
-    console.log("checked", checked);
-    console.log("module", module);
-  });
+  const getCheckedPermissionObjects = useCallback((): UserPermissionRequest => {
+    if (accountInfo?.user_id) {
+      const permission_ids = getCheckedPermissions();
+      const permissions = permission_ids.map((id) => {
+        return {
+          permission_id: id,
+          store_id: permissionData?.get(id)?.store_id,
+          role_id: permissionData?.get(id)?.role_id,
+        };
+      });
+      return {user_id: accountInfo.user_id, permissions};
+    }
+    return {} as UserPermissionRequest;
+  }, [getCheckedPermissions, accountInfo?.user_id, permissionData]);
 
-  const onSetModuleData = useCallback((data: PageResponse<ModuleAuthorize>) => {
-    setModuleData(data);
-    // form.setFieldsValue({ 3: true,4: true,6: true });
-    // setIndeterminateModules(['1']);
-    // setCheckedModules(['1']);
-    //set defautl active panel here
-  }, []);
+  const updatePermission = () => {
+    const permission = getCheckedPermissionObjects();
+    dispatch(
+      updateAccountPermissionAction(permission, (result: string) => {
+        getAccountData();
+      })
+    );
+  };
+
+  const onChangeCheckBoxModule = (e: CheckboxChangeEvent, module: ModuleAuthorize) => {
+    updatePermission();
+  };
+
+  const onChangeCheckBoxPermission = (
+    e: CheckboxChangeEvent,
+    module: ModuleAuthorize,
+    permission: PermissionsAuthorize
+  ) => {
+    updatePermission();
+  };
+
+  // handle checkbox
+  const handleDefaultCheckbox = useCallback(
+    (data: PageResponse<ModuleAuthorize>) => {
+      // get total permission of module
+      const totalPermissionOfModules = new Map(
+        data.items.map((item) => [item.code, item.permissions.length])
+      );
+      // get permission of account
+      const permissionDataTemps = new Map<number, PermissionsAuthorize>();
+      data.items.forEach((item) => {
+        item.permissions.forEach((permission) => {
+          permissionDataTemps.set(permission.id, permission);
+        });
+      });
+      setPermissionData(permissionDataTemps);
+
+      let defaultCheckedModules: string[] = [];
+      let defaultIndeterminateModules: string[] = [];
+      let defaultCheckedPermission: any = {};
+
+      accountInfo?.permissions?.modules.forEach((item: ModuleAuthorize) => {
+        if (item.permissions.length === totalPermissionOfModules.get(item.code)) {
+          // init default checked module
+          defaultCheckedModules.push(item.code);
+        } else if (item.permissions.length > 0) {
+          // init default indeterminate module
+          defaultIndeterminateModules.push(item.code);
+        }
+        // init default checked permission
+        item.permissions.forEach((permission: PermissionsAuthorize) => {
+          defaultCheckedPermission[permission.id.toString()] = true;
+        });
+      });
+
+      // set default checked
+      form.resetFields();
+      form.setFieldsValue(defaultCheckedPermission);
+      setCheckedModules(defaultCheckedModules);
+      setIndeterminateModules(defaultIndeterminateModules);
+      // set default active panel
+      setActivePanel(_.uniq([...defaultCheckedModules, ...defaultIndeterminateModules]));
+    },
+    [accountInfo, form]
+  );
+
+  const onSetModuleData = useCallback(
+    (data: PageResponse<ModuleAuthorize>) => {
+      setModuleData(data);
+      handleDefaultCheckbox(data);
+    },
+    [handleDefaultCheckbox]
+  );
 
   useEffect(() => {
-    dispatch(getModuleAction(getAllModuleParam, onSetModuleData));
-  }, [dispatch, onSetModuleData]);
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+      dispatch(getModuleAction(getAllModuleParam, onSetModuleData));
+    } else if (moduleData) {
+      handleDefaultCheckbox(moduleData);
+    }
+  }, [dispatch, onSetModuleData, handleDefaultCheckbox, moduleData]);
+
   return (
     <>
       <div className="padding-top-20 permission">
@@ -55,22 +151,22 @@ function AccountPermissionTab() {
           <Col className="col-info">
             <Row className="permission-account">
               <span className="account-title">Mã nhân viên</span>
-              <b>:{accountInfo?.code}</b>
+              <b> : {accountInfo?.code}</b>
             </Row>
             <Row className="permission-account">
               <span className="account-title">Họ và tên </span>
-              <b>: {accountInfo?.full_name}</b>
+              <b> : {accountInfo?.full_name}</b>
             </Row>
           </Col>
           <Col className="col-info">
-            <Row className="permission-account">
+            <Row className="permission-account" gutter={48}>
               <span className="account-title">Nhóm quyền </span>
-              <b>: {roleName} </b>
+              <b> : {accountInfo?.role_name} </b>
             </Row>
           </Col>
         </Row>
         <h4 className="margin-top-20">PHÂN QUYỀN CHI TIẾT</h4>
-        <Divider style={{ marginBottom: 0, borderTop: "1px solid #d9d9d9" }} />
+        <Divider style={{marginBottom: 0, borderTop: "1px solid #d9d9d9"}} />
       </div>
       <CreateRoleStyled>
         <Form form={form}>
@@ -86,7 +182,8 @@ function AccountPermissionTab() {
             onChangeCheckboxPermission={onChangeCheckBoxPermission}
             onChangeCheckboxModule={onChangeCheckBoxModule}
           />
-        </Form></CreateRoleStyled>
+        </Form>
+      </CreateRoleStyled>
     </>
   );
 }

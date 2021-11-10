@@ -1,26 +1,25 @@
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
-import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { InventoryQuery, InventoryResponse } from "model/inventory";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
+import {inventoryGetDetailAction} from "domain/actions/inventory/inventory.action";
+import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import {PageResponse} from "model/base/base-metadata.response";
+import {InventoryQuery, InventoryResponse} from "model/inventory";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Link, useHistory} from "react-router-dom";
+import {generateQuery} from "utils/AppUtils";
+import {OFFSET_HEADER_TABLE} from "utils/Constants";
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import {getQueryParams, useQuery} from "utils/useQuery";
 import InventoryFilter from "../filter/inventory.filter";
-import { TabProps } from "./tab.props";
+import {TabProps} from "./tab.props";
 
 const DetailTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
   const query = useQuery();
   const dispatch = useDispatch();
- 
+
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   let initQuery: InventoryQuery = {};
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,153 +36,170 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     },
     items: [],
   });
-  const onResult = useCallback(
-    (result: PageResponse<InventoryResponse> | false) => {
-      if (result) {
-        setLoading(false);
-        setData(result);
-      }
-    },
-    []
-  );
+  const onResult = useCallback((result: PageResponse<InventoryResponse> | false) => {
+    if (result) {
+      setLoading(false);
+      setData(result);
+    }
+  }, []);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      
-      history.replace(
-        `${UrlConfig.INVENTORY}#2?${queryParam}`
-      );
+      setPrams({...params});
+
+      history.replace(`${UrlConfig.INVENTORY}#2?${queryParam}`);
     },
     [history, params]
   );
   const onFilter = useCallback(
     (values) => {
       console.log(values);
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.replace(
-        `${UrlConfig.INVENTORY}#2?${queryParam}`
-      );
+      history.replace(`${UrlConfig.INVENTORY}#2?${queryParam}`);
     },
     [history, params]
   );
   useEffect(() => {
-    if (
-      props.stores.length > 0 &&
-      params.store_id === undefined
-    ) {
-      setPrams({ ...params, store_id: props.stores[0].id });
+    if (props.stores.length > 0 && params.store_id === undefined) {
+      setPrams({...params, store_id: props.stores[0].id});
     }
   }, [params, props]);
-  useEffect(() => {
-      setLoading(true);
-      dispatch(inventoryGetDetailAction(params, onResult));
-  }, [dispatch, onResult, params]);
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<InventoryResponse>>
-  >([
+
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
+    []
+  );
+  const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
+  const onSelect = useCallback((selectedRow: Array<InventoryResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+  const ActionComponent = useChangeHeaderToAction(
+    "Sản phẩm",
+    selected.length > 0,
+    () => {},
+    []
+  );
+
+  const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = [
     {
       width: 300,
-      title: 'Sản phẩm',
+      title: <ActionComponent />,
       visible: true,
-      dataIndex: 'sku',
-      fixed: 'left',
+      dataIndex: "sku",
+      fixed: "left",
       render: (value, record, index) => (
         <div>
-          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>{value}</Link>
+          <Link
+            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+          >
+            {value}
+          </Link>
           <div>{record.name}</div>
         </div>
-      )
+      ),
     },
     {
-      align: 'right',
-      title: 'Tổng tồn',
+      align: "right",
+      title: "Tổng tồn",
       visible: true,
-      dataIndex: 'total_stock'
+      dataIndex: "total_stock",
     },
     {
-      title: 'Barcode',
+      title: "Barcode",
       visible: false,
-      dataIndex: 'barcode'
+      dataIndex: "barcode",
     },
-    
+
     {
-      align: 'right',
-      title: 'Tồn trong kho',
+      align: "right",
+      title: "Tồn trong kho",
       visible: true,
-      dataIndex: 'on_hand'
-    },
-    {
-      align: 'right',
-      title: 'Đang giao dịch',
-      visible: true,
-      dataIndex: 'committed'
+      dataIndex: "on_hand",
     },
     {
-      align: 'right',
-      title: 'Có thể bán',
+      align: "right",
+      title: "Đang giao dịch",
       visible: true,
-      dataIndex: 'available'
+      dataIndex: "committed",
     },
     {
-      align: 'right',
-      title: 'Tạm giữ',
+      align: "right",
+      title: "Có thể bán",
       visible: true,
-      dataIndex: 'on_hold'
+      dataIndex: "available",
     },
     {
-      align: 'right',
-      title: 'Hàng lỗi',
+      align: "right",
+      title: "Tạm giữ",
       visible: true,
-      dataIndex: 'defect'
+      dataIndex: "on_hold",
     },
     {
-      align: 'right',
-      title: 'Chờ nhập',
+      align: "right",
+      title: "Hàng lỗi",
       visible: true,
-      dataIndex: 'in_coming'
+      dataIndex: "defect",
     },
     {
-      align: 'right',
-      title: 'Đang chuyển đến',
+      align: "right",
+      title: "Chờ nhập",
       visible: true,
-      dataIndex: 'transferring'
+      dataIndex: "in_coming",
     },
     {
-      align: 'right',
-      title: 'Đang chuyển đi',
+      align: "right",
+      title: "Đang chuyển đến",
       visible: true,
-      dataIndex: 'on_way'
+      dataIndex: "transferring",
     },
     {
-      align: 'right',
-      title: 'Đang giao',
+      align: "right",
+      title: "Đang chuyển đi",
       visible: true,
-      dataIndex: 'shipping'
+      dataIndex: "on_way",
     },
     {
-      align: 'center',
-      title: 'Ngày khởi tạo',
+      align: "right",
+      title: "Đang giao",
       visible: true,
-      dataIndex: 'created_date',
-      render: (value) => ConvertUtcToLocalDate(value)
+      dataIndex: "shipping",
     },
     {
-      align: 'center',
-      title: 'Ngày cập nhật',
+      align: "center",
+      title: "Ngày khởi tạo",
       visible: true,
-      dataIndex: 'transaction_date',
-      render: (value) => ConvertUtcToLocalDate(value)
+      dataIndex: "created_date",
+      render: (value) => ConvertUtcToLocalDate(value),
     },
-  ]);
+    {
+      align: "center",
+      title: "Ngày cập nhật",
+      visible: true,
+      dataIndex: "transaction_date",
+      render: (value) => ConvertUtcToLocalDate(value),
+    },
+  ];
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  useEffect(() => {
+    setColumn(defaultColumns);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
+  useEffect(() => {
+    setLoading(true);
+    dispatch(inventoryGetDetailAction(params, onResult));
+  }, [dispatch, onResult, params]);
   return (
     <div>
       <InventoryFilter
@@ -201,8 +217,8 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
         isRowSelection
         dataSource={data.items}
         columns={columnFinal}
-        scroll={{ x: 2500 }}
-        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        scroll={{x: 2500}}
+        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
@@ -212,8 +228,9 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
           onShowSizeChange: onPageChange,
         }}
         rowKey={(data) => data.id}
+        onSelectedChange={onSelect}
       />
-       <ModalSettingColumn
+      <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {

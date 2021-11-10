@@ -101,7 +101,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               {props.customerDetail?.full_name}
             </Link>
             <Tag className="orders-tag orders-tag-vip">
-              <b>{!rankName ? "Default" : rankName}</b>
+              <b>{!rankName ? "Không có hạng" : rankName}</b>
             </Tag>
           </Space>
           <Space className="customer-detail-phone">

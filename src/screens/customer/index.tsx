@@ -1,26 +1,14 @@
 import {
   Card,
-  Row,
-  Col,
-  AutoComplete,
   Button,
-  Form,
-  Input,
-  Select,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import CustomFilter from "component/table/custom.filter";
+import { ExportOutlined, ImportOutlined, PlusOutlined } from "@ant-design/icons";
 import "./customer.scss";
-import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
-import CustomDatePicker from "component/custom/date-picker.custom";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
-import { RefSelectProps } from "antd/lib/select";
 
 import UrlConfig from "config/url.config";
 import { useDispatch } from "react-redux";
@@ -33,11 +21,6 @@ import { Link } from "react-router-dom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
 import { MenuAction } from "component/table/ActionButton";
 
 import {
@@ -46,12 +29,32 @@ import {
 } from "domain/actions/customer/customer.action";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import CustomerListFilter from "./component/CustomerListFilter";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { CustomerListPermissions } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
 
-const { Option } = Select;
+
+
+const viewCustomerListPermission = [CustomerListPermissions.VIEW_CUSTOMER_LIST];
+const createCustomerPermission = [CustomerListPermissions.CREATE_CUSTOMER];
+const exportCustomerPermission = [CustomerListPermissions.EXPORT_CUSTOMER];
 
 const Customer = () => {
   const dispatch = useDispatch();
   // const history = useHistory();
+
+  const [allowCreateCustomer] = useAuthorization({
+    acceptPermissions: createCustomerPermission,
+    not: false,
+  });
+
+  const [allowExportCustomer] = useAuthorization({
+    acceptPermissions: exportCustomerPermission,
+    not: false,
+  });
+
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -75,7 +78,7 @@ const Customer = () => {
     }),
     []
   );
-  const [query, setQuery] = React.useState<CustomerSearchQuery>({
+  const [query, setQuery] = useState<CustomerSearchQuery>({
     page: 1,
     limit: 30,
     request: null,
@@ -90,11 +93,10 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [columns, setColumn] = React.useState<
+  const [columns, setColumn] = useState<
     Array<ICustomTableColumType<any>>
   >([
     // {
@@ -266,7 +268,7 @@ const Customer = () => {
       visible: false,
     },
   ]);
-  const [data, setData] = React.useState<PageResponse<any>>({
+  const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -275,7 +277,7 @@ const Customer = () => {
     items: [],
   });
 
-  const [tableLoading, setTableLoading] = React.useState<boolean>(true);
+  const [tableLoading, setTableLoading] = useState<boolean>(true);
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -297,7 +299,7 @@ const Customer = () => {
   }, []);
 
   const [showSettingColumn, setShowSettingColumn] =
-    React.useState<boolean>(false);
+    useState<boolean>(false);
 
   React.useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
@@ -307,379 +309,114 @@ const Customer = () => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
 
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setResultSearch(data);
-    },
-    []
-  );
-  React.useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
-
-  const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [types, setTypes] = React.useState<Array<any>>([]);
+  const [groups, setGroups] = useState<Array<any>>([]);
+  const [types, setTypes] = useState<Array<any>>([]);
 
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
-  // const onRow = (record: any) => ({
-  //   onContextMenu: (event: any) => {
-  //     event.preventDefault();
-  //     if (!popup.visible) {
-  //       document.addEventListener(`click`, function onClickOutside() {
-  //         setPopup({ ...popup, visible: false });
-  //         document.removeEventListener(`click`, onClickOutside);
-  //       });
-  //     }
-
-  //     setPopup({ visible: true, x: event.clientX, y: event.clientY });
-  //   },
-  // });
-  const [formAdvance] = Form.useForm();
-
-  const onFilterClick = React.useCallback(() => {
-    setVisibleFilter(false);
-    formAdvance.submit();
-  }, [formAdvance]);
-  const onClearFilterAdvanceClick = React.useCallback(() => {
-    formAdvance.setFieldsValue(params);
-    setVisibleFilter(false);
-    formAdvance.submit();
-  }, [formAdvance, params]);
-  const openFilter = React.useCallback(() => {
-    setVisibleFilter(true);
-  }, []);
-  const onCancelFilter = React.useCallback(() => {
-    setVisibleFilter(false);
-  }, []);
-
-  const onSearch = (value: CustomerSearchQuery) => {
-    query.request = value && value.request;
-    const querySearch: CustomerSearchQuery = value;
-    dispatch(CustomerList(querySearch, setData));
-  };
   
-  const initQueryAccount: AccountSearchQuery = useMemo(
-    () => ({
-      info: "",
-    }),
-    []
-  );
 
-  // const AccountRenderSearchResult = (item: AccountResponse) => {
-  //   return (
-  //     // <div className="rs-info w-100">
-  //     <Row gutter={50}>
-  //           <Col span={24}>
-  //             <span style={{ color: "#737373" }}>{item.code + " - " + item.full_name}</span>
-  //           </Col>
-  //           </Row>
-  //     // </div>
-  //   );
-  // };
-  const [keySearchAccount, setKeySearchAccount] = React.useState("");
+  const onFilterClick = React.useCallback((values: CustomerSearchQuery) => {
+    let newPrams = { ...query, ...values, page: 1 };
+    setQuery(newPrams);
+  }, [query]);
 
-  const [resultSearch, setResultSearch] = React.useState<
-    PageResponse<AccountResponse> | false
-  >(false);
+  const onClearFilterAdvanceClick = React.useCallback(() => {
+    setQuery(params);
+  }, [params]);
 
-  const autoCompleteRef = React.createRef<RefSelectProps>();
 
-  const AccountConvertResultSearch = React.useMemo(() => {
-    let options: any[] = [];
-    if (resultSearch)
-      resultSearch.items.forEach((item: AccountResponse, index: number) => {
-        options.push({
-          label: item.code + " - " + item.full_name,
-          value: item.code + " - " + item.full_name,
-        });
-      });
-    return options;
-  }, [resultSearch]);
-
-  const AccountChangeSearch = React.useCallback(
-    (value) => {
-      setKeySearchAccount(value);
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setResultSearch));
-    },
-    [dispatch, initQueryAccount]
-  );
-
-  const SearchAccountSelect = React.useCallback(
-    (value, o) => {
-      let index: number = -1;
-      if (resultSearch) {
-        index = resultSearch.items.findIndex(
-          (accountResponse: AccountResponse) =>
-            accountResponse.id && accountResponse.id.toString() === value
-        );
-        if (index !== -1) {
-          setKeySearchAccount(
-            resultSearch.items[index].code +
-              "-" +
-              resultSearch.items[index].full_name
-          );
-          autoCompleteRef.current?.blur();
-        }
+  const getAction = () => {
+    const actions: Array<MenuAction> = [
+      {
+        id: 1,
+        name: "Nhập file",
+        icon:<ImportOutlined />
       }
-    },
-    [autoCompleteRef, resultSearch]
-  );
+    ]
 
-  const onFinish = (value: CustomerSearchQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code
-      ? value.responsible_staff_code.split(" - ")[0]
-      : null;
-    onSearch(value);
-  };
+    if (allowExportCustomer) {
+      actions.push(
+        {
+          id: 2,
+          name: "Xuất file",
+          icon:<ExportOutlined />
+        }
+      )
+    }
 
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Nhập file",
-    },
-    {
-      id: 2,
-      name: "Xuất file",
-    },
-  ];
+    return actions;
+  }
+
   return (
     <ContentContainer
-      title="Quản lý khách hàng"
+      title="Danh sách khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
+          name: "Danh sách khách hàng",
           path: `/customers`,
         },
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.CUSTOMER}/create`}>
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-            >
-              Thêm khách hàng mới
-            </Button>
-          </Link>
+          {allowCreateCustomer &&
+            <Link to={`${UrlConfig.CUSTOMER}/create`}>
+              <Button
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<PlusOutlined />}
+              >
+                Thêm khách hàng mới
+              </Button>
+            </Link>
+          }
         </>
       }
     >
-      <Card>
-        <div className="padding-20 customer-search-filter">
-          <CustomFilter menu={actions}>
-            <Form onFinish={onFinish} initialValues={params} layout="inline">
-              <Form.Item name="request">
-                <Input
-                  // style={{ marginLeft: 16, width: "100%" }}
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
-                />
-              </Form.Item>
-              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button onClick={openFilter}>Thêm bộ lọc</Button>
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  onClick={() => setShowSettingColumn(true)}
-                  icon={
-                    <img
-                      style={{ marginBottom: 3 }}
-                      src={settingGearIcon}
-                      alt=""
-                    ></img>
-                  }
-                ></Button>
-              </Form.Item>
-            </Form>
-          </CustomFilter>
+      <AuthWrapper acceptPermissions={viewCustomerListPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <Card>
+            <div className="padding-20 customer-search-filter">
+              <CustomerListFilter
+                actions={getAction()}
+                onClearFilter={onClearFilterAdvanceClick}
+                onFilter={onFilterClick}
+                params={query}
+                initQuery={params}
+                groups={groups}
+                loyaltyUsageRules={loyaltyUsageRules}
+                types={types}
+                setShowSettingColumn={() => setShowSettingColumn(true)}
+              />
+              
+              <CustomTable
+                isRowSelection
+                isLoading={tableLoading}
+                scroll={{ x: 2000 }}
+                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                dataSource={data.items}
+                columns={columnFinal}
+                rowKey={(item: any) => item.id}
+              />
+            </div>
+          </Card>
+          : <NoPermission />)}
+      </AuthWrapper>
 
-          {/* <Card style={{ position: "relative" }}> */}
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            scroll={{ x: 2000 }}
-            sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: any) => item.id}
-          />
-        </div>
-      </Card>
-      <BaseFilter
-        onClearFilter={onClearFilterAdvanceClick}
-        onFilter={onFilterClick}
-        onCancel={onCancelFilter}
-        visible={visibleFilter}
-        width={400}
-      >
-        <Form
-          form={formAdvance}
-          onFinish={onFinish}
-          //ref={formRef}
-          initialValues={params}
-          layout="vertical"
-        >
-          <Row gutter={50}>
-            <Col span={24}>
-              <Form.Item name="gender" label={<b>Giới tính:</b>}>
-                <Select
-                  showSearch
-                  placeholder="Chọn giới tính"
-                  allowClear
-                  optionFilterProp="children"
-                >
-                  {LIST_GENDER &&
-                    LIST_GENDER.map((c: any) => (
-                      <Option key={c.value} value={c.value}>
-                        {c.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24}>
-              <Form.Item
-                name="responsible_staff_code"
-                label={<b>Nhân viên phụ trách:</b>}
-              >
-                <AutoComplete
-                  notFoundContent={
-                    keySearchAccount.length >= 3
-                      ? "Không có bản ghi nào"
-                      : undefined
-                  }
-                  id="search_account"
-                  value={keySearchAccount}
-                  ref={autoCompleteRef}
-                  onSelect={SearchAccountSelect}
-                  onSearch={AccountChangeSearch}
-                  options={AccountConvertResultSearch}
-                >
-                  <Input
-                    placeholder="Chọn nhân viên phụ trách"
-                    // prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  />
-                </AutoComplete>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24}>
-              <Form.Item
-                name="customer_group_id"
-                label={<b>Nhóm khách hàng:</b>}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn nhóm khách hàng"
-                  allowClear
-                  optionFilterProp="children"
-                >
-                  {groups.map((group) => (
-                    <Option key={group.id} value={group.id}>
-                      {group.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item name="from_birthday" label="Ngày sinh từ">
-                <CustomDatePicker placeholder="Ngày sinh từ" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="Đến" name="to_birthday">
-                <CustomDatePicker placeholder="Ngày sinh đến" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item name="from_wedding_date" label="Ngày cưới từ">
-                <CustomDatePicker placeholder="Ngày cưới từ" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="Đến" name="to_wedding_date">
-                <CustomDatePicker placeholder="Ngày cưới đến" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24}>
-              <Form.Item
-                name="customer_level_id"
-                label={<b>Hạng khách hàng:</b>}
-              >
-                <Select
-                  showSearch
-                  placeholder="Hạng khách hàng"
-                  allowClear
-                  optionFilterProp="children"
-                >
-                  {loyaltyUsageRules.map((loyalty) => (
-                    <Option key={loyalty.id} value={loyalty.rank_id}>
-                      {loyalty.rank_name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24}>
-              <Form.Item
-                name="customer_type_id"
-                label={<b>Loại khách hàng:</b>}
-              >
-                <Select
-                  showSearch
-                  placeholder="Loại khách hàng"
-                  allowClear
-                  optionFilterProp="children"
-                >
-                  {types.map((type) => (
-                    <Option key={type.id} value={type.id}>
-                      {type.name + ` - ${type.code}`}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </BaseFilter>
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => {

@@ -37,6 +37,7 @@ const LoyaltyPointsType = {
   GET_LOYALTY_POINT: 'GET_LOYALTY_POINT',
   ADD_LOYALTY_POINT: 'ADD_LOYALTY_POINT',
   SUBTRACT_LOYALTY_POINT: 'SUBTRACT_LOYALTY_POINT',
+  GET_LOYALTY_ADJUST_POINT: 'GET_LOYALTY_ADJUST_POINT',
 }
   
 export { LoyaltyCardReleaseType, LoyaltyRankType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType, LoyaltyPointsType };

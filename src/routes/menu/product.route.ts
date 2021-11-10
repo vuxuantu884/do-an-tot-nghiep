@@ -67,12 +67,6 @@ const ProductBarcodeScreen = React.lazy(
   () => import("screens/products/product/BarcodeProductScreen")
 );
 
-
-//Inventory
-const InventoryScreen = React.lazy(
-  () => import("screens/products/inventory")
-);
-
 const product: Array<RouteMenu> = [
 
   {
@@ -155,17 +149,6 @@ const product: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
     ],
-  },
-  {
-    path: `${UrlConfig.INVENTORY}`,
-    exact: true,
-    title: "Danh sách tồn",
-    icon: "icon-dot",
-    component: InventoryScreen,
-    key: "submenu24",
-    isShow: true,
-    header: null,
-    subMenu: []
   },
   {
     path: 'submenu23',

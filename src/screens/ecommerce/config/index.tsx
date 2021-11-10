@@ -2,6 +2,8 @@ import React from "react";
 import { Card, Tabs, Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { EcommerceConfigPermissions } from "config/permissions/ecommerce.permission";
+
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import SyncEcommerce from "./tab/sync-ecommerce";
@@ -29,16 +31,30 @@ import EcommerceModal from "screens/ecommerce/common/ecommerce-custom-modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { showSuccess } from "utils/ToastUtils";
 import {ecommerceConfigDeleteAction} from "domain/actions/ecommerce/ecommerce.actions"
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import useAuthorization from "hook/useAuthorization";
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 
+const viewShopListPermission = [EcommerceConfigPermissions.VIEW_SHOP_LIST];
+const connectShopPermission = [EcommerceConfigPermissions.CONNECT_SHOP];
+
+
 const EcommerceConfig: React.FC = () => {
   const dispatch = useDispatch();
   const connectQuery = useQuery();
   const [configForm] = Form.useForm();
+
+  const [allowConnectShop] = useAuthorization({
+    acceptPermissions: connectShopPermission,
+    not: false,
+  });
+
+
   const [activeTab, setActiveTab] = useState<string>("sync");
   const history = useHistory();
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
@@ -175,7 +191,7 @@ const EcommerceConfig: React.FC = () => {
       ]}
       extra={
         <>
-          {activeTab === "sync" && (
+          {activeTab === "sync" && allowConnectShop && (
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"
@@ -188,53 +204,58 @@ const EcommerceConfig: React.FC = () => {
         </>
       }
     >
-      <StyledComponent>
-        <Card>
-          <Tabs
-            activeKey={activeTab}
-            onChange={(active) => {
-              history.replace(`${history.location.pathname}#${active}`);
-              reloadConfigData();
-              setConfigFromEcommerce(undefined)
-            }}
-          >
-            <TabPane tab="Đồng bộ sàn" key="sync">
-              <SyncEcommerce
-                configData={configData}
-                setConfigToView={setConfigToView}
-                reloadConfigData={reloadConfigData}
-                showDeleteModal={handleShowDeleteModal}
-              />
-            </TabPane>
-            <TabPane tab="Cài đặt cấu hình" key="setting">
-              <SettingConfig
-                listStores={stores}
-                accounts={accounts}
-                accountChangeSearch={accountChangeSearch}
-                form={configForm}
-                configData={configData}
-                configToView={configToView}
-                reloadConfigData={reloadConfigData}
-                setConfigToView={setConfigToView}
-                configFromEcommerce={configFromEcommerce}
-                setConfigFromEcommerce={setConfigFromEcommerce}
-                showDeleteModal={handleShowDeleteModal}
-                storeChangeSearch={storeChangeSearch}
-              />
-            </TabPane>
-          </Tabs>
-        </Card>
-        <EcommerceModal
-          onCancel={() => setIsShowDeleteModal(false)}
-          onOk={onOkDeleteEcommerce}
-          visible={isShowDeleteModal}
-          okText="Đồng ý"
-          cancelText="Hủy"
-          title=""
-          text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
-          icon={DeleteIcon}
-        />
-      </StyledComponent>
+      <AuthWrapper acceptPermissions={viewShopListPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <StyledComponent>
+            <Card>
+              <Tabs
+                activeKey={activeTab}
+                onChange={(active) => {
+                  history.replace(`${history.location.pathname}#${active}`);
+                  reloadConfigData();
+                  setConfigFromEcommerce(undefined)
+                }}
+              >
+                <TabPane tab="Đồng bộ sàn" key="sync">
+                  <SyncEcommerce
+                    configData={configData}
+                    setConfigToView={setConfigToView}
+                    reloadConfigData={reloadConfigData}
+                    showDeleteModal={handleShowDeleteModal}
+                  />
+                </TabPane>
+                <TabPane tab="Cài đặt cấu hình" key="setting">
+                  <SettingConfig
+                    listStores={stores}
+                    accounts={accounts}
+                    accountChangeSearch={accountChangeSearch}
+                    form={configForm}
+                    configData={configData}
+                    configToView={configToView}
+                    reloadConfigData={reloadConfigData}
+                    setConfigToView={setConfigToView}
+                    configFromEcommerce={configFromEcommerce}
+                    setConfigFromEcommerce={setConfigFromEcommerce}
+                    showDeleteModal={handleShowDeleteModal}
+                    storeChangeSearch={storeChangeSearch}
+                  />
+                </TabPane>
+              </Tabs>
+            </Card>
+    
+            <EcommerceModal
+              onCancel={() => setIsShowDeleteModal(false)}
+              onOk={onOkDeleteEcommerce}
+              visible={isShowDeleteModal}
+              okText="Đồng ý"
+              cancelText="Hủy"
+              title=""
+              text={`Bạn có chắc chắn xóa gian hàng ${modalShopInfo?.name} này không?`}
+              icon={DeleteIcon}
+            />
+          </StyledComponent>
+          : <NoPermission />)}
+      </AuthWrapper>
     </ContentContainer>
   );
 };

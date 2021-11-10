@@ -23,6 +23,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {
+  DeliveryServicesGetList,
   getListReasonRequest,
   getShipmentsAction,
 } from "domain/actions/order/order.action";
@@ -34,22 +35,25 @@ import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
-import { delivery_service } from "./common/delivery-service";
 import ShipmentDetailsModal from "./modal/shipment-details.modal";
 import { StyledComponent } from "./list-shipments.styles";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 2,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 
@@ -114,7 +118,16 @@ const ListOrderScreen: React.FC = () => {
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
     []
   );
-
+  let deliveryServices: any[] = []
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        deliveryServices = response
+        // setDeliveryServices(response);
+      })
+    );
+  }, [dispatch]);
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,
@@ -188,7 +201,7 @@ const ListOrderScreen: React.FC = () => {
         ),
       key: "customer",
       visible: true,
-      width: "5%",
+      width: 200,
     },
     {
       title: (
@@ -245,12 +258,12 @@ const ListOrderScreen: React.FC = () => {
       align: "right",
     },
     {
-      title: "HTVC",
+      title: "HT Vận Chuyển",
       render: (record: any) => {
         switch (record.shipment?.delivery_service_provider_type) {
           case "external_service":
             const service_id = record.shipment.delivery_service_provider_id;
-            const service = delivery_service.find((service) => service.id === service_id);
+            const service = deliveryServices.find((service) => service.id === service_id);
             return (
               service && (
                 <img
@@ -269,7 +282,7 @@ const ListOrderScreen: React.FC = () => {
       },
       key: "shipment.type",
       visible: true,
-      width: "3.5%",
+      width: 140,
       align: "center",
     },
     {
@@ -294,7 +307,7 @@ const ListOrderScreen: React.FC = () => {
       },
       visible: true,
       align: "center",
-      width: "4.3%",
+      width: 180,
     },
 
     {
@@ -312,6 +325,7 @@ const ListOrderScreen: React.FC = () => {
       render: (shipment?) => shipment?.shipping_fee_paid_to_three_pls,
       key: "shipping_fee_paid_to_three_pls",
       visible: true,
+      align: "center",
     },
     // {
     //   title: "Khách đã trả",
@@ -330,36 +344,36 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn giao",
-      dataIndex: "account_code",
+      render: (record) => <div>{`${record.account? record.account : ''} - ${record.account_code}`}</div>,
       key: "account_code",
       visible: true,
       align: "center",
     },
     {
       title: "Ngày tạo đơn",
-      dataIndex: "created_date",
+      dataIndex: "shipment.created_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "shipped_on",
       visible: true,
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "received_on",
+      dataIndex: "shipment.received_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_on",
+      key: "received_date",
       visible: true,
     },
     {
       title: "Ngày huỷ đơn",
-      dataIndex: "cancel_date",
+      dataIndex: "shipment.cancel_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancel_date",
       visible: true,
     },
     {
       title: "Lý do huỷ giao",
-      dataIndex: "shipment",
-      render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
+      dataIndex: "shipment.cancel_reason",
+      // render: (shipment?: any) => <div>{shipment?.cancel_reason}</div>,
       key: "cancel_date",
       visible: true,
     },
@@ -371,24 +385,20 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Tỉnh thành",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && shipping_address.city,
+      dataIndex: "shipment.shipping_address.city",
       key: "city",
       visible: true,
     },
     {
       title: "Quận huyện",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && shipping_address.district,
+      dataIndex: "shipment.shipping_address.district",
       key: "district",
       visible: true,
     },
     {
       title: "Trạng thái đối soát",
-      dataIndex: "reference_code",
-      key: "reference_code",
+      dataIndex: "shipment.reference_status",
+      key: "reference_status",
       visible: true,
     },
   ]);
@@ -614,7 +624,7 @@ const ListOrderScreen: React.FC = () => {
             listStore={listStore}
             accounts={accounts}
             reasons={reasons}
-            deliveryService={delivery_service}
+            deliveryService={deliveryServices}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
           />
@@ -622,7 +632,7 @@ const ListOrderScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630 }}
+            scroll={{ x: 3630 * columnFinal.length/(columns.length ? columns.length : 1)}}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

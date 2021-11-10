@@ -25,15 +25,18 @@ import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 
 const action: Array<MenuAction> = [
   {
     id: 0,
     name: "Xóa",
+    icon:<DeleteOutlined />
   },
   {
     id: 1,
     name: "Export",
+    icon:<ExportOutlined />
   },
 ];
 

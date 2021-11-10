@@ -6,6 +6,7 @@ export interface CustomerResponse extends BaseObject {
   full_name: string;
   phone: string | null;
   email: string | null;
+  channel: string | null;
   facebook_url: string | null;
   group_id: number;
   type_id: number;

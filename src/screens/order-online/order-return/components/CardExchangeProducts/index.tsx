@@ -1203,7 +1203,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền hàng mua:</strong>
-              <strong className="text-success font-size-price">
+              <strong>
                 {totalAmountExchangeNeedToPay
                   ? formatCurrency(totalAmountExchangeNeedToPay)
                   : "-"}
@@ -1211,7 +1211,7 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
             </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Tổng tiền hàng trả:</strong>
-              <strong className="text-success font-size-price">
+              <strong>
                 {formatCurrency(amountReturn)}
               </strong>
             </Row>

@@ -39,8 +39,11 @@ const CustomModal = (props: CustomModalType) => {
       setIsShowConfirmDelete(false);
     },
     edit: () => {
-      setVisibleForm(false);
-      onEdit(form.getFieldsValue());
+      form.validateFields().then(()=> {
+        setVisibleForm(false);
+        onEdit(form.getFieldsValue());
+        
+      })
     },
   };
 
@@ -109,14 +112,14 @@ const CustomModal = (props: CustomModalType) => {
 
   return (
     <Modal
-      width="600px"
+      width="680px"
       className="modal-confirm"
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"
       title={
         isCreateModal
-          ? `Thêm mới ${modalTypeText}`
+          ? `Thêm ${modalTypeText}`
           : `Cập nhật ${modalTypeText}`
       }
       footer={renderModalFooter()}

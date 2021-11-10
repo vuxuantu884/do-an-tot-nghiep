@@ -4,6 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import arrowLeft from "assets/icon/arrow-left.svg";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { CustomerListPermissions } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
 
 const genreEnum: any = {
   male: "Nam",
@@ -11,8 +13,11 @@ const genreEnum: any = {
   other: "Khác",
 };
 
+const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
+
 type CustomerInfoProps = {
   customer: CustomerResponse | undefined;
+  loyaltyCard: any;
 };
 
 type CustomerParams = {
@@ -30,7 +35,13 @@ type detailMapping = {
 const CustomerInfo: React.FC<CustomerInfoProps> = (
   props: CustomerInfoProps
 ) => {
-  const { customer } = props;
+  const { customer, loyaltyCard } = props;
+
+  const [allowUpdateCustomer] = useAuthorization({
+    acceptPermissions: updateCustomerPermission,
+    not: false,
+  });
+
   const params = useParams<CustomerParams>();
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
   const customerDetail: Array<detailMapping> | undefined = React.useMemo(() => {
@@ -56,7 +67,7 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
         },
         {
           name: "Thẻ khách hàng",
-          value: customer.card_number,
+          value: loyaltyCard?.card_number,
           position: "right",
           key: "4",
         },
@@ -74,10 +85,27 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
           position: "right",
           key: "6",
         },
+        {
+          name: "Địa chỉ",
+          value: `${customer.full_address ? customer.full_address : ""}${
+            customer.ward ? " - " + customer.ward : ""
+          }${customer.district ? " - " + customer.district : ""}${
+            customer.city ? " - " + customer.city : ""
+          }`,
+          position: "left",
+          key: "8",
+        },
+        {
+          name: "Kênh",
+          value: customer.channel,
+          position: "right",
+          key: "12",
+        },
       ];
       return details;
     }
-  }, [customer]);
+  }, [customer, loyaltyCard]);
+  
   const customerDetailCollapse: Array<detailMapping> | undefined =
     React.useMemo(() => {
       if (customer) {
@@ -144,16 +172,6 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
             key: "7",
           },
           {
-            name: "Địa chỉ",
-            value: `${customer.full_address ? customer.full_address : ""}${
-              customer.ward ? " - " + customer.ward : ""
-            }${customer.district ? " - " + customer.district : ""}${
-              customer.city ? " - " + customer.city : ""
-            }`,
-            position: "left",
-            key: "8",
-          },
-          {
             name: "Ghi chú",
             value: customer.description,
             position: "right",
@@ -209,11 +227,13 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
           )}
         </div>
       }
-      extra={[
-        <Link key={params.id} to={`/customers/${params.id}/edit`}>
-          Cập nhật
-        </Link>,
-      ]}
+      extra={allowUpdateCustomer &&
+        [
+          <Link key={params.id} to={`/customers/${params.id}/edit`}>
+            Cập nhật
+          </Link>,
+        ]
+      }
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>

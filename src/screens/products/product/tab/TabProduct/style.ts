@@ -6,5 +6,7 @@ export const ActionStyle = styled.div`
   }
   .action-button {
     z-index: 1;
+    position: absolute;
+    transform: translate(0, -50%);
   }
 `;

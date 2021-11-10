@@ -18,6 +18,7 @@ const iconMap: any = {
   tiki: tikiIcon,
   sendo: sendoIcon,
 };
+
 type SyncEcommerceProps = {
   configData: any;
   setConfigToView: (value: EcommerceResponse) => void;
@@ -79,10 +80,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
       visible: true,
       render: (l: any, v: any, i: any) => {
         return (
-          <span
-            style={{ color: " #2a2a86", cursor: "pointer" }}
-            onClick={() => handleUpdate(v)}
-          >
+          <span className="link" onClick={() => handleUpdate(v)}>
             {v.name}
           </span>
         );

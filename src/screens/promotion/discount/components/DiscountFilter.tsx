@@ -4,18 +4,15 @@ import {SourceResponse} from "../../../../model/response/order/source.response";
 import search from "assets/img/search.svg";
 import {
   CustomerGroupModel,
-  CustomerGroupResponseModel
 } from "../../../../model/response/customer/customer-group.response";
 import {DiscountSearchQuery} from "../../../../model/query/discount.query";
 import {MenuAction} from "../../../../component/table/ActionButton";
-import {Button, Collapse, Form, Input, Select, Space, Tag} from "antd";
+import {Button, Form, Input, Select, Space, Tag} from "antd";
 import React, {useCallback, useState} from "react";
 import {StyledComponent} from "./style";
 import CustomFilter from "../../../../component/table/custom.filter";
 import {checkFixedDate, DATE_FORMAT} from "../../../../utils/DateUtils";
-import BaseFilter from "../../../../component/filter/base.filter";
 import {SearchVariantField, SearchVariantMapping} from "../../../../model/promotion/promotion-mapping";
-import CustomRangePicker from "../../../../component/filter/component/range-picker.custom";
 import { FilterOutlined } from "@ant-design/icons"
 
 type DiscountFilterProps = {
@@ -32,20 +29,16 @@ type DiscountFilterProps = {
 
 const statuses = [
   {
-    code: 'APPLYING',
+    code: 'ACTIVE',
     value: 'Đang áp dụng',
   },
   {
-    code: 'TEMP_STOP',
+    code: 'DISABLED',
     value: 'Tạm ngưng',
   },
   {
-    code: 'WAIT_FOR_START',
+    code: 'DRAFT',
     value: 'Chờ áp dụng' ,
-  },
-  {
-    code: 'ENDED',
-    value: 'Kết thúc',
   },
   {
     code: 'CANCELLED',
@@ -94,8 +87,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   } = props;
 
   // useState
-  const [visible, setVisible] = useState(false);
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  // const [visible, setVisible] = useState(false);
+  let [advanceFilters,] = useState<any>({});
 
 
   // useCallback
@@ -103,41 +96,14 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     onFilter && onFilter(values);
   }, [onFilter])
 
-  const onFinishAvd = useCallback(values => {
-    setAdvanceFilters(values);
-    if (values.created_date) {
-      const [from_created_date, to_created_date] = values.created_date;
-      values.from_created_date = values.created_date ? from_created_date : undefined;
-      values.to_created_date = values.created_date ? to_created_date : undefined;
-    } else {
-      values.to_created_date = '';
-      values.from_created_date = '';
-    }
-    onFilter && onFilter(values);
-  }, [onFilter])
-
-  const onFilterClick = useCallback(() => {
-    setVisible(false);
-    formAvd.submit();
-  }, [formAvd])
-
   const openFilter = useCallback(() => {
-    setVisible(true);
-  }, [])
-
-  const onCancelFilter = useCallback(() => {
-    setVisible(false);
+    // setVisible(true);
   }, [])
 
   const onActionClick = useCallback((index) => {
     onMenuClick && onMenuClick(index);
   }, [onMenuClick])
 
-  const onClearFilterClick = useCallback(() => {
-    formAvd.resetFields();
-    formAvd.submit();
-    setVisible(false);
-  }, [formAvd])
 
   const resetField = useCallback((field) => {
     console.log('resetField: ', field);
@@ -159,14 +125,14 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 placeholder="Tìm kiếm theo mã, tên chương trình"
               />
             </Item>
-            <Item name="statuses" >
+            <Item name="state" >
               <Select
                 style={{minWidth: "200px"}}
                 optionFilterProp="children"
-                mode="multiple"
+                // mode="multiple"
                 placeholder="Chọn trạng thái"
+                allowClear={true}
               >
-                <Option value="">Tất cả trạng thái</Option>
                 {statuses?.map((item) => (
                   <Option key={item.code} value={item.code}>
                     {item.value}
@@ -345,6 +311,7 @@ const FilterList = (({
                        resetField,
                        listStore,
                        listSource,
+                       listChannel,
                        listCustomerCategories
                      }: any) => {
   let filterKeys = Object.keys(filters);
