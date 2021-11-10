@@ -195,6 +195,9 @@ const PromotionDetailScreen: React.FC = () => {
         align: "center",
         visible: false,
         dataIndex: "cost",
+        render: (
+          value: string,
+        ) => formatCurrency(value)
       },
       {
         title: "Chiết khấu",
@@ -204,7 +207,10 @@ const PromotionDetailScreen: React.FC = () => {
       {
         title: "Giá sau chiết khấu",
         align: "center",
-        dataIndex: "total"
+        dataIndex: "total",
+        render: (
+          value: string,
+        ) => formatCurrency(value)
       },
       {
         title: "SL Tối thiểu",
@@ -249,9 +255,12 @@ const PromotionDetailScreen: React.FC = () => {
         align: "center",
         visible: false,
         dataIndex: "cost",
+        render: (
+          value: string,
+        ) => formatCurrency(value)
       },
       {
-        title: "Giá sau cố định",
+        title: "Giá cố định",
         align: "center",
         dataIndex: "total"
       },
