@@ -18,7 +18,7 @@ type PropType = {
   showDiscountModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
-  setIsAutomaticDiscount: (value: boolean) => void;
+  setIsDisableAutomaticDiscount: (value: boolean) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -47,7 +47,7 @@ function CardProductBottom(props: PropType) {
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
-    setIsAutomaticDiscount,
+    setIsDisableAutomaticDiscount,
   } = props;
 
   return (
@@ -55,7 +55,7 @@ function CardProductBottom(props: PropType) {
       <Row gutter={24}>
         <Col xs={24} lg={11}>
           <div className="optionRow">
-            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsAutomaticDiscount(e.target.value)}>
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsDisableAutomaticDiscount(e.target.value)}>
               Bỏ chiết khấu tự động
             </Checkbox>
           </div>
