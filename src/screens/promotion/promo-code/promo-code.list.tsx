@@ -232,10 +232,21 @@ const ListCode = () => {
     }
   }, [dispatch, priceRuleId, params, fetchData]);
 
-  // section CHANGE STATUS
+  // section Ngưng áp dụng
   const handleStatus = (item: any) => {
-    // TODO
+    const body = {
+      ids: [item.id]
+    }
+    dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
   };
+
+    // section Đã tặng
+    const handleGift = (item: any) => {
+      const body = {
+        ids: [item.id]
+      }
+      dispatch(publishedBulkPromoCode(priceRuleId, body, deleteCallBack));
+    };
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
     {
@@ -284,7 +295,7 @@ const ListCode = () => {
       render: (value: any, item: any, index: number) =>
         <div>{`${item.created_date ? moment(item.created_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
     },
-    actionColumn(handleUpdate, handleDelete, handleStatus),
+    actionColumn(handleUpdate, handleDelete, handleStatus, handleGift),
   ], []);
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
