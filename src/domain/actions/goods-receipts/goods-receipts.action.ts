@@ -12,5 +12,5 @@ export const createGoodsReceipts = (data:GoodsReceiptsRequest,setData: (data: Go
 };
 
 export const getGoodsReceiptsSerch = (data:any,setData: (data: Array<any>) => void) => {
-    return BaseAction(GoodsReceiptsType.SEARCH_GOODS_RECEIPTS, { setData });
+    return BaseAction(GoodsReceiptsType.SEARCH_GOODS_RECEIPTS, {data, setData });
 };

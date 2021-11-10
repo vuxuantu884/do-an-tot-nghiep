@@ -12,7 +12,7 @@ import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank
 import { LoyaltyCardReleaseResponse } from "model/response/loyalty/release/loyalty-card-release.response";
 import { loyaltyCardAssignmentApi, loyaltyCardLockApi, searchLoyaltyCardList } from "service/loyalty/card/loyalty-card.service";
 import { LoyaltyAccumulationProgramResponse } from "model/response/loyalty/loyalty-accumulation.response";
-import { addLoyaltyPointService, createLoyaltyProgram, createLoyaltyRate, createLoyaltyUsage, getLoyaltyPoint, getLoyaltyProgramDetail, getLoyaltyRate, getLoyaltyUsage, searchLoyaltyProgramList, subtractLoyaltyPointService, updateLoyaltyProgram } from "service/loyalty/loyalty.service";
+import { addLoyaltyPointService, createLoyaltyProgram, createLoyaltyRate, createLoyaltyUsage, getLoyaltyPoint, getLoyaltyProgramDetail, getLoyaltyRate, getLoyaltyUsage, getLoyaltyAdjustPointService, searchLoyaltyProgramList, subtractLoyaltyPointService, updateLoyaltyProgram } from "service/loyalty/loyalty.service";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -506,6 +506,31 @@ function* subtractLoyaltyPoint(action: YodyAction) {
   }
 }
 
+function* getLoyaltyAdjustPointSaga(action: YodyAction) {
+  const { customerId, setData, onError } = action.payload;
+  try {
+    const response: BaseResponse<LoyaltyPoint> = yield call(
+      getLoyaltyAdjustPointService,
+      customerId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e:any) => showError(e));
+        onError()
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* loyaltySaga() {
   yield takeLatest(LoyaltyCardReleaseType.UPLOAD, uploadLoyaltyCardSaga);
   yield takeLatest(LoyaltyRankType.SEARCH_LOYALTY_RANK_REQUEST, getLoyaltyRankingList);
@@ -528,4 +553,5 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsType.GET_LOYALTY_POINT, getloyaltyPoint);
   yield takeLatest(LoyaltyPointsType.ADD_LOYALTY_POINT, addLoyaltyPoint);
   yield takeLatest(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, subtractLoyaltyPoint);
+  yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, getLoyaltyAdjustPointSaga);
 }

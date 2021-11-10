@@ -13,15 +13,24 @@ import { formatCurrency, replaceFormatString } from 'utils/AppUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { showError, showSuccess } from 'utils/ToastUtils';
 import { useHistory, useParams } from 'react-router';
+import { CustomerLevelPermissions } from 'config/permissions/customer.permission';
+import useAuthorization from 'hook/useAuthorization';
 
 const { Item } = Form;
 const { Option } = Select;
+
+const updateCustomerLevelPermission = [CustomerLevelPermissions.UPDATE];
 
 const CreateCustomerRanking = () => {
   const formRef = createRef<FormInstance>();
   const dispatch = useDispatch()
   const params = useParams() as any;
   const history = useHistory();
+
+  const [allowUpdateCustomerLevel] = useAuthorization({
+    acceptPermissions: updateCustomerLevelPermission,
+    not: false,
+  });
 
   const initFormValues = useMemo(() => {
     return {
@@ -71,6 +80,7 @@ const CreateCustomerRanking = () => {
   },
     [dispatch, onCreateCallback, params.id]
   );
+
   return (
     <ContentContainer
       title={params.id ? "Sửa hạng khách hàng" : "Thêm hạng khách hàng"}
@@ -121,7 +131,7 @@ const CreateCustomerRanking = () => {
                         },
                       ]}
                     >
-                      <Input placeholder="Nhập hạng khách hàng" />
+                      <Input placeholder="Nhập hạng khách hàng" disabled={params.id && !allowUpdateCustomerLevel}/>
                     </Item>
                   </Col>
                   <Col span={2}></Col>
@@ -130,7 +140,7 @@ const CreateCustomerRanking = () => {
                     <Item
                       name="type"
                     >
-                      <Select>
+                      <Select disabled={params.id && !allowUpdateCustomerLevel}>
                         <Option value="CASH">Theo tiền tích lũy</Option>
                         {/* <Option disabled value="POINT">Theo số điểm</Option> */}
                       </Select>
@@ -157,6 +167,7 @@ const CreateCustomerRanking = () => {
                           replaceFormatString(a)
                         }
                         max={999999999999999}
+                        disabled={params.id && !allowUpdateCustomerLevel}
                       />
                     </Item>
                   </Col>
@@ -167,7 +178,7 @@ const CreateCustomerRanking = () => {
                     <Item
                       name="note"
                     >
-                      <TextArea placeholder="Nhập ghi chú" style={{ width: '100vw', height: '104px' }}></TextArea>
+                      <TextArea disabled={params.id && !allowUpdateCustomerLevel} placeholder="Nhập ghi chú" style={{ width: '100vw', height: '104px' }}></TextArea>
                     </Item>
                   </Col>
                 </Row>
@@ -191,7 +202,7 @@ const CreateCustomerRanking = () => {
                     <Item
                       name="status"
                     >
-                      <Select>
+                      <Select disabled={params.id && !allowUpdateCustomerLevel}>
                         <Option value="ACTIVE">Đang hoạt động</Option>
                         <Option value="INACTIVE">Dừng hoạt động</Option>
                       </Select>
@@ -221,17 +232,32 @@ const CreateCustomerRanking = () => {
               <span>Quay lại danh sách hạng khách hàng</span>
             </Link>
           </Col>
+
           <Col span={16} className="action-group">
-            <Button
-              type="primary"
-              className="save-btn"
-              onClick={() => {
-                formRef.current?.submit();
-              }}
-            >
-              {params.id ? 'Lưu' : 'Tạo'} hạng khách hàng
-            </Button>
+            {params.id ?
+              (allowUpdateCustomerLevel &&
+                <Button
+                  type="primary"
+                  className="save-btn"
+                  onClick={() => {
+                    formRef.current?.submit();
+                  }}
+                >
+                  Lưu hạng khách hàng
+                </Button>
+              )
+            : <Button
+                type="primary"
+                className="save-btn"
+                onClick={() => {
+                  formRef.current?.submit();
+                }}
+              >
+                Tạo hạng khách hàng
+              </Button>
+            }
           </Col>
+          
         </Row>
       </Form>
     </ContentContainer>

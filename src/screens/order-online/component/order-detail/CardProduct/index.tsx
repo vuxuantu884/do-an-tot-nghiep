@@ -17,7 +17,7 @@ import {
   Table,
   Tooltip,
 } from "antd";
-import _ from "lodash";
+// import _ from "lodash";
 import {RefSelectProps} from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
@@ -859,7 +859,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(item => item.variant_id === item.variant_id).length : item.quantity;
     try {
-      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}]);
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
       setLoadingAutomaticDiscount(false)
       if (item && checkingDiscountResponse &&
         checkingDiscountResponse.code === 20000000 &&
@@ -903,68 +903,68 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   }
 
-  const applyCouponDiscount = async (items: Array<OrderLineItemRequest> | undefined) => {
-    if (items) {
-      try {
-        const requestBody = _.uniqWith(items, (otherItem, currentItem) => {
-          let flag = false;
-          if (currentItem.variant_id === otherItem.variant_id) {
-            currentItem.quantity += otherItem.quantity;
-            flag = true;
-          }
-          return flag;
-        }).map(e => ({
-          variant_id: e.variant_id,
-          quantity: e.quantity
-        }));
-        const applyResponse = await applyDiscount(requestBody);
-        setLoadingAutomaticDiscount(false)
-        if (applyResponse &&
-          applyResponse.code === 20000000 &&
-          applyResponse.data.line_items.length
-        ) {
-          applyResponse.data.line_items.forEach((discountLineItem:any) => {
-            const orderItems = items.filter(item => item.variant_id === discountLineItem.variant_id);
-            if (orderItems && orderItems.length > 0) {
-              let valuestDiscount = 0;
-              console.log('orderItems[0]: ',orderItems[0]);
-              const quantity = orderItems[0].quantity;
-              const suggested_discounts = discountLineItem.suggested_discounts;
-              const total = orderItems[0].amount;
-              valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
-                let value = 0;
-                if (discount.value_type === "FIXED_AMOUNT") {
-                  value = discount.value * quantity;
-                } else if (discount.value_type === "PERCENTAGE") {
-                  value = total * (discount.value/100);
-                } else if (discount.value_type === "FIXED_PRICE") {
-                  value = orderItems[0].price - discount.value;
-                }
-                if (value > orderItems[0].price) {
-                  value = orderItems[0].price;
-                }
-                return value;
-              }))
-              const discountItem: OrderItemDiscountRequest = {
-                rate: Math.round((valuestDiscount/(orderItems[0].price * orderItems[0].quantity)) * 100 * 100) / 100,
-                value: valuestDiscount,
-                amount: valuestDiscount,
-                reason: '',
-              };
-              orderItems.forEach(e => e.discount_items = [discountItem]);
-            }
-          })
-        }
-        console.log('applyCouponDiscount - items: ', items)
-        console.log('applyCouponDiscount: ', applyResponse);
-      } catch(e) {
-        console.log(e);
-        showError("Thao tác thất bại");
-        setLoadingAutomaticDiscount(false)
-        return null;
-      }
-    }
-  }
+  // const applyCouponDiscount = async (items: Array<OrderLineItemRequest> | undefined) => {
+  //   if (items) {
+  //     try {
+  //       const requestBody = _.uniqWith(items, (otherItem, currentItem) => {
+  //         let flag = false;
+  //         if (currentItem.variant_id === otherItem.variant_id) {
+  //           currentItem.quantity += otherItem.quantity;
+  //           flag = true;
+  //         }
+  //         return flag;
+  //       }).map(e => ({
+  //         variant_id: e.variant_id,
+  //         quantity: e.quantity
+  //       }));
+  //       const applyResponse = await applyDiscount(requestBody, "ADMIN");
+  //       setLoadingAutomaticDiscount(false)
+  //       if (applyResponse &&
+  //         applyResponse.code === 20000000 &&
+  //         applyResponse.data.line_items.length
+  //       ) {
+  //         applyResponse.data.line_items.forEach((discountLineItem:any) => {
+  //           const orderItems = items.filter(item => item.variant_id === discountLineItem.variant_id);
+  //           if (orderItems && orderItems.length > 0) {
+  //             let valuestDiscount = 0;
+  //             console.log('orderItems[0]: ',orderItems[0]);
+  //             const quantity = orderItems[0].quantity;
+  //             const suggested_discounts = discountLineItem.suggested_discounts;
+  //             const total = orderItems[0].amount;
+  //             valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
+  //               let value = 0;
+  //               if (discount.value_type === "FIXED_AMOUNT") {
+  //                 value = discount.value * quantity;
+  //               } else if (discount.value_type === "PERCENTAGE") {
+  //                 value = total * (discount.value/100);
+  //               } else if (discount.value_type === "FIXED_PRICE") {
+  //                 value = orderItems[0].price - discount.value;
+  //               }
+  //               if (value > orderItems[0].price) {
+  //                 value = orderItems[0].price;
+  //               }
+  //               return value;
+  //             }))
+  //             const discountItem: OrderItemDiscountRequest = {
+  //               rate: Math.round((valuestDiscount/(orderItems[0].price * orderItems[0].quantity)) * 100 * 100) / 100,
+  //               value: valuestDiscount,
+  //               amount: valuestDiscount,
+  //               reason: '',
+  //             };
+  //             orderItems.forEach(e => e.discount_items = [discountItem]);
+  //           }
+  //         })
+  //       }
+  //       console.log('applyCouponDiscount - items: ', items)
+  //       console.log('applyCouponDiscount: ', applyResponse);
+  //     } catch(e) {
+  //       console.log(e);
+  //       showError("Thao tác thất bại");
+  //       setLoadingAutomaticDiscount(false)
+  //       return null;
+  //     }
+  //   }
+  // }
 
   const onSearchVariantSelect = useCallback(
     async (v, o) => {

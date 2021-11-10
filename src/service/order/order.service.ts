@@ -388,13 +388,14 @@ export const getGoodsReceiptsTypeService = (): Promise<
 export const createGoodsReceiptsService = (
   params: GoodsReceiptsRequest
 ): Promise<BaseResponse<GoodsReceiptsResponse>> => {
-  const link = `${ApiConfig.ORDER}/goods-receipts`;
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts`;
   return BaseAxios.post(link, params);
 };
 
 export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipts/search?${queryString}`);
+  console.log("queryString",queryString);
+  return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`);
 };
 /**
  * tách đơn

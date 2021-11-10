@@ -85,7 +85,7 @@ const DiscountPage = () => {
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
-  }, []);
+  }, [dispatch, fetchData, params]);
 
   useEffect(() => {
     setTableLoading(true)

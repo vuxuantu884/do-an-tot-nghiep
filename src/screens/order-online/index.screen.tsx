@@ -188,7 +188,7 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       fixed: "left",
       className: "custom-shadow-td",
-      width: "3.2%",
+      width: 120,
     },
     {
       title: "Khách hàng",
@@ -218,7 +218,7 @@ const ListOrderScreen: React.FC = () => {
         ),
       key: "customer",
       visible: true,
-      width: "5%",
+      width: 200,
     },
     {
       title: (
@@ -293,7 +293,7 @@ const ListOrderScreen: React.FC = () => {
       width: "150px",
     },
     {
-      title: "HTVC",
+      title: "HT Vận chuyển",
       key: "shipment.type",
       render: (record: any) => {
         if (record.fulfillments.length) {
@@ -323,8 +323,34 @@ const ListOrderScreen: React.FC = () => {
         return ""
       },
       visible: true,
-      width: "3.5%",
+      width: 200,
       align: "center",
+    },
+    {
+      title: "Trạng thái xử lý đơn",
+      dataIndex: "sub_status",
+      key: "sub_status",
+      render: (sub_status) => (
+        <div
+          style={{
+            background: "rgba(42, 42, 134, 0.1)",
+            borderRadius: "100px",
+            color: "#2A2A86",
+            padding: sub_status ? "5px 10px" : "0",
+          }}
+        >
+          {sub_status}
+        </div>
+      ),
+      visible: true,
+      align: "center",
+      width: 200,
+    },
+    {
+      title: "Ghi chú nội bộ",
+      dataIndex: "note",
+      key: "note",
+      visible: true,
     },
     {
       title: "Trạng thái đơn",
@@ -391,6 +417,7 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
+
     {
       title: "Đóng gói",
       key: "packed_status",
@@ -571,7 +598,7 @@ const ListOrderScreen: React.FC = () => {
       align: "center",
     },
     {
-      title: "Kiểu thanh toán",
+      title: "HT thanh toán",
       dataIndex: "payments",
       key: "payments.type",
       render: (payments: Array<OrderPaymentModel>) =>
@@ -580,7 +607,7 @@ const ListOrderScreen: React.FC = () => {
         }),
       visible: true,
       align: "center",
-      width: '4%'
+      width: 160
     },
     {
       title: "Nhân viên bán hàng",
@@ -588,7 +615,7 @@ const ListOrderScreen: React.FC = () => {
       key: "assignee",
       visible: true,
       align: "center",
-      width: '5%'
+      width: 200
     },
     {
       title: "Nhân viên tạo đơn",
@@ -596,7 +623,7 @@ const ListOrderScreen: React.FC = () => {
       key: "account",
       visible: true,
       align: "center",
-      width: '5%'
+      width: 200
     },
     {
       title: "Ngày hoàn tất đơn",
@@ -612,12 +639,7 @@ const ListOrderScreen: React.FC = () => {
       key: "cancelled_on",
       visible: true,
     },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
-      visible: true,
-    },
+    
     {
       title: "Ghi chú của khách",
       dataIndex: "customer_note",
@@ -909,7 +931,7 @@ const ListOrderScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 4000 }}
+            scroll={{ x: 4400 * columnFinal.length/(columns.length ? columns.length : 1)}}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,

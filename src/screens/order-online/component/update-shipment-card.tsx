@@ -50,6 +50,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
+  checkIfOrderHasReturnedAll,
   checkPaymentStatusToShow,
   CheckShipmentType,
   formatCurrency,
@@ -735,29 +736,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     onOkShippingConfirm();
     setReload(true);
   };
-
-  // kiểm tra xem đã trả hết hàng chưa
-  const checkIfOrderCanReturn = () => {
-    if(!OrderDetail) {
-      return false;
-    }
-    if(OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
-      return true
-    }
-    const orderReturnItems = OrderDetail?.order_returns;
-    // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về true
-    if(orderReturnItems && orderReturnItems.length > 0) {
-      return orderReturnItems.some((singleReturnItem) => {
-        let selectedItem = OrderDetail.items.find((item) => item.id === singleReturnItem.id);
-        if(selectedItem && selectedItem.quantity > singleReturnItem.quantity) {
-          return true;
-        } else {
-          return false;
-        }
-      })
-
-    }
-  }
 
   const renderPushingStatusWhenDeliverPartnerFailed = () => {
     if(!OrderDetail || !OrderDetail.fulfillments) {
@@ -1465,7 +1443,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             justifyContent: "flex-end",
           }}
         >
-          {props.stepsStatusValue === FulFillmentStatus.SHIPPED && checkIfOrderCanReturn() ? (
+          {props.stepsStatusValue === FulFillmentStatus.SHIPPED 
+          // && checkIfOrderHasReturnedAll(OrderDetail) 
+          ? (
             <Button
               type="primary"
               style={{margin: "0 10px", padding: "0 25px"}}

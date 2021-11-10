@@ -311,6 +311,7 @@ const FilterList = (({
                        resetField,
                        listStore,
                        listSource,
+                       listChannel,
                        listCustomerCategories
                      }: any) => {
   let filterKeys = Object.keys(filters);

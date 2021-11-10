@@ -49,6 +49,7 @@ const PackSupportScreen: React.FC = () => {
     listChannels,
     setListChannels,
     data,
+    setData
   };
 
   useEffect(()=>{

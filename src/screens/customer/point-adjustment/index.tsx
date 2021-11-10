@@ -35,6 +35,9 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { PointAdjustmentPermissions } from "config/permissions/customer.permission";
 
 const initFormValues = {
   type: "add",
@@ -52,6 +55,8 @@ const POINT_ADD_REASON = [
   "Khác",
 ];
 const POINT_SUBTRACT_REASON = ["Trừ điểm bù", "Khác"];
+
+const createPointAdjustmentPermission = [PointAdjustmentPermissions.CREATE];
 
 const pageColumns: Array<ICustomTableColumType<any>> = [
   {
@@ -242,211 +247,215 @@ const PointAdjustment = () => {
       ]}
       extra={<></>}
     >
-      <Card
-        title={
-          <div className="d-flex">
-            <span>THÔNG TIN ĐIỀU CHỈNH</span>
-          </div>
-        }
-      >
-        <div className="create-point-adjustments">
-          <Form
-            onFinish={onFinish}
-            initialValues={initFormValues}
-            layout="vertical"
-            ref={formRef}
-          >
-            <Row className="row">
-              <Col span={17}>
-                <div className="row-label">Khách hàng</div>
-                <div className="row-content">
-                  <Item
-                    name="search"
-                    rules={[
-                      {
-                        message: "",
-                      },
-                    ]}
-                  >
-                    <AutoComplete
-                      className="dropdown-rule"
-                      allowClear
-                      notFoundContent={
-                        customers.length === 0
-                          ? "Không có bản ghi nào"
-                          : undefined
-                      }
-                      onSearch={fetchCustomer}
-                      options={transformCustomers}
-                      onSelect={onSelect}
-                      onChange={onChange}
-                      placeholder="Tìm kiếm số điện thoại "
-                      value={keyword}
-                    />
-                  </Item>
+      <AuthWrapper acceptPermissions={createPointAdjustmentPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <Card
+              title={
+                <div className="d-flex">
+                  <span>THÔNG TIN ĐIỀU CHỈNH</span>
                 </div>
-              </Col>
-            </Row>
-            <Row className="row">
-              <Col span={8}>
-                <div className="row-label">
-                  Kiểu điều chỉnh <span className="text-error">*</span>
-                </div>
-                <div className="row-content">
-                  <Item
-                    name="type"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn kiểu điều chỉnh",
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Chọn kiểu điều chỉnh"
-                      style={{ width: "100%" }}
-                      onChange={onChangeType}
-                    >
-                      <Select.Option key="add" value="add">
-                        Tăng
-                      </Select.Option>
-                      <Select.Option key="subtract" value="subtract">
-                        Giảm
-                      </Select.Option>
-                    </Select>
-                  </Item>
-                </div>
-              </Col>
-              <Col span={1} />
-              <Col span={8}>
-                <div className="row-label">
-                  Lý do điều chỉnh <span className="text-error">*</span>
-                </div>
-                <div className="row-content">
-                  <Item
-                    name="reason"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn lý do điều chỉnh",
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Chọn lý do điều chỉnh"
-                      style={{ width: "100%" }}
-                    >
-                      {type === "add" &&
-                        POINT_ADD_REASON.map((reason, idx) => (
-                          <Select.Option key={idx} value={reason}>
-                            {reason}
-                          </Select.Option>
-                        ))}
-                      {type === "subtract" &&
-                        POINT_SUBTRACT_REASON.map((reason, idx) => (
-                          <Select.Option key={idx} value={reason}>
-                            {reason}
-                          </Select.Option>
-                        ))}
-                    </Select>
-                  </Item>
-                </div>
-              </Col>
-            </Row>
-            <Row className="row">
-              <Col span={8}>
-                <div className="row-label">
-                  Giá trị <span className="text-error">*</span>
-                </div>
-                <div className="row-content">
-                  <Item
-                    name="value"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập giá trị",
-                      },
-                    ]}
-                  >
-                    <NumberInput
-                      placeholder="Nhập giá trị"
-                      style={{ textAlign: "left" }}
-                      max={999999999999999}
-                    />
-                  </Item>
-                </div>
-              </Col>
-              <Col span={1} />
-              <Col span={8}>
-                <div className="row-label">Ghi chú</div>
-                <div className="row-content">
-                  <Item name="note">
-                    <Input placeholder="Nhập ghi chú" />
-                  </Item>
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={24}>
-                <CustomTable
-                  dataSource={selectedCustomers}
-                  columns={pageColumns}
-                  style={{ width: "100%" }}
-                  pagination={false}
-                  rowKey={(item: any) => item.id}
-                />
-              </Col>
-            </Row>
-            <Row
-              gutter={24}
-              className="footer-controller"
-              style={{
-                position: "fixed",
-                textAlign: "right",
-                width: "calc(100% - 240px)",
-                height: "55px",
-                bottom: "0%",
-                backgroundColor: "#FFFFFF",
-                marginLeft: "-60px",
-              }}
+              }
             >
-              <Col span={6} className="back">
-                <div className="back-wrapper" onClick={() => history.goBack()}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M13.3281 6.33203H3.04317L9.19903 0.988281C9.29746 0.902148 9.2377 0.742188 9.10762 0.742188H7.55196C7.4834 0.742188 7.41836 0.766797 7.36739 0.810742L0.724614 6.57461C0.663774 6.62735 0.614981 6.69255 0.58154 6.76579C0.548099 6.83903 0.530792 6.91861 0.530792 6.99912C0.530792 7.07964 0.548099 7.15921 0.58154 7.23245C0.614981 7.3057 0.663774 7.37089 0.724614 7.42363L7.40606 13.2227C7.43243 13.2455 7.46407 13.2578 7.49746 13.2578H9.10586C9.23594 13.2578 9.29571 13.0961 9.19727 13.0117L3.04317 7.66797H13.3281C13.4055 7.66797 13.4688 7.60469 13.4688 7.52734V6.47266C13.4688 6.39531 13.4055 6.33203 13.3281 6.33203Z"
-                      fill="#666666"
-                    />
-                  </svg>
-                  <span>Quay lại</span>
-                </div>
-              </Col>
-              <Col span={18} className="action-group">
-                <Link to={`${UrlConfig.CUSTOMER}`}>
-                  <Button type="default" className="cancel-btn">
-                    Hủy
-                  </Button>
-                </Link>
-                <Button
-                  type="primary"
-                  className="save-btn"
-                  onClick={() => {
-                    formRef.current?.submit();
-                  }}
+              <div className="create-point-adjustments">
+                <Form
+                  onFinish={onFinish}
+                  initialValues={initFormValues}
+                  layout="vertical"
+                  ref={formRef}
                 >
-                  Thêm mới
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </div>
-      </Card>
+                  <Row className="row">
+                    <Col span={17}>
+                      <div className="row-label">Khách hàng</div>
+                      <div className="row-content">
+                        <Item
+                          name="search"
+                          rules={[
+                            {
+                              message: "",
+                            },
+                          ]}
+                        >
+                          <AutoComplete
+                            className="dropdown-rule"
+                            allowClear
+                            notFoundContent={
+                              customers.length === 0
+                                ? "Không có bản ghi nào"
+                                : undefined
+                            }
+                            onSearch={fetchCustomer}
+                            options={transformCustomers}
+                            onSelect={onSelect}
+                            onChange={onChange}
+                            placeholder="Tìm kiếm số điện thoại "
+                            value={keyword}
+                          />
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row className="row">
+                    <Col span={8}>
+                      <div className="row-label">
+                        Kiểu điều chỉnh <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="type"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn kiểu điều chỉnh",
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Chọn kiểu điều chỉnh"
+                            style={{ width: "100%" }}
+                            onChange={onChangeType}
+                          >
+                            <Select.Option key="add" value="add">
+                              Tăng
+                            </Select.Option>
+                            <Select.Option key="subtract" value="subtract">
+                              Giảm
+                            </Select.Option>
+                          </Select>
+                        </Item>
+                      </div>
+                    </Col>
+                    <Col span={1} />
+                    <Col span={8}>
+                      <div className="row-label">
+                        Lý do điều chỉnh <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="reason"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn lý do điều chỉnh",
+                            },
+                          ]}
+                        >
+                          <Select
+                            placeholder="Chọn lý do điều chỉnh"
+                            style={{ width: "100%" }}
+                          >
+                            {type === "add" &&
+                              POINT_ADD_REASON.map((reason, idx) => (
+                                <Select.Option key={idx} value={reason}>
+                                  {reason}
+                                </Select.Option>
+                              ))}
+                            {type === "subtract" &&
+                              POINT_SUBTRACT_REASON.map((reason, idx) => (
+                                <Select.Option key={idx} value={reason}>
+                                  {reason}
+                                </Select.Option>
+                              ))}
+                          </Select>
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row className="row">
+                    <Col span={8}>
+                      <div className="row-label">
+                        Giá trị <span className="text-error">*</span>
+                      </div>
+                      <div className="row-content">
+                        <Item
+                          name="value"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập giá trị",
+                            },
+                          ]}
+                        >
+                          <NumberInput
+                            placeholder="Nhập giá trị"
+                            style={{ textAlign: "left" }}
+                            max={999999999999999}
+                          />
+                        </Item>
+                      </div>
+                    </Col>
+                    <Col span={1} />
+                    <Col span={8}>
+                      <div className="row-label">Ghi chú</div>
+                      <div className="row-content">
+                        <Item name="note">
+                          <Input placeholder="Nhập ghi chú" />
+                        </Item>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col span={24}>
+                      <CustomTable
+                        dataSource={selectedCustomers}
+                        columns={pageColumns}
+                        style={{ width: "100%" }}
+                        pagination={false}
+                        rowKey={(item: any) => item.id}
+                      />
+                    </Col>
+                  </Row>
+                  <Row
+                    gutter={24}
+                    className="footer-controller"
+                    style={{
+                      position: "fixed",
+                      textAlign: "right",
+                      width: "calc(100% - 240px)",
+                      height: "55px",
+                      bottom: "0%",
+                      backgroundColor: "#FFFFFF",
+                      marginLeft: "-60px",
+                    }}
+                  >
+                    <Col span={6} className="back">
+                      <div className="back-wrapper" onClick={() => history.goBack()}>
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 14 14"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M13.3281 6.33203H3.04317L9.19903 0.988281C9.29746 0.902148 9.2377 0.742188 9.10762 0.742188H7.55196C7.4834 0.742188 7.41836 0.766797 7.36739 0.810742L0.724614 6.57461C0.663774 6.62735 0.614981 6.69255 0.58154 6.76579C0.548099 6.83903 0.530792 6.91861 0.530792 6.99912C0.530792 7.07964 0.548099 7.15921 0.58154 7.23245C0.614981 7.3057 0.663774 7.37089 0.724614 7.42363L7.40606 13.2227C7.43243 13.2455 7.46407 13.2578 7.49746 13.2578H9.10586C9.23594 13.2578 9.29571 13.0961 9.19727 13.0117L3.04317 7.66797H13.3281C13.4055 7.66797 13.4688 7.60469 13.4688 7.52734V6.47266C13.4688 6.39531 13.4055 6.33203 13.3281 6.33203Z"
+                            fill="#666666"
+                          />
+                        </svg>
+                        <span>Quay lại</span>
+                      </div>
+                    </Col>
+                    <Col span={18} className="action-group">
+                      <Link to={`${UrlConfig.CUSTOMER}`}>
+                        <Button type="default" className="cancel-btn">
+                          Hủy
+                        </Button>
+                      </Link>
+                      <Button
+                        type="primary"
+                        className="save-btn"
+                        onClick={() => {
+                          formRef.current?.submit();
+                        }}
+                      >
+                        Thêm mới
+                      </Button>
+                    </Col>
+                  </Row>
+                </Form>
+              </div>
+            </Card>
+            : <NoPermission />)}
+        </AuthWrapper>
     </ContentContainer>
   );
 };

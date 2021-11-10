@@ -1,17 +1,32 @@
 import { PlusSquareOutlined, SaveOutlined } from "@ant-design/icons";
-import { Button, Card, Col, FormInstance, Row, Select } from "antd";
-import { createRef, useState } from "react";
+import { Button, Card, Col, FormInstance, Row, Select,Form } from "antd";
+import { createRef, useCallback, useContext, useState } from "react";
 // import { useDispatch } from "react-redux";
 import ReportHandOverModal from "../modal/report-hand-over.modal";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { createGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
+import { useDispatch } from "react-redux";
+import { removePackInfo } from "utils/LocalStorageUtils";
 
 const ReportHandOver: React.FC = () => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   //useState
   const [visibleModal, setVisibleModal] = useState(false);
   const formRef = createRef<FormInstance>();
+  const [goodsReceiptsForm] = Form.useForm();
 
-  const handleOk = () => {};
+  //Context
+  const orderPackContextData = useContext(OrderPackContext);
+  const data=orderPackContextData.data;
+  const listStores = orderPackContextData.listStores;
+  const listChannels=orderPackContextData.listChannels;
+  const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
+  const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
+
+  const handleOk = () => {
+    goodsReceiptsForm.submit();
+  };
 
   const handleCancel = () => {
     console.log("Clicked cancel button");
@@ -22,9 +37,50 @@ const ReportHandOver: React.FC = () => {
     setVisibleModal(true);
   };
 
+  const handSubmit = useCallback((value:any) => {
+    let codes: any[] = [];
+    let store_name=listStores.find((data) => data.id === value.store_id )?.name;
+
+    let ecommerce_name="Biên bản đơn tự tạo";
+    if(value!==-1)
+    {
+      let changeName=listChannels.find((data)=>data.id===value.ecommerce_id)?.name;
+      ecommerce_name=changeName?changeName:"Biên bản đơn tự tạo";
+    }
+    
+    let delivery_service_name=listThirdPartyLogistics.find((data)=> data.id===value.delivery_service_id)?.name;
+    let receipt_type_name=listGoodsReceipts.find((data)=>data.id===value.receipt_type_id)?.name;
+
+    data.items.forEach(function (i: any) {
+      codes.push(i.code);
+    });
+
+    let param:any={
+      ...value,
+      store_name: store_name,
+      ecommerce_name: ecommerce_name,
+      delivery_service_name: delivery_service_name,
+      receipt_type_name: receipt_type_name,
+      codes:codes
+    }
+
+    dispatch(createGoodsReceipts(param, (value:any)=>{
+      console.log("Goods",value)
+      removePackInfo();
+      // setData({
+      //   metadata: {
+      //     limit: 1,
+      //     page: 1,
+      //     total: 0,
+      //   },
+      //   items: [],
+      // })
+    }));
+  },[dispatch, data,listGoodsReceipts,listStores,listThirdPartyLogistics,listChannels])
+
   return (
     <Card
-      title="Cho vào biên bản bàn giao "
+      title="Cho vào biên bản bàn giao"
       bordered={false}
       style={{paddingLeft: "18px", paddingRight:"18px"}}
     >
@@ -74,7 +130,7 @@ const ReportHandOver: React.FC = () => {
           </Col>
         </Row>
       </div>
-      <ReportHandOverModal visible={visibleModal} formRef={formRef} handleOk={handleOk} handleCancel={handleCancel} />
+      <ReportHandOverModal visible={visibleModal} formRef={formRef} goodsReceiptsForm={goodsReceiptsForm} handSubmit={handSubmit} handleOk={handleOk} handleCancel={handleCancel} />
     </Card>
   );
 };

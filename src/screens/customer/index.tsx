@@ -30,12 +30,31 @@ import {
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import CustomerListFilter from "./component/CustomerListFilter";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { CustomerListPermissions } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
 
 
+
+const viewCustomerListPermission = [CustomerListPermissions.VIEW_CUSTOMER_LIST];
+const createCustomerPermission = [CustomerListPermissions.CREATE_CUSTOMER];
+const exportCustomerPermission = [CustomerListPermissions.EXPORT_CUSTOMER];
 
 const Customer = () => {
   const dispatch = useDispatch();
   // const history = useHistory();
+
+  const [allowCreateCustomer] = useAuthorization({
+    acceptPermissions: createCustomerPermission,
+    not: false,
+  });
+
+  const [allowExportCustomer] = useAuthorization({
+    acceptPermissions: exportCustomerPermission,
+    not: false,
+  });
+
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -309,78 +328,94 @@ const Customer = () => {
   }, [params]);
 
 
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Nhập file",
-      icon:<ImportOutlined />
-    },
-    {
-      id: 2,
-      name: "Xuất file",
-      icon:<ExportOutlined />
-    },
-  ];
+  const getAction = () => {
+    const actions: Array<MenuAction> = [
+      {
+        id: 1,
+        name: "Nhập file",
+        icon:<ImportOutlined />
+      }
+    ]
+
+    if (allowExportCustomer) {
+      actions.push(
+        {
+          id: 2,
+          name: "Xuất file",
+          icon:<ExportOutlined />
+        }
+      )
+    }
+
+    return actions;
+  }
+
   return (
     <ContentContainer
-      title="Quản lý khách hàng"
+      title="Danh sách khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
+          name: "Danh sách khách hàng",
           path: `/customers`,
         },
       ]}
       extra={
         <>
-          <Link to={`${UrlConfig.CUSTOMER}/create`}>
-            <Button
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<PlusOutlined />}
-            >
-              Thêm khách hàng mới
-            </Button>
-          </Link>
+          {allowCreateCustomer &&
+            <Link to={`${UrlConfig.CUSTOMER}/create`}>
+              <Button
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<PlusOutlined />}
+              >
+                Thêm khách hàng mới
+              </Button>
+            </Link>
+          }
         </>
       }
     >
-      <Card>
-        <div className="padding-20 customer-search-filter">
-          <CustomerListFilter
-            actions={actions}
-            onClearFilter={onClearFilterAdvanceClick}
-            onFilter={onFilterClick}
-            params={query}
-            initQuery={params}
-            groups={groups}
-            loyaltyUsageRules={loyaltyUsageRules}
-            types={types}
-            setShowSettingColumn={() => setShowSettingColumn(true)}
-          />
-          
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            scroll={{ x: 2000 }}
-            sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: any) => item.id}
-          />
-        </div>
-      </Card>
+      <AuthWrapper acceptPermissions={viewCustomerListPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <Card>
+            <div className="padding-20 customer-search-filter">
+              <CustomerListFilter
+                actions={getAction()}
+                onClearFilter={onClearFilterAdvanceClick}
+                onFilter={onFilterClick}
+                params={query}
+                initQuery={params}
+                groups={groups}
+                loyaltyUsageRules={loyaltyUsageRules}
+                types={types}
+                setShowSettingColumn={() => setShowSettingColumn(true)}
+              />
+              
+              <CustomTable
+                isRowSelection
+                isLoading={tableLoading}
+                scroll={{ x: 2000 }}
+                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                dataSource={data.items}
+                columns={columnFinal}
+                rowKey={(item: any) => item.id}
+              />
+            </div>
+          </Card>
+          : <NoPermission />)}
+      </AuthWrapper>
 
       <ModalSettingColumn
         visible={showSettingColumn}

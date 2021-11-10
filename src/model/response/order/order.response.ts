@@ -70,7 +70,7 @@ export interface OrderResponse extends BaseObject {
   receive_date?: string;
   order_code?: string;
   order_id?: number;
-  order_returns?: Array<OrderLineItemResponse>;
+  order_returns?: Array<OrderResponse>;
   order_return_origin?: OrderReturnModel;
   point_refund?: number;
   money_refund?: number;

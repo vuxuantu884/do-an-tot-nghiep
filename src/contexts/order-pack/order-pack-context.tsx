@@ -14,6 +14,7 @@ type OrderPackContextType = {
   listChannels:Array<ChannelsResponse>;
   setListChannels:(value: Array<ChannelsResponse>)=>void;
   data:PageResponse<any>;
+  setData:(value:PageResponse<any>)=>void;
 };
 // tạo context
 export const OrderPackContext = createContext<OrderPackContextType>({
@@ -32,5 +33,6 @@ export const OrderPackContext = createContext<OrderPackContextType>({
         total: 0,
       },
       items: [],
-    }
+    },
+    setData:(value:PageResponse<any>)=>{}
 });

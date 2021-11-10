@@ -35,12 +35,12 @@ import { MenuAction } from "component/table/ActionButton";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { RiUpload2Line } from "react-icons/ri";
-import { 
+import {
   addPromoCode,
   deleteBulkPromoCode,
   getListPromoCode,
   deletePromoCodeById,
-  updatePromoCodeById 
+  updatePromoCodeById
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -146,7 +146,7 @@ const ListCode = () => {
       showSuccess("Cập nhật thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
-  }, [dispatch, priceRuleId, fetchData]);
+  }, [dispatch, priceRuleId, params, fetchData]);
 
   // section DELETE by Id
   function handleDelete(item: any) {
@@ -188,7 +188,7 @@ const ListCode = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
-  }, [dispatch, priceRuleId, fetchData]);
+  }, [dispatch, priceRuleId, params, fetchData]);
 
    // section DELETE bulk
   const deleteCallBack = useCallback((response) => {
@@ -197,7 +197,7 @@ const ListCode = () => {
       showSuccess("Xóa thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
-  }, [dispatch, priceRuleId, fetchData]);
+  }, [dispatch, priceRuleId, params, fetchData]);
 
   // section CHANGE STATUS
   const handleStatus = (item: any) => {
@@ -388,7 +388,7 @@ const ListCode = () => {
             }}
             isRowSelection
             isLoading={tableLoading}
-            sticky={{offsetScroll: 5}}
+            // sticky={{offsetScroll: 5}}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
