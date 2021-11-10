@@ -957,3 +957,78 @@ export const scrollAndFocusToDomElement = (element?: HTMLElement) => {
   const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
   window.scrollTo({top: y, behavior: "smooth"});
 };
+
+// lấy danh sách sản phẩm đã đổi
+export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  if(!OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
+    return []
+  }
+  let orderReturnItems:OrderLineItemResponse[] = [];
+  
+  for (const singleReturn of OrderDetail.order_returns) {
+     //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
+     for (const singleReturnItem of singleReturn.items) {
+       let index = orderReturnItems.findIndex((item) => item.product_id === singleReturnItem.product_id);
+       
+       if(index > -1) {
+         let duplicatedItem = {...orderReturnItems[index]};
+        duplicatedItem.quantity = duplicatedItem.quantity + singleReturnItem.quantity;
+        orderReturnItems[index] = duplicatedItem;
+       } else {
+         orderReturnItems.push(singleReturnItem);
+       }
+       
+     }
+  }
+  return orderReturnItems;
+};
+
+// kiểm tra xem đã trả hết hàng chưa
+export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return false;
+  }
+  let result = false;
+  let orderReturnItems = getListReturnedOrders(OrderDetail)
+  console.log('orderReturnItems', orderReturnItems)
+  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về true
+  if( orderReturnItems.length > 0) {
+    let checkIfNotReturnAll = orderReturnItems.some((singleReturnItem) => {
+      let selectedItem = OrderDetail.items.find((item) => item.product_id === singleReturnItem.product_id);
+      if(!selectedItem) {
+        return true
+      }
+      return selectedItem.quantity > singleReturnItem.quantity
+    })
+    result = !checkIfNotReturnAll;
+  }
+  return result;
+}
+// lấy danh sách còn có thể đổi trả
+export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
+  if(!OrderDetail) {
+    return [];
+  }
+  let result:OrderLineItemResponse[] = [];
+  let orderReturnItems = getListReturnedOrders(OrderDetail);
+  console.log('orderReturnItems', orderReturnItems)
+  for (const singleOrder of OrderDetail.items) {
+    let duplicatedItem = orderReturnItems.find(single=>single.product_id === singleOrder.product_id);
+    if(duplicatedItem) {
+      let clone = {...duplicatedItem}
+      if(singleOrder.quantity - duplicatedItem.quantity > 0) {
+        clone.quantity = singleOrder.quantity - clone.quantity;
+        result.push(clone)
+
+      }
+    }
+    else {
+      result.push(singleOrder);
+    }
+  }
+  console.log('result', result)
+ return result;
+}
