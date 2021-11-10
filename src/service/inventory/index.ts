@@ -60,17 +60,13 @@ const inventoryGetDetailVariantIdsExtApi = (
   if (store_id) queryString += `store_id=${store_id}&`;
   if (variant_id.length>0)
   {
-    // variant_id.forEach((element) => (
-    //   queryString += `variant_id=${element}`
-    // ));
-
     variant_id.forEach(function (value,index) {
       queryString += `variant_ids=${value}`
       if(index<variant_id.length-1)
         queryString += `&`
     });
   }
-  let link = `${ApiConfig.INVENTORY}/inventories/variants/details?${queryString}`;
+  let link = `${ApiConfig.INVENTORY}/inventories?is_detail=true&${queryString}`;
   return BaseAxios.get(link);
 };
 

@@ -106,7 +106,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
 
   const resetField = useCallback((field) => {
-    console.log('resetField: ', field);
     formAvd.setFieldsValue({
       ...formAvd.getFieldsValue(true),
       [field]: undefined,
@@ -340,8 +339,6 @@ const FilterList = (({
             renderTxt = `${SearchVariantMapping[filterKey]} : ${selectedMethods}`;
             break;
           case SearchVariantField.applied_shop:
-            console.log('value: ', value);
-            console.log('listStore: ', listStore);
             const selectedShops = value.map((v: string) => listStore.find((store: { id: string; }) => store.id === v)?.name);
             renderTxt = `${SearchVariantMapping[filterKey]} : ${selectedShops}`;
             break;
