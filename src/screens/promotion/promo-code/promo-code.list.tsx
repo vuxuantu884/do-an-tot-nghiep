@@ -7,7 +7,7 @@ import {
   Space,
   Modal,
   Col,
-  Select
+  Select, message, Divider,
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -27,7 +27,7 @@ import search from "assets/img/search.svg";
 import "./promo-code.scss";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
-import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import {CheckCircleOutlined, FilterOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -40,7 +40,10 @@ import {
   deleteBulkPromoCode,
   getListPromoCode,
   deletePromoCodeById,
-  updatePromoCodeById
+  updatePromoCodeById,
+  publishedBulkPromoCode,
+  enableBulkPromoCode,
+  disableBulkPromoCode
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -48,8 +51,27 @@ import { showSuccess } from "utils/ToastUtils";
 import { STATUS_CODE } from "../constant";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import {AppConfig} from "../../../config/app.config";
+import _ from "lodash";
+import {getToken} from "../../../utils/LocalStorageUtils";
+
+const csvColumnMapping: any = {
+  sku: "Mã SKU",
+  min_amount: "SL Tối thiểu",
+  usage_limit: "Giới hạn",
+  discount_percentage: "Chiết khấu (%)",
+  fixed_amount: "Chiết khấu (VND)",
+  invalid: "không đúng định dạng",
+  notfound: "không tìm thấy",
+  required: "Không được trống",
+  code: "Mã chiết khấu",
+  sku_duplicate: "Đã tồn tại",
+  ALREADY_EXIST: "Đã tồn tại",
+  DUPLICATE: "Mã đã bị trùng trong file",
+};
 
 const ListCode = () => {
+  const token = getToken() || "";
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -57,6 +79,14 @@ const ListCode = () => {
     },
     {
       id: 2,
+      name: "Áp dụng",
+    },
+    {
+      id: 3,
+      name: "Ngừng áp dụng",
+    },
+    {
+      id: 4,
       name: "Xoá",
     },
   ];
@@ -66,8 +96,7 @@ const ListCode = () => {
   const query = useQuery();
   let dataQuery: any = {
     ...{
-      request: "",
-      state: ""
+      code: ""
     },
     ...getQueryParams(query)
   }
@@ -92,6 +121,11 @@ const ListCode = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [promoValue, setPromoValue] = useState<any>();
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+  const [importTotal, setImportTotal] = useState(0);
+  const [successCount, setSuccessCount] = useState(0);
+  const [codeErrorsResponse, setCodeErrorsResponse] = useState<Array<any>>([])
+  const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
+
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -120,9 +154,30 @@ const ListCode = () => {
   );
 
   const onFilter = useCallback(values => {
+    switch (values.state) {
+      case 'ENABLED':
+        values.disabled = false;
+        values.published = false;
+        break;
+      case 'DISABLED':
+        values.disabled = true;
+        values.published = false;
+        break;
+      case 'GIFTED':
+        values.disabled = false;
+        values.published = true;
+        break;
+      default:
+        break;
+    }
     let newParams = {...params, ...values, page: 1};
-    console.log("newParams", newParams);
-    setParams({...newParams})
+    if(values.state === "ALL") {
+      delete newParams['disabled'];
+      delete newParams['published'];
+    }
+    delete newParams['state'];
+    delete newParams['query'];
+    setParams(newParams)
   }, [params])
 
   // section EDIT by Id
@@ -194,15 +249,26 @@ const ListCode = () => {
   const deleteCallBack = useCallback((response) => {
     dispatch(hideLoading());
     if (response) {
-      showSuccess("Xóa thành công");
+      showSuccess("Thao tác thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
   }, [dispatch, priceRuleId, params, fetchData]);
 
-  // section CHANGE STATUS
+  // section Ngưng áp dụng
   const handleStatus = (item: any) => {
-    // TODO
+    const body = {
+      ids: [item.id]
+    }
+    dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
   };
+
+    // section Đã tặng
+    const handleGift = (item: any) => {
+      const body = {
+        ids: [item.id]
+      }
+      dispatch(publishedBulkPromoCode(priceRuleId, body, deleteCallBack));
+    };
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => [
     {
@@ -223,7 +289,7 @@ const ListCode = () => {
       title: "Lượt áp dụng còn lại",
       visible: true,
       fixed: "left",
-      dataIndex: "amountUsed",
+      dataIndex: "remaining_count",
       width: "15%",
     },
     {
@@ -249,9 +315,9 @@ const ListCode = () => {
       align: 'center',
       width: '15%',
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.create_date ? moment(item.create_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
+        <div>{`${item.created_date ? moment(item.created_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
     },
-    actionColumn(handleUpdate, handleDelete, handleStatus),
+    actionColumn(handleUpdate, handleDelete, handleStatus, handleGift),
   ], []);
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -260,33 +326,45 @@ const ListCode = () => {
 
   const statuses = [
     {
-      code: 'ACTIVE',
+      code: 'ENABLED',
       value: 'Đang áp dụng',
     },
     {
       code: 'DISABLED',
-      value: 'Tạm ngưng',
+      value: 'Ngừng áp dụng',
     },
     {
-      code: 'DRAFT',
-      value: 'Chờ áp dụng' ,
+      code: 'GIFTED',
+      value: 'Đã tặng' ,
     },
     {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
+      code: 'ALL',
+      value: 'Tất cả',
     },
 
   ]
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      if (selectedRowKey.length === 0) {
+        return;
+      };
       const body = {
         ids: selectedRowKey
       }
       switch (index) {
         case 1:
+          dispatch(publishedBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
         case 2:
+          dispatch(showLoading());
+          dispatch(enableBulkPromoCode(priceRuleId, body, deleteCallBack));
+          break;
+        case 3:
+          dispatch(showLoading());
+          dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
+          break;
+        case 4:
           dispatch(showLoading());
           dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
@@ -348,7 +426,7 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Item name="query" className="search">
+              <Item name="code" className="search">
                 <Input
                   prefix={<img src={search} alt=""/>}
                   placeholder="Tìm kiếm theo mã, tên chương trình"
@@ -481,8 +559,12 @@ const ListCode = () => {
           <Button
             key="link"
             type="primary"
+            onClick={() => {
+              dispatch(promoGetDetail(id, onResult));
+              setShowImportFile(false)
+            }}
           >
-            Nhập file
+            Xác nhận
           </Button>,
         ]}
       >
@@ -501,14 +583,82 @@ const ListCode = () => {
         </Row>
         <Row gutter={24}>
           <div className="dragger-wrapper">
-            <Dragger accept=".xlsx">
+            <Dragger
+              accept=".xlsx"
+              multiple={false}
+              action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
+              headers={{"Authorization": `Bearer ${token}`}}
+              onChange={(info) => {
+                const {status} = info.file;
+                if (status === "done") {
+                  const response = info.file.response;
+                  if (response.code === 20000000) {
+                    if (response.data.errors.length > 0) {
+                      const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                      setCodeErrorsResponse([...errors]);
+                    }
+                    setImportTotal(response.data.total);
+                    setSuccessCount(response.data.success_count);
+                  }
+                  setUploadStatus(status);
+                } else if (status === "error") {
+                  message.error(`${info.file.name} file upload failed.`);
+                  setUploadStatus(status);
+
+                } else {
+                  setUploadStatus(status);
+                }
+              }}
+            >
               <p className="ant-upload-drag-icon">
-                <RiUpload2Line size={48}/>
+                <RiUpload2Line size={48} />
               </p>
               <p className="ant-upload-hint">
                 Kéo file vào đây hoặc tải lên từ thiết bị
               </p>
             </Dragger>
+          </div>
+          <div
+            style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+            <Row justify={"center"}>
+              {uploadStatus === "uploading" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <LoadingOutlined style={{fontSize: "78px"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>
+                      Đang upload file...
+                    </h2>
+                  </Row>
+                </Col>
+                : ""}
+              {uploadStatus === "done" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <CheckCircleOutlined style={{fontSize: "78px", color: "#27AE60"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>Xử lý file nhập toàn tất: <strong
+                      style={{color: "#2A2A86"}}>{successCount} / {importTotal}</strong> sản phẩm thành công</h2>
+                  </Row>
+                  <Divider />
+                  {codeErrorsResponse.length > 0 ? <div>
+                    <Row justify={"start"}>
+                      <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
+                    </Row>
+                    <Row justify={"start"}>
+                      <li style={{padding: "10px 30px"}}>
+                        {codeErrorsResponse?.map((error: any, index) =>
+                          <ul key={index}>
+                            <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                          </ul>)}
+                      </li>
+                    </Row>
+                  </div> : ""}
+                </Col>
+                : ""}
+            </Row>
           </div>
         </Row>
       </Modal>
