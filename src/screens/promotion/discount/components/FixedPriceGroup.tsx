@@ -14,6 +14,7 @@ import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import {formatCurrency} from "../../../../utils/AppUtils";
+import { showError } from "utils/ToastUtils";
 
 const Option = Select.Option;
 
@@ -95,6 +96,11 @@ const FixedPriceGroup = (props: any) => {
   const onSelectProduct = useCallback(
     (value) => {
       const selectedItem = data.find(e => e.id === Number(value));
+      const checkExist = selectedProduct.some((e) => e.id === value);
+      if (checkExist) {
+        showError("Sản phẩm đã được chọn!");
+        return;
+      }
       if (selectedItem) {
         setSelectedProduct([selectedItem].concat(selectedProduct))
       }
