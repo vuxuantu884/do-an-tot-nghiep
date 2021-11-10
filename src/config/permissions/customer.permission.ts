@@ -21,6 +21,10 @@ export const CustomerLevelPermissions = {
   VIEW: "customers_level_view",
   UPDATE: "customers_level_update",
   DELETE: "customers_level_delete",
+}
+
+export const PointAdjustmentPermissions = {
+  CREATE: "loyalties_point_update",
 };
 
 export const CustomerCardPermissions = {
