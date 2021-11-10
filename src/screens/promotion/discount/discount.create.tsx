@@ -130,6 +130,7 @@ const CreateDiscountPage = () => {
           entitlements: [""],
           priority: 1,
           entitled_method: "FIXED_PRICE",
+
         }}
       >
         <Row>
