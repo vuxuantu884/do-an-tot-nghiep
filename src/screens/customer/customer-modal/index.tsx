@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 import { FormInstance } from "antd";
+import { CustomerGroupPermissions } from "config/permissions/customer.permission";
+import useAuthorization from "hook/useAuthorization";
 
 export type modalActionType = "create" | "edit" | "delete";
 
@@ -34,6 +36,9 @@ export interface CustomModalType {
   moreFormArguments?: any;
 }
 
+
+const updateCustomerGroupPermission = [CustomerGroupPermissions.UPDATE];
+
 const CustomModal = (props: CustomModalType) => {
   const {
     createBtnTitle,
@@ -51,6 +56,12 @@ const CustomModal = (props: CustomModalType) => {
     ...args
   } = props;
   const [form] = Form.useForm();
+
+  const [allowUpdateCustomerGroup] = useAuthorization({
+    acceptPermissions: updateCustomerGroupPermission,
+    not: false,
+  });
+
   const isCreateModal = modalAction === "create";
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const [visibleForm, setVisibleForm] = useState(false);
@@ -114,17 +125,20 @@ const CustomModal = (props: CustomModalType) => {
               Xóa
             </Button> */}
           </div>
+          
           <div className="footer__right">
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="save"
-              type="primary"
-              onClick={() => formAction.edit()}
-            >
-              {updateBtnTitle}
-            </Button>
+            {allowUpdateCustomerGroup &&
+              <Button
+                key="save"
+                type="primary"
+                onClick={() => formAction.edit()}
+              >
+                {updateBtnTitle}
+              </Button>
+            }
           </div>
         </div>
       );

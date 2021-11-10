@@ -1,20 +1,29 @@
 import {createRef, FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {StyledWrapper} from "./styles";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
 import {Button, Card, Col, Row, Space, Tag, Input, Tabs, Upload} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
-import {PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
+import {
+  PaperClipOutlined,
+  PrinterOutlined,
+  SearchOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import {useHistory, useParams} from "react-router";
 import {useDispatch} from "react-redux";
 import {
-  inventoryGetVariantByStoreAction, inventoryUploadFileAction,
+  inventoryGetVariantByStoreAction,
+  inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
-import { Link } from "react-router-dom";
+import {
+  InventoryAdjustmentDetailItem, 
+  LineItemAdjustment,
+} from "model/inventoryadjustment";
+import {Link} from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
 import {VariantResponse} from "model/product/product.model";
@@ -33,6 +42,7 @@ import InventoryAdjustmentListAll from "./conponents/InventoryAdjustmentListAll"
 import {
   adjustInventoryAction,
   getDetailInventoryAdjustmentAction,
+  getLinesItemAdjustmentAction,
   InventoryAdjustmentGetPrintContentAction,
   updateItemOnlineInventoryAction,
   updateOnlineInventoryAction,
@@ -41,7 +51,7 @@ import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
 import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "../constants";
 import {HttpStatus} from "config/http-status.config";
 
-import { UploadRequestOption } from "rc-upload/lib/interface";
+import {UploadRequestOption} from "rc-upload/lib/interface";
 import InventoryTransferExportModal from "./conponents/ExportModal";
 import {useReactToPrint} from "react-to-print";
 import {generateQuery} from "utils/AppUtils";
@@ -52,11 +62,11 @@ import {StyledComponent} from "screens/products/product/component/RowDetail/styl
 import ModalConfirm from "component/modal/ModalConfirm";
 import {StoreResponse} from "model/core/store.model";
 import {ConvertFullAddress} from "utils/ConvertAddress";
-import { UploadFile } from "antd/lib/upload/interface";
+import {UploadFile} from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { importFile,exportFile, getFile} from "service/other/import.inventory.service";
-import { ImportResponse } from "model/other/files/export-model";
-import NumberInput from "component/custom/number-input.custom";
+import {importFile, exportFile, getFile} from "service/other/import.inventory.service";
+import {ImportResponse} from "model/other/files/export-model";
+import NumberInput from "component/custom/number-input.custom"; 
 
 const {TabPane} = Tabs;
 
@@ -80,7 +90,7 @@ export const STATUS_IMPORT_EXPORT = {
   CREATE_JOB_SUCCESS: 2,
   JOB_FINISH: 3,
   ERROR: 4,
-}
+};
 
 const DetailInvetoryAdjustment: FC = () => {
   const [activeTab, setActiveTab] = useState<string>("1");
@@ -96,17 +106,10 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const {id} = useParams<InventoryParams>();
   const idNumber = parseInt(id);
-  const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
-    [] as Array<LineItemAdjustment>
-  );
-  const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
-    [] as Array<LineItemAdjustment>
-  );
   const [keySearch, setKeySearch] = useState<string>("");
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [objSummary, setObjSummary] = useState<SummaryData>();
   const [hasError, setHasError] = useState<boolean>(false);
-  const [editRealOnHand, setEditRealOnHand] = useState<boolean>(false);
 
   const [printContent, setPrintContent] = useState("");
   const printElementRef = useRef(null);
@@ -129,13 +132,22 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formStoreData, setFormStoreData] = useState<StoreResponse | null>();
+  const [dataLinesItem, setDatalinesItem] = useState<PageResponse<LineItemAdjustment>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+  const [tableLoading, setTableLoading] = useState(true);
 
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
     TotalOnHand: 0,
     TotalRealOnHand: 0,
-  });
+  });  
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -220,54 +232,111 @@ const DetailInvetoryAdjustment: FC = () => {
     });
   }, []);
 
-  const onSelectProduct = useCallback((value: string) => {
-    const dataTemp = [...dataTable];
-    let selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
-    );
+  const onResultDataTable = useCallback(
+    (result: PageResponse<LineItemAdjustment> | false) => {
+      setTableLoading(true);
+      if (result) {
+        setDatalinesItem({...result});
+        drawColumns(result?.items);
+        setHasError(false);
+        if (result?.items && result?.items.length > 0) {
+          let dataDis = 0;
+          result.items.forEach((e: LineItemAdjustment) => {
+            if (e.on_hand_adj !== 0) {
+              dataDis += 1;
+            }
+          });
+          let total = result.items.length;
 
-    if (!dataTemp.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
-      selectedItem = {...selectedItem,  
-                          variant_id: selectedItem.id,
-                          variant_name: selectedItem.name,
-                          real_on_hand: 0,
-                          on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
-                          on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),};
+          setObjSummary({
+            partly: dataDis,
+            total: total,
+          });
+        }
+        setTableLoading(false);
+      }
+    },
+    [drawColumns]
+  );
 
-      drawColumns(dataTable.concat([{...selectedItem}]));
-
-      setDataTable((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem}])
+  const onSelectProduct = useCallback(
+    (value: string) => {
+      const dataTemp = [...dataLinesItem.items];
+      let selectedItem = resultSearch?.items?.find(
+        (variant: VariantResponse) => variant.id.toString() === value
       );
-      setSearchVariant((prev: Array<LineItemAdjustment>) =>
-        prev.concat([{...selectedItem}])
-      );
-      
-      setHasError(false); 
-    } 
-  },[dataTable,resultSearch,drawColumns]);
 
-  const onPickManyProduct = (result: Array<VariantResponse>) => {
-    const newResult = result?.map((item) => {
-      return {
-        ...item,
-        variant_id: item.id,
-        variant_name: item.name,
-        real_on_hand: 0,
-        on_hand_adj: 0 - (item.on_hand ?? 0),
-        on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
-      };
-    });
-    const dataTemp = [...dataTable, ...newResult];
+      if (
+        !dataTemp.some((variant: LineItemAdjustment) => variant.id === selectedItem.id)
+      ) {
+        selectedItem = {
+          ...selectedItem,
+          variant_id: selectedItem.id,
+          variant_name: selectedItem.name,
+          real_on_hand: 0,
+          on_hand_adj: 0 - (selectedItem.on_hand ?? 0),
+          on_hand_adj_dis: (0 - (selectedItem.on_hand ?? 0)).toString(),
+        };
 
-    const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
+        setHasError(false);
 
-    setDataTable(arrayUnique);
-    setSearchVariant(arrayUnique);
-    drawColumns(arrayUnique);
-    setHasError(false);
-    setVisibleManyProduct(false);
-  };
+        dispatch(
+          updateItemOnlineInventoryAction(idNumber, selectedItem, (result) => {
+            if (result) {
+              dispatch(
+                getLinesItemAdjustmentAction(
+                  idNumber,
+                  `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+                  onResultDataTable
+                )
+              );
+            }
+          })
+        );
+      }
+    },
+    [dataLinesItem.items, resultSearch, keySearch, idNumber, dispatch, onResultDataTable]
+  );
+
+  const onPickManyProduct = useCallback(
+    (result: Array<VariantResponse>) => {
+      const newResult = result?.map((item) => {
+        return {
+          ...item,
+          variant_id: item.id,
+          variant_name: item.name,
+          real_on_hand: 0,
+          on_hand_adj: 0 - (item.on_hand ?? 0),
+          on_hand_adj_dis: (0 - (item.on_hand ?? 0)).toString(),
+        };
+      });
+      const dataTemp = [...dataLinesItem.items, ...newResult];
+
+      const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
+      setTableLoading(true);
+
+      arrayUnique.forEach((item) => {
+        dispatch(
+          updateItemOnlineInventoryAction(idNumber, item, () => {
+            if (result) {
+              dispatch(
+                getLinesItemAdjustmentAction(
+                  idNumber,
+                  `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+                  onResultDataTable
+                )
+              );
+            }
+          })
+        );
+      });
+
+      setTableLoading(false);
+      setHasError(false);
+      setVisibleManyProduct(false);
+    },
+    [dispatch, keySearch, idNumber, dataLinesItem.items, onResultDataTable]
+  );
 
   const pageBreak = "<div class='pageBreak'></div>";
   const printContentCallback = useCallback(
@@ -284,33 +353,29 @@ const DetailInvetoryAdjustment: FC = () => {
     [handlePrint]
   );
 
-  const onBeforeUpload = useCallback((file) => {
-  }, []);
+  const onBeforeUpload = useCallback((file) => {}, []);
 
   const onCustomRequest = (options: UploadRequestOption<any>) => {
-    const { file } = options;
+    const {file} = options;
     let files: Array<File> = [];
     if (file instanceof File) {
       let uuid = file.uid;
       files.push(file);
       dispatch(
-        inventoryUploadFileAction(
-          { files: files },
-          (data: false | Array<string>) => {
-            let index = fileList.findIndex((item) => item.uid === uuid);
-            if (!!data) {
-              if (index !== -1) {
-                fileList[index].status = "done";
-                fileList[index].url = data[0];
-              }
-              setHasImportUrl(true);
-            } else {
-              fileList.splice(index, 1);
-              showError("Upload ảnh không thành công");
+        inventoryUploadFileAction({files: files}, (data: false | Array<string>) => {
+          let index = fileList.findIndex((item) => item.uid === uuid);
+          if (!!data) {
+            if (index !== -1) {
+              fileList[index].status = "done";
+              fileList[index].url = data[0];
             }
-            setFileList([...fileList]);
+            setHasImportUrl(true);
+          } else {
+            fileList.splice(index, 1);
+            showError("Upload ảnh không thành công");
           }
-        )
+          setFileList([...fileList]);
+        })
       );
     }
   };
@@ -319,7 +384,7 @@ const DetailInvetoryAdjustment: FC = () => {
     setFileList([info.file]);
     setShowImportModal(true);
   }, []);
-  
+
   const onPrintAction = () => {
     if (data) {
       let params = {
@@ -331,7 +396,7 @@ const DetailInvetoryAdjustment: FC = () => {
         InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback)
       );
     }
-  }; 
+  };
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -403,7 +468,7 @@ const DetailInvetoryAdjustment: FC = () => {
       dataIndex: "real_on_hand",
       align: "center",
       width: 100,
-      render: (value, row, index: number) => {
+      render: (value, row: LineItemAdjustment, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
           return (
             <NumberInput
@@ -415,26 +480,29 @@ const DetailInvetoryAdjustment: FC = () => {
               }}
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
-                  dispatch(
-                    updateItemOnlineInventoryAction(data?.id, row, (result) => {
-                      if (result) {
-                        showSuccess("Nhập tồn thực tế thành công."); 
-                      }
-                    })
-                  );
-                  setEditRealOnHand(false);
-                }
-              }}
-              onBlur={() => {
-                if (editRealOnHand) {
+                  let value = event.target.value;
+                  row.real_on_hand = value ?? 0;
+                  let totalDiff = 0;
+                  totalDiff = value - row.on_hand;
+                  if (totalDiff === 0) {
+                    row.on_hand_adj = null;
+                    row.on_hand_adj_dis = null;
+                  } else if (row.on_hand < value) {
+                    row.on_hand_adj = totalDiff;
+                    row.on_hand_adj_dis = `+${totalDiff}`;
+                  } else if (row.on_hand > value) {
+                    row.on_hand_adj = totalDiff;
+                    row.on_hand_adj_dis = `${totalDiff}`;
+                  }
+
                   dispatch(
                     updateItemOnlineInventoryAction(data?.id, row, (result) => {
                       if (result) {
                         showSuccess("Nhập tồn thực tế thành công.");
+                        onEnterFilterVariant(null);
                       }
                     })
                   );
-                  setEditRealOnHand(false);
                 }
               }}
             />
@@ -486,31 +554,27 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const onResult = useCallback(
     (result) => {
-      setLoading(false);
+      setLoading(true);
       if (!result) {
         setError(true);
         return;
       } else {
+        setLoading(false);
         let data: InventoryAdjustmentDetailItem = result;
-        setData(data);
-        setDataTable(data?.line_items);
-        drawColumns(data?.line_items);
         setHasError(false);
-        let dataDis =
-          data?.line_items?.filter((e: LineItemAdjustment) => {
-            return e.on_hand_adj !== 0;
-          }) || [];
-
-        let total = data?.line_items.length || 0;
-
-        setObjSummary({
-          partly: dataDis.length,
-          total: total,
-        });
         setFormStoreData(data?.store);
+        setData(data);
+
+        dispatch(
+          getLinesItemAdjustmentAction(
+            idNumber,
+            `page=1&limit=30&condition=${keySearch?.toString()}`,
+            onResultDataTable
+          )
+        );
       }
     },
-    [drawColumns]
+    [idNumber, keySearch, onResultDataTable, dispatch]
   );
 
   const onUpdateOnlineInventory = useCallback(() => {
@@ -543,41 +607,37 @@ const DetailInvetoryAdjustment: FC = () => {
 
   const onEnterFilterVariant = useCallback(
     (lst: Array<LineItemAdjustment> | null) => {
-      let temps = lst ? lst : dataTable;
-      let key = keySearch.toLocaleLowerCase();
-      let dataSearch = [
-        ...temps.filter((e: LineItemAdjustment) => {
-          return (
-            e.on_hand === parseInt(key) ||
-            e.variant_name?.toLocaleLowerCase().includes(key) ||
-            e.sku?.toLocaleLowerCase().includes(key) ||
-            e.code?.toLocaleLowerCase().includes(key) ||
-            e.barcode?.toLocaleLowerCase().includes(key)
-          );
-        }),
-      ];
-
-      setSearchVariant(dataSearch);
-      drawColumns(dataSearch);
+      setTableLoading(true);
+      dispatch(
+        getLinesItemAdjustmentAction(
+          idNumber,
+          `page=1&limit=30&condition=${keySearch?.toLocaleLowerCase()}`,
+          onResultDataTable
+        )
+      );
+      setTableLoading(false);
     },
-    [keySearch, dataTable, drawColumns]
+    [keySearch, dispatch, idNumber, onResultDataTable]
   );
 
   type accountAudit = {
     user_name: string;
   };
 
-  const RenderItemAuditBy = (auditBY: accountAudit) => {
-    const account = accounts.find(
-      (e) => e.code.toLocaleLowerCase() === auditBY.user_name.toLocaleLowerCase()
-    );
+  const RenderItemAuditBy = useCallback(
+    (auditBY: accountAudit) => {
+      const account = accounts.find(
+        (e) => e.code.toLocaleLowerCase() === auditBY.user_name.toLocaleLowerCase()
+      );
 
-    return <div>{`${account?.code} - ${account?.full_name}`}</div>;
-  };
+      return <div>{`${account?.code} - ${account?.full_name}`}</div>;
+    },
+    [accounts]
+  );
 
   const onRealQuantityChange = useCallback(
     (quantity: number | any, row: LineItemAdjustment, index: number) => {
-      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
+      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataLinesItem.items);
 
       dataTableClone.forEach((item) => {
         quantity = quantity ?? 0;
@@ -598,66 +658,72 @@ const DetailInvetoryAdjustment: FC = () => {
           }
         }
       });
-
-      setEditRealOnHand(true);
-      //for tìm sp sửa tồn thực tế
-      setDataTable(dataTableClone);
-      setSearchVariant(dataTableClone);
-
-      let dataEdit =
-        (searchVariant && searchVariant.length > 0) || keySearch !== ""
-          ? [...dataTableClone]
-          : null;
-
-      onEnterFilterVariant(dataEdit);
     },
-    [dataTable, keySearch, searchVariant, onEnterFilterVariant]
+    [dataLinesItem.items]
   );
 
   type RowDetailProps = {
-    label: string,
-    value: string|null,
-  }
+    label: string;
+    value: string | null;
+  };
 
   const RenderRowInfo = (info: RowDetailProps) => {
     return (
       <>
         <Row className="row-detail">
-          <Col flex="90px" className="row-detail-left label">{info.label} <Col className="dot">:</Col></Col> 
-          <Col flex="auto" className="row-detail-right data"><b>{info?.value}</b></Col>
+          <Col flex="90px" className="row-detail-left label">
+            {info.label} <Col className="dot">:</Col>
+          </Col>
+          <Col flex="auto" className="row-detail-right data">
+            <b>{info?.value}</b>
+          </Col>
         </Row>
       </>
     );
   };
 
+  const onPageChange = useCallback(
+    (page, size) => {
+      setDatalinesItem({
+        ...dataLinesItem,
+        metadata: {...dataLinesItem.metadata, page: page, limit: size},
+      });
+
+      dispatch(
+        getLinesItemAdjustmentAction(
+          idNumber,
+          `page=${page}&limit=${size}&condition=${keySearch?.toString()}`,
+          onResultDataTable
+        )
+      );
+    },
+    [dataLinesItem, dispatch, idNumber, keySearch, onResultDataTable]
+  );
+
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
   }, [idNumber, onResult, dispatch, setDataAccounts]);
-  
-  const onExport = useCallback(
-    () => {
-      exportFile({
-        conditions: data?.id.toString(),
-        type: "EXPORT_INVENTORY_ADJUSTMENT",
+
+  const onExport = useCallback(() => {
+    exportFile({
+      conditions: data?.id.toString(),
+      type: "EXPORT_INVENTORY_ADJUSTMENT",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
       })
-        .then((response) => {
-          if (response.code === HttpStatus.SUCCESS) {
-            setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-            showSuccess("Đã gửi yêu cầu xuất file");
-            setListExportFile([...listExportFile, response.data.code]);
-          }
-        })
-        .catch((error) => {
-          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
-          showError("Có lỗi xảy ra, vui lòng thử lại sau");
-        });
-    },
-    [data?.id, listExportFile]
-  );
+      .catch((error) => {
+        setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [data?.id, listExportFile]);
 
   const checkExportFile = useCallback(() => {
-    
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
     });
@@ -668,15 +734,14 @@ const DetailInvetoryAdjustment: FC = () => {
             setExportProgress(response.data.percent);
           }
           if (response.data && response.data.status === "FINISH") {
-            
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
               return item !== fileCode;
             });
-            var downLoad = document.createElement('a');
+            var downLoad = document.createElement("a");
             downLoad.href = response.data.url;
-            downLoad.download = 'download';
+            downLoad.download = "download";
 
             downLoad.click();
 
@@ -694,29 +759,25 @@ const DetailInvetoryAdjustment: FC = () => {
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
-  
 
-  const onImport = useCallback(
-    () => {
-      importFile({
-        url: fileList[0].url,
-        conditions: data?.id.toString(),
-        type: "IMPORT_INVENTORY_ADJUSTMENT",
+  const onImport = useCallback(() => {
+    importFile({
+      url: fileList[0].url,
+      conditions: data?.id.toString(),
+      type: "IMPORT_INVENTORY_ADJUSTMENT",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+          showSuccess("Đã gửi yêu cầu nhập file");
+          setListJobImportFile([...listJobImportFile, response.data.code]);
+        }
       })
-        .then((response) => {
-          if (response.code === HttpStatus.SUCCESS) {
-            setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-            showSuccess("Đã gửi yêu cầu nhập file");
-            setListJobImportFile([...listJobImportFile, response.data.code]);
-          }
-        })
-        .catch((error) => {
-          setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
-          showError("Có lỗi xảy ra, vui lòng thử lại sau");
-        });
-    },
-    [data?.id, fileList, listJobImportFile]
-  );
+      .catch((error) => {
+        setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [data?.id, fileList, listJobImportFile]);
 
   const checkImportFile = useCallback(() => {
     if (statusImport !== STATUS_IMPORT_EXPORT.DEFAULT) {
@@ -731,11 +792,10 @@ const DetailInvetoryAdjustment: FC = () => {
               setImportProgress(response.data.percent);
             }
             if (response.data && response.data.status === "FINISH") {
-
               if (!response.data.percent) {
                 setImportProgress(100);
               }
-              
+
               setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
               dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
             }
@@ -749,7 +809,12 @@ const DetailInvetoryAdjustment: FC = () => {
   }, [dispatch, idNumber, listJobImportFile, onResult, statusImport]);
 
   useEffect(() => {
-    if (listJobImportFile.length === 0 || statusImport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusImport === STATUS_IMPORT_EXPORT.ERROR) return;
+    if (
+      listJobImportFile.length === 0 ||
+      statusImport === STATUS_IMPORT_EXPORT.JOB_FINISH ||
+      statusImport === STATUS_IMPORT_EXPORT.ERROR
+    )
+      return;
     checkImportFile();
 
     const getFileInterval = setInterval(checkImportFile, 3000);
@@ -827,10 +892,16 @@ const DetailInvetoryAdjustment: FC = () => {
                         onChange={(active) => setActiveTab(active)}
                       >
                         <TabPane tab={`Thừa/Thiếu (${objSummary?.partly})`} key="1">
-                          <InventoryAdjustmentHistory data={data} />
+                          <InventoryAdjustmentHistory
+                            data={data}
+                            dataLinesItem={dataLinesItem.items}
+                          />
                         </TabPane>
                         <TabPane tab={`Tất cả (${objSummary?.total})`} key="2">
-                          <InventoryAdjustmentListAll data={data} />
+                          <InventoryAdjustmentListAll
+                            data={data}
+                            dataLinesItem={dataLinesItem.items}
+                          />
                         </TabPane>
                       </Tabs>
                     </Card>
@@ -892,17 +963,21 @@ const DetailInvetoryAdjustment: FC = () => {
                         />
                       </Input.Group>
                       <CustomTable
-                        rowClassName="product-table-row"
+                        isLoading={tableLoading}
                         tableLayout="fixed"
                         style={{paddingTop: 20}}
                         scroll={{y: 300}}
-                        pagination={false}
                         columns={defaultColumns}
-                        dataSource={
-                          searchVariant && (searchVariant.length > 0 || keySearch !== "")
-                            ? searchVariant
-                            : dataTable
-                        }
+                        pagination={{
+                          pageSize: dataLinesItem.metadata.limit,
+                          total: dataLinesItem.metadata.total,
+                          current: dataLinesItem.metadata.page,
+                          showSizeChanger: true,
+                          onChange: onPageChange,
+                          onShowSizeChange: onPageChange,
+                        }}
+                        dataSource={dataLinesItem.items}
+                        rowKey={(item: LineItemAdjustment) => item.id}
                       />
                     </Card>
                   )
@@ -917,14 +992,22 @@ const DetailInvetoryAdjustment: FC = () => {
                 >
                   <Col>
                     <RenderRowInfo label="ID Phiếu" value={data.code} />
-                    <RenderRowInfo label="Người tạo" value={data.created_by} />
+                    <RenderRowInfo
+                      label="Người tạo"
+                      value={`${data?.created_name} - ${data.created_by}`}
+                    />
                     <RenderRowInfo label="Người kiểm" value="" />
                     {
                       <StyledComponent>
                         <Row className="audit_by">
                           <Col span={24}>
                             {data.audited_by?.map((item: string) => {
-                              return <RenderItemAuditBy key={item?.toString()} user_name={item?.toString()} />;
+                              return (
+                                <RenderItemAuditBy
+                                  key={item?.toString()}
+                                  user_name={item?.toString()}
+                                />
+                              );
                             })}
                           </Col>
                         </Row>
@@ -975,12 +1058,9 @@ const DetailInvetoryAdjustment: FC = () => {
                 </Card>
               </Col>
             </Row>
-            
-            <div style={{ display: "none" }}>
-              <Upload
-                fileList={fileList}
-              >
-              </Upload>
+
+            <div style={{display: "none"}}>
+              <Upload fileList={fileList}></Upload>
               <div className="printContent" ref={printElementRef}>
                 <div
                   dangerouslySetInnerHTML={{
@@ -1013,39 +1093,39 @@ const DetailInvetoryAdjustment: FC = () => {
                       </Space>
                     </Button>
                   )}
-                  {
-                    data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ?(
-                      <>
-                        <Upload
-                          beforeUpload={onBeforeUpload}
-                          multiple={false}
-                          showUploadList={false}
-                          onChange={onChangeFile}
-                          customRequest={onCustomRequest}
-                        >
-                          <Button icon={<UploadOutlined />}>Nhập excel</Button>
-                        </Upload>
-                        <Button
-                          type="default"
-                          className="light"
-                          size="large"
-                          icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                          onClick={() => {
-                            setShowExportModal(true);
-                            onExport();
-                          }}
-                        >
-                          Xuất excel
-                        </Button>
-                        <Button
-                          type="primary"
-                          onClick={() => {
-                            setIsShowConfirmAdited(true);
-                          }}
-                          loading={isLoading} disabled={hasError || isLoading}
-                        >
-                          Hoàn thành kiểm
-                        </Button>
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ? (
+                    <>
+                      <Upload
+                        beforeUpload={onBeforeUpload}
+                        multiple={false}
+                        showUploadList={false}
+                        onChange={onChangeFile}
+                        customRequest={onCustomRequest}
+                      >
+                        <Button icon={<UploadOutlined />}>Nhập excel</Button>
+                      </Upload>
+                      <Button
+                        type="default"
+                        className="light"
+                        size="large"
+                        icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
+                        onClick={() => {
+                          setShowExportModal(true);
+                          onExport();
+                        }}
+                      >
+                        Xuất excel
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          setIsShowConfirmAdited(true);
+                        }}
+                        loading={isLoading}
+                        disabled={hasError || isLoading}
+                      >
+                        Hoàn thành kiểm
+                      </Button>
                     </>
                   ) : null}
                   {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ? (
@@ -1097,7 +1177,7 @@ const DetailInvetoryAdjustment: FC = () => {
             {visibleManyProduct && (
               <PickManyProductModal
                 storeID={data?.adjusted_store_id}
-                selected={dataTable}
+                selected={dataLinesItem.items}
                 isTransfer
                 onSave={onPickManyProduct}
                 onCancel={() => setVisibleManyProduct(false)}

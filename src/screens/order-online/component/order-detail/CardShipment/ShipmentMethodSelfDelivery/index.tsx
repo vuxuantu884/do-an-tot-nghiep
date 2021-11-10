@@ -8,34 +8,22 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  shipper: AccountResponse[] | null;
-  setShippingFeeInformedCustomer: (value: number | null) => void;
-  shippingFeeCustomer?: number | null;
-  amount?: number;
-  totalPaid?: number;
-  discountValue?: number | null;
-  totalAmountReturnProducts?: number;
+  totalAmountCustomerNeedToPay: number;
+  setShippingFeeInformedToCustomer: (value: number) => void;
   levelOrder?: number;
+  isCancelValidateDelivery: boolean;
+  listShippers: AccountResponse[] | null;
 };
 function ShipmentMethodSelfDelivery(props: PropType) {
   const {
-    shipper, setShippingFeeInformedCustomer,
-    amount, totalPaid, levelOrder = 0,
-    shippingFeeCustomer,
-    discountValue,
-    totalAmountReturnProducts
+    setShippingFeeInformedToCustomer,
+    levelOrder = 0,
+    totalAmountCustomerNeedToPay,
+    isCancelValidateDelivery,
+    listShippers,
   } = props;
 
-  const createOrderContextData = useContext(OrderCreateContext);
-  const totalAmountCustomerNeedToPayShipper =
-    createOrderContextData?.price.totalAmountCustomerNeedToPay ?
-      createOrderContextData?.price.totalAmountCustomerNeedToPay : ((amount ? amount : 0) +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      (discountValue ? discountValue : 0) -
-      (totalPaid ? totalPaid : 0) -
-      // totalAmountPaid() -
-      (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
-
+  console.log("listShippers", listShippers);
   return (
     <StyledComponent>
       <div>
@@ -46,7 +34,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
-                !createOrderContextData?.buttonSave.isSaveDraft
+                isCancelValidateDelivery
                   ? [
                       {
                         required: true,
@@ -72,7 +60,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 }}
                 disabled={levelOrder > 3}
               >
-                {shipper?.map((item, index) => (
+                {listShippers?.map((item, index) => (
                   <CustomSelect.Option
                     style={{ width: "100%" }}
                     key={index.toString()}
@@ -91,9 +79,8 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={
-                  totalAmountCustomerNeedToPayShipper &&
-                  totalAmountCustomerNeedToPayShipper > 0
-                    ? totalAmountCustomerNeedToPayShipper
+                  totalAmountCustomerNeedToPay && totalAmountCustomerNeedToPay > 0
+                    ? totalAmountCustomerNeedToPay
                     : 0
                 }
                 style={{
@@ -128,14 +115,13 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               />
             </Form.Item>
             <Form.Item
-              // name="shipping_fee_informed_to_customer"
+              name="shipping_fee_informed_to_customer"
               label="Phí ship báo khách"
             >
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
-                value={shippingFeeCustomer || 0}
                 style={{
                   textAlign: "right",
                   width: "100%",
@@ -143,7 +129,13 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 }}
                 maxLength={15}
                 minLength={0}
-                onChange={setShippingFeeInformedCustomer}
+                onChange={(value) => {
+                  if (value) {
+                    setShippingFeeInformedToCustomer(value);
+                  } else {
+                    setShippingFeeInformedToCustomer(0);
+                  }
+                }}
                 disabled={levelOrder > 3}
               />
             </Form.Item>

@@ -41,6 +41,9 @@ import ResultDownloadOrderDataModal from "./component/ResultDownloadOrderDataMod
 import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
 // todo thai: handle later
 // import UpdateConnectionModal from "./component/UpdateConnectionModal";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+import { EcommerceOrderPermissions } from "config/permissions/ecommerce.permission";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
@@ -58,6 +61,7 @@ import {
   nameQuantityWidth,
   StyledComponent,
 } from "screens/ecommerce/orders/orderStyles";
+import useAuthorization from "hook/useAuthorization";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -122,10 +126,24 @@ const ALL_ECOMMERCE_SOURCE_ID = [
   ECOMMERCE_SOURCE.tiki
 ];
 
+const ordersViewPermission = [EcommerceOrderPermissions.ORDERS_VIEW];
+const ordersDownloadPermission = [EcommerceOrderPermissions.ORDERS_DOWNLOAD];
+
+
 const EcommerceOrderSync: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [allowViewOrder] = useAuthorization({
+    acceptPermissions: ordersViewPermission,
+    not: false,
+  });
+
+  const [allowDownloadOrder] = useAuthorization({
+    acceptPermissions: ordersDownloadPermission,
+    not: false,
+  });
 
   const [isShowGetOrderModal, setIsShowGetOrderModal] = useState(false);
   // todo thai: handle later
@@ -146,7 +164,7 @@ const EcommerceOrderSync: React.FC = () => {
   // );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [tableLoading, setTableLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
@@ -688,7 +706,9 @@ const EcommerceOrderSync: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   const reloadPage = () => {
-    getEcommerceOrderList();
+    if (allowViewOrder) {
+      getEcommerceOrderList();
+    }
   };
 
   const closeResultGetOrderModal = () => {
@@ -697,21 +717,25 @@ const EcommerceOrderSync: React.FC = () => {
   };
 
   useEffect(() => {
-    getEcommerceOrderList();
-  }, [getEcommerceOrderList]);
+    if (allowViewOrder) {
+      getEcommerceOrderList();
+    }
+  }, [allowViewOrder, getEcommerceOrderList]);
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(StoreGetListAction(setStore));
-    dispatch(
-      actionFetchListOrderProcessingStatus(
-        {},
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-        }
-      )
-    );
-  }, [dispatch, setDataAccounts]);
+    if (allowViewOrder) {
+      dispatch(AccountSearchAction({}, setDataAccounts));
+      dispatch(StoreGetListAction(setStore));
+      dispatch(
+        actionFetchListOrderProcessingStatus(
+          {},
+          (data: OrderProcessingStatusResponseModel) => {
+            setListOrderProcessingStatus(data.items);
+          }
+        )
+      );
+    }
+  }, [allowViewOrder, dispatch, setDataAccounts]);
 
   return (
     <StyledComponent>
@@ -732,59 +756,65 @@ const EcommerceOrderSync: React.FC = () => {
         ]}
         extra={
           <>
-            <Button
-              disabled={tableLoading}
-              onClick={openGetOrderModal}
-              className="ant-btn-outline ant-btn-primary"
-              size="large"
-              icon={<DownloadOutlined />}
-            >
-              Tải đơn hàng về
-            </Button>
+            {allowDownloadOrder &&
+              <Button
+                disabled={tableLoading}
+                onClick={openGetOrderModal}
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<DownloadOutlined />}
+              >
+                Tải đơn hàng về
+              </Button>
+            }
           </>
         }
       >
-        <Card>
-          <EcommerceOrderFilter
-            tableLoading={tableLoading}
-            onMenuClick={onMenuClick}
-            actionList={actionList}
-            onFilter={onFilter}
-            onClearFilter={onClearFilter}
-            params={params}
-            initQuery={initQuery}
-            listStore={listStore}
-            accounts={accounts}
-            deliveryService={delivery_service}
-            subStatus={listOrderProcessingStatus}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-          />
-
-          <CustomTable
-            isRowSelection
-            isLoading={tableLoading}
-            showColumnSetting={true}
-            scroll={{ x: 3630 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-            pagination={
-              tableLoading
-                ? false
-                : {
-                    pageSize: data.metadata.limit,
-                    total: data.metadata.total,
-                    current: data.metadata.page,
-                    showSizeChanger: true,
-                    onChange: onPageChange,
-                    onShowSizeChange: onPageChange,
-                  }
-            }
-            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            dataSource={data.items}
-            columns={columnFinal}
-            rowKey={(item: OrderModel) => item.id}
-            className="ecommerce-order-list"
-          />
-        </Card>
+        <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
+          {(allowed: boolean) => (allowed ?
+            <Card>
+              <EcommerceOrderFilter
+                tableLoading={tableLoading}
+                onMenuClick={onMenuClick}
+                actionList={actionList}
+                onFilter={onFilter}
+                onClearFilter={onClearFilter}
+                params={params}
+                initQuery={initQuery}
+                listStore={listStore}
+                accounts={accounts}
+                deliveryService={delivery_service}
+                subStatus={listOrderProcessingStatus}
+                onShowColumnSetting={() => setShowSettingColumn(true)}
+              />
+    
+              <CustomTable
+                isRowSelection
+                isLoading={tableLoading}
+                showColumnSetting={true}
+                scroll={{ x: 3630 }}
+                sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                pagination={
+                  tableLoading
+                    ? false
+                    : {
+                        pageSize: data.metadata.limit,
+                        total: data.metadata.total,
+                        current: data.metadata.page,
+                        showSizeChanger: true,
+                        onChange: onPageChange,
+                        onShowSizeChange: onPageChange,
+                      }
+                }
+                onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+                dataSource={data.items}
+                columns={columnFinal}
+                rowKey={(item: OrderModel) => item.id}
+                className="ecommerce-order-list"
+              />
+            </Card>
+            : <NoPermission />)}
+        </AuthWrapper>
 
         {isShowGetOrderModal && (
           <DownloadOrderDataModal

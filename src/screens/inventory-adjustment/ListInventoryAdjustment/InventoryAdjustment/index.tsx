@@ -17,7 +17,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {Tag, Space, Card} from "antd";
 import {InventoryAdjustmentWrapper} from "./styles";
 import {
-  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
+  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, 
   STATUS_INVENTORY_ADJUSTMENT,
 } from "../constants";
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
@@ -43,19 +43,22 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   page: 1,
   limit: 30,
   condition: null,
-  adjusted_store_id: null,
-  status: [],
+  adjusted_store_id: null, 
   from_total_variant: null,
   to_total_variant: null,
   from_total_quantity: null,
   to_total_quantity: null,
   from_total_amount: null,
   to_total_amount: null,
-  created_by: [],
+  created_name: [], 
   from_created_date: null,
   to_created_date: null,
-  from_inventoryadjustment_date: null,
-  to_inventoryadjustment_date: null,
+  from_audited_date: null,
+  to_audited_date: null,
+  from_adjusted_date: null,
+  to_adjusted_date: null,
+  status: [],
+  audit_type: [],
 };
 
 const actions: Array<MenuAction> = [
@@ -159,7 +162,7 @@ const InventoryAdjustment: React.FC = () => {
     {
       title: "Tổng SL",
       width: 90,
-      dataIndex: "total_real_on_hand",
+      dataIndex: "total_on_hand",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -247,10 +250,10 @@ const InventoryAdjustment: React.FC = () => {
         return (
           <div>
             <div>
-              <b>{item.created_code ?? ""}</b>
+              <b>{item.created_name ?? ""}</b>
             </div>
             <div>
-              <b>{item.created_by}</b>
+              <b>{item.created_by ?? ""}</b>
             </div>
           </div>
         );
@@ -262,7 +265,7 @@ const InventoryAdjustment: React.FC = () => {
       dataIndex: "audited_date",
       visible: true,
       align: "left",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Cân tồn kho",
@@ -274,9 +277,9 @@ const InventoryAdjustment: React.FC = () => {
             <b>{item.adjusted_code ?? ""}</b>
             </div>
             <div>
-              <b>{item.adjusted_by}</b>
+              <b>{item.adjusted_by ?? ""}</b>
             </div>
-            <div>{ConvertUtcToLocalDate(item.adjusted_date, "DD/MM/YYYY")}</div>
+            <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>
         );
       },
@@ -359,14 +362,11 @@ const InventoryAdjustment: React.FC = () => {
     },
     [printTicketAction]
   );
-
-  /**
-   * clear filter trong basefilter
-   */
+ 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}#1?${queryParam}`);
+    history.push(`${UrlConfig.INVENTORY_ADJUSTMENT}?${queryParam}`);
   }, [history]);
 
   const onSelectedChange = useCallback(

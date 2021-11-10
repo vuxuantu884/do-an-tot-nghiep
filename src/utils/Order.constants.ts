@@ -22,3 +22,5 @@ export const ORDER_RETURN_HISTORY = [
     title: "Hoàn tiền",
   },
 ];
+
+export const DEFAULT_CHANNEL_ID = 13; //đang fix cứng admin

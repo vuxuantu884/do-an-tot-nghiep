@@ -36,8 +36,8 @@ const ChooseDiscount = (props: any) => {
                   className="product-item-discount-input"
                   style={{ width: "65%", textAlign: "right" }}
                   placeholder="Nhập giá trị khuyến mãi"
-                  format={(a) => typeUnit !== 'PERCENTAGE' ? formatCurrency(a) : parseFloat(a).toFixed(2)}
-                  replace={(a) => typeUnit !== 'PERCENTAGE' ? replaceFormatString(a) : parseFloat(a).toFixed(2)}
+                  format={(a) => typeUnit === 'PERCENTAGE' ? a : formatCurrency(a)}
+                  replace={(a) => typeUnit === 'PERCENTAGE' ? a:  replaceFormatString(a)}
                   min={1}
                   default={1}
                   // maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : }

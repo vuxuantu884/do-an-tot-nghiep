@@ -16,10 +16,11 @@ import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
 import {promoGetDetail, getVariants} from "../../../domain/actions/promotion/discount/discount.action";
-import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
+import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { getListChannelRequest } from "domain/actions/order/order.action";
+import { values } from "lodash";
 
 export interface ProductParams {
   id: string;
@@ -170,7 +171,7 @@ const PromotionDetailScreen: React.FC = () => {
       },
       {
         title: "Sản phẩm",
-        dataIndex: "variant",
+        dataIndex: "sku",
         visible: true,
         align: 'left',
         width: "20%",
@@ -181,8 +182,8 @@ const PromotionDetailScreen: React.FC = () => {
         ) => {
           return (
             <div>
-              <Link to={`${UrlConfig.PRODUCT}/${item.id}/variants/${item.id}`}>
-                {item.sku}
+              <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+                {value}
               </Link>
               <div>{item.title}</div>
             </div>
@@ -224,7 +225,7 @@ const PromotionDetailScreen: React.FC = () => {
       },
       {
         title: "Sản phẩm",
-        dataIndex: "variant",
+        dataIndex: "sku",
         visible: true,
         align: 'left',
         width: "20%",
@@ -235,8 +236,8 @@ const PromotionDetailScreen: React.FC = () => {
         ) => {
           return (
             <div>
-              <Link to={`${UrlConfig.PRODUCT}/${item.id}/variants/${item.id}`}>
-                {item.sku}
+              <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+                {value}
               </Link>
               <div>{item.title}</div>
             </div>
@@ -304,11 +305,9 @@ const PromotionDetailScreen: React.FC = () => {
     let result: any[] = [];
     dataVariants.forEach((variant: any) => {
       result.push({
-        variant: {
-          id: variant?.variant_id,
-          title: variant?.variant_title,
-          sku: variant?.sku
-        },
+        id: variant?.variant_id,
+        title: variant?.variant_title,
+        sku: variant?.sku,
         cost: variant?.cost,
         minimum: minimum,
         allocationLimit: allocationLimit,

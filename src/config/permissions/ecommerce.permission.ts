@@ -9,3 +9,17 @@ export const EcommerceConfigPermissions = {
   CONNECT_SHOP: "ecommerces_shop_connect",
 };
 
+export const EcommerceOrderPermissions = {
+  ORDERS_VIEW: "orders_view",
+  ORDERS_UPDATE: "orders_update",
+  ORDERS_DOWNLOAD: "ecommerces_order_download",
+};
+
+export const EcommerceProductPermissions = {
+  VIEW_PRODUCT: "ecommerces_variant_list",
+  CONNECT_PRODUCT: "ecommerces_variant_update",
+  DISCONNECT_PRODUCT: "ecommerces_variant_disconnect",
+  DELETE_PRODUCT: "ecommerces_variant_delete",
+  UPDATE_STOCK_PRODUCT: "ecommerces_variant_update_stock",
+  DOWNLOAD_PRODUCT: "ecommerces_variant_download",
+};

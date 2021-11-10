@@ -139,21 +139,7 @@ const FixedPriceGroup = (props: any) => {
             </Space>}
             rules={[
               {required: true, message: "Cần nhập số lượng tối thiểu"},
-              {validator: (_, value) =>
-                {
-                  const entitlement = form.getFieldsValue().entitlements[name];
-                  const usageLimit = form.getFieldValue("usage_limit");
-                  const allocation_limit = entitlement["prerequisite_quantity_ranges.allocation_limit"]
-                  if (
-                    (allocation_limit && value > allocation_limit) ||
-                    (usageLimit && value > usageLimit)
-                  ) {
-                    setMinQuantityWarning(true)
-                  } else {
-                    setMinQuantityWarning(false)
-                  }
-                },
-              },
+
             ]}
           >
             <NumberInput key={`${key}-min`} min={0}/>
