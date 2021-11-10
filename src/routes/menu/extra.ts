@@ -32,7 +32,7 @@ const extra: Array<RouteMenu> = [
         title: "Chi tiết khách hàng",
         icon: 'icon-customer',
         component: CustomerDetail,
-        key: "11",
+        key: "12",
         isShow: true,
         header: null,
         subMenu: [],
