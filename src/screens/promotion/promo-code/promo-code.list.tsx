@@ -94,8 +94,7 @@ const ListCode = () => {
   const query = useQuery();
   let dataQuery: any = {
     ...{
-      request: "",
-      state: ""
+      code: ""
     },
     ...getQueryParams(query)
   }
@@ -153,9 +152,31 @@ const ListCode = () => {
   );
 
   const onFilter = useCallback(values => {
+    switch (values.state) {
+      case 'ENABLED':
+        values.disabled = false;
+        values.published = false;
+        break;
+      case 'DISABLED':
+        values.disabled = true;
+        values.published = false;
+        break;
+      case 'GIFTED': 
+        values.disabled = false;
+        values.published = true;
+        break;
+      default:
+        break;
+    }
     let newParams = {...params, ...values, page: 1};
+    if(values.state === "ALL") {
+      delete newParams['disabled'];
+      delete newParams['published'];
+    }
+    delete newParams['state'];
+    delete newParams['query'];
     console.log("newParams", newParams);
-    setParams({...newParams})
+    setParams(newParams)
   }, [params])
 
   // section EDIT by Id
@@ -304,7 +325,7 @@ const ListCode = () => {
 
   const statuses = [
     {
-      code: 'ACTIVE',
+      code: 'ENABLED',
       value: 'Đang áp dụng',
     },
     {
@@ -404,7 +425,7 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
-              <Item name="query" className="search">
+              <Item name="code" className="search">
                 <Input
                   prefix={<img src={search} alt=""/>}
                   placeholder="Tìm kiếm theo mã, tên chương trình"
