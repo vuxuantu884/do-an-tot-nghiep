@@ -66,7 +66,7 @@ const FixedPriceGroup = (props: any) => {
     variant_prices: [{
       import_price: item.price,
     }],
-    variant_id: item.variant_id,
+    id: item.variant_id,
   });
 
   const onSearch = useCallback(
