@@ -6,7 +6,10 @@ import {
   getAllPromoCodeList,
   getPromoCodeById,
   updatePromoCodeById,
-  deleteBulkPromoCode
+  deleteBulkPromoCode,
+  publishedBulkPromoCode,
+  enableBulkPromoCode,
+  disableBulkPromoCode
 } from '../../../../service/promotion/promo-code/promo-code.service';
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -206,6 +209,90 @@ function* deleteBulkPromoCodeAct(action: YodyAction) {
   }
 }
 
+function* publishedBulkPromoCodeAct(action: YodyAction) {
+  console.log('publishedBulkPromoCodeAct - action : ', action);
+  const { priceRuleId, body, publishedCallBack } = action.payload;
+  try {
+    const response: BaseResponse<PromoCodeResponse> = yield call(
+      publishedBulkPromoCode,
+      priceRuleId,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        publishedCallBack(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        publishedCallBack(false)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        publishedCallBack(false)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    publishedCallBack(false)
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* enableBulkPromoCodeAct(action: YodyAction) {
+  console.log('enableBulkPromoCodeAct - action : ', action);
+  const { priceRuleId, body, enableCallBack } = action.payload;
+  try {
+    const response: BaseResponse<PromoCodeResponse> = yield call(
+      enableBulkPromoCode,
+      priceRuleId,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        enableCallBack(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        enableCallBack(false)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        enableCallBack(false)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    enableCallBack(false)
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* disableBulkPromoCodeAct(action: YodyAction) {
+  console.log('disableBulkPromoCodeAct - action : ', action);
+  const { priceRuleId, body, disableCallBack } = action.payload;
+  try {
+    const response: BaseResponse<PromoCodeResponse> = yield call(
+      disableBulkPromoCode,
+      priceRuleId,
+      body
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        disableCallBack(true)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        disableCallBack(false)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        disableCallBack(false)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    disableCallBack(false)
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* promoCodeSaga() {
   yield all([
     takeLatest(PromoCodeType.CHECK_PROMO_CODE, checkPromoCodeAtc),
@@ -214,6 +301,9 @@ export function* promoCodeSaga() {
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct),
     takeLatest(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, updatePromoCodeByIdAct),
     takeLatest(PromoCodeType.ADD_PROMO_CODE, addPromoCodeManualAct),
-    takeLatest(PromoCodeType.DELETE_PROMO_CODE_BULK, deleteBulkPromoCodeAct)
+    takeLatest(PromoCodeType.DELETE_PROMO_CODE_BULK, deleteBulkPromoCodeAct),
+    takeLatest(PromoCodeType.PUBLISHED_PROMO_CODE_BULK, publishedBulkPromoCodeAct),
+    takeLatest(PromoCodeType.ENABLE_PROMO_CODE_BULK, enableBulkPromoCodeAct),
+    takeLatest(PromoCodeType.DISABLE_PROMO_CODE_BULK, disableBulkPromoCodeAct)
   ])
 }

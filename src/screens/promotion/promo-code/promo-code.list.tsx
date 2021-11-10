@@ -40,7 +40,10 @@ import {
   deleteBulkPromoCode,
   getListPromoCode,
   deletePromoCodeById,
-  updatePromoCodeById
+  updatePromoCodeById,
+  publishedBulkPromoCode,
+  enableBulkPromoCode,
+  disableBulkPromoCode
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -57,6 +60,14 @@ const ListCode = () => {
     },
     {
       id: 2,
+      name: "Áp dụng",
+    },
+    {
+      id: 3,
+      name: "Ngừng áp dụng",
+    },
+    {
+      id: 4,
       name: "Xoá",
     },
   ];
@@ -194,7 +205,7 @@ const ListCode = () => {
   const deleteCallBack = useCallback((response) => {
     dispatch(hideLoading());
     if (response) {
-      showSuccess("Xóa thành công");
+      showSuccess("Thao tác thành công");
       dispatch(getListPromoCode(priceRuleId, params, fetchData));
     }
   }, [dispatch, priceRuleId, params, fetchData]);
@@ -223,7 +234,7 @@ const ListCode = () => {
       title: "Lượt áp dụng còn lại",
       visible: true,
       fixed: "left",
-      dataIndex: "amountUsed",
+      dataIndex: "remaining_count",
       width: "15%",
     },
     {
@@ -249,7 +260,7 @@ const ListCode = () => {
       align: 'center',
       width: '15%',
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.create_date ? moment(item.create_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
+        <div>{`${item.created_date ? moment(item.created_date).format(DATE_FORMAT.DDMMYYY)  : ""}`}</div>,
     },
     actionColumn(handleUpdate, handleDelete, handleStatus),
   ], []);
@@ -265,28 +276,40 @@ const ListCode = () => {
     },
     {
       code: 'DISABLED',
-      value: 'Tạm ngưng',
+      value: 'Ngừng áp dụng',
     },
     {
-      code: 'DRAFT',
-      value: 'Chờ áp dụng' ,
+      code: 'GIFTED',
+      value: 'Đã tặng' ,
     },
     {
-      code: 'CANCELLED',
-      value: 'Đã huỷ',
+      code: 'ALL',
+      value: 'Tất cả',
     },
 
   ]
 
   const onMenuClick = useCallback(
     async (index: number) => {
+      if (selectedRowKey.length === 0) {
+        return;
+      };
       const body = {
         ids: selectedRowKey
       }
       switch (index) {
         case 1:
+          dispatch(publishedBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
-        case 2:
+        case 2: 
+          dispatch(showLoading());
+          dispatch(enableBulkPromoCode(priceRuleId, body, deleteCallBack));
+          break;
+        case 3: 
+          dispatch(showLoading());
+          dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
+          break;
+        case 4: 
           dispatch(showLoading());
           dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
