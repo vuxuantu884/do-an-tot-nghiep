@@ -7,7 +7,7 @@ import {
   Space,
   Modal,
   Col,
-  Select
+  Select, message, Divider,
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
@@ -27,7 +27,7 @@ import search from "assets/img/search.svg";
 import "./promo-code.scss";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router";
-import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import {CheckCircleOutlined, FilterOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -51,8 +51,25 @@ import { showSuccess } from "utils/ToastUtils";
 import { STATUS_CODE } from "../constant";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
+import {AppConfig} from "../../../config/app.config";
+import _ from "lodash";
+import {getToken} from "../../../utils/LocalStorageUtils";
+
+const csvColumnMapping: any = {
+  sku: "Mã SKU",
+  min_amount: "SL Tối thiểu",
+  usage_limit: "Giới hạn",
+  discount_percentage: "Chiết khấu (%)",
+  fixed_amount: "Chiết khấu (VND)",
+  invalid: "không đúng định dạng",
+  notfound: "không tìm thấy",
+  required: "Không được trống",
+  code: "Mã chiết khấu",
+  sku_duplicate: "Đã tồn tại"
+};
 
 const ListCode = () => {
+  const token = getToken() || "";
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -103,6 +120,11 @@ const ListCode = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [promoValue, setPromoValue] = useState<any>();
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
+  const [importTotal, setImportTotal] = useState(0);
+  const [successCount, setSuccessCount] = useState(0);
+  const [codeErrorsResponse, setCodeErrorsResponse] = useState<Array<any>>([])
+  const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
+
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -504,8 +526,12 @@ const ListCode = () => {
           <Button
             key="link"
             type="primary"
+            onClick={() => {
+              dispatch(promoGetDetail(id, onResult));
+              setShowImportFile(false)
+            }}
           >
-            Nhập file
+            Xác nhận
           </Button>,
         ]}
       >
@@ -524,14 +550,82 @@ const ListCode = () => {
         </Row>
         <Row gutter={24}>
           <div className="dragger-wrapper">
-            <Dragger accept=".xlsx">
+            <Dragger
+              accept=".xlsx"
+              multiple={false}
+              action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
+              headers={{"Authorization": `Bearer ${token}`}}
+              onChange={(info) => {
+                const {status} = info.file;
+                if (status === "done") {
+                  const response = info.file.response;
+                  if (response.code === 20000000) {
+                    if (response.data.errors.length > 0) {
+                      const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                      setCodeErrorsResponse([...errors]);
+                    }
+                    setImportTotal(response.data.total);
+                    setSuccessCount(response.data.success_count);
+                  }
+                  setUploadStatus(status);
+                } else if (status === "error") {
+                  message.error(`${info.file.name} file upload failed.`);
+                  setUploadStatus(status);
+
+                } else {
+                  setUploadStatus(status);
+                }
+              }}
+            >
               <p className="ant-upload-drag-icon">
-                <RiUpload2Line size={48}/>
+                <RiUpload2Line size={48} />
               </p>
               <p className="ant-upload-hint">
                 Kéo file vào đây hoặc tải lên từ thiết bị
               </p>
             </Dragger>
+          </div>
+          <div
+            style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+            <Row justify={"center"}>
+              {uploadStatus === "uploading" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <LoadingOutlined style={{fontSize: "78px"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>
+                      Đang upload file...
+                    </h2>
+                  </Row>
+                </Col>
+                : ""}
+              {uploadStatus === "done" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <CheckCircleOutlined style={{fontSize: "78px", color: "#27AE60"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>Xử lý file nhập toàn tất: <strong
+                      style={{color: "#2A2A86"}}>{successCount} / {importTotal}</strong> sản phẩm thành công</h2>
+                  </Row>
+                  <Divider />
+                  {codeErrorsResponse.length > 0 ? <div>
+                    <Row justify={"start"}>
+                      <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
+                    </Row>
+                    <Row justify={"start"}>
+                      <li style={{padding: "10px 30px"}}>
+                        {codeErrorsResponse?.map((error: any, index) =>
+                          <ul key={index}>
+                            <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                          </ul>)}
+                      </li>
+                    </Row>
+                  </div> : ""}
+                </Col>
+                : ""}
+            </Row>
           </div>
         </Row>
       </Modal>

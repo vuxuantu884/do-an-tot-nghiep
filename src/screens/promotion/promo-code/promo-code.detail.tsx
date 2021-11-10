@@ -1,4 +1,4 @@
-import { Button, Card, Col, Modal, Row, Space } from "antd";
+import {Button, Card, Col, Divider, message, Modal, Row, Space} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -33,6 +33,10 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
 import Countdown from "react-countdown";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import {AppConfig} from "../../../config/app.config";
+import _ from "lodash";
+import {getToken} from "../../../utils/LocalStorageUtils";
+import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
 
 export interface ProductParams {
   id: string;
@@ -94,9 +98,23 @@ const promoStatuses = [
   },
 ]
 
+const csvColumnMapping: any = {
+  sku: "Mã SKU",
+  min_amount: "SL Tối thiểu",
+  usage_limit: "Giới hạn",
+  discount_percentage: "Chiết khấu (%)",
+  fixed_amount: "Chiết khấu (VND)",
+  invalid: "không đúng định dạng",
+  notfound: "không tìm thấy",
+  required: "Không được trống",
+  code: "Mã chiết khấu",
+  sku_duplicate: "Đã tồn tại"
+};
+
 const PromotionDetailScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+  const token = getToken() || "";
 
   const { id } = useParams() as any;
   const idNumber = parseInt(id);
@@ -113,6 +131,10 @@ const PromotionDetailScreen: React.FC = () => {
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
   const [stores, setStore] = useState<Array<StoreResponse>>();
   const [sources, setSource] = useState<Array<SourceResponse>>();
+  const [importTotal, setImportTotal] = useState(0);
+  const [successCount, setSuccessCount] = useState(0);
+  const [codeErrorsResponse, setCodeErrorsResponse] = useState<Array<any>>([])
+  const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
@@ -182,7 +204,7 @@ const PromotionDetailScreen: React.FC = () => {
     // TO DO
   }, []);
 
-  
+
   useEffect(() => {
     dispatch(promoGetDetail(idNumber, onResult));
     return () => {};
@@ -714,11 +736,16 @@ const PromotionDetailScreen: React.FC = () => {
           <Button
             key="link"
             type="primary"
+            onClick={() => {
+              dispatch(promoGetDetail(id, onResult));
+              setShowImportFile(false)
+            }}
           >
-            Nhập file
+            Xác nhận
           </Button>,
         ]}
       >
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none"}}>
         <Row gutter={12}>
           <Col span={3}>
             Chú ý:
@@ -734,16 +761,85 @@ const PromotionDetailScreen: React.FC = () => {
         </Row>
         <Row gutter={24}>
           <div className="dragger-wrapper">
-            <Dragger accept=".xlsx">
+            <Dragger
+              accept=".xlsx"
+              multiple={false}
+              action={`${AppConfig.baseUrl}promotion-service/price-rules/${idNumber}/discount-codes/read-file`}
+              headers={{"Authorization": `Bearer ${token}`}}
+              onChange={(info) => {
+                const {status} = info.file;
+                if (status === "done") {
+                  const response = info.file.response;
+                  if (response.code === 20000000) {
+                    if (response.data.errors.length > 0) {
+                      const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                      setCodeErrorsResponse([...errors]);
+                    }
+                    setImportTotal(response.data.total);
+                    setSuccessCount(response.data.success_count);
+                  }
+                  setUploadStatus(status);
+                } else if (status === "error") {
+                  message.error(`${info.file.name} file upload failed.`);
+                  setUploadStatus(status);
+
+                } else {
+                  setUploadStatus(status);
+                }
+              }}
+            >
               <p className="ant-upload-drag-icon">
-                <RiUpload2Line size={48}/>
+                <RiUpload2Line size={48} />
               </p>
               <p className="ant-upload-hint">
                 Kéo file vào đây hoặc tải lên từ thiết bị
               </p>
             </Dragger>
           </div>
+          <div
+            style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+            <Row justify={"center"}>
+              {uploadStatus === "uploading" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <LoadingOutlined style={{fontSize: "78px"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>
+                      Đang upload file...
+                    </h2>
+                  </Row>
+                </Col>
+                : ""}
+              {uploadStatus === "done" ?
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <CheckCircleOutlined style={{fontSize: "78px", color: "#27AE60"}} />
+                  </Row>
+                  <Row justify={"center"}>
+                    <h2 style={{padding: "10px 30px"}}>Xử lý file nhập toàn tất: <strong
+                      style={{color: "#2A2A86"}}>{successCount} / {importTotal}</strong> sản phẩm thành công</h2>
+                  </Row>
+                  <Divider />
+                  {codeErrorsResponse.length > 0 ? <div>
+                    <Row justify={"start"}>
+                      <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
+                    </Row>
+                    <Row justify={"start"}>
+                      <li style={{padding: "10px 30px"}}>
+                        {codeErrorsResponse?.map((error: any, index) =>
+                          <ul key={index}>
+                            <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                          </ul>)}
+                      </li>
+                    </Row>
+                  </div> : ""}
+                </Col>
+                : ""}
+            </Row>
+          </div>
         </Row>
+        </div>
       </Modal>
     </ContentContainer>
   );

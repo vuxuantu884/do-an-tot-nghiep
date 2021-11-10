@@ -33,10 +33,6 @@ const FixedPriceSelection = (props: any) => {
   const [successCount, setSuccessCount] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<"error" | "success" | "done" | "uploading" | "removed" | undefined>(undefined);
 
-
-  useEffect(() => {
-  }, [entitlementsResponse, entitlementErrorsResponse]);
-
   const handleImportEntitlements = () => {
     const entitlements = Object.assign([], _.uniqBy(entitlementsResponse, "variant_id"));
     const importedResult = customGroupBy(entitlements, ["discount_value", "discount_type", "min_quantity", "limit"]);
@@ -229,17 +225,19 @@ const FixedPriceSelection = (props: any) => {
                     style={{color: "#2A2A86"}}>{successCount} / {importTotal}</strong> sản phẩm thành công</h2>
                 </Row>
                 <Divider />
-                <Row justify={"start"}>
-                  <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
-                </Row>
-                <Row justify={"start"}>
-                  <li style={{padding: "10px 30px"}}>
-                    {entitlementErrorsResponse?.map((error: any, index) =>
-                      <ul key={index}>
-                        <span>- Dòng {error.index}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
-                      </ul>)}
-                  </li>
-                </Row>
+                {entitlementErrorsResponse.length > 0 ? <div>
+                  <Row justify={"start"}>
+                    <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
+                  </Row>
+                  <Row justify={"start"}>
+                    <li style={{padding: "10px 30px"}}>
+                      {entitlementErrorsResponse?.map((error: any, index) =>
+                        <ul key={index}>
+                          <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                        </ul>)}
+                    </li>
+                  </Row>
+                </div> : ""}
               </Col>
               : ""}
           </Row>
