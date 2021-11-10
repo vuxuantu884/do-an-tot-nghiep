@@ -547,12 +547,18 @@ const ListCode = () => {
         }}
       />
       <Modal
-        onCancel={() => setShowImportFile(false)}
+        onCancel={() => {
+          setUploadStatus(undefined)
+          setShowImportFile(false)
+        }}
         width={650}
         visible={showImportFile}
         title="Nhập file khuyến mại"
         footer={[
-          <Button key="back" onClick={() => setShowImportFile(false)}>
+          <Button key="back" onClick={() => {
+            setUploadStatus(undefined)
+            setShowImportFile(false)
+          }}>
             Huỷ
           </Button>,
 
@@ -560,6 +566,7 @@ const ListCode = () => {
             key="link"
             type="primary"
             onClick={() => {
+              setUploadStatus(undefined)
               dispatch(promoGetDetail(id, onResult));
               setShowImportFile(false)
             }}
@@ -568,58 +575,61 @@ const ListCode = () => {
           </Button>,
         ]}
       >
-        <Row gutter={12}>
-          <Col span={3}>
-            Chú ý:
-          </Col>
-          <Col span={19}>
-            <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-            <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
-            <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
-            <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
-              không F5 hoặc tắt cửa sổ trình duyệt.</p>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <div className="dragger-wrapper">
-            <Dragger
-              accept=".xlsx"
-              multiple={false}
-              action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
-              headers={{"Authorization": `Bearer ${token}`}}
-              onChange={(info) => {
-                const {status} = info.file;
-                if (status === "done") {
-                  const response = info.file.response;
-                  if (response.code === 20000000) {
-                    if (response.data.errors.length > 0) {
-                      const errors: Array<any> = _.uniqBy(response.data.errors, "index");
-                      setCodeErrorsResponse([...errors]);
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
+          <Row gutter={12}>
+            <Col span={3}>
+              Chú ý:
+            </Col>
+            <Col span={19}>
+              <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+              <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+              <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
+              <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+              <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
+                không F5 hoặc tắt cửa sổ trình duyệt.</p>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <div className="dragger-wrapper">
+              <Dragger
+                accept=".xlsx"
+                multiple={false}
+                action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
+                headers={{"Authorization": `Bearer ${token}`}}
+                onChange={(info) => {
+                  const {status} = info.file;
+                  if (status === "done") {
+                    const response = info.file.response;
+                    if (response.code === 20000000) {
+                      if (response.data.errors.length > 0) {
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        setCodeErrorsResponse([...errors]);
+                      }
+                      setImportTotal(response.data.total);
+                      setSuccessCount(response.data.success_count);
                     }
-                    setImportTotal(response.data.total);
-                    setSuccessCount(response.data.success_count);
-                  }
-                  setUploadStatus(status);
-                } else if (status === "error") {
-                  message.error(`${info.file.name} file upload failed.`);
-                  setUploadStatus(status);
+                    setUploadStatus(status);
+                  } else if (status === "error") {
+                    message.error(`${info.file.name} file upload failed.`);
+                    setUploadStatus(status);
 
-                } else {
-                  setUploadStatus(status);
-                }
-              }}
-            >
-              <p className="ant-upload-drag-icon">
-                <RiUpload2Line size={48} />
-              </p>
-              <p className="ant-upload-hint">
-                Kéo file vào đây hoặc tải lên từ thiết bị
-              </p>
-            </Dragger>
-          </div>
-          <div
-            style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+                  } else {
+                    setUploadStatus(status);
+                  }
+                }}
+              >
+                <p className="ant-upload-drag-icon">
+                  <RiUpload2Line size={48} />
+                </p>
+                <p className="ant-upload-hint">
+                  Kéo file vào đây hoặc tải lên từ thiết bị
+                </p>
+              </Dragger>
+            </div>
+          </Row>
+        </div>
+        <Row>
+          <div style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
             <Row justify={"center"}>
               {uploadStatus === "uploading" ?
                 <Col span={24}>
