@@ -243,6 +243,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
             <TextArea
               placeholder="Lý do lệch tồn"
               id={`item-reason-${index}`}
+              maxLength={250}
               value={value ? value : ""}
               onChange={(e) => {
                 onChangeReason(e.target.value, row, index);

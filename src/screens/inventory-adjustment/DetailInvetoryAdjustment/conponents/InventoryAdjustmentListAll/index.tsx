@@ -236,6 +236,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
               placeholder="Lý do lệch tồn"
               id={`item-reason-${index}`}
               value={value ? value : ""}
+              maxLength={250}
               onChange={(event) => {
                 let value =
                   event.target.value && event.target.value !== ""
