@@ -86,6 +86,7 @@ import CardProductBottom from "./CardProductBottom";
 import {StyledComponent} from "./styles";
 import {CouponRequestModel, LineItemRequestModel} from "model/request/promotion.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
+import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 
 type PropType = {
   storeId: number | null;
@@ -173,8 +174,8 @@ function OrderCreateProduct(props: PropType) {
   const {
     form,
     items,
-    discountRate,
-    discountValue,
+    discountRate =0,
+    discountValue =0,
     storeId,
     inventoryResponse,
     levelOrder = 0,
@@ -213,9 +214,11 @@ function OrderCreateProduct(props: PropType) {
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
+  const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
+  console.log('setCoupon', setCoupon)
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
   const [isDisableAutomaticDiscount, setIsDisableAutomaticDiscount] = useState(false);
@@ -992,6 +995,10 @@ function OrderCreateProduct(props: PropType) {
     setVisiblePickDiscount(false);
   }, []);
 
+  const onCancelCouponConfirm = useCallback(() => {
+    setIsVisiblePickCoupon(false);
+  }, []);
+
   const showInventoryModal = useCallback(() => {
     if (items !== null && items?.length) setInventoryModalVisible(true);
     else showError("Vui lòng chọn sản phẩm vào đơn hàng");
@@ -1066,6 +1073,29 @@ function OrderCreateProduct(props: PropType) {
       setDiscountType(type);
       setDiscountValue && setDiscountValue(value);
       setDiscountRate && setDiscountRate(rate);
+      if (coupon) {
+        handleApplyCoupon(coupon);
+      }
+      if (items) {
+        calculateChangeMoney(items, amount, rate, value);
+      }
+      showSuccess("Thêm chiết khấu/coupon thành công");
+    }
+  };
+  const onOkCouponConfirm = (
+    type: string,
+    value: number,
+    rate: number,
+    coupon: string
+  ) => {
+    console.log("coupoonss");
+    if (amount === 0) {
+      showError("Bạn cần chọn sản phẩm trước khi thêm mã khuyến mại!");
+    } else {
+      // setVisiblePickDiscount(false);
+      // setDiscountType(type);
+      // setDiscountValue && setDiscountValue(value);
+      // setDiscountRate && setDiscountRate(rate);
       if (coupon) {
         handleApplyCoupon(coupon);
       }
@@ -1474,16 +1504,24 @@ function OrderCreateProduct(props: PropType) {
           />
         )}
         {setDiscountValue && setDiscountRate && (
-          <PickDiscountModal
-            amount={amount}
-            type={discountType}
-            value={discountValue}
-            rate={discountRate}
-            coupon={coupon}
-            onCancel={onCancelDiscountConfirm}
-            onOk={onOkDiscountConfirm}
-            visible={isVisiblePickDiscount}
-          />
+          <React.Fragment>
+            <PickDiscountModal
+              amount={amount}
+              type={discountType}
+              value={discountValue}
+              rate={discountRate}
+              // coupon={coupon}
+              onCancelDiscountModal={onCancelDiscountConfirm}
+              onOkDiscountModal={onOkDiscountConfirm}
+              visible={isVisiblePickDiscount}
+            />
+            <PickCouponModal
+              coupon={coupon}
+              onCancelCouponModal={onCancelCouponConfirm}
+              onOkCouponModal={onOkCouponConfirm}
+              visible={isVisiblePickCoupon}
+            />
+          </React.Fragment>
         )}
         <InventoryModal
           isModalVisible={isInventoryModalVisible}

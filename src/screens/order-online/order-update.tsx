@@ -59,7 +59,7 @@ import {
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
-  ShipmentRequest 
+  ShipmentRequest
 } from "model/request/order.request";
 import {
   CustomerResponse,
@@ -70,13 +70,12 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderConfig,
-  OrderResponse,
+  FulFillmentResponse, OrderResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -170,7 +169,7 @@ export default function Order(props: PropType) {
 
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
-  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+  const [configOrder, setConfigOrder] = useState<OrderConfigResponseModel | null>(null);
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(true);
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -1094,7 +1093,7 @@ export default function Order(props: PropType) {
 
   useEffect(() => {
     dispatch(
-      configOrderSaga((data: OrderConfig) => {
+      configOrderSaga((data) => {
         setConfigOrder(data);
       })
     );
@@ -1180,7 +1179,7 @@ export default function Order(props: PropType) {
                     changeInfo={onChangeInfoProduct}
                     selectStore={onStoreSelect}
                     storeId={storeId}
-                    shippingFeeCustomer={shippingFeeInformedToCustomer}
+                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                     setItemGift={setItemGifts}
                     formRef={formRef}
                     items={items}
@@ -1198,6 +1197,7 @@ export default function Order(props: PropType) {
                     isSplitOrder={checkIfOrderCanBeSplit}
                     orderDetail={OrderDetail}
                     fetchData={fetchData}
+                    orderConfig={configOrder}
                   />
 
                   {OrderDetail !== null &&
@@ -1722,7 +1722,7 @@ export default function Order(props: PropType) {
                             fulfillment.shipment && (
                               <div
                                 key={fulfillment.id}
-                                style={{paddingTop: 6, paddingBottom: 4}}
+                                style={{marginTop: -12}}
                               >
                                 <Collapse
                                   className="saleorder_shipment_order_colapse payment_success"
