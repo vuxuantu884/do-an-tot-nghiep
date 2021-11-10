@@ -1,4 +1,3 @@
-import { getVariantApi } from './../../../../service/product/product.service';
 import { PromoCodeResponse } from 'model/response/promotion/promo-code/list-promo-code.response';
 import { 
   checkPromoCode,

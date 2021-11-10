@@ -31,8 +31,6 @@ import {showError, showSuccess} from "../../../utils/ToastUtils";
 import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
 import { PROMO_TYPE } from "utils/Constants";
 import { STATUS_CODE, ACTIONS_DISCOUNT } from "../constant";
-import { getListChannelRequest } from "domain/actions/order/order.action";
-import { ChannelResponse } from "model/response/product/channel.response";
 
 
 const DiscountPage = () => {
@@ -87,7 +85,7 @@ const DiscountPage = () => {
     dispatch(actionFetchListCustomerGroup({},
       (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
     ))
-  }, []);
+  }, [dispatch, fetchData, params]);
 
   useEffect(() => {
     setTableLoading(true)

@@ -2,7 +2,7 @@ import {
   Card, Col, Row,
   Form, Switch, Space, Select,
   DatePicker, Divider, Checkbox,
-  TimePicker, Input, Table, Button, InputNumber,
+  TimePicker, Input, Table, InputNumber,
 } from "antd";
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import ChooseDiscount from "./choose-discount.create";
@@ -13,16 +13,13 @@ import ProductItem from "screens/purchase-order/component/product-item";
 import UrlConfig from "config/url.config";
 import "../promo-code.scss"
 import { useDispatch } from "react-redux";
-import { AiOutlineClose } from "react-icons/ai";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link } from "react-router-dom";
-import {formatCurrency} from "../../../../utils/AppUtils";
-import {CloseCircleOutlined, CloseOutlined} from "@ant-design/icons";
+import { CloseOutlined} from "@ant-design/icons";
 import moment from "moment";
 
-const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option
 

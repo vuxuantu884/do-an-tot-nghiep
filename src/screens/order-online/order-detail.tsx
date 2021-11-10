@@ -96,8 +96,6 @@ const OrderDetail = (props: PropType) => {
     useState<number>(0);
   // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [totalPaid, setTotalPaid] = useState<number>(0);
-  console.log('totalPaid', totalPaid)
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
@@ -816,7 +814,7 @@ const OrderDetail = (props: PropType) => {
                                       setVisibleUpdatePayment={setVisibleUpdatePayment}
                                       setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                                       setPayments={onPayments}
-                                      setTotalPaid={setTotalPaid}
+                                      // setTotalPaid={setTotalPaid}
                                       orderDetail={OrderDetail}
                                       paymentMethod={paymentMethod}
                                       shipmentMethod={shipmentMethod}
@@ -1099,7 +1097,7 @@ const OrderDetail = (props: PropType) => {
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
                       showPartialPayment={false}
-                      setTotalPaid={setTotalPaid}
+                      // setTotalPaid={setTotalPaid}
                       isVisibleUpdatePayment={isVisibleUpdatePayment}
                       setVisibleUpdatePayment={setVisibleUpdatePayment}
                       disabled={
