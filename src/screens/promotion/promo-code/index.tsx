@@ -63,7 +63,7 @@ const PromotionCode = () => {
     dispatch(hideLoading());
     setDataSource(data);
     setTableLoading(false);
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(showLoading());

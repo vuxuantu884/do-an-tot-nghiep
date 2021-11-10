@@ -33,7 +33,7 @@ const FixedPriceGroup = (props: any) => {
   const [selectedProduct, setSelectedProduct] = useState<Array<VariantResponse>>([])
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [discountType, setDiscountType] = useState("FIXED_AMOUNT")
-  const [minQuantityWarning, setMinQuantityWarning] = useState(false)
+  const [minQuantityWarning] = useState(false)
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const onResultSearch = useCallback(

@@ -33,7 +33,6 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
 import Countdown from "react-countdown";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import CreatePromoCodeStep from "./components/create-promo-code-step";
 
 export interface ProductParams {
   id: string;
@@ -135,27 +134,37 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   const query = useQuery();
-  let dataQuery: any = {
+  const [dataQuery] = useState<any>({
     ...{
       request: "",
       state: ""
     },
     ...getQueryParams(query)
-  }
+  });
 
   useEffect(() => {
     dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
-  }, [dispatch, checkIsHasPromo, idNumber]);
+  }, [dispatch, checkIsHasPromo, idNumber, dataQuery]);
 
   const onActivate = () => {
     dispatch(showLoading());
     dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
   }
 
+  // section handle call api GET DETAIL
+  const onResult = useCallback((result: DiscountResponse | false) => {
+    setLoading(false);
+    if (!result) {
+      setError(true);
+    } else {
+      setData(result);
+    }
+  }, []);
+
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
     dispatch(promoGetDetail(idNumber, onResult));
-  }, []);
+  }, [dispatch, idNumber, onResult]);
 
   // section DELETE by Id
   function onDelete() {
@@ -173,15 +182,7 @@ const PromotionDetailScreen: React.FC = () => {
     // TO DO
   }, []);
 
-  // section handle call api GET DETAIL
-  const onResult = useCallback((result: DiscountResponse | false) => {
-    setLoading(false);
-    if (!result) {
-      setError(true);
-    } else {
-      setData(result);
-    }
-  }, []);
+  
   useEffect(() => {
     dispatch(promoGetDetail(idNumber, onResult));
     return () => {};
@@ -304,7 +305,7 @@ const PromotionDetailScreen: React.FC = () => {
       showSuccess("Thêm thành công");
       dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
     }
-  }, [dispatch, idNumber, checkIsHasPromo]);
+  }, [dispatch, idNumber, dataQuery, checkIsHasPromo]);
 
   const renderStatus = (data: DiscountResponse) => {
     const status = promoStatuses.find(status => status.code === data.state);

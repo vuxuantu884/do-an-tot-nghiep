@@ -4,7 +4,7 @@ import UrlConfig from "../../../config/url.config";
 import arrowLeft from "../../../assets/icon/arrow-left.svg";
 import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
-import {Button, Col, Form, Row, Steps} from "antd";
+import {Button, Col, Form, Row} from "antd";
 import { useHistory } from "react-router-dom";
 import { showSuccess } from "../../../utils/ToastUtils";
 import { useDispatch } from "react-redux";
@@ -17,9 +17,6 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { ChannelResponse } from "model/response/product/channel.response";
-import CreateBillStep from "../../../component/header/create-bill-step";
-import CreatePromoCodeStep from "./components/create-promo-code-step";
-const { Step } = Steps;
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
