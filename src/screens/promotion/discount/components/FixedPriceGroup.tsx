@@ -5,7 +5,9 @@ import PickManyProductModal from "../../../purchase-order/modal/pick-many-produc
 import {searchVariantsRequestAction} from "../../../../domain/actions/product/products.action";
 import {useDispatch} from "react-redux";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {VariantResponse} from "../../../../model/product/product.model";
+import {
+  VariantResponse,
+} from "../../../../model/product/product.model";
 import ProductItem from "../../../purchase-order/component/product-item";
 import NumberInput from "../../../../component/custom/number-input.custom";
 import {RiInformationLine} from "react-icons/ri";
@@ -23,17 +25,15 @@ const FixedPriceGroup = (props: any) => {
     name,
     form,
     remove,
-    isFirst,
     allProducts,
     discountMethod
   } = props;
   const dispatch = useDispatch();
 
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Array<VariantResponse>>([])
+  const [selectedProduct, setSelectedProduct] = useState<Array<any>>([])
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [discountType, setDiscountType] = useState("FIXED_AMOUNT")
-  const [minQuantityWarning, setMinQuantityWarning] = useState(false)
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const onResultSearch = useCallback(
@@ -46,6 +46,34 @@ const FixedPriceGroup = (props: any) => {
     },
     []
   );
+
+
+
+  useEffect(() => {
+    const formEntitlements = form.getFieldValue('entitlements');
+    const initVariants = formEntitlements[name]?.variants;
+    if (initVariants && initVariants.length > 0) {
+      initVariants.forEach((variant:any) => {
+        const product = transformVariant(variant);
+        selectedProduct.push(product);
+        setSelectedProduct([...selectedProduct])
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+  }, [selectedProduct, form])
+
+  const transformVariant = (item: any) => ({
+    name: item.variant_title,
+      on_hand: item.quantity,
+      sku:item.sku,
+      product_id: '',
+      variant_prices:[{
+      import_price: item.price
+    }],
+      variant_id: item.variant_id,
+  })
 
   const onSearch = useCallback(
     (value: string) => {
@@ -69,17 +97,18 @@ const FixedPriceGroup = (props: any) => {
   );
 
   useEffect(() => {
+    console.log('useEffect - selectedProduct')
     let entitlementFields = form.getFieldValue('entitlements')
-    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)})
+    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.variant_id)})
     form.setFieldsValue({entitlements: entitlementFields})
   }, [form, name, selectedProduct])
 
-  useEffect(() => {
-    let entitlementFields = form.getFieldValue('entitlements')
-    entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
-    console.log('discountType: ', discountType)
-    form.setFieldsValue({entitlements: entitlementFields})
-  }, [discountType, form, name])
+  // useEffect(() => {
+  //   let entitlementFields = form.getFieldValue('entitlements')
+  //   entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
+  //   console.log('discountType: ', discountType)
+  //   form.setFieldsValue({entitlements: entitlementFields})
+  // }, [discountType, form, name])
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -107,7 +136,7 @@ const FixedPriceGroup = (props: any) => {
     (items: Array<VariantResponse>) => {
       if (items.length) {
         setSelectedProduct([...selectedProduct, ...items])
-        form.setFieldsValue({[`${name}.entitled_variant_ids`]: selectedProduct.map(p => p.id)})
+        // form.setFieldsValue({[`${name}.entitled_variant_ids`]: selectedProduct.map(p => p.id)})
       }
       setVisibleManyProduct(false);
     },
@@ -128,8 +157,6 @@ const FixedPriceGroup = (props: any) => {
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
-            validateStatus={minQuantityWarning ? "warning" : "success"}
-            help={minQuantityWarning ? "SL tối thiểu nên nhỏ hơn Giới hạn và Số lượng áp dụng" : ""}
             name={[name, "prerequisite_quantity_ranges.greater_than_or_equal_to"]}
             label={<Space>
               <span>SL tối thiểu</span>
@@ -139,7 +166,6 @@ const FixedPriceGroup = (props: any) => {
             </Space>}
             rules={[
               {required: true, message: "Cần nhập số lượng tối thiểu"},
-
             ]}
           >
             <NumberInput key={`${key}-min`} min={0}/>
@@ -186,7 +212,7 @@ const FixedPriceGroup = (props: any) => {
                   setDiscountType(value)
                 }}
               >
-                {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
+                <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option>
                 <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
               </Select>
             </Form.Item>
@@ -287,7 +313,7 @@ const FixedPriceGroup = (props: any) => {
             pagination={false}
           />
         </Form.Item>
-        {isFirst ? "" : <Row gutter={16} style={{paddingTop: "16px"}}>
+        {form.getFieldValue("entitlements")?.length <= 1 ? "" : <Row gutter={16} style={{paddingTop: "16px"}}>
           <Col span={24}>
             <Button
               icon={<DeleteOutlined/>}

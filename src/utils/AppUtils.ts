@@ -957,3 +957,31 @@ export const scrollAndFocusToDomElement = (element?: HTMLElement) => {
   const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
   window.scrollTo({top: y, behavior: "smooth"});
 };
+
+export const customGroupBy = (array:any, groupBy:any) => {
+  let groups = {};
+  array.forEach((o: any) => {
+    const group:string = groupBy.map((e: any) => `{"${e}": "${o[e]}"}`);
+    // @ts-ignore
+    groups[group] = groups[group] || [];
+    const e = Object.assign({}, o);
+    groupBy.forEach((g:string) => {
+      // @ts-ignore
+      groups[group][g] = e[g];
+      delete e[g];
+    })
+    // @ts-ignore
+    groups[group].push(e);
+  });
+  return Object.keys(groups).map((group) => {
+    // @ts-ignore
+    const r = {variants: groups[group]};
+    groupBy.forEach((b: string) => {
+      // @ts-ignore
+      r[b] = groups[group][b];
+      // @ts-ignore
+      delete groups[group][b]
+    })
+    return r;
+  });
+};
