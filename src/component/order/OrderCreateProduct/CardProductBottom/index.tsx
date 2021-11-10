@@ -1,4 +1,4 @@
-import { Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
@@ -18,6 +18,7 @@ type PropType = {
   showDiscountModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
+  setIsAutomaticDiscount: (value: boolean) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -31,7 +32,7 @@ type PropType = {
 
 function CardProductBottom(props: PropType) {
   const {
-    // levelOrder = 0,
+    levelOrder = 0,
     totalAmountOrder,
     items,
     discountRate,
@@ -46,6 +47,7 @@ function CardProductBottom(props: PropType) {
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
+    setIsAutomaticDiscount,
   } = props;
 
   return (
@@ -53,9 +55,9 @@ function CardProductBottom(props: PropType) {
       <Row gutter={24}>
         <Col xs={24} lg={11}>
           <div className="optionRow">
-            {/* <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsAutomaticDiscount(e.target.value)}>
               Bỏ chiết khấu tự động
-            </Checkbox> */}
+            </Checkbox>
           </div>
         </Col>
         <Col xs={24} lg={10}>

@@ -51,7 +51,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
     }
   };
 
-  const onchangeCounpon = (e: any) => {
+  const onchangeCoupon = (e: any) => {
     setCoupon(e.target.value);
   };
   const handleEnterToSubmit = (key: any) => {
@@ -109,7 +109,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
               onFocus={(e) => e.target.select()}
               style={{ width: "99%" }}
               value={_coupon}
-              onChange={onchangeCounpon}
+              onChange={onchangeCoupon}
             />
           </Form.Item>
         </div>
