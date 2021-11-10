@@ -59,9 +59,6 @@ const FixedPriceGroup = (props: any) => {
     }
   }, []);
 
-  useEffect(() => {
-  }, [selectedProduct, form]);
-
   const transformVariant = (item: any) => ({
     name: item.variant_title,
     on_hand: item.quantity,
@@ -95,7 +92,6 @@ const FixedPriceGroup = (props: any) => {
   );
 
   useEffect(() => {
-    console.log("useEffect - selectedProduct");
     let entitlementFields = form.getFieldValue("entitlements");
     entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.variant_id)});
     form.setFieldsValue({entitlements: entitlementFields});
@@ -123,7 +119,6 @@ const FixedPriceGroup = (props: any) => {
       if (selectedItem) {
         setSelectedProduct([selectedItem].concat(selectedProduct));
       }
-      // setData([]);
     },
     [data, selectedProduct],
   );

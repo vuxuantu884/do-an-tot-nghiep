@@ -108,7 +108,8 @@ const csvColumnMapping: any = {
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",
-  sku_duplicate: "Đã tồn tại"
+  ALREADY_EXIST: "Đã tồn tại",
+  DUPLICATE: "Mã đã bị trùng trong file",
 };
 
 const PromotionDetailScreen: React.FC = () => {
@@ -358,7 +359,6 @@ const PromotionDetailScreen: React.FC = () => {
           name: "Chiết khấu",
         },
       ]}
-      // extra={<CreatePromoCodeStep step={1} />}
     >
       {data !== null && (
         <React.Fragment>
@@ -729,7 +729,14 @@ const PromotionDetailScreen: React.FC = () => {
         visible={showImportFile}
         title="Nhập file khuyến mại"
         footer={[
-          <Button key="back" onClick={() => setShowImportFile(false)}>
+          <Button key="back" onClick={() => {
+            setSuccessCount(0)
+            setSuccessCount(0)
+            setUploadStatus(undefined);
+            setShowImportFile(false)}
+          }
+
+          >
             Huỷ
           </Button>,
 
@@ -737,6 +744,9 @@ const PromotionDetailScreen: React.FC = () => {
             key="link"
             type="primary"
             onClick={() => {
+              setSuccessCount(0)
+              setSuccessCount(0)
+              setUploadStatus(undefined);
               dispatch(promoGetDetail(id, onResult));
               setShowImportFile(false)
             }}

@@ -297,10 +297,7 @@ const DiscountPage = () => {
           />
           <CustomTable
             selectedRowKey={selectedRowKey}
-            onChangeRowKey={(rowKey) => {
-              console.log('CustomTable: ', rowKey)
-              setSelectedRowKey(rowKey)
-            }}
+            onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey) }
             isRowSelection
             isLoading={tableLoading}
             sticky={{offsetScroll: 5}}

@@ -32,7 +32,6 @@ const CreateDiscountPage = () => {
   }, [dispatch]);
 
   const transformData = (values: any) => {
-    console.log("transformData: ", values);
     let body: any = {};
     body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;

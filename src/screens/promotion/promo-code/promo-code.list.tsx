@@ -65,7 +65,9 @@ const csvColumnMapping: any = {
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",
-  sku_duplicate: "Đã tồn tại"
+  sku_duplicate: "Đã tồn tại",
+  ALREADY_EXIST: "Đã tồn tại",
+  DUPLICATE: "Mã đã bị trùng trong file",
 };
 
 const ListCode = () => {
@@ -161,7 +163,7 @@ const ListCode = () => {
         values.disabled = true;
         values.published = false;
         break;
-      case 'GIFTED': 
+      case 'GIFTED':
         values.disabled = false;
         values.published = true;
         break;
@@ -175,7 +177,6 @@ const ListCode = () => {
     }
     delete newParams['state'];
     delete newParams['query'];
-    console.log("newParams", newParams);
     setParams(newParams)
   }, [params])
 
@@ -355,15 +356,15 @@ const ListCode = () => {
         case 1:
           dispatch(publishedBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
-        case 2: 
+        case 2:
           dispatch(showLoading());
           dispatch(enableBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
-        case 3: 
+        case 3:
           dispatch(showLoading());
           dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
-        case 4: 
+        case 4:
           dispatch(showLoading());
           dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
