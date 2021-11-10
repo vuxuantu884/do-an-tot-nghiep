@@ -1,3 +1,5 @@
+import { createRef, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   Input,
   Form,
@@ -8,10 +10,14 @@ import {
   Card,
   Space,
   Switch,
+  AutoComplete,
 } from "antd";
+import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "./customInput";
 import "moment/locale/vi";
+import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
+import { SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const GeneralInformation = (props: any) => {
@@ -26,6 +32,76 @@ const GeneralInformation = (props: any) => {
     isEdit,
     AccountChangeSearch,
   } = props;
+
+  const dispatch = useDispatch();
+  
+  const autoCompleteRef = createRef<RefSelectProps>();
+  
+  const [keySearchCard, setKeySearchCard] = useState("");
+  const [isInputSearchCardFocus, setIsInputSearchCardFocus] = useState(false);
+
+  const [resultSearchVariant, setResultSearchVariant] = useState<any>(
+    {
+      metadata: {
+        limit: 0,
+        page: 1,
+        total: 0,
+      },
+      items: [],
+    }
+  );
+  
+  const customerCardParams = {
+    status: "ACTIVE",
+    card_number: "",
+  }
+
+
+  const onSelectCard = (cardSelected: any) => {
+    setIsInputSearchCardFocus(false);
+    autoCompleteRef.current?.blur();
+  };
+
+  const updateLoyaltyCard = (result: any) => {
+    setResultSearchVariant(result);
+  };
+
+  const onChangeCardSearch = (value: string) => {
+    setKeySearchCard(value);
+    if (value && Number(value) && value.length >= 3) {
+      customerCardParams.card_number = value;
+      dispatch(LoyaltyCardSearch(customerCardParams, updateLoyaltyCard));
+    }
+  };
+
+  const convertResultSearchCard = useMemo(() => {
+    let options: any[] = [];
+    resultSearchVariant.items.forEach(
+      (item: any, index: number) => {
+        options.push({
+          label: item.card_number,
+          value: item.card_number,
+        });
+      }
+    );
+    return options;
+  }, [resultSearchVariant]);
+
+  const onInputSearchCardFocus = () => {
+    setIsInputSearchCardFocus(true);
+  };
+
+  const onInputSearchCardBlur = () => {
+    setIsInputSearchCardFocus(false);
+  };
+
+  const getNotFoundContent = () => {
+    let content = undefined;
+    if (Number(keySearchCard) && keySearchCard.length >= 3) {
+      content = "Không tìm thấy thẻ khách hàng";
+    }
+    return content;
+  };
 
   const handleDateChange = (e: any) => {};
   return (
@@ -84,7 +160,29 @@ const GeneralInformation = (props: any) => {
                   },
                 ]}
               >
-                <Input maxLength={255} placeholder="Nhập thẻ khách hàng" />
+                <AutoComplete
+                  notFoundContent={getNotFoundContent()}
+                  id="search_card"
+                  value={keySearchCard}
+                  ref={autoCompleteRef}
+                  onSelect={onSelectCard}
+                  dropdownClassName="search-layout dropdown-search-header"
+                  dropdownMatchSelectWidth={360}
+                  onSearch={onChangeCardSearch}
+                  options={convertResultSearchCard}
+                  maxLength={255}
+                  open={isInputSearchCardFocus}
+                  onFocus={onInputSearchCardFocus}
+                  onBlur={onInputSearchCardBlur}
+                  dropdownRender={(menu) => <div style={{padding: 10}}>{menu}</div>}
+                >
+                  <Input
+                    maxLength={255}
+                    placeholder="Nhập thẻ khách hàng"
+                    prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                    allowClear
+                  />
+                </AutoComplete>
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -391,3 +489,4 @@ const GeneralInformation = (props: any) => {
 };
 
 export default GeneralInformation;
+
