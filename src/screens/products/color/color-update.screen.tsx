@@ -23,6 +23,8 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import ColorUpload from "./color-upload.component";
 import { RegUtil } from "utils/RegUtils";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
 
 const { Option } = Select;
 type ColorParams = {
@@ -194,9 +196,11 @@ const ColorUpdateScreen: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
+              <AuthWrapper acceptPermissions={[ProductPermission.colors_update]}> 
               <Button htmlType="submit" type="primary">
                 Lưu
               </Button>
+              </AuthWrapper>
             </Space>
           </div>
         </Form>

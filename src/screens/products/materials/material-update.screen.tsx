@@ -1,5 +1,7 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Space } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {
   detailMaterialAction,
@@ -130,11 +132,7 @@ const UpdateMaterial: React.FC = () => {
                   labelAlign="right"
                   label="Mã chất liệu:"
                 >
-                  <Input
-                    placeholder="Nhập mã chất liệu"
-                    size="large"
-                    maxLength={5}
-                  />
+                  <Input placeholder="Nhập mã chất liệu" size="large" maxLength={5} />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -160,10 +158,7 @@ const UpdateMaterial: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  rules={[
-                    { max: 50, message: "Thành phần không quá 50 kí tự" },
-                    { max: 50 },
-                  ]}
+                  rules={[{max: 50, message: "Thành phần không quá 50 kí tự"}, {max: 50}]}
                   name="component"
                   label="Thành phần:"
                 >
@@ -181,23 +176,19 @@ const UpdateMaterial: React.FC = () => {
                   name="preserve"
                   label="Thông tin bảo quản:"
                 >
-                  <Input
-                    size="large"
-                    maxLength={150}
-                    placeholder="Thông tin bảo quản"
-                  />
+                  <Input size="large" maxLength={150} placeholder="Thông tin bảo quản" />
                 </Form.Item>
               </Col>
             </Row>
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  rules={[{ max: 150, message: "Ưu điểm không quá 150 kí tự" }]}
+                  rules={[{max: 150, message: "Ưu điểm không quá 150 kí tự"}]}
                   name="advantages"
                   label="Ưu điểm:"
                 >
                   <Input.TextArea
-                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    autoSize={{minRows: 3, maxRows: 5}}
                     maxLength={150}
                     placeholder="Ưu điểm"
                   />
@@ -205,14 +196,12 @@ const UpdateMaterial: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  rules={[
-                    { max: 150, message: "Nhược điểm không quá 150 kí tự" },
-                  ]}
+                  rules={[{max: 150, message: "Nhược điểm không quá 150 kí tự"}]}
                   name="defect"
                   label="Nhược điểm:"
                 >
                   <Input.TextArea
-                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    autoSize={{minRows: 3, maxRows: 5}}
                     maxLength={150}
                     placeholder="Nhược điểm"
                   />
@@ -222,12 +211,12 @@ const UpdateMaterial: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={16}>
                 <Form.Item
-                  rules={[{ max: 250, message: "Ghi chú không quá 150 kí tự" }]}
+                  rules={[{max: 250, message: "Ghi chú không quá 150 kí tự"}]}
                   name="description"
                   label="Ghi chú:"
                 >
                   <Input.TextArea
-                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    autoSize={{minRows: 3, maxRows: 5}}
                     maxLength={250}
                     placeholder="Nhập ghi chú"
                   />
@@ -238,14 +227,16 @@ const UpdateMaterial: React.FC = () => {
               </Col>
             </Row>
           </Card>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
+          <div className="margin-top-10" style={{textAlign: "right"}}>
             <Space size={12}>
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button loading={loading} htmlType="submit" type="primary">
-                Lưu
-              </Button>
+              <AuthWrapper acceptPermissions={[ProductPermission.materials_update]}>
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Lưu
+                </Button>
+              </AuthWrapper>
             </Space>
           </div>
         </Form>
