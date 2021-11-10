@@ -1383,7 +1383,7 @@ function OrderCreateProduct(props: PropType) {
             showDiscountModal={ShowDiscountModal}
             totalAmountOrder={amount}
             items={items}
-            shippingFeeInformedToCustomer={0}
+            shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
           />
