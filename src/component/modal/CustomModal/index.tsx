@@ -39,8 +39,11 @@ const CustomModal = (props: CustomModalType) => {
       setIsShowConfirmDelete(false);
     },
     edit: () => {
-      setVisibleForm(false);
-      onEdit(form.getFieldsValue());
+      form.validateFields().then(()=> {
+        setVisibleForm(false);
+        onEdit(form.getFieldsValue());
+        
+      })
     },
   };
 

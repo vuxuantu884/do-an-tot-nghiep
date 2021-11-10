@@ -54,6 +54,10 @@ const subtractLoyaltyPoint = (customerId: number, params: UpdateLoyaltyPoint, se
   return BaseAction(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, { customerId, params, setData, onError });
 }
 
+const getLoyaltyAdjustPointAction = (customerId: number, setData: (data: any) => void, onError: () => void) => {
+  return BaseAction(LoyaltyPointsType.GET_LOYALTY_ADJUST_POINT, { customerId, setData, onError });
+}
+
 export {
   createLoyaltyAccumulationProgram,
   getLoyaltyAccumulationProgram,
@@ -65,5 +69,6 @@ export {
   getListLoyaltyAccumulationProgram,
   getLoyaltyPoint,
   addLoyaltyPoint,
-  subtractLoyaltyPoint
+  subtractLoyaltyPoint,
+  getLoyaltyAdjustPointAction
 };

@@ -815,7 +815,7 @@ function OrderCreateProduct(props: PropType) {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(singleItem => singleItem.variant_id === item.variant_id).length : item.quantity;
     try {
-      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}]);
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
       setLoadingAutomaticDiscount(false)
       if (item && checkingDiscountResponse &&
         checkingDiscountResponse.code === 20000000 &&

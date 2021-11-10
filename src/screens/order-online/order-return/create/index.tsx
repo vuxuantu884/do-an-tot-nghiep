@@ -34,6 +34,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  OrderLineItemResponse,
   OrderResponse,
   OrderReturnReasonModel,
   ReturnProductModel,
@@ -44,7 +45,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { getAmountPaymentRequest, getTotalAmountAfferDiscount } from "utils/AppUtils";
+import { checkIfOrderHasReturnedAll, getAmountPaymentRequest, getListItemsCanReturn, getTotalAmountAfferDiscount } from "utils/AppUtils";
 import {
   FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
@@ -76,7 +77,7 @@ let order_return_id: number = 0;
 const ScreenReturnCreate = (props: PropType) => {
   const [form] = Form.useForm();
   const [isError, setError] = useState(false);
-  const [isCanReturnOrExchange, setIsCanReturnOrExchange] = useState(false);
+  const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
   const [isErrorExchange, setIsErrorExchange] = useState(false);
@@ -106,6 +107,7 @@ const ScreenReturnCreate = (props: PropType) => {
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
+  const [listItemCanBeReturn, setListItemCanBeReturn] = useState<OrderLineItemResponse[]>([]);
 
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
@@ -234,10 +236,12 @@ const ScreenReturnCreate = (props: PropType) => {
   }, [totalAmountExchangePlusShippingFee, totalAmountReturnProducts]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
+    console.log('1')
     setIsFetchData(true);
     if (!data) {
       setError(true);
     } else {
+      console.log('2')
       const _data = { ...data };
       _data.fulfillments = _data.fulfillments?.filter(
         (f) =>
@@ -249,15 +253,18 @@ const ScreenReturnCreate = (props: PropType) => {
       const returnCondition =
         _data.status === OrderStatus.FINISHED || _data.status === OrderStatus.COMPLETED;
       if (returnCondition) {
-        setIsCanReturnOrExchange(true);
+        setIsOrderFinished(true);
       }
-      let returnProduct: ReturnProductModel[] = _data.items.map((single) => {
+      let listItemCanReturn = getListItemsCanReturn(_data);
+      setListItemCanBeReturn(listItemCanReturn);
+      let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
         return {
           ...single,
           maxQuantity: single.quantity,
           quantity: 0,
         };
       });
+      console.log('returnProduct', returnProduct)
       setListReturnProducts(returnProduct);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
@@ -838,6 +845,7 @@ const ScreenReturnCreate = (props: PropType) => {
   const createOrderReturnContextData = {
     orderDetail: OrderDetail,
     return: {
+      listItemCanBeReturn,
       listReturnProducts,
       setListReturnProducts,
       setTotalAmountReturnProducts,
@@ -851,11 +859,17 @@ const ScreenReturnCreate = (props: PropType) => {
     isStepExchange,
   };
 
-  const renderIfCannotReturn = () => {
-    return <div>Đơn hàng không thể đổi trả!</div>;
+  const renderIfOrderNotFinished = () => {
+    return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
   };
-
-  const renderIfCanReturn = () => {
+  
+  const renderIfOrderFinished = () => {
+   
+    if(checkIfOrderHasReturnedAll(OrderDetail)) {
+      return (
+        <p>Đơn hàng đã đổi trả hết!</p>
+      )
+    }
     return (
       <React.Fragment>
         <div className="orders">
@@ -1133,9 +1147,9 @@ const ScreenReturnCreate = (props: PropType) => {
       >
         {!isFetchData
           ? "Loading ..."
-          : isCanReturnOrExchange
-          ? renderIfCanReturn()
-          : renderIfCannotReturn()}
+          : isOrderFinished
+          ? renderIfOrderFinished()
+          : renderIfOrderNotFinished()}
       </ContentContainer>
     </CreateOrderReturnContext.Provider>
   );

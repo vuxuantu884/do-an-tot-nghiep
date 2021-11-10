@@ -8,3 +8,29 @@ export const CustomerListPermissions = {
   EXPORT_CUSTOMER: "customers_export",
   UPDATE_CUSTOMER: "customers_update",
 };
+
+export const CustomerGroupPermissions = {
+  CREATE: "customers_group_create",
+  VIEW: "customers_group_view",
+  UPDATE: "customers_group_update",
+  DELETE: "customers_group_delete",
+};
+
+export const CustomerLevelPermissions = {
+  CREATE: "customers_level_create",
+  VIEW: "customers_level_view",
+  UPDATE: "customers_level_update",
+  DELETE: "customers_level_delete",
+}
+
+export const PointAdjustmentPermissions = {
+  CREATE: "loyalties_point_update",
+};
+
+export const CustomerCardPermissions = {
+  CREATE_RELEASE: "loyalties_card_release",
+  VIEW_RELEASE: "loyalties_card_release_list",
+  VIEW_CARD: "loyalties_card_list",
+  ASSIGN: "loyalties_card_assignment",
+  LOCK: "loyalties_card_lock",
+};

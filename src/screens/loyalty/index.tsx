@@ -19,8 +19,27 @@ import { BaseQuery } from 'model/base/base.query'
 import moment from 'moment'
 import { DATE_FORMAT } from 'utils/DateUtils'
 import { PlusOutlined } from '@ant-design/icons'
+import useAuthorization from 'hook/useAuthorization'
+import { LoyaltyPermissions } from 'config/permissions/loyalty.permission'
+import NoPermission from 'screens/no-permission.screen'
+
+
+const configLoyaltyPermission = [LoyaltyPermissions.CONFIG_LOYALTY];
+const viewProgramListPermission = [LoyaltyPermissions.VIEW_PROGRAM_LIST];
+const updateProgramPermission = [LoyaltyPermissions.UPDATE_PROGRAM];
 
 const LoyaltyPage = () => {
+
+  const [allowConfigLoyalty] = useAuthorization({
+    acceptPermissions: configLoyaltyPermission,
+    not: false,
+  });
+
+  const [allowViewProgramList] = useAuthorization({
+    acceptPermissions: viewProgramListPermission,
+    not: false,
+  });
+
   const [accumulationRate, setAccumulationRate] = useState<number>(0)
   const [redemptionRate, setRedemptionRate] = useState<number>(0)
   const [enableUsingPoint, setEnableUsingPoint] = useState<boolean>(false)
@@ -41,6 +60,57 @@ const LoyaltyPage = () => {
     sort_column: 'id',
     sort_type: 'desc'
   });
+
+  const RenderActionColumn = (value: any, row: any, index: number) => {
+    const [allowUpdateProgram] = useAuthorization({
+      acceptPermissions: updateProgramPermission,
+      not: false,
+    });
+
+    const isShowAction = allowUpdateProgram;
+    
+    const menu = (
+      <Menu>
+        {allowUpdateProgram &&
+          <Menu.Item key="1">
+          <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${value.id}/update`}>
+            <Button
+              icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
+              type="text"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
+            >
+              Chỉnh sửa
+            </Button>
+          </Link>
+          </Menu.Item>
+        }
+      </Menu>
+    );
+
+    return (
+      <>
+        {isShowAction &&
+          <Dropdown
+            overlay={menu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              icon={<img src={threeDot} alt=""></img>}
+            ></Button>
+          </Dropdown>
+        }
+      </>
+    );
+  }
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -104,53 +174,7 @@ const LoyaltyPage = () => {
       title: "",
       width: "48px",
       visible: true,
-      render: (value: any, i: any) => {
-        const menu = (
-          <Menu>
-            <Menu.Item key="1">
-              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${value.id}/update`}>
-                <Button
-                  icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
-                  type="text"
-                  className=""
-                  style={{
-                    paddingLeft: 24,
-                    background: "transparent",
-                    border: "none",
-                  }}
-                >
-                  Chỉnh sửa
-                </Button>
-              </Link>
-            </Menu.Item>
-          </Menu>
-        );
-        return (
-          <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "0 4px",
-          }}
-        >
-          <div
-            className="action-group"
-          >
-            <Dropdown
-              overlay={menu}
-              trigger={["click"]}
-              placement="bottomRight"
-            >
-              <Button
-                type="text"
-                className="p-0 ant-btn-custom"
-                icon={<img src={threeDot} alt=""></img>}
-              ></Button>
-            </Dropdown>
-          </div>
-        </div>
-        )
-      }
+      render: (value: any, row: any, index: number) => RenderActionColumn(value, row, index)
     }
   ]
 
@@ -253,150 +277,159 @@ const LoyaltyPage = () => {
       ]}
     >
       <div className="loyalty-programs-wrapper">
-        <Card
-          className="global-config"
-          title={
-            <div className="d-flex">
-              <span className="config-title">
-                CÀI ĐẶT CHUNG
-              </span>
-              <div className="status">
-                Trạng thái
-                <Switch
-                  checked={enableUsingPoint}
-                  onChange={(checked: boolean) => setEnableUsingPoint(checked)}
-                />
-                {
-                  enableUsingPoint ? 'Đang hoạt động' : 'Dừng hoạt động'
-                }
-              </div>
-            </div>
-          }
-        >
-          <div className="global-config__body">
-            <Row className="conversion-rate">
-              <Col span={10}>
-                <div className="row-label">Tỷ lệ tích điểm</div>
-                <div className="d-flex">
-                  <CurrencyInput
-                    position="after"
-                    placeholder="Tỷ lệ tích điểm"
-                    currency={['đ']}
-                    value={accumulationRate}
-                    onChange={handleChangeAccumulationRate}
-                    style={{textAlign: 'left'}}
+        {allowConfigLoyalty &&
+          <Card
+            className="global-config"
+            title={
+              <div className="d-flex">
+                <span className="config-title">
+                  CÀI ĐẶT CHUNG
+                </span>
+                <div className="status">
+                  Trạng thái
+                  <Switch
+                    checked={enableUsingPoint}
+                    onChange={(checked: boolean) => setEnableUsingPoint(checked)}
                   />
-                  <span className="conversion-note" style={{marginLeft: '12px'}}>= 1 điểm thưởng</span>
-                </div>
-              </Col>
-              <Col span={14}>
-                <div className="row-label">Tỷ lệ tiêu điểm</div>
-                <div className="d-flex">
-                  <span className="conversion-note" style={{marginRight: '12px'}}>1 điểm thưởng = </span>
-                  <CurrencyInput
-                    position="after"
-                    placeholder="Tỷ lệ tiêu điểm"
-                    currency={['đ']}
-                    value={redemptionRate}
-                    onChange={handleChangeRedemptionRate}
-                    style={{textAlign: 'left'}}
-                  />
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <div className="redemption-rules">
-                <div className="row-label">Cấu hình tiêu điểm</div>
-                <div className="redemption-rules__table">
-                  <table className="rules">
-                    <thead>
-                      <tr>
-                        <th className="condition">Điều kiện</th>
-                        {
-                          rules.map((rule, index) => (
-                            <th className="condition" key={index}>{rule.rank_name}</th>
-                          ))
-                        }
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="condition">Số điểm có thẻ tiêu không quá ... giá trị hóa đơn</td>
-                        {
-                          rules.map((rule, index) => (
-                            <td className="condition" key={index}>
-                              <CurrencyInput
-                                position="before"
-                                currency={['%']}
-                                value={rule.limit_order_percent}
-                                onChangeCurrencyType={(value) => handleChangePointUseType(value, index)}
-                                onChange={(value) => handleChangePointUse(value, index)}
-                              />
-                            </td>
-                          ))
-                        }
-                      </tr>
-                      <tr>
-                        <td className="condition">Không được tiêu điểm cho đơn hàng có chiết khấu </td>
-                        {
-                          rules.map((rule, index) => (
-                            <td className="condition checkbox" key={index}>
-                              <Checkbox
-                                defaultChecked={rule.block_order_have_discount}
-                                onChange={(e) => onChangePreventDiscountOrder(e.target.checked, index)}
-                              />
-                            </td>
-                          ))
-                        }
-                      </tr>
-                    </tbody>
-                  </table>
+                  {
+                    enableUsingPoint ? 'Đang hoạt động' : 'Dừng hoạt động'
+                  }
                 </div>
               </div>
-            </Row>
-            <Row>
-              <Button
-                type="primary"
-                className="save-btn"
-                onClick={onFinish}
-              >
-                Lưu cài đặt
-              </Button>
-            </Row>
-          </div>
-        </Card>
-        <Card
-          title={
-            <div className="d-flex">
-              <span className="tab-label">
-                Danh sách chương trình
-              </span>
-              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
-                <div className="add-new-btn">
-                  <PlusOutlined /> Thêm mới
+            }
+          >
+            <div className="global-config__body">
+              <Row className="conversion-rate">
+                <Col span={10}>
+                  <div className="row-label">Tỷ lệ tích điểm</div>
+                  <div className="d-flex">
+                    <CurrencyInput
+                      position="after"
+                      placeholder="Tỷ lệ tích điểm"
+                      currency={['đ']}
+                      value={accumulationRate}
+                      onChange={handleChangeAccumulationRate}
+                      style={{textAlign: 'left'}}
+                    />
+                    <span className="conversion-note" style={{marginLeft: '12px'}}>= 1 điểm thưởng</span>
+                  </div>
+                </Col>
+                <Col span={14}>
+                  <div className="row-label">Tỷ lệ tiêu điểm</div>
+                  <div className="d-flex">
+                    <span className="conversion-note" style={{marginRight: '12px'}}>1 điểm thưởng = </span>
+                    <CurrencyInput
+                      position="after"
+                      placeholder="Tỷ lệ tiêu điểm"
+                      currency={['đ']}
+                      value={redemptionRate}
+                      onChange={handleChangeRedemptionRate}
+                      style={{textAlign: 'left'}}
+                    />
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <div className="redemption-rules">
+                  <div className="row-label">Cấu hình tiêu điểm</div>
+                  <div className="redemption-rules__table">
+                    <table className="rules">
+                      <thead>
+                        <tr>
+                          <th className="condition">Điều kiện</th>
+                          {
+                            rules.map((rule, index) => (
+                              <th className="condition" key={index}>{rule.rank_name}</th>
+                            ))
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="condition">Số điểm có thẻ tiêu không quá ... giá trị hóa đơn</td>
+                          {
+                            rules.map((rule, index) => (
+                              <td className="condition" key={index}>
+                                <CurrencyInput
+                                  position="before"
+                                  currency={['%']}
+                                  value={rule.limit_order_percent}
+                                  onChangeCurrencyType={(value) => handleChangePointUseType(value, index)}
+                                  onChange={(value) => handleChangePointUse(value, index)}
+                                />
+                              </td>
+                            ))
+                          }
+                        </tr>
+                        <tr>
+                          <td className="condition">Không được tiêu điểm cho đơn hàng có chiết khấu </td>
+                          {
+                            rules.map((rule, index) => (
+                              <td className="condition checkbox" key={index}>
+                                <Checkbox
+                                  defaultChecked={rule.block_order_have_discount}
+                                  onChange={(e) => onChangePreventDiscountOrder(e.target.checked, index)}
+                                />
+                              </td>
+                            ))
+                          }
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </Link>
+              </Row>
+              <Row>
+                <Button
+                  type="primary"
+                  className="save-btn"
+                  onClick={onFinish}
+                >
+                  Lưu cài đặt
+                </Button>
+              </Row>
             </div>
-          }
-        >
-          <div className="loyalty-programs padding-30">
-            <CustomTable
-              isLoading={tableLoading}
-              sticky={{ offsetScroll: 5 }}
-              pagination={{
-                pageSize: loyaltyPrograms.metadata.limit,
-                total: loyaltyPrograms.metadata.total,
-                current: loyaltyPrograms.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              dataSource={loyaltyPrograms.items}
-              columns={columns}
-              rowKey={(item: any) => item.id}
-            />
-          </div>
-        </Card>
+          </Card>
+        }
+        
+        {allowViewProgramList &&
+          <Card
+            title={
+              <div className="d-flex">
+                <span className="tab-label">
+                  Danh sách chương trình
+                </span>
+                <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
+                  <div className="add-new-btn">
+                    <PlusOutlined /> Thêm mới
+                  </div>
+                </Link>
+              </div>
+            }
+          >
+            <div className="loyalty-programs padding-30">
+              <CustomTable
+                isLoading={tableLoading}
+                sticky={{ offsetScroll: 5 }}
+                pagination={{
+                  pageSize: loyaltyPrograms.metadata.limit,
+                  total: loyaltyPrograms.metadata.total,
+                  current: loyaltyPrograms.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                dataSource={loyaltyPrograms.items}
+                columns={columns}
+                rowKey={(item: any) => item.id}
+              />
+            </div>
+          </Card>
+        }
+
+        {!allowConfigLoyalty && !allowViewProgramList &&
+          <NoPermission />
+        }
       </div>
     </ContentContainer>
   )

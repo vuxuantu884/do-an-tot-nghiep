@@ -464,7 +464,7 @@ const ListOrderScreen: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 1600 }}
+          scroll={{ x: 1600 * columnFinal.length/(columns.length ? columns.length : 1)}}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={{
             pageSize: data.metadata.limit,
