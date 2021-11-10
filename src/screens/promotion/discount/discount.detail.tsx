@@ -277,17 +277,17 @@ const PromotionDetailScreen: React.FC = () => {
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
   }, [costType]);
 
-  const renderTotalBill = (cost: number, value: number, valueType: string) => {
+  const renderTotalBill = (cost: number, value: number, discount: number, valueType: string) => {
     let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(value);
         break;
       case "FIXED_AMOUNT":
-        result = `${cost - +formatCurrency(value)}`;
+        result = `${formatCurrency(value - discount)}`;
         break;
       case "PERCENTAGE":
-        result = `${cost - ((cost * value) / 100)}`;
+        result = `${cost - ((cost * discount) / 100)}`;
         break;
     }
     return result;
@@ -312,15 +312,21 @@ const PromotionDetailScreen: React.FC = () => {
   const transformData = (costType: string, discountValue: number, allocationLimit: number, minimum: number) => {
     let result: any[] = [];
     dataVariants.forEach((variant: any) => {
-      result.push({
-        id: variant?.variant_id,
-        title: variant?.variant_title,
-        sku: variant?.sku,
-        cost: variant?.cost,
-        minimum: minimum,
-        allocationLimit: allocationLimit,
-        discountValue: `${renderDiscountValue(discountValue, costType)}`,
-        total: `${renderTotalBill(variant?.cost, discountValue, costType)}`,
+      data?.entitlements.forEach(item => {
+        const isExit = (item.entitled_variant_ids as number[]).includes(variant.variant_id);
+        const value = item.prerequisite_quantity_ranges[0].value;
+        if (isExit) {
+          result.push({
+            id: variant?.variant_id,
+            title: variant?.variant_title,
+            sku: variant?.sku,
+            cost: variant?.cost,
+            minimum: minimum,
+            allocationLimit: allocationLimit,
+            discountValue: `${renderDiscountValue(discountValue, costType)}`,
+            total: `${renderTotalBill(variant?.cost, value, discountValue, costType)}`,
+          })
+        }
       });
     });
     return result;
