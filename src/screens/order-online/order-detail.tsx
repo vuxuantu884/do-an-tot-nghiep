@@ -102,7 +102,7 @@ const OrderDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
-  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>([]);
+  const [reasons, setReasons] = useState<Array<{ id: number; name: string, sub_reasons: any[] }>>([]);
   // đổi hàng
   // const [totalAmountReturnProducts, setTotalAmountReturnProducts] =
   //   useState<number>(0);
@@ -1142,6 +1142,7 @@ const OrderDetail = (props: PropType) => {
                   onReload={() => setReload(true)}
                   disabledActions={disabledActions}
                   disabledBottomActions={disabledBottomActions}
+                  reasons={reasons}
                 />
                 {/*--- end shipment ---*/}
 
