@@ -12,6 +12,12 @@ import ErrorLogs from '../component/error-logs/ErrorLogs';
 import infoIcon from "assets/icon/info.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import './loyalty-cards-release.scss';
+import AuthWrapper from 'component/authorization/AuthWrapper';
+import NoPermission from 'screens/no-permission.screen';
+import { CustomerCardPermissions } from 'config/permissions/customer.permission';
+
+
+const viewCardReleasePermission = [CustomerCardPermissions.VIEW_RELEASE];
 
 const LoyaltyCardRelease = () => {
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -143,32 +149,37 @@ const LoyaltyCardRelease = () => {
   }, [dispatch, fetchData, query]);
 
   return (
-    <div className="loyalty-cards-release">
-      <CustomTable
-        isLoading={tableLoading}
-        sticky={{ offsetScroll: 5 }}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
-        dataSource={data.items}
-        columns={pageColumns}
-        rowKey={(item: any) => item.id}
-      />
-      <ErrorLogs
-        visible={openErrorLogModal}
-        onOk={closeErrorLogModal}
-        okText="Thoát"
-        errors={selectedLoyaltyRelease?.errors}
-        success={selectedLoyaltyRelease?.success || 0}
-        fail={selectedLoyaltyRelease?.fail || 0}
-        onCancel={closeErrorLogModal}
-      />
-    </div>
+    <AuthWrapper acceptPermissions={viewCardReleasePermission} passThrough>
+      {(allowed: boolean) => (allowed ?
+        <div className="loyalty-cards-release">
+          <CustomTable
+            isLoading={tableLoading}
+            sticky={{ offsetScroll: 5 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            dataSource={data.items}
+            columns={pageColumns}
+            rowKey={(item: any) => item.id}
+          />
+          <ErrorLogs
+            visible={openErrorLogModal}
+            onOk={closeErrorLogModal}
+            okText="Thoát"
+            errors={selectedLoyaltyRelease?.errors}
+            success={selectedLoyaltyRelease?.success || 0}
+            fail={selectedLoyaltyRelease?.fail || 0}
+            onCancel={closeErrorLogModal}
+          />
+        </div>
+        : <NoPermission />)
+      }
+    </AuthWrapper>
   )
 }
 

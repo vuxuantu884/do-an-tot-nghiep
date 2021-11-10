@@ -31,7 +31,6 @@ import {CloseOutlined} from "@ant-design/icons";
 import moment from "moment";
 import {showError} from "utils/ToastUtils";
 
-const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
 

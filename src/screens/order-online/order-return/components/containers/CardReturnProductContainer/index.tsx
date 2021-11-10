@@ -34,6 +34,8 @@ function CardReturnProductContainer(props: PropType) {
 
   const listReturnProducts =
     createOrderReturnContext?.return.listReturnProducts;
+  const listItemCanBeReturn =
+    createOrderReturnContext?.return.listItemCanBeReturn;
   const setListReturnProducts =
     createOrderReturnContext?.return.setListReturnProducts;
   const setTotalAmountReturnProducts =
@@ -43,18 +45,18 @@ function CardReturnProductContainer(props: PropType) {
   const moneyRefund = createOrderReturnContext?.return.moneyRefund;
   const setMoneyRefund = createOrderReturnContext?.return.setMoneyRefund;
   const OrderDetail = createOrderReturnContext?.orderDetail;
-  const listOrderProducts = OrderDetail?.items;
+  // const listOrderProducts = OrderDetail?.items;
   const isStepExchange = createOrderReturnContext?.isStepExchange;
   const isExchange = createOrderReturnContext?.isExchange;
 
   const onSelectSearchedVariant = (value: string) => {
-    if (!listOrderProducts) {
+    if (!listItemCanBeReturn) {
       return;
     }
     if (!listReturnProducts) {
       return;
     }
-    const selectedVariant = listOrderProducts.find((single) => {
+    const selectedVariant = listItemCanBeReturn.find((single) => {
       return single.id === +value;
     });
     if (!selectedVariant) return;
@@ -111,11 +113,11 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   const handleChangeReturnAll = (e: CheckboxChangeEvent) => {
-    if (!listOrderProducts) {
+    if (!listItemCanBeReturn) {
       return;
     }
     if (e.target.checked) {
-      const resultReturnProducts: ReturnProductModel[] = listOrderProducts.map(
+      const resultReturnProducts: ReturnProductModel[] = listItemCanBeReturn.map(
         (single) => {
           return {
             ...single,
@@ -128,7 +130,7 @@ function CardReturnProductContainer(props: PropType) {
       }
       checkIfIsCanReturn(resultReturnProducts);
     } else {
-      const result: ReturnProductModel[] = listOrderProducts.map((single) => {
+      const result: ReturnProductModel[] = listItemCanBeReturn.map((single) => {
         return {
           ...single,
           quantity: 0,
@@ -187,13 +189,13 @@ function CardReturnProductContainer(props: PropType) {
   };
 
   const convertResultSearchVariant = useMemo(() => {
-    if (!listOrderProducts) {
+    if (!listItemCanBeReturn) {
       return;
     }
     let options: any[] = [];
-    let listOrderProductsResult = listOrderProducts;
+    let listOrderProductsResult = listItemCanBeReturn;
     if (searchVariantInputValue) {
-      listOrderProductsResult = listOrderProducts.filter((single) => {
+      listOrderProductsResult = listItemCanBeReturn.filter((single) => {
         return single.product
           .toLowerCase()
           .includes(searchVariantInputValue.toLowerCase());
@@ -209,7 +211,7 @@ function CardReturnProductContainer(props: PropType) {
     );
 
     return options;
-  }, [listOrderProducts, searchVariantInputValue]);
+  }, [listItemCanBeReturn, searchVariantInputValue]);
 
   const onChangeProductSearchValue = (value: string) => {
     setSearchVariantInputValue(value);
