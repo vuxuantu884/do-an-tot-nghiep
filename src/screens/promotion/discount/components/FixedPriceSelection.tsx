@@ -35,20 +35,12 @@ const FixedPriceSelection = (props: any) => {
 
 
   useEffect(() => {
-
-    console.log("entitlementsResponse: ", entitlementsResponse);
-  }, [entitlementsResponse]);
-
-  useEffect(() => {
-    console.log("entitlementErrorsResponse: ", entitlementErrorsResponse);
-  }, [entitlementErrorsResponse]);
+  }, [entitlementsResponse, entitlementErrorsResponse]);
 
   const handleImportEntitlements = () => {
     const entitlements = Object.assign([], _.uniqBy(entitlementsResponse, "variant_id"));
     const importedResult = customGroupBy(entitlements, ["discount_value", "discount_type", "min_quantity", "limit"]);
     const formEntitlements = form.getFieldValue("entitlements");
-    console.log("importedResult: ", importedResult);
-    console.log("formEntitlements: ", formEntitlements);
     importedResult.forEach((i: any) => {
       const formEntitlement = {
         variants: i.variants,
@@ -112,7 +104,6 @@ const FixedPriceSelection = (props: any) => {
 
               {
                 fields.reverse().map(({key, name, fieldKey, ...restField}) => {
-                  console.log("fields: ", fields);
                   return (
                     <FixedPriceGroup
                       key={key}

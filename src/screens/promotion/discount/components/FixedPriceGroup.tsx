@@ -5,9 +5,7 @@ import PickManyProductModal from "../../../purchase-order/modal/pick-many-produc
 import {searchVariantsRequestAction} from "../../../../domain/actions/product/products.action";
 import {useDispatch} from "react-redux";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {
-  VariantResponse,
-} from "../../../../model/product/product.model";
+import {VariantResponse} from "../../../../model/product/product.model";
 import ProductItem from "../../../purchase-order/component/product-item";
 import NumberInput from "../../../../component/custom/number-input.custom";
 import {RiInformationLine} from "react-icons/ri";
@@ -16,7 +14,7 @@ import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import {formatCurrency} from "../../../../utils/AppUtils";
-import { showError } from "utils/ToastUtils";
+import {showError} from "utils/ToastUtils";
 
 const Option = Select.Option;
 
@@ -27,14 +25,14 @@ const FixedPriceGroup = (props: any) => {
     form,
     remove,
     allProducts,
-    discountMethod
+    discountMethod,
   } = props;
   const dispatch = useDispatch();
 
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Array<any>>([])
+  const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [discountType, setDiscountType] = useState("FIXED_AMOUNT")
+  const [discountType, setDiscountType] = useState("FIXED_AMOUNT");
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const onResultSearch = useCallback(
@@ -45,36 +43,35 @@ const FixedPriceGroup = (props: any) => {
         setData(result.items);
       }
     },
-    []
+    [],
   );
 
 
-
   useEffect(() => {
-    const formEntitlements = form.getFieldValue('entitlements');
+    const formEntitlements = form.getFieldValue("entitlements");
     const initVariants = formEntitlements[name]?.variants;
     if (initVariants && initVariants.length > 0) {
-      initVariants.forEach((variant:any) => {
+      initVariants.forEach((variant: any) => {
         const product = transformVariant(variant);
         selectedProduct.push(product);
-        setSelectedProduct([...selectedProduct])
-      })
+        setSelectedProduct([...selectedProduct]);
+      });
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-  }, [selectedProduct, form])
+  }, [selectedProduct, form]);
 
   const transformVariant = (item: any) => ({
     name: item.variant_title,
-      on_hand: item.quantity,
-      sku:item.sku,
-      product_id: '',
-      variant_prices:[{
-      import_price: item.price
+    on_hand: item.quantity,
+    sku: item.sku,
+    product_id: "",
+    variant_prices: [{
+      import_price: item.price,
     }],
-      variant_id: item.variant_id,
-  })
+    variant_id: item.variant_id,
+  });
 
   const onSearch = useCallback(
     (value: string) => {
@@ -87,35 +84,28 @@ const FixedPriceGroup = (props: any) => {
               page: 1,
               info: value.trim(),
             },
-            onResultSearch
-          )
+            onResultSearch,
+          ),
         );
       } else {
         setData([]);
       }
     },
-    [dispatch, onResultSearch]
+    [dispatch, onResultSearch],
   );
 
   useEffect(() => {
-    console.log('useEffect - selectedProduct')
-    let entitlementFields = form.getFieldValue('entitlements')
-    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.variant_id)})
-    form.setFieldsValue({entitlements: entitlementFields})
-  }, [form, name, selectedProduct])
-
-  // useEffect(() => {
-  //   let entitlementFields = form.getFieldValue('entitlements')
-  //   entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
-  //   console.log('discountType: ', discountType)
-  //   form.setFieldsValue({entitlements: entitlementFields})
-  // }, [discountType, form, name])
+    console.log("useEffect - selectedProduct");
+    let entitlementFields = form.getFieldValue("entitlements");
+    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.variant_id)});
+    form.setFieldsValue({entitlements: entitlementFields});
+  }, [form, name, selectedProduct]);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()}/>,
+        label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id,
       });
     });
@@ -131,30 +121,29 @@ const FixedPriceGroup = (props: any) => {
         return;
       }
       if (selectedItem) {
-        setSelectedProduct([selectedItem].concat(selectedProduct))
+        setSelectedProduct([selectedItem].concat(selectedProduct));
       }
       // setData([]);
     },
-    [data, selectedProduct]
-  )
+    [data, selectedProduct],
+  );
 
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
       if (items.length) {
-        setSelectedProduct([...selectedProduct, ...items])
-        // form.setFieldsValue({[`${name}.entitled_variant_ids`]: selectedProduct.map(p => p.id)})
+        setSelectedProduct([...selectedProduct, ...items]);
       }
       setVisibleManyProduct(false);
     },
-    [form, name, selectedProduct]
+    [form, name, selectedProduct],
   );
 
   const onDeleteItem = useCallback(
     (index: number) => {
-      selectedProduct.splice(index, 1)
-      setSelectedProduct([...selectedProduct])
+      selectedProduct.splice(index, 1);
+      setSelectedProduct([...selectedProduct]);
     },
-    [selectedProduct]
+    [selectedProduct],
   );
 
   return (
@@ -167,14 +156,14 @@ const FixedPriceGroup = (props: any) => {
             label={<Space>
               <span>SL tối thiểu</span>
               <Tooltip title={"Số lượng tối thiểu cho sản phẩm để được áp dụng khuyến mại"}>
-                <RiInformationLine/>
+                <RiInformationLine />
               </Tooltip>
             </Space>}
             rules={[
               {required: true, message: "Cần nhập số lượng tối thiểu"},
             ]}
           >
-            <NumberInput key={`${key}-min`} min={0}/>
+            <NumberInput key={`${key}-min`} min={0} />
           </Form.Item>
         </Col>
         <Col span={7}>
@@ -184,7 +173,7 @@ const FixedPriceGroup = (props: any) => {
               <span>Giới hạn</span>
               <Tooltip title={"Tổng số lượng sản phẩm áp dụng khuyến mại. Mặc định không điền là không giới hạn." +
               "VD: Chỉ áp dụng cho 100 sản phẩm, hết 100 sản phẩm này thì không có khuyến mại nữa."}>
-                <RiInformationLine/>
+                <RiInformationLine />
               </Tooltip>
             </Space>}
           >
@@ -192,20 +181,20 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Input.Group compact style={{display: 'flex'}}>
+          <Input.Group compact style={{display: "flex"}}>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
-              style={{flex: '1 1 auto'}}
+              style={{flex: "1 1 auto"}}
               rules={[
                 {required: true, message: "Cần nhập chiết khấu"},
               ]}
             >
               <InputNumber
-                style={{textAlign: 'end', borderRadius: '0px'}}
+                style={{textAlign: "end", borderRadius: "0px"}}
                 min={1}
-                max={discountType === 'PERCENTAGE' ? 99 : 999999999}
-                step={discountType === 'PERCENTAGE' ? 0.01 : 1}
+                max={discountType === "PERCENTAGE" ? 99 : 999999999}
+                step={discountType === "PERCENTAGE" ? 0.01 : 1}
               />
             </Form.Item>
             <Form.Item
@@ -213,9 +202,9 @@ const FixedPriceGroup = (props: any) => {
               label=" "
             >
               <Select
-                style={{borderRadius: '0px'}}
+                style={{borderRadius: "0px"}}
                 onSelect={(value: string) => {
-                  setDiscountType(value)
+                  setDiscountType(value);
                 }}
               >
                 <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option>
@@ -242,7 +231,7 @@ const FixedPriceGroup = (props: any) => {
               textEmpty={"Không có kết quả"}
             />
             <Button
-              icon={<PlusOutlined/>}
+              icon={<PlusOutlined />}
               onClick={() => setVisibleManyProduct(true)}
               style={{width: 132, marginLeft: 10}}
             >
@@ -260,11 +249,11 @@ const FixedPriceGroup = (props: any) => {
                 title: "Sản phẩm",
                 className: "ant-col-info",
                 dataIndex: "variant",
-                align: 'left',
+                align: "left",
                 render: (
                   value: string,
                   item,
-                  index: number
+                  index: number,
                 ) => {
                   return (
                     <div>
@@ -290,29 +279,29 @@ const FixedPriceGroup = (props: any) => {
               {
                 title: "Tồn đầu kỳ",
                 className: "ant-col-info",
-                align: 'center',
-                width: '15%',
-                render: (value, item, index) => item.on_hand
+                align: "center",
+                width: "15%",
+                render: (value, item, index) => item.on_hand,
               },
               {
                 title: "Giá vốn",
                 className: "ant-col-info",
-                align: 'center',
-                width: '15%',
-                render: (value, item, index) => formatCurrency(item.variant_prices[0]?.import_price)
+                align: "center",
+                width: "15%",
+                render: (value, item, index) => formatCurrency(item.variant_prices[0]?.import_price),
               },
               {
                 className: "ant-col-info",
-                align: 'right',
+                align: "right",
                 width: "8%",
                 render: (value: string, item, index: number) => (
                   <Button
                     onClick={() => onDeleteItem(index)}
                     className="product-item-delete"
-                    icon={<AiOutlineClose/>}
+                    icon={<AiOutlineClose />}
                   />
                 ),
-              }
+              },
             ]}
             dataSource={selectedProduct}
             tableLayout="fixed"
@@ -322,7 +311,7 @@ const FixedPriceGroup = (props: any) => {
         {form.getFieldValue("entitlements")?.length <= 1 ? "" : <Row gutter={16} style={{paddingTop: "16px"}}>
           <Col span={24}>
             <Button
-              icon={<DeleteOutlined/>}
+              icon={<DeleteOutlined />}
               danger
               onClick={() => remove(name)}
             >
@@ -339,9 +328,9 @@ const FixedPriceGroup = (props: any) => {
         />
       </div>}
     </div>
-  )
+  );
 
 
-}
+};
 
 export default FixedPriceGroup;

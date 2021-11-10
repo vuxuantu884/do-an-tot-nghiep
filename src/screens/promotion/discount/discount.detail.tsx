@@ -15,12 +15,11 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {promoGetDetail, getVariants} from "../../../domain/actions/promotion/discount/discount.action";
+import {getVariants, promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
-import { ChannelResponse } from "model/response/product/channel.response";
-import { getListChannelRequest } from "domain/actions/order/order.action";
-import { values } from "lodash";
+import {ChannelResponse} from "model/response/product/channel.response";
+import {getListChannelRequest} from "domain/actions/order/order.action";
 
 export interface ProductParams {
   id: string;
@@ -37,50 +36,50 @@ type detailMapping = {
 
 const discountStatuses = [
   {
-    code: 'ACTIVE',
-    value: 'Đang áp dụng',
+    code: "ACTIVE",
+    value: "Đang áp dụng",
     style: {
       background: "rgba(42, 42, 134, 0.1)",
       borderRadius: "100px",
       color: "rgb(42, 42, 134)",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
   {
-    code: 'DISABLED',
-    value: 'Tạm ngưng',
+    code: "DISABLED",
+    value: "Tạm ngưng",
     style: {
       background: "rgba(252, 175, 23, 0.1)",
       borderRadius: "100px",
       color: "#FCAF17",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
   {
-    code: 'DRAFT',
-    value: 'Chờ áp dụng',
+    code: "DRAFT",
+    value: "Chờ áp dụng",
     style: {
       background: "rgb(245, 245, 245)",
       borderRadius: "100px",
       color: "rgb(102, 102, 102)",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
   {
-    code: 'CANCELLED',
-    value: 'Đã huỷ',
+    code: "CANCELLED",
+    value: "Đã huỷ",
     style: {
       background: "rgba(226, 67, 67, 0.1)",
       borderRadius: "100px",
       color: "rgb(226, 67, 67)",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
-]
+];
 
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -160,25 +159,25 @@ const PromotionDetailScreen: React.FC = () => {
       setEntitlements(transformData(costType, discountValue, allocationLimit, minimum));
       setCostType(costType);
     }
-  }, [data, dataVariants])
+  }, [data, dataVariants]);
 
   useEffect(() => {
     const column = [
       {
         title: "STT",
         align: "center",
-        render: (value: any, item: any, index: number) => index + 1
+        render: (value: any, item: any, index: number) => index + 1,
       },
       {
         title: "Sản phẩm",
         dataIndex: "sku",
         visible: true,
-        align: 'left',
+        align: "left",
         width: "20%",
         render: (
           value: string,
-          item:  any,
-          index: number
+          item: any,
+          index: number,
         ) => {
           return (
             <div>
@@ -197,12 +196,12 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "cost",
         render: (
           value: string,
-        ) => formatCurrency(value)
+        ) => formatCurrency(value),
       },
       {
         title: "Chiết khấu",
         align: "center",
-        dataIndex: "discountValue"
+        dataIndex: "discountValue",
       },
       {
         title: "Giá sau chiết khấu",
@@ -210,35 +209,35 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "total",
         render: (
           value: string,
-        ) => formatCurrency(value)
+        ) => formatCurrency(value),
       },
       {
         title: "SL Tối thiểu",
         align: "center",
-        dataIndex: "minimum"
+        dataIndex: "minimum",
       },
       {
         title: "Giới hạn",
         align: "center",
-        dataIndex: "allocationLimit"
+        dataIndex: "allocationLimit",
       },
     ];
     const column2 = [
       {
         title: "STT",
         align: "center",
-        render: (value: any, item: any, index: number) => index + 1
+        render: (value: any, item: any, index: number) => index + 1,
       },
       {
         title: "Sản phẩm",
         dataIndex: "sku",
         visible: true,
-        align: 'left',
+        align: "left",
         width: "20%",
         render: (
           value: string,
-          item:  any,
-          index: number
+          item: any,
+          index: number,
         ) => {
           return (
             <div>
@@ -257,29 +256,29 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "cost",
         render: (
           value: string,
-        ) => formatCurrency(value)
+        ) => formatCurrency(value),
       },
       {
         title: "Giá cố định",
         align: "center",
-        dataIndex: "total"
+        dataIndex: "total",
       },
       {
         title: "SL Tối thiểu",
         align: "center",
-        dataIndex: "minimum"
+        dataIndex: "minimum",
       },
       {
         title: "Giới hạn",
         align: "center",
-        dataIndex: "allocationLimit"
+        dataIndex: "allocationLimit",
       },
     ];
     setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
-  }, [costType])
+  }, [costType]);
 
   const renderTotalBill = (cost: number, value: number, valueType: string) => {
-    let result = '';
+    let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(value);
@@ -288,14 +287,14 @@ const PromotionDetailScreen: React.FC = () => {
         result = `${cost - +formatCurrency(value)}`;
         break;
       case "PERCENTAGE":
-        result = `${cost - ((cost*value)/100)}`
+        result = `${cost - ((cost * value) / 100)}`;
         break;
     }
     return result;
-  }
+  };
 
-  const renderDiscountValue = (value: number, valueType:string) => {
-    let result = '';
+  const renderDiscountValue = (value: number, valueType: string) => {
+    let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(value);
@@ -304,11 +303,11 @@ const PromotionDetailScreen: React.FC = () => {
         result = formatCurrency(value);
         break;
       case "PERCENTAGE":
-        result = `${value}%`
+        result = `${value}%`;
         break;
     }
     return result;
-  }
+  };
 
   const transformData = (costType: string, discountValue: number, allocationLimit: number, minimum: number) => {
     let result: any[] = [];
@@ -321,11 +320,11 @@ const PromotionDetailScreen: React.FC = () => {
         minimum: minimum,
         allocationLimit: allocationLimit,
         discountValue: `${renderDiscountValue(discountValue, costType)}`,
-        total: `${renderTotalBill(variant?.cost, discountValue , costType)}`,
+        total: `${renderTotalBill(variant?.cost, discountValue, costType)}`,
       });
     });
     return result;
-  }
+  };
 
   const getEntitled_method = (data: DiscountResponse) => {
     if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
@@ -385,16 +384,16 @@ const PromotionDetailScreen: React.FC = () => {
   const renderStatus = (data: DiscountResponse) => {
     const status = discountStatuses.find(status => status.code === data.state);
     return (
-        <span
-          style={status?.style}
-        >
+      <span
+        style={status?.style}
+      >
           {status?.value}
         </span>
-    )
-  }
+    );
+  };
 
   // @ts-ignore
-  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+  const renderer = ({days, hours, minutes, seconds, completed}) => {
     if (completed) {
       // Render a complete state
       return <span>Kết thúc chương trình</span>;
@@ -402,7 +401,7 @@ const PromotionDetailScreen: React.FC = () => {
       // Render a countdown
       return (
         <span style={{color: "#FCAF17", fontWeight: 500}}>
-          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+          {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}:{seconds}
         </span>
       );
     }
@@ -422,7 +421,8 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2} date={moment(data?.ends_date).toDate()}
+                                          renderer={renderer} /> : "---",
       key: "3",
     },
   ];
@@ -694,7 +694,7 @@ const PromotionDetailScreen: React.FC = () => {
                     </span>
                   </Col>
                   <Col span={24}>
-                  {data?.prerequisite_sales_channel_names.length > 0 ? (
+                    {data?.prerequisite_sales_channel_names.length > 0 ? (
                       <ul
                         style={{
                           padding: "0 16px",

@@ -1,4 +1,4 @@
-import { BaseObject } from "model/base/base.response";
+import {BaseObject} from "model/base/base.response";
 
 export interface DiscountResponse extends BaseObject {
   disabled: boolean;
