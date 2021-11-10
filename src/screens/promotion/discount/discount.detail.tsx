@@ -6,6 +6,7 @@ import {useDispatch} from "react-redux";
 import {useParams} from "react-router";
 import {Link} from "react-router-dom";
 import moment from "moment";
+import Countdown from "react-countdown";
 import "./discount.scss";
 import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
 import {DATE_FORMAT} from "utils/DateUtils";
@@ -17,7 +18,6 @@ import {SourceResponse} from "model/response/order/source.response";
 import {promoGetDetail, getVariants} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
-import Countdown from "react-countdown";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 
@@ -81,45 +81,6 @@ const discountStatuses = [
   },
 ]
 
-const quantityColumn:Array<ICustomTableColumType<any>> = [
-  {
-    title: "STT",
-    align: "center",
-    render: (value: any, item: any, index: number) => index + 1
-  },
-  {
-    title: "Sản phẩm",
-    dataIndex: "variant",
-    render: (value: any, item: any, index: number) => value.id
-  },
-  {
-    title: "Giá bán",
-    align: "center",
-    visible: true,
-    dataIndex: "variant",
-  },
-  {
-    title: "Chiết khấu",
-    align: "center",
-    dataIndex: "value"
-  },
-  {
-    title: "Giá sau chiết khấu",
-    align: "center",
-    dataIndex: "value"
-  },
-  {
-    title: "SL Tối thiểu",
-    align: "center",
-    dataIndex: "minimum"
-  },
-  {
-    title: "Giới hạn",
-    align: "center",
-    dataIndex: "allocationLimit"
-  },
-]
-
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
 
@@ -130,6 +91,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const [data, setData] = useState<DiscountResponse | null>(null);
+  const [costType, setCostType] = useState<string>();
   const [dataVariants, setDataVariants] = useState<any | null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -138,6 +100,8 @@ const PromotionDetailScreen: React.FC = () => {
   const [sources, setSource] = useState<Array<SourceResponse>>();
   const [channel, setChannel] = useState<Array<ChannelResponse>>();
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
+  const [quantityColumn, setQuantityColumn] = useState<any>([]);
+
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
@@ -182,10 +146,143 @@ const PromotionDetailScreen: React.FC = () => {
       setError(true);
     } else {
       setDataVariants(result);
-      console.log(dataVariants);
-      
     }
   }, []);
+
+  useEffect(() => {
+    if (dataVariants && data && data.entitlements.length > 0) {
+      const entitlementQuantity = data.entitlements[0].prerequisite_quantity_ranges[0];
+      const costType = entitlementQuantity?.value_type;
+      const discountValue = entitlementQuantity?.value;
+      const allocationLimit = entitlementQuantity?.allocation_limit;
+      const minimum = entitlementQuantity?.greater_than_or_equal_to;
+      setEntitlements(transformData(costType, discountValue, allocationLimit, minimum));
+      setCostType(costType);
+    }
+  }, [data, dataVariants])
+
+  useEffect(() => {
+    const column = [
+      {
+        title: "STT",
+        align: "center",
+        render: (value: any, item: any, index: number) => index + 1
+      },
+      {
+        title: "Sản phẩm",
+        dataIndex: "variant",
+        visible: true,
+        align: 'left',
+        width: "20%",
+        render: (
+          value: string,
+          item:  any,
+          index: number
+        ) => {
+          return (
+            <div>
+              <Link to={`${UrlConfig.PRODUCT}/${item.id}/variants/${item.id}`}>
+                {item.sku}
+              </Link>
+              <div>{item.title}</div>
+            </div>
+          );
+        },
+      },
+      {
+        title: "Giá bán",
+        align: "center",
+        visible: false,
+        dataIndex: "cost",
+      },
+      {
+        title: "Chiết khấu",
+        align: "center",
+        dataIndex: "discountValue"
+      },
+      {
+        title: "Giá sau chiết khấu",
+        align: "center",
+        dataIndex: "total"
+      },
+      {
+        title: "SL Tối thiểu",
+        align: "center",
+        dataIndex: "minimum"
+      },
+      {
+        title: "Giới hạn",
+        align: "center",
+        dataIndex: "allocationLimit"
+      },
+    ];
+    const column2 = [
+      {
+        title: "STT",
+        align: "center",
+        render: (value: any, item: any, index: number) => index + 1
+      },
+      {
+        title: "Sản phẩm",
+        dataIndex: "variant",
+        visible: true,
+        align: 'left',
+        width: "20%",
+        render: (
+          value: string,
+          item:  any,
+          index: number
+        ) => {
+          return (
+            <div>
+              <Link to={`${UrlConfig.PRODUCT}/${item.id}/variants/${item.id}`}>
+                {item.sku}
+              </Link>
+              <div>{item.title}</div>
+            </div>
+          );
+        },
+      },
+      {
+        title: "Giá bán",
+        align: "center",
+        visible: false,
+        dataIndex: "cost",
+      },
+      {
+        title: "Giá sau cố định",
+        align: "center",
+        dataIndex: "total"
+      },
+      {
+        title: "SL Tối thiểu",
+        align: "center",
+        dataIndex: "minimum"
+      },
+      {
+        title: "Giới hạn",
+        align: "center",
+        dataIndex: "allocationLimit"
+      },
+    ];
+    setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
+  }, [costType])
+
+  const renderTotalBill = (cost: number, value: number, valueType: string) => {
+    let result = '';
+    switch (valueType) {
+      case "FIXED_PRICE":
+        result = formatCurrency(value);
+        break;
+      case "FIXED_AMOUNT":
+        result = `${cost - +formatCurrency(value)}`;
+        break;
+      case "PERCENTAGE":
+        result = `${cost - ((cost*value)/100)}`
+        break;
+    }
+    return result;
+  }
 
   const renderDiscountValue = (value: number, valueType:string) => {
     let result = '';
@@ -203,28 +300,24 @@ const PromotionDetailScreen: React.FC = () => {
     return result;
   }
 
-  const transformData = (rawData: any | null) => {
+  const transformData = (costType: string, discountValue: number, allocationLimit: number, minimum: number) => {
     let result: any[] = [];
-    if (rawData && rawData.entitlements.length > 0) {
-      rawData.entitlements.forEach((rawEntitlement:any) => {
-        rawEntitlement.entitled_variant_ids.forEach((variant:any) => {
-          result.push({
-            variant: {
-              id: variant
-            },
-            minimum: rawEntitlement.prerequisite_quantity_ranges[0]?.greater_than_or_equal_to,
-            allocationLimit: rawEntitlement.prerequisite_quantity_ranges[0]?.allocation_limit,
-            value: `${renderDiscountValue(rawEntitlement.prerequisite_quantity_ranges[0]?.value, rawEntitlement.prerequisite_quantity_ranges[0]?.value_type)}`
-          });
-        })
-      })
-      return result;
-    }
-    return [];
+    dataVariants.forEach((variant: any) => {
+      result.push({
+        variant: {
+          id: variant?.variant_id,
+          title: variant?.variant_title,
+          sku: variant?.sku
+        },
+        cost: variant?.cost,
+        minimum: minimum,
+        allocationLimit: allocationLimit,
+        discountValue: `${renderDiscountValue(discountValue, costType)}`,
+        total: `${renderTotalBill(variant?.cost, discountValue , costType)}`,
+      });
+    });
+    return result;
   }
-  useEffect(() => {
-    setEntitlements(transformData(data));
-  }, [data])
 
   const getEntitled_method = (data: DiscountResponse) => {
     if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
@@ -325,7 +418,6 @@ const PromotionDetailScreen: React.FC = () => {
       key: "3",
     },
   ];
-
 
   return (
     <ContentContainer
