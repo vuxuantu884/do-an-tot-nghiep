@@ -201,8 +201,9 @@ const FixedPriceGroup = (props: any) => {
                 onSelect={(value: string) => {
                   setDiscountType(value);
                 }}
+                defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
               >
-                <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option>
+                {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
                 <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
               </Select>
             </Form.Item>
