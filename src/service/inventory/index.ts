@@ -70,7 +70,7 @@ const inventoryGetDetailVariantIdsExtApi = (
         queryString += `&`
     });
   }
-  let link = `${ApiConfig.INVENTORY}/inventories/variants/details?${queryString}`;
+  let link = `${ApiConfig.INVENTORY}/inventories?is_detail=true&${queryString}`;
   return BaseAxios.get(link);
 };
 

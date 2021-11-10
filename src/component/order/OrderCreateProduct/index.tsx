@@ -1418,7 +1418,7 @@ function OrderCreateProduct(props: PropType) {
           columnsItem={items}
           inventoryArray={inventoryResponse}
           setResultSearchStore={setResultSearchStore}
-          dataSearchCanAccess={dataSearchCanAccess}
+          dataSearchCanAccess={storeArrayResponse}
           handleCancel={handleInventoryCancel}
           // setStoreForm={setStoreForm}
         />
