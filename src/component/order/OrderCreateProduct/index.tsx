@@ -49,7 +49,10 @@ import {
 } from "model/request/order.request";
 import {OrderResponse} from "model/response/order/order.response";
 import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
-import {applyCouponService, applyDiscount} from "service/promotion/discount/discount.service";
+import {
+  applyCouponService,
+  applyDiscount,
+} from "service/promotion/discount/discount.service";
 import React, {
   createRef,
   useCallback,
@@ -82,7 +85,7 @@ import {showError, showSuccess} from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import {StyledComponent} from "./styles";
 import {CouponRequestModel, LineItemRequestModel} from "model/request/promotion.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import {CustomerResponse} from "model/response/customer/customer.response";
 
 type PropType = {
   storeId: number | null;
@@ -162,7 +165,7 @@ const initQueryVariant: VariantSearchQuery = {
  * returnOrderInformation: thông tin đổi trả
  *
  * totalAmountCustomerNeedToPay: số tiền khách cần trả
- * 
+ *
  * customer: thông tin khách hàng, để apply coupon
  *
  */
@@ -215,7 +218,7 @@ function OrderCreateProduct(props: PropType) {
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
-  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false)
+  const [isDisableAutomaticDiscount, setIsDisableAutomaticDiscount] = useState(false);
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -899,7 +902,7 @@ function OrderCreateProduct(props: PropType) {
         if (splitLine || index === -1) {
           _items.push(item);
           // await handleAutomaticDiscount(_items, item, splitLine);
-          if(isAutomaticDiscount) {
+          if (!isDisableAutomaticDiscount) {
             await handleAutomaticDiscount(_items, item, splitLine);
           }
           setAmount(amount + (item.price - item.discount_items[0].amount));
@@ -917,9 +920,9 @@ function OrderCreateProduct(props: PropType) {
             variantItems[lastIndex].price -
             variantItems[lastIndex].discount_items[0].amount *
               variantItems[lastIndex].quantity;
-          
+
           // await handleAutomaticDiscount(_items, item, splitLine);
-          if(isAutomaticDiscount) {
+          if (!isDisableAutomaticDiscount) {
             await handleAutomaticDiscount(_items, item, splitLine);
           }
           setAmount(
@@ -943,7 +946,7 @@ function OrderCreateProduct(props: PropType) {
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
     },
-    [resultSearchVariant, items, splitLine]
+    [resultSearchVariant, items, splitLine, isDisableAutomaticDiscount]
   );
 
   const onChangeProductSearch = useCallback(
@@ -1014,8 +1017,8 @@ function OrderCreateProduct(props: PropType) {
     setInventoryModalVisible(false);
   }, []);
 
-  const handleApplyCoupon = () => {
-    if(!items) {
+  const handleApplyCoupon = (coupon: string) => {
+    if (!items) {
       return;
     }
     const lineItems: LineItemRequestModel[] = items.map((single) => {
@@ -1027,7 +1030,7 @@ function OrderCreateProduct(props: PropType) {
         variant_id: single.variant_id,
       };
     });
-    if(!isAutomaticDiscount) {
+    if (!isDisableAutomaticDiscount) {
       let params: CouponRequestModel = {
         order_id: null,
         customer_id: customer?.id || null,
@@ -1036,15 +1039,15 @@ function OrderCreateProduct(props: PropType) {
         order_source_id: form.getFieldValue("source_id"),
         line_items: lineItems,
         applied_discount: {
-          code: coupon
+          code: coupon,
         },
         taxes_included: true,
         tax_exempt: false,
       };
       applyCouponService(params).then((response) => {
-        console.log('response', response)
-      })
-
+        console.log("response", response);
+        // if(response)
+      });
     }
   };
 
@@ -1063,10 +1066,8 @@ function OrderCreateProduct(props: PropType) {
       setDiscountValue && setDiscountValue(value);
       setDiscountRate && setDiscountRate(rate);
       if (coupon) {
-        handleApplyCoupon();
+        handleApplyCoupon(coupon);
       }
-      console.log("coupon", coupon);
-      setCoupon(coupon);
       if (items) {
         calculateChangeMoney(items, amount, rate, value);
       }
@@ -1184,6 +1185,8 @@ function OrderCreateProduct(props: PropType) {
     }
   }, []);
 
+  console.log('isDisableAutomaticDiscount', isDisableAutomaticDiscount)
+
   return (
     <StyledComponent>
       <Card
@@ -1239,6 +1242,17 @@ function OrderCreateProduct(props: PropType) {
           </Space>
         }
       >
+        <div style={{marginBottom: 20}}>
+          <Checkbox
+            className=""
+            style={{fontWeight: 500}}
+            disabled={levelOrder > 3}
+            checked={isDisableAutomaticDiscount}
+            onChange={(e) => setIsDisableAutomaticDiscount(e.target.checked)}
+          >
+            Bỏ chiết khấu tự động
+          </Checkbox>
+        </div>
         <Row gutter={15} className="rowSelectStoreAndProducts">
           <Col md={8}>
             <Form.Item
@@ -1455,7 +1469,7 @@ function OrderCreateProduct(props: PropType) {
             shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-            setIsAutomaticDiscount={setIsAutomaticDiscount}
+            setIsDisableAutomaticDiscount={setIsDisableAutomaticDiscount}
           />
         )}
         {setDiscountValue && setDiscountRate && (
