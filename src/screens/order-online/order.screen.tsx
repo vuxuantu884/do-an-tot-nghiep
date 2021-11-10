@@ -959,8 +959,6 @@ export default function Order() {
     }
   }, [dispatch, items]);
 
-  console.log("inventoryResponse",inventoryResponse)
-
   useEffect(() => {
     dispatch(
       configOrderSaga((data: OrderConfig) => {
