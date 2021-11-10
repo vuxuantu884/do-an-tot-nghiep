@@ -491,7 +491,7 @@ function OrderSources(props: PropsType) {
                         <Select.Option value={single.id} key={single.id}>
                           <span
                             className="hideInSelect"
-                            style={{paddingLeft: +15 * single.level}}
+                            style={{paddingLeft: +18 * single.level}}
                           ></span>
                           {single?.parent?.name && (
                             <span className="hideInDropdown">
