@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import "./discount.scss";
-import {useHistory} from "react-router-dom";
+import { useHistory} from "react-router-dom";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import {Button, Col, Form, Row} from "antd";
@@ -14,6 +14,8 @@ import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
 import { PROMO_TYPE } from "utils/Constants";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 
 const CreateDiscountPage = () => {
@@ -22,10 +24,11 @@ const CreateDiscountPage = () => {
   const history = useHistory();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
-
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
 
   const transformData = (values: any) => {
@@ -41,7 +44,7 @@ const CreateDiscountPage = () => {
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
     body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
     body.starts_date = values.starts_date.format();
-    body.ends_date = values.ends_date?.format();
+    body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values.entitlements.map((entitlement: any) => {
       return {
         entitled_variant_ids: entitlement.entitled_variant_ids || null,
@@ -122,13 +125,14 @@ const CreateDiscountPage = () => {
         onFinish={handerSubmit}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
+        scrollToFirstError
         initialValues={{
           entitlements: [""],
           priority: 1,
           entitled_method: "FIXED_PRICE"
         }}
       >
-        <Row gutter={24}>
+        <Row >
           <Col span={24}>
             <GeneralInfo
               className="general-info"
@@ -136,6 +140,7 @@ const CreateDiscountPage = () => {
               name="general_add"
               listStore={listStore}
               listSource={listSource}
+              listChannel={listChannel}
               // customerAdvanceMsg={customerAdvanceMsg}
             />
           </Col>

@@ -18,8 +18,25 @@ import threeDot from "assets/icon/three-dot.svg";
 import { Link } from 'react-router-dom';
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
 import ButtonCreate from 'component/header/ButtonCreate';
+import AuthWrapper from 'component/authorization/AuthWrapper';
+import NoPermission from 'screens/no-permission.screen';
+import { CustomerLevelPermissions } from 'config/permissions/customer.permission';
+import useAuthorization from 'hook/useAuthorization';
+
+
+const viewCustomerLevelPermission = [CustomerLevelPermissions.VIEW];
+const createCustomerLevelPermission = [CustomerLevelPermissions.CREATE];
+const updateCustomerLevelPermission = [CustomerLevelPermissions.UPDATE];
+const deleteCustomerLevelPermission = [CustomerLevelPermissions.DELETE];
+
 
 const CustomerRanking = () => {
+
+  const [allowCreateCustomerLevel] = useAuthorization({
+    acceptPermissions: createCustomerLevelPermission,
+    not: false,
+  });
+
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [data, setData] = useState<PageResponse<LoyaltyRankResponse>>({
     metadata: {
@@ -29,6 +46,84 @@ const CustomerRanking = () => {
     },
     items: [],
   });
+
+  const RenderActionColumn = (value: any, row: any) => {
+    const [allowUpdateCustomerLevel] = useAuthorization({
+      acceptPermissions: updateCustomerLevelPermission,
+      not: false,
+    });
+
+    const [allowDeleteCustomerLevel] = useAuthorization({
+      acceptPermissions: deleteCustomerLevelPermission,
+      not: false,
+    });
+    
+    const isShowAction = allowUpdateCustomerLevel || allowDeleteCustomerLevel;
+    
+    const menu = (
+      <Menu>
+        {allowUpdateCustomerLevel &&
+          <Menu.Item key="1">
+            <Link to={`${UrlConfig.CUSTOMER}/rankings/${value.id}/update`}>
+              <Button
+                icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                }}
+              >
+                Chỉnh sửa
+              </Button>
+            </Link>
+          </Menu.Item>
+        }
+        
+        {allowDeleteCustomerLevel &&
+          <Menu.Item key="2">
+            <Button
+              icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
+              type="text"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+                color: "red",
+              }}
+              onClick={() => {
+                setSelectedDeleteItem(value)
+                setIsShowConfirmDelete(true)
+              }}
+            >
+              Xóa
+            </Button>
+          </Menu.Item>
+        }
+      </Menu>
+    );
+
+    return (
+      <>
+        {isShowAction &&
+          <Dropdown
+            overlay={menu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              icon={<img src={threeDot} alt=""></img>}
+            ></Button>
+          </Dropdown>
+        }
+      </>
+    );
+  }
+
   const pageColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -42,6 +137,13 @@ const CustomerRanking = () => {
       dataIndex: "name",
       visible: true,
       fixed: "left",
+      render: (value, row, index) => {
+        return (
+          <Link to={`${UrlConfig.CUSTOMER}/rankings/${row.id}/update`}>
+            {value}
+          </Link>
+        )
+      },
     },
     {
       title: "Giá trị nhỏ nhất",
@@ -74,72 +176,7 @@ const CustomerRanking = () => {
       title: "",
       visible: true,
       width: "72px",
-      render: (value: any, i: any) => {
-        const menu = (
-          <Menu>
-            <Menu.Item key="1">
-              <Link to={`${UrlConfig.CUSTOMER}/rankings/${value.id}/update`}>
-                <Button
-                  icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
-                  type="text"
-                  className=""
-                  style={{
-                    paddingLeft: 24,
-                    background: "transparent",
-                    border: "none",
-                  }}
-                >
-                  Chỉnh sửa
-                </Button>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="2">
-              <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                  color: "red",
-                }}
-                onClick={() => {
-                  setSelectedDeleteItem(value)
-                  setIsShowConfirmDelete(true)
-                }}
-              >
-                Xóa
-              </Button>
-            </Menu.Item>
-          </Menu>
-        );
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="action-group"
-            >
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            </div>
-          </div>
-        )
-      }
+      render: (value: any, i: any) => RenderActionColumn(value, i)
     }
   ]
   const [query, setQuery] = React.useState<BaseQuery>({
@@ -199,32 +236,39 @@ const CustomerRanking = () => {
       ]}
       extra={
         <>
-          <ButtonCreate
-            child="Thêm mới"
-            path={`${UrlConfig.CUSTOMER}/rankings/create`}
-          />
+          {allowCreateCustomerLevel &&
+            <ButtonCreate
+              child="Thêm mới"
+              path={`${UrlConfig.CUSTOMER}/rankings/create`}
+            />
+          }
         </>
       }
     >
-      <Card>
-        <div className="customer-ranking">
-          <CustomTable
-            isLoading={tableLoading}
-            sticky={{ offsetScroll: 5 }}
-            pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            dataSource={data.items}
-            columns={pageColumns}
-            rowKey={(item: any) => item.id}
-          />
-        </div>
-      </Card>
+      <AuthWrapper acceptPermissions={viewCustomerLevelPermission} passThrough>
+        {(allowed: boolean) => (allowed ?
+          <Card>
+            <div className="customer-ranking">
+              <CustomTable
+                isLoading={tableLoading}
+                sticky={{ offsetScroll: 5 }}
+                pagination={{
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                dataSource={data.items}
+                columns={pageColumns}
+                rowKey={(item: any) => item.id}
+              />
+            </div>
+          </Card>
+          : <NoPermission />)}
+      </AuthWrapper>
+      
       <ModalDeleteConfirm
         visible={isShowConfirmDelete}
         onOk={onConfirmDelete}

@@ -859,7 +859,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     let valuestDiscount = 0;
     let quantity = splitLine ? _items.filter(item => item.variant_id === item.variant_id).length : item.quantity;
     try {
-      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}]);
+      const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
       setLoadingAutomaticDiscount(false)
       if (item && checkingDiscountResponse &&
         checkingDiscountResponse.code === 20000000 &&
@@ -917,7 +917,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           variant_id: e.variant_id,
           quantity: e.quantity
         }));
-        const applyResponse = await applyDiscount(requestBody);
+        const applyResponse = await applyDiscount(requestBody, "ADMIN");
         setLoadingAutomaticDiscount(false)
         if (applyResponse &&
           applyResponse.code === 20000000 &&
@@ -1080,18 +1080,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     dispatch(StoreSearchListAction(resultSearchStore, setStoreArrayResponse));
   }, [resultSearchStore]);
 
-  const dataSearchCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = [];
-    if (storeArrayResponse && storeArrayResponse != null) {
-      newData = storeArrayResponse.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
-      );
-    }
-    return newData;
-  }, [storeArrayResponse, userReducer.account]);
+  // const dataSearchCanAccess = useMemo(() => {
+  //   let newData: Array<StoreResponse> = [];
+  //   if (storeArrayResponse && storeArrayResponse != null) {
+  //     newData = storeArrayResponse.filter((store) =>
+  //       haveAccess(
+  //         store.id,
+  //         userReducer.account ? userReducer.account.account_stores : []
+  //       )
+  //     );
+  //   }
+  //   return newData;
+  // }, [storeArrayResponse, userReducer.account]);
 
   const handleInventoryCancel = useCallback(() => {
     setInventoryModalVisible(false);
@@ -1499,7 +1499,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           columnsItem={items}
           inventoryArray={inventoryResponse}
           setResultSearchStore={setResultSearchStore}
-          dataSearchCanAccess={dataSearchCanAccess}
+          dataSearchCanAccess={storeArrayResponse}
           handleCancel={handleInventoryCancel}
           // setStoreForm={setStoreForm}
         />

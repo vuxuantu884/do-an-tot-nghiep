@@ -2,7 +2,7 @@ import {
   Card, Col, Row,
   Form, Switch, Space, Select,
   DatePicker, Divider, Checkbox,
-  TimePicker, Input, Table, Button
+  TimePicker, Input, Table, Button, InputNumber,
 } from "antd";
 import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
 import ChooseDiscount from "./choose-discount.create";
@@ -19,6 +19,8 @@ import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link } from "react-router-dom";
 import {formatCurrency} from "../../../../utils/AppUtils";
+import {CloseCircleOutlined, CloseOutlined} from "@ant-design/icons";
+import moment from "moment";
 
 const DateRangePicker = DatePicker.RangePicker;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -29,6 +31,7 @@ const GeneralCreate = (props: any) => {
     form,
     listStore,
     listSource,
+    listChannel,
     // customerAdvanceMsg
   } = props;
 
@@ -102,7 +105,7 @@ const GeneralCreate = (props: any) => {
     (value) => {
       const selectedItem = data.find(e => e.id === Number(value));
       if (selectedItem) {
-        setSelectedProduct([...selectedProduct, selectedItem])
+        setSelectedProduct([selectedItem].concat(selectedProduct))
       }
       setData([]);
     },
@@ -182,7 +185,7 @@ const GeneralCreate = (props: any) => {
             </div>
           }
         >
-          <Row gutter={30}>
+          <Row gutter={30} style={{padding: "0px 16px"}}>
             {/* Tên đợt phát hàng */}
             <Col span={12}>
               <CustomInput
@@ -205,7 +208,7 @@ const GeneralCreate = (props: any) => {
                 // ]}
                 normalize={(value) => nonAccentVietnamese(value)}
               >
-                <Input maxLength={20} prefix="PC" disabled={true}/>
+                <Input maxLength={20} disabled={true}/>
               </Form.Item>
             </Col>
             {/* Mô tả */}
@@ -223,7 +226,7 @@ const GeneralCreate = (props: any) => {
           </Row>
         </Card>
         <Card>
-          <Row gutter={30}>
+          <Row gutter={30} style={{padding: "0px 16px"}}>
             {/* Loại khuyến mãi */}
             <Col span={24}>
               <Form.Item
@@ -252,19 +255,20 @@ const GeneralCreate = (props: any) => {
             </div>
           }
         >
-          <Row gutter={30}>
+          <Row gutter={30} style={{padding: "0px 16px"}}>
             <Col span={12}>
-              <Form.Item label="Đơn hàng có giá trị từ:" name={"subtotal_min"}>
-                <NumberInput
+              <Form.Item label="Đơn hàng có giá trị từ:" name={"prerequisite_subtotal_range_min"}>
+                <InputNumber
                   style={{
                     textAlign: "right",
                     width: "100%",
                     color: "#222222",
                   }}
                   minLength={0}
-                  maxLength={9}
+                  maxLength={11}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
+                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 />
               </Form.Item>
             </Col>
@@ -296,6 +300,7 @@ const GeneralCreate = (props: any) => {
                       options={renderResult}
                       ref={productSearchRef}
                       disabled={isProduct}
+                      textEmpty={"Không có kết quả"}
                     />
                   </Input.Group>
                 </Col>
@@ -319,6 +324,7 @@ const GeneralCreate = (props: any) => {
                           className: "ant-col-info",
                           dataIndex: "variant",
                           align: 'left',
+                          width: "40%",
                           render: (
                             value: string,
                             item,
@@ -349,7 +355,7 @@ const GeneralCreate = (props: any) => {
                           title: "Số lượng tối thiểu",
                           className: "ant-col-info",
                           align: 'center',
-                          width: '15%',
+                          width: "20%",
                           render: (
                             value: string,
                             item,
@@ -357,7 +363,6 @@ const GeneralCreate = (props: any) => {
                           ) => {
                             return (
                               <div>
-                                <Form.Item label=" ">
                                   <NumberInput onChange={(value) => {
                                     if(selectedProduct) {
                                       let entitlementFields = form.getFieldValue('entitlements');
@@ -366,21 +371,22 @@ const GeneralCreate = (props: any) => {
                                       form.setFieldsValue({entitlements: entitlementFields})
                                     }
                                   }}/>
-                                </Form.Item>
                               </div>
                             );
                           },
                         },
                         {
                           className: "ant-col-info",
-                          align: 'left',
-                          width: "20%",
+                          align: 'right',
+                          width: "10%",
                           render: (value: string, item, index: number) => (
-                            <Button
+                            <Row justify={"center"}>
+                            <CloseOutlined
                               onClick={() => onDeleteItem(index)}
                               className="product-item-delete"
-                              icon={<AiOutlineClose/>}
+                              style={{fontSize: "22px"}}
                             />
+                            </Row>
                           ),
                         }
                       ]}
@@ -399,26 +405,43 @@ const GeneralCreate = (props: any) => {
       <Col span={6}>
         {/* Thời gian áp dụng: */}
         <Card>
-          <Row gutter={12} style={{padding: "0px 16px"}}>
+          <Row gutter={6} style={{padding: "0px 16px"}}>
             <Col span={24}>
+              <div className="ant-col ant-form-item-label" style={{width: '100%'}}>
+                <label htmlFor="discount_add_starts_date" className="ant-form-item-required">
+                  <b>Thời gian áp dụng:</b>
+                </label>
+              </div>
+            </Col>
+            <Col span={12}>
               <Form.Item
-                name="prerequisite_duration"
-                label={<b>Thời gian áp dụng:</b>}
+                name="starts_date"
                 rules={[{required: true, message: "Vui lòng chọn thời gian áp dụng"}]}
               >
-                <DateRangePicker
-                  disabled={[false, disabledEndDate]}
-                  placeholder={["Từ ngày", "Đến ngày"]}
+                <DatePicker
                   style={{width: "100%"}}
+                  placeholder="Từ ngày"
+                  showNow
+                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, 'days')}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="ends_date">
+                <DatePicker
+                  disabled={disabledEndDate}
+                  style={{width: "100%"}}
+                  placeholder="Đến ngày"
+                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>
             <Space direction="horizontal">
               <Switch onChange={value => {
-                setDisabledEndDate(value);
                 if (value) {
-                  form.resetFields(['prerequisite_duration'])
+                  form.resetFields(['ends_date'])
                 }
+                setDisabledEndDate(value)
               }}/>
               {"Không cần ngày kết thúc"}
             </Space>
@@ -426,6 +449,7 @@ const GeneralCreate = (props: any) => {
             <Space direction="horizontal">
               <Checkbox
                 defaultChecked={false}
+                // onChange={(value) => setShowTimeAdvance(value.target.checked)}
                 style={{paddingBottom: "20px"}}
               >
                 Hiển thị nâng cao
@@ -480,7 +504,15 @@ const GeneralCreate = (props: any) => {
                 label={<b>Cửa hàng áp dụng:</b>}
                 rules={[{required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng"}]}
               >
-                <Select disabled={allStore} placeholder="Chọn chi nhánh" mode="multiple" className="ant-select-selector-min-height">
+                <Select
+                  disabled={allStore}
+                  placeholder="Chọn chi nhánh"
+                  mode="multiple"
+                  className="ant-select-selector-min-height"
+                  filterOption={(input, option) =>
+                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                >
                   {listStore?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
@@ -507,9 +539,7 @@ const GeneralCreate = (props: any) => {
                 rules={[{required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng"}]}
               >
                 <Select disabled={allChannel} placeholder="Chọn kênh bán hàng" mode="multiple" className="ant-select-selector-min-height">
-                  <Option key="ADMIN" value="ADMIN">ADMIN</Option>
-                  <Option key="POS" value="POS">POS</Option>
-                  <Option key="WEB" value="WEB">WEB</Option>
+                {listChannel?.map((store: any, index: number) => <Option key={index} value={store.id}>{store.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">

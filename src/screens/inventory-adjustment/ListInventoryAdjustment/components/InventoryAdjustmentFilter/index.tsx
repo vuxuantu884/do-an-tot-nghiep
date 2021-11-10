@@ -30,6 +30,7 @@ import {StoreResponse} from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import {DATE_FORMAT} from "utils/DateUtils";
+import {INVENTORY_AUDIT_TYPE_CONSTANTS} from "screens/inventory-adjustment/constants";
 
 const {Panel} = Collapse;
 type InventoryAdjustmentFilterProps = {
@@ -113,21 +114,23 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
+    const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
+    const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
     switch (type) {
       case "create_date":
         setCreateDateClick("");
-        setIsFromCreatedDate(moment(dateString[0], "DD-MM-YYYY"));
-        setIsToCreatedDate(moment(dateString[1], "DD-MM-YYYY"));
+        setIsFromCreatedDate(fromDateString);
+        setIsToCreatedDate(toDateString);
         break;
       case "adjusted_by":
         setAdjustmentDateClick("");
-        setIsFromAdjustedBy(moment(dateString[0], "DD-MM-YYYY"));
-        setIsToAdjustedBy(moment(dateString[1], "DD-MM-YYYY"));
+        setIsFromAdjustedBy(fromDateString);
+        setIsToAdjustedBy(toDateString);
         break;
       case "audited_date":
         setAuditedDateClickClick("");
-        setIsFromAuditedDate(moment(dateString[0], "DD-MM-YYYY"));
-        setIsToAuditedDate(moment(dateString[1], "DD-MM-YYYY"));
+        setIsFromAuditedDate(fromDateString);
+        setIsToAuditedDate(toDateString);
         break;
     }
   }, []);
@@ -176,36 +179,24 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           maxValue = moment().endOf("day");
           break;
         case "yesterday":
-          minValue = moment()
-            .startOf("day")
-            .subtract(1, "days");
-          maxValue = moment()
-            .endOf("day")
-            .subtract(1, "days");
+          minValue = moment().startOf("day").subtract(1, "days");
+          maxValue = moment().endOf("day").subtract(1, "days");
           break;
         case "thisweek":
           minValue = moment().startOf("week");
           maxValue = moment().endOf("week");
           break;
         case "lastweek":
-          minValue = moment()
-            .startOf("week")
-            .subtract(1, "weeks");
-          maxValue = moment()
-            .endOf("week")
-            .subtract(1, "weeks");
+          minValue = moment().startOf("week").subtract(1, "weeks");
+          maxValue = moment().endOf("week").subtract(1, "weeks");
           break;
         case "thismonth":
           minValue = moment().startOf("month");
           maxValue = moment().endOf("month");
           break;
         case "lastmonth":
-          minValue = moment()
-            .startOf("month")
-            .subtract(1, "months");
-          maxValue = moment()
-            .endOf("month")
-            .subtract(1, "months");
+          minValue = moment().startOf("month").subtract(1, "months");
+          maxValue = moment().endOf("month").subtract(1, "months");
           break;
         default:
           break;
@@ -427,13 +418,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
     if (initialValues.from_audited_date || initialValues.to_audited_date) {
       let textInventoryAuditedDate =
-      (initialValues.from_audited_date
-        ? moment(initialValues.from_audited_date).format("DD-MM-YYYY")
-        : "??") +
-      " ~ " +
-      (initialValues.to_audited_date
-        ? moment(initialValues.to_audited_date).format("DD-MM-YYYY")
-        : "??");
+        (initialValues.from_audited_date
+          ? moment(initialValues.from_audited_date).format("DD-MM-YYYY")
+          : "??") +
+        " ~ " +
+        (initialValues.to_audited_date
+          ? moment(initialValues.to_audited_date).format("DD-MM-YYYY")
+          : "??");
       list.push({
         key: "audited_date",
         name: "Ngày kiểm",
@@ -443,13 +434,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
     if (initialValues.from_adjusted_date || initialValues.to_adjusted_date) {
       let textInventoryAdjustmentDate =
-      (initialValues.from_adjusted_date
-        ? moment(initialValues.from_adjusted_date).format("DD-MM-YYYY")
-        : "??") +
-      " ~ " +
-      (initialValues.to_adjusted_date
-        ? moment(initialValues.to_adjusted_date).format("DD-MM-YYYY")
-        : "??");
+        (initialValues.from_adjusted_date
+          ? moment(initialValues.from_adjusted_date).format("DD-MM-YYYY")
+          : "??") +
+        " ~ " +
+        (initialValues.to_adjusted_date
+          ? moment(initialValues.to_adjusted_date).format("DD-MM-YYYY")
+          : "??");
       list.push({
         key: "adjusted_date",
         name: "Ngày cân bằng",
@@ -917,15 +908,19 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                             style={{width: "100%"}}
                             getPopupContainer={(trigger) => trigger.parentNode}
                           >
-                            {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => (
-                              <CustomSelect.Option
-                                style={{width: "100%"}}
-                                key={index.toString()}
-                                value={item.value}
-                              >
-                                {item.name}
-                              </CustomSelect.Option>
-                            ))}
+                            {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
+                              if (item.value === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
+                                  return (<CustomSelect.Option
+                                    style={{width: "100%"}}
+                                    key={index.toString()}
+                                    value={item.value}
+                                  >
+                                    {item.name}
+                                  </CustomSelect.Option>)
+                              }else{
+                                return null
+                              }
+                            })}
                           </CustomSelect>
                         </Item>
                       </Panel>
