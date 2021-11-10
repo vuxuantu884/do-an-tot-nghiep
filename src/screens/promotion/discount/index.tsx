@@ -175,11 +175,18 @@ const DiscountPage = () => {
       render: (value: any, item: any, index: number) => <Dropdown.Button overlay={(
         <Menu>
           <Menu.Item icon={<EditOutlined/>}>Chỉnh sửa</Menu.Item>
-          <Menu.Item style={{color: "#E24343"}} icon={<DeleteOutlined/>}
-                     onClick={() => {
-                       setSelectedRowId(item.id);
-                       setConfirmDelete(true)
-                     }}>
+          <Menu.Item style={{color: "#E24343"}} icon={<EditOutlined />}
+                     onClick={async () => {
+                       setTableLoading(true)
+                       const deleteResponse = await bulkDisablePriceRules({ids: [item.id]});
+                       if (deleteResponse.code === 20000000) {
+                         setTimeout(() => {
+                           showSuccess('Thao tác thành công');
+                           dispatch(getListDiscount(params, fetchData));
+                         }, 2000)
+                       } else {
+                         showError(`${deleteResponse.code} - ${deleteResponse.message}`)
+                       }}}>
             Huỷ
           </Menu.Item>
         </Menu>
@@ -227,17 +234,6 @@ const DiscountPage = () => {
           }
           break;
         case 3:
-          break;
-        case 4:
-          const bulkDeleteResponse = await bulkDeletePriceRules(body);
-          if (bulkDeleteResponse.code === 20000000) {
-            setTimeout(() => {
-              showSuccess('Thao tác thành công');
-              dispatch(getListDiscount(params, fetchData));
-            }, 2000)
-          } else {
-            showError(`${bulkDeleteResponse.code} - ${bulkDeleteResponse.message}`)
-          }
           break;
 
       }
@@ -315,25 +311,7 @@ const DiscountPage = () => {
           />
         </div>
       </Card>
-      <ModalDeleteConfirm
-        onCancel={() => setConfirmDelete(false)}
-        onOk={async () => {
-          setTableLoading(true)
-          const deleteResponse = await deletePriceRuleById(selectedRowId);
-          if (deleteResponse.code === 20000000) {
-            setTimeout(() => {
-              showSuccess('Thao tác thành công');
-              dispatch(getListDiscount(params, fetchData));
-            }, 2000)
-          } else {
-            showError(`${deleteResponse.code} - ${deleteResponse.message}`)
-          }
-          setConfirmDelete(false);
-        }}
-        title="Bạn có chắc muốn xoá chương trình?"
-        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-        visible={isConfirmDelete}
-      />
+
     </ContentContainer>)
 }
 

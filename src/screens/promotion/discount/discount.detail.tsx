@@ -209,7 +209,7 @@ const PromotionDetailScreen: React.FC = () => {
         dataIndex: "total",
         render: (
           value: string,
-        ) => formatCurrency(value),
+        ) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -262,6 +262,7 @@ const PromotionDetailScreen: React.FC = () => {
         title: "Giá cố định",
         align: "center",
         dataIndex: "total",
+        render: (value:any) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
       },
       {
         title: "SL Tối thiểu",
@@ -278,13 +279,17 @@ const PromotionDetailScreen: React.FC = () => {
   }, [costType]);
 
   const renderTotalBill = (cost: number, value: number, discount: number, valueType: string) => {
+    console.log("cost: ", cost);
+    console.log("value: ", value);
+    console.log("discount: ", discount);
+    console.log("valueType: ", valueType);
     let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(value);
         break;
       case "FIXED_AMOUNT":
-        result = `${formatCurrency(value - discount)}`;
+        result = `${formatCurrency(cost - discount)}`;
         break;
       case "PERCENTAGE":
         result = `${cost - ((cost * discount) / 100)}`;
@@ -357,12 +362,6 @@ const PromotionDetailScreen: React.FC = () => {
           value: getEntitled_method(data),
           position: "left",
           key: "3",
-        },
-        {
-          name: "Mô tả",
-          value: data.description,
-          position: "left",
-          key: "4",
         },
         {
           name: "Số lượng đã bán",
@@ -546,6 +545,41 @@ const PromotionDetailScreen: React.FC = () => {
                       ))}
                   </Col>
                 </Row>
+                <Row gutter={30}>
+                  <Col span={24}>
+                    <Col
+                      key={"description"}
+                      span={24}
+                      style={{
+                        padding: 0,
+                        display: "flex",
+                        marginBottom: 10,
+                        color: "#222222",
+                      }}
+                    >
+                      <Col
+                        span={4}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "0 8px 0 0",
+                        }}
+                      >
+                        <span style={{color: "#666666"}}>Mô tả</span>
+                        <span style={{fontWeight: 600}}>:</span>
+                      </Col>
+                      <Col span={18} style={{paddingLeft: 0}}>
+                              <span
+                                style={{
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {data.description ? data.description  : "---"}
+                              </span>
+                      </Col>
+                    </Col>
+                  </Col>
+                </Row>
                 <Divider />
                 <Row gutter={30}>
                   <Col span={24} style={{textAlign: "right"}}>
@@ -609,7 +643,7 @@ const PromotionDetailScreen: React.FC = () => {
                       }}
                     >
                       <Col
-                        span={12}
+                        span={5}
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
@@ -619,7 +653,7 @@ const PromotionDetailScreen: React.FC = () => {
                         <span style={{color: "#666666"}}>{detail.name}</span>
                         <span style={{fontWeight: 600}}>:</span>
                       </Col>
-                      <Col span={12} style={{paddingLeft: 0}}>
+                      <Col span={15} style={{paddingLeft: 0}}>
                           <span
                             style={{
                               wordWrap: "break-word",

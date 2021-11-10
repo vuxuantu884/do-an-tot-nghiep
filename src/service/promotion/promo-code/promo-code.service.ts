@@ -39,11 +39,11 @@ export const publishedBulkPromoCode = (priceRuleId: number, body: any): Promise<
 };
 
 export const enableBulkPromoCode = (priceRuleId: number, body: any): Promise<any> => {
-  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/batch/discount-codes/bulk/enable`, body);
+  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/discount-codes/bulk/enable`, body);
 };
 
 export const disableBulkPromoCode = (priceRuleId: number, body: any): Promise<any> => {
-  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/batch/discount-codes/bulk/disable`, body);
+  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/discount-codes/bulk/disable`, body);
 };
 
 export const updatePromoCodeById = (priceRuleId: number, body: any): Promise<PromoCodeResponse> => {
