@@ -16,9 +16,9 @@ type PropType = {
   changeMoney: number;
   amount: number;
   showDiscountModal: () => void;
+  showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
-  setIsDisableAutomaticDiscount: (value: boolean) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -32,7 +32,7 @@ type PropType = {
 
 function CardProductBottom(props: PropType) {
   const {
-    levelOrder = 0,
+    // levelOrder = 0,
     totalAmountOrder,
     items,
     discountRate,
@@ -44,21 +44,21 @@ function CardProductBottom(props: PropType) {
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
     showDiscountModal,
+    showCouponModal,
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
-    setIsDisableAutomaticDiscount,
   } = props;
 
   return (
     <StyledComponent>
       <Row gutter={24}>
         <Col xs={24} lg={11}>
-          <div className="optionRow">
+          {/* <div className="optionRow">
             <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsDisableAutomaticDiscount(e.target.value)}>
               Bỏ chiết khấu tự động
             </Checkbox>
-          </div>
+          </div> */}
         </Col>
         <Col xs={24} lg={10}>
           <Row className="paymentRow" style={{justifyContent: "space-between"}}>
@@ -113,7 +113,7 @@ function CardProductBottom(props: PropType) {
               {setDiscountRate && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
-                  onClick={showDiscountModal}
+                  onClick={showCouponModal}
                   style={{
                     textDecoration: "underline",
                     textDecorationColor: "#5D5D8A",

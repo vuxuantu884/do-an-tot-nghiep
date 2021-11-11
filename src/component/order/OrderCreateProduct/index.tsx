@@ -86,6 +86,10 @@ import CardProductBottom from "./CardProductBottom";
 import {StyledComponent} from "./styles";
 import {CouponRequestModel, LineItemRequestModel} from "model/request/promotion.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
+import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
+import { ApplyCouponResponseModel } from "model/response/order/promotion.response";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 
 type PropType = {
   storeId: number | null;
@@ -173,8 +177,8 @@ function OrderCreateProduct(props: PropType) {
   const {
     form,
     items,
-    discountRate,
-    discountValue,
+    discountRate =0,
+    discountValue =0,
     storeId,
     inventoryResponse,
     levelOrder = 0,
@@ -213,12 +217,14 @@ function OrderCreateProduct(props: PropType) {
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
+  const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
+  console.log('setCoupon', setCoupon)
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
-  const [isDisableAutomaticDiscount, setIsDisableAutomaticDiscount] = useState(false);
+  const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
 
   const [resultSearchStore, setResultSearchStore] = useState("");
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
@@ -830,6 +836,7 @@ function OrderCreateProduct(props: PropType) {
     item: OrderLineItemRequest,
     splitLine: boolean
   ) => {
+    setLoadingAutomaticDiscount(true);
     let valuestDiscount = 0;
     let quantity = splitLine
       ? _items.filter((singleItem) => singleItem.variant_id === item.variant_id).length
@@ -890,7 +897,7 @@ function OrderCreateProduct(props: PropType) {
       if (!items) {
         return;
       }
-      setLoadingAutomaticDiscount(true);
+      // setLoadingAutomaticDiscount(true);
       let newV = parseInt(v);
       let _items = [...items].reverse();
       let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
@@ -902,7 +909,7 @@ function OrderCreateProduct(props: PropType) {
         if (splitLine || index === -1) {
           _items.push(item);
           // await handleAutomaticDiscount(_items, item, splitLine);
-          if (!isDisableAutomaticDiscount) {
+          if (isAutomaticDiscount) {
             await handleAutomaticDiscount(_items, item, splitLine);
           }
           setAmount(amount + (item.price - item.discount_items[0].amount));
@@ -922,7 +929,7 @@ function OrderCreateProduct(props: PropType) {
               variantItems[lastIndex].quantity;
 
           // await handleAutomaticDiscount(_items, item, splitLine);
-          if (!isDisableAutomaticDiscount) {
+          if (isAutomaticDiscount) {
             await handleAutomaticDiscount(_items, item, splitLine);
           }
           setAmount(
@@ -946,7 +953,7 @@ function OrderCreateProduct(props: PropType) {
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
     },
-    [resultSearchVariant, items, splitLine, isDisableAutomaticDiscount]
+    [resultSearchVariant, items, splitLine, isAutomaticDiscount]
   );
 
   const onChangeProductSearch = useCallback(
@@ -982,14 +989,6 @@ function OrderCreateProduct(props: PropType) {
   );
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-
-  const ShowDiscountModal = useCallback(() => {
-    setVisiblePickDiscount(true);
-  }, [setVisiblePickDiscount]);
-
-  const onCancelDiscountConfirm = useCallback(() => {
-    setVisiblePickDiscount(false);
-  }, []);
 
   const showInventoryModal = useCallback(() => {
     if (items !== null && items?.length) setInventoryModalVisible(true);
@@ -1030,7 +1029,7 @@ function OrderCreateProduct(props: PropType) {
         variant_id: single.variant_id,
       };
     });
-    if (!isDisableAutomaticDiscount) {
+    if (!isAutomaticDiscount) {
       let params: CouponRequestModel = {
         order_id: null,
         customer_id: customer?.id || null,
@@ -1044,9 +1043,21 @@ function OrderCreateProduct(props: PropType) {
         taxes_included: true,
         tax_exempt: false,
       };
-      applyCouponService(params).then((response) => {
+      applyCouponService(params).then((response:BaseResponse<ApplyCouponResponseModel>) => {
         console.log("response", response);
-        // if(response)
+        switch (response.code) {
+          case HttpStatus.SUCCESS:
+            // console.log('response', response)
+            if(response.data.applied_discount.invalid) {
+              showError(response.data.applied_discount.invalid_description);
+            } else {
+              showSuccess("Thêm coupon thành công!")
+            }
+            break;
+          default:
+            response.errors.forEach((e) => showError(e));
+            break;
+        }
       });
     }
   };
@@ -1065,6 +1076,29 @@ function OrderCreateProduct(props: PropType) {
       setDiscountType(type);
       setDiscountValue && setDiscountValue(value);
       setDiscountRate && setDiscountRate(rate);
+      if (coupon) {
+        handleApplyCoupon(coupon);
+      }
+      if (items) {
+        calculateChangeMoney(items, amount, rate, value);
+      }
+      showSuccess("Thêm chiết khấu/coupon thành công");
+    }
+  };
+  const onOkCouponConfirm = (
+    type: string,
+    value: number,
+    rate: number,
+    coupon: string
+  ) => {
+    console.log("coupoonss");
+    if (amount === 0) {
+      showError("Bạn cần chọn sản phẩm trước khi thêm mã khuyến mại!");
+    } else {
+      // setVisiblePickDiscount(false);
+      // setDiscountType(type);
+      // setDiscountValue && setDiscountValue(value);
+      // setDiscountRate && setDiscountRate(rate);
       if (coupon) {
         handleApplyCoupon(coupon);
       }
@@ -1185,7 +1219,7 @@ function OrderCreateProduct(props: PropType) {
     }
   }, []);
 
-  console.log('isDisableAutomaticDiscount', isDisableAutomaticDiscount)
+  console.log('isAutomaticDiscount', isAutomaticDiscount)
 
   return (
     <StyledComponent>
@@ -1194,7 +1228,7 @@ function OrderCreateProduct(props: PropType) {
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
-            <span>Chính sách giá:</span>
+            {/* <span>Chính sách giá:</span>
             <Form.Item name="price_type">
               <Select style={{minWidth: 145, height: 38}} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">
@@ -1202,7 +1236,19 @@ function OrderCreateProduct(props: PropType) {
                 </Select.Option>
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
-            </Form.Item>
+            </Form.Item> */}
+            <Checkbox
+              disabled={levelOrder > 3}
+              checked={isAutomaticDiscount}
+              onChange={(e) => setIsAutomaticDiscount(e.target.checked)}
+            >
+              Chiết khấu tự động
+            </Checkbox>
+            <Select style={{minWidth: 145, height: 38}} placeholder="Chương trình khuyến mại">
+              <Select.Option value="" color="#222222">
+                (Tạm thời chưa có)
+              </Select.Option>
+            </Select>
             <Button
               onClick={() => {
                 showInventoryModal();
@@ -1242,17 +1288,6 @@ function OrderCreateProduct(props: PropType) {
           </Space>
         }
       >
-        <div style={{marginBottom: 20}}>
-          <Checkbox
-            className=""
-            style={{fontWeight: 500}}
-            disabled={levelOrder > 3}
-            checked={isDisableAutomaticDiscount}
-            onChange={(e) => setIsDisableAutomaticDiscount(e.target.checked)}
-          >
-            Bỏ chiết khấu tự động
-          </Checkbox>
-        </div>
         <Row gutter={15} className="rowSelectStoreAndProducts">
           <Col md={8}>
             <Form.Item
@@ -1463,26 +1498,34 @@ function OrderCreateProduct(props: PropType) {
             discountValue={discountValue}
             setDiscountRate={setDiscountRate}
             setDiscountValue={setDiscountValue}
-            showDiscountModal={ShowDiscountModal}
+            showDiscountModal={()=>setVisiblePickDiscount(true)}
+            showCouponModal={()=>setIsVisiblePickCoupon(true)}
             totalAmountOrder={amount}
             items={items}
             shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-            setIsDisableAutomaticDiscount={setIsDisableAutomaticDiscount}
           />
         )}
         {setDiscountValue && setDiscountRate && (
-          <PickDiscountModal
-            amount={amount}
-            type={discountType}
-            value={discountValue}
-            rate={discountRate}
-            coupon={coupon}
-            onCancel={onCancelDiscountConfirm}
-            onOk={onOkDiscountConfirm}
-            visible={isVisiblePickDiscount}
-          />
+          <React.Fragment>
+            <PickDiscountModal
+              amount={amount}
+              type={discountType}
+              value={discountValue}
+              rate={discountRate}
+              // coupon={coupon}
+              onCancelDiscountModal={()=>setVisiblePickDiscount(false)}
+              onOkDiscountModal={onOkDiscountConfirm}
+              visible={isVisiblePickDiscount}
+            />
+            <PickCouponModal
+              coupon={coupon}
+              onCancelCouponModal={()=>setIsVisiblePickCoupon(false)}
+              onOkCouponModal={onOkCouponConfirm}
+              visible={isVisiblePickCoupon}
+            />
+          </React.Fragment>
         )}
         <InventoryModal
           isModalVisible={isInventoryModalVisible}

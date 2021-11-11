@@ -68,6 +68,6 @@ export const applyDiscount = (items: Array<any>, salesChannelName: string) : Pro
 }
 
 
-export const applyCouponService = (queryParams: CouponRequestModel) => {
+export const applyCouponService = (queryParams: CouponRequestModel): Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, queryParams)
 };
