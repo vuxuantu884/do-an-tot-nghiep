@@ -86,9 +86,9 @@ const STATUS_CODE = [
       published: false,
       value: 'Ngừng áp dụng',
       style: {
-      background: "rgba(252, 175, 23, 0.1)",
+      background: "rgb(245, 245, 245)",
       borderRadius: "100px",
-      color: "rgb(245, 245, 245)",
+      color: "rgb(102, 102, 102)",
       padding: "5px 10px"
       }},
   {
@@ -96,9 +96,9 @@ const STATUS_CODE = [
       published: true,
       value: 'Đã tặng' ,
       style: {
-      background: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
       borderRadius: "100px",
-      color: "rgb(102, 102, 102)",
+      color: "#FCAF17",
       padding: "5px 10px"
       }},
   ]
