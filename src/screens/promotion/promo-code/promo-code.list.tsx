@@ -11,7 +11,7 @@ import {
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import actionColumn from "./actions/action.column";
+import actionColumn from "./actions/promo.action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
@@ -48,7 +48,6 @@ import {
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
-import { STATUS_CODE } from "../constant";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import {AppConfig} from "../../../config/app.config";
@@ -70,6 +69,40 @@ const csvColumnMapping: any = {
   DUPLICATE: "Mã đã bị trùng trong file",
 };
 
+const STATUS_CODE = [
+  {
+      disabled: false,
+      published: false,
+      value: 'Đang áp dụng',
+      style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px"
+      }
+  },
+  {
+      disabled: true,
+      published: false,
+      value: 'Ngừng áp dụng',
+      style: {
+      background: "rgb(245, 245, 245)",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px"
+      }},
+  {
+      disabled: false,
+      published: true,
+      value: 'Đã tặng' ,
+      style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "#FCAF17",
+      padding: "5px 10px"
+      }},
+  ]
+
 const ListCode = () => {
   const token = getToken() || "";
   const actions: Array<MenuAction> = [
@@ -84,10 +117,6 @@ const ListCode = () => {
     {
       id: 3,
       name: "Ngừng áp dụng",
-    },
-    {
-      id: 4,
-      name: "Xoá",
     },
   ];
   const dispatch = useDispatch();
@@ -300,7 +329,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_CODE.find(e => e.code === value);
+        const status: any | null = STATUS_CODE.find(e => (e.published === item.published && e.disabled === item.disabled));
         return (<div
           style={status?.style}
         >
@@ -363,10 +392,6 @@ const ListCode = () => {
         case 3:
           dispatch(showLoading());
           dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
-          break;
-        case 4:
-          dispatch(showLoading());
-          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
     }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
@@ -547,12 +572,18 @@ const ListCode = () => {
         }}
       />
       <Modal
-        onCancel={() => setShowImportFile(false)}
+        onCancel={() => {
+          setUploadStatus(undefined)
+          setShowImportFile(false)
+        }}
         width={650}
         visible={showImportFile}
         title="Nhập file khuyến mại"
         footer={[
-          <Button key="back" onClick={() => setShowImportFile(false)}>
+          <Button key="back" onClick={() => {
+            setUploadStatus(undefined)
+            setShowImportFile(false)
+          }}>
             Huỷ
           </Button>,
 
@@ -560,6 +591,7 @@ const ListCode = () => {
             key="link"
             type="primary"
             onClick={() => {
+              setUploadStatus(undefined)
               dispatch(promoGetDetail(id, onResult));
               setShowImportFile(false)
             }}
@@ -568,58 +600,61 @@ const ListCode = () => {
           </Button>,
         ]}
       >
-        <Row gutter={12}>
-          <Col span={3}>
-            Chú ý:
-          </Col>
-          <Col span={19}>
-            <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-            <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-            <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
-            <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
-            <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
-              không F5 hoặc tắt cửa sổ trình duyệt.</p>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <div className="dragger-wrapper">
-            <Dragger
-              accept=".xlsx"
-              multiple={false}
-              action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
-              headers={{"Authorization": `Bearer ${token}`}}
-              onChange={(info) => {
-                const {status} = info.file;
-                if (status === "done") {
-                  const response = info.file.response;
-                  if (response.code === 20000000) {
-                    if (response.data.errors.length > 0) {
-                      const errors: Array<any> = _.uniqBy(response.data.errors, "index");
-                      setCodeErrorsResponse([...errors]);
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
+          <Row gutter={12}>
+            <Col span={3}>
+              Chú ý:
+            </Col>
+            <Col span={19}>
+              <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+              <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+              <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
+              <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+              <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
+                không F5 hoặc tắt cửa sổ trình duyệt.</p>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <div className="dragger-wrapper">
+              <Dragger
+                accept=".xlsx"
+                multiple={false}
+                action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
+                headers={{"Authorization": `Bearer ${token}`}}
+                onChange={(info) => {
+                  const {status} = info.file;
+                  if (status === "done") {
+                    const response = info.file.response;
+                    if (response.code === 20000000) {
+                      if (response.data.errors.length > 0) {
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        setCodeErrorsResponse([...errors]);
+                      }
+                      setImportTotal(response.data.total);
+                      setSuccessCount(response.data.success_count);
                     }
-                    setImportTotal(response.data.total);
-                    setSuccessCount(response.data.success_count);
-                  }
-                  setUploadStatus(status);
-                } else if (status === "error") {
-                  message.error(`${info.file.name} file upload failed.`);
-                  setUploadStatus(status);
+                    setUploadStatus(status);
+                  } else if (status === "error") {
+                    message.error(`${info.file.name} file upload failed.`);
+                    setUploadStatus(status);
 
-                } else {
-                  setUploadStatus(status);
-                }
-              }}
-            >
-              <p className="ant-upload-drag-icon">
-                <RiUpload2Line size={48} />
-              </p>
-              <p className="ant-upload-hint">
-                Kéo file vào đây hoặc tải lên từ thiết bị
-              </p>
-            </Dragger>
-          </div>
-          <div
-            style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
+                  } else {
+                    setUploadStatus(status);
+                  }
+                }}
+              >
+                <p className="ant-upload-drag-icon">
+                  <RiUpload2Line size={48} />
+                </p>
+                <p className="ant-upload-hint">
+                  Kéo file vào đây hoặc tải lên từ thiết bị
+                </p>
+              </Dragger>
+            </div>
+          </Row>
+        </div>
+        <Row>
+          <div style={{display: uploadStatus === "done" || uploadStatus === "uploading" || uploadStatus === "success" ? "" : "none"}}>
             <Row justify={"center"}>
               {uploadStatus === "uploading" ?
                 <Col span={24}>

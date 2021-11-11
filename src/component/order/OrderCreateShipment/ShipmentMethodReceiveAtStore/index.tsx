@@ -7,10 +7,11 @@ import { StyledComponent } from "./styles";
 type PropType = {
   storeDetail?: StoreCustomResponse | null;
   isCancelValidateDelivery?: boolean;
+  renderButtonCreateActionHtml: () => JSX.Element | null;
 };
 
 function ShipmentMethodReceiveAtStore(props: PropType) {
-  const {storeDetail} = props;
+  const {storeDetail, renderButtonCreateActionHtml} = props;
   return (
     <StyledComponent>
       <div className="receive-at-store">
@@ -46,6 +47,7 @@ function ShipmentMethodReceiveAtStore(props: PropType) {
             <b className="row-info-content">{storeDetail?.address}</b>
           </Col>
         </Row>
+        {renderButtonCreateActionHtml && renderButtonCreateActionHtml()}
       </div>
     </StyledComponent>
   );

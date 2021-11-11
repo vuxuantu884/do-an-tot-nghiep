@@ -1238,9 +1238,9 @@ const CardExchangeProducts: React.FC<CardProductProps> = (props: CardProductProp
         type={discountType}
         value={discountValue}
         rate={discountRate}
-        coupon={coupon}
-        onCancel={onCancelDiscountConfirm}
-        onOk={onOkDiscountConfirm}
+        // coupon={coupon}
+        onCancelDiscountModal={onCancelDiscountConfirm}
+        onOkDiscountModal={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
     </Card>

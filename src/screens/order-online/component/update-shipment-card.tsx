@@ -42,6 +42,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderResponse,
+  ShipmentResponse,
   TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
@@ -845,8 +846,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [updateShipment, cancelShipment, disabledActions]);
 
   // todo thai: update khi có logo các đối tác giao hàng
-  const renderDeliveryPartner = (shipment: any) => {
-    const delivery = deliveryServices?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+  const renderDeliveryPartner = (shipment: ShipmentResponse) => {
+    const delivery = deliveryServices?.find(delivery => delivery.code === shipment.delivery_service_provider_code);
     if (delivery && delivery.logo) {
       return (
         <img
@@ -1453,7 +1454,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           }}
         >
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED 
-          && checkIfOrderHasReturnedAll(OrderDetail) 
+          && !checkIfOrderHasReturnedAll(OrderDetail) 
           ? (
             <Button
               type="primary"
@@ -1468,12 +1469,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               Đổi trả hàng 3
             </Button>
           ) : (
-            <>
-              {props.OrderDetail?.fulfillments &&
+            <React.Fragment>
+              {checkIfOrderHasReturnedAll(OrderDetail) ? null : 
+              props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
               props.OrderDetail?.fulfillments[0].shipment &&
               props.OrderDetail?.fulfillments[0].shipment
-                .delivery_service_provider_type === "pick_at_store" ? (
+                .delivery_service_provider_type === "pick_at_store" && !checkIfOrderHasReturnedAll(OrderDetail) ? (
                 <Button
                   onClick={cancelFullfilment}
                   loading={cancelShipment}
@@ -1485,7 +1487,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     padding: "0 25px",
                   }}
                 >
-                  Hủy
+                  Hủy 3
                 </Button>
               ) : (
                 props.OrderDetail?.fulfillments &&
@@ -1506,7 +1508,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </Button>
                 )
               )}
-            </>
+            </React.Fragment>
           )}
           {props.stepsStatusValue === OrderStatus.FINALIZED &&
             props.OrderDetail?.fulfillments &&

@@ -77,6 +77,7 @@ export interface OrderSearchQuery {
   code: string | null;
   store_ids: [];
   source_ids: Array<any> | [];
+  variant_ids: [];
   customer_ids: Array<number>;
   issued_on_min: string | null;
   issued_on_max: string | null;

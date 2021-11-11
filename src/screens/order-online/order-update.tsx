@@ -59,7 +59,7 @@ import {
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
-  ShipmentRequest 
+  ShipmentRequest
 } from "model/request/order.request";
 import {
   CustomerResponse,
@@ -70,13 +70,12 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
   DeliveryServiceResponse,
-  FulFillmentResponse,
-  OrderConfig,
-  OrderResponse,
+  FulFillmentResponse, OrderResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -91,9 +90,7 @@ import {
   TrackingCode
 } from "utils/AppUtils";
 import {
-  FulFillmentStatus,
-  MoneyPayThreePls,
-  OrderStatus,
+  FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethod,
@@ -140,9 +137,6 @@ export default function Order(props: PropType) {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-
-  const [hvc] = useState<number | null>(null);
-  const [fee] = useState<number | null>(null);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(null);
   const [listPaymentMethod, setListPaymentMethod] = useState<
   Array<PaymentMethodResponse>
@@ -158,9 +152,6 @@ export default function Order(props: PropType) {
   const [form] = Form.useForm();
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [serviceType, setServiceType] = useState<string | null>();
-  const [serviceName, setServiceName] = useState<string>("");
-  console.log(setServiceName);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
@@ -170,7 +161,7 @@ export default function Order(props: PropType) {
 
   const [inventoryResponse, setInventoryResponse] =
     useState<Array<InventoryResponse> | null>(null);
-  const [configOrder, setConfigOrder] = useState<OrderConfig | null>(null);
+  const [configOrder, setConfigOrder] = useState<OrderConfigResponseModel | null>(null);
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(true);
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -443,13 +434,15 @@ export default function Order(props: PropType) {
       case ShipmentMethodOption.DELIVER_PARTNER:
         return {
           ...objShipment,
-          delivery_service_provider_id: hvc,
+          delivery_service_provider_id: thirdPL.delivery_service_provider_id,
           delivery_service_provider_type: "external_service",
-          delivery_transport_type: serviceName,
+          delivery_transport_type: thirdPL.delivery_transport_type,
+          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
+          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
           sender_address_id: storeId,
           shipping_fee_informed_to_customer: shippingFeeInformedToCustomer,
-          service: serviceType!,
-          shipping_fee_paid_to_three_pls: hvc === 1 ? fee : MoneyPayThreePls.VALUE,
+          service: thirdPL.service,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
@@ -641,7 +634,10 @@ export default function Order(props: PropType) {
             // dispatch(orderUpdateAction(id, values, createOrderCallback));
           }
         } else {
-          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !serviceType) {
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+            !thirdPL.service
+          ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
             if (checkInventory()) {
@@ -936,7 +932,6 @@ export default function Order(props: PropType) {
             setShipmentMethod(newShipmentMethod);
             const newFulfillments = [...response.fulfillments];
             setFulfillments(newFulfillments.reverse());
-            setServiceType(response?.fulfillments[0]?.shipment.service);
             setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
 
             if (
@@ -1094,7 +1089,7 @@ export default function Order(props: PropType) {
 
   useEffect(() => {
     dispatch(
-      configOrderSaga((data: OrderConfig) => {
+      configOrderSaga((data) => {
         setConfigOrder(data);
       })
     );
@@ -1180,7 +1175,7 @@ export default function Order(props: PropType) {
                     changeInfo={onChangeInfoProduct}
                     selectStore={onStoreSelect}
                     storeId={storeId}
-                    shippingFeeCustomer={shippingFeeInformedToCustomer}
+                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                     setItemGift={setItemGifts}
                     formRef={formRef}
                     items={items}
@@ -1198,6 +1193,7 @@ export default function Order(props: PropType) {
                     isSplitOrder={checkIfOrderCanBeSplit}
                     orderDetail={OrderDetail}
                     fetchData={fetchData}
+                    orderConfig={configOrder}
                   />
 
                   {OrderDetail !== null &&
@@ -1722,7 +1718,7 @@ export default function Order(props: PropType) {
                             fulfillment.shipment && (
                               <div
                                 key={fulfillment.id}
-                                style={{paddingTop: 6, paddingBottom: 4}}
+                                style={{marginTop: -12}}
                               >
                                 <Collapse
                                   className="saleorder_shipment_order_colapse payment_success"

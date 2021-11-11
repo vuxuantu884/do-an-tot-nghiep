@@ -27,8 +27,8 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
       cancelText={cancelText}
       closable={!(updateShipment || cancelShipment)}
       title={[
-        <div key="1">
-          <img src={icon} alt="" />
+        <div key="1" style={{display: "flex"}}>
+          <img src={icon} alt="" style={{marginRight: 20}}/>
           <div>
             <h4>{title}</h4>
             <span style={title ?{fontWeight: 400} : {fontWeight: 600, fontSize: 16}}>{text}</span>
@@ -37,7 +37,7 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
       ]}
       footer={[
         <div>
-          <Button onClick={onOk} loading={updateShipment || cancelShipment}>
+          <Button type="primary" onClick={onOk} loading={updateShipment || cancelShipment}>
             {okText}
           </Button>
           <Button onClick={onCancel} disabled={updateShipment || cancelShipment}>

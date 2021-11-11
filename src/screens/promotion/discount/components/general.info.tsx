@@ -25,11 +25,11 @@ const GeneralInfo = (props: any) => {
 
   const [showTimeAdvance] = useState(false)
   // const [showCustomerAdvance, setShowCustomerAdvance] = useState(false)
-  const [allStore, setAllStore] = useState(false)
-  const [allChannel, setAllChannel] = useState(false)
-  const [allSource, setAllSource] = useState(false)
+  const [allStore, setAllStore] = useState(true)
+  const [allChannel, setAllChannel] = useState(true)
+  const [allSource, setAllSource] = useState(true)
   const [allCustomer] = useState(false)
-  const [unlimitedUsage, setUnlimitedUsage] = useState(false)
+  const [unlimitedUsage, setUnlimitedUsage] = useState(true)
   const [disabledEndDate, setDisabledEndDate] = useState(false)
   const [discountMethod, setDiscountMethod] = useState('FIXED_PRICE')
 
@@ -118,7 +118,7 @@ const GeneralInfo = (props: any) => {
                     name="usage_limit"
                   >
                     <Space>
-                      <Switch onChange={value => {
+                      <Switch defaultChecked={unlimitedUsage} onChange={value => {
                         form.validateFields(['usage_limit'])
                         form.setFieldsValue({
                           usage_limit: null
@@ -200,7 +200,11 @@ const GeneralInfo = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
                   showNow
-                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, 'days')}
+                  showTime={{ format: 'HH:mm' }}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment().subtract(1, 'days')) ||
+                    currentDate.valueOf() >= form.getFieldValue("ends_date")
+                  }
                 />
               </Form.Item>
             </Col>
@@ -210,18 +214,19 @@ const GeneralInfo = (props: any) => {
                   disabled={disabledEndDate}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
+                  showTime={{ format: 'HH:mm' }}
                   disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>
             <Space direction="horizontal">
               <Switch onChange={value => {
-                if (value) {
-                  form.resetFields(['ends_date'])
-                }
-                setDisabledEndDate(value)
-              }}/>
-              {"Không cần ngày kết thúc"}
+                  if (value) {
+                    form.resetFields(['ends_date'])
+                  }
+                  setDisabledEndDate(value)
+                }}/>
+                {"Không cần ngày kết thúc"}
             </Space>
             <Divider/>
             <Space direction="horizontal">
@@ -294,13 +299,16 @@ const GeneralInfo = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch onChange={value => {
-                  form.setFieldsValue({
-                    prerequisite_store_ids: undefined
-                  });
-                  form.validateFields(['prerequisite_store_ids'])
-                  setAllStore(value)
-                }}/>
+                <Switch
+                  defaultChecked={allStore}
+                  onChange={value => {
+                    form.setFieldsValue({
+                      prerequisite_store_ids: undefined
+                    });
+                    form.validateFields(['prerequisite_store_ids'])
+                    setAllStore(value)
+                  }}
+                />
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
@@ -324,13 +332,16 @@ const GeneralInfo = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch onChange={value => {
-                  form.setFieldsValue({
-                    prerequisite_sales_channel_names: undefined
-                  });
-                  form.validateFields(['prerequisite_sales_channel_names'])
-                  setAllChannel(value)
-                }}/>
+                <Switch
+                  defaultChecked={allChannel}
+                  onChange={value => {
+                    form.setFieldsValue({
+                      prerequisite_sales_channel_names: undefined
+                    });
+                    form.validateFields(['prerequisite_sales_channel_names'])
+                    setAllChannel(value)
+                  }}
+                />
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>
@@ -354,13 +365,16 @@ const GeneralInfo = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch onChange={value => {
-                  form.validateFields(['prerequisite_order_sources_ids'])
-                  form.setFieldsValue({
-                    prerequisite_order_sources_ids: undefined
-                  })
-                  setAllSource(value)
-                }}/>
+                <Switch
+                  defaultChecked={allSource}
+                  onChange={value => {
+                    form.validateFields(['prerequisite_order_sources_ids'])
+                    form.setFieldsValue({
+                      prerequisite_order_sources_ids: undefined
+                    })
+                    setAllSource(value)
+                  }}
+                />
                 {"Áp dụng toàn bộ"}
               </Space>
             </Col>

@@ -73,6 +73,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   customer_ids: [],
   store_ids: [],
   source_ids: [],
+  variant_ids: [],
   issued_on_min: null,
   issued_on_max: null,
   issued_on_predefined: null,
