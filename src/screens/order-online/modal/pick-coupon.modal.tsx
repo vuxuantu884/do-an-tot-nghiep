@@ -30,7 +30,7 @@ function PickCouponModal(props: PropType){
   };
   return (
     <Modal
-      title="Chiết khấu đơn hàng"
+      title="Mã giảm giá"
       onCancel={onCancelCouponModal}
       centered
       visible={visible}
@@ -46,15 +46,13 @@ function PickCouponModal(props: PropType){
         layout="vertical"
         onKeyPress={(e) => handleEnterToSubmit(e.which)}
       >
-        <Form.Item label="Mã giảm giá">
-          <Input
-            placeholder="Mã giảm giá"
-            onFocus={(e) => e.target.select()}
-            style={{ width: "99%" }}
-            value={_coupon}
-            onChange={onchangeCoupon}
-          />
-        </Form.Item>
+        <Input
+          placeholder="Mã giảm giá"
+          onFocus={(e) => e.target.select()}
+          style={{ width: "99%" }}
+          value={_coupon}
+          onChange={onchangeCoupon}
+        />
       </Form>
     </Modal>
   );
