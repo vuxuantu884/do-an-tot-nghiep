@@ -1078,11 +1078,9 @@ export default function Order() {
                       items={items}
                       setItems={setItems}
                       discountRate={discountRate}
-                      setDiscountRate={(value)=>{setDiscountRate(value)}}
+                      setDiscountRate={setDiscountRate}
                       discountValue={discountValue}
-                      setDiscountValue={(value) => {
-                        setDiscountValue(value);
-                      }}
+                      setDiscountValue={setDiscountValue}
                       inventoryResponse={inventoryResponse}
                       setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
