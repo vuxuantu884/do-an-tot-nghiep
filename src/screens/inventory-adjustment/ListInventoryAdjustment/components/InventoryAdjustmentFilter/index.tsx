@@ -114,15 +114,21 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const [adjustmentDateClick, setAdjustmentDateClick] = useState("");
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
-    const fromDateString = dateString[0] !== "" ? moment(dateString[0], "DD-MM-YYYY") : null;
-    const toDateString = dateString[1] !== "" ? moment(dateString[1], "DD-MM-YYYY") : null;
+      
+    let fromDateString = null;
+    let toDateString = null;
+  
+    if (dates) {
+      fromDateString = dates[0].hours(0).minutes(0).seconds(0) ?? null;
+      toDateString = dates[1].hours(23).minutes(59).seconds(59) ?? null;
+    }
     switch (type) {
       case "create_date":
         setCreateDateClick("");
         setIsFromCreatedDate(fromDateString);
         setIsToCreatedDate(toDateString);
         break;
-      case "adjusted_by":
+      case "adjusted_date":
         setAdjustmentDateClick("");
         setIsFromAdjustedBy(fromDateString);
         setIsToAdjustedBy(toDateString);
@@ -350,12 +356,26 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     let list = [];
     if (initialValues?.status?.length) {
       let textStatus = "";
-      initialValues.status.forEach((statusValue) => {
-        const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
-          (status) => status.value === statusValue
-        );
-        textStatus = status ? textStatus + status.name + ";" : textStatus;
-      });
+      
+      if (initialValues.status.length > 1) {
+        
+        initialValues.status.forEach((statusValue) => {
+          const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
+            (status) => status.value === statusValue
+          );
+          textStatus = status ? textStatus + status.name + "; " : textStatus;
+        });
+  
+      } else if (initialValues.status.length === 1) {
+
+        initialValues.status.forEach((statusValue) => {
+          const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
+            (status) => status.value === statusValue
+          );
+          textStatus = status ? textStatus + status.name : textStatus;
+        });
+      }
+
       list.push({
         key: "status",
         name: "Trạng thái",
@@ -364,12 +384,26 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
     if (initialValues?.audit_type?.length) {
       let auditTypeName = "";
-      initialValues.audit_type.forEach((value) => {
-        const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
-          (auditType) => auditType.value === value
-        );
-        auditTypeName = auditType ? auditTypeName + auditType.name + ";" : auditTypeName;
-      });
+      
+      if (initialValues.audit_type.length > 1) {
+        
+        initialValues.audit_type.forEach((value) => {
+          const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
+            (auditType) => auditType.value === value
+          );
+          auditTypeName = auditType ? auditTypeName + auditType.name + "; " : auditTypeName;
+        });
+  
+      } else if (initialValues.audit_type.length === 1) {
+
+        initialValues.audit_type.forEach((value) => {
+          const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
+            (auditType) => auditType.value === value
+          );
+          auditTypeName = auditType ? auditTypeName + auditType.name : auditTypeName;
+        });
+      }
+
       list.push({
         key: "audit_type",
         name: "Loại kiểm",
@@ -389,12 +423,25 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
     if (initialValues?.created_name?.length) {
       let textAccount = "";
-      initialValues.created_name.forEach((i) => {
-        const findAccount = accounts?.find((item) => item.code === i);
-        textAccount = findAccount
-          ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
-          : textAccount;
-      });
+
+      if (initialValues.created_name.length > 1) {
+
+        initialValues.created_name.forEach((i) => {
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
+            : textAccount;
+        });
+  
+      } else if (initialValues.created_name.length === 1) {
+        
+        initialValues.created_name.forEach((i) => {
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code
+            : textAccount;
+        });
+      }
       list.push({
         key: "create_name",
         name: "Người tạo",
@@ -910,15 +957,17 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                           >
                             {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
                               if (item.value === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
-                                  return (<CustomSelect.Option
+                                return (
+                                  <CustomSelect.Option
                                     style={{width: "100%"}}
                                     key={index.toString()}
                                     value={item.value}
                                   >
                                     {item.name}
-                                  </CustomSelect.Option>)
-                              }else{
-                                return null
+                                  </CustomSelect.Option>
+                                );
+                              } else {
+                                return null;
                               }
                             })}
                           </CustomSelect>

@@ -600,7 +600,7 @@ function* getAllChannelSaga(action: YodyAction) {
 function* getListReasonSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<{ id: string; name: string }>> = yield call(
+    let response: BaseResponse<Array<{ id: string; name: string, sub_reasons: any[] }>> = yield call(
       getReasonsApi
     );
     switch (response.code) {

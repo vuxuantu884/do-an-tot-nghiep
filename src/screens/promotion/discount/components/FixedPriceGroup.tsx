@@ -12,8 +12,11 @@ import {RiInformationLine} from "react-icons/ri";
 import {Link} from "react-router-dom";
 import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
-import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined} from "@ant-design/icons";
 import {formatCurrency} from "../../../../utils/AppUtils";
+import {showError} from "utils/ToastUtils";
+import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg"
+import {float} from "html2canvas/dist/types/css/property-descriptors/float";
 
 const Option = Select.Option;
 
@@ -23,17 +26,15 @@ const FixedPriceGroup = (props: any) => {
     name,
     form,
     remove,
-    isFirst,
     allProducts,
-    discountMethod
+    discountMethod,
   } = props;
   const dispatch = useDispatch();
 
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Array<VariantResponse>>([])
+  const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [discountType, setDiscountType] = useState("FIXED_AMOUNT")
-  const [minQuantityWarning] = useState(false)
+  const [discountType, setDiscountType] = useState("FIXED_AMOUNT");
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const onResultSearch = useCallback(
@@ -44,8 +45,31 @@ const FixedPriceGroup = (props: any) => {
         setData(result.items);
       }
     },
-    []
+    [],
   );
+
+  useEffect(() => {
+    const formEntitlements = form.getFieldValue("entitlements");
+    const initVariants = formEntitlements[name]?.variants;
+    if (initVariants && initVariants.length > 0) {
+      initVariants.forEach((variant: any) => {
+        const product = transformVariant(variant);
+        selectedProduct.push(product);
+        setSelectedProduct([...selectedProduct]);
+      });
+    }
+  }, []);
+
+  const transformVariant = (item: any) => ({
+    name: item.variant_title,
+    on_hand: item.quantity,
+    sku: item.sku,
+    product_id: "",
+    variant_prices: [{
+      import_price: item.price,
+    }],
+    id: item.variant_id,
+  });
 
   const onSearch = useCallback(
     (value: string) => {
@@ -58,34 +82,27 @@ const FixedPriceGroup = (props: any) => {
               page: 1,
               info: value.trim(),
             },
-            onResultSearch
-          )
+            onResultSearch,
+          ),
         );
       } else {
         setData([]);
       }
     },
-    [dispatch, onResultSearch]
+    [dispatch, onResultSearch],
   );
 
   useEffect(() => {
-    let entitlementFields = form.getFieldValue('entitlements')
-    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)})
-    form.setFieldsValue({entitlements: entitlementFields})
-  }, [form, name, selectedProduct])
-
-  useEffect(() => {
-    let entitlementFields = form.getFieldValue('entitlements')
-    entitlementFields[name] = Object.assign({}, entitlementFields[name], {"prerequisite_quantity_ranges.value_type": discountType})
-    console.log('discountType: ', discountType)
-    form.setFieldsValue({entitlements: entitlementFields})
-  }, [discountType, form, name])
+    let entitlementFields = form.getFieldValue("entitlements");
+    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)});
+    form.setFieldsValue({entitlements: entitlementFields});
+  }, [form, name, selectedProduct]);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <ProductItem data={item} key={item.id.toString()}/>,
+        label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id,
       });
     });
@@ -95,31 +112,34 @@ const FixedPriceGroup = (props: any) => {
   const onSelectProduct = useCallback(
     (value) => {
       const selectedItem = data.find(e => e.id === Number(value));
-      if (selectedItem) {
-        setSelectedProduct([selectedItem].concat(selectedProduct))
+      const checkExist = selectedProduct.some((e) => e.id === value);
+      if (checkExist) {
+        showError("Sản phẩm đã được chọn!");
+        return;
       }
-      // setData([]);
+      if (selectedItem) {
+        setSelectedProduct([selectedItem].concat(selectedProduct));
+      }
     },
-    [data, selectedProduct]
-  )
+    [data, selectedProduct],
+  );
 
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
       if (items.length) {
-        setSelectedProduct([...selectedProduct, ...items])
-        form.setFieldsValue({[`${name}.entitled_variant_ids`]: selectedProduct.map(p => p.id)})
+        setSelectedProduct([...selectedProduct, ...items]);
       }
       setVisibleManyProduct(false);
     },
-    [form, name, selectedProduct]
+    [form, name, selectedProduct],
   );
 
   const onDeleteItem = useCallback(
     (index: number) => {
-      selectedProduct.splice(index, 1)
-      setSelectedProduct([...selectedProduct])
+      selectedProduct.splice(index, 1);
+      setSelectedProduct([...selectedProduct]);
     },
-    [selectedProduct]
+    [selectedProduct],
   );
 
   return (
@@ -128,18 +148,30 @@ const FixedPriceGroup = (props: any) => {
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
-            validateStatus={minQuantityWarning ? "warning" : "success"}
-            help={minQuantityWarning ? "SL tối thiểu nên nhỏ hơn Giới hạn và Số lượng áp dụng" : ""}
             name={[name, "prerequisite_quantity_ranges.greater_than_or_equal_to"]}
             label={<Space>
               <span>SL tối thiểu</span>
               <Tooltip title={"Số lượng tối thiểu cho sản phẩm để được áp dụng khuyến mại"}>
-                <RiInformationLine/>
+                <RiInformationLine />
               </Tooltip>
             </Space>}
             rules={[
               {required: true, message: "Cần nhập số lượng tối thiểu"},
-
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const usageLimit = form.getFieldValue("usage_limit");
+                  const entitlements = form.getFieldValue("entitlements");
+                  const allocateLimit = entitlements[name]?.["prerequisite_quantity_ranges.allocation_limit"];
+                  console.log('allocateLimit: ', allocateLimit)
+                  if (value && usageLimit && value > usageLimit) {
+                    return Promise.reject(new Error('SL Tối thiểu phải nhỏ hơn Số lượng áp dụng'));
+                  } else if (value && allocateLimit && value > allocateLimit) {
+                    return Promise.reject(new Error('SL Tối thiểu phải nhỏ hơn Giới hạn'));
+                  } else {
+                    return Promise.resolve();
+                  }
+                },
+              }),
             ]}
           >
             <NumberInput key={`${key}-min`} min={0}/>
@@ -152,7 +184,7 @@ const FixedPriceGroup = (props: any) => {
               <span>Giới hạn</span>
               <Tooltip title={"Tổng số lượng sản phẩm áp dụng khuyến mại. Mặc định không điền là không giới hạn." +
               "VD: Chỉ áp dụng cho 100 sản phẩm, hết 100 sản phẩm này thì không có khuyến mại nữa."}>
-                <RiInformationLine/>
+                <RiInformationLine />
               </Tooltip>
             </Space>}
           >
@@ -160,20 +192,32 @@ const FixedPriceGroup = (props: any) => {
           </Form.Item>
         </Col>
         <Col span={9}>
-          <Input.Group compact style={{display: 'flex'}}>
+          <Input.Group compact style={{display: "flex"}}>
             <Form.Item
               name={[name, "prerequisite_quantity_ranges.value"]}
               label={discountMethod === "FIXED_PRICE" ? "Giá cố định: " : "Chiết khấu"}
-              style={{flex: '1 1 auto'}}
+              style={{flex: "1 1 auto"}}
               rules={[
                 {required: true, message: "Cần nhập chiết khấu"},
               ]}
             >
               <InputNumber
-                style={{textAlign: 'end', borderRadius: '0px'}}
+                style={{textAlign: "end", borderRadius: "0px"}}
                 min={1}
-                max={discountType === 'PERCENTAGE' ? 99 : 999999999}
-                step={discountType === 'PERCENTAGE' ? 0.01 : 1}
+                max={discountType === "PERCENTAGE" ? 99 : 999999999}
+                step={discountType === "PERCENTAGE" ? 0.01 : 1}
+                formatter={value => {
+                  if (discountType === "PERCENTAGE") {
+                    const floatIndex = value?.toString().indexOf(".") || -1;
+                    if (floatIndex > 0) {
+                      return `${value}`.slice(0, floatIndex + 3)
+                    }
+                    return `${value}`
+                  } else {
+                    return formatCurrency(`${value}`)
+                  }
+
+                }}
               />
             </Form.Item>
             <Form.Item
@@ -181,10 +225,11 @@ const FixedPriceGroup = (props: any) => {
               label=" "
             >
               <Select
-                style={{borderRadius: '0px'}}
+                style={{borderRadius: "0px"}}
                 onSelect={(value: string) => {
-                  setDiscountType(value)
+                  setDiscountType(value);
                 }}
+                defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
               >
                 {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
                 <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
@@ -207,10 +252,10 @@ const FixedPriceGroup = (props: any) => {
               onSelect={onSelectProduct}
               options={renderResult}
               ref={productSearchRef}
-              textEmpty={"Không có kết quả"}
+              textEmpty={"Không tìm thấy sản phẩm"}
             />
             <Button
-              icon={<PlusOutlined/>}
+              icon={<img src={DuplicatePlus} style={{marginRight: 8}} alt="" />}
               onClick={() => setVisibleManyProduct(true)}
               style={{width: 132, marginLeft: 10}}
             >
@@ -228,11 +273,11 @@ const FixedPriceGroup = (props: any) => {
                 title: "Sản phẩm",
                 className: "ant-col-info",
                 dataIndex: "variant",
-                align: 'left',
+                align: "left",
                 render: (
                   value: string,
                   item,
-                  index: number
+                  index: number,
                 ) => {
                   return (
                     <div>
@@ -258,39 +303,39 @@ const FixedPriceGroup = (props: any) => {
               {
                 title: "Tồn đầu kỳ",
                 className: "ant-col-info",
-                align: 'center',
-                width: '15%',
-                render: (value, item, index) => item.on_hand
+                align: "center",
+                width: "15%",
+                render: (value, item, index) => item.on_hand,
               },
               {
                 title: "Giá vốn",
                 className: "ant-col-info",
-                align: 'center',
-                width: '15%',
-                render: (value, item, index) => formatCurrency(item.variant_prices[0]?.import_price)
+                align: "center",
+                width: "15%",
+                render: (value, item, index) => formatCurrency(item.variant_prices[0]?.import_price),
               },
               {
                 className: "ant-col-info",
-                align: 'right',
+                align: "right",
                 width: "8%",
                 render: (value: string, item, index: number) => (
                   <Button
                     onClick={() => onDeleteItem(index)}
                     className="product-item-delete"
-                    icon={<AiOutlineClose/>}
+                    icon={<AiOutlineClose />}
                   />
                 ),
-              }
+              },
             ]}
             dataSource={selectedProduct}
             tableLayout="fixed"
             pagination={false}
           />
         </Form.Item>
-        {isFirst ? "" : <Row gutter={16} style={{paddingTop: "16px"}}>
+        {form.getFieldValue("entitlements")?.length <= 1 ? "" : <Row gutter={16} style={{paddingTop: "16px"}}>
           <Col span={24}>
             <Button
-              icon={<DeleteOutlined/>}
+              icon={<DeleteOutlined />}
               danger
               onClick={() => remove(name)}
             >
@@ -307,9 +352,9 @@ const FixedPriceGroup = (props: any) => {
         />
       </div>}
     </div>
-  )
+  );
 
 
-}
+};
 
 export default FixedPriceGroup;

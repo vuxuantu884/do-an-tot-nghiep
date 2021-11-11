@@ -31,3 +31,13 @@ export const addPromoCode = (priceRuleId: number, body: any, addCallBack: (resul
 export const deleteBulkPromoCode = (priceRuleId: number, body: any, deleteCallBack: (result: DiscountResponse|false) => void) => {
   return BaseAction(PromoCodeType.DELETE_PROMO_CODE_BULK, {priceRuleId, body, deleteCallBack});
 }
+
+export const publishedBulkPromoCode = (priceRuleId: number, body: any, publishedCallBack: (result: DiscountResponse|false) => void) => {
+  return BaseAction(PromoCodeType.PUBLISHED_PROMO_CODE_BULK, {priceRuleId, body, publishedCallBack});
+}
+export const enableBulkPromoCode = (priceRuleId: number, body: any, enableCallBack: (result: DiscountResponse|false) => void) => {
+  return BaseAction(PromoCodeType.ENABLE_PROMO_CODE_BULK, {priceRuleId, body, enableCallBack});
+}
+export const disableBulkPromoCode = (priceRuleId: number, body: any, disableCallBack: (result: DiscountResponse|false) => void) => {
+  return BaseAction(PromoCodeType.DISABLE_PROMO_CODE_BULK, {priceRuleId, body, disableCallBack});
+}

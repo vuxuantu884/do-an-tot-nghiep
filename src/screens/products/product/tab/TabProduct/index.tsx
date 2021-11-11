@@ -3,6 +3,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import { AccountGetListAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
@@ -16,7 +17,7 @@ import {
   variantUpdateManyAction
 } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
-import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -33,9 +34,7 @@ import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
+  useEffect, useMemo,
   useState
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -56,7 +55,7 @@ const ACTIONS_INDEX = {
   DELETE: 5,
 };
 
-const actions: Array<MenuAction> = [
+const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.PRINT_BAR_CODE,
     name: "In mã vạch",
@@ -268,25 +267,10 @@ const TabProduct: React.FC = () => {
     [dispatch, params, setSearchResult]
   );
 
-  const onSelect = useCallback((selectedRow: Array<VariantResponse>) => {
-    setSelected(
-      selectedRow.filter(function (el) {
-        return el !== undefined;
-      })
-    );
-  }, []);
-
-  const ActionComponent = useChangeHeaderToAction(
-    "Ảnh",
-    selected.length > 0,
-    onMenuClick,
-    actions
-  );
-
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
       width: 80,
-      title: <ActionComponent />,
+      title: "Ảnh",
       render: (value: VariantResponse) => {
         let image = Products.findAvatar(value.variant_images);
         return (
@@ -308,7 +292,7 @@ const TabProduct: React.FC = () => {
       visible: true,
     },
     {
-      title: `${selected.length > 0 ? "" : "Mã sản phẩm"}`,
+      title:  "Mã sản phẩm",
       dataIndex: "sku",
       width: 300,
       render: (value: string, i: VariantResponse) => (
@@ -326,6 +310,7 @@ const TabProduct: React.FC = () => {
       dataIndex: "variant_prices",
       align: "right",
       visible: true,
+      width: 120,
       render: (value) => {
         let prices: VariantPricesResponse | null = Products.findPrice(
           value,
@@ -378,15 +363,46 @@ const TabProduct: React.FC = () => {
 
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<VariantResponse>>>(defaultColumn);
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
 
-  useLayoutEffect(() => {
-    setColumn(defaultColumn);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
+  const [canPrintBarcode] = useAuthorization({
+    acceptPermissions: [ProductPermission.print_temp],
+  });
+  const [canDeleteVariants] = useAuthorization({
+    acceptPermissions: [ProductPermission.delete_variant],
+  });
+  const [canUpdateProduct] = useAuthorization({
+    acceptPermissions: [ProductPermission.update],
+  });
+
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === ACTIONS_INDEX.PRINT_BAR_CODE) {
+        return canPrintBarcode;
+      }
+      if (item.id === ACTIONS_INDEX.ACTIVE || item.id === ACTIONS_INDEX.INACTIVE) {
+        return canUpdateProduct;
+      }
+      if (item.id ===  ACTIONS_INDEX.DELETE) {
+        return canDeleteVariants;
+      }
+      return false;
+    });
+  }, [canPrintBarcode, canDeleteVariants, canUpdateProduct]);
+
+  const onSelect = useCallback(
+    (selectedRow: Array<VariantResponse>) => {
+      setSelected(
+        selectedRow.filter(function (el) {
+          return el !== undefined;
+        })
+      );
+    },
+    [setSelected]
+  );
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry));

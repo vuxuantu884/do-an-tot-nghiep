@@ -46,7 +46,7 @@ const PromotionCode = () => {
     ...getQueryParams(query)
   }
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [dataSource, setDataSource] = useState<PageResponse<DiscountResponse>>({
+  const [dataSource, setDataSource] = useState<PageResponse<DiscountResponse> | null>({
     metadata: {
       limit: 30,
       page: 1,
@@ -59,9 +59,11 @@ const PromotionCode = () => {
   const [modalInfo, setModalInfo] = React.useState<any>();
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
-  const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
+  const fetchData = useCallback((data: PageResponse<DiscountResponse> | null) => {
     dispatch(hideLoading());
-    setDataSource(data);
+    if (data) {
+      setDataSource(data)
+    }
     setTableLoading(false);
   }, [dispatch])
 
@@ -296,22 +298,19 @@ const PromotionCode = () => {
           {/* <Card style={{ position: "relative" }}> */}
           <CustomTable
             selectedRowKey={selectedRowKey}
-            onChangeRowKey={(rowKey) => {
-              console.log('CustomTable: ', rowKey)
-              setSelectedRowKey(rowKey)
-            }}
+            onChangeRowKey={(rowKey) => {setSelectedRowKey(rowKey)}}
             isRowSelection
             isLoading={tableLoading}
             sticky={{offsetScroll: 5}}
             pagination={{
-              pageSize: dataSource.metadata.limit,
-              total: dataSource.metadata.total,
-              current: dataSource.metadata.page,
+              pageSize: dataSource?.metadata.limit || 0,
+              total: dataSource?.metadata.total || 0,
+              current: dataSource?.metadata.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={dataSource.items}
+            dataSource={dataSource?.items}
             columns={columns}
             rowKey={(item: any) => item.id}
           />

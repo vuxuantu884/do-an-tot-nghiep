@@ -967,12 +967,12 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
     return []
   }
   let orderReturnItems:OrderLineItemResponse[] = [];
-  
+
   for (const singleReturn of OrderDetail.order_returns) {
      //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
      for (const singleReturnItem of singleReturn.items) {
        let index = orderReturnItems.findIndex((item) => item.product_id === singleReturnItem.product_id);
-       
+
        if(index > -1) {
          let duplicatedItem = {...orderReturnItems[index]};
         duplicatedItem.quantity = duplicatedItem.quantity + singleReturnItem.quantity;
@@ -980,7 +980,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
        } else {
          orderReturnItems.push(singleReturnItem);
        }
-       
+
      }
   }
   return orderReturnItems;
@@ -1032,3 +1032,31 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   console.log('result', result)
  return result;
 }
+
+export const customGroupBy = (array:any, groupBy:any) => {
+  let groups = {};
+  array.forEach((o: any) => {
+    const group:string = groupBy.map((e: any) => `{"${e}": "${o[e]}"}`);
+    // @ts-ignore
+    groups[group] = groups[group] || [];
+    const e = Object.assign({}, o);
+    groupBy.forEach((g:string) => {
+      // @ts-ignore
+      groups[group][g] = e[g];
+      delete e[g];
+    })
+    // @ts-ignore
+    groups[group].push(e);
+  });
+  return Object.keys(groups).map((group) => {
+    // @ts-ignore
+    const r = {variants: groups[group]};
+    groupBy.forEach((b: string) => {
+      // @ts-ignore
+      r[b] = groups[group][b];
+      // @ts-ignore
+      delete groups[group][b]
+    })
+    return r;
+  });
+};

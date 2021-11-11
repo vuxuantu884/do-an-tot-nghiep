@@ -39,7 +39,7 @@ function ReturnMoneySelect(props: PropType) {
 
   return (
     <StyledComponent>
-      <div className="returnMoney">
+      <div className="returnMoney 2">
         <Form.List name="returnMoneyField">
           {(fields, { add, remove }) => {
             return (

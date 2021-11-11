@@ -103,7 +103,7 @@ function CardReturnMoney(props: PropType) {
   return (
     <StyledComponent>
       <Card className="margin-top-20" title={renderCardTitle()}>
-        <div className="padding-24">
+        <div>
           {renderPayments()}
           {isShowPaymentMethod && (
             <ReturnMoneySelect
