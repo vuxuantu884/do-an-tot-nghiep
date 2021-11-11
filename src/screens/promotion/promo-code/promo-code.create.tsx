@@ -32,7 +32,8 @@ const CreatePromotionCodePage = () => {
     sale_type: "SALE_CODE",
     product_type: "PRODUCT",
     value_type: "PERCENTAGE",
-    value: "1"
+    value: "0",
+    usage_limit: "1"
   };
 
   useEffect(() => {
@@ -55,26 +56,46 @@ const CreatePromotionCodePage = () => {
     body.starts_date = values.starts_date.format();
     body.ends_date = values.ends_date?.format() || null;
     body.entitled_method = "QUANTITY";
-    body.prerequisite_subtotal_range = {
+    body.prerequisite_subtotal_range = values.prerequisite_subtotal_range_min ? {
       greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
       less_than_or_equal_to: null
+    } : null
+    if (values.entitlements && values.entitlements.length > 0) {
+      body.entitlements = values.entitlements.map((entitlement: any) => {
+        return {
+          entitled_variant_ids: entitlement.entitled_variant_ids || null,
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to: entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: values.value_type,
+              value: values.value,
+            },
+          ],
+          prerequisite_subtotal_ranges: null
+        }
+      });
+    } else {
+      body.entitlements = [
+        {
+          entitled_variant_ids: null,
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to: null,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: values.value_type,
+              value: values.value,
+            },
+          ],
+          prerequisite_subtotal_ranges: null
+        }
+      ]
     }
-    body.entitlements = values.entitlements.map((entitlement: any) => {
-      return {
-        entitled_variant_ids: entitlement.entitled_variant_ids || null,
-        entitled_category_ids: null,
-        prerequisite_quantity_ranges: [
-          {
-            greater_than_or_equal_to: entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to,
-            less_than_or_equal_to: null,
-            allocation_limit: null,
-            value_type: values.value_type,
-            value: values.value,
-          },
-        ],
-        prerequisite_subtotal_ranges: null
-      }
-    });
+
     return body;
   }
 

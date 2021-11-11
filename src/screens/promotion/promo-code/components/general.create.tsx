@@ -276,8 +276,9 @@ const GeneralCreate = (props: any) => {
                     width: "100%",
                     color: "#222222",
                   }}
-                  minLength={0}
                   maxLength={11}
+                  minLength={0}
+                  min={0}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
                   formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
@@ -434,16 +435,21 @@ const GeneralCreate = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
                   showNow
-                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, "days")}
+                  showTime={{ format: 'HH:mm' }}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment().subtract(1, 'days')) ||
+                    currentDate.valueOf() >= form.getFieldValue("ends_date")
+                  }
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="ends_date">
-                <DatePicker
+              <DatePicker
                   disabled={disabledEndDate}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
+                  showTime={{ format: 'HH:mm' }}
                   disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
@@ -451,10 +457,10 @@ const GeneralCreate = (props: any) => {
             <Space direction="horizontal">
               <Switch onChange={value => {
                 if (value) {
-                  form.resetFields(["ends_date"]);
+                  form.resetFields(['ends_date'])
                 }
-                setDisabledEndDate(value);
-              }} />
+                setDisabledEndDate(value)
+              }}/>
               {"Không cần ngày kết thúc"}
             </Space>
             <Divider />
