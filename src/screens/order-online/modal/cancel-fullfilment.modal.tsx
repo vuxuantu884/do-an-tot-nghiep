@@ -35,9 +35,7 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
   
   const onChangeReasonID = useCallback((value) => {
     setReasonID(value)
-    if (value !== '1') {
-      setReason('')
-    }
+    setReason('')
     const reasonDetails = reasons.find(reason => reason.id == value)
     console.log('set reasonSubs', reasonID, reasonDetails);
     if (reasonDetails && reasonDetails.sub_reasons.length) {
@@ -95,10 +93,10 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
         </Button>,
       ]}
     >
-      <div>
-        <Form.Item label="Chọn lý do chi tiết" labelCol={{span: 6}} style={{alignItems:"center"}}>
+      <div style={{ padding: '24px' }}>
+        <Form.Item label="Chọn lý do" labelCol={{span: 6}} style={{alignItems:"center"}}>
           <CustomSelect
-            showSearch placeholder="Chọn lý do chi tiết"
+            showSearch placeholder="Chọn lý do"
             notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
             optionFilterProp="children" showArrow
             getPopupContainer={trigger => trigger.parentNode}
@@ -113,9 +111,9 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
           </CustomSelect>
         </Form.Item>
         {reasonSubs.length > 0 &&
-        <Form.Item label="Chọn lý do" labelCol={{span: 6}} style={{alignItems:"center"}}>
+        <Form.Item label="Chọn lý do chi tiết" labelCol={{span: 6}} style={{alignItems:"center"}}>
           <CustomSelect
-            showSearch placeholder="Chọn lý do huỷ đơn"
+            showSearch placeholder="Chọn lý do chi tiết"
             notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
             optionFilterProp="children" showArrow
             getPopupContainer={trigger => trigger.parentNode}
@@ -131,7 +129,7 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
             ))}
           </CustomSelect>
         </Form.Item>}
-        {(reasonID === '1') && (
+        {!(reasonSubs.length > 0) && (
         <Form.Item label="Lý do khác" labelCol={{span: 6}}>
           <Input.TextArea
             onChange={(e) => setReason(e.target.value)}
