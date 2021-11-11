@@ -36,7 +36,7 @@ const PackSupportScreen: React.FC = () => {
   
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const [listGoodsReceipts,setListGoodsReceipts] =useState<Array<GoodsReceiptsTypeResponse>>([]);
+  const [listGoodsReceiptsType,setListGoodsReceiptsType] =useState<Array<GoodsReceiptsTypeResponse>>([]);
   const [listChannels,setListChannels]= useState<Array<ChannelsResponse>>([]);
 
   const packSupportContextData={
@@ -44,8 +44,8 @@ const PackSupportScreen: React.FC = () => {
     setListThirdPartyLogistics,
     listStores,
     setListStores,
-    listGoodsReceipts,
-    setListGoodsReceipts,
+    listGoodsReceiptsType,
+    setListGoodsReceiptsType,
     listChannels,
     setListChannels,
     data,
@@ -65,7 +65,7 @@ const PackSupportScreen: React.FC = () => {
   }, [dispatch]);
 
   useEffect(()=>{
-    dispatch(getGoodsReceiptsType(setListGoodsReceipts))
+    dispatch(getGoodsReceiptsType(setListGoodsReceiptsType))
   },[dispatch]);
 
   useEffect(()=>{

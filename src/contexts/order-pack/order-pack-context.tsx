@@ -9,8 +9,8 @@ type OrderPackContextType = {
   setListThirdPartyLogistics: (value: DeliveryServiceResponse[]) => void;
   listStores:Array<StoreResponse>;
   setListStores:(value: Array<StoreResponse>)=>void;
-  listGoodsReceipts:Array<GoodsReceiptsTypeResponse>;
-  setListGoodsReceipts:(value: Array<GoodsReceiptsTypeResponse>)=>void;
+  listGoodsReceiptsType:Array<GoodsReceiptsTypeResponse>;
+  setListGoodsReceiptsType:(value: Array<GoodsReceiptsTypeResponse>)=>void;
   listChannels:Array<ChannelsResponse>;
   setListChannels:(value: Array<ChannelsResponse>)=>void;
   data:PageResponse<any>;
@@ -22,8 +22,8 @@ export const OrderPackContext = createContext<OrderPackContextType>({
     setListThirdPartyLogistics:(value: DeliveryServiceResponse[]) =>{},
     listStores:[],
     setListStores:(value: StoreResponse[]) =>{},
-    listGoodsReceipts:[],
-    setListGoodsReceipts:(value: GoodsReceiptsTypeResponse[]) =>{},
+    listGoodsReceiptsType:[],
+    setListGoodsReceiptsType:(value: GoodsReceiptsTypeResponse[]) =>{},
     listChannels:[],
     setListChannels:(value: ChannelsResponse[]) =>{},
     data:{

@@ -31,7 +31,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
-  const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
+  const listGoodsReceiptsType= orderPackContextData.listGoodsReceiptsType;
   const listChannels=orderPackContextData.listChannels;
   //const data=orderPackContextData.data;
 
@@ -178,7 +178,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listGoodsReceipts.map((item, index) => (
+                  {listGoodsReceiptsType.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>

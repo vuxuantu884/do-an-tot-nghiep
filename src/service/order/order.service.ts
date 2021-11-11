@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
@@ -378,6 +377,10 @@ export const createShippingOrderService = (
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
 
+
+/**
+ * lấy danh sách loại biên bản
+ */
 export const getGoodsReceiptsTypeService = (): Promise<
   BaseResponse<GoodsReceiptsTypeResponse>
 > => {
@@ -385,6 +388,9 @@ export const getGoodsReceiptsTypeService = (): Promise<
   return BaseAxios.get(link);
 };
 
+/**
+ * tạo biên bản bàn giao
+ */
 export const createGoodsReceiptsService = (
   params: GoodsReceiptsRequest
 ): Promise<BaseResponse<GoodsReceiptsResponse>> => {
@@ -392,11 +398,44 @@ export const createGoodsReceiptsService = (
   return BaseAxios.post(link, params);
 };
 
+/**
+ * cập nhật biên bản bàn giao
+ */
+export const updateGoodsReceiptsService = (
+  goodsReceiptsId:number,
+  params: GoodsReceiptsRequest
+): Promise<BaseResponse<GoodsReceiptsResponse>> => {
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
+  return BaseAxios.put(link, params);
+};
+
+/**
+ * lấy thông tin biên bản bàn giao
+ */
+export const getByIdGoodsReceiptsService=( goodsReceiptsId:number)=>{
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
+  return BaseAxios.put(link);
+}
+
+/**
+ * xóa biên bản bàn giao
+ */
+export const deleteGoodsReceiptsService = (
+  goodsReceiptsId:number
+): Promise<BaseResponse<GoodsReceiptsResponse>> => {
+  const link = `${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts/${goodsReceiptsId}`;
+  return BaseAxios.delete(link);
+};
+
+/**
+ * tìm kiếm bản bàn giao
+ */
 export const getGoodsReceiptsSerchService = (query: any): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
   console.log("queryString",queryString);
   return BaseAxios.get(`${ApiConfig.ORDER}/goods-receipt-manager/goods-receipts?${queryString}`);
 };
+
 /**
  * tách đơn
  */

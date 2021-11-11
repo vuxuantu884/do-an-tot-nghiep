@@ -1,72 +1,205 @@
+import { PageResponse } from 'model/base/base-metadata.response';
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
-import { GoodsReceiptsResponse, GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
-import { createGoodsReceiptsService, getGoodsReceiptsSerchService, getGoodsReceiptsTypeService } from "service/order/order.service";
+import {
+  GoodsReceiptsResponse,
+  GoodsReceiptsSearchResponse,
+  GoodsReceiptsTypeResponse,
+} from "model/response/pack/pack.response";
+import {
+  createGoodsReceiptsService,
+  deleteGoodsReceiptsService,
+  getByIdGoodsReceiptsService,
+  getGoodsReceiptsSerchService,
+  getGoodsReceiptsTypeService,
+  updateGoodsReceiptsService,
+} from "service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";
 import { GoodsReceiptsType } from "domain/types/goods-receipts";
 
-function* getGoodsReceiptsTypeSaga(action:YodyAction){
-    let {setData}= action.payload;
-    try{
-      let response:BaseResponse<Array<GoodsReceiptsTypeResponse>>= yield call(getGoodsReceiptsTypeService);
-      switch(response.code){
-        case HttpStatus.SUCCESS:
-          setData(response.data)
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e: any) => showError(e));
-          break;
-      }
+/**
+ * lấy danh sách loại biên bản
+ */
+function* getGoodsReceiptsTypeSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<GoodsReceiptsTypeResponse>> = yield call(
+      getGoodsReceiptsTypeService
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        break;
     }
-    catch(e){}
+  } catch (e) {
+    showError("Có lỗi xảy ra, vui lòng thử lại");
   }
-  
-  function* createGoodsReceiptsSaga(action:YodyAction){
-    let {data, setData}= action.payload;
-    try{
-      let response:BaseResponse<GoodsReceiptsResponse>= yield call(createGoodsReceiptsService,data);
-      switch(response.code){
-        case HttpStatus.SUCCESS:
-          setData(response.data)
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e: any) => showError(e));
-          break;
-      }
+}
+
+/**
+ * tạo biên bản bàn giao
+ */
+function* createGoodsReceiptsSaga(action: YodyAction) {
+  let { data, setData } = action.payload;
+  try {
+    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+      createGoodsReceiptsService,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        break;
     }
-    catch(e){}
+  } catch (e) {
+    showError("Có lỗi xảy ra, vui lòng thử lại");
   }
-  
-  function* getGoodsReceiptsSerchSaga(action:YodyAction){
-    let {data, setData}= action.payload;
-    try{
-      let response:BaseResponse<Array<GoodsReceiptsResponse>>= yield call(getGoodsReceiptsSerchService,data);
-      switch(response.code){
-        case HttpStatus.SUCCESS:
-          setData(response.data)
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e: any) => showError(e));
-          break;
-      }
+}
+
+/**
+ * tìm kiếm bản bàn giao
+ */
+function* getGoodsReceiptsSerchSaga(action: YodyAction) {
+  let { data, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<Array<GoodsReceiptsSearchResponse>>> = yield call(
+      getGoodsReceiptsSerchService,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.items);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        break;
     }
-    catch(e){}
+  } catch (e) {
+    showError("Có lỗi xảy ra, vui lòng thử lại");
   }
-  
-  export function* GoodsReceiptsSaga() {
-    yield takeLatest(GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE, getGoodsReceiptsTypeSaga);
-    yield takeLatest(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, createGoodsReceiptsSaga);
-    yield takeLatest(GoodsReceiptsType.SEARCH_GOODS_RECEIPTS, getGoodsReceiptsSerchSaga);
+}
+
+/**
+ * cập nhật biên bản bàn giao
+ */
+function* updateGoodsReceiptsSaga(action: YodyAction) {
+  let { goodsReceiptsId, data, setData } = action.payload;
+  try {
+    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+      updateGoodsReceiptsService,
+      goodsReceiptsId,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        break;
+    }
+  } catch (e) {
+    showError("Có lỗi xảy ra, vui lòng thử lại");
   }
+}
+
+/**
+ * xóa biên bản bàn giao
+ */
+
+function* deleteGoodsReceiptsSaga(action: YodyAction) {
+  let { goodsReceiptsId, setData } = action.payload;
+  try {
+    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+      deleteGoodsReceiptsService,
+      goodsReceiptsId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        break;
+    }
+  } catch (e) {
+    showError("Có lỗi xảy ra vui lòng thử lại");
+  }
+}
+
+/**
+ * lấy thông tin biên bản bàn giao
+ */
+function* getByIdGoodsReceiptsSaga(action: YodyAction) {
+  let { goodsReceiptsId, setData } = action.payload;
+  try {
+    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+      getByIdGoodsReceiptsService,
+      goodsReceiptsId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch {
+    showError("Có lỗi xảy ra vui lòng thử lại");
+  }
+}
+
+export function* GoodsReceiptsSaga() {
+  yield takeLatest(
+    GoodsReceiptsType.GET_GOODS_RECEIPTS_TYPE,
+    getGoodsReceiptsTypeSaga
+  );
+  yield takeLatest(
+    GoodsReceiptsType.CREATE_GOODS_RECEIPTS,
+    createGoodsReceiptsSaga
+  );
+  yield takeLatest(
+    GoodsReceiptsType.SEARCH_GOODS_RECEIPTS,
+    getGoodsReceiptsSerchSaga
+  );
+  yield takeLatest(
+    GoodsReceiptsType.UPDATE_GOODS_RECEIPTS,
+    updateGoodsReceiptsSaga
+  );
+  yield takeLatest(
+    GoodsReceiptsType.DELETE_GOODS_RECEIPTS,
+    deleteGoodsReceiptsSaga
+  );
+  yield takeLatest(
+    GoodsReceiptsType.GETBYID_GOODS_RECEIPTS,
+    getByIdGoodsReceiptsSaga
+  );
+}
