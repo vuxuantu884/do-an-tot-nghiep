@@ -159,8 +159,8 @@ const FixedPriceGroup = (props: any) => {
               {required: true, message: "Cần nhập số lượng tối thiểu"},
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  const usageLimit = form.getFieldValue("usage_limit");
-                  const entitlements = form.getFieldValue("entitlements");
+                  const usageLimit = getFieldValue("usage_limit");
+                  const entitlements = getFieldValue("entitlements");
                   const allocateLimit = entitlements[name]?.["prerequisite_quantity_ranges.allocation_limit"];
                   console.log('allocateLimit: ', allocateLimit)
                   if (value && usageLimit && value > usageLimit) {
