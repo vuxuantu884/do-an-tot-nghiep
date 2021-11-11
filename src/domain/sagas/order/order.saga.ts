@@ -731,7 +731,7 @@ function* confirmDraftOrderSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        showSuccess(`Xác nhận đơn nháp ${orderId} thành công!`);
+        showSuccess(`Xác nhận đơn nháp thành công!`);
         handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -742,7 +742,7 @@ function* confirmDraftOrderSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(`Xác nhận đơn nháp ${orderId} xảy ra lỗi!`);
+    showError(`Xác nhận đơn nháp xảy ra lỗi!`);
   } finally {
     yield put(hideLoading());
   }

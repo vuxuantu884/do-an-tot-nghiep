@@ -23,8 +23,6 @@ function ShipmentMethodSelfDelivery(props: PropType) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
-
-  console.log("listShippers", listShippers);
   return (
     <StyledComponent>
       <div>
@@ -35,7 +33,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
-                isCancelValidateDelivery
+                !isCancelValidateDelivery
                   ? [
                       {
                         required: true,

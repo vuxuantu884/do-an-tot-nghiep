@@ -1228,15 +1228,15 @@ function OrderCreateProduct(props: PropType) {
         extra={
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox onChange={() => setSplitLine(!splitLine)}>Tách dòng</Checkbox>
-            {/* <span>Chính sách giá:</span>
-            <Form.Item name="price_type">
+            {/* <span>Chính sách giá:</span> */}
+            <Form.Item name="price_type" hidden>
               <Select style={{minWidth: 145, height: 38}} placeholder="Chính sách giá">
                 <Select.Option value="retail_price" color="#222222">
                   Giá bán lẻ
                 </Select.Option>
                 <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
-            </Form.Item> */}
+            </Form.Item>
             <Checkbox
               disabled={levelOrder > 3}
               checked={isAutomaticDiscount}
