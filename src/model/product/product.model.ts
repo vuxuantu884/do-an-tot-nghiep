@@ -203,6 +203,7 @@ export interface VariantSearchQuery extends BaseQuery {
   supplier?:string
   saleable?: boolean
   store_id?: number,
+  store_ids?: number|null,
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,

@@ -1005,6 +1005,7 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
     })
     result = !checkIfNotReturnAll;
   }
+  console.log('result', result)
   return result;
 }
 // lấy danh sách còn có thể đổi trả

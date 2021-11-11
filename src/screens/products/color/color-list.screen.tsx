@@ -26,8 +26,11 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
+import useAuthorization from "hook/useAuthorization";
 
-const action: Array<MenuAction> = [
+const actionDefault: Array<MenuAction> = [
   {
     id: 0,
     name: "Xóa",
@@ -123,10 +126,24 @@ const ColorListScreen: React.FC = () => {
       visible: false,
     },
   ]);
+
+  const [canDeleteColor] = useAuthorization({acceptPermissions: [ProductPermission.colors_delete]});
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  
+  const actions = useMemo(() => {
+    return actionDefault.filter((item) => {
+      if (item.id === 0) {
+        return canDeleteColor;
+      } else {
+        return true;
+      }
+    });
+  }, [canDeleteColor]);
+
   const searchColorCallback = useCallback(
     (listResult: PageResponse<ColorResponse>) => {
       setTableLoading(false);
@@ -219,10 +236,14 @@ const ColorListScreen: React.FC = () => {
           name: "Màu sắc",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.COLORS}/create`} />}
+      extra={
+        <AuthWrapper acceptPermissions={[ProductPermission.colors_create]}>
+          <ButtonCreate path={`${UrlConfig.COLORS}/create`} />
+        </AuthWrapper>
+      }
     >
       <Card>
-        <CustomFilter menu={action} onMenuClick={onMenuClick}>
+        <CustomFilter menu={actions} onMenuClick={onMenuClick}>
           <Form
             className="form-search"
             size="middle"
@@ -233,12 +254,12 @@ const ColorListScreen: React.FC = () => {
             <Form.Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
+                style={{width: 200}}
                 placeholder="Tên/Mã màu sắc"
               />
             </Form.Item>
             <Form.Item name="parent_id">
-              <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
+              <Select placeholder="Chọn màu chủ đạo" style={{width: 200}}>
                 <Option value="">Chọn màu chủ đạo</Option>
                 {listMainColor.items.map((item) => (
                   <Option key={item.id} value={item.id}>
@@ -250,7 +271,7 @@ const ColorListScreen: React.FC = () => {
             <Form.Item name="hex_code">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
+                style={{width: 200}}
                 placeholder="Mã hex"
               />
             </Form.Item>

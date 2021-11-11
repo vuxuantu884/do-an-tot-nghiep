@@ -1,75 +1,89 @@
+import {InfoCircleOutlined, MinusOutlined, PlusOutlined} from "@ant-design/icons";
 import {
-  InfoCircleOutlined,
-  MinusOutlined,
-  PlusOutlined
-} from "@ant-design/icons";
-import {
-  Button, Card, Col, Collapse, Divider, Form, Image, Input, Row, Select, Space, Switch, Upload
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Divider,
+  Form,
+  Image,
+  Input,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Upload,
 } from "antd";
-import { RcFile, UploadFile } from "antd/lib/upload/interface";
+import {RcFile, UploadFile} from "antd/lib/upload/interface";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { AppConfig } from "config/app.config";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
-import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { listColorAction } from "domain/actions/product/color.action";
-import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
+import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
+import {AppConfig} from "config/app.config";
+import {ProductPermission} from "config/permissions/product.permission";
+import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
+import {AccountSearchAction} from "domain/actions/account/account.action";
+import {CountryGetAllAction} from "domain/actions/content/content.action";
+import {SupplierGetAllAction} from "domain/actions/core/supplier.action";
+import {getCategoryRequestAction} from "domain/actions/product/category.action";
+import {listColorAction} from "domain/actions/product/color.action";
+import {
+  detailMaterialAction,
+  materialSearchAll,
+} from "domain/actions/product/material.action";
 import {
   productGetDetail,
   productUpdateAction,
-  productUploadAction
+  productUploadAction,
 } from "domain/actions/product/products.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CountryResponse } from "model/content/country.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { ColorResponse } from "model/product/color.model";
-import { MaterialResponse } from "model/product/material.model";
-import { ProductUploadModel } from "model/product/product-upload.model";
+import {sizeGetAll} from "domain/actions/product/size.action";
+import useAuthorization from "hook/useAuthorization";
+import {AccountResponse} from "model/account/account.model";
+import {PageResponse} from "model/base/base-metadata.response";
+import {CountryResponse} from "model/content/country.model";
+import {SupplierResponse} from "model/core/supplier.model";
+import {CategoryResponse, CategoryView} from "model/product/category.model";
+import {ColorResponse} from "model/product/color.model";
+import {MaterialResponse} from "model/product/material.model";
+import {ProductUploadModel} from "model/product/product-upload.model";
 import {
   ProductRequest,
   ProductResponse,
   VariantImage,
-  VariantResponse
+  VariantResponse,
 } from "model/product/product.model";
-import { SizeResponse } from "model/product/size.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import {SizeResponse} from "model/product/size.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router-dom";
 import {
   convertCategory,
   formatCurrency,
   Products,
-  replaceFormatString
+  replaceFormatString,
 } from "utils/AppUtils";
-import { handleChangeMaterial } from "utils/ProductUtils";
-import { RegUtil } from "utils/RegUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import {handleChangeMaterial} from "utils/ProductUtils";
+import {RegUtil} from "utils/RegUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
 import VariantList from "../component/VariantList";
-import { ProductParams } from "../ProductDetailScreen";
-import { StyledComponent } from "./styles";
+import {ProductParams} from "../ProductDetailScreen";
+import {StyledComponent} from "./styles";
 
-const { Item } = Form;
+const {Item} = Form;
 let tempActive: number = 0;
 
 const uploadButton = (
   <div>
     <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
+    <div style={{marginTop: 8}}>Upload</div>
   </div>
 );
 
@@ -77,7 +91,7 @@ const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [form] = Form.useForm();
-  const { id } = useParams<ProductParams>();
+  const {id} = useParams<ProductParams>();
   const idNumber = parseInt(id);
 
   const goods = useSelector(
@@ -123,8 +137,7 @@ const ProductDetailScreen: React.FC = () => {
   const [visiblePrice, setVisiblePrice] = useState(false);
   const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
-  
-    
+
   const categoryFilter = useMemo(() => {
     if (data === null) {
       return listCategory;
@@ -136,7 +149,9 @@ const ProductDetailScreen: React.FC = () => {
   });
 
   const [fieldList, setFieldList] = useState<Array<UploadFile>>([]);
-
+  const [canUpdateCost] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_cost],
+  });
   const setCurrentVariant = useCallback(
     (newActive: number) => {
       setActive(newActive);
@@ -150,29 +165,23 @@ const ProductDetailScreen: React.FC = () => {
     [form]
   );
 
- 
-
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return false;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return false;
+    }
+    setAccounts(data.items);
+  }, []);
 
   const onPickAvatar = useCallback(() => {
     let variants: Array<VariantResponse> = form.getFieldValue("variants");
     let variantImages: Array<VariantImage> = [];
     variants.forEach((item) => {
-      if(item.saleable)
-      variantImages = [...variantImages, ...item.variant_images];
+      if (item.saleable) variantImages = [...variantImages, ...item.variant_images];
     });
     setVisiblePickAvatar(true);
     setVariantImage(variantImages);
@@ -190,7 +199,7 @@ const ProductDetailScreen: React.FC = () => {
           }
         });
       });
-      form.setFieldsValue({ variants: [...variants] });
+      form.setFieldsValue({variants: [...variants]});
       setVisiblePickAvatar(false);
     },
     [form]
@@ -218,7 +227,10 @@ const ProductDetailScreen: React.FC = () => {
       }
     });
 
-    if (!isFind && revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX]) {
+    if (
+      !isFind &&
+      revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX]
+    ) {
       //reset product avatar
       revertVariants.forEach((item) => {
         item.variant_images.forEach((item) => {
@@ -227,12 +239,14 @@ const ProductDetailScreen: React.FC = () => {
       });
 
       //set product avatar
-      revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX].product_avatar = true;
+      revertVariants[variantAvatarIndex].variant_images[
+        FIRST_VARIANT_IMAGE_INDEX
+      ].product_avatar = true;
     }
-    
-    form.setFieldsValue({ variants: [...revertVariants.reverse()] });
+
+    form.setFieldsValue({variants: [...revertVariants.reverse()]});
   }, [form]);
-  
+
   const statusValue = useMemo(() => {
     if (!productStatusList) {
       return "";
@@ -243,8 +257,6 @@ const ProductDetailScreen: React.FC = () => {
     }
     return "";
   }, [productStatusList, status]);
-
- 
 
   const onChange = useCallback(() => {
     setChange(true);
@@ -280,20 +292,22 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, idNumber, onResultUpdate]
   );
 
-  const onUpdatePrice = useCallback((listSelected: Array<number>) => {
-    setVisibleUpdatePrice(false);
-    let values: ProductResponse = form.getFieldsValue(true);
-    if(values) {
-      values.variants.forEach((item) => {
-        if (listSelected.includes(item.id)) {
-          item.variant_prices = values.variants[active].variant_prices;
-        }
-      });
-      update(values);
-      history.push(`/products/${idNumber}`);
-    }
-     
-  }, [active, form, update, history, idNumber])
+  const onUpdatePrice = useCallback(
+    (listSelected: Array<number>) => {
+      setVisibleUpdatePrice(false);
+      let values: ProductResponse = form.getFieldsValue(true);
+      if (values) {
+        values.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.variant_prices = values.variants[active].variant_prices;
+          }
+        });
+        update(values);
+        history.push(`/products/${idNumber}`);
+      }
+    },
+    [active, form, update, history, idNumber]
+  );
 
   const updateStatus = useCallback(
     (listSelected: Array<number>, status) => {
@@ -308,7 +322,9 @@ const ProductDetailScreen: React.FC = () => {
     [form, update]
   );
   const onMaterialChange = (id: number) => {
-    dispatch(detailMaterialAction(id, (material)=>handleChangeMaterial(material,form)));
+    dispatch(
+      detailMaterialAction(id, (material) => handleChangeMaterial(material, form))
+    );
   };
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
@@ -319,10 +335,10 @@ const ProductDetailScreen: React.FC = () => {
         cancelText: "Hủy",
         subTitle: "Bạn có chắc chắn đổi trạng thái phiên bản?",
         onCancel: () => {
-          setModalConfirm({ visible: false });
+          setModalConfirm({visible: false});
         },
         onOk: () => {
-          setModalConfirm({ visible: false });
+          setModalConfirm({visible: false});
           updateStatus(listSelected, true);
           getFirstAvatar();
         },
@@ -340,10 +356,10 @@ const ProductDetailScreen: React.FC = () => {
         cancelText: "Không lưu",
         subTitle: "Bạn có chắc chắn đổi trạng thái phiên bản?",
         onCancel: () => {
-          setModalConfirm({ visible: false });
+          setModalConfirm({visible: false});
         },
         onOk: () => {
-          setModalConfirm({ visible: false });
+          setModalConfirm({visible: false});
           updateStatus(listSelected, false);
           getFirstAvatar();
         },
@@ -392,11 +408,11 @@ const ProductDetailScreen: React.FC = () => {
       );
       if (index !== -1) {
         variants[active].variant_images.splice(index, 1);
-       if( variants[active].variant_images.length>0){
-        variants[active].variant_images[0].variant_avatar= true;
-       }
+        if (variants[active].variant_images.length > 0) {
+          variants[active].variant_images[0].variant_avatar = true;
+        }
 
-        form.setFieldsValue({ variants: variants });
+        form.setFieldsValue({variants: variants});
       }
       getFirstAvatar();
     },
@@ -414,39 +430,43 @@ const ProductDetailScreen: React.FC = () => {
         let uuid = options.file.uid;
         files.push(options.file);
         dispatch(
-          productUploadAction(files, "variant", (data: false | Array<ProductUploadModel>) => {
-            let index = fieldList.findIndex((item) => item.uid === uuid);
-            if (!!data) {
-              if (index !== -1) {
-                let variants: Array<VariantResponse> = form.getFieldValue("variants");
-                let hasVariantAvatar = false;
-                variants[active].variant_images.forEach(item=>{
-                  if(item.variant_avatar){
-                    hasVariantAvatar = true;
-                  }
-                })
-                variants[active].variant_images.push({
-                  image_id: data[0].id,
-                  product_avatar: false,
-                  variant_avatar: !hasVariantAvatar,
-                  variant_id: variants[active].id,
-                  url: data[0].path,
-                  position: null,
-                });
-                variants[active].variant_images = [...variants[active].variant_images];
-                let newVariants = [...variants];
-                form.setFieldsValue({ variants: newVariants });
-                fieldList[index].status = "done";
-                fieldList[index].url = data[0].path;
-                fieldList[index].name = data[0].id.toString();
-                getFirstAvatar();
+          productUploadAction(
+            files,
+            "variant",
+            (data: false | Array<ProductUploadModel>) => {
+              let index = fieldList.findIndex((item) => item.uid === uuid);
+              if (!!data) {
+                if (index !== -1) {
+                  let variants: Array<VariantResponse> = form.getFieldValue("variants");
+                  let hasVariantAvatar = false;
+                  variants[active].variant_images.forEach((item) => {
+                    if (item.variant_avatar) {
+                      hasVariantAvatar = true;
+                    }
+                  });
+                  variants[active].variant_images.push({
+                    image_id: data[0].id,
+                    product_avatar: false,
+                    variant_avatar: !hasVariantAvatar,
+                    variant_id: variants[active].id,
+                    url: data[0].path,
+                    position: null,
+                  });
+                  variants[active].variant_images = [...variants[active].variant_images];
+                  let newVariants = [...variants];
+                  form.setFieldsValue({variants: newVariants});
+                  fieldList[index].status = "done";
+                  fieldList[index].url = data[0].path;
+                  fieldList[index].name = data[0].id.toString();
+                  getFirstAvatar();
+                }
+              } else {
+                fieldList.splice(index, 1);
+                showError("Upload ảnh không thành công");
               }
-            } else {
-              fieldList.splice(index, 1);
-              showError("Upload ảnh không thành công");
+              setFieldList([...fieldList]);
             }
-            setFieldList([...fieldList]);
-          })
+          )
         );
       }
     },
@@ -474,73 +494,63 @@ const ProductDetailScreen: React.FC = () => {
     },
     [form]
   );
-    const productDetailRef = useRef<ProductResponse>();
-    const resetProductDetail = useCallback(() => {
-      setChangePrice(false);
-      if (productDetailRef.current && typeof active === "number") {
-        form.setFieldsValue(productDetailRef.current);
-        let fieldList = Products.convertAvatarToFileList(
-          productDetailRef.current.variants[active].variant_images
-        );
-        setFieldList(fieldList);
-      }
-    }, [productDetailRef, active, form]);
+  const productDetailRef = useRef<ProductResponse>();
+  const resetProductDetail = useCallback(() => {
+    setChangePrice(false);
+    if (productDetailRef.current && typeof active === "number") {
+      form.setFieldsValue(productDetailRef.current);
+      let fieldList = Products.convertAvatarToFileList(
+        productDetailRef.current.variants[active].variant_images
+      );
+      setFieldList(fieldList);
+    }
+  }, [productDetailRef, active, form]);
 
-    const onActive = useCallback(
-      (active1: number) => {
-        let variants = form.getFieldValue("variants");
-        if (active1 !== active) {
-          if (isChange && !isChangePrice) {
-            tempActive = active1;
-            setModalConfirm({
-              onOk: () => {
-                setModalConfirm({ visible: false });
-                form.submit();
-              },
-              onCancel: () => {
-                resetProductDetail();
-                let variants: Array<VariantResponse> =
-                  form.getFieldValue("variants");
-                if (variants[active].id) {
-                  setModalConfirm({ visible: false });
-                  setCurrentVariant(active1);
-                } else {
-                  setModalConfirm({ visible: false });
-                  let idActive = variants[active1].id;
-                  variants.splice(active, 1);
-                  let index = variants.findIndex(
-                    (item) => item.id === idActive
-                  );
-                  form.setFieldsValue({ variants: variants });
-                  setActive(index);
-                  let fieldList = Products.convertAvatarToFileList(
-                    variants[index].variant_images
-                  );
-                  setFieldList(fieldList);
-                }
-              },
-              visible: true,
-              title: "Xác nhận",
-              subTitle: "Bạn có muốn lưu lại phiên bản này?",
-            });
-          } else if (isChangePrice && variants.length > 1) {
-            tempActive = active1;
+  const onActive = useCallback(
+    (active1: number) => {
+      let variants = form.getFieldValue("variants");
+      if (active1 !== active) {
+        if (isChange && !isChangePrice) {
+          tempActive = active1;
+          setModalConfirm({
+            onOk: () => {
+              setModalConfirm({visible: false});
+              form.submit();
+            },
+            onCancel: () => {
+              resetProductDetail();
+              let variants: Array<VariantResponse> = form.getFieldValue("variants");
+              if (variants[active].id) {
+                setModalConfirm({visible: false});
+                setCurrentVariant(active1);
+              } else {
+                setModalConfirm({visible: false});
+                let idActive = variants[active1].id;
+                variants.splice(active, 1);
+                let index = variants.findIndex((item) => item.id === idActive);
+                form.setFieldsValue({variants: variants});
+                setActive(index);
+                let fieldList = Products.convertAvatarToFileList(
+                  variants[index].variant_images
+                );
+                setFieldList(fieldList);
+              }
+            },
+            visible: true,
+            title: "Xác nhận",
+            subTitle: "Bạn có muốn lưu lại phiên bản này?",
+          });
+        } else if (isChangePrice && variants.length > 1) {
+          tempActive = active1;
 
-            setVisiblePrice(true);
-          } else {
-            setCurrentVariant(active1);
-          }
+          setVisiblePrice(true);
+        } else {
+          setCurrentVariant(active1);
         }
-      },
-      [
-        active,
-        form,
-        isChange,
-        isChangePrice,
-        setCurrentVariant,
-        resetProductDetail,
-      ]
-    );
+      }
+    },
+    [active, form, isChange, isChangePrice, setCurrentVariant, resetProductDetail]
+  );
   const onResult = useCallback(
     (result: ProductResponse | false) => {
       setLoading(false);
@@ -575,12 +585,9 @@ const ProductDetailScreen: React.FC = () => {
     dispatch(materialSearchAll(setListMaterial));
     dispatch(CountryGetAllAction(setListCountry));
     dispatch(sizeGetAll(setListSize));
-    dispatch(listColorAction({ is_main_color: 0 }, setListColor));
+    dispatch(listColorAction({is_main_color: 0}, setListColor));
     dispatch(
-      AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
-        setDataAccounts
-      )
+      AccountSearchAction({department_ids: [AppConfig.WIN_DEPARTMENT]}, setDataAccounts)
     );
     return () => {};
   }, [dispatch, setDataAccounts, setDataCategory]);
@@ -713,7 +720,7 @@ const ProductDetailScreen: React.FC = () => {
                               placeholder="Chọn danh mục"
                               suffix={
                                 <Button
-                                  style={{ width: 37, height: 37 }}
+                                  style={{width: 37, height: 37}}
                                   icon={<PlusOutlined />}
                                   onClick={() =>
                                     window.open(
@@ -868,7 +875,7 @@ const ProductDetailScreen: React.FC = () => {
                         <Col span={24}>
                           <Collapse
                             ghost
-                            expandIcon={({ isActive }) =>
+                            expandIcon={({isActive}) =>
                               isActive ? <MinusOutlined /> : <PlusOutlined />
                             }
                             className="padding-0"
@@ -898,7 +905,7 @@ const ProductDetailScreen: React.FC = () => {
                             prev.variants !== current.variants
                           }
                         >
-                          {({ getFieldValue }) => {
+                          {({getFieldValue}) => {
                             const variants: Array<VariantResponse> =
                               getFieldValue("variants");
                             let url = null;
@@ -997,7 +1004,7 @@ const ProductDetailScreen: React.FC = () => {
                     </Item>
                     <Divider />
                     <Form.List name="variants">
-                      {(fields, { add, remove }) => {
+                      {(fields, {add, remove}) => {
                         const currentVariantList = form.getFieldValue("variants");
                         //check already have new item
                         let hasNewItem = currentVariantList?.some(
@@ -1056,9 +1063,9 @@ const ProductDetailScreen: React.FC = () => {
                   </Col>
                   <Col className="right" span={24} md={17}>
                     <Form.List name="variants">
-                      {(fields, { add, remove }) => (
+                      {(fields, {add, remove}) => (
                         <>
-                          {fields.map(({ key, name, fieldKey, ...restField }, index) =>
+                          {fields.map(({key, name, fieldKey, ...restField}, index) =>
                             active === index ? (
                               <React.Fragment key={key}>
                                 <div className="header-view">
@@ -1075,7 +1082,7 @@ const ProductDetailScreen: React.FC = () => {
                                     >
                                       <Switch
                                         disabled={status === "inactive"}
-                                        style={{ marginLeft: 10 }}
+                                        style={{marginLeft: 10}}
                                         className="ant-switch-success"
                                         onChange={() => {
                                           getFirstAvatar();
@@ -1101,7 +1108,7 @@ const ProductDetailScreen: React.FC = () => {
                                       currentValues.variants[active].id
                                     }
                                   >
-                                    {({ getFieldValue }) => {
+                                    {({getFieldValue}) => {
                                       let variants = getFieldValue("variants");
                                       let id = variants[active].id;
                                       return (
@@ -1110,7 +1117,7 @@ const ProductDetailScreen: React.FC = () => {
                                             <Item
                                               name={[name, "sku"]}
                                               rules={[
-                                                { required: true },
+                                                {required: true},
                                                 {
                                                   min: 10,
                                                   message:
@@ -1147,7 +1154,7 @@ const ProductDetailScreen: React.FC = () => {
                                     <Col span={24} md={12}>
                                       <Item
                                         name={[name, "name"]}
-                                        rules={[{ required: true }]}
+                                        rules={[{required: true}]}
                                         label="Tên sản phẩm"
                                       >
                                         <Input
@@ -1179,190 +1186,201 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                   </Row>
-                                  <Form.List name={[name, "variant_prices"]}>
-                                    {(fields, { add, remove }) => (
-                                      <>
-                                        {fields.map(
-                                          (
-                                            { key, name, fieldKey, ...restField },
-                                            index
-                                          ) => (
-                                            <Row key={key} gutter={24}>
-                                              <Item name={[name, "id"]} hidden noStyle>
-                                                <Input />
-                                              </Item>
-                                              <Col md={4}>
-                                                <Item
-                                                  label="Giá bán"
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        "Giá bán không được để trống",
-                                                    },
-                                                  ]}
-                                                  name={[name, "retail_price"]}
-                                                  fieldKey={[fieldKey, "retail_price"]}
-                                                  tooltip={{
-                                                    title: (
-                                                      <div>
-                                                        <b>Giá bán lẻ</b> là giá mà bạn sẽ
-                                                        bán sản phẩm này cho những khách
-                                                        hàng đơn lẻ..
-                                                      </div>
-                                                    ),
-                                                    icon: <InfoCircleOutlined />,
-                                                  }}
-                                                >
-                                                  <NumberInput
-                                                    onChange={onChangePrice}
-                                                    format={(a: string) =>
-                                                      formatCurrency(a)
-                                                    }
-                                                    replace={(a: string) =>
-                                                      replaceFormatString(a)
-                                                    }
-                                                    placeholder="VD: 100,000"
-                                                  />
+                                  <AuthWrapper acceptPermissions={[ProductPermission.read_cost, ProductPermission.update_cost]}>
+                                    <Form.List name={[name, "variant_prices"]}>
+                                      {(fields, {add, remove}) => (
+                                        <>
+                                          {fields.map(
+                                            (
+                                              {key, name, fieldKey, ...restField},
+                                              index
+                                            ) => (
+                                              <Row key={key} gutter={24}>
+                                                <Item name={[name, "id"]} hidden noStyle>
+                                                  <Input />
                                                 </Item>
-                                              </Col>
-                                              <Col md={4}>
-                                                <Item
-                                                  name={[name, "wholesale_price"]}
-                                                  fieldKey={[fieldKey, "wholesale_price"]}
-                                                  label="Giá buôn"
-                                                  tooltip={{
-                                                    title: () => (
-                                                      <div>
-                                                        <b>Giá buôn</b> là giá mà bạn sẽ
-                                                        bán sản phẩm này cho những khách
-                                                        hàng mua hàng với số lượng lớn.
-                                                      </div>
-                                                    ),
-                                                    icon: <InfoCircleOutlined />,
-                                                  }}
-                                                >
-                                                  <NumberInput
-                                                    onChange={onChangePrice}
-                                                    format={(a: string) =>
-                                                      formatCurrency(a)
-                                                    }
-                                                    replace={(a: string) =>
-                                                      replaceFormatString(a)
-                                                    }
-                                                    placeholder="VD: 100,000"
-                                                  />
-                                                </Item>
-                                              </Col>
-                                              <Col md={4}>
-                                                <Item
-                                                  name={[name, "import_price"]}
-                                                  fieldKey={[fieldKey, "import_price"]}
-                                                  label="Giá nhập"
-                                                  tooltip={{
-                                                    title: () => (
-                                                      <div>
-                                                        <b>Giá nhập</b> là giá mà nhập sản
-                                                        phẩm từ đơn mua hàng của nhà cung
-                                                        cấp.
-                                                      </div>
-                                                    ),
-                                                    icon: <InfoCircleOutlined />,
-                                                  }}
-                                                >
-                                                  <NumberInput
-                                                    onChange={onChangePrice}
-                                                    format={(a: string) =>
-                                                      formatCurrency(a)
-                                                    }
-                                                    replace={(a: string) =>
-                                                      replaceFormatString(a)
-                                                    }
-                                                    placeholder="VD: 100,000"
-                                                  />
-                                                </Item>
-                                              </Col>
-                                              <Col md={4}>
-                                                <Item
-                                                  name={[name, "cost_price"]}
-                                                  fieldKey={[fieldKey, "cost_price"]}
-                                                  label="Giá vốn"
-                                                  tooltip={{
-                                                    title: () => (
-                                                      <div>
-                                                        <b>Giá vốn</b> là tổng của những
-                                                        loại chi phí để đưa hàng có mặt
-                                                        tại kho. Chúng bao gồm giá mua của
-                                                        nhà cung cấp, thuế giá trị gia
-                                                        tăng, chi phí vận chuyển, bảo
-                                                        hiểm,...
-                                                      </div>
-                                                    ),
-                                                    icon: <InfoCircleOutlined />,
-                                                  }}
-                                                >
-                                                  <NumberInput
-                                                    onChange={onChangePrice}
-                                                    format={(a: string) =>
-                                                      formatCurrency(a)
-                                                    }
-                                                    replace={(a: string) =>
-                                                      replaceFormatString(a)
-                                                    }
-                                                    placeholder="VD: 100,000"
-                                                  />
-                                                </Item>
-                                              </Col>
-                                              <Col md={3}>
-                                                <Item
-                                                  label="Thuế"
-                                                  name={[name, "tax_percent"]}
-                                                  fieldKey={[fieldKey, "tax_percent"]}
-                                                >
-                                                  <NumberInput
-                                                    onChange={onChangePrice}
-                                                    placeholder="VD: 10"
-                                                    suffix={<span>%</span>}
-                                                  />
-                                                </Item>
-                                              </Col>
-                                              <Col md={4}>
-                                                <Item
-                                                  label="Đơn vị tiền tệ"
-                                                  tooltip={{
-                                                    title: "Tooltip",
-                                                    icon: <InfoCircleOutlined />,
-                                                  }}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        "Đơn vị tiền tệ không được để trống",
-                                                    },
-                                                  ]}
-                                                  name={[name, "currency_code"]}
-                                                >
-                                                  <CustomSelect
-                                                    onChange={onChangePrice}
-                                                    placeholder="Đơn vị tiền tệ"
+                                                <Col md={4}>
+                                                  <Item
+                                                    label="Giá bán"
+                                                    rules={[
+                                                      {
+                                                        required: true,
+                                                        message:
+                                                          "Giá bán không được để trống",
+                                                      },
+                                                    ]}
+                                                    name={[name, "retail_price"]}
+                                                    fieldKey={[fieldKey, "retail_price"]}
+                                                    tooltip={{
+                                                      title: (
+                                                        <div>
+                                                          <b>Giá bán lẻ</b> là giá mà bạn
+                                                          sẽ bán sản phẩm này cho những
+                                                          khách hàng đơn lẻ..
+                                                        </div>
+                                                      ),
+                                                      icon: <InfoCircleOutlined />,
+                                                    }}
                                                   >
-                                                    {currencyList?.map((item) => (
-                                                      <CustomSelect.Option
-                                                        key={item.value}
-                                                        value={item.value}
-                                                      >
-                                                        {item.name}
-                                                      </CustomSelect.Option>
-                                                    ))}
-                                                  </CustomSelect>
-                                                </Item>
-                                              </Col>
-                                            </Row>
-                                          )
-                                        )}
-                                      </>
-                                    )}
-                                  </Form.List>
+                                                    <NumberInput
+                                                      onChange={onChangePrice}
+                                                      format={(a: string) =>
+                                                        formatCurrency(a)
+                                                      }
+                                                      replace={(a: string) =>
+                                                        replaceFormatString(a)
+                                                      }
+                                                      placeholder="VD: 100,000"
+                                                      disabled={!canUpdateCost}
+                                                    />
+                                                  </Item>
+                                                </Col>
+                                                <Col md={4}>
+                                                  <Item
+                                                    name={[name, "wholesale_price"]}
+                                                    fieldKey={[
+                                                      fieldKey,
+                                                      "wholesale_price",
+                                                    ]}
+                                                    label="Giá buôn"
+                                                    tooltip={{
+                                                      title: () => (
+                                                        <div>
+                                                          <b>Giá buôn</b> là giá mà bạn sẽ
+                                                          bán sản phẩm này cho những khách
+                                                          hàng mua hàng với số lượng lớn.
+                                                        </div>
+                                                      ),
+                                                      icon: <InfoCircleOutlined />,
+                                                    }}
+                                                  >
+                                                    <NumberInput
+                                                      onChange={onChangePrice}
+                                                      format={(a: string) =>
+                                                        formatCurrency(a)
+                                                      }
+                                                      replace={(a: string) =>
+                                                        replaceFormatString(a)
+                                                      }
+                                                      placeholder="VD: 100,000"
+                                                      disabled={!canUpdateCost}
+                                                    />
+                                                  </Item>
+                                                </Col>
+                                                <Col md={4}>
+                                                  <Item
+                                                    name={[name, "import_price"]}
+                                                    fieldKey={[fieldKey, "import_price"]}
+                                                    label="Giá nhập"
+                                                    tooltip={{
+                                                      title: () => (
+                                                        <div>
+                                                          <b>Giá nhập</b> là giá mà nhập
+                                                          sản phẩm từ đơn mua hàng của nhà
+                                                          cung cấp.
+                                                        </div>
+                                                      ),
+                                                      icon: <InfoCircleOutlined />,
+                                                    }}
+                                                  >
+                                                    <NumberInput
+                                                      onChange={onChangePrice}
+                                                      format={(a: string) =>
+                                                        formatCurrency(a)
+                                                      }
+                                                      replace={(a: string) =>
+                                                        replaceFormatString(a)
+                                                      }
+                                                      placeholder="VD: 100,000"
+                                                      disabled={!canUpdateCost}
+                                                    />
+                                                  </Item>
+                                                </Col>
+                                                <Col md={4}>
+                                                  <Item
+                                                    name={[name, "cost_price"]}
+                                                    fieldKey={[fieldKey, "cost_price"]}
+                                                    label="Giá vốn"
+                                                    tooltip={{
+                                                      title: () => (
+                                                        <div>
+                                                          <b>Giá vốn</b> là tổng của những
+                                                          loại chi phí để đưa hàng có mặt
+                                                          tại kho. Chúng bao gồm giá mua
+                                                          của nhà cung cấp, thuế giá trị
+                                                          gia tăng, chi phí vận chuyển,
+                                                          bảo hiểm,...
+                                                        </div>
+                                                      ),
+                                                      icon: <InfoCircleOutlined />,
+                                                    }}
+                                                  >
+                                                    <NumberInput
+                                                      onChange={onChangePrice}
+                                                      format={(a: string) =>
+                                                        formatCurrency(a)
+                                                      }
+                                                      replace={(a: string) =>
+                                                        replaceFormatString(a)
+                                                      }
+                                                      placeholder="VD: 100,000"
+                                                      disabled={!canUpdateCost}
+                                                    />
+                                                  </Item>
+                                                </Col>
+                                                <Col md={3}>
+                                                  <Item
+                                                    label="Thuế"
+                                                    name={[name, "tax_percent"]}
+                                                    fieldKey={[fieldKey, "tax_percent"]}
+                                                  >
+                                                    <NumberInput
+                                                      onChange={onChangePrice}
+                                                      placeholder="VD: 10"
+                                                      suffix={<span>%</span>}
+                                                      disabled={!canUpdateCost}
+                                                    />
+                                                  </Item>
+                                                </Col>
+                                                <Col md={4}>
+                                                  <Item
+                                                    label="Đơn vị tiền tệ"
+                                                    tooltip={{
+                                                      title: "Tooltip",
+                                                      icon: <InfoCircleOutlined />,
+                                                    }}
+                                                    rules={[
+                                                      {
+                                                        required: true,
+                                                        message:
+                                                          "Đơn vị tiền tệ không được để trống",
+                                                      },
+                                                    ]}
+                                                    name={[name, "currency_code"]}
+                                                  >
+                                                    <CustomSelect
+                                                      onChange={onChangePrice}
+                                                      placeholder="Đơn vị tiền tệ"
+                                                      disabled={!canUpdateCost}
+                                                    >
+                                                      {currencyList?.map((item) => (
+                                                        <CustomSelect.Option
+                                                          key={item.value}
+                                                          value={item.value}
+                                                        >
+                                                          {item.name}
+                                                        </CustomSelect.Option>
+                                                      ))}
+                                                    </CustomSelect>
+                                                  </Item>
+                                                </Col>
+                                              </Row>
+                                            )
+                                          )}
+                                        </>
+                                      )}
+                                    </Form.List>
+                                  </AuthWrapper>
                                   <Row gutter={50}>
                                     <Col span={24} sm={12}>
                                       <Item label="Màu sắc" name={[name, "color_id"]}>
@@ -1474,7 +1492,7 @@ const ProductDetailScreen: React.FC = () => {
                                             <Select
                                               onChange={onChange}
                                               placeholder="Đơn vị"
-                                              style={{ width: "100px" }}
+                                              style={{width: "100px"}}
                                             >
                                               {lengthUnitList?.map((item) => (
                                                 <Select.Option
@@ -1523,7 +1541,7 @@ const ProductDetailScreen: React.FC = () => {
                                             <Select
                                               onChange={onChange}
                                               placeholder="Đơn vị"
-                                              style={{ width: "100px" }}
+                                              style={{width: "100px"}}
                                               value="gram"
                                             >
                                               {weightUnitList?.map((item) => (
@@ -1547,26 +1565,31 @@ const ProductDetailScreen: React.FC = () => {
                                       >
                                         <Input />
                                       </Item>
-
-                                      <Upload
-                                        style={{ width: "100%" }}
-                                        multiple
-                                        maxCount={6}
-                                        beforeUpload={beforeUpload}
-                                        fileList={fieldList}
-                                        onChange={(info) => {
-                                          onAddFile(info);
-                                        }}
-                                        customRequest={(options) => {
-                                          customRequest(options, active);
-                                        }}
-                                        listType="picture-card"
-                                        onRemove={(file) => {
-                                          onRemoveFile(file, active);
-                                        }}
+                                      <AuthWrapper
+                                        acceptPermissions={[
+                                          ProductPermission.upload_image,
+                                        ]}
                                       >
-                                        {fieldList.length >= 6 ? null : uploadButton}
-                                      </Upload>
+                                        <Upload
+                                          style={{width: "100%"}}
+                                          multiple
+                                          maxCount={6}
+                                          beforeUpload={beforeUpload}
+                                          fileList={fieldList}
+                                          onChange={(info) => {
+                                            onAddFile(info);
+                                          }}
+                                          customRequest={(options) => {
+                                            customRequest(options, active);
+                                          }}
+                                          listType="picture-card"
+                                          onRemove={(file) => {
+                                            onRemoveFile(file, active);
+                                          }}
+                                        >
+                                          {fieldList.length >= 6 ? null : uploadButton}
+                                        </Upload>
+                                      </AuthWrapper>
                                     </Col>
                                   </Row>
                                 </div>

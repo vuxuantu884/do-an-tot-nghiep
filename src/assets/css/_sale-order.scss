@@ -1010,6 +1010,9 @@
   .ant-modal-header {
     padding: 27px 27.5px 21px 30px;
   }
+  .ant-modal-body {
+    padding: 0;
+  }
   .orders-cancel-option {
     width: 100%;
     .ant-select {
@@ -1025,7 +1028,7 @@
     }
   }
   .ant-modal-title {
-    & > div {
+    .title {
       display: flex;
       div {
         margin-left: 25px;
@@ -1047,9 +1050,9 @@
       }
     }
   }
-  .ant-modal-body {
-    padding: 0;
-  }
+  // .ant-modal-body {
+  //   padding: 0;
+  // }
   .ant-modal-footer {
     box-shadow: none;
     border: none;
