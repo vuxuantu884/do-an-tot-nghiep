@@ -11,7 +11,7 @@ import {
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import actionColumn from "./actions/action.column";
+import actionColumn from "./actions/promo.action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
