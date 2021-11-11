@@ -45,9 +45,9 @@ const GeneralCreate = (props: any) => {
   const dispatch = useDispatch();
 
   const [showTimeAdvance] = useState(false);
-  const [allStore, setAllStore] = useState(false);
-  const [allChannel, setAllChannel] = useState(false);
-  const [allSource, setAllSource] = useState(false);
+  const [allStore, setAllStore] = useState(true);
+  const [allChannel, setAllChannel] = useState(true);
+  const [allSource, setAllSource] = useState(true);
   const [disabledEndDate, setDisabledEndDate] = useState(false);
   const [type, setType] = useState("SALE_CODE");
   const [product, setProduct] = useState<string>("PRODUCT");
@@ -536,7 +536,9 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch onChange={value => {
+                <Switch 
+                defaultChecked={true}
+                onChange={value => {
                   form.setFieldsValue({
                     prerequisite_store_ids: undefined,
                   });
@@ -564,7 +566,9 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch onChange={value => {
+                <Switch 
+                defaultChecked={true}
+                onChange={value => {
                   setAllChannel(value);
                   form.validateFields(["prerequisite_sales_channel_names"]);
                 }} />
@@ -589,7 +593,9 @@ const GeneralCreate = (props: any) => {
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
-                <Switch onChange={value => {
+                <Switch 
+                defaultChecked={true}
+                onChange={value => {
                   form.validateFields(["prerequisite_order_source_ids"]);
                   form.setFieldsValue({
                     prerequisite_order_source_ids: undefined,

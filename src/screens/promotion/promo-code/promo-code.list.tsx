@@ -11,7 +11,7 @@ import {
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import actionColumn from "./actions/action.column";
+import actionColumn from "./actions/promo.action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
@@ -86,9 +86,9 @@ const STATUS_CODE = [
       published: false,
       value: 'Ngừng áp dụng',
       style: {
-      background: "rgba(252, 175, 23, 0.1)",
+      background: "rgb(245, 245, 245)",
       borderRadius: "100px",
-      color: "rgb(245, 245, 245)",
+      color: "rgb(102, 102, 102)",
       padding: "5px 10px"
       }},
   {
@@ -96,9 +96,9 @@ const STATUS_CODE = [
       published: true,
       value: 'Đã tặng' ,
       style: {
-      background: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
       borderRadius: "100px",
-      color: "rgb(102, 102, 102)",
+      color: "#FCAF17",
       padding: "5px 10px"
       }},
   ]
@@ -117,10 +117,6 @@ const ListCode = () => {
     {
       id: 3,
       name: "Ngừng áp dụng",
-    },
-    {
-      id: 4,
-      name: "Xoá",
     },
   ];
   const dispatch = useDispatch();
@@ -396,10 +392,6 @@ const ListCode = () => {
         case 3:
           dispatch(showLoading());
           dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
-          break;
-        case 4:
-          dispatch(showLoading());
-          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
     }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
