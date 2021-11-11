@@ -531,6 +531,7 @@ const ScreenReturnCreate = (props: PropType) => {
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
+                  showLoading();
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
@@ -543,6 +544,7 @@ const ScreenReturnCreate = (props: PropType) => {
                   );
                 })
               );
+              hideLoading();
             };
             if (!values.customer_id) {
               showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
