@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {EditOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
+import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -10,53 +10,49 @@ import {
   Form,
   FormInstance,
   Input,
-  Menu,
-  Select,
-  Row,
-  Space,
+  Menu, Row, Select, Space,
   Table,
-  Tooltip,
+  Tooltip
 } from "antd";
 // import _ from "lodash";
-import {RefSelectProps} from "antd/lib/select";
+import { RefSelectProps } from "antd/lib/select";
+import _ from "lodash";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import NumberInput from "component/custom/number-input.custom";
-import {AppConfig} from "config/app.config";
-import {Type} from "config/type.config";
+import { AppConfig } from "config/app.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import {OrderCreateContext} from "contexts/order-online/order-create-context";
 import {
   StoreGetListAction,
-  StoreSearchListAction,
+  StoreSearchListAction
 } from "domain/actions/core/store.action";
-import {splitOrderAction} from "domain/actions/order/order.action";
+import { splitOrderAction } from "domain/actions/order/order.action";
 import {
   SearchBarCode,
-  searchVariantsOrderRequestAction,
+  searchVariantsOrderRequestAction
 } from "domain/actions/product/products.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
-import {InventoryResponse} from "model/inventory";
-import {OrderItemDiscountModel} from "model/other/order/order-model";
-import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {OrderItemDiscountRequest, OrderLineItemRequest, SplitOrderRequest} from "model/request/order.request";
-import {OrderResponse} from "model/response/order/order.response";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryResponse } from "model/inventory";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderItemDiscountRequest, OrderLineItemRequest, SplitOrderRequest } from "model/request/order.request";
+import { OrderResponse } from "model/response/order/order.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
   createRef,
-  useCallback,
-  useContext,
-  useEffect,
+  useCallback, useEffect,
   useLayoutEffect,
   useMemo,
-  useState,
+  useState
 } from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
@@ -71,19 +67,19 @@ import {
   getTotalDiscount,
   getTotalQuantity,
   haveAccess,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
-import {MoneyType} from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { MoneyType } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { applyDiscount } from "../../../../../service/promotion/discount/discount.service";
 import DiscountGroup from "../../discount-group";
 import CardProductBottom from "./CardProductBottom";
-import {StyledComponent} from "./styles";
-import {applyDiscount} from "../../../../../service/promotion/discount/discount.service";
+import { StyledComponent } from "./styles";
 
 type CardProductProps = {
   storeId: number | null;
   selectStore: (item: number) => void;
-  shippingFeeCustomer: number | null;
+  shippingFeeInformedToCustomer: number | null;
   setItemGift: (item: []) => void;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
@@ -107,6 +103,7 @@ type CardProductProps = {
   orderId?: string;
   isSplitOrder?: boolean;
   orderDetail?: OrderResponse | null;
+  orderConfig: OrderConfigResponseModel | null | undefined;
   fetchData?: () => void;
 };
 
@@ -134,6 +131,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     isSplitOrder,
     orderDetail,
     fetchData,
+    orderConfig,
   } = props;
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount, setLoadingAutomaticDiscount] = useState(false);
@@ -169,85 +167,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [splitOrderNumber, setSplitOrderNumber] = useState(0);
   const [isShowSplitOrder, setIsShowSplitOrder] = useState(false);
 
-  const createOrderContext = useContext(OrderCreateContext);
-  const shippingFeeInformedToCustomer =
-    createOrderContext?.shipping.shippingFeeInformedToCustomer;
-
-  const orderConfig = createOrderContext?.orderConfig;
-
   const [storeArrayResponse, setStoreArrayResponse] =
     useState<Array<StoreResponse> | null>([]);
-  //Function
-
-  // const event = useCallback(
-  //   (event: KeyboardEvent) => {
-  //     if (event.target instanceof HTMLInputElement) {
-  //       if (
-  //         event.keyCode === 13 &&
-  //         event.target.value &&
-  //         event.target.id === "search_product" &&
-  //         orderConfig?.allow_choose_item &&
-  //         items &&
-  //         storeId
-  //       ) {
-  //         // event.target.onchange=()=>{
-  //         //   event.preventDefault();
-  //         //   event.stopPropagation();
-  //         // }
-  //         let barcode = event.target.value;
-  //         dispatch(
-  //           SearchBarCode(barcode, (data: VariantResponse) => {
-  //             let _items = [...items].reverse();
-  //             const item: OrderLineItemRequest = createItem(data);
-  //             let index = _items.findIndex((i) => i.variant_id === data.id);
-  //             item.position = items.length + 1;
-
-  //             if (splitLine || index === -1) {
-  //               _items.push(item);
-  //               setAmount(amount + item.price);
-  //               calculateChangeMoney(
-  //                 _items,
-  //                 amount + item.price,
-  //                 discountRate,
-  //                 discountValue
-  //               );
-  //             } else {
-  //               let variantItems = _items.filter((item) => item.variant_id === data.id);
-  //               let lastIndex = variantItems.length - 1;
-  //               variantItems[lastIndex].quantity += 1;
-  //               variantItems[lastIndex].line_amount_after_line_discount +=
-  //                 variantItems[lastIndex].price -
-  //                 variantItems[lastIndex].discount_items[0].amount;
-  //               setAmount(
-  //                 amount +
-  //                   variantItems[lastIndex].price -
-  //                   variantItems[lastIndex].discount_items[0].amount
-  //               );
-  //               calculateChangeMoney(
-  //                 _items,
-  //                 amount +
-  //                   variantItems[lastIndex].price -
-  //                   variantItems[lastIndex].discount_items[0].amount,
-  //                 discountRate,
-  //                 discountValue
-  //               );
-  //             }
-
-  //             handleCardItems(_items.reverse());
-  //             autoCompleteRef.current?.blur();
-  //             setIsInputSearchProductFocus(false);
-  //             setKeySearchVariant("");
-  //           })
-  //         );
-  //       }
-  //     }
-  //   },
-  //   [items, splitLine, storeId]
-  // );
-
-  // useEffect(() => {
-  //   window.addEventListener("keydown", event);
-  // }, [event]);
 
   const event = useCallback((event:KeyboardEvent)=>{
     if (event.target instanceof HTMLBodyElement) {
@@ -856,8 +777,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const handleAutomaticDiscount = async (_items: Array<OrderLineItemRequest>, item: OrderLineItemRequest, splitLine:boolean) => {
-    let valuestDiscount = 0;
-    let quantity = splitLine ? _items.filter(item => item.variant_id === item.variant_id).length : item.quantity;
+    let mostValueDiscount = 0;
+    let quantity = splitLine ? _items.filter(i => i.variant_id === item.variant_id).length : item.quantity;
     try {
       const checkingDiscountResponse = await applyDiscount([{variant_id: item.variant_id, quantity}], "ADMIN");
       setLoadingAutomaticDiscount(false)
@@ -871,7 +792,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         if (suggested_discounts && suggested_discounts.length > 0) {
           const quantity = item.quantity;
           const total = item.amount;
-          valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
+          mostValueDiscount = Math.max(...suggested_discounts.map((discount: any) => {
             let value = 0;
             if (discount.value_type === "FIXED_AMOUNT") {
               value = discount.value * quantity;
@@ -886,9 +807,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             return value;
           }))
           const discountItem: OrderItemDiscountRequest = {
-            rate: Math.round((valuestDiscount/item.price) * 100 * 100) / 100,
-            value: valuestDiscount,
-            amount: valuestDiscount,
+            rate: Math.round((mostValueDiscount/item.price) * 100 * 100) / 100,
+            value: mostValueDiscount,
+            amount: mostValueDiscount,
             reason: '',
           };
           item.discount_items[0] = discountItem;
@@ -902,69 +823,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     }
 
   }
-
-  // const applyCouponDiscount = async (items: Array<OrderLineItemRequest> | undefined) => {
-  //   if (items) {
-  //     try {
-  //       const requestBody = _.uniqWith(items, (otherItem, currentItem) => {
-  //         let flag = false;
-  //         if (currentItem.variant_id === otherItem.variant_id) {
-  //           currentItem.quantity += otherItem.quantity;
-  //           flag = true;
-  //         }
-  //         return flag;
-  //       }).map(e => ({
-  //         variant_id: e.variant_id,
-  //         quantity: e.quantity
-  //       }));
-  //       const applyResponse = await applyDiscount(requestBody, "ADMIN");
-  //       setLoadingAutomaticDiscount(false)
-  //       if (applyResponse &&
-  //         applyResponse.code === 20000000 &&
-  //         applyResponse.data.line_items.length
-  //       ) {
-  //         applyResponse.data.line_items.forEach((discountLineItem:any) => {
-  //           const orderItems = items.filter(item => item.variant_id === discountLineItem.variant_id);
-  //           if (orderItems && orderItems.length > 0) {
-  //             let valuestDiscount = 0;
-  //             console.log('orderItems[0]: ',orderItems[0]);
-  //             const quantity = orderItems[0].quantity;
-  //             const suggested_discounts = discountLineItem.suggested_discounts;
-  //             const total = orderItems[0].amount;
-  //             valuestDiscount = Math.max(...suggested_discounts.map((discount: any) => {
-  //               let value = 0;
-  //               if (discount.value_type === "FIXED_AMOUNT") {
-  //                 value = discount.value * quantity;
-  //               } else if (discount.value_type === "PERCENTAGE") {
-  //                 value = total * (discount.value/100);
-  //               } else if (discount.value_type === "FIXED_PRICE") {
-  //                 value = orderItems[0].price - discount.value;
-  //               }
-  //               if (value > orderItems[0].price) {
-  //                 value = orderItems[0].price;
-  //               }
-  //               return value;
-  //             }))
-  //             const discountItem: OrderItemDiscountRequest = {
-  //               rate: Math.round((valuestDiscount/(orderItems[0].price * orderItems[0].quantity)) * 100 * 100) / 100,
-  //               value: valuestDiscount,
-  //               amount: valuestDiscount,
-  //               reason: '',
-  //             };
-  //             orderItems.forEach(e => e.discount_items = [discountItem]);
-  //           }
-  //         })
-  //       }
-  //       console.log('applyCouponDiscount - items: ', items)
-  //       console.log('applyCouponDiscount: ', applyResponse);
-  //     } catch(e) {
-  //       console.log(e);
-  //       showError("Thao tác thất bại");
-  //       setLoadingAutomaticDiscount(false)
-  //       return null;
-  //     }
-  //   }
-  // }
 
   const onSearchVariantSelect = useCallback(
     async (v, o) => {
@@ -1475,9 +1333,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             showDiscountModal={ShowDiscountModal}
             totalAmountOrder={amount}
             items={items}
-            shippingFeeInformedToCustomer={
-              shippingFeeInformedToCustomer || props.shippingFeeCustomer
-            }
+            shippingFeeInformedToCustomer={props.shippingFeeInformedToCustomer}
           />
         )}
 
@@ -1486,9 +1342,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           type={discountType}
           value={discountValue}
           rate={discountRate}
-          coupon={coupon}
-          onCancel={onCancelDiscountConfirm}
-          onOk={onOkDiscountConfirm}
+          onCancelDiscountModal={onCancelDiscountConfirm}
+          onOkDiscountModal={onOkDiscountConfirm}
+          visible={isVisiblePickDiscount}
+        />
+
+        <PickDiscountModal
+          amount={amount}
+          type={discountType}
+          value={discountValue}
+          rate={discountRate}
+          onCancelDiscountModal={onCancelDiscountConfirm}
+          onOkDiscountModal={onOkDiscountConfirm}
           visible={isVisiblePickDiscount}
         />
         <InventoryModal

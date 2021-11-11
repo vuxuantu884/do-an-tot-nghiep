@@ -27,8 +27,11 @@ import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import useAuthorization from "hook/useAuthorization";
+import { ProductPermission } from "config/permissions/product.permission";
+import AuthWrapper from "component/authorization/AuthWrapper";
 
-const actions: Array<MenuAction> = [
+const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
@@ -141,18 +144,24 @@ const SizeListScreen: React.FC = () => {
     [history]
   );
 
+  const [canUpdateSizes] = useAuthorization({
+    acceptPermissions: [ProductPermission.sizes_update],
+  });
+  const [canDeleteSizes] = useAuthorization({
+    acceptPermissions: [ProductPermission.sizes_delete],
+  });
   const menuFilter = useMemo(() => {
-    return actions.filter((item) => {
-      if (selected.length === 0) {
-        return item.id !== 1 && item.id !== 2;
+    return actionsDefault.filter((item) => {
+      if (item.id === 1) {
+        return selected.length === 1 && canUpdateSizes;
       }
-      if (selected.length > 1) {
-        return item.id !== 1;
+      if (item.id === 2) {
+        return canDeleteSizes;
       }
-
       return true;
     });
-  }, [selected]);
+  }, [selected, canUpdateSizes, canDeleteSizes]);
+
   const searchSizeCallback = useCallback(
     (listResult: PageResponse<SizeResponse>) => {
       setLoadingTable(false);
@@ -160,6 +169,7 @@ const SizeListScreen: React.FC = () => {
     },
     []
   );
+
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     showSuccess("Xóa kích cỡ thành công");
@@ -238,7 +248,7 @@ const SizeListScreen: React.FC = () => {
           path: `${UrlConfig.SIZES}`,
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.SIZES}/create`} />}
+      extra={<AuthWrapper acceptPermissions={[ProductPermission.sizes_create]}><ButtonCreate path={`${UrlConfig.SIZES}/create`} /></AuthWrapper>}
     >
       <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>

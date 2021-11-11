@@ -5,6 +5,7 @@ import {generateQuery} from "../../../utils/AppUtils";
 import BaseAxios from "../../../base/base.axios";
 import {ApiConfig} from "../../../config/api.config";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
+import { CouponRequestModel } from "model/request/promotion.request";
 
 const END_POINT = "/price-rules";
 
@@ -41,10 +42,13 @@ export const bulkDisablePriceRules = (body: any) : Promise<any> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/disable`, body)
 }
 
-export const applyDiscount = (items: Array<any>, salesChannelName: string) : Promise<any> => {
+export const applyDiscount = (items: Array<any>, orderInfo:any) : Promise<any> => {
   if (items === undefined) return Promise.reject(null);
   // return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`,
-  const body: any = {sales_channel_name: salesChannelName};
+  const body: any = {
+    sales_channel_name: orderInfo.salesChannelName,
+    store_id: orderInfo.storeId,
+  };
   body["line_items"] = items.map(item => {
     return {
       "custom": true,
@@ -65,3 +69,8 @@ export const applyDiscount = (items: Array<any>, salesChannelName: string) : Pro
   })
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, body)
 }
+
+
+export const applyCouponService = (queryParams: CouponRequestModel): Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, queryParams)
+};

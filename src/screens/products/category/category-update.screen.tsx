@@ -34,6 +34,8 @@ import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
 import { RegUtil } from 'utils/RegUtils';
 import { showSuccess } from 'utils/ToastUtils';
+import AuthWrapper from 'component/authorization/AuthWrapper';
+import { ProductPermission } from 'config/permissions/product.permission';
 
 const {TreeNode} = TreeSelect;
 
@@ -208,9 +210,11 @@ const CategoryUpdate: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
+              <AuthWrapper acceptPermissions={[ProductPermission.categories_update]}>
               <Button loading={loading} htmlType="submit" type="primary">
                 Lưu
               </Button>
+              </AuthWrapper>
             </Space>
           </div>
         </Form>

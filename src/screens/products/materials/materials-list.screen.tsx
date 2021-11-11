@@ -20,8 +20,11 @@ import CustomFilter from "component/table/custom.filter";
 import { DeleteOutlined, EditOutlined, ExportOutlined, StarOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
+import useAuthorization from "hook/useAuthorization";
 
-const actions: Array<MenuAction> = [
+const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
@@ -161,18 +164,26 @@ const ListMaterial: React.FC = () => {
     },
     [onDelete, onUpdate]
   );
-  const menuFilter = useMemo(() => {
-    return actions.filter((item) => {
-      if (selected.length === 0) {
-        return item.id !== 1 && item.id !== 2;
-      }
-      if (selected.length > 1) {
-        return item.id !== 1;
-      }
 
+  const [canDeleteMaterials] = useAuthorization({
+    acceptPermissions: [ProductPermission.materials_delete],
+  });
+  const [canUpdateMaterials] = useAuthorization({
+    acceptPermissions: [ProductPermission.materials_update],
+  });
+
+  const menuFilter = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === 1) {
+        return selected.length === 1 && canUpdateMaterials;
+      }
+      if (item.id === 2) {
+        return canDeleteMaterials;
+      }
       return true;
     });
-  }, [selected]);
+  }, [selected, canDeleteMaterials, canUpdateMaterials]);
+
   useEffect(() => {
     setLoading(true);
     dispatch(getMaterialAction(params, onGetSuccess));
@@ -194,7 +205,7 @@ const ListMaterial: React.FC = () => {
           name: "Chất liệu",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.MATERIALS}/create`} />}
+      extra={<AuthWrapper acceptPermissions={[ProductPermission.materials_create]}><ButtonCreate path={`${UrlConfig.MATERIALS}/create`} /></AuthWrapper>}
     >
       <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>

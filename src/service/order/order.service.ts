@@ -83,7 +83,7 @@ export const getReturnApi = (
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
+  return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<
@@ -139,7 +139,7 @@ export const updateFulFillmentStatus = (
 ): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}`;
   let params = {
-    action: request.action,
+    ...request,
   };
   return BaseAxios.put(link, params);
 };

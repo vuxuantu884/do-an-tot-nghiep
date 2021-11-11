@@ -1025,7 +1025,7 @@
     }
   }
   .ant-modal-title {
-    & > div {
+    .title {
       display: flex;
       div {
         margin-left: 25px;
@@ -1047,9 +1047,9 @@
       }
     }
   }
-  .ant-modal-body {
-    padding: 0;
-  }
+  // .ant-modal-body {
+  //   padding: 0;
+  // }
   .ant-modal-footer {
     box-shadow: none;
     border: none;

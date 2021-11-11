@@ -31,13 +31,16 @@ export interface Summary {
 
 const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment
-) => { 
+) => {
   const [dataTable, setDataTable] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
   const [searchVariant, setSearchVariant] = useState<Array<LineItemAdjustment> | any>(
     [] as Array<LineItemAdjustment>
   );
+  
+  const [editReason, setEditReason] = useState<boolean | any>(false);
+
   const [objSummaryTable, setObjSummaryTable] = useState<Summary>({
     TotalExcess: 0,
     TotalMiss: 0,
@@ -71,21 +74,30 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     [keySearch, dataTable]
   );
 
-  const onChangeReason = (value: string | null, index: number) => {
-    let dataEdit =
-      (searchVariant && searchVariant.length > 0) || keySearch !== ""
-        ? [...searchVariant]
-        : [...dataTable];
+  const onChangeReason = useCallback(
+    (value: string | null, row: LineItemAdjustment, index: number) => {
+      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataTable);
 
-    const dataTableClone = _.cloneDeep(dataEdit);
-    dataTableClone[index].note = value; 
+      dataTableClone.forEach((item) => {
+        if (item.id === row.id) {
+          value = value ?? "";
+          item.note = value;
+        }
+      }); 
 
-    if (searchVariant && (searchVariant.length > 0 || keySearch !== "")) {
-      setSearchVariant(dataTableClone);
-    } else {
+      let dataEdit =
+        (searchVariant && searchVariant.length > 0) || keySearch !== ""
+          ? [...dataTableClone]
+          : null;
+
       setDataTable(dataTableClone);
-    }
-  };
+      setSearchVariant(dataTableClone);
+      setEditReason(true);
+
+      onEnterFilterVariant(dataEdit);
+    },
+    [searchVariant, keySearch, dataTable, onEnterFilterVariant]
+  );
 
   const drawColumns = useCallback((data: Array<LineItemAdjustment> | any) => {
     let totalExcess = 0,
@@ -229,48 +241,45 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       dataIndex: "note",
       align: "left",
       width: 200,
-      render: (value: string, row:LineItemAdjustment, index: number) => {
+      render: (value: string, row: LineItemAdjustment, index: number) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED) {
           return (
             <TextArea
               placeholder="Lý do lệch tồn"
               id={`item-reason-${index}`}
               value={value ? value : ""}
-              onChange={(event) => {
-                let value =
-                  event.target.value && event.target.value !== ""
-                    ? event.target.value
-                    : "";
-                onChangeReason(value, index);
+              maxLength={250}
+              onChange={(e) => {
+                onChangeReason(e.target.value, row, index);
               }}
-              onKeyPress={event => {
+              onKeyPress={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
                   row.note = event.currentTarget.value;
-                  
+
                   dispatch(
                     updateItemOnlineInventoryAction(data?.id, row, (result) => {
                       if (result) {
                         showSuccess("Nhập lý do thành công.");
                       }
                     })
-                  ); 
+                  );
                 }
               }}
-              // onBlur={(e) => {
-              //   if (editReason) {
-              //     dispatch(
-              //       updateItemOnlineInventoryAction(
-              //         data?.id,
-              //         dataTable[index],
-              //         (result) => {
-              //           showSuccess("Nhập lý do thành công.");
-              //         }
-              //       )
-              //     );
-              //     setEditReason(false);
-              //   }
-              // }}
+              onBlur={(e) => {
+                if (editReason) {
+                  dispatch(
+                    updateItemOnlineInventoryAction(
+                      data?.id,
+                      dataTable[index],
+                      (result) => {
+                        showSuccess("Nhập lý do thành công.");
+                      }
+                    )
+                  );
+                  setEditReason(false);
+                }
+              }}
             />
           );
         }
