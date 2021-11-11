@@ -23,6 +23,7 @@ const ReportHandOver: React.FC = () => {
   const listChannels=orderPackContextData.listChannels;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listGoodsReceipts= orderPackContextData.listGoodsReceipts;
+  const setData= orderPackContextData.setData;
 
   const handleOk = () => {
     goodsReceiptsForm.submit();
@@ -67,16 +68,16 @@ const ReportHandOver: React.FC = () => {
     dispatch(createGoodsReceipts(param, (value:any)=>{
       console.log("Goods",value)
       removePackInfo();
-      // setData({
-      //   metadata: {
-      //     limit: 1,
-      //     page: 1,
-      //     total: 0,
-      //   },
-      //   items: [],
-      // })
+      setData({
+        metadata: {
+          limit: 1,
+          page: 1,
+          total: 0,
+        },
+        items: [],
+      })
     }));
-  },[dispatch, data,listGoodsReceipts,listStores,listThirdPartyLogistics,listChannels])
+  },[dispatch,setData, data,listGoodsReceipts,listStores,listThirdPartyLogistics,listChannels])
 
   return (
     <Card
