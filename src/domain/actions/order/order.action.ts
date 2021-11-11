@@ -14,15 +14,15 @@ import {
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   // UpdatePaymentRequest,
-  VTPFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import {
   createDeliveryMappedStoreReQuestModel,
-  deleteDeliveryMappedStoreReQuestModel,
+  deleteDeliveryMappedStoreReQuestModel
 } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   ActionLogDetailResponse,
-  OrderActionLogResponse,
+  OrderActionLogResponse
 } from "model/response/order/action-log.response";
 import {
   ChannelsResponse,
@@ -30,17 +30,16 @@ import {
   DeliveryServiceResponse,
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
-  GHNFeeResponse,
-  OrderConfig,
-  OrderResponse,
+  GHNFeeResponse, OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
-  VTPFeeResponse,
+  VTPFeeResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceEcommerceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import { OrderType } from "../../types/order.type";
 
 export const orderCreateAction = (
@@ -362,7 +361,7 @@ export const cancelOrderRequest = (
   return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, reason, onSuccess, onError });
 };
 
-export const configOrderSaga = (setData: (data: OrderConfig) => void) => {
+export const configOrderSaga = (setData: (data: OrderConfigResponseModel) => void) => {
   return BaseAction(OrderType.GET_ORDER_CONFIG, { setData });
 };
 
