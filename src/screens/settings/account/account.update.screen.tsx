@@ -441,7 +441,7 @@ const AccountUpdateScreen: React.FC = () => {
                   name="user_name"
                   rules={[{required: true, message: "Vui lòng nhập họ và tên"}]}
                 >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" />
+                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" disabled/>
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -471,7 +471,7 @@ const AccountUpdateScreen: React.FC = () => {
                   name="code"
                   rules={[{required: true, message: "Vui lòng nhập mã nhân viên"}]}
                 >
-                  <Input className="r-5" placeholder="VD: YD0000" size="large" />
+                  <Input className="r-5" placeholder="VD: YD0000" size="large" disabled/>
                 </Item>
               </Col>
 

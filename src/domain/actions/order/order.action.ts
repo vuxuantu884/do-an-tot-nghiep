@@ -354,11 +354,11 @@ export const getListReasonRequest = (
 };
 
 export const cancelOrderRequest = (
-  id: number, reason_id: number, reason: string,
+  id: number, reason_id: number, sub_reason_id: number, reason: string,
   onSuccess: (success: any) => void,
   onError: (error: any) => void
 ) => {
-  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, reason, onSuccess, onError });
+  return BaseAction(OrderType.CANCEL_ORDER_REQUEST, { id, reason_id, sub_reason_id, reason, onSuccess, onError });
 };
 
 export const configOrderSaga = (setData: (data: OrderConfigResponseModel) => void) => {

@@ -621,9 +621,9 @@ function* getListReasonSaga(action: YodyAction) {
 
 function* cancelOrderSaga(action: YodyAction) {
   yield put(showLoading());
-  let { id, reason_id, reason, onSuccess, onError } = action.payload;
+  let { id, reason_id, sub_reason_id, reason, onSuccess, onError } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(cancelOrderApi, id, reason_id, reason);
+    let response: BaseResponse<any> = yield call(cancelOrderApi, id, reason_id, sub_reason_id, reason);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Huỷ đơn hàng thành công!");
@@ -732,7 +732,7 @@ function* confirmDraftOrderSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        showSuccess(`Xác nhận đơn nháp ${orderId} thành công!`);
+        showSuccess(`Xác nhận đơn nháp thành công!`);
         handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -743,7 +743,7 @@ function* confirmDraftOrderSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(`Xác nhận đơn nháp ${orderId} xảy ra lỗi!`);
+    showError(`Xác nhận đơn nháp xảy ra lỗi!`);
   } finally {
     yield put(hideLoading());
   }

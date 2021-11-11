@@ -78,13 +78,14 @@ const CreatePromotionCodePage = () => {
     return body;
   }
 
-  const createCallback = useCallback(() => {
-
-    setTimeout(() => {
-      showSuccess("Thêm thành công");
-      dispatch(hideLoading());
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
-    }, 2000);
+  const createCallback = useCallback((data) => {
+    if (data) {
+      setTimeout(() => {
+        showSuccess("Thêm thành công");
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
+      }, 2000);
+    }
+    dispatch(hideLoading())
 
   }, [dispatch, history]);
 

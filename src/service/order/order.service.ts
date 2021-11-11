@@ -330,10 +330,12 @@ export const getReasonsApi = (): Promise<BaseResponse<Array<any>>> => {
 export const cancelOrderApi = (
   order_id: number,
   reason_id: number,
+  sub_reason_id: number,
   reason?: string
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/cancel`, {
     reason_id,
+    sub_reason_id,
     reason,
   });
 };
