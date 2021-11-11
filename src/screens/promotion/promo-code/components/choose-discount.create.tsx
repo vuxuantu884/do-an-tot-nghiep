@@ -1,4 +1,4 @@
-import {Checkbox, Col, Form, Input, InputNumber, Row, Select, Tooltip} from "antd";
+import {Checkbox, Col, Form, Input, Row, Select, Tooltip} from "antd";
 import React, {useState} from "react";
 import "../promo-code.scss";
 import NumberInput from "component/custom/number-input.custom";
@@ -129,7 +129,7 @@ const ChooseDiscount = (props: any) => {
         </Col>
         <Col span={5}>
         <Form.Item label=" ">
-            <Checkbox 
+            <Checkbox
               defaultChecked={true}
               onChange={value => {
                 setIsUsageLimitPerCus(value.target.checked);

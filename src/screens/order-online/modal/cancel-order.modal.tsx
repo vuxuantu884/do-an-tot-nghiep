@@ -17,11 +17,11 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = (
   const { visible, orderCode, onCancel, onOk, reasons } =
     props;
   const [reasonID, setReasonID] = useState<string>('1');
-  // const [reasonSubs, setReasonSubs] = useState<any[]>([]); 
+  // const [reasonSubs, setReasonSubs] = useState<any[]>([]);
   const [reasonSubID, setReasonSubID] = useState<string>('');
   const [reason, setReason] = useState<string>('');
-  const [reasonSubs, setReasonSubs] = useState<any[]>([]); 
-  
+  const [reasonSubs, setReasonSubs] = useState<any[]>([]);
+
   const onChangeReasonID = useCallback((value) => {
     setReasonID(value)
     setReason('')
