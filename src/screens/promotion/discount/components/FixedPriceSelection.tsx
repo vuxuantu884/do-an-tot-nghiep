@@ -38,6 +38,7 @@ const FixedPriceSelection = (props: any) => {
     const importedResult = customGroupBy(entitlements, ["discount_value", "discount_type", "min_quantity", "limit"]);
     const formEntitlements = form.getFieldValue("entitlements");
     importedResult.forEach((i: any) => {
+      // let existedIndex = -1;
       const formEntitlement = {
         variants: i.variants,
         "prerequisite_quantity_ranges.allocation_limit": i.limit,
@@ -45,16 +46,28 @@ const FixedPriceSelection = (props: any) => {
         "prerequisite_quantity_ranges.value_type": form.getFieldValue("entitled_method") === "FIXED_PRICE" ? "FIXED_AMOUNT" : i.discount_type,
         "prerequisite_quantity_ranges.value": i.discount_value,
       };
-      formEntitlements.push(formEntitlement);
+      // console.log('formEntitlement: ', formEntitlement);
+      // const existedEntitlement = formEntitlements.find((e: any, index: number) => {
+      //   console.log(`${index} :`, e);
+      //   if (e["prerequisite_quantity_ranges.allocation_limit"] === formEntitlement["prerequisite_quantity_ranges.allocation_limit"] &&
+      //     e["prerequisite_quantity_ranges.greater_than_or_equal_to"] === formEntitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"] &&
+      //     e["prerequisite_quantity_ranges.value_type"] === formEntitlement["prerequisite_quantity_ranges.value_type"] &&
+      //     e["prerequisite_quantity_ranges.value"] === formEntitlement["prerequisite_quantity_ranges.value"]) {
+      //     existedIndex = index;
+      //     return true;
+      //   }
+      //   return false;
+      // })
+
+      // if (existedEntitlement && existedEntitlement.variants.length > 0) {
+      //   console.log('existedEntitlement: ', existedEntitlement);
+      //   existedEntitlement.variants.push(...formEntitlement.variants);
+      //   formEntitlements[existedIndex] = existedEntitlement;
+      // } else {
+        formEntitlements.push(formEntitlement);
+      // }
     });
-    formEntitlements.forEach((e: any, index: number) => {
-      if (e["prerequisite_quantity_ranges.greater_than_or_equal_to"] &&
-        e["prerequisite_quantity_ranges.allocation_limit"] &&
-        e["prerequisite_quantity_ranges.value"] &&
-        e["prerequisite_quantity_ranges.entitled_variant_ids"]) {
-        formEntitlements.splice(index, 1);
-      }
-    });
+
     setUploadStatus(undefined);
     setShowImportModal(false);
   };
@@ -120,6 +133,8 @@ const FixedPriceSelection = (props: any) => {
       </Form.List>
       <Modal
         onCancel={() => {
+          setSuccessCount(0)
+          setSuccessCount(0)
           setUploadStatus(undefined);
           setShowImportModal(false);
         }}
@@ -128,6 +143,8 @@ const FixedPriceSelection = (props: any) => {
         title="Nhập file khuyến mại"
         footer={[
           <Button key="back" onClick={() => {
+            setSuccessCount(0)
+            setSuccessCount(0)
             setUploadStatus(undefined);
             setShowImportModal(false);
           }}>
@@ -143,7 +160,7 @@ const FixedPriceSelection = (props: any) => {
           </Button>,
         ]}
       >
-        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none"}}>
+        <div style={{display: uploadStatus === undefined || uploadStatus === "removed" || uploadStatus === "error" ? "" : "none"}}>
           <Row gutter={12}>
             <Col span={3}>
               Chú ý:
@@ -215,7 +232,7 @@ const FixedPriceSelection = (props: any) => {
               </Col>
 
               : ""}
-            {uploadStatus === "done" ?
+            {uploadStatus === "done" || uploadStatus === "success" ?
               <Col span={24}>
                 <Row justify={"center"}>
                   <CheckCircleOutlined style={{fontSize: "78px", color: "#27AE60"}} />

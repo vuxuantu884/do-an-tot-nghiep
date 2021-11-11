@@ -12,9 +12,11 @@ import {RiInformationLine} from "react-icons/ri";
 import {Link} from "react-router-dom";
 import UrlConfig from "../../../../config/url.config";
 import {AiOutlineClose} from "react-icons/ai";
-import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined} from "@ant-design/icons";
 import {formatCurrency} from "../../../../utils/AppUtils";
 import {showError} from "utils/ToastUtils";
+import DuplicatePlus from "../../../../assets/icon/DuplicatePlus.svg"
+import {float} from "html2canvas/dist/types/css/property-descriptors/float";
 
 const Option = Select.Option;
 
@@ -46,7 +48,6 @@ const FixedPriceGroup = (props: any) => {
     [],
   );
 
-
   useEffect(() => {
     const formEntitlements = form.getFieldValue("entitlements");
     const initVariants = formEntitlements[name]?.variants;
@@ -59,9 +60,6 @@ const FixedPriceGroup = (props: any) => {
     }
   }, []);
 
-  useEffect(() => {
-  }, [selectedProduct, form]);
-
   const transformVariant = (item: any) => ({
     name: item.variant_title,
     on_hand: item.quantity,
@@ -70,7 +68,7 @@ const FixedPriceGroup = (props: any) => {
     variant_prices: [{
       import_price: item.price,
     }],
-    variant_id: item.variant_id,
+    id: item.variant_id,
   });
 
   const onSearch = useCallback(
@@ -95,9 +93,8 @@ const FixedPriceGroup = (props: any) => {
   );
 
   useEffect(() => {
-    console.log("useEffect - selectedProduct");
     let entitlementFields = form.getFieldValue("entitlements");
-    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.variant_id)});
+    entitlementFields[name] = Object.assign({}, entitlementFields[name], {entitled_variant_ids: selectedProduct.map(p => p.id)});
     form.setFieldsValue({entitlements: entitlementFields});
   }, [form, name, selectedProduct]);
 
@@ -123,7 +120,6 @@ const FixedPriceGroup = (props: any) => {
       if (selectedItem) {
         setSelectedProduct([selectedItem].concat(selectedProduct));
       }
-      // setData([]);
     },
     [data, selectedProduct],
   );
@@ -161,9 +157,24 @@ const FixedPriceGroup = (props: any) => {
             </Space>}
             rules={[
               {required: true, message: "Cần nhập số lượng tối thiểu"},
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const usageLimit = form.getFieldValue("usage_limit");
+                  const entitlements = form.getFieldValue("entitlements");
+                  const allocateLimit = entitlements[name]?.["prerequisite_quantity_ranges.allocation_limit"];
+                  console.log('allocateLimit: ', allocateLimit)
+                  if (value && usageLimit && value > usageLimit) {
+                    return Promise.reject(new Error('SL Tối thiểu phải nhỏ hơn Số lượng áp dụng'));
+                  } else if (value && allocateLimit && value > allocateLimit) {
+                    return Promise.reject(new Error('SL Tối thiểu phải nhỏ hơn Giới hạn'));
+                  } else {
+                    return Promise.resolve();
+                  }
+                },
+              }),
             ]}
           >
-            <NumberInput key={`${key}-min`} min={0} />
+            <NumberInput key={`${key}-min`} min={0}/>
           </Form.Item>
         </Col>
         <Col span={7}>
@@ -195,6 +206,18 @@ const FixedPriceGroup = (props: any) => {
                 min={1}
                 max={discountType === "PERCENTAGE" ? 99 : 999999999}
                 step={discountType === "PERCENTAGE" ? 0.01 : 1}
+                formatter={value => {
+                  if (discountType === "PERCENTAGE") {
+                    const floatIndex = value?.toString().indexOf(".") || -1;
+                    if (floatIndex > 0) {
+                      return `${value}`.slice(0, floatIndex + 3)
+                    }
+                    return `${value}`
+                  } else {
+                    return formatCurrency(`${value}`)
+                  }
+
+                }}
               />
             </Form.Item>
             <Form.Item
@@ -206,8 +229,9 @@ const FixedPriceGroup = (props: any) => {
                 onSelect={(value: string) => {
                   setDiscountType(value);
                 }}
+                defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
               >
-                <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option>
+                {discountMethod !== 'FIXED_PRICE' ? <Option key={"PERCENTAGE"} value={"PERCENTAGE"}>%</Option> : null}
                 <Option key={"FIXED_AMOUNT"} value={"FIXED_AMOUNT"}>đ</Option>
               </Select>
             </Form.Item>
@@ -228,10 +252,10 @@ const FixedPriceGroup = (props: any) => {
               onSelect={onSelectProduct}
               options={renderResult}
               ref={productSearchRef}
-              textEmpty={"Không có kết quả"}
+              textEmpty={"Không tìm thấy sản phẩm"}
             />
             <Button
-              icon={<PlusOutlined />}
+              icon={<img src={DuplicatePlus} style={{marginRight: 8}} alt="" />}
               onClick={() => setVisibleManyProduct(true)}
               style={{width: 132, marginLeft: 10}}
             >

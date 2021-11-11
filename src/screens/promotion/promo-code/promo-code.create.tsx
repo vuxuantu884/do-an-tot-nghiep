@@ -42,7 +42,6 @@ const CreatePromotionCodePage = () => {
   }, [dispatch]);
 
   const transformData = (values: any) => {
-    console.log('transformData: ', values)
     let body: any = {};
     body.type = PROMO_TYPE.MANUAL;
     body.title = values.title;
@@ -79,13 +78,14 @@ const CreatePromotionCodePage = () => {
     return body;
   }
 
-  const createCallback = useCallback(() => {
-
-    setTimeout(() => {
-      showSuccess("Thêm thành công");
-      dispatch(hideLoading());
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
-    }, 2000);
+  const createCallback = useCallback((data) => {
+    if (data) {
+      setTimeout(() => {
+        showSuccess("Thêm thành công");
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
+      }, 2000);
+    }
+    dispatch(hideLoading())
 
   }, [dispatch, history]);
 
@@ -127,13 +127,11 @@ const CreatePromotionCodePage = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         },
       ]}
-      // extra={<CreatePromoCodeStep step={0}/>}
     >
       <Form
         form={promoCodeForm}
         name="discount_add"
         onFinish={onFinish}
-        onFinishFailed={({ errorFields }) => console.log(errorFields)}
         layout="vertical"
         initialValues={initialValues}
       >
