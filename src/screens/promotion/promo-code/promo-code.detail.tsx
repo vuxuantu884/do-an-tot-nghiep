@@ -525,7 +525,7 @@ const PromotionDetailScreen: React.FC = () => {
                       <img style={{ background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)" }} src={AddImportCouponIcon} alt="" />
                       <p style={{fontWeight: 500}}>Nhập file Excel</p>
                       <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
-                      <Link to="#">Tải file mẫu</Link>
+                      <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
                     </div>
                   </Col>
                 </Row>}
@@ -772,7 +772,7 @@ const PromotionDetailScreen: React.FC = () => {
             <Col span={19}>
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-              <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
+              <p>- Tải file mẫu <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a> </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
               <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
                 không F5 hoặc tắt cửa sổ trình duyệt.</p>

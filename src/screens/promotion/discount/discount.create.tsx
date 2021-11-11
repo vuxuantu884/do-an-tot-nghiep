@@ -16,8 +16,6 @@ import {createPriceRule} from "../../../service/promotion/discount/discount.serv
 import {PROMO_TYPE} from "utils/Constants";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import {ChannelResponse} from "model/response/product/channel.response";
-import moment from "moment";
-
 
 const CreateDiscountPage = () => {
   const dispatch = useDispatch();

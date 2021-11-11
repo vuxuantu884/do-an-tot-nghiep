@@ -62,8 +62,6 @@ const DiscountPage = () => {
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [customerGroups, setCustomerGroups] = useState<Array<CustomerGroupModel>>([]);
-  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [selectedRowId, setSelectedRowId] = useState<number>(-1);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {

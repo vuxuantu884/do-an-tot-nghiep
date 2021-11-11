@@ -25,7 +25,6 @@ import Dragger from "antd/lib/upload/Dragger";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import search from "assets/img/search.svg";
 import "./promo-code.scss";
-import { Link } from "react-router-dom";
 import { useParams } from "react-router";
 import {CheckCircleOutlined, FilterOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -37,7 +36,6 @@ import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { RiUpload2Line } from "react-icons/ri";
 import {
   addPromoCode,
-  deleteBulkPromoCode,
   getListPromoCode,
   deletePromoCodeById,
   updatePromoCodeById,
@@ -606,7 +604,7 @@ const ListCode = () => {
             <Col span={19}>
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-              <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
+              <p>- Tải file mẫu <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a> </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
               <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
                 không F5 hoặc tắt cửa sổ trình duyệt.</p>
