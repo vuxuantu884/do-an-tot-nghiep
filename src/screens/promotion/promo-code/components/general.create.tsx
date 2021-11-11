@@ -436,13 +436,16 @@ const GeneralCreate = (props: any) => {
                   placeholder="Từ ngày"
                   showNow
                   showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, 'days')}
+                  disabledDate={(currentDate) =>
+                    currentDate.isBefore(moment().subtract(1, 'days')) ||
+                    currentDate.valueOf() >= form.getFieldValue("ends_date")
+                  }
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item name="ends_date">
-                <DatePicker
+              <DatePicker
                   disabled={disabledEndDate}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"

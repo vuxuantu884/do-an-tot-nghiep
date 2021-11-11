@@ -240,7 +240,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "SL mã phát hành",
-          value: data.usage_limit,
+          value: data.number_of_discount_codes,
           position: "right",
           key: "5",
         },
@@ -252,9 +252,9 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Thông tin khuyến mãi",
-          value: "", // TODO
+          value: `Giảm ${data.entitlements[0].prerequisite_quantity_ranges[0].value} ${data.entitlements[0].prerequisite_quantity_ranges[0].value_type === 'PERCENTAGE' ? '%' : 'VNĐ'}`,
           position: "right",
-          key: "7",
+          key: "7"
         },
       ];
       return details;
@@ -458,11 +458,11 @@ const PromotionDetailScreen: React.FC = () => {
                   </Col>
                   <Col span={24} style={{marginTop: 15}}>
                     <img src={UserIcon} alt="" />
-                    <span style={{marginLeft: 14}}>Khách hàng không bị giới hạn số lần sử dụng mã</span>
+                    <span style={{marginLeft: 14}}>{data.usage_limit_per_customer ? `Khách hàng có ${data.usage_limit_per_customer} lần sử dụng mã` : `Khách hàng không bị giới hạn số lần sử dụng mã`}</span>
                   </Col>
                   <Col span={24} style={{marginTop: 15}}>
                     <img src={DiscountIcon} alt="" />
-                    <span style={{marginLeft: 14}}>{`Mỗi mã được sử dụng ${data.usage_limit_per_customer ? data.usage_limit_per_customer : 0} lần`}</span>
+                    <span style={{marginLeft: 14}}>{data.usage_limit ? `Mỗi mã được sử dụng ${data.usage_limit} lần` : `Mỗi mã được sử dụng không bị giới số lần`}</span>
                   </Col>
                 </Row>
                 <hr />

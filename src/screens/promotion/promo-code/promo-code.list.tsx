@@ -48,7 +48,6 @@ import {
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
-import { STATUS_CODE } from "../constant";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import {AppConfig} from "../../../config/app.config";
@@ -69,6 +68,40 @@ const csvColumnMapping: any = {
   ALREADY_EXIST: "Đã tồn tại",
   DUPLICATE: "Mã đã bị trùng trong file",
 };
+
+const STATUS_CODE = [
+  {
+      disabled: false,
+      published: false,
+      value: 'Đang áp dụng',
+      style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px"
+      }
+  },
+  {
+      disabled: true,
+      published: false,
+      value: 'Ngừng áp dụng',
+      style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(245, 245, 245)",
+      padding: "5px 10px"
+      }},
+  {
+      disabled: false,
+      published: true,
+      value: 'Đã tặng' ,
+      style: {
+      background: "#FCAF17",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px"
+      }},
+  ]
 
 const ListCode = () => {
   const token = getToken() || "";
@@ -300,7 +333,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_CODE.find(e => e.code === value);
+        const status: any | null = STATUS_CODE.find(e => (e.published === item.published && e.disabled === item.disabled));
         return (<div
           style={status?.style}
         >
