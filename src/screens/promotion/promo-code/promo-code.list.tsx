@@ -118,10 +118,6 @@ const ListCode = () => {
       id: 3,
       name: "Ngừng áp dụng",
     },
-    {
-      id: 4,
-      name: "Xoá",
-    },
   ];
   const dispatch = useDispatch();
   const {id} = useParams() as any;
@@ -396,10 +392,6 @@ const ListCode = () => {
         case 3:
           dispatch(showLoading());
           dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
-          break;
-        case 4:
-          dispatch(showLoading());
-          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
     }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
