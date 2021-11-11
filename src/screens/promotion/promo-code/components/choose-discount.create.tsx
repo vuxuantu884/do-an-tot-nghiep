@@ -9,7 +9,7 @@ const ChooseDiscount = (props: any) => {
   const {form} = props;
   const [typeUnit, setTypeUnit] = useState("PERCENTAGE");
   const [isUsageLimit, setIsUsageLimit] = useState(false);
-  const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(false);
+  const [isUsageLimitPerCus, setIsUsageLimitPerCus] = useState(true);
 
   return (
     <Col span={24}>
@@ -39,9 +39,8 @@ const ChooseDiscount = (props: any) => {
                   format={(a) => typeUnit === 'PERCENTAGE' ? a : formatCurrency(a)}
                   replace={(a) => typeUnit === 'PERCENTAGE' ? a:  replaceFormatString(a)}
                   min={1}
-                  default={1}
-                  // maxLength={typeUnit === "FIXED_AMOUNT" ? 15 : }
-                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 99}
+                  maxLength={typeUnit === "FIXED_AMOUNT" ? 7 : 3}
+                  max={typeUnit === "FIXED_AMOUNT" ? 9999999 : 100}
                 />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
@@ -52,7 +51,10 @@ const ChooseDiscount = (props: any) => {
                   value={typeUnit}
                   onChange={(value: string) => {
                     setTypeUnit(value);
-                    form.setFieldsValue({value_type: value})
+                    form.setFieldsValue({
+                      value_type: value,
+                      value: 0
+                    })
                   }}
                 >
                   <Select.Option key='PERCENTAGE' value="PERCENTAGE"> {"%"} </Select.Option>
@@ -80,8 +82,9 @@ const ChooseDiscount = (props: any) => {
                 width: "100%",
                 color: "#222222",
               }}
-              max={999999}
+              maxLength={11}
               minLength={0}
+              min={0}
               disabled={isUsageLimit}
               formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             />
@@ -128,8 +131,9 @@ const ChooseDiscount = (props: any) => {
                 width: "100%",
                 color: "#222222",
               }}
+              maxLength={11}
               minLength={0}
-              max={999999}
+              min={0}
               disabled={isUsageLimitPerCus}
               formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             />
@@ -137,12 +141,15 @@ const ChooseDiscount = (props: any) => {
         </Col>
         <Col span={5}>
         <Form.Item label=" ">
-            <Checkbox onChange={value => {
-              setIsUsageLimitPerCus(value.target.checked);
-              form.setFieldsValue({
-                usage_limit_per_customer: null
-              });
-            }}> Không giới hạn </Checkbox>
+            <Checkbox 
+              defaultChecked={true}
+              onChange={value => {
+                setIsUsageLimitPerCus(value.target.checked);
+                form.setFieldsValue({
+                  usage_limit_per_customer: null
+                });
+              }}
+            > Không giới hạn </Checkbox>
         </Form.Item>
         </Col>
       </Row>

@@ -276,8 +276,9 @@ const GeneralCreate = (props: any) => {
                     width: "100%",
                     color: "#222222",
                   }}
-                  minLength={0}
                   maxLength={11}
+                  minLength={0}
+                  min={0}
                   value={prerequisiteSubtotal}
                   onChange={(value: any) => setPrerequisiteSubtotal(value)}
                   formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
