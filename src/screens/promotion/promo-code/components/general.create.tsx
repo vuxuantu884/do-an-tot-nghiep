@@ -48,7 +48,7 @@ const GeneralCreate = (props: any) => {
   const [allStore, setAllStore] = useState(false);
   const [allChannel, setAllChannel] = useState(false);
   const [allSource, setAllSource] = useState(false);
-  const [disabledEndDate, setDisabledEndDate] = useState(true);
+  const [disabledEndDate, setDisabledEndDate] = useState(false);
   const [type, setType] = useState("SALE_CODE");
   const [product, setProduct] = useState<string>("PRODUCT");
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -436,12 +436,7 @@ const GeneralCreate = (props: any) => {
                   placeholder="Từ ngày"
                   showNow
                   showTime={{ format: 'HH:mm' }}
-                  onChange={(date, dateString) => {
-                    !disabledEndDate && form.setFieldsValue({
-                      ends_date: moment(date).add(30, 'd')
-                    })
-                  }}
-                  disabledDate={(currentDate) => disabledEndDate && currentDate >= moment().subtract(1, "days")}
+                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, 'days')}
                 />
               </Form.Item>
             </Col>
@@ -457,18 +452,12 @@ const GeneralCreate = (props: any) => {
               </Form.Item>
             </Col>
             <Space direction="horizontal">
-              <Switch 
-              defaultChecked={true}
-              onChange={value => {
+              <Switch onChange={value => {
                 if (value) {
-                  form.resetFields(["ends_date"]);
-                } else {
-                  form.setFieldsValue({
-                    ends_date: moment(form.getFieldValue("starts_date")).add(30, 'd')
-                  })
+                  form.resetFields(['ends_date'])
                 }
-                setDisabledEndDate(value);
-              }} />
+                setDisabledEndDate(value)
+              }}/>
               {"Không cần ngày kết thúc"}
             </Space>
             <Divider />

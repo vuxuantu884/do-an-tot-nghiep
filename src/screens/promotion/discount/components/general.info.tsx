@@ -30,7 +30,7 @@ const GeneralInfo = (props: any) => {
   const [allSource, setAllSource] = useState(true)
   const [allCustomer] = useState(false)
   const [unlimitedUsage, setUnlimitedUsage] = useState(true)
-  const [disabledEndDate, setDisabledEndDate] = useState(true)
+  const [disabledEndDate, setDisabledEndDate] = useState(false)
   const [discountMethod, setDiscountMethod] = useState('FIXED_PRICE')
 
   useMemo(() => {
@@ -201,12 +201,7 @@ const GeneralInfo = (props: any) => {
                   placeholder="Từ ngày"
                   showNow
                   showTime={{ format: 'HH:mm' }}
-                  onChange={(date, dateString) => {
-                    !disabledEndDate && form.setFieldsValue({
-                      ends_date: moment(date).add(30, 'd')
-                    })
-                  }}
-                  disabledDate={(currentDate) => disabledEndDate && currentDate >= moment().subtract(1, "days")}
+                  disabledDate={(currentDate) => currentDate <= moment().subtract(1, 'days')}
                 />
               </Form.Item>
             </Col>
@@ -222,20 +217,13 @@ const GeneralInfo = (props: any) => {
               </Form.Item>
             </Col>
             <Space direction="horizontal">
-              <Switch 
-                defaultChecked={true}
-                onChange={value => {
+              <Switch onChange={value => {
                   if (value) {
-                    form.resetFields(["ends_date"]);
-                  } else {
-                    form.setFieldsValue({
-                      ends_date: moment(form.getFieldValue("starts_date")).add(30, 'd')
-                    })
+                    form.resetFields(['ends_date'])
                   }
-                  setDisabledEndDate(value);
-                }} 
-              />
-              {"Không cần ngày kết thúc"}
+                  setDisabledEndDate(value)
+                }}/>
+                {"Không cần ngày kết thúc"}
             </Space>
             <Divider/>
             <Space direction="horizontal">

@@ -246,12 +246,12 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           name: "Số lượng đã sử dụng",
-          value: data.usage_limit_per_customer,
+          value: data.total_usage_count,
           position: "right",
           key: "6",
         },
         {
-          name: "Thông tin km",
+          name: "Thông tin khuyến mãi",
           value: "", // TODO
           position: "right",
           key: "7",
@@ -462,7 +462,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </Col>
                   <Col span={24} style={{marginTop: 15}}>
                     <img src={DiscountIcon} alt="" />
-                    <span style={{marginLeft: 14}}>Mỗi mã được sử dụng 1 lần</span>
+                    <span style={{marginLeft: 14}}>{`Mỗi mã được sử dụng ${data.usage_limit_per_customer ? data.usage_limit_per_customer : 0} lần`}</span>
                   </Col>
                 </Row>
                 <hr />
