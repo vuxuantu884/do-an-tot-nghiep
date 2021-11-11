@@ -1,4 +1,4 @@
-import { Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
@@ -16,6 +16,7 @@ type PropType = {
   changeMoney: number;
   amount: number;
   showDiscountModal: () => void;
+  showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
   calculateChangeMoney: (
@@ -43,6 +44,7 @@ function CardProductBottom(props: PropType) {
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
     showDiscountModal,
+    showCouponModal,
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
@@ -52,11 +54,11 @@ function CardProductBottom(props: PropType) {
     <StyledComponent>
       <Row gutter={24}>
         <Col xs={24} lg={11}>
-          <div className="optionRow">
-            {/* <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3}>
+          {/* <div className="optionRow">
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsDisableAutomaticDiscount(e.target.value)}>
               Bỏ chiết khấu tự động
-            </Checkbox> */}
-          </div>
+            </Checkbox>
+          </div> */}
         </Col>
         <Col xs={24} lg={10}>
           <Row className="paymentRow" style={{justifyContent: "space-between"}}>
@@ -111,7 +113,7 @@ function CardProductBottom(props: PropType) {
               {setDiscountRate && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
-                  onClick={showDiscountModal}
+                  onClick={showCouponModal}
                   style={{
                     textDecoration: "underline",
                     textDecorationColor: "#5D5D8A",

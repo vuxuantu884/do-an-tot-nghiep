@@ -5,6 +5,7 @@ import {generateQuery} from "../../../utils/AppUtils";
 import BaseAxios from "../../../base/base.axios";
 import {ApiConfig} from "../../../config/api.config";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
+import { CouponRequestModel } from "model/request/promotion.request";
 
 const END_POINT = "/price-rules";
 
@@ -68,3 +69,8 @@ export const applyDiscount = (items: Array<any>, orderInfo:any) : Promise<any> =
   })
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, body)
 }
+
+
+export const applyCouponService = (queryParams: CouponRequestModel): Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/apply`, queryParams)
+};
