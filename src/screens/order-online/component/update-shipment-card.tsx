@@ -42,6 +42,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderResponse,
+  ShipmentResponse,
   TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import moment from "moment";
@@ -845,8 +846,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [updateShipment, cancelShipment, disabledActions]);
 
   // todo thai: update khi có logo các đối tác giao hàng
-  const renderDeliveryPartner = (shipment: any) => {
-    const delivery = deliveryServices?.find(delivery => delivery.id === shipment.delivery_service_provider_id);
+  const renderDeliveryPartner = (shipment: ShipmentResponse) => {
+    const delivery = deliveryServices?.find(delivery => delivery.code === shipment.delivery_service_provider_code);
     if (delivery && delivery.logo) {
       return (
         <img
