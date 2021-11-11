@@ -16,7 +16,6 @@ import {
 } from "antd";
 // import _ from "lodash";
 import { RefSelectProps } from "antd/lib/select";
-import _ from "lodash";
 import emptyProduct from "assets/icon/empty_products.svg";
 import giftIcon from "assets/icon/gift.svg";
 import imgDefault from "assets/icon/img-default.svg";
