@@ -76,17 +76,11 @@ const ChooseDiscount = (props: any) => {
               }
             ]}
           >
-            <InputNumber
-              style={{
-                textAlign: "right",
-                width: "100%",
-                color: "#222222",
-              }}
+            <NumberInput
               maxLength={11}
               minLength={0}
               min={0}
               disabled={isUsageLimit}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             />
           </Form.Item>
         </Col>
@@ -125,17 +119,11 @@ const ChooseDiscount = (props: any) => {
             name="usage_limit_per_customer"
             label="Mỗi khách được sử dụng tối đa:"
           >
-            <InputNumber
-              style={{
-                textAlign: "right",
-                width: "100%",
-                color: "#222222",
-              }}
+            <NumberInput
               maxLength={11}
               minLength={0}
               min={0}
               disabled={isUsageLimitPerCus}
-              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             />
           </Form.Item>
         </Col>
