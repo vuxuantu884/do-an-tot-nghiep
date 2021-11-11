@@ -3,13 +3,18 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {AccountSearchAction} from "domain/actions/account/account.action";
-import {departmentCreateAction, searchDepartmentAction} from "domain/actions/account/department.action";
+import {
+  departmentCreateAction,
+  searchDepartmentAction,
+} from "domain/actions/account/department.action";
 import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
 import {DepartmentRequest, DepartmentResponse} from "model/account/department.model";
 import {PageResponse} from "model/base/base-metadata.response";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch} from "react-redux";
-import { useHistory } from "react-router";
+import {useHistory} from "react-router";
+import {DepartmentsPermissions} from "config/permissions/account.permisssion";
+import useAuthorization from "hook/useAuthorization";
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
@@ -24,6 +29,11 @@ const DepartmentCreateScreen: React.FC = () => {
     items: [],
   });
   const [loading, setLoading] = useState<boolean>(false);
+  //phân quyền
+  const [allowCreateDep] = useAuthorization({
+    acceptPermissions: [DepartmentsPermissions.CREATE],
+  });
+
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
       dispatch(
@@ -37,15 +47,20 @@ const DepartmentCreateScreen: React.FC = () => {
     [dispatch]
   );
 
-  const onFinish = useCallback((value: DepartmentRequest) => {
-    setLoading(true);
-    dispatch(departmentCreateAction(value, (result) => {
-      setLoading(false);
-      if(result) {
-        history.push(`${UrlConfig.DEPARTMENT}/${result.id}`)
-      }
-    }));
-  }, [dispatch, history]);
+  const onFinish = useCallback(
+    (value: DepartmentRequest) => {
+      setLoading(true);
+      dispatch(
+        departmentCreateAction(value, (result) => {
+          setLoading(false);
+          if (result) {
+            history.push(`${UrlConfig.DEPARTMENT}/${result.id}`);
+          }
+        })
+      );
+    },
+    [dispatch, history]
+  );
 
   useEffect(() => {
     searchAccount({}, false);
@@ -161,7 +176,11 @@ const DepartmentCreateScreen: React.FC = () => {
           rightComponent={
             <Space>
               <Button>Hủy</Button>
-              <Button loading={loading} htmlType="submit" type="primary">Tạo mới</Button>
+              {allowCreateDep ? (
+                <Button loading={loading} htmlType="submit" type="primary">
+                  Tạo mới
+                </Button>
+              ) : null}
             </Space>
           }
         />

@@ -22,6 +22,7 @@ import {
 } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import {AccountPermissions} from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
   AccountCreateAction,
@@ -34,6 +35,7 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import {StoreGetListAction} from "domain/actions/core/store.action";
+import useAuthorization from "hook/useAuthorization";
 import {
   AccountJobReQuest,
   AccountJobResponse,
@@ -102,6 +104,10 @@ const AccountCreateScreen: React.FC = () => {
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [isSelectAllStore, setIsSelectAllStore] = useState(false);
+
+  const allowCreateAcc = useAuthorization({
+    acceptPermissions: [AccountPermissions.CREATE],
+  });
   //EndState
   //Callback
 
@@ -121,7 +127,7 @@ const AccountCreateScreen: React.FC = () => {
 
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
-    if(!listJob[key]){
+    if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
     listJob[key].department_id = e;
@@ -129,7 +135,7 @@ const AccountCreateScreen: React.FC = () => {
   };
   const onChangePosition = (e: any, key: number) => {
     let listJob = [...listaccountJob];
-    if(!listJob[key]){
+    if (!listJob[key]) {
       listJob[key] = {} as AccountJobReQuest;
     }
     listJob[key].position_id = e;
@@ -182,20 +188,20 @@ const AccountCreateScreen: React.FC = () => {
 
       listAccountSelected.forEach((el: AccountJobReQuest) => {
         if (el.department_id && el.position_id) {
-        const department_name = listDepartment?.find(
-          (item) => item.id === el.department_id
-        )?.name;
-        const position_name = listPosition?.find(
-          (item) => item.id === el.position_id
-        )?.name;
-        
-        accJobs.push({
-          department_id: el.department_id,
-          position_id: el.position_id,
-          department_name,
-          position_name
-        });
-      }
+          const department_name = listDepartment?.find(
+            (item) => item.id === el.department_id
+          )?.name;
+          const position_name = listPosition?.find(
+            (item) => item.id === el.position_id
+          )?.name;
+
+          accJobs.push({
+            department_id: el.department_id,
+            position_id: el.position_id,
+            department_name,
+            position_name,
+          });
+        }
       });
 
       let accountModel: AccountRequest = {
@@ -600,9 +606,11 @@ const AccountCreateScreen: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
-                Lưu
-              </Button>
+              {allowCreateAcc ? (
+                <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
+                  Lưu
+                </Button>
+              ) : null}
             </Space>
           </div>
         </Affix>
