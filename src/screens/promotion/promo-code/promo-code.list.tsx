@@ -64,11 +64,9 @@ const csvColumnMapping: any = {
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",
-  sku_duplicate: "Đã tồn tại",
-  ALREADY_EXIST: "Đã tồn tại",
-  DUPLICATE: "Mã đã bị trùng trong file",
+  already_exist: "Đã tồn tại trong hệ thống",
+  duplicate: "Mã đã bị trùng trong file",
 };
-
 const STATUS_CODE = [
   {
       disabled: false,
@@ -627,7 +625,7 @@ const ListCode = () => {
                     const response = info.file.response;
                     if (response.code === 20000000) {
                       if (response.data.errors.length > 0) {
-                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort((a:any, b:any) => a.index - b.index);
                         setCodeErrorsResponse([...errors]);
                       }
                       setImportTotal(response.data.total);
@@ -658,14 +656,16 @@ const ListCode = () => {
             <Row justify={"center"}>
               {uploadStatus === "uploading" ?
                 <Col span={24}>
-                  <Row justify={"center"}>
-                    <LoadingOutlined style={{fontSize: "78px"}} />
-                  </Row>
-                  <Row justify={"center"}>
-                    <h2 style={{padding: "10px 30px"}}>
-                      Đang upload file...
-                    </h2>
-                  </Row>
+                <Row justify={"center"}>
+                  {/*<Col span={24}>*/}
+                    <Space size={"large"}>
+                      <LoadingOutlined style={{fontSize: "78px"}} />
+                      <h2 style={{padding: "10px 30px"}}>
+                        Đang upload file...
+                      </h2>
+                    </Space>
+                  {/*</Col>*/}
+                </Row>
                 </Col>
                 : ""}
               {uploadStatus === "done" ?
@@ -677,8 +677,8 @@ const ListCode = () => {
                     <h2 style={{padding: "10px 30px"}}>Xử lý file nhập toàn tất: <strong
                       style={{color: "#2A2A86"}}>{successCount} / {importTotal}</strong> sản phẩm thành công</h2>
                   </Row>
-                  <Divider />
                   {codeErrorsResponse.length > 0 ? <div>
+                    <Divider />
                     <Row justify={"start"}>
                       <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
                     </Row>
@@ -686,7 +686,7 @@ const ListCode = () => {
                       <li style={{padding: "10px 30px"}}>
                         {codeErrorsResponse?.map((error: any, index) =>
                           <ul key={index}>
-                            <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                            <span>- Dòng {error.index + 2}: {error.value} {csvColumnMapping[error.type.toLowerCase()]}</span>
                           </ul>)}
                       </li>
                     </Row>

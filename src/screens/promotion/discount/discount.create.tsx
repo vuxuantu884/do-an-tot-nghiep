@@ -65,13 +65,12 @@ const CreateDiscountPage = () => {
     return body;
   };
   const handleSubmit = async (values: any) => {
-    console.log(values);
     const body = transformData(values);
     body.activated = true;
     const createResponse = await createPriceRule(body);
     if (createResponse.code === 20000000) {
       showSuccess("Lưu và kích hoạt thành công");
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`);
+      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${createResponse.data.id}`);
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }

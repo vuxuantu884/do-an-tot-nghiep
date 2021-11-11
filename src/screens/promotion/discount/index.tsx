@@ -8,16 +8,11 @@ import {PageResponse} from "../../../model/base/base-metadata.response";
 import {DiscountResponse} from "../../../model/response/promotion/discount/list-discount.response";
 import {Link} from "react-router-dom";
 import {getListDiscount} from "../../../domain/actions/promotion/discount/discount.action";
-import {
-  bulkDeletePriceRules,
-  bulkDisablePriceRules,
-  bulkEnablePriceRules,
-  deletePriceRuleById
-} from "../../../service/promotion/discount/discount.service"
+import {bulkDisablePriceRules, bulkEnablePriceRules} from "../../../service/promotion/discount/discount.service";
 import {useDispatch} from "react-redux";
 import moment from "moment";
 import {DATE_FORMAT} from "../../../utils/DateUtils";
-import {DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
+import {EditOutlined, PlusOutlined} from "@ant-design/icons";
 import {DiscountSearchQuery} from "../../../model/query/discount.query";
 import DiscountFilter from "./components/DiscountFilter";
 import {getQueryParams, useQuery} from "../../../utils/useQuery";
@@ -28,9 +23,9 @@ import {getListSourceRequest} from "../../../domain/actions/product/source.actio
 import {actionFetchListCustomerGroup} from "../../../domain/actions/customer/customer.action";
 import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/response/customer/customer-group.response";
 import {showError, showSuccess} from "../../../utils/ToastUtils";
-import ModalDeleteConfirm from "../../../component/modal/ModalDeleteConfirm";
-import { PROMO_TYPE } from "utils/Constants";
-import { STATUS_CODE, ACTIONS_DISCOUNT } from "../constant";
+import {PROMO_TYPE} from "utils/Constants";
+import {ACTIONS_DISCOUNT, STATUS_CODE} from "../constant";
+import {RiDeleteBin2Fill} from "react-icons/all";
 
 
 const DiscountPage = () => {
@@ -45,7 +40,7 @@ const DiscountPage = () => {
     applied_shop: "",
     applied_source: "",
     customer_category: "",
-    discount_method: ""
+    discount_method: "",
   };
   const dispatch = useDispatch();
   const query = useQuery();
@@ -58,11 +53,11 @@ const DiscountPage = () => {
       total: 0,
     },
     items: [],
-  })
+  });
   let dataQuery: DiscountSearchQuery = {
     ...initQuery,
-    ...getQueryParams(query)
-  }
+    ...getQueryParams(query),
+  };
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -73,24 +68,24 @@ const DiscountPage = () => {
 
   const fetchData = useCallback((data: PageResponse<DiscountResponse>) => {
     setTimeout(() => {
-      setDiscounts(data)
-      setTableLoading(false)
-    }, 1500)
-  }, [])
+      setDiscounts(data);
+      setTableLoading(false);
+    }, 1500);
+  }, []);
 
   useEffect(() => {
     dispatch(getListDiscount(params, fetchData));
     dispatch(StoreGetListAction(setStore));
     dispatch(getListSourceRequest(setListSource));
     dispatch(actionFetchListCustomerGroup({},
-      (data: CustomerGroupResponseModel) => setCustomerGroups(data.items)
-    ))
+      (data: CustomerGroupResponseModel) => setCustomerGroups(data.items),
+    ));
   }, [dispatch, fetchData, params]);
 
   useEffect(() => {
-    setTableLoading(true)
+    setTableLoading(true);
     dispatch(getListDiscount(params, fetchData));
-  }, [dispatch, fetchData, params])
+  }, [dispatch, fetchData, params]);
 
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -101,7 +96,7 @@ const DiscountPage = () => {
       render: (value: any, item: any, index: number) =>
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${value.id}`}
-          style={{color: '#2A2A86', fontWeight: 500}}
+          style={{color: "#2A2A86", fontWeight: 500}}
         >
           {value.code}
         </Link>,
@@ -110,13 +105,13 @@ const DiscountPage = () => {
       title: "Tên chương trình",
       visible: true,
       fixed: "left",
-      dataIndex: "title"
+      dataIndex: "title",
     },
     {
       title: "Ưu tiên",
       visible: true,
       dataIndex: "priority",
-      align: 'center',
+      align: "center",
       render: (value: any) => (
         <Row justify="center">
           <Col>
@@ -126,20 +121,20 @@ const DiscountPage = () => {
                 borderRadius: "5px",
                 color: "#2A2A86",
                 padding: "5px 10px",
-                width: "fit-content"
+                width: "fit-content",
               }}
             >
               {value}
             </div>
           </Col>
-        </Row>)
+        </Row>),
 
     },
     {
       title: "Thời gian",
       visible: true,
       fixed: "left",
-      align: 'center',
+      align: "center",
       render: (value: any, item: any, index: number) =>
         <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)} - ${item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : "∞"}`}</div>,
     },
@@ -148,89 +143,90 @@ const DiscountPage = () => {
       visible: true,
       dataIndex: "created_name",
       fixed: "left",
-      align: 'center',
+      align: "center",
     },
     {
       title: "Trạng thái",
       visible: true,
       fixed: "left",
-      dataIndex: 'state',
-      align: 'center',
-      width: '12%',
+      dataIndex: "state",
+      align: "center",
+      width: "12%",
       render: (value: any, item: any, index: number) => {
         const status: any | null = discountStatuses.find(e => e.code === value);
         return (<div
           style={status?.style}
         >
           {status?.value}
-        </div>)
-      }
+        </div>);
+      },
     },
     {
       visible: true,
       fixed: "left",
-      dataIndex: 'status',
-      align: 'center',
-      width: '12%',
+      dataIndex: "status",
+      align: "center",
+      width: "12%",
       render: (value: any, item: any, index: number) => <Dropdown.Button overlay={(
         <Menu>
-          <Menu.Item icon={<EditOutlined/>}>Chỉnh sửa</Menu.Item>
-          <Menu.Item style={{color: "#E24343"}} icon={<EditOutlined />}
+          <Menu.Item disabled icon={<EditOutlined />}>Chỉnh sửa</Menu.Item>
+          <Menu.Item disabled icon={<RiDeleteBin2Fill />}
                      onClick={async () => {
-                       setTableLoading(true)
+                       setTableLoading(true);
                        const deleteResponse = await bulkDisablePriceRules({ids: [item.id]});
                        if (deleteResponse.code === 20000000) {
                          setTimeout(() => {
-                           showSuccess('Thao tác thành công');
+                           showSuccess("Thao tác thành công");
                            dispatch(getListDiscount(params, fetchData));
-                         }, 2000)
+                         }, 2000);
                        } else {
-                         showError(`${deleteResponse.code} - ${deleteResponse.message}`)
-                       }}}>
-            Huỷ
+                         showError(`${deleteResponse.code} - ${deleteResponse.message}`);
+                       }
+                     }}>
+            Tạm ngừng
           </Menu.Item>
         </Menu>
-      )}/>
+      )} />,
     },
-  ]
+  ];
 
   const onPageChange = useCallback(
     (page, limit) => {
       setParams({...params, page, limit});
     },
-    [params]
+    [params],
   );
 
   const onFilter = useCallback(values => {
     let newParams = {...params, ...values, page: 1};
-    setParams({...newParams})
-  }, [params])
+    setParams({...newParams});
+  }, [params]);
 
   const onMenuClick = useCallback(
     async (index: number) => {
-      setTableLoading(true)
-      const body = {ids: selectedRowKey}
+      setTableLoading(true);
+      const body = {ids: selectedRowKey};
       switch (index) {
         case 1:
           const bulkEnableResponse = await bulkEnablePriceRules(body);
           if (bulkEnableResponse.code === 20000000) {
             setTimeout(() => {
-              showSuccess('Thao tác thành công');
+              showSuccess("Thao tác thành công");
               dispatch(getListDiscount(params, fetchData));
-            }, 2000)
+            }, 2000);
           } else {
-            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`)
+            showError(`${bulkEnableResponse.code} - ${bulkEnableResponse.message}`);
           }
           break;
         case 2:
           const bulkDisableResponse = await bulkDisablePriceRules(body);
           if (bulkDisableResponse.code === 20000000) {
             setTimeout(() => {
-              showSuccess('Thao tác thành công');
+              showSuccess("Thao tác thành công");
               dispatch(getListDiscount(params, fetchData));
-            }, 2000)
+            }, 2000);
           } else {
-            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`)
+            showError(`${bulkDisableResponse.code} - ${bulkDisableResponse.message}`);
           }
           break;
         case 3:
@@ -238,7 +234,7 @@ const DiscountPage = () => {
 
       }
     },
-    [dispatch, fetchData, params, selectedRowKey]
+    [dispatch, fetchData, params, selectedRowKey],
   );
 
   return (
@@ -264,7 +260,7 @@ const DiscountPage = () => {
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"
-              icon={<PlusOutlined/>}
+              icon={<PlusOutlined />}
             >
               Tạo mới khuyến mại
             </Button>
@@ -293,7 +289,7 @@ const DiscountPage = () => {
           />
           <CustomTable
             selectedRowKey={selectedRowKey}
-            onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey) }
+            onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey)}
             isRowSelection
             isLoading={tableLoading}
             sticky={{offsetScroll: 5}}
@@ -312,7 +308,7 @@ const DiscountPage = () => {
         </div>
       </Card>
 
-    </ContentContainer>)
-}
+    </ContentContainer>);
+};
 
 export default DiscountPage;

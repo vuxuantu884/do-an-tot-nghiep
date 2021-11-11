@@ -37,6 +37,8 @@ import {AppConfig} from "../../../config/app.config";
 import _ from "lodash";
 import {getToken} from "../../../utils/LocalStorageUtils";
 import {CheckCircleOutlined, LoadingOutlined} from "@ant-design/icons";
+import {getListChannelRequest} from "../../../domain/actions/order/order.action";
+import {ChannelResponse} from "../../../model/response/product/channel.response";
 
 export interface ProductParams {
   id: string;
@@ -108,8 +110,8 @@ const csvColumnMapping: any = {
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",
-  ALREADY_EXIST: "Đã tồn tại",
-  DUPLICATE: "Mã đã bị trùng trong file",
+  already_exist: "Đã tồn tại trong hệ thống",
+  duplicate: "Mã đã bị trùng trong file",
 };
 
 const PromotionDetailScreen: React.FC = () => {
@@ -129,9 +131,8 @@ const PromotionDetailScreen: React.FC = () => {
   const [data, setData] = useState<DiscountResponse | null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [checkPromoCode, setCheckPromoCode] = useState<boolean>(true);
-  const [stores, setStore] = useState<Array<StoreResponse>>();
-  const [sources, setSource] = useState<Array<SourceResponse>>();
   const [importTotal, setImportTotal] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
   const [codeErrorsResponse, setCodeErrorsResponse] = useState<Array<any>>([])
@@ -140,17 +141,8 @@ const PromotionDetailScreen: React.FC = () => {
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
-
-  useEffect(() => {
-    const stores =  listStore?.filter(item => data?.prerequisite_store_ids.includes(item.id));
-    setStore(stores);
-  }, [listStore, data]);
-
-  useEffect(() => {
-    const source = listSource?.filter(item => data?.prerequisite_order_source_ids.includes(item.id));
-    setSource(source);
-  }, [listSource, data]);
 
   const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.items.length > 0);
@@ -270,7 +262,7 @@ const PromotionDetailScreen: React.FC = () => {
       // Render a countdown
       return (
         <span style={{color: "#FCAF17", fontWeight: 500}}>
-          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}
         </span>
       );
     }
@@ -563,7 +555,7 @@ const PromotionDetailScreen: React.FC = () => {
                         }}
                       >
                         <Col
-                          span={12}
+                          span={5}
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
@@ -573,7 +565,7 @@ const PromotionDetailScreen: React.FC = () => {
                           <span style={{ color: "#666666" }}>{detail.name}</span>
                           <span style={{ fontWeight: 600 }}>:</span>
                         </Col>
-                        <Col span={12} style={{ paddingLeft: 0 }}>
+                        <Col span={17} style={{ paddingLeft: 0 }}>
                           <span
                             style={{
                               wordWrap: "break-word",
@@ -609,11 +601,8 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_store_ids.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            {
-                              stores && stores.map((item, index) => (
-                                <li key={index.toString()}>{item.name}</li>
-                              ))
-                            }
+                            {listStore &&
+                            data.prerequisite_store_ids.map(id => <li>{listStore.find(store => store.id === id)?.name}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -641,7 +630,8 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_sales_channel_names.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            {data?.prerequisite_sales_channel_names.map(channel => <li>{channel}</li>)}
+                            {listChannel &&
+                            data.prerequisite_sales_channel_names.map(id => <li>{listChannel.find(channel => channel.id === Number(id))?.name}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -669,11 +659,8 @@ const PromotionDetailScreen: React.FC = () => {
                           data?.prerequisite_order_source_ids.length > 0 ? (<ul style={{
                             padding: "0 16px"
                           }}>
-                            {
-                              sources && sources.map((item, index) => (
-                                <li key={index.toString()}>{item.name}</li>
-                              ))
-                            }
+                            {listSource &&
+                            data.prerequisite_order_source_ids.map(id => <li>{listSource.find(source => source.id === id)?.name}</li>)}
                           </ul>) : "Áp dụng toàn bộ"
                         }
                       </Col>
@@ -684,12 +671,12 @@ const PromotionDetailScreen: React.FC = () => {
         </React.Fragment>
       )}
       <BottomBarContainer
-        back="Quay lại sản phẩm"
+        back="Quay lại danh sách đợt phát hành"
         rightComponent={
           <Space>
-            <Button onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
-            <Button onClick={onEdit}>Sửa</Button>
-            <Button>Nhân bản</Button>
+            <Button disabled onClick={onDelete} style={{ color: '#E24343'}}>Xoá</Button>
+            <Button disabled onClick={onEdit}>Sửa</Button>
+            <Button disabled >Nhân bản</Button>
             <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
           </Space>
 
@@ -752,7 +739,7 @@ const PromotionDetailScreen: React.FC = () => {
               setSuccessCount(0)
               setSuccessCount(0)
               setUploadStatus(undefined);
-              dispatch(promoGetDetail(id, onResult));
+              dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
               setShowImportFile(false)
             }}
           >
@@ -787,7 +774,7 @@ const PromotionDetailScreen: React.FC = () => {
                     const response = info.file.response;
                     if (response.code === 20000000) {
                       if (response.data.errors.length > 0) {
-                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort((a:any, b:any) => a.index - b.index);
                         setCodeErrorsResponse([...errors]);
                       }
                       setImportTotal(response.data.total);
@@ -819,12 +806,14 @@ const PromotionDetailScreen: React.FC = () => {
               {uploadStatus === "uploading" ?
                 <Col span={24}>
                   <Row justify={"center"}>
-                    <LoadingOutlined style={{fontSize: "78px"}} />
-                  </Row>
-                  <Row justify={"center"}>
-                    <h2 style={{padding: "10px 30px"}}>
-                      Đang upload file...
-                    </h2>
+                    {/*<Col span={24}>*/}
+                    <Space size={"large"}>
+                      <LoadingOutlined style={{fontSize: "78px"}} />
+                      <h2 style={{padding: "10px 30px"}}>
+                        Đang upload file...
+                      </h2>
+                    </Space>
+                    {/*</Col>*/}
                   </Row>
                 </Col>
                 : ""}
@@ -846,7 +835,7 @@ const PromotionDetailScreen: React.FC = () => {
                       <li style={{padding: "10px 30px"}}>
                         {codeErrorsResponse?.map((error: any, index) =>
                           <ul key={index}>
-                            <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                            <span>- Dòng {error.index + 2}: {error.value} {csvColumnMapping[error.type.toLowerCase()]}</span>
                           </ul>)}
                       </li>
                     </Row>
