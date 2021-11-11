@@ -1,3 +1,4 @@
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -68,7 +69,6 @@ const ProductBarcodeScreen = React.lazy(
 );
 
 const product: Array<RouteMenu> = [
-
   {
     path: UrlConfig.PRODUCT,
     exact: true,
@@ -78,6 +78,7 @@ const product: Array<RouteMenu> = [
     key: "submenu21",
     isShow: true,
     header: null,
+    permissions: [ProductPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.PRODUCT}/create`,
@@ -88,6 +89,7 @@ const product: Array<RouteMenu> = [
         key: "submenu211",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.create],
         subMenu: [],
       },
       {
@@ -110,24 +112,26 @@ const product: Array<RouteMenu> = [
         key: "submenu214",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.print_temp],
         subMenu: [],
       },
       {
         path: `${UrlConfig.PRODUCT}/:id`,
         exact: true,
-        title: "Sửa sản phẩm",
+        title: "Chi tiết sản phẩm",
         icon: "icon-dot",
         component: ProductDetailScreen,
         key: "submenu213",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.read],
         subMenu: [],
         pathIgnore: ["create"],
       },
       {
         path: `${UrlConfig.PRODUCT}/:id/variants/:variantId`,
         exact: true,
-        title: "Sửa sản phẩm",
+        title: "Chi tiết sản phẩm",
         icon: "icon-dot",
         component: ProductDetailScreen,
         key: "submenu213",
@@ -145,13 +149,14 @@ const product: Array<RouteMenu> = [
         key: "submenu215",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.update],
         subMenu: [],
         pathIgnore: ["create"],
       },
     ],
   },
   {
-    path: 'submenu23',
+    path: "submenu23",
     exact: true,
     title: "Cấu hình thuộc tính",
     icon: "icon-dot",
@@ -180,6 +185,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2311",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.categories_create],
             subMenu: [],
           },
           {
@@ -191,6 +197,10 @@ const product: Array<RouteMenu> = [
             key: "submenu2312",
             isShow: true,
             header: null,
+            permissions: [
+              ProductPermission.categories_read,
+              ProductPermission.categories_update,
+            ],
             subMenu: [],
             pathIgnore: ["create"],
           },
@@ -205,6 +215,7 @@ const product: Array<RouteMenu> = [
         key: "submenu232",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.materials_read],
         subMenu: [
           {
             path: `${UrlConfig.MATERIALS}/create`,
@@ -215,6 +226,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2321",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.materials_create],
             subMenu: [],
           },
           {
@@ -226,6 +238,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2322",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.materials_read, ProductPermission.materials_update],
             subMenu: [],
             pathIgnore: ["create"],
           },
@@ -240,6 +253,7 @@ const product: Array<RouteMenu> = [
         key: "submenu233",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.sizes_read],
         subMenu: [
           {
             path: `${UrlConfig.SIZES}/create`,
@@ -250,6 +264,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2331",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.sizes_create],
             subMenu: [],
           },
           {
@@ -261,6 +276,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2332",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.sizes_read, ProductPermission.sizes_update],
             subMenu: [],
             pathIgnore: ["create"],
           },
@@ -275,6 +291,7 @@ const product: Array<RouteMenu> = [
         key: "submenu234",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.colors_read],
         subMenu: [
           {
             path: `${UrlConfig.COLORS}/create`,
@@ -285,6 +302,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2341",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.colors_create],
             subMenu: [],
           },
           {
@@ -296,12 +314,12 @@ const product: Array<RouteMenu> = [
             key: "submenu2342",
             isShow: true,
             header: null,
+            permissions: [ProductPermission.colors_update, ProductPermission.colors_read],
             subMenu: [],
             pathIgnore: ["create"],
           },
         ],
       },
-     
     ],
   },
   {

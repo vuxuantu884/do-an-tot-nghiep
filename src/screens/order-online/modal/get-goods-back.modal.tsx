@@ -1,10 +1,9 @@
-import { Modal, Select } from "antd";
+import { Modal } from "antd";
 
 type GetGoodsBackModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
-  setCancelReason: (value: string) => void;
   text: string;
   title: string;
   icon: string;
@@ -24,21 +23,8 @@ const GetGoodsBack: React.FC<GetGoodsBackModalProps> = (
     icon,
     okText,
     cancelText,
-    setCancelReason,
   } = props;
 
-  //mock api, delete when api avaiable
-  const reasons = [
-    "Khách không thích",
-    "Không đúng size",
-    "Văn vở vl",
-    "Không giao được",
-  ];
-  //
-
-  const handleReasonSelected = (value: any) => {
-    setCancelReason(value);
-  };
   return (
     <Modal
       onCancel={onCancel}
@@ -59,22 +45,6 @@ const GetGoodsBack: React.FC<GetGoodsBackModalProps> = (
             >
               {text}
             </span>
-            <div
-              className="orders-cancel-option"
-              style={{ margin: 0, padding: 0 }}
-            >
-              <span>Vui lòng chọn lý do hủy giao hàng</span>
-              <Select
-                placeholder="Lý do trả hàng"
-                onChange={(value) => handleReasonSelected(value)}
-              >
-                {reasons?.map((reason, index) => (
-                  <Select.Option key={index} value={reason}>
-                    {reason}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
           </div>
         </div>,
       ]}

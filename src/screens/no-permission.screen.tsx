@@ -45,7 +45,7 @@ function NoPermission() {
           <span className="guidline">
             Bạn không có quyền truy cập tính năng này.
             <br />
-            Vui lòng liên hệ bộ phận hỗ trợ!
+           <a href="tel:0888464258" title="HOTLINE PHÒNG IT: 0888464258">Vui lòng liên hệ bộ phận hỗ trợ!</a>
           </span>
 
           <Button type="primary" icon={<AiOutlineRollback />} className="back-btn" onClick={()=>history.goBack()}>

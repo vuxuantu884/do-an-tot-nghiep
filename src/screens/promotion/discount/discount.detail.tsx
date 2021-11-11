@@ -6,6 +6,7 @@ import {useDispatch} from "react-redux";
 import {useParams} from "react-router";
 import {Link} from "react-router-dom";
 import moment from "moment";
+import Countdown from "react-countdown";
 import "./discount.scss";
 import {DiscountResponse} from "model/response/promotion/discount/list-discount.response";
 import {DATE_FORMAT} from "utils/DateUtils";
@@ -14,12 +15,11 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {promoGetDetail, getVariants} from "../../../domain/actions/promotion/discount/discount.action";
-import CustomTable, {ICustomTableColumType} from "../../../component/table/CustomTable";
+import {getVariants, promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
+import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
-import Countdown from "react-countdown";
-import { ChannelResponse } from "model/response/product/channel.response";
-import { getListChannelRequest } from "domain/actions/order/order.action";
+import {ChannelResponse} from "model/response/product/channel.response";
+import {getListChannelRequest} from "domain/actions/order/order.action";
 
 export interface ProductParams {
   id: string;
@@ -36,89 +36,50 @@ type detailMapping = {
 
 const discountStatuses = [
   {
-    code: 'ACTIVE',
-    value: 'Đang áp dụng',
+    code: "ACTIVE",
+    value: "Đang áp dụng",
     style: {
       background: "rgba(42, 42, 134, 0.1)",
       borderRadius: "100px",
       color: "rgb(42, 42, 134)",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
   {
-    code: 'DISABLED',
-    value: 'Tạm ngưng',
+    code: "DISABLED",
+    value: "Tạm ngưng",
     style: {
       background: "rgba(252, 175, 23, 0.1)",
       borderRadius: "100px",
       color: "#FCAF17",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
   {
-    code: 'DRAFT',
-    value: 'Chờ áp dụng',
+    code: "DRAFT",
+    value: "Chờ áp dụng",
     style: {
       background: "rgb(245, 245, 245)",
       borderRadius: "100px",
       color: "rgb(102, 102, 102)",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
   {
-    code: 'CANCELLED',
-    value: 'Đã huỷ',
+    code: "CANCELLED",
+    value: "Đã huỷ",
     style: {
       background: "rgba(226, 67, 67, 0.1)",
       borderRadius: "100px",
       color: "rgb(226, 67, 67)",
       padding: "5px 10px",
-      marginLeft: "20px"
-    }
+      marginLeft: "20px",
+    },
   },
-]
-
-const quantityColumn:Array<ICustomTableColumType<any>> = [
-  {
-    title: "STT",
-    align: "center",
-    render: (value: any, item: any, index: number) => index + 1
-  },
-  {
-    title: "Sản phẩm",
-    dataIndex: "variant",
-    render: (value: any, item: any, index: number) => value.id
-  },
-  {
-    title: "Giá bán",
-    align: "center",
-    visible: true,
-    dataIndex: "variant",
-  },
-  {
-    title: "Chiết khấu",
-    align: "center",
-    dataIndex: "value"
-  },
-  {
-    title: "Giá sau chiết khấu",
-    align: "center",
-    dataIndex: "value"
-  },
-  {
-    title: "SL Tối thiểu",
-    align: "center",
-    dataIndex: "minimum"
-  },
-  {
-    title: "Giới hạn",
-    align: "center",
-    dataIndex: "allocationLimit"
-  },
-]
+];
 
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -130,6 +91,7 @@ const PromotionDetailScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const [data, setData] = useState<DiscountResponse | null>(null);
+  const [costType, setCostType] = useState<string>();
   const [dataVariants, setDataVariants] = useState<any | null>(null);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -138,6 +100,37 @@ const PromotionDetailScreen: React.FC = () => {
   const [sources, setSource] = useState<Array<SourceResponse>>();
   const [channel, setChannel] = useState<Array<ChannelResponse>>();
   const [entitlements, setEntitlements] = useState<Array<any>>([]);
+  const [quantityColumn, setQuantityColumn] = useState<any>([]);
+
+  useEffect(() => {
+    dispatch(StoreGetListAction(setListStore));
+    dispatch(getListSourceRequest(setListSource));
+    dispatch(getListChannelRequest(setListChannel));
+    dispatch(promoGetDetail(idNumber, onResult));
+    dispatch(getVariants(idNumber, handleResponse));
+  }, []);
+
+  useEffect(() => {
+    const stores = listStore?.filter(
+      (item) => item.id === data?.prerequisite_store_ids[0],
+    );
+    setStore(stores);
+  }, [listStore]);
+
+  useEffect(() => {
+    const source = listSource?.filter(
+      (item) => item.id === data?.prerequisite_order_source_ids[0],
+    );
+    setSource(source);
+  }, [listSource]);
+
+  useEffect(() => {
+    const channel = listChannel?.filter(
+      (item) => item.id === data?.prerequisite_order_source_ids[0],
+    );
+    setChannel(channel);
+  }, [listChannel]);
+
   const onResult = useCallback((result: DiscountResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -146,51 +139,167 @@ const PromotionDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
+
   const handleResponse = useCallback((result: any | false) => {
     setLoading(false);
     if (!result) {
       setError(true);
     } else {
       setDataVariants(result);
-      console.log(dataVariants);
-      
     }
-  }, [dataVariants]);
-  useEffect(() => {
-    dispatch(StoreGetListAction(setListStore));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(getListChannelRequest(setListChannel));
-    dispatch(promoGetDetail(idNumber, onResult));
-    dispatch(getVariants(idNumber, handleResponse));
-  }, [dispatch, handleResponse, idNumber, onResult]);
+  }, []);
 
   useEffect(() => {
-    const stores = listStore?.filter(
-      (item) => item.id === data?.prerequisite_store_ids[0],
-    );
-    setStore(stores);
-  }, [data?.prerequisite_store_ids, listStore]);
+    if (dataVariants && data && data.entitlements.length > 0) {
+      const entitlementQuantity = data.entitlements[0].prerequisite_quantity_ranges[0];
+      const costType = entitlementQuantity?.value_type;
+      const discountValue = entitlementQuantity?.value;
+      const allocationLimit = entitlementQuantity?.allocation_limit;
+      const minimum = entitlementQuantity?.greater_than_or_equal_to;
+      setEntitlements(transformData(costType, discountValue, allocationLimit, minimum));
+      setCostType(costType);
+    }
+  }, [data, dataVariants]);
 
   useEffect(() => {
-    const source = listSource?.filter(
-      (item) => item.id === data?.prerequisite_order_source_ids[0],
-    );
-    setSource(source);
-  }, [data?.prerequisite_order_source_ids, listSource]);
+    const column = [
+      {
+        title: "STT",
+        align: "center",
+        render: (value: any, item: any, index: number) => index + 1,
+      },
+      {
+        title: "Sản phẩm",
+        dataIndex: "sku",
+        visible: true,
+        align: "left",
+        width: "20%",
+        render: (
+          value: string,
+          item: any,
+          index: number,
+        ) => {
+          return (
+            <div>
+              <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+                {value}
+              </Link>
+              <div>{item.title}</div>
+            </div>
+          );
+        },
+      },
+      {
+        title: "Giá bán",
+        align: "center",
+        visible: false,
+        dataIndex: "cost",
+        render: (
+          value: string,
+        ) => formatCurrency(value),
+      },
+      {
+        title: "Chiết khấu",
+        align: "center",
+        dataIndex: "discountValue",
+      },
+      {
+        title: "Giá sau chiết khấu",
+        align: "center",
+        dataIndex: "total",
+        render: (
+          value: string,
+        ) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
+      },
+      {
+        title: "SL Tối thiểu",
+        align: "center",
+        dataIndex: "minimum",
+      },
+      {
+        title: "Giới hạn",
+        align: "center",
+        dataIndex: "allocationLimit",
+      },
+    ];
+    const column2 = [
+      {
+        title: "STT",
+        align: "center",
+        render: (value: any, item: any, index: number) => index + 1,
+      },
+      {
+        title: "Sản phẩm",
+        dataIndex: "sku",
+        visible: true,
+        align: "left",
+        width: "20%",
+        render: (
+          value: string,
+          item: any,
+          index: number,
+        ) => {
+          return (
+            <div>
+              <Link to={`${UrlConfig.PRODUCT}/${idNumber}/variants/${item.id}`}>
+                {value}
+              </Link>
+              <div>{item.title}</div>
+            </div>
+          );
+        },
+      },
+      {
+        title: "Giá bán",
+        align: "center",
+        visible: false,
+        dataIndex: "cost",
+        render: (
+          value: string,
+        ) => formatCurrency(value),
+      },
+      {
+        title: "Giá cố định",
+        align: "center",
+        dataIndex: "total",
+        render: (value:any) => <span style={{color: "#E24343"}}>{formatCurrency(value)}</span>,
+      },
+      {
+        title: "SL Tối thiểu",
+        align: "center",
+        dataIndex: "minimum",
+      },
+      {
+        title: "Giới hạn",
+        align: "center",
+        dataIndex: "allocationLimit",
+      },
+    ];
+    setQuantityColumn(costType !== "FIXED_PRICE" ? column : column2);
+  }, [costType]);
 
-  useEffect(() => {
-    const channel = listChannel?.filter(
-      (item) => item.id === data?.prerequisite_order_source_ids[0],
-    );
-    setChannel(channel);
-  }, [data?.prerequisite_order_source_ids, listChannel]);
+  const renderTotalBill = (cost: number, value: number, discount: number, valueType: string) => {
+    console.log("cost: ", cost);
+    console.log("value: ", value);
+    console.log("discount: ", discount);
+    console.log("valueType: ", valueType);
+    let result = "";
+    switch (valueType) {
+      case "FIXED_PRICE":
+        result = formatCurrency(value);
+        break;
+      case "FIXED_AMOUNT":
+        result = `${formatCurrency(cost - discount)}`;
+        break;
+      case "PERCENTAGE":
+        result = `${cost - ((cost * discount) / 100)}`;
+        break;
+    }
+    return result;
+  };
 
-  
-
- 
-
-  const renderDiscountValue = useCallback((value: number, valueType:string) => {
-    let result = '';
+  const renderDiscountValue = (value: number, valueType: string) => {
+    let result = "";
     switch (valueType) {
       case "FIXED_PRICE":
         result = formatCurrency(value);
@@ -199,34 +308,34 @@ const PromotionDetailScreen: React.FC = () => {
         result = formatCurrency(value);
         break;
       case "PERCENTAGE":
-        result = `${value}%`
+        result = `${value}%`;
         break;
     }
     return result;
-  }, []);
+  };
 
-  const transformData = useCallback((rawData: any | null) => {
+  const transformData = (costType: string, discountValue: number, allocationLimit: number, minimum: number) => {
     let result: any[] = [];
-    if (rawData && rawData.entitlements.length > 0) {
-      rawData.entitlements.forEach((rawEntitlement:any) => {
-        rawEntitlement.entitled_variant_ids.forEach((variant:any) => {
+    dataVariants.forEach((variant: any) => {
+      data?.entitlements.forEach(item => {
+        const isExit = (item.entitled_variant_ids as number[]).includes(variant.variant_id);
+        const value = item.prerequisite_quantity_ranges[0].value;
+        if (isExit) {
           result.push({
-            variant: {
-              id: variant
-            },
-            minimum: rawEntitlement.prerequisite_quantity_ranges[0]?.greater_than_or_equal_to,
-            allocationLimit: rawEntitlement.prerequisite_quantity_ranges[0]?.allocation_limit,
-            value: `${renderDiscountValue(rawEntitlement.prerequisite_quantity_ranges[0]?.value, rawEntitlement.prerequisite_quantity_ranges[0]?.value_type)}`
-          });
-        })
-      })
-      return result;
-    }
-    return [];
-  }, [renderDiscountValue]);
-  useEffect(() => {
-    setEntitlements(transformData(data));
-  }, [data, transformData])
+            id: variant?.variant_id,
+            title: variant?.variant_title,
+            sku: variant?.sku,
+            cost: variant?.cost,
+            minimum: minimum,
+            allocationLimit: allocationLimit,
+            discountValue: `${renderDiscountValue(discountValue, costType)}`,
+            total: `${renderTotalBill(variant?.cost, value, discountValue, costType)}`,
+          })
+        }
+      });
+    });
+    return result;
+  };
 
   const getEntitled_method = (data: DiscountResponse) => {
     if (data.entitled_method === "FIXED_PRICE") return "Đồng giá";
@@ -255,12 +364,6 @@ const PromotionDetailScreen: React.FC = () => {
           key: "3",
         },
         {
-          name: "Mô tả",
-          value: data.description,
-          position: "left",
-          key: "4",
-        },
-        {
           name: "Số lượng đã bán",
           value: "---",
           position: "right",
@@ -286,16 +389,16 @@ const PromotionDetailScreen: React.FC = () => {
   const renderStatus = (data: DiscountResponse) => {
     const status = discountStatuses.find(status => status.code === data.state);
     return (
-        <span
-          style={status?.style}
-        >
+      <span
+        style={status?.style}
+      >
           {status?.value}
         </span>
-    )
-  }
+    );
+  };
 
   // @ts-ignore
-  const renderer = ({ days, hours, minutes, seconds, completed }) => {
+  const renderer = ({days, hours, minutes, seconds, completed}) => {
     if (completed) {
       // Render a complete state
       return <span>Kết thúc chương trình</span>;
@@ -303,7 +406,7 @@ const PromotionDetailScreen: React.FC = () => {
       // Render a countdown
       return (
         <span style={{color: "#FCAF17", fontWeight: 500}}>
-          {days > 0 ? `${days} Ngày` : ''} {hours}:{minutes}:{seconds}
+          {days > 0 ? `${days} Ngày` : ""} {hours}:{minutes}:{seconds}
         </span>
       );
     }
@@ -323,11 +426,11 @@ const PromotionDetailScreen: React.FC = () => {
     },
     {
       name: "Còn",
-      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2}  date={moment(data?.ends_date).toDate()} renderer={renderer} /> : '---',
+      value: data?.ends_date ? <Countdown zeroPadTime={2} zeroPadDays={2} date={moment(data?.ends_date).toDate()}
+                                          renderer={renderer} /> : "---",
       key: "3",
     },
   ];
-
 
   return (
     <ContentContainer
@@ -442,6 +545,41 @@ const PromotionDetailScreen: React.FC = () => {
                       ))}
                   </Col>
                 </Row>
+                <Row gutter={30}>
+                  <Col span={24}>
+                    <Col
+                      key={"description"}
+                      span={24}
+                      style={{
+                        padding: 0,
+                        display: "flex",
+                        marginBottom: 10,
+                        color: "#222222",
+                      }}
+                    >
+                      <Col
+                        span={4}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "0 8px 0 0",
+                        }}
+                      >
+                        <span style={{color: "#666666"}}>Mô tả</span>
+                        <span style={{fontWeight: 600}}>:</span>
+                      </Col>
+                      <Col span={18} style={{paddingLeft: 0}}>
+                              <span
+                                style={{
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {data.description ? data.description  : "---"}
+                              </span>
+                      </Col>
+                    </Col>
+                  </Col>
+                </Row>
                 <Divider />
                 <Row gutter={30}>
                   <Col span={24} style={{textAlign: "right"}}>
@@ -505,7 +643,7 @@ const PromotionDetailScreen: React.FC = () => {
                       }}
                     >
                       <Col
-                        span={12}
+                        span={5}
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
@@ -515,7 +653,7 @@ const PromotionDetailScreen: React.FC = () => {
                         <span style={{color: "#666666"}}>{detail.name}</span>
                         <span style={{fontWeight: 600}}>:</span>
                       </Col>
-                      <Col span={12} style={{paddingLeft: 0}}>
+                      <Col span={15} style={{paddingLeft: 0}}>
                           <span
                             style={{
                               wordWrap: "break-word",
@@ -596,7 +734,7 @@ const PromotionDetailScreen: React.FC = () => {
                     </span>
                   </Col>
                   <Col span={24}>
-                  {data?.prerequisite_sales_channel_names.length > 0 ? (
+                    {data?.prerequisite_sales_channel_names.length > 0 ? (
                       <ul
                         style={{
                           padding: "0 16px",

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import "./discount.scss";
-import { useHistory} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 import ContentContainer from "../../../component/container/content.container";
 import UrlConfig from "../../../config/url.config";
 import {Button, Col, Form, Row} from "antd";
@@ -13,9 +13,10 @@ import {useDispatch} from "react-redux";
 import {StoreResponse} from "../../../model/core/store.model";
 import {SourceResponse} from "../../../model/response/order/source.response";
 import {createPriceRule} from "../../../service/promotion/discount/discount.service";
-import { PROMO_TYPE } from "utils/Constants";
-import { getListChannelRequest } from "domain/actions/order/order.action";
-import { ChannelResponse } from "model/response/product/channel.response";
+import {PROMO_TYPE} from "utils/Constants";
+import {getListChannelRequest} from "domain/actions/order/order.action";
+import {ChannelResponse} from "model/response/product/channel.response";
+import moment from "moment";
 
 
 const CreateDiscountPage = () => {
@@ -36,7 +37,7 @@ const CreateDiscountPage = () => {
     body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;
     body.priority = values.priority;
-    body.description = values.descriptionl
+    body.description = values.descriptionl;
     body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
     body.entitled_method = values.entitled_method;
     body.usage_limit = values.usage_limit;
@@ -51,19 +52,20 @@ const CreateDiscountPage = () => {
         entitled_category_ids: null,
         prerequisite_quantity_ranges: [
           {
-            greater_than_or_equal_to: entitlement['prerequisite_quantity_ranges.greater_than_or_equal_to'],
+            greater_than_or_equal_to: entitlement["prerequisite_quantity_ranges.greater_than_or_equal_to"],
             less_than_or_equal_to: null,
-            allocation_limit: entitlement['prerequisite_quantity_ranges.allocation_limit'],
-            value_type: body.entitled_method === "FIXED_PRICE" ? "FIXED_PRICE" : entitlement['prerequisite_quantity_ranges.value_type'],
-            value: entitlement['prerequisite_quantity_ranges.value'],
+            allocation_limit: entitlement["prerequisite_quantity_ranges.allocation_limit"],
+            value_type: body.entitled_method === "FIXED_PRICE" ? "FIXED_PRICE" : entitlement["prerequisite_quantity_ranges.value_type"],
+            value: entitlement["prerequisite_quantity_ranges.value"],
           },
         ],
-        prerequisite_subtotal_ranges: null
-      }
-    })
+        prerequisite_subtotal_ranges: null,
+      };
+    });
     return body;
-  }
-  const handerSubmit = async (values: any) => {
+  };
+  const handleSubmit = async (values: any) => {
+    console.log(values);
     const body = transformData(values);
     body.activated = true;
     const createResponse = await createPriceRule(body);
@@ -73,7 +75,7 @@ const CreateDiscountPage = () => {
     } else {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
-  }
+  };
 
   const save = async () => {
     const values = await discountForm.validateFields();
@@ -87,7 +89,7 @@ const CreateDiscountPage = () => {
       showError(`${createResponse.code} - ${createResponse.message}`);
     }
 
-  }
+  };
 
   const handleSubmitFail = (errorFields: any) => {
     const fieldName = errorFields[0].name.join("");
@@ -95,7 +97,7 @@ const CreateDiscountPage = () => {
       showError("Vui lòng nhập thông tin liên hệ");
       // setCollapseActive(true);
     }
-  }
+  };
 
   return (
     <ContentContainer
@@ -122,17 +124,17 @@ const CreateDiscountPage = () => {
       <Form
         form={discountForm}
         name="discount_add"
-        onFinish={handerSubmit}
+        onFinish={handleSubmit}
         onFinishFailed={({errorFields}) => handleSubmitFail(errorFields)}
         layout="vertical"
         scrollToFirstError
         initialValues={{
           entitlements: [""],
           priority: 1,
-          entitled_method: "FIXED_PRICE"
+          entitled_method: "FIXED_PRICE",
         }}
       >
-        <Row >
+        <Row>
           <Col span={24}>
             <GeneralInfo
               className="general-info"
@@ -147,7 +149,7 @@ const CreateDiscountPage = () => {
         </Row>
         <div className="customer-bottom-button">
           <div onClick={() => history.goBack()} style={{cursor: "pointer"}}>
-            <img style={{marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt=""/>
+            <img style={{marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
             Quay lại danh sách chiết khấu
           </div>
           <div>
@@ -172,7 +174,7 @@ const CreateDiscountPage = () => {
         </div>
       </Form>
     </ContentContainer>
-  )
-}
+  );
+};
 
 export default CreateDiscountPage;
