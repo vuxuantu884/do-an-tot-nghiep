@@ -90,9 +90,7 @@ import {
   TrackingCode
 } from "utils/AppUtils";
 import {
-  FulFillmentStatus,
-  MoneyPayThreePls,
-  OrderStatus,
+  FulFillmentStatus, OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
   ShipmentMethod,
@@ -139,9 +137,6 @@ export default function Order(props: PropType) {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
-
-  const [hvc] = useState<number | null>(null);
-  const [fee] = useState<number | null>(null);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(null);
   const [listPaymentMethod, setListPaymentMethod] = useState<
   Array<PaymentMethodResponse>

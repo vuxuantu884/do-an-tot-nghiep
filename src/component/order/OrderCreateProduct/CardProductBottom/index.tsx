@@ -1,4 +1,4 @@
-import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
