@@ -1,6 +1,7 @@
 import { RouteMenu } from "../../model/other";
 import UrlConfig from "../../config/url.config";
 import React from "react";
+import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
 const DetailTicket = React.lazy(() => import("screens/inventory/DetailTicket/index"));
 const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
@@ -45,7 +46,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu24",
     isShow: true,
     header: null,
-    subMenu: []
+    subMenu: [],
   },
   {
     path: UrlConfig.PURCHASE_ORDER,
@@ -56,6 +57,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu22",
     isShow: true,
     header: null,
+    permissions: [PurchaseOrderPermission.po_read],
     subMenu: [
       {
         path: `${UrlConfig.PURCHASE_ORDER}/create`,
@@ -66,6 +68,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu221",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.po_create],
         subMenu: [],
       },
       {
@@ -77,6 +80,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu222",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.po_read, PurchaseOrderPermission.po_update],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -89,6 +93,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu223",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.po_return],
         subMenu: [],
         pathIgnore: ["create"],
       },
@@ -103,6 +108,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu25",
     isShow: true,
     header: null,
+    permissions: [PurchaseOrderPermission.procurements_read],
     subMenu: [
       {
         path: `${UrlConfig.PROCUREMENT}/:id`,
@@ -113,6 +119,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu25",
         isShow: true,
         header: null,
+        permissions: [PurchaseOrderPermission.procurements_read],
         subMenu: [],
       },
     ],
@@ -193,7 +200,6 @@ export const inventory: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
-      
     ],
   },
   {
@@ -216,7 +222,7 @@ export const inventory: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-      }, 
+      },
       {
         path: `${UrlConfig.INVENTORY_ADJUSTMENT}/:id`,
         exact: true,
