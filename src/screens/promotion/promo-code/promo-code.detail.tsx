@@ -44,11 +44,13 @@ export interface ProductParams {
 }
 
 type detailMapping = {
+  id: string;
   name: string;
   value: string | null;
   position: string;
   key: string;
   isWebsite?: boolean;
+  color: string;
 };
 
 const promoStatuses = [
@@ -215,46 +217,60 @@ const PromotionDetailScreen: React.FC = () => {
     if (data) {
       const details = [
         {
+          id: "title",
           name: "Tên đợt phát hành",
           value: data.title,
           position: "left",
           key: "1",
+          color: "#222222"
         },
         {
+          id: "code",
           name: "Mã đợt phát hành",
           value: data.code,
           position: "left",
           key: "2",
+          color: "#FCAF17"
         },
         {
+          id: "type",
           name: "Loại mã",
           value: "Mã giảm giá",
           position: "left",
           key: "3",
+          color: "#222222"
         },
         {
+          id: "description",
           name: "Mô tả đợt phát hành",
           value: data.description,
           position: "left",
           key: "4",
+          color: "#222222"
         },
         {
+          id: "number_of_discount_codes",
           name: "SL mã phát hành",
           value: data.number_of_discount_codes,
           position: "right",
           key: "5",
+          color: "#222222"
         },
         {
+          id: "total_usage_count",
           name: "Số lượng đã sử dụng",
           value: data.total_usage_count,
           position: "right",
           key: "6",
+          color: "#222222"
         },
         {
+          id: "discount",
           name: "Thông tin khuyến mãi",
           value: `Giảm ${data.entitlements[0].prerequisite_quantity_ranges[0].value} ${data.entitlements[0].prerequisite_quantity_ranges[0].value_type === 'PERCENTAGE' ? '%' : 'VNĐ'}`,
           position: "right",
-          key: "7"
+          key: "7",
+          color: "#222222"
         },
       ];
       return details;
@@ -398,12 +414,13 @@ const PromotionDetailScreen: React.FC = () => {
                               }}
                             >
                               <span style={{ color: "#666666" }}>{detail.name}</span>
-                              <span style={{ fontWeight: 600 }}>:</span>
+                              <span style={{ color: detail.color }}>:</span>
                             </Col>
                             <Col span={12} style={{ paddingLeft: 0 }}>
                               <span
                                 style={{
                                   wordWrap: "break-word",
+                                  color: detail.color
                                 }}
                               >
                                 {detail.value ? detail.value : "---"}
