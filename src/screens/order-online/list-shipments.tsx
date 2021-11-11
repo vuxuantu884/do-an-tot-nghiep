@@ -118,13 +118,11 @@ const ListOrderScreen: React.FC = () => {
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
     []
   );
-  let deliveryServices: any[] = []
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        deliveryServices = response
-        // setDeliveryServices(response);
+        setDeliveryServices(response)
       })
     );
   }, [dispatch]);

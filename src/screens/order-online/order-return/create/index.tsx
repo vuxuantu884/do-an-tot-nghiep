@@ -528,10 +528,10 @@ const ScreenReturnCreate = (props: PropType) => {
                 showError("Đã tạo đơn đổi hàng không thành công!");
                 return;
               }
-              showLoading();
               dispatch(
                 actionCreateOrderReturn(orderDetailResult, (response) => {
                   valuesResult.order_return_id = response.id;
+                  showLoading();
                   dispatch(
                     actionCreateOrderExchange(
                       valuesResult,
@@ -651,26 +651,6 @@ const ScreenReturnCreate = (props: PropType) => {
         (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
     );
 
-    // let curenPoint = !loyaltyPoint
-    //   ? 0
-    //   : loyaltyPoint.point === null
-    //   ? 0
-    //   : loyaltyPoint.point;
-    // let point = !pointFocus
-    //   ? 0
-    //   : pointFocus.point === undefined
-    //   ? 0
-    //   : pointFocus.point;
-
-    // let totalAmountPayable = totalAmountCustomerNeedToPay; //tổng tiền phải trả
-    // let limitAmountPointFocus = !rank
-    //   ? 0
-    //   : !rank.limit_order_percent
-    //   ? totalAmountPayable
-    //   : (rank.limit_order_percent * totalAmountPayable) / 100;
-    // //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
-    // limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
-
     if (!loyaltyPoint) {
       showError("Khách hàng chưa tồn tại trên hệ thống Loyalty");
       return false;
@@ -679,11 +659,6 @@ const ScreenReturnCreate = (props: PropType) => {
       showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
       return false;
     }
-
-    // if (point > curenPoint) {
-    //   showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
-    //   return false;
-    // }
     return true;
   };
 

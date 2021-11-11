@@ -994,15 +994,18 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
   let result = false;
   let orderReturnItems = getListReturnedOrders(OrderDetail)
   console.log('orderReturnItems', orderReturnItems)
-  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về true
+  // nếu có item mà quantity trả < quantity trong đơn hàng thì trả về false
   if( orderReturnItems.length > 0) {
-    let checkIfNotReturnAll = orderReturnItems.some((singleReturnItem) => {
-      let selectedItem = OrderDetail.items.find((item) => item.product_id === singleReturnItem.product_id);
+    let checkIfNotReturnAll = OrderDetail.items.some((singleItem) => {
+      console.log('singleItem', singleItem)
+      let selectedItem = orderReturnItems.find((item) => item.product_id === singleItem.product_id);
+      console.log('selectedItem', selectedItem)
       if(!selectedItem) {
         return true
       }
-      return selectedItem.quantity > singleReturnItem.quantity
+      return (singleItem.quantity > selectedItem.quantity)
     })
+    console.log('checkIfNotReturnAll', checkIfNotReturnAll)
     result = !checkIfNotReturnAll;
   }
   console.log('result', result)
