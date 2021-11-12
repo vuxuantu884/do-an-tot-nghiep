@@ -14,7 +14,7 @@ import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconShoppingBag from "assets/icon/shopping_bag.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
 import {ShipperGetListAction} from "domain/actions/account/account.action";
-import {getFeesAction} from "domain/actions/order/order.action";
+import {DeliveryServicesGetList, getFeesAction} from "domain/actions/order/order.action";
 import {
   actionGetOrderConfig,
   actionListConfigurationShippingServiceAndShippingFee,
@@ -24,7 +24,7 @@ import {thirdPLModel} from "model/order/shipment.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {OrderLineItemRequest} from "model/request/order.request";
 import {CustomerResponse} from "model/response/customer/customer.response";
-import {StoreCustomResponse} from "model/response/order/order.response";
+import {DeliveryServiceResponse, StoreCustomResponse} from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
@@ -126,11 +126,12 @@ function OrderCreateShipment(props: PropType) {
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
     ShippingServiceConfigDetailResponseModel[]
   >([]);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
     setShippingFeeInformedToCustomer(0);
-    if(value ===ShipmentMethodOption.DELIVER_PARTNER) {
+    if(value === ShipmentMethodOption.DELIVER_PARTNER) {
       setThirdPL({
         delivery_service_provider_code: "",
         delivery_service_provider_id: null,
@@ -308,6 +309,11 @@ function OrderCreateShipment(props: PropType) {
         setShippingServiceConfig(response);
       })
     );
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      })
+    );
   }, [dispatch]);
 
   /**
@@ -407,6 +413,7 @@ function OrderCreateShipment(props: PropType) {
               setThirdPL={setThirdPL}
               shippingServiceConfig={shippingServiceConfig}
               setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+              deliveryServices={deliveryServices}
               infoFees={infoFees}
               addressError={addressError}
               levelOrder={levelOrder}

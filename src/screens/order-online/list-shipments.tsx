@@ -118,10 +118,13 @@ const ListOrderScreen: React.FC = () => {
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>(
     []
   );
+  let delivery_services: Array<DeliveryServiceResponse> = []
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        delivery_services = response
         setDeliveryServices(response)
       })
     );
@@ -261,7 +264,7 @@ const ListOrderScreen: React.FC = () => {
         switch (record.shipment?.delivery_service_provider_type) {
           case "external_service":
             const service_id = record.shipment.delivery_service_provider_id;
-            const service = deliveryServices.find((service) => service.id === service_id);
+            const service = delivery_services.find((service) => service.id === service_id);
             return (
               service && (
                 <img

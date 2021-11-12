@@ -132,11 +132,13 @@ const ListOrderScreen: React.FC = () => {
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
+  let delivery_services: Array<DeliveryServiceResponse> = []
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        delivery_services = response
         setDeliveryServices(response)
       })
     );
@@ -301,7 +303,7 @@ const ListOrderScreen: React.FC = () => {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
               case "external_service":
                 const service_id = newFulfillments[0].shipment.delivery_service_provider_id;
-                const service = deliveryServices.find((service) => service.id === service_id);
+                const service = delivery_services.find((service) => service.id === service_id);
                 return (
                   service && (
                     <img
