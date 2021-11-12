@@ -1,35 +1,38 @@
 // đăt tên resouces  có chữ [s] + action , viết thường, snake_case => products_view
 // nếu có resource con :  resouces cha [s] + resource con [s] + action => products_categories_create
 
-const cores = `cores`;
+const sources = `sources`;
+const channels = `channels`;
+const stores = `stores`;
+const prints_templates = `prints_templates`;
 
 const SourcePermissions = {
-  READ: `${cores}_sources_view`,
-  CREATE: `${cores}_sources_create`,
-  EXPORT: `${cores}_sources_export`,
-  UPDATE: `${cores}_sources_update`,
-  DELETE: `${cores}_sources_delete`,
+  READ: `${sources}_read`,
+  CREATE: `${sources}_create`,
+  EXPORT: `${sources}_export`,
+  UPDATE: `${sources}_update`,
+  DELETE: `${sources}_delete`,
 };
 
 const ChannelPermissions = {
-  READ: `${cores}_channels_read`,
-  CREATE: `${cores}_channels_create`,
-  EXPORT: `${cores}_channels_export`,
-  UPDATE: `${cores}_channels_update`,
-  DELETE: `${cores}_channels_delete`,
+  READ: `${channels}_read`,
+  CREATE: `${channels}_create`,
+  EXPORT: `${channels}_export`,
+  UPDATE: `${channels}_update`,
+  DELETE: `${channels}_delete`,
 };
 
 const StorePermissions = {
-  READ: `${cores}_stores_read`,
-  CREATE: `${cores}_stores_create`,
-  EXPORT: `${cores}_stores_export`,
-  UPDATE: `${cores}_stores_update`,
-  DELETE: `${cores}_stores_delete`,
+  READ: `${stores}_read`,
+  CREATE: `${stores}_create`,
+  EXPORT: `${stores}_export`,
+  UPDATE: `${stores}_update`,
+  DELETE: `${stores}_delete`,
 };
 
 const PrintPermissions = {
-  READ: `${cores}_prints_templates_read`,
-  CREATE: `${cores}_prints_templates_create`,   
+  READ: `${prints_templates}_read`,
+  CREATE: `${prints_templates}_create`,    
 };
 
 export {SourcePermissions, ChannelPermissions, StorePermissions, PrintPermissions};

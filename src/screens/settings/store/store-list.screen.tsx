@@ -23,7 +23,7 @@ import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import {OFFSET_HEADER_UNDER_NAVBAR} from "utils/Constants";
-import {EditOutlined, ExportOutlined} from "@ant-design/icons";
+import {EditOutlined} from "@ant-design/icons";
 import useAuthorization from "hook/useAuthorization";
 import {StorePermissions} from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
