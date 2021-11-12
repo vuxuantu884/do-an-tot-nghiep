@@ -954,9 +954,19 @@ function OrderCreateProduct(props: PropType) {
                     return aa.product_id === item.product_id
                   })
                   if(itemDiscount) {
-                    const valueDiscount = itemDiscount.applied_discount?.value || 0;
+                    let valueDiscount = 0;
+                    let rateDiscount = 0;
+                    console.log('itemDiscount.applied_discount?.value_type', itemDiscount.applied_discount)
+                    if(itemDiscount.applied_discount?.value_type === DISCOUNT_VALUE_TYPE.fixedAmount) {
+                      valueDiscount = itemDiscount.applied_discount?.value || 0;
+                      rateDiscount = Math.round((valueDiscount / item.price) * 100 * 100) / 100;
+                    } else if(itemDiscount.applied_discount?.value_type === DISCOUNT_VALUE_TYPE.percentage) {
+                      valueDiscount = itemDiscount.applied_discount?.value ? (itemDiscount.applied_discount.value /100 * item.price) : 0;
+                      rateDiscount = itemDiscount.applied_discount?.value || 0;
+                      // rateDiscount = Math.round((valueDiscount / item.price) * 100 * 100) / 100;
+                    }
                     const discountItem: OrderItemDiscountRequest = {
-                      rate: Math.round((valueDiscount / item.price) * 100 * 100) / 100,
+                      rate: rateDiscount,
                       value: valueDiscount,
                       amount: valueDiscount * item.quantity,
                       reason: "",
