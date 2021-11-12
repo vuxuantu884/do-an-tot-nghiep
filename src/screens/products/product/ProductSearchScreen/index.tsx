@@ -8,7 +8,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import {ProductPermission} from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import React, {useEffect, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {Link, useHistory, useParams} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
 import {ProductTabId} from "utils/Constants";
@@ -18,11 +18,11 @@ import TabProduct from "../tab/TabProduct";
 import TabProductWrapper from "../tab/TabProductWrapper";
 const {TabPane} = Tabs;
 
-// const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-//   <StickyUnderNavbar>
-//     <DefaultTabBar {...props} />
-//   </StickyUnderNavbar>
-// );
+const RenderTabBar = <P extends object>(props: any, DefaultTabBar: React.ComponentType<P>) => (
+  <StickyUnderNavbar>
+    <DefaultTabBar {...props} />
+  </StickyUnderNavbar>
+);
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -151,7 +151,7 @@ const ListProductScreen: React.FC = () => {
             const targetUrl = UrlConfig.PRODUCT + "/" + active + "/tabs";
             history.replace(targetUrl);
           }}
-          // renderTabBar={renderTabBar}
+          renderTabBar={(props, DefaultTabBar)=> RenderTabBar(props, DefaultTabBar)}
         >
           {tabs.map((tab) => {
             if (tab.isShow) {
