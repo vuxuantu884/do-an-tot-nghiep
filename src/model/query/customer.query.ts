@@ -11,7 +11,7 @@ export interface CustomerSearchQuery extends BaseQuery {
   to_wedding_date: String | null;
   customer_type_id: number | null;
   customer_group_id: number | null;
-  customer_level_id: number | null;
+  customer_level_id: number | undefined;
   responsible_staff_code: string | null;
 }
 

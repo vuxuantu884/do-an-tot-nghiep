@@ -40,6 +40,8 @@ type CustomerListFilterProps = {
 };
 
 const { Option } = Select;
+const today = new Date();
+const THIS_YEAR = today.getFullYear();
 
 const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   props: CustomerListFilterProps
@@ -137,6 +139,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }, [dispatch, setDataAccounts]);
 
 
+  // handle select birth day
   const initDateList = () => {
     const dateList: Array<any> = [];
     for (let i = 1; i < 32; i++) {
@@ -195,6 +198,192 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const onClearToDate = () => {
     setFromDateList(INIT_FROM_DATE_LIST);
   }
+  // end handle select birth day
+
+  // handle select birth month
+  const initMonthList = () => {
+    const monthList: Array<any> = [];
+    for (let i = 1; i <= 12; i++) {
+      monthList.push({
+        key: i,
+        value: i,
+        name: i,
+        disable: false,
+      })
+    }
+    return monthList;
+  }
+
+  const INIT_FROM_MONTH_LIST = [
+    {
+      key: 0,
+      value: 0,
+      name: "- Từ tháng -",
+      disable: true,
+    }
+  ].concat(initMonthList());
+
+  const INIT_TO_MONTH_LIST = [
+    {
+      key: 0,
+      value: 0,
+      name: "- Đến tháng -",
+      disable: true,
+    }
+  ].concat(initMonthList());
+
+  const [fromMonthList, setFromMonthList] = useState<any>(INIT_FROM_MONTH_LIST);
+  const [toMonthList, setToMonthList] = useState<any>(INIT_TO_MONTH_LIST);
+
+
+  const onSelectFromMonth = (value: any) => {
+    const newToMonthList = [ ...toMonthList ];
+    newToMonthList.forEach((item: any) => {
+      item.disable = (item.value < value);
+    })
+    setToMonthList(newToMonthList);
+  }
+
+  const onClearFromMonth = () => {
+    setToMonthList(INIT_TO_MONTH_LIST);
+  }
+
+  const onSelectToMonth = (value: any) => {
+    const newFromMonthList = [ ...fromMonthList ];
+    newFromMonthList.forEach((item: any) => {
+      item.disable = (item.value > value || item.value === 0);
+    })
+    setFromMonthList(newFromMonthList);
+  }
+
+  const onClearToMonth = () => {
+    setFromMonthList(INIT_FROM_MONTH_LIST);
+  }
+  // end handle select birth month
+
+  // handle select birth year
+  const initYearList = () => {
+    const yearList: Array<any> = [];
+    for (let i = 1900; i <= THIS_YEAR; i++) {
+      yearList.push({
+        key: i,
+        value: i,
+        name: i,
+        disable: false,
+      })
+    }
+    return yearList;
+  }
+
+  const INIT_FROM_YEAR_LIST = [
+    {
+      key: 0,
+      value: 0,
+      name: "- Từ năm -",
+      disable: true,
+    }
+  ].concat(initYearList());
+
+  const INIT_TO_YEAR_LIST = [
+    {
+      key: 0,
+      value: 0,
+      name: "- Đến năm -",
+      disable: true,
+    }
+  ].concat(initYearList());
+
+  const [fromYearList, setFromYearList] = useState<any>(INIT_FROM_YEAR_LIST);
+  const [toYearList, setToYearList] = useState<any>(INIT_TO_YEAR_LIST);
+
+
+  const onSelectFromYear = (value: any) => {
+    const newToYearList = [ ...toYearList ];
+    newToYearList.forEach((item: any) => {
+      item.disable = (item.value < value);
+    })
+    setToYearList(newToYearList);
+  }
+
+  const onClearFromYear = () => {
+    setToYearList(INIT_TO_YEAR_LIST);
+  }
+
+  const onSelectToYear = (value: any) => {
+    const newFromYearList = [ ...fromYearList ];
+    newFromYearList.forEach((item: any) => {
+      item.disable = (item.value > value || item.value === 0);
+    })
+    setFromYearList(newFromYearList);
+  }
+
+  const onClearToYear = () => {
+    setFromYearList(INIT_FROM_YEAR_LIST);
+  }
+  // end handle select birth year
+
+// handle select age
+const initAgeList = () => {
+  const ageList: Array<any> = [];
+  for (let i = 1; i <= 120; i++) {
+    ageList.push({
+      key: i,
+      value: i,
+      name: i,
+      disable: false,
+    })
+  }
+  return ageList;
+}
+
+const INIT_FROM_AGE_LIST = [
+  {
+    key: 0,
+    value: 0,
+    name: "- Từ tuổi -",
+    disable: true,
+  }
+].concat(initAgeList());
+
+const INIT_TO_AGE_LIST = [
+  {
+    key: 0,
+    value: 0,
+    name: "- Đến tuổi -",
+    disable: true,
+  }
+].concat(initAgeList());
+
+const [fromAgeList, setFromAgeList] = useState<any>(INIT_FROM_AGE_LIST);
+const [toAgeList, setToAgeList] = useState<any>(INIT_TO_AGE_LIST);
+
+
+const onSelectFromAge = (value: any) => {
+  const newToAgeList = [ ...toAgeList ];
+  newToAgeList.forEach((item: any) => {
+    item.disable = (item.value < value);
+  })
+  setToAgeList(newToAgeList);
+}
+
+const onClearFromAge = () => {
+  setToAgeList(INIT_TO_AGE_LIST);
+}
+
+const onSelectToAge = (value: any) => {
+  const newFromAgeList = [ ...fromAgeList ];
+  newFromAgeList.forEach((item: any) => {
+    item.disable = (item.value > value || item.value === 0);
+  })
+  setFromAgeList(newFromAgeList);
+}
+
+const onClearToAge = () => {
+  setFromAgeList(INIT_FROM_AGE_LIST);
+}
+// end handle select age
+  
+
 
   // handle filter action
   const openBaseFilter = useCallback(() => {
@@ -409,8 +598,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="select-scope">
                     <Form.Item name="from_birthday" className="select-item">
                       <Select
-                        placeholder="Từ ngày"
+                        showSearch
                         allowClear
+                        placeholder="Từ ngày"
                         onSelect={onSelectFromDate}
                         onClear={onClearFromDate}
                       >
@@ -426,12 +616,52 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <Form.Item name="to_birthday" className="select-item">
                       <Select
-                        placeholder="Đến ngày"
+                        showSearch
                         allowClear
+                        placeholder="Đến ngày"
                         onSelect={onSelectToDate}
                         onClear={onClearToDate}
                       >
                         {toDateList.map((item: any) => (
+                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Tháng sinh</div>
+                  <div className="select-scope">
+                    <Form.Item name="from_birthMonth" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ tháng"
+                        onSelect={onSelectFromMonth}
+                        onClear={onClearFromMonth}
+                      >
+                        {fromMonthList.map((item: any) => (
+                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="to_birthMonth" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Đến tháng"
+                        onSelect={onSelectToMonth}
+                        onClear={onClearToMonth}
+                      >
+                        {toMonthList.map((item: any) => (
                           <Option key={item.key} value={item.value} disabled={item.disable}>
                             {item.name}
                           </Option>
@@ -448,21 +678,126 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               <div className="right-filter">
                 <Form.Item
                   name="customer_level_id"
-                  label={<b>Hạng khách hàng:</b>}
+                  label={<b>Hạng thẻ</b>}
                 >
                   <Select
+                    mode="multiple"
                     showSearch
-                    placeholder="Hạng khách hàng"
                     allowClear
-                    optionFilterProp="children"
+                    placeholder="Chọn hạng thẻ"
                   >
-                    {loyaltyUsageRules.map((loyalty: any) => (
+                    {loyaltyUsageRules?.map((loyalty: any) => (
                       <Option key={loyalty.id} value={loyalty.rank_id}>
                         {loyalty.rank_name}
                       </Option>
                     ))}
                   </Select>
                 </Form.Item>
+
+                <Form.Item
+                  name="store"
+                  label={<b>Cửa hàng cấp thẻ</b>}
+                >
+                  <Select
+                    mode="multiple"
+                    showSearch
+                    allowClear
+                    placeholder="Chọn cửa hàng"
+                    optionFilterProp="children"
+                    defaultValue={undefined}
+                  >
+                    {/* {loyaltyUsageRules.map((loyalty: any) => (
+                      <Option key={loyalty.id} value={loyalty.rank_id}>
+                        {loyalty.rank_name}
+                      </Option>
+                    ))} */}
+                    <Option key={1} value={2}>
+                      chọn cửa hàng sau nhé
+                    </Option>
+                  </Select>
+                </Form.Item>
+
+                {/* Lọc theo năm sinh */}
+                <div>
+                  <div className="title">Năm sinh</div>
+                  <div className="select-scope">
+                    <Form.Item name="from_birthYear" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ năm"
+                        onSelect={onSelectFromYear}
+                        onClear={onClearFromYear}
+                      >
+                        {fromYearList.map((item: any) => (
+                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="to_birthYear" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Đến năm"
+                        onSelect={onSelectToYear}
+                        onClear={onClearToYear}
+                      >
+                        {toYearList.map((item: any) => (
+                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
+
+                {/* Lọc theo độ tuổi */}
+                <div>
+                  <div className="title">Độ tuổi</div>
+                  <div className="select-scope">
+                    <Form.Item name="from_age" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ"
+                        onSelect={onSelectFromAge}
+                        onClear={onClearFromAge}
+                      >
+                        {fromAgeList.map((item: any) => (
+                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="to_age" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Đến"
+                        onSelect={onSelectToAge}
+                        onClear={onClearToAge}
+                      >
+                        {toAgeList.map((item: any) => (
+                          <Option key={item.key} value={item.value} disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
+
+
 
 
               </div>
