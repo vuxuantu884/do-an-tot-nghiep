@@ -200,6 +200,7 @@ const GeneralInfo = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Từ ngày"
                   showNow
+                  showTime={{ format: 'HH:mm' }}
                   disabledDate={(currentDate) =>
                     currentDate.isBefore(moment().subtract(1, 'days')) ||
                     currentDate.valueOf() >= form.getFieldValue("ends_date")
@@ -213,23 +214,19 @@ const GeneralInfo = (props: any) => {
                   disabled={disabledEndDate}
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
-                  disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment()) ||
-                    currentDate.valueOf() < form.getFieldValue("starts_date")
-                  }
+                  showTime={{ format: 'HH:mm' }}
+                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>
             <Space direction="horizontal">
               <Switch onChange={value => {
-                if (value) {
-                  form.setFieldsValue({
-                    'ends_date': null
-                  })
-                }
-                setDisabledEndDate(value)
-              }}/>
-              {"Không cần ngày kết thúc"}
+                  if (value) {
+                    form.resetFields(['ends_date'])
+                  }
+                  setDisabledEndDate(value)
+                }}/>
+                {"Không cần ngày kết thúc"}
             </Space>
             <Divider/>
             <Space direction="horizontal">

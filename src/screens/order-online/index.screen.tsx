@@ -69,6 +69,7 @@ const initQuery: OrderSearchQuery = {
   customer_ids: [],
   store_ids: [],
   source_ids: [],
+  variant_ids: [],
   issued_on_min: null,
   issued_on_max: null,
   issued_on_predefined: null,
@@ -132,13 +133,11 @@ const ListOrderScreen: React.FC = () => {
     Array<PaymentMethodResponse>
   >([]);
 
-  let deliveryServices: any[] = []
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        deliveryServices = response
-        // setDeliveryServices(response);
+        setDeliveryServices(response)
       })
     );
   }, [dispatch]);
@@ -168,7 +167,7 @@ const ListOrderScreen: React.FC = () => {
       title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: OrderModel) => {
-        console.log('i', i)
+        // console.log('i', i)
         return (
           <React.Fragment>
             <Link  target="_blank" to={`${UrlConfig.ORDER}/${i.id}`}>

@@ -167,7 +167,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   //handle update connect item
   const updateConnectItemList = (newConnectItemList: any) => {
     tempConnectItemList = newConnectItemList;
-
     setConnectItemList(newConnectItemList);
   };
 
@@ -188,8 +187,34 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     const [diffPriceProduct, setDiffPriceProduct] = useState<Array<any>>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
-    const [productSelected, setProductSelected] = useState<any>();
+    const [productSelected, setProductSelected] = useState<any>(
+      ecommerceItem?.core_sku ?
+        {
+          core_variant: ecommerceItem?.core_variant,
+          sku: ecommerceItem?.core_sku,
+          variant_prices: null,
+          retail_price: ecommerceItem?.core_price,
+          id: ecommerceItem?.core_variant_id,
+          product_id: ecommerceItem?.core_product_id,
+        }
+        : null
+    );
 
+    const isExist = copyConnectItemList?.find((item: any) => item.core_sku === ecommerceItem.core_sku)
+    if (ecommerceItem?.core_sku && productSelected && !isExist) {
+      const connectItem = {
+        id: ecommerceItem.id,
+        core_variant_id: ecommerceItem.core_variant_id,
+        core_sku: ecommerceItem.core_sku,
+        core_variant: ecommerceItem.core_variant,
+        core_price: ecommerceItem.core_price,
+        core_product_id: ecommerceItem.core_product_id,
+        ecommerce_correspond_to_core: 1,
+      };
+
+      copyConnectItemList.push(connectItem);
+      updateConnectItemList(copyConnectItemList);
+    }
 
     // handle save single connected Yody product
     const saveConnectYodyProduct = () => {
@@ -440,10 +465,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               <li>
                 <b>Giá bán: </b>
                 <span>
-                  {`${findPrice(
-                    productSelected.variant_prices,
-                    AppConfig.currency
-                  )} `}
+                  {productSelected.variant_prices ?
+                    findPrice(productSelected.variant_prices, AppConfig.currency)
+                    : formatCurrency(productSelected.retail_price)
+                  }
                   <span className="item-price-unit">đ</span>
                 </span>
               </li>
@@ -463,7 +488,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
                   disabled={isSaving}
                   onClick={() => cancelConnectYodyProduct(productSelected.id)}
                 >
-                  Hủy
+                  Huỷ
                 </Button>
               </div>
             }
@@ -508,7 +533,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const [columns] = useState<any>([
     {
       title: "Ảnh",
-      visible: true,
       align: "center",
       width: "70px",
       render: (item: any, v: any, i: any) => {
@@ -523,7 +547,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       title: "Sku/ itemID (Sàn)",
-      visible: true,
       width: "150px",
       render: (item: any, v: any, i: any) => {
         return (
@@ -537,7 +560,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       title: "Sản phẩm (Sàn)",
-      visible: true,
       width: "250px",
       render: (item: any, v: any, i: any) => {
         return <div>{item.ecommerce_variant}</div>;
@@ -545,7 +567,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       title: "Giá bán (Sàn)",
-      visible: true,
       align: "center",
       width: "90px",
       render: (item: any, v: any, i: any) => {
@@ -558,13 +579,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
     },
     {
       title: "Sản phẩm (Yody)",
-      visible: true,
-      render: (l: any, v: any, i: any) =>
-        RenderProductColumn(l, [...tempConnectItemList], updateConnectItemList),
+      render: (item: any, row: any, index: any) =>
+        RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList)
     },
     {
       title: "Ghép nối",
-      visible: true,
       align: "center",
       width: "150px",
       render: (item: any, v: any, i: any) => {
@@ -713,8 +732,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         setIsVisibleConfirmConnectItemsModal(false);
         setIsLoading(false);
         if (result) {
-          setConnectItemList(notMatchConnectItemList);
-          tempConnectItemList = notMatchConnectItemList;
+          updateConnectItemList(notMatchConnectItemList);
+          setConnectItemList(tempConnectItemList);
           setSelectedRow(notMatchSelectedRow);
 
           showSuccess("Ghép nối sản phẩm thành công");
@@ -1051,6 +1070,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
             disabled={disableSaveConnectedYodyProduct()}
             size="large"
             icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
+            loading={isLoading}
           >
             Lưu các cặp đã chọn
           </Button>

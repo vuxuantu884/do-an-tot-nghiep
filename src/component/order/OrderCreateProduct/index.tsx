@@ -1544,7 +1544,7 @@ function OrderCreateProduct(props: PropType) {
               onCancelCouponModal={()=>{
                 console.log('close')
                 setIsVisiblePickCoupon(false)
-                setCoupon(""); 
+                setCoupon("");
               }}
               onOkCouponModal={onOkCouponConfirm}
               visible={isVisiblePickCoupon}

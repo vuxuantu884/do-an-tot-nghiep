@@ -313,9 +313,8 @@ const OrderDetail = (props: PropType) => {
   };
 
   const handleCancelOrder = useCallback(
-    (reason_id: number, reason: string) => {
-      reason = reason_id === 1 ? reason : ''
-      dispatch(cancelOrderRequest(OrderId, reason_id, reason, onSuccessCancel, onError));
+    (reason_id: string, sub_reason_id: string, reason: string) => {
+      dispatch(cancelOrderRequest(OrderId, Number(reason_id), Number(sub_reason_id), reason, onSuccessCancel, onError));
     },
     [OrderId, dispatch]
   );
@@ -1210,7 +1209,7 @@ const OrderDetail = (props: PropType) => {
           visible={visibleCancelModal}
           orderCode={OrderDetail?.code}
           onCancel={() => setVisibleCancelModal(false)}
-          onOk={(reasonID: number, reason: string) => handleCancelOrder(reasonID, reason)}
+          onOk={(reason_id: string, sub_reason_id: string, reason: string) => handleCancelOrder(reason_id, sub_reason_id, reason)}
           reasons={reasons}
         />
       </ContentContainer>
