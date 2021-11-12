@@ -13,13 +13,13 @@ import HistoryTab from "./tab/history.tab";
 
 const { TabPane } = Tabs;
 
-const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-  <StickyUnderNavbar>
-    <DefaultTabBar
-        {...props}
-      />
-  </StickyUnderNavbar>
-);
+// const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
+//   <StickyUnderNavbar>
+//     <DefaultTabBar
+//         {...props}
+//       />
+//   </StickyUnderNavbar>
+// );
 const InventoryScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("1");
   const dispatch = useDispatch();
@@ -72,7 +72,7 @@ const InventoryScreen: React.FC = () => {
           style={{ overflow: "initial" }}
           activeKey={activeTab}
           onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}
-          renderTabBar={renderTabBar}
+          // renderTabBar={renderTabBar}
         >
           <TabPane tab="Toàn hệ thống" key="1">
             <AllTab stores={stores} current={activeTab} />
