@@ -1,4 +1,5 @@
 import { ProductPermission } from "config/permissions/product.permission";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -331,6 +332,7 @@ const product: Array<RouteMenu> = [
     key: "submenu235",
     isShow: true,
     header: null,
+    permissions: [SuppliersPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.SUPPLIERS}/create`,
@@ -342,6 +344,7 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [SuppliersPermissions.CREATE],
       },
       {
         path: `${UrlConfig.SUPPLIERS}/:id`,
@@ -354,6 +357,7 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [SuppliersPermissions.UPDATE, SuppliersPermissions.READ],
       },
     ],
   },

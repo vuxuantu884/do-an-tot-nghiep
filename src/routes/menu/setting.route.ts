@@ -1,14 +1,17 @@
 import UrlConfig from "config/url.config";
 import React from "react";
 import {RouteMenu} from "model/other";
+import {
+  AccountPermissions,
+  DepartmentsPermissions,
+} from "config/permissions/account.permisssion";
+import { SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
 
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
 );
 
-const AccountDetailScreen = React.lazy(
-  () => import("screens/settings/account/detail")
-);
+const AccountDetailScreen = React.lazy(() => import("screens/settings/account/detail"));
 // const ManageStoreScreen = React.lazy(
 //   () => import("screens/setting/manage-store.screen")
 // );
@@ -87,6 +90,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu91",
     isShow: true,
     header: null,
+    permissions: [AccountPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.ACCOUNTS}/create`,
@@ -98,6 +102,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [AccountPermissions.CREATE],
       },
       {
         path: `${UrlConfig.ACCOUNTS}/edit/:code`,
@@ -110,6 +115,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [AccountPermissions.UPDATE],
       },
       {
         path: `${UrlConfig.ACCOUNTS}/:code`,
@@ -121,6 +127,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [AccountPermissions.READ],
       },
     ],
   },
@@ -133,6 +140,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu910",
     isShow: true,
     header: null,
+    permissions: [DepartmentsPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.DEPARTMENT}/create`,
@@ -144,6 +152,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [DepartmentsPermissions.CREATE],
       },
       {
         path: `${UrlConfig.DEPARTMENT}/:id`,
@@ -156,6 +165,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [DepartmentsPermissions.READ],
       },
       {
         path: `${UrlConfig.DEPARTMENT}/:id/edit`,
@@ -167,6 +177,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [DepartmentsPermissions.UPDATE],
       },
     ],
   },
@@ -179,6 +190,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu92",
     isShow: true,
     header: null,
+    permissions: [StorePermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.STORE}/create`,
@@ -190,6 +202,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [StorePermissions.CREATE],
       },
       {
         path: `${UrlConfig.STORE}/:id`,
@@ -200,6 +213,7 @@ const setting: Array<RouteMenu> = [
         key: "subMenu922",
         isShow: true,
         header: null,
+        permissions: [StorePermissions.READ],
         subMenu: [
           {
             path: `${UrlConfig.STORE}/:id/edit`,
@@ -212,6 +226,7 @@ const setting: Array<RouteMenu> = [
             header: null,
             subMenu: [],
             pathIgnore: ["create"],
+            permissions: [StorePermissions.UPDATE],
           },
         ],
         pathIgnore: ["create"],
@@ -310,6 +325,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.ORDER_SOURCES,
     isShow: true,
     header: null,
+    permissions: [SourcePermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.ORDER_SOURCES}/create`,
@@ -321,6 +337,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [SourcePermissions.CREATE],
       },
       {
         path: `${UrlConfig.ORDER_SOURCES}/:id`,
@@ -333,6 +350,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [SourcePermissions.UPDATE],
       },
     ],
   },
