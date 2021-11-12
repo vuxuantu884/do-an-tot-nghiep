@@ -30,7 +30,6 @@ import {CheckCircleOutlined, FilterOutlined, LoadingOutlined, PlusOutlined} from
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { RiUpload2Line } from "react-icons/ri";
@@ -51,6 +50,7 @@ import { promoGetDetail } from "domain/actions/promotion/discount/discount.actio
 import {AppConfig} from "../../../config/app.config";
 import _ from "lodash";
 import {getToken} from "../../../utils/LocalStorageUtils";
+import { ACTIONS_PROMO_CODE, STATUS_PROMO_CODE } from "../constant";
 
 const csvColumnMapping: any = {
   sku: "Mã SKU",
@@ -65,56 +65,10 @@ const csvColumnMapping: any = {
   already_exist: "Đã tồn tại trong hệ thống",
   duplicate: "Mã đã bị trùng trong file",
 };
-const STATUS_CODE = [
-  {
-      disabled: false,
-      published: false,
-      value: 'Đang áp dụng',
-      style: {
-      background: "rgba(42, 42, 134, 0.1)",
-      borderRadius: "100px",
-      color: "rgb(42, 42, 134)",
-      padding: "5px 10px"
-      }
-  },
-  {
-      disabled: true,
-      published: false,
-      value: 'Ngừng áp dụng',
-      style: {
-      background: "rgb(245, 245, 245)",
-      borderRadius: "100px",
-      color: "rgb(102, 102, 102)",
-      padding: "5px 10px"
-      }},
-  {
-      disabled: false,
-      published: true,
-      value: 'Đã tặng' ,
-      style: {
-      background: "rgba(252, 175, 23, 0.1)",
-      borderRadius: "100px",
-      color: "#FCAF17",
-      padding: "5px 10px"
-      }},
-  ]
+
 
 const ListCode = () => {
   const token = getToken() || "";
-  const actions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Đã tặng",
-    },
-    {
-      id: 2,
-      name: "Áp dụng",
-    },
-    {
-      id: 3,
-      name: "Ngừng áp dụng",
-    },
-  ];
   const dispatch = useDispatch();
   const {id} = useParams() as any;
   const priceRuleId = id;
@@ -125,7 +79,6 @@ const ListCode = () => {
     },
     ...getQueryParams(query)
   }
-
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
@@ -325,7 +278,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_CODE.find(e => (e.published === item.published && e.disabled === item.disabled));
+        const status: any | null = STATUS_PROMO_CODE.find(e => (e.published === item.published && e.disabled === item.disabled));
         return (<div
           style={status?.style}
         >
@@ -445,7 +398,7 @@ const ListCode = () => {
     >
       <Card>
         <div className="discount-code__search">
-          <CustomFilter onMenuClick={onMenuClick}  menu={actions}>
+          <CustomFilter onMenuClick={onMenuClick}  menu={ACTIONS_PROMO_CODE}>
             <Form onFinish={onFilter} initialValues={params} layout="inline">
               <Item name="code" className="search">
                 <Input
