@@ -17,11 +17,11 @@ import TabProduct from "../tab/TabProduct";
 import TabProductWrapper from "../tab/TabProductWrapper";
 const {TabPane} = Tabs;
 
-const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-  <StickyUnderNavbar>
-    <DefaultTabBar {...props} />
-  </StickyUnderNavbar>
-);
+// const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
+//   <StickyUnderNavbar>
+//     <DefaultTabBar {...props} />
+//   </StickyUnderNavbar>
+// );
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -102,7 +102,7 @@ const ListProductScreen: React.FC = () => {
           style={{overflow: "initial"}}
           activeKey={activeTab}
           onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}
-          renderTabBar={renderTabBar}
+          // renderTabBar={renderTabBar}
         >
           <TabPane tab={canReadVariants ? "Danh sách sản phẩm" : null} key="1">
             {canReadVariants ? <TabProduct /> : <NoPermission />}
