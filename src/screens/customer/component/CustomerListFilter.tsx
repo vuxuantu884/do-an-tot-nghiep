@@ -8,21 +8,23 @@ import {
   AutoComplete,
   Button,
 } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
+import CustomFilter from "component/table/custom.filter";
 import { RefSelectProps } from "antd/lib/select";
 
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 
+import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
+
 import rightArrow from "assets/icon/right-arrow.svg";
-import { StyledCustomerBaseFilter } from "screens/customer/customerStyled";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import CustomFilter from "component/table/custom.filter";
-import { SearchOutlined } from "@ant-design/icons";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
+import { StyledCustomerBaseFilter } from "screens/customer/customerStyled";
 
 
 type CustomerListFilterProps = {
@@ -56,7 +58,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   } = props;
 
   const dispatch = useDispatch();
-  const [formAdvance] = Form.useForm();
+  const [formCustomerFilter] = Form.useForm();
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -205,15 +207,15 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   const onFilterClick = useCallback(() => {
     setVisibleBaseFilter(false);
-    formAdvance?.submit();
-  }, [formAdvance]);
+    formCustomerFilter?.submit();
+  }, [formCustomerFilter]);
 
   //clear base filter
   const onClearBaseFilter = useCallback(() => {
     setVisibleBaseFilter(false);
-    formAdvance.setFieldsValue(initQuery);
+    formCustomerFilter.setFieldsValue(initQuery);
     onClearFilter && onClearFilter();
-  }, [formAdvance, initQuery, onClearFilter]);
+  }, [formCustomerFilter, initQuery, onClearFilter]);
   // end handle filter action
 
   const onFinish = useCallback(
@@ -280,7 +282,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       >
         <StyledCustomerBaseFilter>
           <Form
-            form={formAdvance}
+            form={formCustomerFilter}
             onFinish={onFinish}
             initialValues={params}
             layout="vertical"
@@ -346,7 +348,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                 
                 <Form.Item
                   name="customer_group_id"   // todo thai need update
-                  label={<b>Kênh tạo KH</b>}
+                  label={<b>Kênh mua hàng</b>}
                 >
                   <Select
                     showSearch
@@ -359,6 +361,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                     </Option>
                   </Select>
                 </Form.Item>
+
+                {/* Tìm kiếm theo khu vực */}
+                <SelectAreaFilter formCustomerFilter={formCustomerFilter} />
+                
               </div>
 
               <div className="center-filter">
