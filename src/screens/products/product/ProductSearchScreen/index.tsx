@@ -1,16 +1,17 @@
-import { Button, Card, Row, Space, Tabs } from "antd";
+import {Button, Card, Row, Space, Tabs} from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
-import { StickyUnderNavbar } from "component/container/sticky-under-navbar";
+import {StickyUnderNavbar} from "component/container/sticky-under-navbar";
 import ButtonCreate from "component/header/ButtonCreate";
-import { ProductPermission } from "config/permissions/product.permission";
+import {ProductPermission} from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import React, { useEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {Link, useHistory, useParams} from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
+import {ProductTabId} from "utils/Constants";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import TabProduct from "../tab/TabProduct";
@@ -33,28 +34,73 @@ const ListProductScreen: React.FC = () => {
   const [canReadProducts] = useAuthorization({
     acceptPermissions: [ProductPermission.read],
   });
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const [activeTab, setActiveTab] = useState<string>(ProductTabId.VARIANTS);
   const history = useHistory();
+  let {tabId} = useParams<{tabId: string}>();
+  console.log(tabId);
+
   useEffect(() => {
-    console.log(history.location.search);
-    if (history.location.hash) {
-      let hash = history.location.hash.split("?");
-      switch (hash[0]) {
-        case "#1":
-          setActiveTab("1");
-          break;
-        case "#2":
-          setActiveTab("2");
-          break;
-        case "#3":
-          setActiveTab("3");
-          break;
-        case "#4":
-          setActiveTab("4");
-          break;
+    if (!tabId || !Object.values(ProductTabId).includes(tabId)) {
+      if (canReadVariants) {
+        setActiveTab(ProductTabId.VARIANTS);
+        return;
+      }
+      if (canReadProducts) {
+        setActiveTab(ProductTabId.PARENT_LIST);
+        return;
+      }
+      if (canReadHistories) {
+        setActiveTab(ProductTabId.PRODUCT_HISTORY);
+        return;
       }
     }
-  }, [history.location.hash, history.location.search]);
+
+    if (tabId === ProductTabId.VARIANTS && canReadVariants) {
+      setActiveTab(ProductTabId.VARIANTS);
+    }
+
+    if (tabId === ProductTabId.PARENT_LIST && canReadProducts) {
+      setActiveTab(ProductTabId.PARENT_LIST);
+    }
+
+    if (canReadHistories) {
+      if (tabId === ProductTabId.PRODUCT_HISTORY) {
+        setActiveTab(ProductTabId.PRODUCT_HISTORY);
+      }
+      if (tabId === ProductTabId.PRICE_HISTORY) {
+        setActiveTab(ProductTabId.PRICE_HISTORY);
+      }
+    }
+  }, [tabId, canReadHistories, canReadVariants, canReadProducts]);
+
+  const defaultTabs = [
+    {
+      name: "Danh sách sản phẩm",
+      key: ProductTabId.VARIANTS,
+      component: <TabProduct />,
+      isShow: canReadVariants,
+    },
+    {
+      name: "Danh sách cha",
+      key: ProductTabId.PARENT_LIST,
+      component: <TabProductWrapper />,
+      isShow: canReadProducts,
+    },
+    {
+      name: "Lịch sử sản phẩm",
+      key: ProductTabId.PRODUCT_HISTORY,
+      component: <TabHistoryInfo />,
+      isShow: canReadHistories,
+    },
+    {
+      name: "Lịch sử giá",
+      key: ProductTabId.PRICE_HISTORY,
+      component: <TabHistoryPrice />,
+      isShow: canReadHistories,
+    },
+  ];
+  const tabs = defaultTabs.filter((tab) => tab.isShow);
+
   return (
     <ContentContainer
       title="Quản lý sản phẩm"
@@ -101,21 +147,23 @@ const ListProductScreen: React.FC = () => {
         <Tabs
           style={{overflow: "initial"}}
           activeKey={activeTab}
-          onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}
+          onChange={(active) => {
+            const targetUrl = UrlConfig.PRODUCT + "/" + active + "/tabs";
+            history.replace(targetUrl);
+          }}
           // renderTabBar={renderTabBar}
         >
-          <TabPane tab={canReadVariants ? "Danh sách sản phẩm" : null} key="1">
-            {canReadVariants ? <TabProduct /> : <NoPermission />}
-          </TabPane>
-          <TabPane tab={canReadProducts ? "Danh sách cha" : ""} key="2">
-            <TabProductWrapper />
-          </TabPane>
-          <TabPane tab={canReadHistories ? "Lịch sử sản phẩm" : ""} key="3">
-            {canReadHistories ? <TabHistoryInfo /> : <NoPermission />}
-          </TabPane>
-          <TabPane tab={canReadHistories ? "Lịch sử giá" : ""} key="4">
-            {canReadHistories ? <TabHistoryPrice /> : <NoPermission />}
-          </TabPane>
+          {tabs.map((tab) => {
+            if (tab.isShow) {
+              return (
+                <TabPane tab={tab.name} key={tab.key}>
+                  {tab.component}
+                </TabPane>
+              );
+            } else {
+              return <NoPermission />;
+            }
+          })}
         </Tabs>
       </Card>
     </ContentContainer>

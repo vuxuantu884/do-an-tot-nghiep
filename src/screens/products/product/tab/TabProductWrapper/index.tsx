@@ -2,6 +2,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import { AccountGetListAction } from "domain/actions/account/account.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -10,8 +11,9 @@ import { materialSearchAll } from "domain/actions/product/material.action";
 import {
   productWrapperDeleteAction,
   productWrapperUpdateAction,
-  searchProductWrapperRequestAction,
+  searchProductWrapperRequestAction
 } from "domain/actions/product/products.action";
+import useAuthorization from "hook/useAuthorization";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
@@ -21,7 +23,7 @@ import {
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
   ProductWrapperUpdateRequest,
-  VariantResponse,
+  VariantResponse
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -41,7 +43,7 @@ const ACTIONS_INDEX = {
   DELETE: 5,
 };
 
-const actions: Array<MenuAction> = [
+const actionsDefault: Array<MenuAction> = [
   {
     id: ACTIONS_INDEX.EXPORT_EXCEL,
     name: "Xuất thông in excel",
@@ -200,6 +202,26 @@ const TabProductWrapper: React.FC = () => {
       visible: false,
     },
   ]);
+
+  const [canDeleteParentProduct] = useAuthorization({
+    acceptPermissions: [ProductPermission.delete],
+  });
+  const [canUpdateParentProduct] = useAuthorization({
+    acceptPermissions: [ProductPermission.update],
+  });
+
+  const actions = actionsDefault.filter((item) => {
+    if (item.id === ACTIONS_INDEX.DELETE) {
+      return canDeleteParentProduct;
+    }
+    if (item.id === ACTIONS_INDEX.ACTIVE || item.id === ACTIONS_INDEX.INACTIVE) {
+      return canUpdateParentProduct;
+    }
+    if(item.id === ACTIONS_INDEX.EXPORT_EXCEL){
+      return true;
+    }
+    return false;
+  });
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);

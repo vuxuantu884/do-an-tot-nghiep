@@ -79,8 +79,18 @@ const product: Array<RouteMenu> = [
     key: "submenu21",
     isShow: true,
     header: null,
-    permissions: [ProductPermission.read],
     subMenu: [
+      {
+        path: `${UrlConfig.PRODUCT}/:tabId/tabs`,
+        exact: true,
+        title: "Danh sách sản phẩm",
+        icon: "icon-dot",
+        component: Product,
+        key: "submenu210",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
       {
         path: `${UrlConfig.PRODUCT}/create`,
         exact: true,
@@ -176,6 +186,7 @@ const product: Array<RouteMenu> = [
         key: "submenu231",
         isShow: true,
         header: null,
+        permissions:[ProductPermission.categories_read],
         subMenu: [
           {
             path: `${UrlConfig.CATEGORIES}/create`,
