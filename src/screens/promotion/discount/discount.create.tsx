@@ -41,7 +41,7 @@ const CreateDiscountPage = () => {
     body.usage_limit = values.usage_limit;
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length ? values.prerequisite_store_ids : null;
     body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length ? values.prerequisite_sales_channel_names : null;
-    body.prerequisite_order_sources_ids = values.prerequisite_order_sources_ids?.length ? values.prerequisite_order_sources_ids : null;
+    body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length ? values.prerequisite_order_source_ids : null;
     body.starts_date = values.starts_date.format();
     body.ends_date = values.ends_date?.format() || null;
     body.entitlements = values.entitlements.map((entitlement: any) => {
