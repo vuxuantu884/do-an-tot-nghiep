@@ -103,11 +103,10 @@ const CreatePromotionCodePage = () => {
     if (data) {
       setTimeout(() => {
         showSuccess("Thêm thành công");
-        history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
-      }, 2000);
-    }
-    dispatch(hideLoading())
-
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${data.id}`)
+        dispatch(hideLoading())
+      }, 2000)
+    } else dispatch(hideLoading())
   }, [dispatch, history]);
 
   const onFinish = (values: any) => {
@@ -171,7 +170,7 @@ const CreatePromotionCodePage = () => {
         <div className="customer-bottom-button">
           <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
             <img style={{ marginRight: "10px", transform: "rotate(180deg)"}} src={arrowLeft} alt="" />
-            Quay lại danh sách
+            Quay lại danh sách đợt phát hành
           </div>
           <div>
             <Button
