@@ -42,11 +42,17 @@ import { StyledCustomerDetail } from "screens/customer/customer-detail/customerD
 const { TabPane } = Tabs;
 
 const viewCustomerDetailPermission = [CustomerListPermissions.VIEW_CUSTOMER_DETAIL];
+const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
 
 const CustomerDetailIndex = () => {
 
   const [allowViewCustomerDetail] = useAuthorization({
     acceptPermissions: viewCustomerDetailPermission,
+    not: false,
+  });
+
+  const [allowUpdateCustomer] = useAuthorization({
+    acceptPermissions: updateCustomerPermission,
     not: false,
   });
 
@@ -534,6 +540,7 @@ const CustomerDetailIndex = () => {
                           customerDetailState={activeTab}
                           setModalAction={setModalAction}
                           modalAction={modalAction}
+                          allowUpdateCustomer={allowUpdateCustomer}
                         />
                       </TabPane>
                       <TabPane tab="Địa chỉ nhận hóa đơn" key="billing">
@@ -544,6 +551,7 @@ const CustomerDetailIndex = () => {
                           customerDetailState={activeTab}
                           setModalAction={setModalAction}
                           modalAction={modalAction}
+                          allowUpdateCustomer={allowUpdateCustomer}
                         />
                       </TabPane>
 
@@ -558,7 +566,7 @@ const CustomerDetailIndex = () => {
                           modalAction={modalAction}
                         />
                       </TabPane>
-                      {isShowAddBtn && (
+                      {allowUpdateCustomer && isShowAddBtn && (
                         <TabPane
                           tab={
                             <span>
