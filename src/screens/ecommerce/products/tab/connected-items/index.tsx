@@ -1010,7 +1010,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (
 
                 <div style={{ margin: "10px 0" }}>
                   <SettingOutlined style={{ marginRight: "5px" }} />
-                  <span>Tùy chọn khoảng thời gian tạo:</span>
+                  <span>Tuỳ chọn khoảng thời gian tạo:</span>
                 </div>
 
                 <DatePicker.RangePicker

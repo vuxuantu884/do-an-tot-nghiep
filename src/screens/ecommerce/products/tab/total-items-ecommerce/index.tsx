@@ -881,7 +881,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommerceProps> = (
 
                 <span style={{ margin: "10px 0" }}>
                   <SettingOutlined style={{ marginRight: "5px" }} />
-                  Tùy chọn khoảng thời gian tạo:
+                  Tuỳ chọn khoảng thời gian tạo: Tuỳ
                 </span>
                 <DatePicker.RangePicker
                   format="DD-MM-YYYY"
