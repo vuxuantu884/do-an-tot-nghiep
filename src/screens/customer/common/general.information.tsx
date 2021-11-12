@@ -153,12 +153,6 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 label={<b>Thẻ khách hàng:</b>}
                 name="card_number"
-                rules={[
-                  {
-                    pattern: RegUtil.NUMBERREG,
-                    message: "Thẻ khách hàng chỉ được phép nhập số",
-                  },
-                ]}
               >
                 <AutoComplete
                   notFoundContent={getNotFoundContent()}

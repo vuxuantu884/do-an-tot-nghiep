@@ -1,36 +1,26 @@
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Collapse,
-  Form,
-  Row,
-  Space,
-} from "antd";
-import {
-  StoreDetailAction,
-} from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { useParams } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {Button, Card, Checkbox, Col, Collapse, Form, Row, Space} from "antd";
+import {StoreDetailAction} from "domain/actions/core/store.action";
+import {StoreResponse} from "model/core/store.model";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router";
+import {useParams} from "react-router-dom";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-const { Panel } = Collapse;
+import {ConvertUtcToLocalDate} from "utils/DateUtils";
+import useAuthorization from "hook/useAuthorization";
+import { StorePermissions } from "config/permissions/setting.permisssion";  
+const {Panel} = Collapse;
 
 type StoreParam = {
   id: string;
 };
 
-
 const StoreDetailScreen: React.FC = () => {
-  const { id } = useParams<StoreParam>();
+  const {id} = useParams<StoreParam>();
   const idNumber = parseInt(id);
   //Hook
   const dispatch = useDispatch();
@@ -45,7 +35,12 @@ const StoreDetailScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
   const firstload = useRef(true);
-  
+
+  //phân quyền
+  const [allowUpdateStore] = useAuthorization({
+    acceptPermissions: [StorePermissions.UPDATE],
+  });
+
   const setResult = useCallback((data: StoreResponse | false) => {
     setLoadingData(false);
     if (!data) {
@@ -124,7 +119,7 @@ const StoreDetailScreen: React.FC = () => {
                 </Checkbox>
               </Col>
             </Row>
-            <Row style={{ marginTop: 20 }} gutter={50}>
+            <Row style={{marginTop: 20}} gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Tên cửa hàng" value={data.name} />
               </Col>
@@ -132,7 +127,7 @@ const StoreDetailScreen: React.FC = () => {
                 <RowDetail title="Số điện thoại" value={data.hotline} />
               </Col>
             </Row>
-            <Row style={{ marginTop: 10 }} gutter={50}>
+            <Row style={{marginTop: 10}} gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Quốc gia" value={data.country_name} />
               </Col>
@@ -143,7 +138,7 @@ const StoreDetailScreen: React.FC = () => {
                 />
               </Col>
             </Row>
-            <Row style={{ marginTop: 10 }} gutter={50}>
+            <Row style={{marginTop: 10}} gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Phường/xã" value={data.ward_name} />
               </Col>
@@ -151,7 +146,7 @@ const StoreDetailScreen: React.FC = () => {
                 <RowDetail title="Địa chỉ" value={data.address} />
               </Col>
             </Row>
-            <Row style={{ marginTop: 10 }} gutter={50}>
+            <Row style={{marginTop: 10}} gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Mã bưu điện" value={data.zip_code} />
               </Col>
@@ -159,21 +154,21 @@ const StoreDetailScreen: React.FC = () => {
                 <RowDetail title="Email" value={data.mail} />
               </Col>
             </Row>
-            <Row style={{ marginTop: 10 }} gutter={50}>
+            <Row style={{marginTop: 10}} gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <RowDetail title="Diện tích cửa hàng (m²)" value={data.square + ""} />
               </Col>
             </Row>
           </Card>
           <Collapse
-            style={{ marginBottom: 50 }}
+            style={{marginBottom: 50}}
             defaultActiveKey="1"
             className="ant-collapse-card margin-top-20"
             expandIconPosition="right"
           >
             <Panel key="1" header="Thông tin khác">
               <div style={{padding: 20}}>
-                <Row style={{ marginTop: 10 }} gutter={50}>
+                <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="Phân cấp" value={data.rank_name} />
                   </Col>
@@ -181,7 +176,7 @@ const StoreDetailScreen: React.FC = () => {
                     <RowDetail title="Trực thuộc" value={data.group_name} />
                   </Col>
                 </Row>
-                <Row style={{ marginTop: 10 }} gutter={50}>
+                <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail
                       title="Ngày mở cửa"
@@ -196,9 +191,16 @@ const StoreDetailScreen: React.FC = () => {
             back={"Quay lại"}
             rightComponent={
               <Space>
-                <Button onClick={() => {history.push(`${UrlConfig.STORE}/${idNumber}/edit`)}} type="primary">
-                  Sửa thông tin
-                </Button>
+                {allowUpdateStore ? (
+                  <Button
+                    onClick={() => {
+                      history.push(`${UrlConfig.STORE}/${idNumber}/edit`);
+                    }}
+                    type="primary"
+                  >
+                    Sửa thông tin
+                  </Button>
+                ) : null}
               </Space>
             }
           />

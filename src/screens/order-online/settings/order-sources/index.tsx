@@ -1,42 +1,43 @@
-import { DeleteOutlined, ExportOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, Select } from "antd";
+import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import {Button, Card, Form, Input, Select} from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
 import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { MenuAction } from "component/table/ActionButton";
+import {MenuAction} from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { HttpStatus } from "config/http-status.config";
+import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import {HttpStatus} from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   actionAddOrderSource,
   actionDeleteOrderSource,
   actionEditOrderSource,
-  actionFetchListOrderSources
+  actionFetchListOrderSources,
 } from "domain/actions/settings/order-sources.action";
-import { DepartmentResponse } from "model/account/department.model";
-import { modalActionType } from "model/modal/modal.model";
+import {DepartmentResponse} from "model/account/department.model";
+import {modalActionType} from "model/modal/modal.model";
 import {
   OrderSourceModel,
-  OrderSourceResponseModel
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import queryString from "query-string";
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { withRouter } from "react-router";
-import { useHistory } from "react-router-dom";
-import { getDepartmentAllApi } from "service/accounts/account.service";
-import {
-  deleteMultiOrderSourceService
-} from "service/order/order.service";
-import { convertDepartment, generateQuery } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {useDispatch} from "react-redux";
+import {withRouter} from "react-router";
+import {useHistory} from "react-router-dom";
+import {getDepartmentAllApi} from "service/accounts/account.service";
+import {deleteMultiOrderSourceService} from "service/order/order.service";
+import {convertDepartment, generateQuery} from "utils/AppUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
+import { SourcePermissions } from "config/permissions/setting.permisssion";  
+import useAuthorization from "hook/useAuthorization";
+import NoPermission from "screens/no-permission.screen";
 
 type formValuesType = {
   name: string | undefined;
@@ -47,13 +48,22 @@ type PropsType = {
   location: any;
 };
 
+const ACTIONS_INDEX = {
+  DELETE: 2,
+};
+
+const actionsDefault: Array<MenuAction> = [ 
+  {
+    id: ACTIONS_INDEX.DELETE,
+    name: "Xóa",
+    icon: <DeleteOutlined />,
+  },
+];
+
 function OrderSources(props: PropsType) {
   const {location} = props;
   const queryParamsParsed: any = queryString.parse(location.search);
-  const ACTIONS_INDEX = {
-    EXPORT: 1,
-    DELETE: 2,
-  };
+ 
   const DEFAULT_PAGINATION = {
     page: 1,
     limit: 30,
@@ -76,6 +86,24 @@ function OrderSources(props: PropsType) {
 
   const [rowSelectedObject, setRowSelectedObject] = useState<Array<OrderSourceModel>>([]);
   const [listDepartments, setListDepartments] = useState<any[]>([]);
+
+  //permission
+
+  const [allowCreateSource] = useAuthorization({
+    acceptPermissions: [SourcePermissions.CREATE],
+  });
+
+  const [allowReadSource] = useAuthorization({
+    acceptPermissions: [SourcePermissions.READ],
+  }); 
+
+  const [allowDeleteSource] = useAuthorization({
+    acceptPermissions: [SourcePermissions.DELETE],
+  }); 
+
+  const [allowUpdateSource] = useAuthorization({
+    acceptPermissions: [SourcePermissions.UPDATE],
+  });
 
   /**
    * thay tên của children thành tên con + tên cha
@@ -242,25 +270,23 @@ function OrderSources(props: PropsType) {
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
-        case ACTIONS_INDEX.DELETE:
+        case 1:
           setIsShowConfirmDelete(true);
       }
     },
-    [ACTIONS_INDEX.DELETE]
-  );
+    []
+  ); 
 
-  const actions: Array<MenuAction> = [
-    {
-      id: ACTIONS_INDEX.EXPORT,
-      name: "Export",
-      icon: <ExportOutlined />,
-    },
-    {
-      id: ACTIONS_INDEX.DELETE,
-      name: "Xóa",
-      icon: <DeleteOutlined />,
-    },
-  ];
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === ACTIONS_INDEX.DELETE) {
+        return allowDeleteSource;
+      }
+      return false;
+    });
+  }, [ 
+    allowDeleteSource, 
+  ]);
 
   const handleNavigateByQueryParams = (queryParams: any) => {
     history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
@@ -290,18 +316,20 @@ function OrderSources(props: PropsType) {
         >
           Thêm kênh bán hàng
         </Button> */}
-        <Button
-          type="primary"
-          className="ant-btn-primary"
-          size="large"
-          onClick={() => {
-            setModalAction("create");
-            setIsShowModalOrderSource(true);
-          }}
-          icon={<PlusOutlined />}
-        >
-          Thêm nguồn đơn hàng
-        </Button>
+        {allowCreateSource && (
+          <Button
+            type="primary"
+            className="ant-btn-primary"
+            size="large"
+            onClick={() => {
+              setModalAction("create");
+              setIsShowModalOrderSource(true);
+            }}
+            icon={<PlusOutlined />}
+          >
+            Thêm nguồn đơn hàng
+          </Button>
+        )}
       </div>
     );
   };
@@ -395,11 +423,7 @@ function OrderSources(props: PropsType) {
         : undefined,
     };
     form.setFieldsValue(valuesFromParams);
-  }, [
-    form,
-    queryParamsParsed.department_id,
-    queryParamsParsed.name,
-  ]);
+  }, [form, queryParamsParsed.department_id, queryParamsParsed.name]);
 
   useEffect(() => {
     setQueryParams({
@@ -442,129 +466,139 @@ function OrderSources(props: PropsType) {
 
   return (
     <StyledComponent>
-      <ContentContainer
-        title="Nguồn đơn hàng"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Cài đặt",
-            path: UrlConfig.ACCOUNTS,
-          },
-          {
-            name: "Nguồn đơn hàng",
-          },
-        ]}
-        extra={renderCardExtraHtml()}
-      >
-        <Card>
-          <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-            <Form
-              onFinish={onFilterFormFinish}
-              initialValues={initFilterParams}
-              layout="inline"
-              form={form}
-            >
-              <Form.Item name="name" style={{width: 245, maxWidth: "100%"}}>
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Nguồn đơn hàng"
-                />
-              </Form.Item>
-              <Form.Item name="department_id" style={{width: 305, maxWidth: "100%"}}>
-                <Select
-                  showSearch
-                  allowClear
-                  style={{width: "100%"}}
-                  placeholder="Phòng ban"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  notFoundContent="Không tìm thấy phòng ban"
-                >
-                  {listDepartments &&
-                    listDepartments.map((single) => {
-                      return (
-                        <Select.Option value={single.id} key={single.id}>
-                          <span
-                            className="hideInSelect"
-                            style={{paddingLeft: +18 * single.level}}
-                          ></span>
-                          {single?.parent?.name && (
-                            <span className="hideInDropdown">
-                              {single?.parent?.name} -{" "}
-                            </span>
-                          )}
-                          <span>{single.name}</span>
-                        </Select.Option>
-                      );
-                    })}
-                </Select>
-              </Form.Item>
-              <Form.Item style={{marginRight: 0}}>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Form.Item>
-            </Form>
-          </CustomFilter>
-          <CustomTable
-            isLoading={tableLoading}
-            isRowSelection
-            onSelectedChange={(selectedRow) => {
-              setRowSelectedObject(selectedRow);
-            }}
-            showColumnSetting={false}
-            pagination={{
-              pageSize: queryParams?.limit ? queryParams.limit : DEFAULT_PAGINATION.limit,
-              total: total,
-              current: queryParams?.page ? queryParams.page : DEFAULT_PAGINATION.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            dataSource={listOrderSources}
-            columns={columnFinal()}
-            rowKey={(item: OrderSourceModel) => item.id}
-            onRow={(record: OrderSourceModel) => {
-              return {
-                onClick: () => {
-                  setModalAction("edit");
-                  setModalSingleOrderSource(record);
-                    setIsShowModalOrderSource(true);
-                },
-              };
-            }}
+      {allowReadSource ? (
+        <ContentContainer
+          title="Nguồn đơn hàng"
+          breadcrumb={[
+            {
+              name: "Tổng quan",
+              path: UrlConfig.HOME,
+            },
+            {
+              name: "Cài đặt",
+              path: UrlConfig.ACCOUNTS,
+            },
+            {
+              name: "Nguồn đơn hàng",
+            },
+          ]}
+          extra={renderCardExtraHtml()}
+        >
+          <Card>
+            <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+              <Form
+                onFinish={onFilterFormFinish}
+                initialValues={initFilterParams}
+                layout="inline"
+                form={form}
+              >
+                <Form.Item name="name" style={{width: 245, maxWidth: "100%"}}>
+                  <Input
+                    prefix={<img src={search} alt="" />}
+                    placeholder="Nguồn đơn hàng"
+                  />
+                </Form.Item>
+                <Form.Item name="department_id" style={{width: 305, maxWidth: "100%"}}>
+                  <Select
+                    showSearch
+                    allowClear
+                    style={{width: "100%"}}
+                    placeholder="Phòng ban"
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    }
+                    notFoundContent="Không tìm thấy phòng ban"
+                  >
+                    {listDepartments &&
+                      listDepartments.map((single) => {
+                        return (
+                          <Select.Option value={single.id} key={single.id}>
+                            <span
+                              className="hideInSelect"
+                              style={{paddingLeft: +18 * single.level}}
+                            ></span>
+                            {single?.parent?.name && (
+                              <span className="hideInDropdown">
+                                {single?.parent?.name} -{" "}
+                              </span>
+                            )}
+                            <span>{single.name}</span>
+                          </Select.Option>
+                        );
+                      })}
+                  </Select>
+                </Form.Item>
+                <Form.Item style={{marginRight: 0}}>
+                  <Button type="primary" htmlType="submit">
+                    Lọc
+                  </Button>
+                </Form.Item>
+              </Form>
+            </CustomFilter>
+            <CustomTable
+              isLoading={tableLoading}
+              isRowSelection
+              onSelectedChange={(selectedRow) => {
+                setRowSelectedObject(selectedRow);
+              }}
+              showColumnSetting={false}
+              pagination={{
+                pageSize: queryParams?.limit
+                  ? queryParams.limit
+                  : DEFAULT_PAGINATION.limit,
+                total: total,
+                current: queryParams?.page ? queryParams.page : DEFAULT_PAGINATION.page,
+                showSizeChanger: true,
+                onChange: onPageChange,
+                onShowSizeChange: onPageChange,
+              }}
+              dataSource={listOrderSources}
+              columns={columnFinal()}
+              rowKey={(item: OrderSourceModel) => item.id}
+              onRow={
+                allowUpdateSource
+                  ? (record: OrderSourceModel) => {
+                      return {
+                        onClick: () => {
+                          setModalAction("edit");
+                          setModalSingleOrderSource(record);
+                          setIsShowModalOrderSource(true);
+                        },
+                      };
+                    }
+                  : undefined
+              }
+            />
+          </Card>
+          <ModalDeleteConfirm
+            visible={isShowConfirmDelete}
+            onOk={() => handleDeleteMultiOrderSource()}
+            onCancel={() => setIsShowConfirmDelete(false)}
+            title="Xác nhận"
+            subTitle={renderConfirmDeleteSubtitle()}
           />
-        </Card>
-        <ModalDeleteConfirm
-          visible={isShowConfirmDelete}
-          onOk={() => handleDeleteMultiOrderSource()}
-          onCancel={() => setIsShowConfirmDelete(false)}
-          title="Xác nhận"
-          subTitle={renderConfirmDeleteSubtitle()}
-        />
-        <CustomModal
-          visible={isShowModalOrderSource}
-          onCreate={(formValues: OrderSourceModel) =>
-            handleFormOrderSource.create(formValues)
-          }
-          onEdit={(formValues: OrderSourceModel) =>
-            handleFormOrderSource.edit(formValues)
-          }
-          onDelete={() => handleFormOrderSource.delete()}
-          onCancel={() => setIsShowModalOrderSource(false)}
-          modalAction={modalAction}
-          componentForm={FormOrderSource}
-          formItem={modalSingleOrderSource}
-          deletedItemTitle={modalSingleOrderSource?.name}
-          modalTypeText="Nguồn đơn hàng"
-          moreFormArguments={{listDepartments}}
-        />
-      </ContentContainer>
+          <CustomModal
+            visible={isShowModalOrderSource}
+            onCreate={(formValues: OrderSourceModel) =>
+              handleFormOrderSource.create(formValues)
+            }
+            onEdit={(formValues: OrderSourceModel) =>
+              handleFormOrderSource.edit(formValues)
+            }
+            onDelete={() => handleFormOrderSource.delete()}
+            onCancel={() => setIsShowModalOrderSource(false)}
+            modalAction={modalAction}
+            componentForm={FormOrderSource}
+            formItem={modalSingleOrderSource}
+            deletedItemTitle={modalSingleOrderSource?.name}
+            modalTypeText="Nguồn đơn hàng"
+            moreFormArguments={{listDepartments}}
+          />
+        </ContentContainer>
+      ) : (
+        <NoPermission />
+      )}
     </StyledComponent>
   );
 }

@@ -215,7 +215,7 @@ function OrderCreateShipment(props: PropType) {
               handleCreateShipment && handleCreateShipment();
             }}
           >
-            Tạo đơn giao hàng
+            Tạo đơn giao hàng 2
           </Button>
           <Button
             className="ant-btn-outline fixed-button cancle-button create-button-custom"
@@ -432,6 +432,7 @@ function OrderCreateShipment(props: PropType) {
             <ShipmentMethodReceiveAtStore
               storeDetail={storeDetail}
               isCancelValidateDelivery={isCancelValidateDelivery}
+              renderButtonCreateActionHtml={renderButtonCreateActionHtml}
             />
           )}
         </div>

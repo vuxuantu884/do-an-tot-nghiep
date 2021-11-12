@@ -57,7 +57,7 @@ function* createOrderReturnSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
-        showSuccess("Tạo đơn trả hàng thành công");
+        showSuccess("Tạo đơn trả hàng thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -68,7 +68,7 @@ function* createOrderReturnSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi tạo đơn trả hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -169,7 +169,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
-        showSuccess("Tạo đơn đổi hàng thành công");
+        showSuccess("Tạo đơn đổi hàng thành công!");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -181,7 +181,7 @@ function* createOrderExchangeSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     handleError(error);
-    showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi khi tạo đơn đổi hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
