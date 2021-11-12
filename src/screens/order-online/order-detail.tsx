@@ -20,6 +20,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { thirdPLModel } from "model/order/shipment.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -117,6 +118,15 @@ const OrderDetail = (props: PropType) => {
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   console.log('isDisablePostPayment', isDisablePostPayment)
 
+  const [thirdPL, setThirdPL] = useState<thirdPLModel>({
+    delivery_service_provider_code: "",
+    delivery_service_provider_id: null,
+    insurance_fee: null,
+    delivery_service_provider_name: "",
+    delivery_transport_type: "",
+    service: "",
+    shipping_fee_paid_to_three_pls: null,
+  });
   // xác nhận đơn
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
@@ -549,8 +559,8 @@ const OrderDetail = (props: PropType) => {
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
             setShippingFeeInformedToCustomer={setShippingFeeInformedCustomer}
             onSelectShipment={onSelectShipment}
-            thirdPL={undefined}
-            setThirdPL={() => {}}
+            thirdPL={thirdPL}
+            setThirdPL={setThirdPL}
             form={form}
           />
         </Card>
