@@ -26,6 +26,7 @@ import NoPermission from 'screens/no-permission.screen'
 
 const configLoyaltyPermission = [LoyaltyPermissions.CONFIG_LOYALTY];
 const viewProgramListPermission = [LoyaltyPermissions.VIEW_PROGRAM_LIST];
+const createProgramPermission = [LoyaltyPermissions.CREATE_PROGRAM];
 const updateProgramPermission = [LoyaltyPermissions.UPDATE_PROGRAM];
 
 const LoyaltyPage = () => {
@@ -37,6 +38,11 @@ const LoyaltyPage = () => {
 
   const [allowViewProgramList] = useAuthorization({
     acceptPermissions: viewProgramListPermission,
+    not: false,
+  });
+
+  const [allowCreateProgram] = useAuthorization({
+    acceptPermissions: createProgramPermission,
     not: false,
   });
 
@@ -399,11 +405,13 @@ const LoyaltyPage = () => {
                 <span className="tab-label">
                   Danh sách chương trình
                 </span>
-                <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
-                  <div className="add-new-btn">
-                    <PlusOutlined /> Thêm mới
-                  </div>
-                </Link>
+                {allowCreateProgram &&
+                  <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
+                    <div className="add-new-btn">
+                      <PlusOutlined /> Thêm mới
+                    </div>
+                  </Link>
+                }
               </div>
             }
           >
