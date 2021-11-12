@@ -840,8 +840,6 @@ function OrderCreateProduct(props: PropType) {
     splitLine: boolean
   ) => {
     setLoadingAutomaticDiscount(true);
-    let highestValueDiscount = 0;
-    let highestValueSuggestDiscount: any = null;
     let quantity = splitLine
       ? _items.filter((singleItem) => singleItem.variant_id === item.variant_id).length
       : item.quantity;
@@ -866,21 +864,16 @@ function OrderCreateProduct(props: PropType) {
           (lineItem: any) => lineItem.variant_id === item.variant_id
         )?.suggested_discounts;
         if (suggested_discounts && suggested_discounts.length > 0) {
+          let highestValueSuggestDiscount = suggested_discounts[0]; // backend đã sắp xếp
           const quantity = item.quantity;
           const total = item.amount;
-          for (const singleSuggest of suggested_discounts) {
-            let value = 0;
-            if (singleSuggest.value_type === "FIXED_AMOUNT") {
-              value = (item.price - singleSuggest.value) * quantity;
-            } else if (singleSuggest.value_type === "PERCENTAGE") {
-              value = total * (singleSuggest.value / 100);
-            } else if (singleSuggest.value_type === "FIXED_PRICE") {
-              value = item.price - singleSuggest.value;
-            }
-            if (value > highestValueDiscount) {
-              highestValueDiscount = value;
-              highestValueSuggestDiscount = singleSuggest;
-            }
+          let value = 0;
+          if (highestValueSuggestDiscount.value_type === "FIXED_AMOUNT") {
+            value = (item.price - highestValueSuggestDiscount.value) * quantity;
+          } else if (highestValueSuggestDiscount.value_type === "PERCENTAGE") {
+            value = total * (highestValueSuggestDiscount.value / 100);
+          } else if (highestValueSuggestDiscount.value_type === "FIXED_PRICE") {
+            value = item.price - highestValueSuggestDiscount.value;
           }
           // highestValueDiscount = Math.max(
           //   ...suggested_discounts.map((discount: any) => {
@@ -899,11 +892,10 @@ function OrderCreateProduct(props: PropType) {
           //   })
           // );
           const discountItem: OrderItemDiscountRequest = {
-            rate: Math.round((highestValueDiscount / item.price) * 100 * 100) / 100,
-            value: highestValueDiscount,
-            amount: highestValueDiscount,
+            rate: Math.round((value / item.price) * 100 * 100) / 100,
+            value: value,
+            amount: item.quantity * value,
             reason: "",
-            // promotion_id: suggested_discounts[0].price_rule_id || undefined, // backend đã sắp xếp
             promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
           };
           item.discount_items[0] = discountItem;
