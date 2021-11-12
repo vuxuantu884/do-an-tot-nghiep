@@ -20,7 +20,8 @@ import { removePackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment from "moment";
-import { showWarning } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 5,
@@ -103,8 +104,31 @@ const ReportHandOver: React.FC = () => {
 
       dispatch(
         createGoodsReceipts(param, (value: GoodsReceiptsResponse) => {
-          console.log("createGoodsReceipts", value);
-          setGoodsReceipts(value);
+          if(value)
+          {
+            showSuccess("Thêm biên bản bàn giao thành công");
+            setVisibleModal(false);
+            goodsReceiptsForm.resetFields()
+
+            setGoodsReceipts(value);
+
+            const toDate = new Date();
+            // Trừ đi 1 ngày
+            const fromDate = new Date().setDate(toDate.getDate() - 1);
+        
+            initQueryGoodsReceipts.limit = 1000;
+            initQueryGoodsReceipts.page = 1;
+            initQueryGoodsReceipts.sort_type = "desc";
+            initQueryGoodsReceipts.sort_column = "updated_date";
+            initQueryGoodsReceipts.from_date = moment(fromDate).format("DD-MM-YYYY");
+            initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
+        
+            dispatch(
+              getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:PageResponse<GoodsReceiptsResponse>)=>{
+                setListGoodsReceipts(data.items);
+              })
+            );
+          }
         })
       );
     },
@@ -114,6 +138,7 @@ const ReportHandOver: React.FC = () => {
       listStores,
       listThirdPartyLogistics,
       listChannels,
+      goodsReceiptsForm
     ]
   );
 
@@ -176,7 +201,9 @@ const ReportHandOver: React.FC = () => {
     initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
 
     dispatch(
-      getGoodsReceiptsSerch(initQueryGoodsReceipts, setListGoodsReceipts)
+      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:PageResponse<GoodsReceiptsResponse>)=>{
+        setListGoodsReceipts(data.items);
+      })
     );
   }, [dispatch]);
 

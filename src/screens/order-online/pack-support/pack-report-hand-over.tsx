@@ -3,7 +3,7 @@ import PackFilter from "component/filter/pack.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import threeDot from "assets/icon/three-dot.svg";
 import IconVector from "assets/img/Vector.svg";
 import IconPrint from "assets/icon/Print.svg";
@@ -13,6 +13,7 @@ import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import { getGoodsReceiptsSerch } from "domain/actions/goods-receipts/goods-receipts.action";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -31,10 +32,10 @@ const PackReportHandOver: React.FC = () => {
   const dispatch = useDispatch();
   const [listGoodsReceiptsSearch, setListGoodsReceiptsSearch] = useState<GoodsReceiptsResponse[]>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  let [params, setPrams] = useState<any>();
   const [tableLoading] = useState(true);
+  let [params, setPrams] = useState<GoodsReceiptsSearchQuery>(initQueryGoodsReceipts);
 
-  const [data] = useState<PageResponse<any>>({
+  const [data, setData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -67,8 +68,8 @@ const PackReportHandOver: React.FC = () => {
     width: "200px",
     fixed:"left",
     render: (a: GoodsReceiptsResponse, item: any, index: number) => {
-      console.log(a)
-      console.log("field",listGoodsReceiptsSearch);
+      // console.log(a)
+      // console.log("field",listGoodsReceiptsSearch);
       return (
           <div className="t-success">
              1
@@ -395,7 +396,7 @@ const PackReportHandOver: React.FC = () => {
     // Trừ đi 1 ngày
     //const fromDate = new Date().setDate(toDate.getDate() - 1);
 
-    // initQueryGoodsReceipts.limit = 1000;
+    //initQueryGoodsReceipts.limit = 3;
     // initQueryGoodsReceipts.page = 1;
     // initQueryGoodsReceipts.sort_type = "desc";
     // initQueryGoodsReceipts.sort_column = "updated_date";
@@ -403,14 +404,22 @@ const PackReportHandOver: React.FC = () => {
     // initQueryGoodsReceipts.to_date = moment(toDate).format("DD-MM-YYYY");
 
     dispatch(
-      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:GoodsReceiptsResponse[])=>{
-        let dataResult:GoodsReceiptsResponse[]=[];
-        data.forEach((item:GoodsReceiptsResponse,index:number)=>{
+      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data:PageResponse<GoodsReceiptsResponse>)=>{
+        let dataResult:Array<GoodsReceiptsResponse>=[];
+        data.items.forEach((item:GoodsReceiptsResponse,index:number)=>{
           dataResult.push(
             {...item, key:index}
           );
         })
         setListGoodsReceiptsSearch(dataResult)
+        setData({
+          metadata: {
+            limit: data.metadata.limit,
+            page: data.metadata.page,
+            total: data.metadata.total,
+          },
+          items: dataResult
+        });
       })
     );
 
@@ -429,7 +438,7 @@ const PackReportHandOver: React.FC = () => {
             isRowSelection
             //isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630, y: 350 }}
+            scroll={{ x: 3630, y: 600 }}
             pagination={
                 tableLoading ? false : {
                 pageSize: data.metadata.limit,
@@ -441,7 +450,7 @@ const PackReportHandOver: React.FC = () => {
               }
             }
             //onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-            dataSource={listGoodsReceiptsSearch}
+            dataSource={data.items}
             columns={columnFinal}
             onRow={(record: any) => {
               return {

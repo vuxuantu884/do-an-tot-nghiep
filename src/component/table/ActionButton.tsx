@@ -13,6 +13,7 @@ export interface MenuAction {
   id: number;
   name: string;
   icon?:any;
+  color?:any;
 }
 
 const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
@@ -28,6 +29,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
                 key={item.id}
                 onClick={() => props.onMenuClick && props.onMenuClick(item.id)}
                 icon={item.icon}
+                style={{color:item.color}}
               >
                 {item.name}
               </Menu.Item>

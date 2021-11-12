@@ -54,6 +54,10 @@ import {
 import {ChannelResponse} from "model/response/product/channel.response";
 import {generateQuery} from "utils/AppUtils";
 
+export const getDetailOrderApi=(orderId:any):Promise<BaseResponse<OrderResponse>>=>{
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/${orderId}`);
+}
+
 export const getListOrderApi = (
   query: OrderSearchQuery
 ): Promise<BaseResponse<OrderModel>> => {

@@ -31,17 +31,17 @@ import {
   DownOutlined,
 } from "@ant-design/icons";
 import "./order.filter.scss";
-import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import { MenuAction } from "component/table/ActionButton";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 
 const { Option } = Select;
 const { Panel } = Collapse;
 type PackFilterProps = {
-  params: OrderSearchQuery;
+  params: GoodsReceiptsSearchQuery;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: OrderSearchQuery | Object) => void;
+  onFilter?: (values: GoodsReceiptsSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
 };
@@ -56,8 +56,12 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
-  const orderPackContextData = useContext(OrderPackContext);
-  const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
+    //Context
+    const orderPackContextData = useContext(OrderPackContext);
+    const listStores = orderPackContextData.listStores;
+    const listChannels = orderPackContextData.listChannels;
+    const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
+    const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
 
   const actions: Array<MenuAction> = [
     {
@@ -87,8 +91,8 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
     switch (type) {
       case "issued":
         setIssuedClick("");
-        setIssuedOnMin(dateString[0]);
-        setIssuedOnMax(dateString[1]);
+        setFormDate(dateString[0]);
+        setToDate(dateString[1]);
         break;
       default:
         break;
@@ -163,15 +167,15 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
 
       switch (type) {
         case "issued":
-          if (issuedClick === value) {
-            setIssuedClick("");
-            setIssuedOnMin(null);
-            setIssuedOnMax(null);
-          } else {
-            setIssuedClick(value);
-            setIssuedOnMin(moment(minValue, "DD-MM-YYYY"));
-            setIssuedOnMax(moment(maxValue, "DD-MM-YYYY"));
-          }
+          // if (issuedClick === value) {
+          //   setIssuedClick("");
+          //   setIssuedOnMin(null);
+          //   setIssuedOnMax(null);
+          // } else {
+          //   setIssuedClick(value);
+          //   setIssuedOnMin(moment(minValue, "DD-MM-YYYY"));
+          //   setIssuedOnMax(moment(maxValue, "DD-MM-YYYY"));
+          // }
           break;
         default:
           break;
@@ -199,14 +203,14 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
     };
   }, [params]);
 
-  const [issuedOnMin, setIssuedOnMin] = useState(
-    initialValues.issued_on_min
-      ? moment(initialValues.issued_on_min, "DD-MM-YYYY")
+  const [formDate, setFormDate] = useState(
+    initialValues.from_date
+      ? moment(initialValues.from_date, "DD-MM-YYYY")
       : null
   );
-  const [issuedOnMax, setIssuedOnMax] = useState(
-    initialValues.issued_on_max
-      ? moment(initialValues.issued_on_max, "DD-MM-YYYY")
+  const [toDate, setToDate] = useState(
+    initialValues.to_date
+      ? moment(initialValues.to_date, "DD-MM-YYYY")
       : null
   );
  
@@ -368,8 +372,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                           notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                           getPopupContainer={trigger => trigger.parentNode}
                         >
-                          <Option value="jack">Jack</Option>
-                          <Option value="lucy">Lucy</Option>
+                          {listGoodsReceiptsType.map((item, index)=>(
+                            <Option key={index.toString()} value={item.id}>
+                              {item.name}
+                            </Option>
+                          ))}
                         </Select>
                       </Item>
                     </Panel>
@@ -380,18 +387,20 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
               <Row gutter={12} style={{marginTop: '10px'}}>
                 <Col span={24}>
                   <Collapse>
-                    <Panel header="Kiểu biên bản" key="1" className="header-filter">
-                      {/* <Item name="order_status"> */}
+                    <Panel header="Biên bản sàn" key="1" className="header-filter">
                       <Item>
                         <Select
                           mode="multiple"
-                          showSearch placeholder="Chọn Kiểu biên bản"
+                          showSearch placeholder="Chọn biên bản sàn"
                           notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                           getPopupContainer={trigger => trigger.parentNode}
                         >
-  
-                          <Option value="jack">Jack</Option>
-                          <Option value="lucy">Lucy</Option>
+                          {listChannels.map((item, index)=>(
+                            <Option key={index.toString()} value={item.id}>
+                              {item.name}
+                            </Option>
+                          ))}
+                          
                         </Select>
                       </Item>
                     </Panel>
@@ -402,11 +411,11 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
             <Row gutter={12} style={{ marginTop: "10px" }}>
               <Col span={24}>
                 <Collapse
-                  defaultActiveKey={
-                    initialValues.issued_on_min && initialValues.issued_on_max
-                      ? ["1"]
-                      : []
-                  }
+                  // defaultActiveKey={
+                  //   initialValues.issued_on_min && initialValues.issued_on_max
+                  //     ? ["1"]
+                  //     : []
+                  // }
                 >
                   <Panel
                     header="NGÀY TẠO ĐƠN"
@@ -472,10 +481,10 @@ const PackFilter: React.FC<PackFilterProps> = (props: PackFilterProps) => {
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{ width: "100%" }}
-                      value={[
-                        issuedOnMin ? moment(issuedOnMin, "DD-MM-YYYY") : null,
-                        issuedOnMax ? moment(issuedOnMax, "DD-MM-YYYY") : null,
-                      ]}
+                      // value={[
+                      //   // issuedOnMin ? moment(issuedOnMin, "DD-MM-YYYY") : null,
+                      //   // issuedOnMax ? moment(issuedOnMax, "DD-MM-YYYY") : null,
+                      // ]}
                       onChange={(date, dateString) =>
                         onChangeRangeDate(date, dateString, "issued")
                       }

@@ -1,3 +1,4 @@
+import { PageResponse } from './../../../model/base/base-metadata.response';
 import BaseAction from "base/base.action";
 import { GoodsReceiptsType } from "domain/types/goods-receipts";
 import { GoodsReceiptsRequest } from "model/request/pack.request";
@@ -11,7 +12,7 @@ export const createGoodsReceipts = (data:GoodsReceiptsRequest,setData: (data: Go
     return BaseAction(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, {data, setData });
 };
 
-export const getGoodsReceiptsSerch = (data:any,setData: (data: GoodsReceiptsResponse[]) => void) => {
+export const getGoodsReceiptsSerch = (data:any,setData: (data:PageResponse<GoodsReceiptsResponse>) => void) => {
     return BaseAction(GoodsReceiptsType.SEARCH_GOODS_RECEIPTS, {data, setData });
 };
 

@@ -2,7 +2,7 @@ import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { haveAccess } from "utils/AppUtils";
 
 import { Input } from "antd";

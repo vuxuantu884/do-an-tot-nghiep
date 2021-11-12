@@ -28,6 +28,7 @@ import {
   getChannelsService,
   getDeliveryMappedStoresService,
   getDeliveryTransportTypesService,
+  getDetailOrderApi,
   getFulfillmentsApi,
   getInfoDeliveryFees,
   getOrderConfig,
@@ -64,6 +65,25 @@ import {
   updateShipment
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
+
+function* getDetailOrderSaga(action:YodyAction){
+  let {orderId, setData}= action.payload;
+  try{
+    let response:BaseResponse<OrderResponse>=yield call(getDetailOrderApi, orderId);
+    switch(response.code)
+    {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+        default:
+          response.errors.forEach(e=>showError(e));
+          break;
+    }
+  }
+  catch{
+    showError("Lỗi hệ thống, vui lòng thử lại");
+  }
+}
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -857,6 +877,7 @@ function* getChannelsSaga(action:YodyAction){
 }
 
 export function* OrderOnlineSaga() {
+  yield takeLatest(OrderType.GET_DETAIL_ORDER_REQUEST,getDetailOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_FPAGE_REQUEST, getListOrderFpageSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);

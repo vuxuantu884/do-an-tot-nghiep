@@ -77,13 +77,13 @@ function* createGoodsReceiptsSaga(action: YodyAction) {
 function* getGoodsReceiptsSerchSaga(action: YodyAction) {
   let { data, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<Array<GoodsReceiptsSearchResponse>>> = yield call(
+    let response: BaseResponse<PageResponse<GoodsReceiptsSearchResponse>> = yield call(
       getGoodsReceiptsSerchService,
       data
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data.items);
+        setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

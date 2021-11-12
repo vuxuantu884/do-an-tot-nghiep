@@ -266,6 +266,10 @@ export const setSubStatusAction = (
   };
 };
 
+export const getDetailOrder=(orderId:any,setData:(data:OrderResponse)=>void)=>{
+  return BaseAction(OrderType.GET_DETAIL_ORDER_REQUEST,{orderId, setData})
+}
+
 export const getListOrderAction = (
   query: OrderSearchQuery,
   setData: (data: PageResponse<OrderModel> | false) => void
