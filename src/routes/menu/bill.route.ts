@@ -15,7 +15,7 @@ const ScreenReturnDetail = React.lazy(
   () => import("screens/order-online/order-return/[id]")
 );
 
-const FpageCRM = React.lazy(() => import("screens/fpage"));
+const YDPageCRM = React.lazy(() => import("screens/yd-page"));
 
 const bill: Array<RouteMenu> = [
   {
@@ -73,11 +73,11 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.FPAGE}`,
+        path: `${UrlConfig.YD_PAGE}`,
         exact: true,
-        title: "Đơn hàng từ Fpage",
+        title: "Đơn hàng từ YDPage",
         icon: "icon-dot",
-        component: FpageCRM,
+        component: YDPageCRM,
         key: "submenu5414",
         isShow: true,
         header: null,
