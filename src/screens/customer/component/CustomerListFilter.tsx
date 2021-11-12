@@ -18,13 +18,18 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 
 import SelectAreaFilter from "screens/customer/component/SelectAreaFilter";
+import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
 
 import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import { StyledCustomerBaseFilter } from "screens/customer/customerStyled";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { RegUtil } from "utils/RegUtils";
+import moment from "moment";
 
 
 type CustomerListFilterProps = {
@@ -34,9 +39,11 @@ type CustomerListFilterProps = {
   onFilter?: (values: CustomerSearchQuery) => void;
   setShowSettingColumn?: () => void;
   onClearFilter?: () => void;
+  types?: any;
   groups?: any;
   loyaltyUsageRules?: any;
-  types?: any;
+  listStore?: Array<StoreResponse>;
+  listChannel?: Array<ChannelResponse>;
 };
 
 const { Option } = Select;
@@ -54,9 +61,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     onClearFilter,
     onFilter,
     setShowSettingColumn,
+    types,
     groups,
     loyaltyUsageRules,
-    types,
+    listStore,
+    listChannel,
   } = props;
 
   const dispatch = useDispatch();
@@ -322,67 +331,131 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   }
   // end handle select birth year
 
-// handle select age
-const initAgeList = () => {
-  const ageList: Array<any> = [];
-  for (let i = 1; i <= 120; i++) {
-    ageList.push({
-      key: i,
-      value: i,
-      name: i,
-      disable: false,
-    })
-  }
-  return ageList;
-}
+  // handle select date
+  const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
+  const [lastOrderDateClick, setLastOrderDateClick] = useState("");
 
-const INIT_FROM_AGE_LIST = [
-  {
-    key: 0,
-    value: 0,
-    name: "- Từ tuổi -",
-    disable: true,
-  }
-].concat(initAgeList());
+  const [firstOrderDateMin, setFirstOrderDateMin] = useState(
+    params.date_of_first_order
+      ? moment(params.date_of_first_order, "DD-MM-YYYY")
+      : null
+  );
+  const [firstOrderDateMax, setFirstOrderDateMax] = useState(
+    params.date_of_first_order
+      ? moment(params.date_of_first_order, "DD-MM-YYYY")
+      : null
+  );
 
-const INIT_TO_AGE_LIST = [
-  {
-    key: 0,
-    value: 0,
-    name: "- Đến tuổi -",
-    disable: true,
-  }
-].concat(initAgeList());
+  const [lastOrderDateMin, setLastOrderDateMin] = useState(
+    params.date_of_last_order
+      ? moment(params.date_of_last_order, "DD-MM-YYYY")
+      : null
+  );
+  const [lastOrderDateMax, setLastOrderDateMax] = useState(
+    params.date_of_last_order
+      ? moment(params.date_of_last_order, "DD-MM-YYYY")
+      : null
+  );
 
-const [fromAgeList, setFromAgeList] = useState<any>(INIT_FROM_AGE_LIST);
-const [toAgeList, setToAgeList] = useState<any>(INIT_TO_AGE_LIST);
+  const clickOptionDate = useCallback(
+    (type, value) => {
+      let minValue = null;
+      let maxValue = null;
 
+      switch (value) {
+        case "today":
+          minValue = moment().startOf("day").format("DD-MM-YYYY");
+          maxValue = moment().endOf("day").format("DD-MM-YYYY");
+          break;
+        case "yesterday":
+          minValue = moment()
+            .startOf("day")
+            .subtract(1, "days")
+            .format("DD-MM-YYYY");
+          maxValue = moment()
+            .endOf("day")
+            .subtract(1, "days")
+            .format("DD-MM-YYYY");
+          break;
+        case "thisweek":
+          minValue = moment().startOf("week").format("DD-MM-YYYY");
+          maxValue = moment().endOf("week").format("DD-MM-YYYY");
+          break;
+        case "lastweek":
+          minValue = moment()
+            .startOf("week")
+            .subtract(1, "weeks")
+            .format("DD-MM-YYYY");
+          maxValue = moment()
+            .endOf("week")
+            .subtract(1, "weeks")
+            .format("DD-MM-YYYY");
+          break;
+        case "thismonth":
+          minValue = moment().startOf("month").format("DD-MM-YYYY");
+          maxValue = moment().endOf("month").format("DD-MM-YYYY");
+          break;
+        case "lastmonth":
+          minValue = moment()
+            .startOf("month")
+            .subtract(1, "months")
+            .format("DD-MM-YYYY");
+          maxValue = moment()
+            .endOf("month")
+            .subtract(1, "months")
+            .format("DD-MM-YYYY");
+          break;
+        default:
+          break;
+      }
 
-const onSelectFromAge = (value: any) => {
-  const newToAgeList = [ ...toAgeList ];
-  newToAgeList.forEach((item: any) => {
-    item.disable = (item.value < value);
-  })
-  setToAgeList(newToAgeList);
-}
+      switch (type) {
+        case "firstOrderDate":
+          if (firstOrderDateClick === value) {
+            setFirstOrderDateClick("");
+            setFirstOrderDateMin(null);
+            setFirstOrderDateMax(null);
+          } else {
+            setFirstOrderDateClick(value);
+            setFirstOrderDateMin(moment(minValue, "DD-MM-YYYY"));
+            setFirstOrderDateMax(moment(maxValue, "DD-MM-YYYY"));
+          }
+          break;
+        case "lastOrderDate":
+          if (lastOrderDateClick === value) {
+            setLastOrderDateClick("");
+            setLastOrderDateMin(null);
+            setLastOrderDateMax(null);
+          } else {
+            setLastOrderDateClick(value);
+            setLastOrderDateMin(moment(minValue, "DD-MM-YYYY"));
+            setLastOrderDateMax(moment(maxValue, "DD-MM-YYYY"));
+          }
+          break;
+        default:
+          break;
+      }
+    },
+    [firstOrderDateClick, lastOrderDateClick]
+  );
 
-const onClearFromAge = () => {
-  setToAgeList(INIT_TO_AGE_LIST);
-}
-
-const onSelectToAge = (value: any) => {
-  const newFromAgeList = [ ...fromAgeList ];
-  newFromAgeList.forEach((item: any) => {
-    item.disable = (item.value > value || item.value === 0);
-  })
-  setFromAgeList(newFromAgeList);
-}
-
-const onClearToAge = () => {
-  setFromAgeList(INIT_FROM_AGE_LIST);
-}
-// end handle select age
-  
+  const onChangeRangeDate = useCallback((dates, dateString, type) => {
+    switch (type) {
+      case "firstOrderDate":
+        setFirstOrderDateClick("");
+        setFirstOrderDateMin(dateString[0]);
+        setFirstOrderDateMax(dateString[1]);
+        break;
+      case "lastOrderDate":
+        setLastOrderDateClick("");
+        setLastOrderDateMin(dateString[0]);
+        setLastOrderDateMax(dateString[1]);
+        break;
+      default:
+        break;
+    }
+  }, []);
+  // end handle select date
 
 
   // handle filter action
@@ -519,41 +592,81 @@ const onClearToAge = () => {
                 </Form.Item>
                 
                 <Form.Item
-                  name="customer_group_id"   // todo thai need update
+                  name="store"
                   label={<b>Cửa hàng</b>}
                 >
                   <Select
+                    mode="multiple"
                     showSearch
-                    placeholder="Chọn cửa hàng"
+                    showArrow
                     allowClear
+                    placeholder="Chọn cửa hàng"
                     optionFilterProp="children"
+                    maxTagCount="responsive"
                   >
-                    {/* // todo thai need update */}
-                    <Option key={1} value={1}>
-                      Sẽ update chọn cửa hàng
-                    </Option>
+                    {listStore?.map((item) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
                 
                 <Form.Item
-                  name="customer_group_id"   // todo thai need update
+                  name="channel"   // todo thai need update
                   label={<b>Kênh mua hàng</b>}
                 >
                   <Select
+                    mode="multiple"
+                    maxTagCount="responsive"
                     showSearch
-                    placeholder="Chọn kênh"
+                    showArrow
                     allowClear
+                    placeholder="Chọn kênh"
                     optionFilterProp="children"
                   >
-                    <Option key={1} value={1}>
-                      Sẽ update chọn kênh
-                    </Option>
+                    {listChannel?.map((item, index) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
 
                 {/* Tìm kiếm theo khu vực */}
                 <SelectAreaFilter formCustomerFilter={formCustomerFilter} />
-                
+
+                <Form.Item
+                  name="place_of_first_order"   // todo thai need update
+                  label={<b>Cửa hàng mua đầu</b>}
+                >
+                  <Select
+                    mode="multiple"
+                    showSearch
+                    showArrow
+                    allowClear
+                    placeholder="Chọn cửa hàng"
+                    optionFilterProp="children"
+                    maxTagCount="responsive"
+                  >
+                    {listStore?.map((item) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label={<b>Ngày mua đầu</b>}>
+                  <SelectDateFilter
+                    clickOptionDate={clickOptionDate}
+                    onChangeRangeDate={onChangeRangeDate}
+                    dateType="firstOrderDate"
+                    dateSelected={firstOrderDateClick}
+                    startDate={firstOrderDateMin}
+                    endDate={firstOrderDateMax}
+                  />
+                </Form.Item>
               </div>
 
               <div className="center-filter">
@@ -562,9 +675,12 @@ const onClearToAge = () => {
                   label={<b>Nhóm khách hàng:</b>}
                 >
                   <Select
+                    mode="multiple"
+                    maxTagCount="responsive"
                     showSearch
-                    placeholder="Chọn nhóm khách hàng"
+                    showArrow
                     allowClear
+                    placeholder="Chọn nhóm khách hàng"
                     optionFilterProp="children"
                   >
                     {groups.map((group: any) => (
@@ -580,6 +696,8 @@ const onClearToAge = () => {
                   label={<b>Loại khách hàng:</b>}
                 >
                   <Select
+                    mode="multiple"
+                    maxTagCount="responsive"
                     showSearch
                     placeholder="Loại khách hàng"
                     allowClear
@@ -670,9 +788,137 @@ const onClearToAge = () => {
                     </Form.Item>
                   </div>
                 </div>
-                
-                
 
+                <div>
+                  <div className="title">Tổng đơn hàng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_total_finished_order"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số đơn hàng chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_total_finished_order"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số đơn hàng chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Tiền tích luỹ</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_total_paid_amount"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Tiền tích luỹ chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_total_paid_amount"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Tiền tích luỹ chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Số đơn trả hàng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_total_returned_order"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số đơn trả hàng chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_total_returned_order"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số đơn trả hàng chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <Form.Item
+                  name="place_of_last_order"
+                  label={<b>Cửa hàng mua cuối</b>}
+                >
+                  <Select
+                    mode="multiple"
+                    showSearch
+                    showArrow
+                    allowClear
+                    placeholder="Chọn cửa hàng"
+                    optionFilterProp="children"
+                    maxTagCount="responsive"
+                  >
+                    {listStore?.map((item) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item label={<b>Ngày mua cuối</b>}>
+                  <SelectDateFilter
+                    clickOptionDate={clickOptionDate}
+                    onChangeRangeDate={onChangeRangeDate}
+                    dateType="lastOrderDate"
+                    dateSelected={lastOrderDateClick}
+                    startDate={lastOrderDateMin}
+                    endDate={lastOrderDateMax}
+                  />
+                </Form.Item>
               </div>
 
               <div className="right-filter">
@@ -683,8 +929,10 @@ const onClearToAge = () => {
                   <Select
                     mode="multiple"
                     showSearch
+                    showArrow
                     allowClear
                     placeholder="Chọn hạng thẻ"
+                    maxTagCount="responsive"
                   >
                     {loyaltyUsageRules?.map((loyalty: any) => (
                       <Option key={loyalty.id} value={loyalty.rank_id}>
@@ -695,25 +943,24 @@ const onClearToAge = () => {
                 </Form.Item>
 
                 <Form.Item
-                  name="store"
+                  name="store_card"
                   label={<b>Cửa hàng cấp thẻ</b>}
                 >
                   <Select
                     mode="multiple"
                     showSearch
+                    showArrow
                     allowClear
                     placeholder="Chọn cửa hàng"
                     optionFilterProp="children"
+                    maxTagCount="responsive"
                     defaultValue={undefined}
                   >
-                    {/* {loyaltyUsageRules.map((loyalty: any) => (
-                      <Option key={loyalty.id} value={loyalty.rank_id}>
-                        {loyalty.rank_name}
+                    {listStore?.map((item) => (
+                      <Option key={item.id} value={item.id.toString()}>
+                        {item.name}
                       </Option>
-                    ))} */}
-                    <Option key={1} value={2}>
-                      chọn cửa hàng sau nhé
-                    </Option>
+                    ))}
                   </Select>
                 </Form.Item>
 
@@ -761,38 +1008,197 @@ const onClearToAge = () => {
                 <div>
                   <div className="title">Độ tuổi</div>
                   <div className="select-scope">
-                    <Form.Item name="from_age" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
-                        placeholder="Từ"
-                        onSelect={onSelectFromAge}
-                        onClear={onClearFromAge}
-                      >
-                        {fromAgeList.map((item: any) => (
-                          <Option key={item.key} value={item.value} disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                    <Form.Item
+                      className="select-item"
+                      name="from_age"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tuổi chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
                     </Form.Item>
 
                     <img src={rightArrow} alt="" />
 
-                    <Form.Item name="to_age" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
-                        placeholder="Đến"
-                        onSelect={onSelectToAge}
-                        onClear={onClearToAge}
-                      >
-                        {toAgeList.map((item: any) => (
-                          <Option key={item.key} value={item.value} disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
+                    <Form.Item
+                      className="select-item"
+                      name="to_age"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tuổi chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Số tiền còn thiếu để nâng hạng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_remain_amount_to_level_up"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_remain_amount_to_level_up"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Giá trị trung bình</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_average_order_amount"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_average_order_amount"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Tổng giá trị đơn trả</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_total_refunded_amount"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_total_refunded_amount"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số tiền chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Số ngày chưa mua hàng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_day_without_purchase"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_day_without_purchase"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="title">Điểm</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="from_point"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Điểm chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Từ" />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="to_point"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Điểm chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Đến" />
                     </Form.Item>
                   </div>
                 </div>

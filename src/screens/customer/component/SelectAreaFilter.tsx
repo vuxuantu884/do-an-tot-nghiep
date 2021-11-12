@@ -182,7 +182,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
   // end
 
   return (
-    <div>
+    <>
       <Form.Item
         name="city"
         label={<b>Tỉnh/Thành phố</b>}
@@ -259,7 +259,7 @@ const SelectAreaFilter: React.FC<SelectAreaFilterProps> = (
           ))}
         </CustomSelect>
       </Form.Item>
-    </div>
+    </>
   );
 };
 
