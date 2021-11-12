@@ -1,4 +1,4 @@
-import {DeleteOutlined, ExportOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Card, Form, Input, Select} from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";

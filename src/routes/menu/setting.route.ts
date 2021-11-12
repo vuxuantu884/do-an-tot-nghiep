@@ -5,7 +5,7 @@ import {
   AccountPermissions,
   DepartmentsPermissions,
 } from "config/permissions/account.permisssion";
-import { SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
+import { PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion"; 
 
 const ManageUserScreen = React.lazy(
   () => import("screens/settings/account/account.search.screen")
@@ -242,6 +242,7 @@ const setting: Array<RouteMenu> = [
     key: "subMenu93",
     isShow: true,
     header: null,
+    permissions: [PrintPermissions.READ],
     subMenu: [
       {
         path: `${UrlConfig.PRINTER}/create`,
@@ -253,6 +254,7 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+        permissions: [PrintPermissions.CREATE],
       },
       {
         path: `${UrlConfig.PRINTER}/:id`,
@@ -265,6 +267,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
+        permissions: [PrintPermissions.CREATE],
       },
     ],
   },
