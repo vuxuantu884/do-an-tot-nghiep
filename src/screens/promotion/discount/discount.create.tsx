@@ -35,7 +35,7 @@ const CreateDiscountPage = () => {
     body.type = PROMO_TYPE.AUTOMATIC;
     body.title = values.title;
     body.priority = values.priority;
-    body.description = values.descriptionl;
+    body.description = values.description;
     body.discount_codes = values.discount_code?.length ? [{code: values.discount_code}] : null;
     body.entitled_method = values.entitled_method;
     body.usage_limit = values.usage_limit;
