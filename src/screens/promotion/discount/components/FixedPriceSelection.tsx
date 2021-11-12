@@ -1,5 +1,5 @@
 import {Button, Checkbox, Col, Divider, Form, message, Modal, Row, Space} from "antd";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import "../discount.scss";
 import _ from "lodash";
 import {RiUpload2Line} from "react-icons/ri";
@@ -190,7 +190,7 @@ const FixedPriceSelection = (props: any) => {
                         setEntitlementsResponse(entitlementsResponse.concat(response.data.data));
                       }
                       if (response.data.errors.length > 0) {
-                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort((a:any, b:any) => a.index - b.index);
                         setEntitlementErrorsResponse([...errors]);
                       }
                       setImportTotal(response.data.total);
@@ -230,7 +230,6 @@ const FixedPriceSelection = (props: any) => {
                   </h2>
                 </Row>
               </Col>
-
               : ""}
             {uploadStatus === "done" || uploadStatus === "success" ?
               <Col span={24}>

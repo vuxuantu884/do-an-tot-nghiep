@@ -1,25 +1,27 @@
-import { Button, Card, Col, Form, Row } from "antd";
+import {Button, Card, Col, Form, Row} from "antd";
 import Editor from "component/ckeditor";
 import ModalConfirm from "component/modal/ModalConfirm";
+import { PrintPermissions } from "config/permissions/setting.permisssion";
 import UrlConfig from "config/url.config";
 import {
   actionCreatePrinter,
   actionFetchListPrinterVariables,
 } from "domain/actions/printer/printer.action";
-import { listKeywordsModel } from "model/editor/editor.model";
+import useAuthorization from "hook/useAuthorization";
+import {listKeywordsModel} from "model/editor/editor.model";
 import {
   BasePrinterModel,
   FormPrinterModel,
   PrinterVariableResponseModel,
 } from "model/response/printer.response";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Prompt } from "react-router";
-import { useHistory } from "react-router-dom";
-import { DEFAULT_FORM_VALUE } from "utils/Constants";
+import React, {useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Prompt} from "react-router";
+import {useHistory} from "react-router-dom";
+import {DEFAULT_FORM_VALUE} from "utils/Constants";
 import FormFilter from "../FormFilter";
 import Preview from "../preview";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropType = {
   id?: string;
@@ -29,7 +31,7 @@ type PropType = {
 };
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
-  const { id, type, formValue, isPrint } = props;
+  const {id, type, formValue, isPrint} = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
@@ -39,6 +41,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
   const history = useHistory();
+
+  const [allowCreatePrint] = useAuthorization({
+    acceptPermissions: [PrintPermissions.CREATE],
+  }); 
 
   const [printerVariables, setPrinterVariables] = useState<PrinterVariableResponseModel>(
     {}
@@ -242,7 +248,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         <Row gutter={20}>
           {isCanEditFormHeader && (
             <Col span={12}>
-              <Card style={{ height: "100%" }}>
+              <Card style={{height: "100%"}}>
                 <React.Fragment>
                   {(!isEdit || selectedPrintSize) && (
                     <Form.Item name="template">
@@ -260,7 +266,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
           )}
           <Col span={isCanEditFormHeader ? 12 : 24}>
-            <Card style={{ padding: "15px 15px", height: "100%" }}>
+            <Card style={{padding: "15px 15px", height: "100%"}}>
               <div className="printContent" ref={componentRef}>
                 <Preview
                   isPrint={isPrint}
@@ -288,14 +294,16 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             >
               Thoát
             </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                handleSubmitForm();
-              }}
-            >
-              {isEdit ? "Lưu" : "Thêm mới"}
-            </Button>
+            {allowCreatePrint ? (
+              <Button
+                type="primary"
+                onClick={() => {
+                  handleSubmitForm();
+                }}
+              >
+                {isEdit ? "Lưu" : "Thêm mới"}
+              </Button>
+            ) : null}
           </div>
         )}
       </Form>

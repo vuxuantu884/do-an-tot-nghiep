@@ -48,16 +48,16 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
     if (customer) {
       const details = [
         {
-          name: "Tên khách hàng",
+          name: "Họ tên khách hàng",
           value: customer.full_name,
           position: "left",
           key: "1",
         },
         {
-          name: "Mã khách hàng",
-          value: customer.code,
+          name: "Loại khách hàng",
+          value: customer.customer_type,
           position: "right",
-          key: "2",
+          key: "10",
         },
         {
           name: "Số điện thoại",
@@ -66,10 +66,10 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
           key: "3",
         },
         {
-          name: "Thẻ khách hàng",
-          value: loyaltyCard?.card_number,
+          name: "Nhóm khách hàng",
+          value: customer.customer_group,
           position: "right",
-          key: "4",
+          key: "11",
         },
         {
           name: "Ngày sinh",
@@ -80,67 +80,30 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
           key: "5",
         },
         {
-          name: "Giới tính",
-          value: genreEnum[customer.gender],
-          position: "right",
-          key: "6",
-        },
-        {
           name: "Địa chỉ",
           value: `${customer.full_address ? customer.full_address : ""}${
             customer.ward ? " - " + customer.ward : ""
           }${customer.district ? " - " + customer.district : ""}${
             customer.city ? " - " + customer.city : ""
           }`,
-          position: "left",
+          position: "right",
           key: "8",
         },
         {
-          name: "Kênh",
-          value: customer.channel,
-          position: "right",
-          key: "12",
+          name: "Giới tính",
+          value: genreEnum[customer.gender],
+          position: "left",
+          key: "6",
         },
       ];
       return details;
     }
-  }, [customer, loyaltyCard]);
+  }, [customer]);
   
   const customerDetailCollapse: Array<detailMapping> | undefined =
     React.useMemo(() => {
       if (customer) {
         const details = [
-          {
-            name: "Nhóm khách hàng",
-            value: customer.customer_group,
-            position: "left",
-            key: "11",
-          },
-          {
-            name: "Email",
-            value: customer.email,
-            position: "right",
-            key: "2",
-          },
-          {
-            name: "Loại khách hàng",
-            value: customer.customer_type,
-            position: "left",
-            key: "10",
-          },
-          {
-            name: "Nhân viên phụ trách",
-            value: `${
-              customer.responsible_staff_code
-                ? customer.responsible_staff_code
-                : ""
-            }${
-              customer.responsible_staff ? "-" + customer.responsible_staff : ""
-            }`,
-            position: "right",
-            key: "1",
-          },
-
           {
             name: "Ngày cưới",
             value: customer.wedding_date
@@ -153,11 +116,10 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
             key: "4",
           },
           {
-            name: "Facebook",
-            value: customer.website,
+            name: "Mã khách hàng",
+            value: customer.code,
             position: "right",
-            isWebsite: true,
-            key: "5",
+            key: "2",
           },
           {
             name: "Tên đơn vị",
@@ -166,10 +128,34 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
             key: "6",
           },
           {
+            name: "Thẻ khách hàng",
+            value: loyaltyCard?.card_number,
+            position: "right",
+            key: "4",
+          },
+          {
+            name: "Email",
+            value: customer.email,
+            position: "left",
+            key: "2",
+          },
+          {
             name: "Mã số thuế",
             value: customer.tax_code,
             position: "right",
             key: "7",
+          },
+          {
+            name: "Nhân viên phụ trách",
+            value: `${
+              customer.responsible_staff_code
+                ? customer.responsible_staff_code
+                : ""
+            }${
+              customer.responsible_staff ? "-" + customer.responsible_staff : ""
+            }`,
+            position: "left",
+            key: "1",
           },
           {
             name: "Ghi chú",
@@ -177,10 +163,17 @@ const CustomerInfo: React.FC<CustomerInfoProps> = (
             position: "right",
             key: "9",
           },
+          {
+            name: "Website/Facebook",
+            value: customer.website,
+            position: "left",
+            isWebsite: true,
+            key: "5",
+          },
         ];
         return details;
       }
-    }, [customer]);
+    }, [customer, loyaltyCard]);
   const handleLinkClick = React.useCallback((detail: detailMapping) => {
     let link = "";
     if (!detail?.value?.includes("https://")) {

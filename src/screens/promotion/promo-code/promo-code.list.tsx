@@ -11,7 +11,7 @@ import {
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import moment from "moment";
-import actionColumn from "./actions/action.column";
+import actionColumn from "./actions/promo.action.column";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
@@ -25,7 +25,6 @@ import Dragger from "antd/lib/upload/Dragger";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import search from "assets/img/search.svg";
 import "./promo-code.scss";
-import { Link } from "react-router-dom";
 import { useParams } from "react-router";
 import {CheckCircleOutlined, FilterOutlined, LoadingOutlined, PlusOutlined} from "@ant-design/icons";
 import { useDispatch } from "react-redux";
@@ -37,7 +36,6 @@ import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { RiUpload2Line } from "react-icons/ri";
 import {
   addPromoCode,
-  deleteBulkPromoCode,
   getListPromoCode,
   deletePromoCodeById,
   updatePromoCodeById,
@@ -48,7 +46,6 @@ import {
 import { PromoCodeResponse } from "model/response/promotion/promo-code/list-promo-code.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showSuccess } from "utils/ToastUtils";
-import { STATUS_CODE } from "../constant";
 import { DiscountResponse } from "model/response/promotion/discount/list-discount.response";
 import { promoGetDetail } from "domain/actions/promotion/discount/discount.action";
 import {AppConfig} from "../../../config/app.config";
@@ -65,10 +62,42 @@ const csvColumnMapping: any = {
   notfound: "không tìm thấy",
   required: "Không được trống",
   code: "Mã chiết khấu",
-  sku_duplicate: "Đã tồn tại",
-  ALREADY_EXIST: "Đã tồn tại",
-  DUPLICATE: "Mã đã bị trùng trong file",
+  already_exist: "Đã tồn tại trong hệ thống",
+  duplicate: "Mã đã bị trùng trong file",
 };
+const STATUS_CODE = [
+  {
+      disabled: false,
+      published: false,
+      value: 'Đang áp dụng',
+      style: {
+      background: "rgba(42, 42, 134, 0.1)",
+      borderRadius: "100px",
+      color: "rgb(42, 42, 134)",
+      padding: "5px 10px"
+      }
+  },
+  {
+      disabled: true,
+      published: false,
+      value: 'Ngừng áp dụng',
+      style: {
+      background: "rgb(245, 245, 245)",
+      borderRadius: "100px",
+      color: "rgb(102, 102, 102)",
+      padding: "5px 10px"
+      }},
+  {
+      disabled: false,
+      published: true,
+      value: 'Đã tặng' ,
+      style: {
+      background: "rgba(252, 175, 23, 0.1)",
+      borderRadius: "100px",
+      color: "#FCAF17",
+      padding: "5px 10px"
+      }},
+  ]
 
 const ListCode = () => {
   const token = getToken() || "";
@@ -84,10 +113,6 @@ const ListCode = () => {
     {
       id: 3,
       name: "Ngừng áp dụng",
-    },
-    {
-      id: 4,
-      name: "Xoá",
     },
   ];
   const dispatch = useDispatch();
@@ -300,7 +325,7 @@ const ListCode = () => {
       align: 'center',
       width: '12%',
       render: (value: any, item: any, index: number) => {
-        const status: any | null = STATUS_CODE.find(e => e.code === value);
+        const status: any | null = STATUS_CODE.find(e => (e.published === item.published && e.disabled === item.disabled));
         return (<div
           style={status?.style}
         >
@@ -363,10 +388,6 @@ const ListCode = () => {
         case 3:
           dispatch(showLoading());
           dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
-          break;
-        case 4:
-          dispatch(showLoading());
-          dispatch(deleteBulkPromoCode(priceRuleId, body, deleteCallBack));
           break;
       }
     }, [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
@@ -583,7 +604,7 @@ const ListCode = () => {
             <Col span={19}>
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-              <p>- Tải file mẫu <Link to="#">tại đây</Link></p>
+              <p>- Tải file mẫu <a href={AppConfig.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a> </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
               <p>- Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong lúc hệ thống xử lý
                 không F5 hoặc tắt cửa sổ trình duyệt.</p>
@@ -602,7 +623,7 @@ const ListCode = () => {
                     const response = info.file.response;
                     if (response.code === 20000000) {
                       if (response.data.errors.length > 0) {
-                        const errors: Array<any> = _.uniqBy(response.data.errors, "index");
+                        const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort((a:any, b:any) => a.index - b.index);
                         setCodeErrorsResponse([...errors]);
                       }
                       setImportTotal(response.data.total);
@@ -633,14 +654,16 @@ const ListCode = () => {
             <Row justify={"center"}>
               {uploadStatus === "uploading" ?
                 <Col span={24}>
-                  <Row justify={"center"}>
-                    <LoadingOutlined style={{fontSize: "78px"}} />
-                  </Row>
-                  <Row justify={"center"}>
-                    <h2 style={{padding: "10px 30px"}}>
-                      Đang upload file...
-                    </h2>
-                  </Row>
+                <Row justify={"center"}>
+                  {/*<Col span={24}>*/}
+                    <Space size={"large"}>
+                      <LoadingOutlined style={{fontSize: "78px"}} />
+                      <h2 style={{padding: "10px 30px"}}>
+                        Đang upload file...
+                      </h2>
+                    </Space>
+                  {/*</Col>*/}
+                </Row>
                 </Col>
                 : ""}
               {uploadStatus === "done" ?
@@ -652,8 +675,8 @@ const ListCode = () => {
                     <h2 style={{padding: "10px 30px"}}>Xử lý file nhập toàn tất: <strong
                       style={{color: "#2A2A86"}}>{successCount} / {importTotal}</strong> sản phẩm thành công</h2>
                   </Row>
-                  <Divider />
                   {codeErrorsResponse.length > 0 ? <div>
+                    <Divider />
                     <Row justify={"start"}>
                       <h3 style={{color: "#E24343"}}>Danh sách lỗi: </h3>
                     </Row>
@@ -661,7 +684,7 @@ const ListCode = () => {
                       <li style={{padding: "10px 30px"}}>
                         {codeErrorsResponse?.map((error: any, index) =>
                           <ul key={index}>
-                            <span>- Dòng {error.index + 2}: {csvColumnMapping[error.column]} {csvColumnMapping[error.type.toLowerCase()]}</span>
+                            <span>- Dòng {error.index + 2}: {error.value} {csvColumnMapping[error.type.toLowerCase()]}</span>
                           </ul>)}
                       </li>
                     </Row>

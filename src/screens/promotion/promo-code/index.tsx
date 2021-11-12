@@ -137,7 +137,7 @@ const PromotionCode = () => {
       align: 'center',
       width: "20%",
       render: (value: any, item: any, index: number) =>
-        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYYY)}`} - {item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYYY) : <span>&#8734;</span>}</div>,
+        <div>{`${item.starts_date && moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)}`} - {item.ends_date ? moment(item.ends_date).format(DATE_FORMAT.DDMMYY_HHmm) : <span>&#8734;</span>}</div>,
     },
     {
       title: "Người tạo",

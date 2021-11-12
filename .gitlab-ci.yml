@@ -92,7 +92,7 @@ deploy to production:
   only:
     - master
   variables:
-    HOST: yody.io
+    HOST: unicorn.yody.io
     NAMESPACE: production
     ENVIRONMENT: production
     SERVICE_NAME: yody-app-admin
