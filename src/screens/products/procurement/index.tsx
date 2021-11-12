@@ -7,11 +7,11 @@ import { RouteComponentProps, useParams } from "react-router";
 import { useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
 import TabList from "./tabs/TabList/index";
-const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-  <StickyUnderNavbar>
-    <DefaultTabBar {...props} />
-  </StickyUnderNavbar>
-);
+// const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
+//   <StickyUnderNavbar>
+//     <DefaultTabBar {...props} />
+//   </StickyUnderNavbar>
+// );
 type PORouteProps = {
   id: string;
 };
@@ -51,7 +51,7 @@ const ProcurementScreen: React.FC<RouteComponentProps<PORouteProps>> = (props) =
           style={{ overflow: "initial" }}
           activeKey={activeTab}
           onChange={(active) => history.replace(`${UrlConfig.PROCUREMENT}/${active}`)}
-          renderTabBar={renderTabBar}
+          // renderTabBar={renderTabBar}
         >
           <TabPane tab="Hàng về hôm nay" key="1">
             <TabCurrent />

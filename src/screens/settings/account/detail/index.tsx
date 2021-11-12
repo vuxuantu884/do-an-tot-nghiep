@@ -46,11 +46,11 @@ function AccountDetail() {
     getAccountData();
   }, [getAccountData]);
 
-  const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
-    <StickyUnderNavbar>
-      <DefaultTabBar {...props} />
-    </StickyUnderNavbar>
-  );
+  // const renderTabBar = (props: any, DefaultTabBar: React.ComponentType) => (
+  //   <StickyUnderNavbar>
+  //     <DefaultTabBar {...props} />
+  //   </StickyUnderNavbar>
+  // );
 
   return (
     <ContentContainer
@@ -71,7 +71,9 @@ function AccountDetail() {
     >
       <AccountDetailStyle>
         <Card className="card-tab">
-          <Tabs style={{overflow: "initial"}} renderTabBar={renderTabBar}>
+          <Tabs style={{overflow: "initial"}} 
+          // renderTabBar={renderTabBar}
+          >
             <TabPane tab="Thông tin cơ bản" key={TabName.DETAIL_TAB}>
               <AccountViewTab />
             </TabPane>
