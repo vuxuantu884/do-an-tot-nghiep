@@ -55,13 +55,13 @@ import {
   StyledYodyProductColumn,
 } from "./styles";
 import { StyledProductConnectStatus, StyledProductFilter } from "screens/ecommerce/products/styles";
-import { EcommerceProductPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import useAuthorization from "hook/useAuthorization";
 
 
 
-const connectProductPermission = [EcommerceProductPermissions.CONNECT_PRODUCT];
-const deleteProductPermission = [EcommerceProductPermissions.DELETE_PRODUCT];
+const productsDeletePermission = [EcommerceProductPermission.products_delete];
+const productsConnectPermission = [EcommerceProductPermission.products_update];
 
 type NotConnectedItemsProps = {
   variantData: any;
@@ -78,8 +78,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   const { Option } = Select;
   const history = useHistory();
 
-  const [allowConnectProduct] = useAuthorization({
-    acceptPermissions: connectProductPermission,
+  const [allowProductsConnect] = useAuthorization({
+    acceptPermissions: productsConnectPermission,
     not: false,
   });
 
@@ -177,8 +177,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   ) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
-    const [allowConnectProduct] = useAuthorization({
-      acceptPermissions: connectProductPermission,
+    const [allowProductsConnect] = useAuthorization({
+      acceptPermissions: productsConnectPermission,
       not: false,
     });
 
@@ -474,7 +474,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
               </li>
             </ul>
 
-            {allowConnectProduct &&
+            {allowProductsConnect &&
               <div className="button">
                 <Button
                   type="primary"
@@ -509,12 +509,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   };
 
   const RenderDeleteItemColumn = (l: any, item: any, index: number) => {
-    const [allowDeleteProduct] = useAuthorization({
-      acceptPermissions: deleteProductPermission,
+    const [allowProductsDelete] = useAuthorization({
+      acceptPermissions: productsDeletePermission,
       not: false,
     });
     
-    const isShowAction = item.connect_status === "waiting" && allowDeleteProduct;
+    const isShowAction = item.connect_status === "waiting" && allowProductsDelete;
 
     return (
       <>
@@ -1044,7 +1044,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
         </StyledProductFilter>
 
         <CustomTable
-          isRowSelection={allowConnectProduct}
+          isRowSelection={allowProductsConnect}
           isLoading={tableLoading}
           onSelectedChange={onSelectTable}
           columns={columns}
@@ -1062,7 +1062,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
           rowKey={(data) => data.id}
         />
 
-        {allowConnectProduct &&
+        {allowProductsConnect &&
           <Button
             style={{ margin: "20px 0" }}
             type="primary"

@@ -2,7 +2,7 @@ import React from "react";
 import { Card, Tabs, Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { EcommerceConfigPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceConfigPermission } from "config/permissions/ecommerce.permission";
 
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -40,8 +40,8 @@ const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 
-const viewShopListPermission = [EcommerceConfigPermissions.VIEW_SHOP_LIST];
-const connectShopPermission = [EcommerceConfigPermissions.CONNECT_SHOP];
+const shopsReadPermission = [EcommerceConfigPermission.shops_read];
+const shopsConnectPermission = [EcommerceConfigPermission.shops_connect];
 
 
 const EcommerceConfig: React.FC = () => {
@@ -49,8 +49,8 @@ const EcommerceConfig: React.FC = () => {
   const connectQuery = useQuery();
   const [configForm] = Form.useForm();
 
-  const [allowConnectShop] = useAuthorization({
-    acceptPermissions: connectShopPermission,
+  const [allowShopsConnect] = useAuthorization({
+    acceptPermissions: shopsConnectPermission,
     not: false,
   });
 
@@ -191,7 +191,7 @@ const EcommerceConfig: React.FC = () => {
       ]}
       extra={
         <>
-          {activeTab === "sync" && allowConnectShop && (
+          {activeTab === "sync" && allowShopsConnect && (
             <Button
               className="ant-btn-outline ant-btn-primary"
               size="large"
@@ -204,7 +204,7 @@ const EcommerceConfig: React.FC = () => {
         </>
       }
     >
-      <AuthWrapper acceptPermissions={viewShopListPermission} passThrough>
+      <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <StyledComponent>
             <Card>

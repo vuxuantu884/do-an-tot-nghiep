@@ -43,7 +43,7 @@ import EcommerceOrderFilter from "./component/EcommerceOrderFilter";
 // import UpdateConnectionModal from "./component/UpdateConnectionModal";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { EcommerceOrderPermissions } from "config/permissions/ecommerce.permission";
+import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 
 import ImageGHTK from "assets/img/imageGHTK.svg";
 import ImageGHN from "assets/img/imageGHN.png";
@@ -127,8 +127,8 @@ const ALL_ECOMMERCE_SOURCE_ID = [
   ECOMMERCE_SOURCE.tiki
 ];
 
-const ordersViewPermission = [EcommerceOrderPermissions.ORDERS_VIEW];
-const ordersDownloadPermission = [EcommerceOrderPermissions.ORDERS_DOWNLOAD];
+const ordersViewPermission = [EcommerceOrderPermission.orders_view];
+const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
 
 const EcommerceOrderSync: React.FC = () => {
@@ -136,12 +136,12 @@ const EcommerceOrderSync: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const [allowViewOrder] = useAuthorization({
+  const [allowOrdersView] = useAuthorization({
     acceptPermissions: ordersViewPermission,
     not: false,
   });
 
-  const [allowDownloadOrder] = useAuthorization({
+  const [allowOrdersDownload] = useAuthorization({
     acceptPermissions: ordersDownloadPermission,
     not: false,
   });
@@ -703,7 +703,7 @@ const EcommerceOrderSync: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   const reloadPage = () => {
-    if (allowViewOrder) {
+    if (allowOrdersView) {
       getEcommerceOrderList();
     }
   };
@@ -714,13 +714,13 @@ const EcommerceOrderSync: React.FC = () => {
   };
 
   useEffect(() => {
-    if (allowViewOrder) {
+    if (allowOrdersView) {
       getEcommerceOrderList();
     }
-  }, [allowViewOrder, getEcommerceOrderList]);
+  }, [allowOrdersView, getEcommerceOrderList]);
 
   useEffect(() => {
-    if (allowViewOrder) {
+    if (allowOrdersView) {
       dispatch(AccountSearchAction({}, setDataAccounts));
       dispatch(StoreGetListAction(setStore));
       dispatch(
@@ -732,7 +732,7 @@ const EcommerceOrderSync: React.FC = () => {
         )
       );
     }
-  }, [allowViewOrder, dispatch, setDataAccounts]);
+  }, [allowOrdersView, dispatch, setDataAccounts]);
 
   return (
     <StyledComponent>
@@ -753,7 +753,7 @@ const EcommerceOrderSync: React.FC = () => {
         ]}
         extra={
           <>
-            {allowDownloadOrder &&
+            {allowOrdersDownload &&
               <Button
                 disabled={tableLoading}
                 onClick={openGetOrderModal}
