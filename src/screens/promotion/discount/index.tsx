@@ -46,7 +46,7 @@ const DiscountPage = () => {
   const query = useQuery();
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [discounts, setDiscounts] = useState<PageResponse<DiscountResponse>>({
+  const [discounts, setDiscounts] = useState<PageResponse<DiscountResponse> | null>({
     metadata: {
       limit: 30,
       page: 1,
@@ -292,14 +292,14 @@ const DiscountPage = () => {
             isLoading={tableLoading}
             sticky={{offsetScroll: 5}}
             pagination={{
-              pageSize: discounts.metadata.limit,
-              total: discounts.metadata.total,
-              current: discounts.metadata.page,
+              pageSize: discounts?.metadata.limit || 0,
+              total: discounts?.metadata.total || 0,
+              current: discounts?.metadata.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={discounts.items}
+            dataSource={discounts?.items}
             columns={columns}
             rowKey={(item: any) => item.id}
           />
