@@ -1,4 +1,4 @@
-import {Card, Col, Divider, Row, Space} from "antd";
+import {Button, Card, Col, Divider, Row, Space} from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, {useCallback, useEffect, useState} from "react";
@@ -15,11 +15,17 @@ import {StoreGetListAction} from "domain/actions/core/store.action";
 import {getListSourceRequest} from "domain/actions/product/source.action";
 import {StoreResponse} from "model/core/store.model";
 import {SourceResponse} from "model/response/order/source.response";
-import {getVariants, promoGetDetail} from "../../../domain/actions/promotion/discount/discount.action";
+import {
+  bulkEnablePriceRules,
+  getVariants,
+  promoGetDetail,
+} from "../../../domain/actions/promotion/discount/discount.action";
 import CustomTable from "../../../component/table/CustomTable";
 import {formatCurrency} from "../../../utils/AppUtils";
 import {ChannelResponse} from "model/response/product/channel.response";
 import {getListChannelRequest} from "domain/actions/order/order.action";
+import BottomBarContainer from "../../../component/container/bottom-bar.container";
+import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
 
 export interface ProductParams {
   id: string;
@@ -374,6 +380,17 @@ const PromotionDetailScreen: React.FC = () => {
         </span>
     );
   };
+
+  const onActivate = () => {
+    dispatch(showLoading());
+    dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
+  }
+
+  const onActivateSuccess = useCallback(() => {
+    dispatch(hideLoading());
+    dispatch(promoGetDetail(idNumber, onResult));
+  }, [dispatch, idNumber, onResult]);
+
 
   // @ts-ignore
   const renderer = ({days, hours, minutes, seconds, completed}) => {
@@ -770,6 +787,16 @@ const PromotionDetailScreen: React.FC = () => {
               </Card>
             </Col>
           </Row>
+          <BottomBarContainer
+            back="Quay lại danh sách khuyến mại"
+            rightComponent={
+              <Space>
+                <Button disabled >Sửa</Button>
+                <Button disabled >Nhân bản</Button>
+                <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+              </Space>
+            }
+          />
         </React.Fragment>
       )}
     </ContentContainer>
