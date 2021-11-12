@@ -15,6 +15,7 @@ type PropType = {
   shippingFeeInformedToCustomer?: number | null;
   changeMoney: number;
   amount: number;
+  isDisableOrderDiscount?: boolean;
   showDiscountModal: () => void;
   showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
@@ -44,6 +45,7 @@ function CardProductBottom(props: PropType) {
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
+    isDisableOrderDiscount,
     showDiscountModal,
     showCouponModal,
     setDiscountRate,
@@ -72,7 +74,7 @@ console.log('coupon', coupon)
 
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
-              {setDiscountRate && items && items.length > 0 ? (
+              {setDiscountRate && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showDiscountModal}
@@ -112,7 +114,7 @@ console.log('coupon', coupon)
 
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
-              {setDiscountRate && items && items.length > 0 ? (
+              {setDiscountRate && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
                   className="font-weight-400"
                   onClick={showCouponModal}
