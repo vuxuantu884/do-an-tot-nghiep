@@ -26,6 +26,11 @@ import {ChannelResponse} from "model/response/product/channel.response";
 import {getListChannelRequest} from "domain/actions/order/order.action";
 import BottomBarContainer from "../../../component/container/bottom-bar.container";
 import {hideLoading, showLoading} from "../../../domain/actions/loading.action";
+import {bulkDisablePriceRules} from "../../../service/promotion/discount/discount.service";
+import {HttpStatus} from "../../../config/http-status.config";
+import {put} from "@redux-saga/core/effects";
+import {unauthorizedAction} from "../../../domain/actions/auth/auth.action";
+import {showError} from "../../../utils/ToastUtils";
 
 export interface ProductParams {
   id: string;
@@ -112,7 +117,7 @@ const PromotionDetailScreen: React.FC = () => {
       dispatch(getListChannelRequest(setListChannel));
       dispatch(promoGetDetail(idNumber, onResult));
       dispatch(getVariants(idNumber, handleResponse));
-    }, 2000)
+    }, 500)
   }, []);
 
   const onResult = useCallback((result: DiscountResponse | false) => {
@@ -386,6 +391,28 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(bulkEnablePriceRules({ids: [idNumber]}, onActivateSuccess));
   }
 
+  const onDeactivate = async () => {
+    dispatch(showLoading());
+    try {
+      const deactivateResponse = await bulkDisablePriceRules({ids: [idNumber]});
+      switch (deactivateResponse.code) {
+        case HttpStatus.SUCCESS:
+          dispatch(promoGetDetail(idNumber, onResult));
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          dispatch(unauthorizedAction());
+          break;
+        default:
+          deactivateResponse.errors.forEach((e:any) => showError(e.toString()));
+          break;
+      }
+    } catch (error) {
+      showError("Thao tác thất bại")
+    } finally {
+      dispatch(hideLoading());
+    }
+  }
+
   const onActivateSuccess = useCallback(() => {
     dispatch(hideLoading());
     dispatch(promoGetDetail(idNumber, onResult));
@@ -426,6 +453,18 @@ const PromotionDetailScreen: React.FC = () => {
       key: "3",
     },
   ];
+
+  const renderActionButton = () => {
+    switch (data?.state) {
+      case "ACTIVE":
+        return <Button type="primary" onClick={onDeactivate}>Tạm ngừng</Button>
+      case "DISABLED":
+      case "DRAFT":
+        return <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+      default:
+        return null;
+    }
+  }
 
   return (
     <ContentContainer
@@ -793,7 +832,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Space>
                 <Button disabled >Sửa</Button>
                 <Button disabled >Nhân bản</Button>
-                <Button type="primary" onClick={onActivate}>Kích hoạt</Button>
+                {renderActionButton()}
               </Space>
             }
           />
