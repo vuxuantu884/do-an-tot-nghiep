@@ -15,11 +15,11 @@ export const StyledCustomerBaseFilter = styled.div`
     }
 
     .left-filter {
-      width: 30%;
+      width: 33%;
     }
 
     .center-filter {
-      width: 30%;
+      width: 33%;
     }
 
     .right-filter {
@@ -34,6 +34,12 @@ export const StyledCustomerBaseFilter = styled.div`
         width: 40%;
       }
     }
+
+    .select-connection-date .date-option .ant-btn {
+      width: 32%;
+      padding: 0 6px;
+    }
+
   }
   
 `;

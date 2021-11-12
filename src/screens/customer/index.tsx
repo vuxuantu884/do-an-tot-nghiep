@@ -34,6 +34,10 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { CustomerListPermissions } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 
 
@@ -71,9 +75,9 @@ const Customer = () => {
       company: null,
       from_wedding_date: null,
       to_wedding_date: null,
-      customer_type_id: null,
-      customer_group_id: null,
-      customer_level_id: null,
+      customer_type_id: undefined,
+      customer_group_id: undefined,
+      customer_level_id: undefined,
       responsible_staff_code: null,
     }),
     []
@@ -88,14 +92,19 @@ const Customer = () => {
     company: null,
     from_wedding_date: null,
     to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
+    customer_type_id: undefined,
+    customer_group_id: undefined,
+    customer_level_id: undefined,
     responsible_staff_code: "",
   });
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+
+
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [groups, setGroups] = useState<Array<any>>([]);
+  const [types, setTypes] = useState<Array<any>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([])
+  
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -303,19 +312,15 @@ const Customer = () => {
 
   React.useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(StoreGetListAction(setStore));
+    dispatch(CustomerGroups(setGroups));
+    dispatch(CustomerTypes(setTypes));
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
 
   React.useEffect(() => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
-
-  const [groups, setGroups] = useState<Array<any>>([]);
-  const [types, setTypes] = useState<Array<any>>([]);
-
-  React.useEffect(() => {
-    dispatch(CustomerGroups(setGroups));
-    dispatch(CustomerTypes(setTypes));
-  }, [dispatch]);
   
 
   const onFilterClick = React.useCallback((values: CustomerSearchQuery) => {
@@ -390,9 +395,11 @@ const Customer = () => {
                 params={query}
                 initQuery={params}
                 groups={groups}
-                loyaltyUsageRules={loyaltyUsageRules}
                 types={types}
                 setShowSettingColumn={() => setShowSettingColumn(true)}
+                loyaltyUsageRules={loyaltyUsageRules}
+                listStore={listStore}
+                listChannel={listChannel}
               />
               
               <CustomTable

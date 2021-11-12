@@ -31,6 +31,7 @@ interface AuthorizeDetailCardProps {
     permission: PermissionsAuthorize
   ) => void;
   isShowTitle?: boolean;
+  disabled?: boolean;
 }
 
 export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
@@ -46,6 +47,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
     onChangeCheckboxModule,
     onChangeCheckboxPermission,
     isShowTitle,
+    disabled
   } = props;
 
   const handleChangeModule = (e: CheckboxChangeEvent, module: ModuleAuthorize) => {
@@ -116,6 +118,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                       onChange={(e) => handleChangeModule(e, module)}
                       indeterminate={isIndeterminate && !isChecked}
                       checked={isChecked || isIndeterminate}
+                      disabled={disabled}
                     >
                       <b>{_.capitalize(module.name)}</b>
                     </Checkbox>
@@ -140,6 +143,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                             onChange={(e) =>
                               handleChangeCheckboxPermission(e, module, value)
                             }
+                            disabled={disabled}
                           >
                             {_.capitalize(value.name)}
                           </Checkbox>
@@ -154,4 +158,8 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
       </Card>
     </RoleStyled>
   );
+};
+
+AuthorizeDetailCard.defaultProps = {
+  disabled: false,
 };
