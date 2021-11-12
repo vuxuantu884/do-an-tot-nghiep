@@ -24,12 +24,12 @@ import {actionFetchListCustomerGroup} from "../../../domain/actions/customer/cus
 import {CustomerGroupModel, CustomerGroupResponseModel} from "../../../model/response/customer/customer-group.response";
 import {showError, showSuccess} from "../../../utils/ToastUtils";
 import {PROMO_TYPE} from "utils/Constants";
-import {ACTIONS_DISCOUNT, STATUS_CODE} from "../constant";
+import {ACTIONS_DISCOUNT, STATUS_PROMO} from "../constant";
 import {RiDeleteBin2Fill} from "react-icons/all";
 
 
 const DiscountPage = () => {
-  const discountStatuses = STATUS_CODE;
+  const discountStatuses = STATUS_PROMO;
   const actions = ACTIONS_DISCOUNT;
   const initQuery: DiscountSearchQuery = {
     type: PROMO_TYPE.AUTOMATIC,
