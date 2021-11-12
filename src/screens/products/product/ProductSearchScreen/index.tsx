@@ -1,28 +1,22 @@
-import {Button, Card, Row, Space, Tabs} from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
-import {StickyUnderNavbar} from "component/container/sticky-under-navbar";
 import ButtonCreate from "component/header/ButtonCreate";
-import {ProductPermission} from "config/permissions/product.permission";
+import RenderTabBar from "component/table/StickyTabBar";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
-import React, {ReactElement, useEffect, useState} from "react";
-import {Link, useHistory, useParams} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useHistory, useParams } from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {ProductTabId} from "utils/Constants";
+import { ProductTabId } from "utils/Constants";
 import TabHistoryInfo from "../tab/TabHistoryInfo";
 import TabHistoryPrice from "../tab/TabHistoryPrice";
 import TabProduct from "../tab/TabProduct";
 import TabProductWrapper from "../tab/TabProductWrapper";
 const {TabPane} = Tabs;
-
-const RenderTabBar = <P extends object>(props: any, DefaultTabBar: React.ComponentType<P>) => (
-  <StickyUnderNavbar>
-    <DefaultTabBar {...props} />
-  </StickyUnderNavbar>
-);
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -151,7 +145,7 @@ const ListProductScreen: React.FC = () => {
             const targetUrl = UrlConfig.PRODUCT + "/" + active + "/tabs";
             history.replace(targetUrl);
           }}
-          renderTabBar={(props, DefaultTabBar)=> RenderTabBar(props, DefaultTabBar)}
+          renderTabBar={RenderTabBar}
         >
           {tabs.map((tab) => {
             if (tab.isShow) {
