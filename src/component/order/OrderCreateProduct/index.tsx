@@ -224,6 +224,7 @@ function OrderCreateProduct(props: PropType) {
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   console.log('items333333333333', items)
+  console.log('coupon', coupon)
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(false);
   const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
@@ -839,6 +840,7 @@ function OrderCreateProduct(props: PropType) {
   ) => {
     setLoadingAutomaticDiscount(true);
     let highestValueDiscount = 0;
+    let highestValueSuggestDiscount: any = null;
     let quantity = splitLine
       ? _items.filter((singleItem) => singleItem.variant_id === item.variant_id).length
       : item.quantity;
@@ -860,27 +862,43 @@ function OrderCreateProduct(props: PropType) {
         if (suggested_discounts && suggested_discounts.length > 0) {
           const quantity = item.quantity;
           const total = item.amount;
-          highestValueDiscount = Math.max(
-            ...suggested_discounts.map((discount: any) => {
-              let value = 0;
-              if (discount.value_type === "FIXED_AMOUNT") {
-                value = discount.value * quantity;
-              } else if (discount.value_type === "PERCENTAGE") {
-                value = total * (discount.value / 100);
-              } else if (discount.value_type === "FIXED_PRICE") {
-                value = item.price - discount.value;
-              }
-              if (value > item.price) {
-                value = item.price;
-              }
-              return value;
-            })
-          );
+          for (const singleSuggest of suggested_discounts) {
+            let value = 0;
+            if (singleSuggest.value_type === "FIXED_AMOUNT") {
+              value = (item.price - singleSuggest.value) * quantity;
+            } else if (singleSuggest.value_type === "PERCENTAGE") {
+              value = total * (singleSuggest.value / 100);
+            } else if (singleSuggest.value_type === "FIXED_PRICE") {
+              value = item.price - singleSuggest.value;
+            }
+            if(value > highestValueDiscount) {
+              highestValueDiscount = value;
+              highestValueSuggestDiscount = singleSuggest;
+            }
+          }
+          // highestValueDiscount = Math.max(
+          //   ...suggested_discounts.map((discount: any) => {
+          //     let value = 0;
+          //     if (discount.value_type === "FIXED_AMOUNT") {
+          //       value = (item.price - discount.value) * quantity;
+          //     } else if (discount.value_type === "PERCENTAGE") {
+          //       value = total * (discount.value / 100);
+          //     } else if (discount.value_type === "FIXED_PRICE") {
+          //       value = item.price - discount.value;
+          //     }
+          //     if (value > item.price) {
+          //       value = item.price;
+          //     }
+          //     return value;
+          //   })
+          // );
           const discountItem: OrderItemDiscountRequest = {
             rate: Math.round((highestValueDiscount / item.price) * 100 * 100) / 100,
             value: highestValueDiscount,
             amount: highestValueDiscount,
             reason: "",
+            // promotion_id: suggested_discounts[0].price_rule_id || undefined, // backend đã sắp xếp
+            promotion_id: highestValueSuggestDiscount.price_rule_id || undefined, 
           };
           item.discount_items[0] = discountItem;
         }
@@ -970,6 +988,7 @@ function OrderCreateProduct(props: PropType) {
                       value: valueDiscount,
                       amount: valueDiscount * item.quantity,
                       reason: "",
+                      promotion_id:itemDiscount.applied_discount?.price_rule_id || undefined,
                     };
                     item.discount_items[0] = discountItem;
                   }
@@ -1051,18 +1070,39 @@ function OrderCreateProduct(props: PropType) {
                       return aa.product_id === singleItem.product_id
                     })
                     if(itemDiscount) {
-                      return {
-                        ...singleItem,
-                        discount_items: [
-                          {
-                            amount: itemDiscount.applied_discount?.value ? singleItem.quantity * itemDiscount.applied_discount?.value : 0,
-                            value: itemDiscount.applied_discount?.value || 0,
-                            rate: itemDiscount.applied_discount?.value ? itemDiscount.applied_discount?.value * 100 / singleItem.price : 0,
-                            reason: "",
-                            promotion_id: undefined,
+                      let applyDiscountLineItem = itemDiscount.applied_discount;
+                      switch (applyDiscountLineItem?.value_type) {
+                        case DISCOUNT_VALUE_TYPE.fixedAmount:
+                          return {
+                            ...singleItem,
+                            discount_items: [
+                              {
+                                amount: applyDiscountLineItem?.value ? singleItem.quantity * applyDiscountLineItem?.value : 0,
+                                value: applyDiscountLineItem?.value || 0,
+                                rate: applyDiscountLineItem?.value ? applyDiscountLineItem?.value * 100 / singleItem.price : 0,
+                                reason: "",
+                                promotion_id: applyDiscountLineItem.price_rule_id || undefined,
+                              }
+                            ]
                           }
-                        ]
+                        case DISCOUNT_VALUE_TYPE.percentage:
+                          let percentValue = applyDiscountLineItem?.value;
+                          return {
+                            ...singleItem,
+                            discount_items: [
+                              {
+                                amount: percentValue ? singleItem.quantity * percentValue : 0,
+                                value: percentValue ? percentValue / 100 * singleItem.price : 0,
+                                rate: percentValue || 0,
+                                reason: "",
+                                promotion_id: applyDiscountLineItem.price_rule_id || undefined,
+                              }
+                            ]
+                          }
+                        default:
+                          break;
                       }
+                     
                     }
                     return singleItem
                   })
@@ -1643,6 +1683,7 @@ function OrderCreateProduct(props: PropType) {
             calculateChangeMoney={calculateChangeMoney}
             changeMoney={changeMoney}
             coupon={coupon}
+            setCoupon={setCoupon}
             discountRate={discountRate}
             discountValue={discountValue}
             setDiscountRate={setDiscountRate}

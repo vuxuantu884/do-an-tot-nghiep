@@ -19,6 +19,7 @@ type PropType = {
   showCouponModal: () => void;
   setDiscountRate?: (value: number) => void;
   setDiscountValue?: (value: number) => void;
+  setCoupon?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _amount: number,
@@ -48,8 +49,9 @@ function CardProductBottom(props: PropType) {
     setDiscountRate,
     setDiscountValue,
     calculateChangeMoney,
+    setCoupon,
   } = props;
-
+console.log('coupon', coupon)
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -138,9 +140,10 @@ function CardProductBottom(props: PropType) {
                   onClose={() => {
                     setDiscountRate && setDiscountRate(0);
                     setDiscountValue && setDiscountValue(0);
+                    setCoupon && setCoupon("");
                   }}
                 >
-                  {coupon}{" "}
+                  {coupon}
                 </Tag>
               )}
             </Space>
