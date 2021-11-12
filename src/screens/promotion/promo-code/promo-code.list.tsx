@@ -30,7 +30,6 @@ import {CheckCircleOutlined, FilterOutlined, LoadingOutlined, PlusOutlined} from
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 import { RiUpload2Line } from "react-icons/ri";
