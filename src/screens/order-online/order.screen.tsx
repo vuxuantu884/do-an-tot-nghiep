@@ -512,8 +512,6 @@ export default function Order() {
             showError("Vui lòng chọn đối tác giao hàng");
             setCreating(false);
           } else {
-            console.log('values', values)
-            return;
             (async () => {
               try {
                 await dispatch(orderCreateAction(values, createOrderCallback));
@@ -542,7 +540,6 @@ export default function Order() {
               if (isPointFocus) {
                 (async () => {
                   console.log('values', values)
-            return;
                   try {
                     await dispatch(orderCreateAction(values, createOrderCallback));
                   } catch {

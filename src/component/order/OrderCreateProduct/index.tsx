@@ -608,7 +608,7 @@ function OrderCreateProduct(props: PropType) {
               }
               onChangeQuantity(value, index);
             }}
-            max={l.maxQuantityToApplyDiscount}
+            min={1}
             maxLength={4}
             minLength={0}
             disabled={levelOrder > 3}
@@ -862,7 +862,9 @@ function OrderCreateProduct(props: PropType) {
       salesChannelName: "ADMIN",
     };
     dispatch(showLoading());
-    const checkingDiscountResponse = await applyDiscount(items, orderInfo);
+    const checkingDiscountResponse = await applyDiscount(items, orderInfo).finally(() => {
+      dispatch(hideLoading())
+    });
     console.log("checkingDiscountResponse", checkingDiscountResponse);
     if (
       checkingDiscountResponse?.code === 20000000 &&
@@ -901,14 +903,11 @@ function OrderCreateProduct(props: PropType) {
           highestValueSuggestDiscount?.allocation_limit || undefined;
         return item;
       });
-      dispatch(hideLoading());
       setItems(itemsResult);
       showSuccess("Thêm chiết khấu thành công!");
     } else {
-      dispatch(hideLoading());
       showError("Có lỗi khi áp dụng chiết khấu!");
     }
-    dispatch(hideLoading());
   };
 
   const handleAutomaticDiscount = async (
