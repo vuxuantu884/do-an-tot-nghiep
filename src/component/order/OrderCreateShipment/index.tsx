@@ -219,7 +219,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
               handleCreateShipment && handleCreateShipment();
             }}
           >
-            Tạo đơn giao hàng 2
+            Tạo đơn giao hàng
           </Button>
           <Button
             className="ant-btn-outline fixed-button cancle-button create-button-custom"

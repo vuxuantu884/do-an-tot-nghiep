@@ -677,11 +677,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   // const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const totalAmountCustomerNeedToPay =
-    (props.OrderDetail?.total_line_amount_after_line_discount
-      ? props.OrderDetail?.total_line_amount_after_line_discount
-      : 0) +
-    (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0)  -
-    (props.totalPaid ? props.totalPaid : 0);
+  (props.OrderDetail?.total
+    ? props.OrderDetail?.total
+    : 0) +
+  (props.shippingFeeInformedCustomer ? props.shippingFeeInformedCustomer : 0) -
+  (props.totalPaid ? props.totalPaid : 0);
   // totalAmountPaid() -
   // (totalAmountReturnProducts ? totalAmountReturnProducts : 0))
 

@@ -603,8 +603,8 @@ console.log('totalAmountCustomerNeedToPay111', totalAmountCustomerNeedToPay)
               {/*--- product ---*/}
               <UpdateProductCard
                 OrderDetail={OrderDetail}
-                // shippingFeeInformedCustomer={shippingFeeInformedCustomer}
-                shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
+                shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                // shippingFeeInformedCustomer={form.getFieldValue("shipping_fee_informed_to_customer")}
                 customerNeedToPayValue={customerNeedToPayValue}
                 totalAmountReturnProducts={totalAmountReturnProducts}
               />
