@@ -729,7 +729,10 @@ const ListOrderScreen: React.FC = () => {
         case 3:
           break;
         case 4:
-          const ids = selectedRow.map((row) => row.id);
+          let ids:number[] = [];
+          selectedRow.forEach((row) => row.fulfillments?.forEach((single) => {
+            ids.push(single.id)
+          }));
           dispatch(showLoading());
           changeOrderStatusToPickedService(ids).then((response) => {
             switch (response.code) {
