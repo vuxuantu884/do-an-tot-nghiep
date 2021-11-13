@@ -145,6 +145,7 @@ console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
         shipping_fee_paid_to_three_pls: null,
       });
     }
+    form.setFieldsValue({shipping_fee_informed_to_customer: 0})
   };
 
   const shipping_requirements = useSelector(
