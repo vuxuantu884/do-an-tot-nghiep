@@ -1,4 +1,4 @@
-import {StickyUnderNavbar} from "component/container/sticky-under-navbar";
+import {StickyUnderNavbar} from "../container/sticky-under-navbar";
 
 const RenderTabBar = <P extends object>(
   props: any,
