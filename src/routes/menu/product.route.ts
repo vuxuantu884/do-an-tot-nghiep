@@ -79,6 +79,7 @@ const product: Array<RouteMenu> = [
     key: "submenu21",
     isShow: true,
     header: null,
+    permissions:[ProductPermission.read, ProductPermission.read_variant, ProductPermission.read_histories],
     subMenu: [
       {
         path: `${UrlConfig.PRODUCT}/create`,
@@ -125,6 +126,7 @@ const product: Array<RouteMenu> = [
         key: "submenu216",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.read],
         subMenu: [],
       },
       {
@@ -135,6 +137,7 @@ const product: Array<RouteMenu> = [
         component: Product,
         key: "submenu217",
         isShow: true,
+        permissions: [ProductPermission.read_histories],
         header: null,
         subMenu: [],
       },
@@ -146,6 +149,7 @@ const product: Array<RouteMenu> = [
         component: Product,
         key: "submenu218",
         isShow: true,
+        permissions: [ProductPermission.read_histories],
         header: null,
         subMenu: [],
       },
@@ -171,6 +175,7 @@ const product: Array<RouteMenu> = [
         key: "submenu2220",
         isShow: true,
         header: null,
+        permissions: [ProductPermission.read, ProductPermission.update],
         subMenu: [],
         pathIgnore: ["create"],
       },

@@ -31,41 +31,48 @@ const ListProductScreen: React.FC = () => {
   const history = useHistory();
   let match = useRouteMatch();
   const {path} = match;
-  console.log(match);
 
   useEffect(() => {
+    let redirectUrl = path;
     if (!path || !Object.values(ProductTabUrl).includes(path)) {
       if (canReadVariants) {
-        setActiveTab(ProductTabUrl.VARIANTS);
+        history.replace(ProductTabUrl.VARIANTS);
         return;
       }
       if (canReadProducts) {
-        setActiveTab(ProductTabUrl.PRODUCTS);
+        history.replace(ProductTabUrl.PRODUCTS);
         return;
       }
       if (canReadHistories) {
-        setActiveTab(ProductTabUrl.PRODUCT_HISTORIES);
+        history.replace(ProductTabUrl.PRODUCT_HISTORIES);
         return;
       }
     }
 
-    if (path === ProductTabUrl.VARIANTS && canReadVariants) {
+    if (redirectUrl === ProductTabUrl.VARIANTS && canReadVariants) {
       setActiveTab(ProductTabUrl.VARIANTS);
+    } else if (redirectUrl === ProductTabUrl.PRODUCTS) {
+      redirectUrl = ProductTabUrl.PRODUCTS;
     }
 
-    if (path === ProductTabUrl.PRODUCTS && canReadProducts) {
+    if (redirectUrl === ProductTabUrl.PRODUCTS && canReadProducts) {
+      history.replace(redirectUrl);
       setActiveTab(ProductTabUrl.PRODUCTS);
+    } else if (redirectUrl === ProductTabUrl.PRODUCT_HISTORIES) {
+      redirectUrl = ProductTabUrl.PRODUCT_HISTORIES;
     }
 
     if (canReadHistories) {
-      if (path === ProductTabUrl.PRODUCT_HISTORIES) {
+      if (redirectUrl === ProductTabUrl.PRODUCT_HISTORIES) {
+        history.replace(redirectUrl);
         setActiveTab(ProductTabUrl.PRODUCT_HISTORIES);
       }
-      if (path === ProductTabUrl.HISTORY_PRICES) {
+      if (redirectUrl === ProductTabUrl.HISTORY_PRICES) {
+        history.replace(redirectUrl);
         setActiveTab(ProductTabUrl.HISTORY_PRICES);
       }
     }
-  }, [path, canReadHistories, canReadVariants, canReadProducts]);
+  }, [path, canReadHistories, canReadVariants, canReadProducts, history]);
 
   const defaultTabs = [
     {
