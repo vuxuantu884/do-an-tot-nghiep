@@ -202,7 +202,7 @@ const GeneralInfo = (props: any) => {
                   showNow
                   showTime={{ format: 'HH:mm' }}
                   disabledDate={(currentDate) =>
-                    currentDate.isBefore(moment().subtract(1, 'days')) ||
+                    currentDate.isBefore(moment()) ||
                     currentDate.valueOf() >= form.getFieldValue("ends_date")
                   }
                 />
@@ -215,7 +215,7 @@ const GeneralInfo = (props: any) => {
                   style={{width: "100%"}}
                   placeholder="Đến ngày"
                   showTime={{ format: 'HH:mm' }}
-                  disabledDate={(currentDate) => currentDate.valueOf() < form.getFieldValue("starts_date")}
+                  disabledDate={(currentDate) => currentDate.isBefore(moment()) || currentDate.valueOf() < form.getFieldValue("starts_date")}
                 />
               </Form.Item>
             </Col>

@@ -166,7 +166,7 @@ const FixedPriceGroup = (props: any) => {
       }
       return `${value}`
     } else {
-      return formatCurrency(`${value}`)
+      return formatCurrency(`${value}`.replaceAll(".", ""))
     }
   }, [discountType])
 
@@ -370,6 +370,7 @@ const FixedPriceGroup = (props: any) => {
           selected={data}
           onCancel={() => setVisibleManyProduct(false)}
           visible={visibleManyProduct}
+          emptyText={"Không tìm thấy sản phẩm"}
         />
       </div>}
     </div>
