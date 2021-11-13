@@ -871,7 +871,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title={
           <Space>
             <div className="d-flex">
-              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 55</span>
+              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
@@ -1466,7 +1466,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 );
               }}
             >
-              Đổi trả hàng 3
+              Đổi trả hàng
             </Button>
           ) : (
             <React.Fragment>
@@ -1487,7 +1487,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     padding: "0 25px",
                   }}
                 >
-                  Hủy 3
+                  Hủy
                 </Button>
               ) : (
                 props.OrderDetail?.fulfillments &&

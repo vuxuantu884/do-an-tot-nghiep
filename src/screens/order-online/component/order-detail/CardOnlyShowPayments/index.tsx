@@ -59,7 +59,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
             title={
               <Space>
                 <div className="d-flex">
-                  <span className="title-card">THANH TOÁN 29</span>
+                  <span className="title-card">THANH TOÁN</span>
                 </div>
                 {checkPaymentStatusToShow(OrderDetail) === -1 && (
                   <Tag className="orders-tag orders-tag-default">Chưa thanh toán 2</Tag>
@@ -339,7 +339,7 @@ function CardOnlyShowPayments(props: CardOnlyShowPaymentsProps) {
             title={
               <Space>
                 <div className="d-flex">
-                  <span className="title-card">THANH TOÁN 2</span>
+                  <span className="title-card">THANH TOÁN</span>
                 </div>
                 {checkPaymentStatusToShow(OrderDetail) === 1 && (
                   <Tag

@@ -1087,7 +1087,7 @@ export default function Order() {
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={null}
                     />
-                    <Card title="THANH TOÁN 31">
+                    <Card title="THANH TOÁN">
                       <OrderCreatePayments
                         setPaymentMethod={handlePaymentMethod}
                         payments={payments}
@@ -1101,7 +1101,7 @@ export default function Order() {
                       />
                     </Card>
 
-                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG 252">
+                    <Card title="ĐÓNG GÓI VÀ GIAO HÀNG">
                       <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
                         orderPrice={orderAmount}
