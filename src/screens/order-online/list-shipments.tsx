@@ -43,6 +43,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import ExportModal from "./modal/export.modal";
 import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
 const actions: Array<MenuAction> = [
   {
@@ -584,32 +586,40 @@ const ListOrderScreen: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={
-                  <img src={importIcon} style={{ marginRight: 8 }} alt="" />
-                }
-                onClick={() => {}}
-              >
-                Nhập file
-              </Button>
-              <Button
-                type="default"
-                className="light"
-                size="large"
-                icon={
-                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
-                }
-                // onClick={onExport}
-                onClick={() => {
-                  setShowExportModal(true);
-                }}
-              >
-                Xuất file
-              </Button>
-              <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => {}}
+                  disabled={!isPassed}
+                >
+                  Nhập file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+                {(isPassed: boolean) => 
+                <Button
+                  type="default"
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  // onClick={onExport}
+                  onClick={() => {
+                    console.log("export");
+                    setShowExportModal(true);
+                  }}
+                  disabled={!isPassed}
+                >
+                  Xuất file
+                </Button>}
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                {(isPassed: boolean) => 
+                <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
+              </AuthWrapper>
             </Space>
           </Row>
         }
