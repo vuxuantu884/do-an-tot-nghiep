@@ -1,4 +1,4 @@
-import { Checkbox, Col, Divider, Row, Space, Tag, Typography } from "antd";
+import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency } from "utils/AppUtils";
@@ -30,6 +30,7 @@ type PropType = {
   returnOrderInformation?: {
     totalAmountReturn: number;
   };
+  handleRemoveAllDiscount: () => void;
 };
 
 function CardProductBottom(props: PropType) {
@@ -52,8 +53,17 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
     setCoupon,
+    handleRemoveAllDiscount,
   } = props;
-console.log('coupon', coupon)
+
+  const handleDisplay = (coupon: string) => {
+    let numberCharacterShow = 2;
+    if(coupon.length > numberCharacterShow) {
+      return `${coupon.substring(0,numberCharacterShow)}...`;
+    }
+
+    return coupon;
+  };
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -142,10 +152,11 @@ console.log('coupon', coupon)
                   onClose={() => {
                     setDiscountRate && setDiscountRate(0);
                     setDiscountValue && setDiscountValue(0);
+                    handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
                   }}
                 >
-                  {coupon}
+                  {handleDisplay(coupon)}
                 </Tag>
               )}
             </Space>
