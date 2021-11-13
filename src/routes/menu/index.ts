@@ -145,4 +145,4 @@ const menu: Array<RouteMenu> = [
   },
 ]
 
-export default menu;
+export default menu; 
