@@ -244,6 +244,10 @@ const FixedPriceGroup = (props: any) => {
               <Select
                 style={{borderRadius: "0px"}}
                 onSelect={(value: string) => {
+                  const formEntitlements = form.getFieldValue("entitlements");
+
+                  let entitlement = formEntitlements[name];
+                  if (entitlement) entitlement["prerequisite_quantity_ranges.value"] = null
                   setDiscountType(value);
                 }}
                 defaultValue={discountMethod !== 'FIXED_PRICE' ? "PERCENTAGE" : "FIXED_AMOUNT"}
