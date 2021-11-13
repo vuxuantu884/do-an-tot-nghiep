@@ -117,6 +117,7 @@ function OrderCreateShipment(props: PropType) {
     handleCreateShipment,
     handleCancelCreateShipment,
   } = props;
+  console.log('props', props)
   const dateFormat = "DD/MM/YYYY";
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -127,6 +128,8 @@ function OrderCreateShipment(props: PropType) {
     ShippingServiceConfigDetailResponseModel[]
   >([]);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+
+console.log('totalAmountCustomerNeedToPay333', totalAmountCustomerNeedToPay)
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);

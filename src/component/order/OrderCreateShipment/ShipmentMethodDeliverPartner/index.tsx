@@ -43,6 +43,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
   } = props;
+console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+
 
   const sercivesFee = useMemo(() => {
     let services: any = []
