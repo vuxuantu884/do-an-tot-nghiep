@@ -52,12 +52,12 @@ export const applyDiscount = (items: Array<any>, orderInfo:any) : Promise<any> =
   body["line_items"] = items.map(item => {
     return {
       "custom": true,
-      "product_id": null,
+      "product_id": item.id,
       "variant_id": item.variant_id,
-      "sku": null,
+      "sku": item.sku,
       "quantity": item.quantity,
 
-      "original_unit_price": 0,
+      "original_unit_price": item.price,
       "applied_discount": null,
       "taxable": true
     }
