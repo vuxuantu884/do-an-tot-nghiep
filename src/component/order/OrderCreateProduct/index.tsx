@@ -892,7 +892,7 @@ function OrderCreateProduct(props: PropType) {
         const discountItem: OrderItemDiscountRequest = {
           rate,
           value,
-          amount: item.quantity * value,
+          amount: value,
           reason: "",
           promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
         };
@@ -981,7 +981,7 @@ function OrderCreateProduct(props: PropType) {
           const discountItem: OrderItemDiscountRequest = {
             rate,
             value,
-            amount: item.quantity * value,
+            amount:value,
             reason: "",
             promotion_id: highestValueSuggestDiscount.price_rule_id || undefined,
           };
