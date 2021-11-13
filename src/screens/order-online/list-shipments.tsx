@@ -87,6 +87,7 @@ const initQuery: ShipmentSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   print_status: [],
+  pushing_status: [],
   store_ids: [],
   source_ids: [],
   account_codes: [],
