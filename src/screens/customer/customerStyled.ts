@@ -1,5 +1,17 @@
 import styled from "styled-components";
 
+export const StyledCustomerFilter = styled.div`
+  .inline-filter {
+    width: 100%;
+    display: flex;
+    margin-bottom: 20px;
+    .input-search {
+      flex-grow: 1;
+    }
+  }
+
+`;
+
 export const StyledCustomerBaseFilter = styled.div`
   .base-filter-container {
     display: flex;
@@ -40,6 +52,18 @@ export const StyledCustomerBaseFilter = styled.div`
       padding: 0 6px;
     }
 
+  }
+  
+`;
+
+
+export const StyledCustomerExtraButton = styled.div`
+  .import-file-button {
+    margin-right: 15px;
+  }
+
+  .export-file-button {
+    margin-right: 15px;
   }
   
 `;
