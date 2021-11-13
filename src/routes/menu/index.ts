@@ -9,6 +9,7 @@ import shipments from "./shipment.route"
 import ecommerce from "./ecommerce.route"
 import promotion from './promotion.route';
 import {inventory} from "./inventory.route";
+import { AdminPermission } from 'config/permissions/admin.permission';
 
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
@@ -140,7 +141,8 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
+    permissions: [AdminPermission.all],
   },
 ]
 
-export default menu;
+export default menu; 
