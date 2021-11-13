@@ -391,7 +391,10 @@ function OrderCreateProduct(props: PropType) {
       _items[index].quantity = Number(
         value == null ? "0" : value.toString().replace(".", "")
       );
-      handleDiscountWhenActiveAutomaticDiscount();
+      if(isAutomaticDiscount) {
+        handleDiscountWhenActiveAutomaticDiscount();
+        return;
+      }
       setItems(_items);
       handleChangeItems();
     }
@@ -902,6 +905,7 @@ function OrderCreateProduct(props: PropType) {
       setItems(itemsResult);
       showSuccess("Thêm chiết khấu thành công!");
     } else {
+      dispatch(hideLoading());
       showError("Có lỗi khi áp dụng chiết khấu!");
     }
     dispatch(hideLoading());
