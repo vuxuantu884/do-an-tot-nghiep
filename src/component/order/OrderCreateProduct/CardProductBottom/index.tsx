@@ -6,7 +6,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   levelOrder?: number;
-  totalAmountOrder: number;
+  orderAmount: number;
   items: OrderLineItemRequest[] | undefined;
   discountRate?: number;
   discountValue?: number;
@@ -36,7 +36,7 @@ type PropType = {
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
-    totalAmountOrder,
+    orderAmount,
     items,
     discountRate,
     discountValue,
@@ -78,7 +78,7 @@ function CardProductBottom(props: PropType) {
           <Row className="paymentRow" style={{justifyContent: "space-between"}}>
             <div>Tổng tiền:</div>
             <div className="font-weight-500" style={{fontWeight: 500}}>
-              {formatCurrency(totalAmountOrder)}
+              {formatCurrency(orderAmount)}
             </div>
           </Row>
 
@@ -177,7 +177,7 @@ function CardProductBottom(props: PropType) {
               <Divider className="margin-top-5 margin-bottom-5" />
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng mua:</strong>
-                <strong>{formatCurrency(totalAmountOrder)}</strong>
+                <strong>{formatCurrency(orderAmount)}</strong>
               </Row>
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng trả:</strong>
