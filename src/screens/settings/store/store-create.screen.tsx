@@ -26,6 +26,7 @@ import {
 } from "domain/actions/content/content.action";
 import {
   StoreCreateAction,
+  StoreGetTypeAction,
   StoreRankAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
@@ -35,7 +36,7 @@ import {DistrictResponse} from "model/content/district.model";
 import {GroupResponse} from "model/content/group.model";
 import {WardResponse} from "model/content/ward.model";
 import {StoreRankResponse} from "model/core/store-rank.model";
-import {StoreCreateRequest, StoreResponse} from "model/core/store.model";
+import {StoreCreateRequest, StoreResponse, StoreTypeRequest} from "model/core/store.model";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
 import React, {useCallback, useEffect, useRef, useState} from "react";
@@ -66,6 +67,7 @@ const initRequest: StoreCreateRequest = {
   group_id: null,
   is_saleable: true,
   is_stocktaking: false,
+  type: null,
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -79,6 +81,7 @@ const StoreCreateScreen: React.FC = () => {
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
+  const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status
   );
@@ -159,9 +162,11 @@ const StoreCreateScreen: React.FC = () => {
       dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
+      dispatch(StoreGetTypeAction(setType));
     }
     firstload.current = true;
   }, [dispatch]);
+  
   return (
     <ContentContainer
       title="Thêm mới cửa hàng"
@@ -215,7 +220,7 @@ const StoreCreateScreen: React.FC = () => {
           }
         >
           <Row gutter={50}>
-            <Col>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 noStyle
                 shouldUpdate={(prev, current) =>
@@ -231,6 +236,28 @@ const StoreCreateScreen: React.FC = () => {
                     </Item>
                   );
                 }}
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  {required: true, message: "Vui lòng chọn loại cửa hàng"},
+                ]}
+                label="Phân loại"
+                name="type"
+              >
+                <Select
+                  showSearch
+                  showArrow
+                  optionFilterProp="children"
+                  placeholder="Chọn phân loại"
+                >
+                  {type?.map((item: StoreTypeRequest, index) => (
+                    <Option key={index} value={item.value}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
               </Item>
             </Col>
           </Row>

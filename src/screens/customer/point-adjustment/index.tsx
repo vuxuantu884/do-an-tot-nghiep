@@ -37,7 +37,7 @@ import { useQuery } from "utils/useQuery";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { PointAdjustmentPermissions } from "config/permissions/customer.permission";
+import { LoyaltyPermission } from "config/permissions/loyalty.permission";
 
 const initFormValues = {
   type: "add",
@@ -56,7 +56,7 @@ const POINT_ADD_REASON = [
 ];
 const POINT_SUBTRACT_REASON = ["Trừ điểm bù", "Khác"];
 
-const createPointAdjustmentPermission = [PointAdjustmentPermissions.CREATE];
+const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
 const pageColumns: Array<ICustomTableColumType<any>> = [
   {

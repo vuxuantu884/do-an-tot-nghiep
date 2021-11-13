@@ -260,7 +260,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
     }
    
   }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
-  const [canCancelPO] = useAuthorization({acceptPermissions:[PurchaseOrderPermission.po_cancel]})
+  const [canCancelPO] = useAuthorization({acceptPermissions:[PurchaseOrderPermission.cancel]})
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
     if (!poData) return [];
@@ -472,7 +472,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
       <div id="test" className="page-filter">
         <Space direction="horizontal">
           <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
-          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.po_print]}>
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.print]}>
             <Button
               type="link"
               onClick={(e) => {
@@ -595,7 +595,7 @@ const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
           }
           height={80}
           rightComponent={
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.po_update]}>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
               {renderButton}
             </AuthWrapper>
           }

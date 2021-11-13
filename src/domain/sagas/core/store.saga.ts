@@ -2,13 +2,14 @@ import { getListStore, getListStoreSimple, getSearchListStore } from "service/co
 import BaseResponse from "base/base.response";
 import { YodyAction } from "base/base.action";
 import { showError } from "utils/ToastUtils";
-import { StoreResponse } from "model/core/store.model";
+import { StoreResponse, StoreTypeRequest } from "model/core/store.model";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { HttpStatus } from "config/http-status.config";
 import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   storeGetApi,
+  storeGetTypeApi,
   storeRankGetApi,
   storesDetailApi,
   storesDetailCustomApi,
@@ -243,6 +244,26 @@ function* storeValidateSaga(action: YodyAction) {
   }
 }
 
+function* storeGetTypeSaga(action: YodyAction) {
+  let { onSuccess } = action.payload;
+  try {
+    let response: BaseResponse<Array<StoreTypeRequest>> = yield call(storeGetTypeApi);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onSuccess(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onSuccess(response.errors)
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.GET_SEARCH_STORE_REQUEST, storeGetSearchSaga);
@@ -257,4 +278,5 @@ export function* storeSaga() {
   yield takeLatest(StoreType.STORE_DETAIL_CUSTOM, storeDetailCustomSaga);
   yield takeLatest(StoreType.STORE_UPDATE, storeUpdateSaga);
   yield takeLatest(StoreType.STORE_VALIDATE, storeValidateSaga);
+  yield takeLatest(StoreType.STORE_TYPE, storeGetTypeSaga);
 }

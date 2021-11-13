@@ -2,7 +2,7 @@ import CustomTable, {
   ICustomTableColumType
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { productGetHistoryAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE, ProductTabId } from "utils/Constants";
+import { OFFSET_HEADER_TABLE  } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
@@ -58,7 +58,7 @@ const TabHistoryPrice: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}/${ProductTabId.PRICE_HISTORY}/tabs?${queryParam}`);
+      history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
     },
     [history, params]
   );
@@ -177,7 +177,7 @@ const TabHistoryPrice: React.FC = () => {
 
           setParams(newParams);
           let queryParam = generateQuery(newParams);
-          history.replace(`${UrlConfig.PRODUCT}/${ProductTabId.PRICE_HISTORY}/tabs?${queryParam}`);
+          history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
         }}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => { }}
