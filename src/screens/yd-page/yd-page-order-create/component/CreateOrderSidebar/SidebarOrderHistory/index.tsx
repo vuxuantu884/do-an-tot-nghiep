@@ -45,7 +45,7 @@ function SidebarOrderHistory(props: PropType) {
 
   return (
     <StyledComponent>
-      <Card title="Lịch sử mua hàng 1">
+      <Card title="Lịch sử mua hàng">
         {!customerHistory
           ? "Vui lòng chọn khách hàng!"
           : customerHistory?.map((single) => {

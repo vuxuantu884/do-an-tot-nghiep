@@ -54,7 +54,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 const actions: Array<MenuAction> = [
   {
     id: 4,
-    name: "In phiếu giao hàng 2",
+    name: "In phiếu giao hàng",
     icon:<PrinterOutlined />
   },
   {
