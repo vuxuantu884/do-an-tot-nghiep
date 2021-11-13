@@ -18,7 +18,7 @@ import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
 import { CustomerModel, CustomerContactClass } from "model/request/customer.request";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 // import "./customer.scss";
 import GeneralInformation from "./component/general.information";
@@ -42,7 +42,7 @@ const customersUpdatePermission = [YDpagePermission.customers_update];
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
-const FpageCustomerDetail = (props: any) => {
+const YDPageCustomerDetail = (props: any) => {
   const {
     setCustomer,
     customer,
@@ -60,7 +60,7 @@ const FpageCustomerDetail = (props: any) => {
     setFpDefaultPhone,
   } = props;
   const [customerForm] = Form.useForm();
-  const history = useHistory();
+  // const history = useHistory();
   const dispatch = useDispatch();
 
   
@@ -461,7 +461,7 @@ const FpageCustomerDetail = (props: any) => {
             <div className="customer-bottom-button">
               <Button
                 style={{ marginRight: "10px" }}
-                onClick={() => history.goBack()}
+                onClick={() => window.location.reload()}
                 type="ghost"
               >
                 Hủy
@@ -484,4 +484,4 @@ const FpageCustomerDetail = (props: any) => {
   );
 };
 
-export default FpageCustomerDetail;
+export default YDPageCustomerDetail;

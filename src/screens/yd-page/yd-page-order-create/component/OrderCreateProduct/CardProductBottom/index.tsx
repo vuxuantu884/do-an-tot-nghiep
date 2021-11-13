@@ -1,12 +1,12 @@
-import {Col, Divider, Row, Tag, Typography} from "antd";
-import {OrderLineItemRequest} from "model/request/order.request";
+import { Col, Divider, Row, Tag, Typography } from "antd";
+import { OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import {formatCurrency} from "utils/AppUtils";
-import {StyledComponent} from "./styles";
+import { formatCurrency } from "utils/AppUtils";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   levelOrder?: number;
-  totalAmountOrder: number;
+  orderAmount: number;
   items: OrderLineItemRequest[] | undefined;
   discountRate?: number;
   discountValue?: number;
@@ -30,12 +30,13 @@ type PropType = {
   returnOrderInformation?: {
     totalAmountReturn: number;
   };
+  handleRemoveAllDiscount: () => void;
 };
 
 function CardProductBottom(props: PropType) {
   const {
     // levelOrder = 0,
-    totalAmountOrder,
+    orderAmount,
     items,
     discountRate,
     discountValue,
@@ -52,8 +53,17 @@ function CardProductBottom(props: PropType) {
     setDiscountValue,
     calculateChangeMoney,
     setCoupon,
+    handleRemoveAllDiscount,
   } = props;
 
+  const handleDisplay = (coupon: string) => {
+    let numberCharacterShow = 2;
+    if(coupon.length > numberCharacterShow) {
+      return `${coupon.substring(0,numberCharacterShow)}...`;
+    }
+
+    return coupon;
+  };
   return (
     <StyledComponent>
       <Row gutter={24}>
@@ -67,7 +77,7 @@ function CardProductBottom(props: PropType) {
         <Col span={24}>
           <Row className="paymentRow" style={{justifyContent: "space-between"}}>
             <div className="font-weight-500 ">Tổng tiền:</div>
-            <div className="font-weight-500">{formatCurrency(totalAmountOrder)}</div>
+            <div className="font-weight-500">{formatCurrency(orderAmount)}</div>
           </Row>
 
           <Row className="payment-style" align="middle">
@@ -140,10 +150,11 @@ function CardProductBottom(props: PropType) {
                   onClose={() => {
                     setDiscountRate && setDiscountRate(0);
                     setDiscountValue && setDiscountValue(0);
+                    handleRemoveAllDiscount();
                     setCoupon && setCoupon("");
                   }}
                 >
-                  {coupon}
+                  {handleDisplay(coupon)}
                 </Tag>
               )}
             </div>
@@ -164,7 +175,7 @@ function CardProductBottom(props: PropType) {
               <Divider className="margin-top-5 margin-bottom-5" />
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng mua:</strong>
-                <strong>{formatCurrency(totalAmountOrder)}</strong>
+                <strong>{formatCurrency(orderAmount)}</strong>
               </Row>
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng trả:</strong>
