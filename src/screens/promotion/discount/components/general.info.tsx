@@ -328,7 +328,7 @@ const GeneralInfo = (props: any) => {
                   mode="multiple"
                   className="ant-select-selector-min-height"
                 >
-                  {listChannel?.map((source: any) => <Option value={source.id}>{source.name}</Option>)}
+                  {listChannel?.map((channel: any) => <Option value={channel.name}>{channel.name}</Option>)}
                 </Select>
               </Form.Item>
               <Space direction="horizontal">
