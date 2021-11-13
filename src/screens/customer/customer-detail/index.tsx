@@ -32,7 +32,7 @@ import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.acti
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { CustomerListPermissions } from "config/permissions/customer.permission";
+import { CustomerListPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
@@ -41,8 +41,8 @@ import { StyledCustomerDetail } from "screens/customer/customer-detail/customerD
 
 const { TabPane } = Tabs;
 
-const viewCustomerDetailPermission = [CustomerListPermissions.VIEW_CUSTOMER_DETAIL];
-const updateCustomerPermission = [CustomerListPermissions.UPDATE_CUSTOMER];
+const viewCustomerDetailPermission = [CustomerListPermission.customers_read];
+const updateCustomerPermission = [CustomerListPermission.customers_update];
 
 const CustomerDetailIndex = () => {
 

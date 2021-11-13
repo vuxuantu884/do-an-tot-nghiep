@@ -32,7 +32,7 @@ import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import CustomerListFilter from "./component/CustomerListFilter";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { CustomerListPermissions } from "config/permissions/customer.permission";
+import { CustomerListPermission } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -40,10 +40,9 @@ import { getListChannelRequest } from "domain/actions/order/order.action";
 import { ChannelResponse } from "model/response/product/channel.response";
 
 
-
-const viewCustomerListPermission = [CustomerListPermissions.VIEW_CUSTOMER_LIST];
-const createCustomerPermission = [CustomerListPermissions.CREATE_CUSTOMER];
-const exportCustomerPermission = [CustomerListPermissions.EXPORT_CUSTOMER];
+const viewCustomerPermission = [CustomerListPermission.customers_read];
+const createCustomerPermission = [CustomerListPermission.customers_create];
+const exportCustomerPermission = [CustomerListPermission.customers_export];
 
 const Customer = () => {
   const dispatch = useDispatch();
@@ -384,7 +383,7 @@ const Customer = () => {
         </>
       }
     >
-      <AuthWrapper acceptPermissions={viewCustomerListPermission} passThrough>
+      <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
         {(allowed: boolean) => (allowed ?
           <Card>
             <div className="padding-20 customer-search-filter">
